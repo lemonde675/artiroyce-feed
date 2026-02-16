@@ -1,21 +1,74 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>ArtiRoyce – Flux vidéo</title>
+  <meta charset="UTF-8" />
+  <title>ArtiRoyce – Artisans en vidéo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Lien vers le style -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Grille principale : 4 vidéos -->
-  <div class="feed">
-    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted autoplay loop></video>
-    <video src="https://www.w3schools.com/html/movie.mp4" muted autoplay loop></video>
-    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted autoplay loop></video>
-    <video src="https://www.w3schools.com/html/movie.mp4" muted autoplay loop></video>
+<header class="top-bar">
+  <h1>ArtiRoyce</h1>
+  <nav>
+    <button class="nav-btn active">Accueil</button>
+    <button class="nav-btn">Favoris</button>
+    <button class="nav-btn">Connexion</button>
+    <button class="nav-btn outline">Inscription</button>
+  </nav>
+</header>
+
+<main class="feed">
+
+  <div class="card">
+    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop></video>
+    <div class="overlay">
+      <span class="badge">✔ Vérifié</span>
+      <h3>Soudeur</h3>
+      <p>📍 Cotonou</p>
+    </div>
   </div>
+
+  <div class="card">
+    <video src="https://www.w3schools.com/html/movie.mp4" muted loop></video>
+    <div class="overlay">
+      <span class="badge">✔ Vérifié</span>
+      <h3>Couturière</h3>
+      <p>📍 Calavi</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop></video>
+    <div class="overlay">
+      <span class="badge">✔ Vérifié</span>
+      <h3>Maçon</h3>
+      <p>📍 Porto-Novo</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <video src="https://www.w3schools.com/html/movie.mp4" muted loop></video>
+    <div class="overlay">
+      <span class="badge">✔ Vérifié</span>
+      <h3>Électricien</h3>
+      <p>📍 Abomey-Calavi</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll("video").forEach(video => {
+    video.addEventListener("mouseenter", () => video.play());
+    video.addEventListener("mouseleave", () => video.pause());
+    video.addEventListener("click", () => {
+      video.requestFullscreen();
+      video.play();
+    });
+  });
+</script>
 
 </body>
 </html>
