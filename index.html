@@ -2,73 +2,69 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>ArtiRoyce – Artisans en vidéo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <title>ArtiRoyce – Artisans certifiés</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="top-bar">
-  <h1>ArtiRoyce</h1>
-  <nav>
-    <button class="nav-btn active">Accueil</button>
-    <button class="nav-btn">Favoris</button>
-    <button class="nav-btn">Connexion</button>
-    <button class="nav-btn outline">Inscription</button>
+<header class="topbar">
+  <div class="logo">ArtiRoyce</div>
+  <nav class="menu">
+    <a href="#" class="active">Accueil</a>
+    <a href="#">Favoris</a>
+    <a href="#">Connexion</a>
+    <a href="#">Inscription</a>
   </nav>
 </header>
 
-<main class="feed">
+<main class="container">
 
-  <div class="card">
-    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop></video>
-    <div class="overlay">
-      <span class="badge">✔ Vérifié</span>
-      <h3>Soudeur</h3>
-      <p>📍 Cotonou</p>
-    </div>
-  </div>
+  <div class="grid">
 
-  <div class="card">
-    <video src="https://www.w3schools.com/html/movie.mp4" muted loop></video>
-    <div class="overlay">
-      <span class="badge">✔ Vérifié</span>
-      <h3>Couturière</h3>
-      <p>📍 Calavi</p>
+    <div class="card">
+      <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop autoplay></video>
+      <div class="badge">✔ Certifié</div>
+      <div class="info">
+        <strong>Soudeur</strong>
+        <span>📍 Cotonou</span>
+        <div class="stars">⭐⭐⭐⭐☆</div>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop></video>
-    <div class="overlay">
-      <span class="badge">✔ Vérifié</span>
-      <h3>Maçon</h3>
-      <p>📍 Porto-Novo</p>
+    <div class="card">
+      <video src="https://www.w3schools.com/html/movie.mp4" muted loop autoplay></video>
+      <div class="badge">✔ Certifié</div>
+      <div class="info">
+        <strong>Couturière</strong>
+        <span>📍 Calavi</span>
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <video src="https://www.w3schools.com/html/movie.mp4" muted loop></video>
-    <div class="overlay">
-      <span class="badge">✔ Vérifié</span>
-      <h3>Électricien</h3>
-      <p>📍 Abomey-Calavi</p>
+    <div class="card">
+      <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted loop autoplay></video>
+      <div class="badge">✔ Certifié</div>
+      <div class="info">
+        <strong>Maçon</strong>
+        <span>📍 Porto-Novo</span>
+        <div class="stars">⭐⭐⭐⭐☆</div>
+      </div>
     </div>
+
+    <div class="card">
+      <video src="https://www.w3schools.com/html/movie.mp4" muted loop autoplay></video>
+      <div class="badge">✔ Certifié</div>
+      <div class="info">
+        <strong>Électricien</strong>
+        <span>📍 Abomey-Calavi</span>
+        <div class="stars">⭐⭐⭐⭐☆</div>
+      </div>
+    </div>
+
   </div>
 
 </main>
-
-<script>
-  document.querySelectorAll("video").forEach(video => {
-    video.addEventListener("mouseenter", () => video.play());
-    video.addEventListener("mouseleave", () => video.pause());
-    video.addEventListener("click", () => {
-      video.requestFullscreen();
-      video.play();
-    });
-  });
-</script>
 
 </body>
 </html>
