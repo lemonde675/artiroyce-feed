@@ -2,41 +2,162 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ArtiRoyce</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="header">
-  <div class="top-bar">
-    <div class="logo">
-      <div class="logo-icon">A</div>
-      <div class="logo-text">
-        <strong>ArtiRoyce</strong>
-        <span>Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde</span>
+  <!-- HEADER VERT -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">A</div>
+      <div class="brand-text">
+        <h1>ArtiRoyce</h1>
+        <p>Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde</p>
       </div>
     </div>
-
     <div class="icons">
       <span class="icon">🔍</span>
       <span class="icon">💬</span>
-      <span class="icon notification">
-        🔔
-        <span class="badge">1</span>
-      </span>
+      <span class="icon notif">🔔<em>1</em></span>
+      <span class="icon">⋮</span>
     </div>
-  </div>
+  </header>
 
-  <div class="nav-container">
-    <nav class="nav">
-      <button class="active">Accueil</button>
-      <button>Favoris</button>
-      <button>Connexion</button>
-      <button class="outline">Inscription</button>
-    </nav>
-  </div>
-</header>
+  <!-- ONGLET BLANC -->
+  <section class="tabs">
+    <button class="tab active">Accueil</button>
+    <button class="tab">Favoris</button>
+    <button class="tab">Connexion</button>
+    <button class="tab outline">Inscription</button>
+    <span class="filter">≡</span>
+  </section>
+
+  <!-- GRILLE 12 CARTES -->
+  <main class="grid">
+
+    <!-- 1 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?welder,france" alt="Soudeur France">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Soudeur</h3>
+      <p>🇫🇷 France</p>
+      <div class="stars">★★★★★</div>
+    </article>
+
+    <!-- 2 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?seamstress,senegal" alt="Couturière Sénégal">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Couturière</h3>
+      <p>🇸🇳 Sénégal</p>
+      <div class="stars">★★★★★</div>
+    </article>
+
+    <!-- 3 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?mason,nigeria" alt="Maçon Nigeria">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Maçon</h3>
+      <p>🇳🇬 Nigeria</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 4 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?carpenter,cameroon" alt="Menuisier Cameroun">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Menuisier</h3>
+      <p>🇨🇲 Cameroun</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 5 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?electrician,japan" alt="Électricien Japon">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Électricien</h3>
+      <p>🇯🇵 Japon</p>
+      <div class="stars">★★★★★</div>
+    </article>
+
+    <!-- 6 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?hairdresser,brazil" alt="Coiffeur Brésil">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Coiffeur</h3>
+      <p>🇧🇷 Brésil</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 7 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?painter,italy" alt="Peintre Italie">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Peintre</h3>
+      <p>🇮🇹 Italie</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 8 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?plumber,germany" alt="Plombier Allemagne">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Plombier</h3>
+      <p>🇩🇪 Allemagne</p>
+      <div class="stars">★★★★★</div>
+    </article>
+
+    <!-- 9 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?tile,spain" alt="Carreleur Espagne">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Carreleur</h3>
+      <p>🇪🇸 Espagne</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 10 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?repair,usa" alt="Réparateur USA">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Réparateur</h3>
+      <p>🇺🇸 USA</p>
+      <div class="stars">★★★★★</div>
+    </article>
+
+    <!-- 11 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?technician,india" alt="Technicien Inde">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Technicien</h3>
+      <p>🇮🇳 Inde</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+    <!-- 12 -->
+    <article class="card">
+      <img src="https://source.unsplash.com/600x400/?construction,uk" alt="Ouvrier Royaume-Uni">
+      <span class="badge">✔ Vérifié</span>
+      <span class="play">▶</span>
+      <h3>Ouvrier</h3>
+      <p>🇬🇧 Royaume-Uni</p>
+      <div class="stars">★★★★☆</div>
+    </article>
+
+  </main>
 
 </body>
 </html>
