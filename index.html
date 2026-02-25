@@ -1,160 +1,328 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ArtiRoyce</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArtiRoyce</title>
+
+<style>
+:root{
+  --green:#146b5a;
+  --green-dark:#0f5749;
+  --white:#ffffff;
+  --soft:#f3f6f5;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+
+body{
+  background:var(--green-dark);
+}
+
+/* ===== HEADER ===== */
+header{
+  background:var(--green);
+  color:white;
+  padding:14px 16px 10px;
+}
+
+.header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:26px;
+  font-weight:bold;
+}
+
+.icons span{
+  margin-left:14px;
+  font-size:18px;
+}
+
+.subtitle{
+  font-size:14px;
+  margin-top:6px;
+  opacity:.95;
+}
+
+/* ===== MENU ===== */
+.menu-wrap{
+  background:var(--white);
+  border-radius:28px;
+  padding:6px;
+  margin-top:12px;
+}
+
+.menu{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.menu a{
+  text-decoration:none;
+  color:#444;
+  padding:10px 14px;
+  font-size:14px;
+}
+
+.menu .active{
+  background:var(--green);
+  color:white;
+  border-radius:22px;
+}
+
+/* ===== CONTENT ===== */
+main{
+  background:var(--soft);
+  padding:14px;
+}
+
+/* ===== GRID ===== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--green);
+  color:white;
+  border-radius:16px;
+  overflow:hidden;
+  position:relative;
+}
+
+.card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  display:block;
+}
+
+.badge{
+  position:absolute;
+  top:8px;
+  left:8px;
+  background:#2ecc9a;
+  color:#083f33;
+  padding:4px 8px;
+  font-size:12px;
+  border-radius:14px;
+  font-weight:bold;
+}
+
+.play{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(0,0,0,.55);
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:18px;
+}
+
+.card-body{
+  padding:10px;
+}
+
+.job{
+  font-weight:bold;
+  margin-bottom:4px;
+}
+
+.country{
+  font-size:13px;
+  opacity:.9;
+}
+
+.stars{
+  color:gold;
+  font-size:14px;
+  margin-top:6px;
+}
+</style>
 </head>
+
 <body>
 
-<header class="header">
+<header>
   <div class="header-top">
-    <div class="logo">
-      <div class="logo-badge">A</div>
-      <div>
-        <h1>ArtiRoyce</h1>
-        <p>Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde</p>
-      </div>
-    </div>
-
+    <div class="logo">ArtiRoyce</div>
     <div class="icons">
       <span>🔍</span>
       <span>💬</span>
-      <span class="notif">🔔<em>1</em></span>
+      <span>🔔</span>
     </div>
   </div>
+  <div class="subtitle">
+    Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde
+  </div>
 
-  <nav class="menu">
-    <button class="active">Accueil</button>
-    <button>Favoris</button>
-    <button>Connexion</button>
-    <button class="outline">Inscription</button>
-  </nav>
+  <div class="menu-wrap">
+    <nav class="menu">
+      <a class="active">Accueil</a>
+      <a>Favoris</a>
+      <a>Connexion</a>
+      <a>Inscription</a>
+    </nav>
+  </div>
 </header>
 
-<main class="content">
-
-  <section class="cards">
+<main>
+  <section class="grid">
 
     <!-- 1 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1581091215367-59ab6c3b9b4b" alt="Soudeur"/>
-      <h3>Soudeur</h3>
-      <p>🇫🇷 France</p>
-      <div class="stars">★★★★★</div>
+      <div class="card-body">
+        <div class="job">Soudeur</div>
+        <div class="country">🇫🇷 France</div>
+        <div class="stars">★★★★★</div>
+      </div>
     </div>
 
     <!-- 2 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1603575448362-12b8d1b6b52a" alt="Couturière"/>
-      <h3>Couturière</h3>
-      <p>🇸🇳 Sénégal</p>
-      <div class="stars">★★★★★</div>
+      <div class="card-body">
+        <div class="job">Couturière</div>
+        <div class="country">🇸🇳 Sénégal</div>
+        <div class="stars">★★★★★</div>
+      </div>
     </div>
 
     <!-- 3 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1590496793929-36417d3117f4" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1597008515038-8a7f6a4a4f56" alt="Maçon"/>
-      <h3>Maçon</h3>
-      <p>🇳🇬 Nigeria</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Maçon</div>
+        <div class="country">🇳🇬 Nigeria</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 4 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1588854337118-1a17f8c7f6d8" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1581574201611-50fddf1f7c7d" alt="Menuisier"/>
-      <h3>Menuisier</h3>
-      <p>🇨🇲 Cameroun</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Menuisier</div>
+        <div class="country">🇨🇲 Cameroun</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 5 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1581090700227-1e37b190418e" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea" alt="Électricien"/>
-      <h3>Électricien</h3>
-      <p>🇯🇵 Japon</p>
-      <div class="stars">★★★★★</div>
+      <div class="card-body">
+        <div class="job">Électricien</div>
+        <div class="country">🇯🇵 Japon</div>
+        <div class="stars">★★★★★</div>
+      </div>
     </div>
 
     <!-- 6 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9" alt="Coiffeur"/>
-      <h3>Coiffeur</h3>
-      <p>🇧🇷 Brésil</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Coiffeur</div>
+        <div class="country">🇧🇷 Brésil</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 7 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1562259949-e8e7689d7828" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1589923188900-85dae523342b" alt="Peintre"/>
-      <h3>Peintre</h3>
-      <p>🇮🇹 Italie</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Peintre</div>
+        <div class="country">🇮🇹 Italie</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 8 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1600185365483-26d7c66c6d08" alt="Plombier"/>
-      <h3>Plombier</h3>
-      <p>🇩🇪 Allemagne</p>
-      <div class="stars">★★★★★</div>
+      <div class="card-body">
+        <div class="job">Plombier</div>
+        <div class="country">🇩🇪 Allemagne</div>
+        <div class="stars">★★★★★</div>
+      </div>
     </div>
 
     <!-- 9 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Carreleur"/>
-      <h3>Carreleur</h3>
-      <p>🇪🇸 Espagne</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Carreleur</div>
+        <div class="country">🇪🇸 Espagne</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 10 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1581090700227-1e37b190418e" alt="Réparateur"/>
-      <h3>Réparateur</h3>
-      <p>🇺🇸 USA</p>
-      <div class="stars">★★★★★</div>
+      <div class="card-body">
+        <div class="job">Réparateur</div>
+        <div class="country">🇺🇸 USA</div>
+        <div class="stars">★★★★★</div>
+      </div>
     </div>
 
     <!-- 11 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1603575448362-9a3c5c5a6b6a" alt="Technicien"/>
-      <h3>Technicien</h3>
-      <p>🇮🇳 Inde</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Technicien</div>
+        <div class="country">🇮🇳 Inde</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
     <!-- 12 -->
     <div class="card">
       <span class="badge">✔ Vérifié</span>
+      <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d" />
       <div class="play">▶</div>
-      <img src="https://images.unsplash.com/photo-1603575448362-4d6b1a8c7b6d" alt="Ouvrier"/>
-      <h3>Ouvrier</h3>
-      <p>🇬🇧 Royaume-Uni</p>
-      <div class="stars">★★★★☆</div>
+      <div class="card-body">
+        <div class="job">Ouvrier</div>
+        <div class="country">🇬🇧 Royaume-Uni</div>
+        <div class="stars">★★★★☆</div>
+      </div>
     </div>
 
   </section>
