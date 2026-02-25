@@ -1,44 +1,52 @@
 * {
   box-sizing: border-box;
-  margin: 0;
   font-family: Arial, sans-serif;
 }
 
 body {
-  background: #0f2f28;
-  color: white;
+  margin: 0;
+  background: #0f3d35;
+  color: #fff;
 }
 
-.header {
-  background: #0b6b57;
-  padding: 15px;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #0b5a4a;
 }
 
 .logo {
-  font-size: 20px;
   font-weight: bold;
+  font-size: 20px;
 }
 
-.slogan {
-  font-size: 13px;
-}
-
-.top-nav {
-  display: flex;
-  background: #e9f5f1;
-  padding: 10px;
-}
-
-.top-nav button {
+.menu button {
+  margin: 0 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
   border: none;
   background: transparent;
-  padding: 8px 15px;
-  border-radius: 20px;
+  color: #fff;
 }
 
-.top-nav .active {
-  background: #0b6b57;
-  color: white;
+.menu .active {
+  background: #1aa37a;
+}
+
+.menu .outline {
+  border: 1px solid #1aa37a;
+}
+
+.icons {
+  font-size: 18px;
+}
+
+.subtitle {
+  padding: 12px;
+  font-size: 14px;
+  background: #0f3d35;
 }
 
 .grid {
@@ -49,15 +57,15 @@ body {
 }
 
 .card {
-  background: #124c3f;
-  border-radius: 12px;
+  background: #124f44;
+  border-radius: 14px;
   overflow: hidden;
   position: relative;
 }
 
 .card img {
   width: 100%;
-  height: 120px;
+  height: 160px;
   object-fit: cover;
 }
 
@@ -65,38 +73,37 @@ body {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: #1ec28b;
-  color: white;
+  background: #1aa37a;
   padding: 4px 8px;
-  font-size: 12px;
   border-radius: 12px;
+  font-size: 12px;
+}
+
+.play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  padding: 8px 12px;
 }
 
 .info {
-  padding: 8px;
+  padding: 10px;
 }
 
 .info h3 {
-  font-size: 14px;
+  margin: 0;
+  font-size: 16px;
 }
 
 .info p {
-  font-size: 12px;
-  opacity: 0.9;
+  margin: 4px 0;
+  font-size: 13px;
 }
 
 .stars {
   color: gold;
-  font-size: 13px;
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #e9f5f1;
-  color: #0b6b57;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
 }
