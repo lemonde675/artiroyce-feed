@@ -1,79 +1,77 @@
-* {
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
 body {
   margin: 0;
-  background: #0f3d35;
-  color: #fff;
+  font-family: Arial, sans-serif;
+  background: #0f3d32;
+  color: white;
 }
 
-.topbar {
+.header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  background: #0b5a4a;
+  padding: 15px;
+  background: #0a5c47;
 }
 
 .logo {
+  font-size: 22px;
   font-weight: bold;
-  font-size: 20px;
 }
 
-.menu button {
-  margin: 0 4px;
-  padding: 6px 12px;
-  border-radius: 20px;
+.header-icons span {
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #e8f3ef;
+}
+
+.nav button {
   border: none;
-  background: transparent;
-  color: #fff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
 }
 
-.menu .active {
-  background: #1aa37a;
+.nav .active {
+  background: #0a5c47;
+  color: white;
 }
 
-.menu .outline {
-  border: 1px solid #1aa37a;
-}
-
-.icons {
-  font-size: 18px;
-}
-
-.subtitle {
-  padding: 12px;
-  font-size: 14px;
-  background: #0f3d35;
+.intro {
+  padding: 15px;
+  font-size: 16px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  padding: 15px;
 }
 
 .card {
-  background: #124f44;
-  border-radius: 14px;
-  overflow: hidden;
+  background: #124c3f;
+  border-radius: 15px;
+  padding: 10px;
   position: relative;
 }
 
 .card img {
   width: 100%;
-  height: 160px;
+  height: 120px;
   object-fit: cover;
+  border-radius: 10px;
 }
 
 .badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  background: #1aa37a;
+  top: 10px;
+  left: 10px;
+  background: #2ecc71;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
@@ -81,29 +79,21 @@ body {
 
 .play {
   position: absolute;
-  top: 50%;
+  top: 50px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   font-size: 28px;
-  background: rgba(0,0,0,0.5);
-  border-radius: 50%;
-  padding: 8px 12px;
 }
 
-.info {
-  padding: 10px;
+.card h3 {
+  margin: 10px 0 4px;
 }
 
-.info h3 {
+.card p {
   margin: 0;
-  font-size: 16px;
-}
-
-.info p {
-  margin: 4px 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .stars {
-  color: gold;
+  margin-top: 5px;
 }
