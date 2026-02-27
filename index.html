@@ -29,16 +29,17 @@ header{
   align-items:center;
 }
 
-/* ✅ LOGO CORRIGÉ */
+/* ✅ LOGO CONFORME À LA CAPTURE */
 .logo{
   display:flex;
   align-items:center;
   gap:8px;
   font-size:24px;
   font-weight:bold;
+  white-space:nowrap;
 }
 .logo img{
-  height:32px;
+  height:34px;
 }
 .logo .arti{color:var(--red)}
 .logo .royce{color:var(--green)}
@@ -79,6 +80,7 @@ main{padding:10px}
   gap:12px;
 }
 
+/* CARTES */
 .card{
   background:white;
   border-radius:16px;
@@ -132,6 +134,7 @@ main{padding:10px}
 <header>
   <div class="header-top">
     <div class="logo">
+      <!-- 🔒 Logo + ArtiRoyce conforme -->
       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Logo_placeholder.svg" alt="ArtiRoyce">
       <span class="arti">Arti</span><span class="royce">Royce</span>
     </div>
