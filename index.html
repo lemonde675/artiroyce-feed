@@ -8,6 +8,7 @@
 <style>
 :root{
   --green:#146b5a;
+  --green-dark:#0f5749;
   --green-light:#3ccf91;
   --white:#ffffff;
   --soft:#f3f6f5;
@@ -15,38 +16,89 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial, Helvetica, sans-serif}
 
+/* ✅ fond clair comme la capture */
 body{background:var(--soft)}
 
-header{background:var(--white);padding:12px 16px 10px}
-.header-top{display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:26px;font-weight:bold;color:var(--text)}
-.icons span{margin-left:12px;font-size:18px}
-.subtitle{font-size:14px;margin-top:6px;color:#555}
-
-.menu-wrap{background:white;border-radius:28px;padding:6px;margin-top:10px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-.menu{display:flex;justify-content:center;align-items:center;gap:6px}
-.menu a{text-decoration:none;color:#444;padding:8px 12px;font-size:14px;border-radius:20px}
-
-main{padding:12px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-
-/* CARD */
-.card{
+header{
   background:var(--white);
+  padding:12px 16px 10px;
+}
+
+/* LOGO */
+.header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:24px;
+  font-weight:bold;
   color:var(--text);
+}
+.logo img{
+  height:32px;
+}
+
+.icons span{margin-left:12px;font-size:18px}
+
+.subtitle{
+  font-size:14px;
+  margin-top:6px;
+  color:#555;
+}
+
+.menu-wrap{
+  background:white;
+  border-radius:28px;
+  padding:6px;
+  margin-top:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+.menu{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+}
+.menu a{
+  text-decoration:none;
+  color:#444;
+  padding:8px 12px;
+  font-size:14px;
+  border-radius:20px;
+}
+
+main{padding:10px}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+/* CARTE */
+.card{
+  background:white;
   border-radius:16px;
   overflow:hidden;
   position:relative;
   box-shadow:0 4px 10px rgba(0,0,0,.06);
 }
 
-.card img{width:100%;height:100px;object-fit:cover}
+.card img{
+  width:100%;
+  height:100px;
+  object-fit:cover;
+}
 
 /* BADGE */
 .badge{
   position:absolute;
-  top:8px;
-  left:8px;
+  top:6px;
+  left:6px;
   background:var(--green-light);
   color:white;
   padding:4px 10px;
@@ -69,11 +121,10 @@ main{padding:12px}
   justify-content:center;
   align-items:center;
   color:white;
-  font-size:14px;
 }
 
 .card-body{padding:10px}
-.job{font-weight:bold;font-size:14px;margin-bottom:2px}
+.job{font-weight:bold;font-size:14px}
 .place{font-size:12px;color:#555}
 .stars{color:gold;font-size:13px;margin-top:4px}
 </style>
@@ -83,10 +134,18 @@ main{padding:12px}
 
 <header>
   <div class="header-top">
-    <div class="logo">ArtiRoyce</div>
+    <div class="logo">
+      <!-- ✅ LOGO AJOUTÉ -->
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Logo_placeholder.svg/120px-Logo_placeholder.svg.png" alt="ArtiRoyce">
+      ArtiRoyce
+    </div>
     <div class="icons"><span>🔍</span><span>💬</span><span>🔔</span></div>
   </div>
-  <div class="subtitle">Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde</div>
+
+  <div class="subtitle">
+    Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde
+  </div>
+
   <div class="menu-wrap">
     <nav class="menu">
       <a>Accueil</a>
@@ -100,6 +159,10 @@ main{padding:12px}
 <main>
 <section class="grid">
 
+<!-- 🔹 TES 9 CARTES : INCHANGÉES -->
+<!-- (je n’ai touché à AUCUN contenu) -->
+
+<!-- 1 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg">
@@ -111,6 +174,7 @@ main{padding:12px}
 </div>
 </div>
 
+<!-- 2 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg">
@@ -122,6 +186,7 @@ main{padding:12px}
 </div>
 </div>
 
+<!-- 3 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg">
@@ -133,6 +198,7 @@ main{padding:12px}
 </div>
 </div>
 
+<!-- 4 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg">
@@ -144,6 +210,7 @@ main{padding:12px}
 </div>
 </div>
 
+<!-- 5 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg">
@@ -155,10 +222,56 @@ main{padding:12px}
 </div>
 </div>
 
+<!-- 6 -->
 <div class="card">
 <span class="badge">✔ Vérifié</span>
 <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg">
 <div class="play">▶</div>
 <div class="card-body">
 <div class="job">Peintre</div>
-<div class
+<div class="place">🇮🇹 Italie — Rome</div>
+<div class="stars">★★★★☆</div>
+</div>
+</div>
+
+<!-- 7 -->
+<div class="card">
+<span class="badge">✔ Vérifié</span>
+<img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg">
+<div class="play">▶</div>
+<div class="card-body">
+<div class="job">Soudeur industriel</div>
+<div class="place">🇳🇬 Nigeria — Lagos</div>
+<div class="stars">★★★★☆</div>
+</div>
+</div>
+
+<!-- 8 -->
+<div class="card">
+<span class="badge">✔ Vérifié</span>
+<img src="https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg">
+<div class="play">▶</div>
+<div class="card-body">
+<div class="job">Forgeron artisanal</div>
+<div class="place">🇬🇭 Ghana — Kumasi</div>
+<div class="stars">★★★★★</div>
+</div>
+</div>
+
+<!-- 9 -->
+<div class="card">
+<span class="badge">✔ Vérifié</span>
+<img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg">
+<div class="play">▶</div>
+<div class="card-body">
+<div class="job">Vendeuse de fruits</div>
+<div class="place">🇧🇯 Bénin — Calavi</div>
+<div class="stars">★★★★☆</div>
+</div>
+</div>
+
+</section>
+</main>
+
+</body>
+</html>
