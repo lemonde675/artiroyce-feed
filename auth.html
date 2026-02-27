@@ -10,27 +10,26 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
 }
 
 body{
-  background:#f5f5f5;
+  background:#f3f3f3;
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
 }
 
-.wrapper{
+.container{
   width:100%;
   max-width:900px;
-  background:#fff;
-  padding:30px 20px 40px;
+  background:#ffffff;
+  padding:30px 20px 35px;
 }
 
 .logo{
   text-align:center;
-  margin-bottom:10px;
 }
 
 .logo img{
@@ -44,7 +43,7 @@ body{
   color:#777;
 }
 
-.cards{
+.blocks{
   margin-top:30px;
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -56,11 +55,11 @@ body{
   background:#fff;
   border-radius:20px;
   padding:22px;
-  box-shadow:0 12px 25px rgba(0,0,0,0.08);
+  box-shadow:0 10px 24px rgba(0,0,0,0.08);
   overflow:hidden;
 }
 
-/* bandes haut */
+/* bandes hautes */
 .card::before{
   content:"";
   position:absolute;
@@ -68,11 +67,11 @@ body{
   left:0;
   width:100%;
   height:8px;
-  background:linear-gradient(to right,#2ecc71 0%, #c0392b 50%, #c0392b 100%);
+  background:linear-gradient(to right,#2ecc71 0%,#c0392b 50%,#c0392b 100%);
 }
 
-.card.right::before{
-  background:linear-gradient(to right,#c0392b 0%, #2ecc71 50%, #2ecc71 100%);
+.card.inscription::before{
+  background:linear-gradient(to right,#c0392b 0%,#2ecc71 50%,#2ecc71 100%);
 }
 
 .card h2{
@@ -88,14 +87,14 @@ body{
 }
 
 .brand{
-  text-align:center;
   margin:14px 0 18px;
+  text-align:center;
   font-size:22px;
   font-weight:bold;
 }
 
-.brand span.red{color:#c0392b;}
-.brand span.green{color:#2ecc71;}
+.brand .arti{color:#c0392b;}
+.brand .royce{color:#2ecc71;}
 
 .field{
   margin-bottom:12px;
@@ -113,30 +112,24 @@ body{
   padding:10px 12px;
   border-radius:10px;
   border:1px solid #ddd;
-  outline:none;
   font-size:14px;
 }
 
-.field input:focus{
-  border-color:#aaa;
-}
-
 .forgot{
+  text-align:right;
   font-size:12px;
   color:#c0392b;
-  text-align:right;
   margin-bottom:12px;
 }
 
 .btn{
   width:100%;
+  padding:12px;
   border:none;
   border-radius:14px;
-  padding:12px;
   font-size:14px;
   font-weight:bold;
   color:#fff;
-  cursor:pointer;
 }
 
 .btn.red{background:#c0392b;}
@@ -154,9 +147,8 @@ body{
   text-decoration:none;
 }
 
-/* responsive */
-@media(max-width:700px){
-  .cards{
+@media(max-width:750px){
+  .blocks{
     grid-template-columns:1fr;
   }
 }
@@ -165,22 +157,22 @@ body{
 
 <body>
 
-<div class="wrapper">
+<div class="container">
 
   <div class="logo">
     <img src="logo-artiroyce.png" alt="ArtiRoyce">
     <p>PLATEFORME DE MISE EN RELATION</p>
   </div>
 
-  <div class="cards">
+  <div class="blocks">
 
     <!-- CONNEXION -->
-    <div class="card left">
+    <div class="card connexion">
       <h2>CONNEXION</h2>
       <small>Connectez-vous à votre compte</small>
 
       <div class="brand">
-        <span class="red">Arti</span><span class="green">Royce</span>
+        <span class="arti">Arti</span><span class="royce">Royce</span>
       </div>
 
       <div class="field">
@@ -203,12 +195,12 @@ body{
     </div>
 
     <!-- INSCRIPTION -->
-    <div class="card right">
+    <div class="card inscription">
       <h2>INSCRIPTION</h2>
       <small>Créez votre compte</small>
 
       <div class="brand">
-        <span class="red">Arti</span><span class="green">Royce</span>
+        <span class="arti">Arti</span><span class="royce">Royce</span>
       </div>
 
       <div class="field">
@@ -242,4 +234,4 @@ body{
 </div>
 
 </body>
-  </html>
+</html>
