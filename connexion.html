@@ -21,7 +21,6 @@ body{
   min-height:100vh;
 }
 
-/* Carte */
 .card{
   width:360px;
   background:#fff;
@@ -37,20 +36,50 @@ body{
 }
 .band div{ flex:1; }
 .red{ background:#d32f2f; }
-.green{ background:#3aa64b; }
+.green{ background:#2e7d32; }
 
 /* Header */
 .header{
   display:flex;
   align-items:center;
+  gap:10px;
   padding:16px 20px 10px;
 }
 
-/* ✅ LOGO : espace ajouté ici */
+/* LOGO DESSINÉ – OUVERT (VIDE BLANC) */
 .logo{
-  margin-right:10px; /* ← DÉCOLLAGE CORRECT */
-  display:flex;
-  align-items:center;
+  position:relative;
+  width:42px;
+  height:42px;
+}
+
+/* hexagone contour */
+.hex{
+  position:absolute;
+  width:28px;
+  height:28px;
+  background:transparent;
+  clip-path: polygon(
+    25% 0%, 75% 0%,
+    100% 50%,
+    75% 100%,
+    25% 100%,
+    0% 50%
+  );
+}
+
+/* rouge */
+.hex.red{
+  border:6px solid #d32f2f;
+  left:0;
+  top:8px;
+}
+
+/* vert */
+.hex.green{
+  border:6px solid #2e7d32;
+  right:0;
+  top:0;
 }
 
 /* Texte logo */
@@ -59,7 +88,7 @@ body{
   font-weight:700;
 }
 .brand .r{ color:#d32f2f; }
-.brand .g{ color:#3aa64b; }
+.brand .g{ color:#2e7d32; }
 
 /* Contenu */
 .content{
@@ -139,35 +168,21 @@ button{
 
 <div class="card">
 
-  <!-- Bande haute -->
   <div class="band">
     <div class="green"></div>
     <div class="red"></div>
   </div>
 
-  <!-- Header -->
   <div class="header">
-
-    <!-- LOGO SVG -->
     <div class="logo">
-      <svg width="42" height="42" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <path d="M70 30 L30 70 L30 130 L70 170 L130 170 L130 130 L100 130 L100 100 L70 100"
-              fill="none" stroke="#d32f2f" stroke-width="18"
-              stroke-linejoin="round" stroke-linecap="round"/>
-        <path d="M130 30 L170 70 L170 130 L130 170 L70 170 L70 130 L100 130 L100 100 L130 100"
-              fill="none" stroke="#3aa64b" stroke-width="18"
-              stroke-linejoin="round" stroke-linecap="round"/>
-      </svg>
+      <div class="hex red"></div>
+      <div class="hex green"></div>
     </div>
-
-    <!-- TEXTE -->
     <div class="brand">
       <span class="r">Arti</span><span class="g">Royce</span>
     </div>
-
   </div>
 
-  <!-- Contenu -->
   <div class="content">
     <h1>Connexion</h1>
     <div class="subtitle">Connectez-vous à votre compte</div>
@@ -191,7 +206,6 @@ button{
     </div>
   </div>
 
-  <!-- Bande basse -->
   <div class="band">
     <div class="red"></div>
     <div class="green"></div>
