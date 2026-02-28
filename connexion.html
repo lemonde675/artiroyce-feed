@@ -1,81 +1,217 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion – ArtiRoyce</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtiRoyce – Connexion</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 380px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    }
+    .top-bar { height: 10px; background: linear-gradient(to right, #e63224 50%, #27a945 50%); }
+    .card-body { padding: 36px 32px 32px; }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-text { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+    .logo-text .arti  { color: #e63224; }
+    .logo-text .royce { color: #27a945; }
+    h1 { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
+    label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: 15px; color: #333; outline: none; transition: border-color 0.2s;
+      margin-bottom: 18px; background: #fafafa;
+    }
+    input:focus { border-color: #e63224; background: #fff; }
+    input::placeholder { color: #bbb; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 44px; margin-bottom: 0; }
+    .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: #888; padding: 0;
+      display: flex; align-items: center;
+    }
+    .forgot { text-align: right; margin-top: 8px; margin-bottom: 22px; }
+    .forgot a { color: #e63224; font-size: 13px; text-decoration: none; font-style: italic; }
+    .forgot a:hover { text-decoration: underline; }
+    .btn-login {
+      width: 100%; padding: 14px; background: #e63224; color: #fff; border: none;
+      border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: background 0.2s;
+    }
+    .btn-login:hover { background: #c42a1e; }
+    .register { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
+    .register a { color: #27a945; text-decoration: none; font-weight: 600; }
+    .register a:hover { text-decoration: underline; }
+    .bottom-bar { height: 10px; background: linear-gradient(to right, #27a945 50%, #e63224 50%); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar"></div>
+    <div class="card-body">
 
-        body {
-            background: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+      <div class="logo-wrap">
+        <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!--
+              Stratégie propre avec clip-path:
+              1. Dessiner les 2 hexagones COMPLETS (anneaux creux) avec fill-rule evenodd
+              2. Utiliser des clip-paths pour gérer qui passe devant qui
+              
+              Hexagone flat-top ROUGE complet (anneau creux):
+              Centre (46,55), Rext=44, h=38, Rint=25, hi=21.6
+              
+              Outer: D(90,55) HD(68,17) HG(24,17) G(2,55) BG(24,93) BD(68,93)
+              Inner: d(71,55) hd(59,34) hg(33,34) g(21,55) bg(33,76) bd(59,76)
+              
+              Hexagone flat-top VERT complet (anneau creux):
+              Centre (98,55), même tailles
+              
+              Outer: D2(142,55) HD2(120,17) HG2(76,17) G2(54,55) BG2(76,93) BD2(120,93)
+              Inner: d2(123,55) hd2(111,34) hg2(87,34) g2(75,55) bg2(87,76) bd2(111,76)
+              
+              Zone de croisement: entre x=68 et x=90 environ (les bras droits du rouge et gauches du vert)
+              
+              CLIP ROUGE = tout SAUF la zone bas-centre (où le vert passe devant)
+              CLIP VERT  = tout SAUF la zone haut-centre (où le rouge passe devant)
+            -->
 
-        /* Carte */
-        .card {
-            width: 360px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-        }
+            <!-- Anneau rouge complet (sera clippé) -->
+            <!-- Anneau vert complet (sera clippé) -->
 
-        /* Bandes */
-        .band {
-            height: 8px;
-            display: flex;
-        }
+            <!-- Clip pour le ROUGE: on cache la partie basse du croisement -->
+            <!-- Zone où le vert passe devant: triangle bas BG2->G2->g2->bg2 -->
+            <clipPath id="clipRouge">
+              <!-- Tout sauf le triangle bas-centre où le vert est devant -->
+              <polygon points="0,0 160,0 160,75 87,76 75,55 87,34 160,34 160,0"/>
+              <!-- En fait: clip = tout le canvas MINUS la zone vert-devant -->
+              <!-- Plus simple: clip = rectangle entier sauf triangle bas -->
+            </clipPath>
 
-        .band div {
-            flex: 1;
-        }
+            <!-- Clip haut pour le VERT: cache la partie haute du croisement -->
+            <clipPath id="clipVert">
+              <polygon points="0,110 160,110 160,34 87,34 75,55 87,76 160,76 160,110"/>
+            </clipPath>
 
-        .red {
-            background: #d32f2f;
-        }
+          </defs>
 
-        .green {
-            background: #3aa64b;
-        }
+          <!--
+            Approche plus simple et fiable:
+            
+            ÉTAPE 1: Rouge complet DERRIÈRE
+            ÉTAPE 2: Vert complet DERRIÈRE  
+            ÉTAPE 3: Redessiner bras haut du rouge PAR-DESSUS (zone haut croisement)
+            ÉTAPE 4: Redessiner bras bas du vert PAR-DESSUS (zone bas croisement)
+            
+            La clé: les anneaux sont COMPLETS et se chevauchent normalement.
+            On redessine juste les morceaux qui doivent être "devant".
+          -->
 
-        /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 20px 10px;
-        }
+          <!-- ROUGE anneau complet evenodd -->
+          <path fill="#e02010" fill-rule="evenodd" d="
+            M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z
+            M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z
+          "/>
 
-        /* ================= LOGO DESSINÉ ================= */
-        .logo {
-            position: relative;
-            width: 48px;
-            height: 40px;
-        }
+          <!-- VERT anneau complet evenodd -->
+          <path fill="#27a945" fill-rule="evenodd" d="
+            M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z
+            M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z
+          "/>
 
-        .shape {
-            position: absolute;
-            width: 34px;
-            height: 34px;
-        }
+          <!-- ROUGE bras haut par-dessus (redessiner le bras haut-droite du rouge) -->
+          <!-- Bras haut rouge: entre HD(68,17)->D(90,55) outer et d(71,55)->hd(59,34) inner -->
+          <path fill="#e02010" d="
+            M 68,17 L 90,55 L 71,55 L 59,34 Z
+          "/>
 
-        .segment {
-            position: absolute;
-            background: currentColor;
-            border-radius: 2px;
-        }
+          <!-- VERT bras bas par-dessus (redessiner le bras bas-gauche du vert) -->
+          <!-- Bras bas vert: entre BG2(76,93)->G2(54,55) outer et g2(75,55)->bg2(87,76) inner -->
+          <path fill="#27a945" d="
+            M 76,93 L 54,55 L 75,55 L 87,76 Z
+          "/>
 
-        /* Rouge */
-        .red-shape {
-            color: #d32f2f;
-            left: 0;
-            top: 6px;
+          <!-- Blanc pour effacer le chevauchement visible au centre haut (vert devant rouge là) -->
+          <!-- Zone haut croisement: vert passe DERRIÈRE rouge, donc on recouvre le vert avec blanc -->
+          <!-- puis on redessine le rouge -->
+          <!-- Zone: triangle haut entre les deux bras -->
+          <!-- Coordonnées intersection bras haut rouge avec inner vert:
+               Droite rouge haut outer: de (68,17) à (90,55)
+               Droite vert inner haut: de (87,34) à (75,55)
+               Intersection ~= (80, 44) -->
+          
+          <!-- Recouvrir avec blanc la zone où rouge doit cacher le vert (haut) -->
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <!-- Redessiner rouge par-dessus -->
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+
+          <!-- Recouvrir avec blanc la zone où vert doit cacher le rouge (bas) -->
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <!-- Redessiner vert par-dessus -->
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+
+        </svg>
+
+        <div class="logo-text">
+          <span class="arti">Arti</span><span class="royce">Royce</span>
+        </div>
+      </div>
+
+      <h1>Connexion</h1>
+      <p class="subtitle">Connectez-vous à votre compte</p>
+
+      <form>
+        <label for="email">EMAIL / TÉLÉPHONE</label>
+        <input type="email" id="email" name="email" placeholder="name@example.com" autocomplete="email"/>
+
+        <label for="password">MOT DE PASSE</label>
+        <div class="password-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password"/>
+          <button type="button" class="eye-btn" onclick="togglePass()" title="Afficher/masquer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="12" rx="9" ry="6"/>
+              <circle cx="12" cy="12" r="2.5"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="forgot"><a href="#">Mot de passe oublié ?</a></div>
+        <button type="submit" class="btn-login">CONNEXION &nbsp;→</button>
+      </form>
+
+      <div class="register">
+        Vous n'avez pas encore de compte ? <a href="#">Inscrivez-vous</a>
+      </div>
+    </div>
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    function togglePass() {
+      const p = document.getElementById('password');
+      p.type = p.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>
