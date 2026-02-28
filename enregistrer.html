@@ -46,18 +46,24 @@
     }
     input:focus { border-color: #27a945; background: #fff; }
     input::placeholder { color: #bbb; }
+    input.error { border-color: #e63224; }
     .password-wrap { position: relative; }
     .password-wrap input { padding-right: 44px; margin-bottom: 18px; }
     .eye-btn {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      position: absolute; right: 12px; top: 38%; transform: translateY(-50%);
       background: none; border: none; cursor: pointer; color: #888; padding: 0;
       display: flex; align-items: center;
+    }
+    .error-msg {
+      color: #e63224; font-size: 12px;
+      margin-top: -14px; margin-bottom: 14px;
+      display: none;
     }
     .btn-register {
       width: 100%; padding: 14px; background: #27a945; color: #fff; border: none;
       border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 8px; transition: background 0.2s;
+      gap: 8px; transition: background 0.2s; margin-top: 4px;
     }
     .btn-register:hover { background: #1e8a36; }
     .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
@@ -71,7 +77,8 @@
     <div class="top-bar"></div>
 
     <div class="logo-section">
-      <!-- EXACT MÊME SVG QUE V8 -->
+
+      <!-- EXACT MÊME SVG QUE LA PAGE CONNEXION -->
       <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
 
         <!-- ROUGE anneau complet evenodd -->
@@ -105,7 +112,7 @@
       <h1>Inscription</h1>
       <p class="subtitle">Créez votre compte</p>
 
-      <form>
+      <form id="inscriptionForm">
         <label for="nom">NOM</label>
         <input type="text" id="nom" name="nom" placeholder="Robert" autocomplete="name"/>
 
@@ -115,29 +122,56 @@
         <label for="password">MOT DE PASSE</label>
         <div class="password-wrap">
           <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="new-password"/>
-          <button type="button" class="eye-btn" onclick="togglePass()" title="Afficher/masquer">
+          <button type="button" class="eye-btn" onclick="togglePass('password')">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="12" rx="9" ry="6"/>
-              <circle cx="12" cy="12" r="2.5"/>
+              <ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/>
             </svg>
           </button>
         </div>
+
+        <label for="confirm">CONFIRMER MOT DE PASSE</label>
+        <div class="password-wrap">
+          <input type="password" id="confirm" name="confirm" placeholder="••••••••" autocomplete="new-password"/>
+          <button type="button" class="eye-btn" onclick="togglePass('confirm')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/>
+            </svg>
+          </button>
+        </div>
+        <div class="error-msg" id="errorMsg">⚠ Les mots de passe ne correspondent pas.</div>
 
         <button type="submit" class="btn-register">ENREGISTRER &nbsp;→</button>
       </form>
 
       <div class="login-link">
-        Vous avez déjà un compte ? <a href="#">Connectez-vous</a>
+        Vous avez déjà un compte ? <a href="login.html">Connectez-vous</a>
       </div>
     </div>
     <div class="bottom-bar"></div>
   </div>
 
   <script>
-    function togglePass() {
-      const p = document.getElementById('password');
+    function togglePass(id) {
+      const p = document.getElementById(id);
       p.type = p.type === 'password' ? 'text' : 'password';
     }
+
+    document.getElementById('inscriptionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pwd  = document.getElementById('password').value;
+      const conf = document.getElementById('confirm').value;
+      const err  = document.getElementById('errorMsg');
+      const confInput = document.getElementById('confirm');
+
+      if (pwd !== conf) {
+        confInput.classList.add('error');
+        err.style.display = 'block';
+      } else {
+        confInput.classList.remove('error');
+        err.style.display = 'none';
+        alert('Inscription réussie !');
+      }
+    });
   </script>
 </body>
 </html>
