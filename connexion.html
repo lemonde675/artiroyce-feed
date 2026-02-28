@@ -21,7 +21,7 @@
       width: 380px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.13);
     }
-    .top-bar { height: 10px; background: linear-gradient(to right, #e63224 50%, #27a945 50%); }
+    .top-bar { height: 10px; background: linear-gradient(to right, #27a945 50%, #e63224 50%); }
     .card-body { padding: 36px 32px 32px; }
     .logo-wrap {
       display: flex;
@@ -63,7 +63,7 @@
     .register { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
     .register a { color: #27a945; text-decoration: none; font-weight: 600; }
     .register a:hover { text-decoration: underline; }
-    .bottom-bar { height: 10px; background: linear-gradient(to right, #27a945 50%, #e63224 50%); }
+    .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 50%, #27a945 50%); }
   </style>
 </head>
 <body>
@@ -72,105 +72,26 @@
     <div class="card-body">
 
       <div class="logo-wrap">
+        <!-- Logo SVG corrigé : deux hexagones entrelacés rouge/vert -->
         <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <!--
-              Stratégie propre avec clip-path:
-              1. Dessiner les 2 hexagones COMPLETS (anneaux creux) avec fill-rule evenodd
-              2. Utiliser des clip-paths pour gérer qui passe devant qui
-              
-              Hexagone flat-top ROUGE complet (anneau creux):
-              Centre (46,55), Rext=44, h=38, Rint=25, hi=21.6
-              
-              Outer: D(90,55) HD(68,17) HG(24,17) G(2,55) BG(24,93) BD(68,93)
-              Inner: d(71,55) hd(59,34) hg(33,34) g(21,55) bg(33,76) bd(59,76)
-              
-              Hexagone flat-top VERT complet (anneau creux):
-              Centre (98,55), même tailles
-              
-              Outer: D2(142,55) HD2(120,17) HG2(76,17) G2(54,55) BG2(76,93) BD2(120,93)
-              Inner: d2(123,55) hd2(111,34) hg2(87,34) g2(75,55) bg2(87,76) bd2(111,76)
-              
-              Zone de croisement: entre x=68 et x=90 environ (les bras droits du rouge et gauches du vert)
-              
-              CLIP ROUGE = tout SAUF la zone bas-centre (où le vert passe devant)
-              CLIP VERT  = tout SAUF la zone haut-centre (où le rouge passe devant)
-            -->
-
-            <!-- Anneau rouge complet (sera clippé) -->
-            <!-- Anneau vert complet (sera clippé) -->
-
-            <!-- Clip pour le ROUGE: on cache la partie basse du croisement -->
-            <!-- Zone où le vert passe devant: triangle bas BG2->G2->g2->bg2 -->
-            <clipPath id="clipRouge">
-              <!-- Tout sauf le triangle bas-centre où le vert est devant -->
-              <polygon points="0,0 160,0 160,75 87,76 75,55 87,34 160,34 160,0"/>
-              <!-- En fait: clip = tout le canvas MINUS la zone vert-devant -->
-              <!-- Plus simple: clip = rectangle entier sauf triangle bas -->
-            </clipPath>
-
-            <!-- Clip haut pour le VERT: cache la partie haute du croisement -->
-            <clipPath id="clipVert">
-              <polygon points="0,110 160,110 160,34 87,34 75,55 87,76 160,76 160,110"/>
-            </clipPath>
-
-          </defs>
-
-          <!--
-            Approche plus simple et fiable:
-            
-            ÉTAPE 1: Rouge complet DERRIÈRE
-            ÉTAPE 2: Vert complet DERRIÈRE  
-            ÉTAPE 3: Redessiner bras haut du rouge PAR-DESSUS (zone haut croisement)
-            ÉTAPE 4: Redessiner bras bas du vert PAR-DESSUS (zone bas croisement)
-            
-            La clé: les anneaux sont COMPLETS et se chevauchent normalement.
-            On redessine juste les morceaux qui doivent être "devant".
-          -->
-
           <!-- ROUGE anneau complet evenodd -->
           <path fill="#e02010" fill-rule="evenodd" d="
             M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z
             M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z
           "/>
-
           <!-- VERT anneau complet evenodd -->
           <path fill="#27a945" fill-rule="evenodd" d="
             M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z
             M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z
           "/>
-
-          <!-- ROUGE bras haut par-dessus (redessiner le bras haut-droite du rouge) -->
-          <!-- Bras haut rouge: entre HD(68,17)->D(90,55) outer et d(71,55)->hd(59,34) inner -->
-          <path fill="#e02010" d="
-            M 68,17 L 90,55 L 71,55 L 59,34 Z
-          "/>
-
-          <!-- VERT bras bas par-dessus (redessiner le bras bas-gauche du vert) -->
-          <!-- Bras bas vert: entre BG2(76,93)->G2(54,55) outer et g2(75,55)->bg2(87,76) inner -->
-          <path fill="#27a945" d="
-            M 76,93 L 54,55 L 75,55 L 87,76 Z
-          "/>
-
-          <!-- Blanc pour effacer le chevauchement visible au centre haut (vert devant rouge là) -->
-          <!-- Zone haut croisement: vert passe DERRIÈRE rouge, donc on recouvre le vert avec blanc -->
-          <!-- puis on redessine le rouge -->
-          <!-- Zone: triangle haut entre les deux bras -->
-          <!-- Coordonnées intersection bras haut rouge avec inner vert:
-               Droite rouge haut outer: de (68,17) à (90,55)
-               Droite vert inner haut: de (87,34) à (75,55)
-               Intersection ~= (80, 44) -->
-          
           <!-- Recouvrir avec blanc la zone où rouge doit cacher le vert (haut) -->
           <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-          <!-- Redessiner rouge par-dessus -->
+          <!-- Redessiner rouge par-dessus (bras haut-droite) -->
           <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-
           <!-- Recouvrir avec blanc la zone où vert doit cacher le rouge (bas) -->
           <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-          <!-- Redessiner vert par-dessus -->
+          <!-- Redessiner vert par-dessus (bras bas-gauche) -->
           <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-
         </svg>
 
         <div class="logo-text">
