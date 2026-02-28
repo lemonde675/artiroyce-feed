@@ -3,18 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion - ArtiRoyce</title>
+<title>Connexion – ArtiRoyce</title>
 
 <style>
-/* RESET */
 *{
-  box-sizing:border-box;
   margin:0;
   padding:0;
+  box-sizing:border-box;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* PAGE */
 body{
   background:#ffffff;
   display:flex;
@@ -23,50 +21,46 @@ body{
   min-height:100vh;
 }
 
-/* CARD */
+/* CONTENEUR */
 .card{
   width:360px;
   background:#fff;
-  border-radius:6px;
+  border-radius:8px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
   overflow:hidden;
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
 /* BANDES */
-.band-top,
-.band-bottom{
-  height:10px;
+.band{
+  height:8px;
   display:flex;
 }
-
-.band-top div,
-.band-bottom div{
+.band div{
   flex:1;
 }
-
 .red{ background:#d32f2f; }
 .green{ background:#2e7d32; }
 
 /* HEADER */
 .header{
-  padding:18px 20px 10px;
   display:flex;
   align-items:center;
   gap:10px;
+  padding:16px 20px 10px;
 }
 
 /* LOGO DESSINÉ */
 .logo{
   position:relative;
-  width:42px;
-  height:42px;
+  width:40px;
+  height:40px;
 }
 
 .hex-red,
 .hex-green{
   position:absolute;
-  width:32px;
-  height:32px;
+  width:26px;
+  height:26px;
   clip-path: polygon(
     25% 0%, 75% 0%,
     100% 50%,
@@ -79,7 +73,7 @@ body{
 .hex-red{
   background:#d32f2f;
   left:0;
-  top:6px;
+  top:7px;
 }
 
 .hex-green{
@@ -90,26 +84,20 @@ body{
 
 /* TEXTE LOGO */
 .brand{
-  font-size:22px;
-  font-weight:bold;
+  font-size:20px;
+  font-weight:700;
 }
+.brand .r{ color:#d32f2f; }
+.brand .g{ color:#2e7d32; }
 
-.brand span.red{
-  color:#d32f2f;
-}
-
-.brand span.green{
-  color:#2e7d32;
-}
-
-/* CONTENT */
+/* CONTENU */
 .content{
   padding:10px 20px 20px;
 }
 
-h2{
+h1{
   font-size:22px;
-  margin-bottom:6px;
+  margin-bottom:4px;
 }
 
 .subtitle{
@@ -121,10 +109,10 @@ h2{
 /* FORM */
 label{
   font-size:12px;
-  font-weight:bold;
+  font-weight:700;
   color:#333;
-  display:block;
   margin-bottom:6px;
+  display:block;
 }
 
 input{
@@ -132,8 +120,8 @@ input{
   padding:10px;
   border:1px solid #ddd;
   border-radius:4px;
-  margin-bottom:14px;
   font-size:14px;
+  margin-bottom:14px;
 }
 
 .password{
@@ -145,9 +133,8 @@ input{
   right:10px;
   top:50%;
   transform:translateY(-50%);
-  color:#777;
   font-size:14px;
-  cursor:pointer;
+  color:#666;
 }
 
 /* FORGOT */
@@ -158,21 +145,17 @@ input{
   margin-bottom:16px;
 }
 
-/* BUTTON */
+/* BOUTON */
 button{
   width:100%;
+  padding:12px;
   background:#d32f2f;
   color:#fff;
   border:none;
-  padding:12px;
   border-radius:4px;
   font-size:15px;
-  font-weight:bold;
+  font-weight:700;
   cursor:pointer;
-}
-
-button span{
-  margin-left:6px;
 }
 
 /* FOOTER */
@@ -181,7 +164,6 @@ button span{
   font-size:13px;
   margin-top:16px;
 }
-
 .footer a{
   color:#1976d2;
   text-decoration:none;
@@ -194,7 +176,7 @@ button span{
 <div class="card">
 
   <!-- Bande haute -->
-  <div class="band-top">
+  <div class="band">
     <div class="green"></div>
     <div class="red"></div>
   </div>
@@ -206,13 +188,13 @@ button span{
       <div class="hex-green"></div>
     </div>
     <div class="brand">
-      <span class="red">Arti</span><span class="green">Royce</span>
+      <span class="r">Arti</span><span class="g">Royce</span>
     </div>
   </div>
 
   <!-- Contenu -->
   <div class="content">
-    <h2>Connexion</h2>
+    <h1>Connexion</h1>
     <div class="subtitle">Connectez-vous à votre compte</div>
 
     <label>EMAIL / TÉLÉPHONE</label>
@@ -226,15 +208,16 @@ button span{
 
     <div class="forgot">Mot de passe oublié ?</div>
 
-    <button>CONNEXION <span>→</span></button>
+    <button>CONNEXION →</button>
 
     <div class="footer">
-      Vous n'avez pas encore de compte ? <a href="#">Inscrivez-vous</a>
+      Vous n'avez pas encore de compte ?
+      <a href="#">Inscrivez-vous</a>
     </div>
   </div>
 
   <!-- Bande basse -->
-  <div class="band-bottom">
+  <div class="band">
     <div class="red"></div>
     <div class="green"></div>
   </div>
