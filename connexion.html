@@ -1,52 +1,90 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Connexion – ArtiRoyce</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
-body{
-  background:#fff;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, Helvetica, sans-serif;
 }
+
+body{
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+/* Carte */
 .card{
   width:360px;
   background:#fff;
   border-radius:8px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
   overflow:hidden;
 }
-.band{height:8px;display:flex}
-.band .green{flex:1;background:#3aa64b}
-.band .red{flex:1;background:#d32f2f}
 
+/* Bandes */
+.band{
+  height:8px;
+  display:flex;
+}
+.band div{ flex:1; }
+.red{ background:#d32f2f; }
+.green{ background:#3aa64b; }
+
+/* Header */
 .header{
   display:flex;
   align-items:center;
-  gap:10px;
   padding:16px 20px 10px;
 }
-.logo{width:48px;height:48px}
-.brand{font-size:20px;font-weight:700}
-.brand .r{color:#d32f2f}
-.brand .g{color:#3aa64b}
 
-.content{padding:10px 20px 20px}
-h1{font-size:22px;margin-bottom:4px}
-.subtitle{font-size:14px;color:#777;margin-bottom:18px}
+/* ✅ LOGO : espace ajouté ici */
+.logo{
+  margin-right:10px; /* ← DÉCOLLAGE CORRECT */
+  display:flex;
+  align-items:center;
+}
+
+/* Texte logo */
+.brand{
+  font-size:20px;
+  font-weight:700;
+}
+.brand .r{ color:#d32f2f; }
+.brand .g{ color:#3aa64b; }
+
+/* Contenu */
+.content{
+  padding:10px 20px 20px;
+}
+
+h1{
+  font-size:22px;
+  margin-bottom:4px;
+}
+
+.subtitle{
+  font-size:14px;
+  color:#777;
+  margin-bottom:18px;
+}
 
 label{
   font-size:12px;
   font-weight:700;
   color:#333;
-  display:block;
   margin-bottom:6px;
+  display:block;
 }
+
 input{
   width:100%;
   padding:10px;
@@ -55,7 +93,10 @@ input{
   font-size:14px;
   margin-bottom:14px;
 }
-.password{position:relative}
+
+.password{
+  position:relative;
+}
 .password span{
   position:absolute;
   right:10px;
@@ -70,6 +111,7 @@ input{
   color:#c62828;
   margin-bottom:16px;
 }
+
 button{
   width:100%;
   padding:12px;
@@ -80,12 +122,16 @@ button{
   font-size:15px;
   font-weight:700;
 }
+
 .footer{
   text-align:center;
   font-size:13px;
   margin-top:16px;
 }
-.footer a{color:#1976d2;text-decoration:none}
+.footer a{
+  color:#1976d2;
+  text-decoration:none;
+}
 </style>
 </head>
 
@@ -102,38 +148,19 @@ button{
   <!-- Header -->
   <div class="header">
 
-    <!-- LOGO EXACT (SVG, formes ouvertes, accroche centrale) -->
+    <!-- LOGO SVG -->
     <div class="logo">
-      <svg viewBox="0 0 200 200" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
-        <!-- Rouge -->
-        <path d="
-          M 62 28
-          L 28 62
-          L 28 138
-          L 62 172
-          L 138 172
-          L 138 138
-          L 104 138
-          L 104 104
-          L 62 104
-        "
-        fill="#d32f2f"/>
-        <!-- Vert -->
-        <path d="
-          M 138 28
-          L 172 62
-          L 172 138
-          L 138 172
-          L 62 172
-          L 62 138
-          L 96 138
-          L 96 104
-          L 138 104
-        "
-        fill="#3aa64b"/>
+      <svg width="42" height="42" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path d="M70 30 L30 70 L30 130 L70 170 L130 170 L130 130 L100 130 L100 100 L70 100"
+              fill="none" stroke="#d32f2f" stroke-width="18"
+              stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M130 30 L170 70 L170 130 L130 170 L70 170 L70 130 L100 130 L100 100 L130 100"
+              fill="none" stroke="#3aa64b" stroke-width="18"
+              stroke-linejoin="round" stroke-linecap="round"/>
       </svg>
     </div>
 
+    <!-- TEXTE -->
     <div class="brand">
       <span class="r">Arti</span><span class="g">Royce</span>
     </div>
@@ -142,3 +169,35 @@ button{
 
   <!-- Contenu -->
   <div class="content">
+    <h1>Connexion</h1>
+    <div class="subtitle">Connectez-vous à votre compte</div>
+
+    <label>EMAIL / TÉLÉPHONE</label>
+    <input type="text" placeholder="name@example.com">
+
+    <label>MOT DE PASSE</label>
+    <div class="password">
+      <input type="password" value="12345678">
+      <span>👁</span>
+    </div>
+
+    <div class="forgot">Mot de passe oublié ?</div>
+
+    <button>CONNEXION →</button>
+
+    <div class="footer">
+      Vous n'avez pas encore de compte ?
+      <a href="#">Inscrivez-vous</a>
+    </div>
+  </div>
+
+  <!-- Bande basse -->
+  <div class="band">
+    <div class="red"></div>
+    <div class="green"></div>
+  </div>
+
+</div>
+
+</body>
+</html>
