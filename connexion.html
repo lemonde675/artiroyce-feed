@@ -21,7 +21,6 @@ body{
   min-height:100vh;
 }
 
-/* CONTENEUR */
 .card{
   width:360px;
   background:#fff;
@@ -30,18 +29,16 @@ body{
   overflow:hidden;
 }
 
-/* BANDES */
+/* Bandes */
 .band{
   height:8px;
   display:flex;
 }
-.band div{
-  flex:1;
-}
+.band div{ flex:1; }
 .red{ background:#d32f2f; }
 .green{ background:#2e7d32; }
 
-/* HEADER */
+/* Header */
 .header{
   display:flex;
   align-items:center;
@@ -49,18 +46,19 @@ body{
   padding:16px 20px 10px;
 }
 
-/* LOGO DESSINÉ */
+/* LOGO DESSINÉ – OUVERT (VIDE BLANC) */
 .logo{
   position:relative;
-  width:40px;
-  height:40px;
+  width:42px;
+  height:42px;
 }
 
-.hex-red,
-.hex-green{
+/* hexagone contour */
+.hex{
   position:absolute;
-  width:26px;
-  height:26px;
+  width:28px;
+  height:28px;
+  background:transparent;
   clip-path: polygon(
     25% 0%, 75% 0%,
     100% 50%,
@@ -70,19 +68,21 @@ body{
   );
 }
 
-.hex-red{
-  background:#d32f2f;
+/* rouge */
+.hex.red{
+  border:6px solid #d32f2f;
   left:0;
-  top:7px;
+  top:8px;
 }
 
-.hex-green{
-  background:#2e7d32;
+/* vert */
+.hex.green{
+  border:6px solid #2e7d32;
   right:0;
   top:0;
 }
 
-/* TEXTE LOGO */
+/* Texte logo */
 .brand{
   font-size:20px;
   font-weight:700;
@@ -90,7 +90,7 @@ body{
 .brand .r{ color:#d32f2f; }
 .brand .g{ color:#2e7d32; }
 
-/* CONTENU */
+/* Contenu */
 .content{
   padding:10px 20px 20px;
 }
@@ -106,7 +106,6 @@ h1{
   margin-bottom:18px;
 }
 
-/* FORM */
 label{
   font-size:12px;
   font-weight:700;
@@ -127,17 +126,14 @@ input{
 .password{
   position:relative;
 }
-
 .password span{
   position:absolute;
   right:10px;
   top:50%;
   transform:translateY(-50%);
-  font-size:14px;
   color:#666;
 }
 
-/* FORGOT */
 .forgot{
   text-align:right;
   font-size:13px;
@@ -145,7 +141,6 @@ input{
   margin-bottom:16px;
 }
 
-/* BOUTON */
 button{
   width:100%;
   padding:12px;
@@ -155,10 +150,8 @@ button{
   border-radius:4px;
   font-size:15px;
   font-weight:700;
-  cursor:pointer;
 }
 
-/* FOOTER */
 .footer{
   text-align:center;
   font-size:13px;
@@ -175,24 +168,21 @@ button{
 
 <div class="card">
 
-  <!-- Bande haute -->
   <div class="band">
     <div class="green"></div>
     <div class="red"></div>
   </div>
 
-  <!-- Header -->
   <div class="header">
     <div class="logo">
-      <div class="hex-red"></div>
-      <div class="hex-green"></div>
+      <div class="hex red"></div>
+      <div class="hex green"></div>
     </div>
     <div class="brand">
       <span class="r">Arti</span><span class="g">Royce</span>
     </div>
   </div>
 
-  <!-- Contenu -->
   <div class="content">
     <h1>Connexion</h1>
     <div class="subtitle">Connectez-vous à votre compte</div>
@@ -216,7 +206,6 @@ button{
     </div>
   </div>
 
-  <!-- Bande basse -->
   <div class="band">
     <div class="red"></div>
     <div class="green"></div>
