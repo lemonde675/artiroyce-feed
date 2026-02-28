@@ -1,48 +1,245 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Connexion – ArtiRoyce</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion - ArtiRoyce</title>
+
+<style>
+/* RESET */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PAGE */
+body{
+  background:#ffffff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+/* CARD */
+.card{
+  width:360px;
+  background:#fff;
+  border-radius:6px;
+  overflow:hidden;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* BANDES */
+.band-top,
+.band-bottom{
+  height:10px;
+  display:flex;
+}
+
+.band-top div,
+.band-bottom div{
+  flex:1;
+}
+
+.red{ background:#d32f2f; }
+.green{ background:#2e7d32; }
+
+/* HEADER */
+.header{
+  padding:18px 20px 10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* LOGO DESSINÉ */
+.logo{
+  position:relative;
+  width:42px;
+  height:42px;
+}
+
+.hex-red,
+.hex-green{
+  position:absolute;
+  width:32px;
+  height:32px;
+  clip-path: polygon(
+    25% 0%, 75% 0%,
+    100% 50%,
+    75% 100%,
+    25% 100%,
+    0% 50%
+  );
+}
+
+.hex-red{
+  background:#d32f2f;
+  left:0;
+  top:6px;
+}
+
+.hex-green{
+  background:#2e7d32;
+  right:0;
+  top:0;
+}
+
+/* TEXTE LOGO */
+.brand{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.brand span.red{
+  color:#d32f2f;
+}
+
+.brand span.green{
+  color:#2e7d32;
+}
+
+/* CONTENT */
+.content{
+  padding:10px 20px 20px;
+}
+
+h2{
+  font-size:22px;
+  margin-bottom:6px;
+}
+
+.subtitle{
+  font-size:14px;
+  color:#777;
+  margin-bottom:18px;
+}
+
+/* FORM */
+label{
+  font-size:12px;
+  font-weight:bold;
+  color:#333;
+  display:block;
+  margin-bottom:6px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:4px;
+  margin-bottom:14px;
+  font-size:14px;
+}
+
+.password{
+  position:relative;
+}
+
+.password span{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#777;
+  font-size:14px;
+  cursor:pointer;
+}
+
+/* FORGOT */
+.forgot{
+  text-align:right;
+  font-size:13px;
+  color:#c62828;
+  margin-bottom:16px;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  background:#d32f2f;
+  color:#fff;
+  border:none;
+  padding:12px;
+  border-radius:4px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button span{
+  margin-left:6px;
+}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  font-size:13px;
+  margin-top:16px;
+}
+
+.footer a{
+  color:#1976d2;
+  text-decoration:none;
+}
+</style>
 </head>
-<body class="auth-body">
 
-  <div class="auth-card">
-    <div class="auth-band top"></div>
+<body>
 
-    <div class="auth-header">
-      <img src="logo.png" alt="ArtiRoyce" class="logo">
-      <h1 class="brand">
-        <span class="arti">Arti</span><span class="royce">Royce</span>
-      </h1>
+<div class="card">
+
+  <!-- Bande haute -->
+  <div class="band-top">
+    <div class="green"></div>
+    <div class="red"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="hex-red"></div>
+      <div class="hex-green"></div>
+    </div>
+    <div class="brand">
+      <span class="red">Arti</span><span class="green">Royce</span>
+    </div>
+  </div>
+
+  <!-- Contenu -->
+  <div class="content">
+    <h2>Connexion</h2>
+    <div class="subtitle">Connectez-vous à votre compte</div>
+
+    <label>EMAIL / TÉLÉPHONE</label>
+    <input type="text" placeholder="name@example.com">
+
+    <label>MOT DE PASSE</label>
+    <div class="password">
+      <input type="password" value="12345678">
+      <span>👁</span>
     </div>
 
-    <h2>Connexion</h2>
-    <p class="subtitle">Connectez-vous à votre compte</p>
+    <div class="forgot">Mot de passe oublié ?</div>
 
-    <form>
-      <label>Email / Téléphone</label>
-      <input type="text" placeholder="name@example.com">
+    <button>CONNEXION <span>→</span></button>
 
-      <label>Mot de passe</label>
-      <div class="password-box">
-        <input type="password" placeholder="••••••••">
-        <span class="eye">👁</span>
-      </div>
-
-      <a href="#" class="forgot">Mot de passe oublié ?</a>
-
-      <button class="btn red">CONNEXION →</button>
-    </form>
-
-    <p class="switch">
-      Vous n’avez pas encore de compte ?
-      <a href="register.html">Inscrivez-vous</a>
-    </p>
-
-    <div class="auth-band bottom"></div>
+    <div class="footer">
+      Vous n'avez pas encore de compte ? <a href="#">Inscrivez-vous</a>
+    </div>
   </div>
+
+  <!-- Bande basse -->
+  <div class="band-bottom">
+    <div class="red"></div>
+    <div class="green"></div>
+  </div>
+
+</div>
 
 </body>
 </html>
