@@ -1,217 +1,81 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion – ArtiRoyce</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion – ArtiRoyce</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
+        body {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-body{
-  background:#ffffff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
+        /* Carte */
+        .card {
+            width: 360px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
 
-.card{
-  width:360px;
-  background:#fff;
-  border-radius:8px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-  overflow:hidden;
-}
+        /* Bandes */
+        .band {
+            height: 8px;
+            display: flex;
+        }
 
-/* Bandes */
-.band{
-  height:8px;
-  display:flex;
-}
-.band div{ flex:1; }
-.red{ background:#d32f2f; }
-.green{ background:#2e7d32; }
+        .band div {
+            flex: 1;
+        }
 
-/* Header */
-.header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:16px 20px 10px;
-}
+        .red {
+            background: #d32f2f;
+        }
 
-/* LOGO DESSINÉ – OUVERT (VIDE BLANC) */
-.logo{
-  position:relative;
-  width:42px;
-  height:42px;
-}
+        .green {
+            background: #3aa64b;
+        }
 
-/* hexagone contour */
-.hex{
-  position:absolute;
-  width:28px;
-  height:28px;
-  background:transparent;
-  clip-path: polygon(
-    25% 0%, 75% 0%,
-    100% 50%,
-    75% 100%,
-    25% 100%,
-    0% 50%
-  );
-}
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px 10px;
+        }
 
-/* rouge */
-.hex.red{
-  border:6px solid #d32f2f;
-  left:0;
-  top:8px;
-}
+        /* ================= LOGO DESSINÉ ================= */
+        .logo {
+            position: relative;
+            width: 48px;
+            height: 40px;
+        }
 
-/* vert */
-.hex.green{
-  border:6px solid #2e7d32;
-  right:0;
-  top:0;
-}
+        .shape {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+        }
 
-/* Texte logo */
-.brand{
-  font-size:20px;
-  font-weight:700;
-}
-.brand .r{ color:#d32f2f; }
-.brand .g{ color:#2e7d32; }
+        .segment {
+            position: absolute;
+            background: currentColor;
+            border-radius: 2px;
+        }
 
-/* Contenu */
-.content{
-  padding:10px 20px 20px;
-}
-
-h1{
-  font-size:22px;
-  margin-bottom:4px;
-}
-
-.subtitle{
-  font-size:14px;
-  color:#777;
-  margin-bottom:18px;
-}
-
-label{
-  font-size:12px;
-  font-weight:700;
-  color:#333;
-  margin-bottom:6px;
-  display:block;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  border:1px solid #ddd;
-  border-radius:4px;
-  font-size:14px;
-  margin-bottom:14px;
-}
-
-.password{
-  position:relative;
-}
-.password span{
-  position:absolute;
-  right:10px;
-  top:50%;
-  transform:translateY(-50%);
-  color:#666;
-}
-
-.forgot{
-  text-align:right;
-  font-size:13px;
-  color:#c62828;
-  margin-bottom:16px;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  background:#d32f2f;
-  color:#fff;
-  border:none;
-  border-radius:4px;
-  font-size:15px;
-  font-weight:700;
-}
-
-.footer{
-  text-align:center;
-  font-size:13px;
-  margin-top:16px;
-}
-.footer a{
-  color:#1976d2;
-  text-decoration:none;
-}
-</style>
-</head>
-
-<body>
-
-<div class="card">
-
-  <div class="band">
-    <div class="green"></div>
-    <div class="red"></div>
-  </div>
-
-  <div class="header">
-    <div class="logo">
-      <div class="hex red"></div>
-      <div class="hex green"></div>
-    </div>
-    <div class="brand">
-      <span class="r">Arti</span><span class="g">Royce</span>
-    </div>
-  </div>
-
-  <div class="content">
-    <h1>Connexion</h1>
-    <div class="subtitle">Connectez-vous à votre compte</div>
-
-    <label>EMAIL / TÉLÉPHONE</label>
-    <input type="text" placeholder="name@example.com">
-
-    <label>MOT DE PASSE</label>
-    <div class="password">
-      <input type="password" value="12345678">
-      <span>👁</span>
-    </div>
-
-    <div class="forgot">Mot de passe oublié ?</div>
-
-    <button>CONNEXION →</button>
-
-    <div class="footer">
-      Vous n'avez pas encore de compte ?
-      <a href="#">Inscrivez-vous</a>
-    </div>
-  </div>
-
-  <div class="band">
-    <div class="red"></div>
-    <div class="green"></div>
-  </div>
-
-</div>
-
-</body>
-</html>
+        /* Rouge */
+        .red-shape {
+            color: #d32f2f;
+            left: 0;
+            top: 6px;
