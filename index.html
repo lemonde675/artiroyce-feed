@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ArtiRoyce</title>
-
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, Helvetica, sans-serif;
-}
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; }
+body{ background:#ffffff; color:#111; }
 
-body{
-  background:#ffffff;
-  color:#111;
+/* ===== BANDES HAUT / BAS ===== */
+.top-bar{
+  height:10px;
+  background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
+}
+.bottom-bar{
+  height:10px;
+  background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
 }
 
 /* ===== HEADER ===== */
@@ -24,14 +24,20 @@ header{
   text-align:center;
 }
 
-.logo{
+.logo-wrap{
   display:flex;
   justify-content:center;
   align-items:center;
   gap:10px;
-  font-size:28px;
-  font-weight:bold;
 }
+
+.logo-text{
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-0.5px;
+}
+.logo-text .arti  { color:#e63224; }
+.logo-text .royce { color:#27a945; }
 
 .subtitle{
   margin-top:8px;
@@ -46,30 +52,18 @@ header{
   padding:6px;
   border-radius:30px;
 }
-
-.menu{
-  display:flex;
-  justify-content:space-around;
-}
-
+.menu{ display:flex; justify-content:space-around; }
 .menu a{
-  padding:8px 14px;
-  font-size:14px;
+  padding:8px 10px;
+  font-size:13px;
   color:#000;
   text-decoration:none;
   border-radius:20px;
 }
-
-.menu a.active{
-  color:#c0392b;
-  font-weight:bold;
-}
+.menu a.active{ color:#e63224; font-weight:bold; }
 
 /* ===== GRID ===== */
-main{
-  padding:12px;
-}
-
+main{ padding:12px; }
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -84,18 +78,14 @@ main{
   box-shadow:0 2px 8px rgba(0,0,0,0.08);
   position:relative;
 }
-
 .card img{
   width:100%;
   height:120px;
   object-fit:cover;
 }
-
-/* BADGE */
 .badge{
   position:absolute;
-  top:8px;
-  left:8px;
+  top:8px; left:8px;
   background:#2ecc71;
   color:#fff;
   font-size:12px;
@@ -103,15 +93,11 @@ main{
   border-radius:14px;
   font-weight:bold;
 }
-
-/* PLAY */
 .play{
   position:absolute;
-  top:50%;
-  left:50%;
+  top:50%; left:50%;
   transform:translate(-50%,-50%);
-  width:42px;
-  height:42px;
+  width:42px; height:42px;
   border-radius:50%;
   background:rgba(0,0,0,0.6);
   display:flex;
@@ -121,37 +107,40 @@ main{
   font-size:18px;
   text-decoration:none;
 }
-
-/* BODY */
-.card-body{
-  padding:10px;
-}
-
-.job{
-  font-weight:bold;
-  font-size:14px;
-}
-
-.place{
-  font-size:12px;
-  color:#555;
-  margin-top:3px;
-}
-
-.stars{
-  color:#f1c40f;
-  margin-top:4px;
-  font-size:13px;
-}
+.card-body{ padding:10px; }
+.job{ font-weight:bold; font-size:14px; }
+.place{ font-size:12px; color:#555; margin-top:3px; }
+.stars{ color:#f1c40f; margin-top:4px; font-size:13px; }
 </style>
 </head>
-
 <body>
 
+<!-- BANDE HAUT -->
+<div class="top-bar"></div>
+
 <header>
-  <div class="logo">
-    <img src="https://i.imgur.com/qn6YwQx.png" height="36">
-    ArtiRoyce
+  <div class="logo-wrap">
+    <!-- SVG Logo ArtiRoyce -->
+    <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="
+        M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z
+        M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z
+      "/>
+      <path fill="#27a945" fill-rule="evenodd" d="
+        M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z
+        M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z
+      "/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+
+    <div class="logo-text">
+      <span class="arti">Arti</span><span class="royce">Royce</span>
+    </div>
   </div>
 
   <div class="subtitle">
@@ -273,5 +262,8 @@ main{
 </section>
 </main>
 
+<!-- BANDE BAS -->
+<div class="bottom-bar"></div>
+
 </body>
-</html>
+  </html>
