@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtiRoyce – Mot de passe oublié</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 380px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    }
+    .top-bar, .bottom-bar {
+      height: 10px;
+      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
+    }
+    .card-body { padding: 36px 32px 32px; }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-text { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+    .logo-text .arti  { color: #e63224; }
+    .logo-text .royce { color: #27a945; }
+
+    .icon-wrap {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .icon-wrap svg {
+      width: 60px; height: 60px;
+      color: #e63224;
+    }
+
+    h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 8px; }
+    .subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
+    input[type="email"], input[type="text"] {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: 15px; color: #333; outline: none; transition: border-color 0.2s;
+      margin-bottom: 22px; background: #fafafa;
+    }
+    input:focus { border-color: #e63224; background: #fff; }
+    input::placeholder { color: #bbb; }
+
+    .btn-send {
+      width: 100%; padding: 14px; background: #e63224; color: #fff; border: none;
+      border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: background 0.2s;
+    }
+    .btn-send:hover { background: #c42a1e; }
+
+    .success-msg {
+      display: none;
+      background: #eafaf1;
+      border: 1.5px solid #27a945;
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: #1e8a36;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #888;
+    }
+    .back-link a {
+      color: #e63224;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .back-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar"></div>
+    <div class="card-body">
+
+      <div class="logo-wrap">
+        <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+          <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        </svg>
+        <div class="logo-text">
+          <span class="arti">Arti</span><span class="royce">Royce</span>
+        </div>
+      </div>
+
+      <!-- Icône cadenas -->
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          <circle cx="12" cy="16" r="1.5" fill="#e63224" stroke="none"/>
+        </svg>
+      </div>
+
+      <h1>Mot de passe oublié ?</h1>
+      <p class="subtitle">Entrez votre email ou téléphone. Nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
+
+      <div class="success-msg" id="successMsg">
+        ✅ Lien envoyé ! Vérifiez votre boîte email ou SMS.
+      </div>
+
+      <form id="resetForm">
+        <label for="contact">EMAIL / TÉLÉPHONE</label>
+        <input type="text" id="contact" name="contact" placeholder="name@example.com" autocomplete="email"/>
+        <button type="submit" class="btn-send">ENVOYER LE LIEN &nbsp;→</button>
+      </form>
+
+      <div class="back-link">
+        <a href="connexion.html">← Retour à la connexion</a>
+      </div>
+    </div>
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    document.getElementById('resetForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const contact = document.getElementById('contact').value.trim();
+      if (contact === '') {
+        document.getElementById('contact').style.borderColor = '#e63224';
+        return;
+      }
+      document.getElementById('resetForm').style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    });
+  </script>
+</body>
+            </html>
+            
