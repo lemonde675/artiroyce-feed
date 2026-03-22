@@ -37,7 +37,6 @@ header{
 .logo-text .arti  { color:#e63224; }
 .logo-text .royce { color:#27a945; }
 
-/* ✅ CORRECTION 1 : subtitle plus gros et noir */
 .subtitle{
   margin-top:8px;
   font-size:15px;
@@ -53,7 +52,6 @@ header{
 }
 .menu{ display:flex; justify-content:space-around; }
 
-/* ✅ CORRECTION 2 : menu plus gras et noir */
 .menu a{
   padding:8px 10px;
   font-size:13px;
@@ -61,8 +59,15 @@ header{
   font-weight:600;
   text-decoration:none;
   border-radius:20px;
+  transition: background 0.18s, color 0.18s;
 }
-.menu a.active{ color:#e63224; font-weight:bold; }
+
+/* Indicateur actif : fond rouge, texte blanc — même effet que le bouton Accueil sur inscription */
+.menu a.active{
+  background: #e63224;
+  color: #fff;
+  font-weight: bold;
+}
 
 main{ padding:12px; }
 .grid{
@@ -142,6 +147,17 @@ main{ padding:12px; }
 document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('.badge').forEach(function(b){
     b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
+  });
+
+  /* Détection de la page active selon l'URL */
+  const page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.menu a').forEach(function(link){
+    const href = link.getAttribute('href');
+    if(href === page){
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
   });
 });
 </script>
