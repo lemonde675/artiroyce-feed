@@ -86,12 +86,33 @@ main{ padding:12px; }
 .badge{
   position:absolute;
   top:8px; left:8px;
-  background:#2ecc71;
+  background:#1a7a3a;
   color:#fff;
-  font-size:12px;
-  padding:4px 10px;
+  font-size:11px;
+  padding:4px 10px 4px 28px;
   border-radius:14px;
   font-weight:bold;
+  letter-spacing:0.3px;
+}
+.badge .medal{
+  position:absolute;
+  left:5px;
+  top:50%;
+  transform:translateY(-50%);
+  width:19px;
+  height:19px;
+  background:#2ecc71;
+  clip-path:polygon(50% 0%,61% 15%,79% 9%,79% 27%,97% 35%,88% 50%,97% 65%,79% 73%,79% 91%,61% 85%,50% 100%,39% 85%,21% 91%,21% 73%,3% 65%,12% 50%,3% 35%,21% 27%,21% 9%,39% 15%);
+}
+.badge .check{
+  position:absolute;
+  left:9px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:9px;
+  color:#fff;
+  font-weight:900;
+  line-height:1;
 }
 .play{
   position:absolute;
@@ -117,6 +138,15 @@ main{ padding:12px; }
 
 <!-- BANDE HAUT -->
 <div class="top-bar"></div>
+
+<script>
+// Remplace les badges après chargement
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.badge').forEach(function(b){
+    b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
+  });
+});
+</script>
 
 <header>
   <div class="logo-wrap">
@@ -266,4 +296,4 @@ main{ padding:12px; }
 <div class="bottom-bar"></div>
 
 </body>
-  </html>
+</html>
