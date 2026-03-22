@@ -21,7 +21,13 @@
       width: 380px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.13);
     }
-    .top-bar { height: 10px; background: linear-gradient(to right, #27a945 60%, #e63224 40%); }
+
+    /* ✅ CORRECTION : même bande que index et connexion */
+    .top-bar, .bottom-bar {
+      height: 10px;
+      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
+    }
+
     .logo-section {
       background: #f7f7f7;
       border-bottom: 1px solid #eee;
@@ -69,7 +75,6 @@
     .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
     .login-link a { color: #e63224; text-decoration: none; font-weight: 600; }
     .login-link a:hover { text-decoration: underline; }
-    .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 40%, #27a945 60%); }
   </style>
 </head>
 <body>
@@ -77,32 +82,14 @@
     <div class="top-bar"></div>
 
     <div class="logo-section">
-
-      <!-- EXACT MÊME SVG QUE LA PAGE CONNEXION -->
       <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-
-        <!-- ROUGE anneau complet evenodd -->
-        <path fill="#e02010" fill-rule="evenodd" d="
-          M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z
-          M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z
-        "/>
-
-        <!-- VERT anneau complet evenodd -->
-        <path fill="#27a945" fill-rule="evenodd" d="
-          M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z
-          M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z
-        "/>
-
-        <!-- Blanc zone haut + rouge par-dessus -->
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
         <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
         <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-
-        <!-- Blanc zone bas + vert par-dessus -->
         <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
         <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-
       </svg>
-
       <div class="logo-text">
         <span class="arti">Arti</span><span class="royce">Royce</span>
       </div>
@@ -113,8 +100,13 @@
       <p class="subtitle">Créez votre compte</p>
 
       <form id="inscriptionForm">
+
         <label for="nom">NOM</label>
-        <input type="text" id="nom" name="nom" placeholder="Robert" autocomplete="name"/>
+        <input type="text" id="nom" name="nom" placeholder="Dupont" autocomplete="family-name"/>
+
+        <!-- ✅ AJOUT : champ Prénom -->
+        <label for="prenom">PRÉNOM</label>
+        <input type="text" id="prenom" name="prenom" placeholder="Robert" autocomplete="given-name"/>
 
         <label for="email">EMAIL</label>
         <input type="email" id="email" name="email" placeholder="name@example.com" autocomplete="email"/>
@@ -144,7 +136,7 @@
       </form>
 
       <div class="login-link">
-        Vous avez déjà un compte ? <a href="login.html">Connectez-vous</a>
+        Vous avez déjà un compte ? <a href="connexion.html">Connectez-vous</a>
       </div>
     </div>
     <div class="bottom-bar"></div>
