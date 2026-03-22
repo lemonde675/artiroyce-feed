@@ -8,7 +8,6 @@
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; }
 body{ background:#ffffff; color:#111; }
 
-/* ===== BANDES HAUT / BAS ===== */
 .top-bar{
   height:10px;
   background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
@@ -18,7 +17,6 @@ body{ background:#ffffff; color:#111; }
   background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
 }
 
-/* ===== HEADER ===== */
 header{
   padding:16px;
   text-align:center;
@@ -39,13 +37,14 @@ header{
 .logo-text .arti  { color:#e63224; }
 .logo-text .royce { color:#27a945; }
 
+/* ✅ CORRECTION 1 : subtitle plus gros et noir */
 .subtitle{
   margin-top:8px;
-  font-size:14px;
-  color:#444;
+  font-size:15px;
+  font-weight:600;
+  color:#111;
 }
 
-/* ===== MENU ===== */
 .menu-wrap{
   margin-top:14px;
   background:#f2f2f2;
@@ -53,16 +52,18 @@ header{
   border-radius:30px;
 }
 .menu{ display:flex; justify-content:space-around; }
+
+/* ✅ CORRECTION 2 : menu plus gras et noir */
 .menu a{
   padding:8px 10px;
   font-size:13px;
-  color:#000;
+  color:#111;
+  font-weight:600;
   text-decoration:none;
   border-radius:20px;
 }
 .menu a.active{ color:#e63224; font-weight:bold; }
 
-/* ===== GRID ===== */
 main{ padding:12px; }
 .grid{
   display:grid;
@@ -70,7 +71,6 @@ main{ padding:12px; }
   gap:12px;
 }
 
-/* ===== CARD ===== */
 .card{
   background:#fff;
   border-radius:16px;
@@ -136,11 +136,9 @@ main{ padding:12px; }
 </head>
 <body>
 
-<!-- BANDE HAUT -->
 <div class="top-bar"></div>
 
 <script>
-// Remplace les badges après chargement
 document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('.badge').forEach(function(b){
     b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
@@ -150,16 +148,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <header>
   <div class="logo-wrap">
-    <!-- SVG Logo ArtiRoyce -->
     <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#e02010" fill-rule="evenodd" d="
-        M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z
-        M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z
-      "/>
-      <path fill="#27a945" fill-rule="evenodd" d="
-        M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z
-        M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z
-      "/>
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
       <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
       <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
       <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
@@ -167,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function(){
       <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
       <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
     </svg>
-
     <div class="logo-text">
       <span class="arti">Arti</span><span class="royce">Royce</span>
     </div>
@@ -292,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function(){
 </section>
 </main>
 
-<!-- BANDE BAS -->
 <div class="bottom-bar"></div>
 
 </body>
