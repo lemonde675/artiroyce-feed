@@ -1,545 +1,471 @@
-import { useState, useRef } from "react";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>ArtiRoyce – Accueil</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --red:   #E53935;
+      --green: #2E7D32;
+      --green-l: #43A047;
+    }
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #000;
+    }
+    #app {
+      max-width: 430px; margin: 0 auto;
+      height: 100dvh; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
 
+    /* ── HEADER ── */
+    #header {
+      background: #fff; display: flex; align-items: center;
+      justify-content: space-between; padding: 10px 14px;
+      border-bottom: 2px solid #EEE; flex-shrink: 0; z-index: 10;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .logo-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+    .logo-name .arti  { color: var(--red); }
+    .logo-name .royce { color: var(--green); }
+    .bell-wrap { position: relative; cursor: pointer; font-size: 22px; }
+    .bell-badge {
+      position: absolute; top: -5px; right: -7px;
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 700;
+      width: 17px; height: 17px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dots { font-size: 22px; cursor: pointer; color: #333; }
+
+    /* ── TABS ── */
+    #tabs {
+      background: #fff; display: flex; align-items: center;
+      padding: 0 8px 8px; gap: 4px;
+      border-bottom: 1px solid #E8E8E8; flex-shrink: 0;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    #tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 13px; border-radius: 20px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; white-space: nowrap;
+      background: transparent; color: #555;
+      transition: all 0.2s;
+    }
+    .tab.active { background: var(--red); color: #fff; }
+    .tab-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green-l); flex-shrink: 0;
+    }
+
+    /* ── FEED ── */
+    #feed {
+      flex: 1; overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    #feed::-webkit-scrollbar { display: none; }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%; height: 100dvh;
+      position: relative; overflow: hidden;
+      background: #000; scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+    .card-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: brightness(0.72);
+    }
+    .card-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.08) 50%, transparent 100%);
+    }
+
+    /* verified */
+    .verified {
+      position: absolute; top: 12px; left: 12px;
+      background: var(--green); color: #fff;
+      font-size: 12px; font-weight: 700;
+      padding: 5px 11px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+      z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* right actions */
+    .right-actions {
+      position: absolute; right: 10px; bottom: 110px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 18px; z-index: 5;
+    }
+    .avatar-wrap { position: relative; margin-bottom: 4px; cursor: pointer; }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 2.5px solid #fff; overflow: hidden;
+      background: #555;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-plus {
+      position: absolute; bottom: -7px; left: 50%;
+      transform: translateX(-50%);
+      width: 20px; height: 20px;
+      background: var(--green); border-radius: 50%;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 15px; font-weight: 900; line-height: 1;
+    }
+    .action-btn {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      cursor: pointer; background: none; border: none;
+    }
+    .action-circle {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    .action-circle svg { width: 22px; height: 22px; }
+    .action-count {
+      font-size: 11px; font-weight: 700; color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+    .action-btn.liked .action-circle { background: rgba(229,57,53,0.45); }
+    .action-btn.liked .action-count  { color: var(--red); }
+    .action-btn.saved .action-circle  { background: rgba(46,125,50,0.45); }
+    .action-btn.saved .action-count   { color: #81C784; }
+
+    /* bottom info */
+    .card-info {
+      position: absolute; left: 0; right: 64px; bottom: 0;
+      padding: 14px 14px 18px; z-index: 5;
+    }
+    .info-cat {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+    }
+    .info-cat-text {
+      font-size: 19px; font-weight: 800; color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .info-loc {
+      display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+    }
+    .info-loc-text { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; }
+    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .info-desc { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.4; }
+    .info-stars { font-size: 16px; margin-bottom: 12px; }
+    .card-btns { display: flex; gap: 10px; }
+    .btn-disc {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--green); color: #fff; border: none;
+      padding: 9px 16px; border-radius: 22px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-disc:active { opacity: 0.85; }
+    .btn-live {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--red); color: #fff; border: none;
+      padding: 9px 16px; border-radius: 22px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-live:active { opacity: 0.85; }
+
+    /* watermark */
+    .watermark {
+      position: absolute; right: 14px; bottom: 18px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      z-index: 6;
+    }
+    .wm-logo { display: flex; align-items: center; gap: 4px; }
+    .wm-name { font-size: 12px; font-weight: 800; }
+    .wm-name .arti  { color: var(--red); }
+    .wm-name .royce { color: var(--green); }
+    .wm-sub { font-size: 9px; color: rgba(255,255,255,0.7); text-align: center; }
+
+    /* ── BOTTOM NAV ── */
+    #bottom-nav {
+      background: #fff; display: flex; justify-content: space-around;
+      align-items: center; padding: 8px 4px 14px;
+      border-top: 1px solid #E0E0E0; flex-shrink: 0; z-index: 10;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; cursor: pointer; color: #888;
+      font-size: 10px; font-weight: 600; flex: 1;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .nav-item.active { color: var(--green); }
+    .nav-item span { font-size: 22px; }
+    .nav-add {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--red); color: #fff; border: none;
+      font-size: 26px; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(229,57,53,0.45);
+      transition: transform 0.15s;
+    }
+    .nav-add:active { transform: scale(0.93); }
+    .nav-live-badge {
+      width: 26px; height: 26px; background: var(--red);
+      border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: 13px; font-weight: 800;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; top: 130px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 8px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      white-space: nowrap; backdrop-filter: blur(6px);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; }
+    #toast.green { background: rgba(39,169,69,0.88); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+  <!-- HEADER -->
+  <div id="header">
+    <span style="font-size:22px;cursor:pointer">🏠</span>
+    <a class="logo-wrap" href="#">
+      <svg width="38" height="27" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="logo-name"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </a>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="bell-wrap">🔔<div class="bell-badge">3</div></div>
+      <span class="dots">⋮</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div id="tabs">
+    <button class="tab active" onclick="switchTab(this)">Accueil</button>
+    <button class="tab" onclick="switchTab(this)"><span class="tab-dot"></span>Statuts</button>
+    <button class="tab" onclick="switchTab(this)">👤 Artisans</button>
+    <button class="tab" onclick="switchTab(this)">👤 Mon Profil</button>
+  </div>
+
+  <!-- FEED -->
+  <div id="feed"></div>
+
+  <!-- BOTTOM NAV -->
+  <div id="bottom-nav">
+    <button class="nav-item active" onclick="switchNav(this)"><span>💬</span>Discussion</button>
+    <button class="nav-item" onclick="switchNav(this)"><span>📩</span>Messages</button>
+    <button class="nav-add">+</button>
+    <button class="nav-item" onclick="switchNav(this)">
+      <div class="nav-live-badge">▶</div>Live
+    </button>
+    <button class="nav-item" onclick="switchNav(this)"><span>👤</span>Profil</button>
+  </div>
+
+</div>
+
+<script>
 const artisans = [
-  {
-    id: 1,
-    categorie: "Mécanicien auto",
-    pays: "France",
-    ville: "Paris",
-    flag: "🇫🇷",
-    username: "@JeanGarage75",
-    description: "Réparation de moteur compliqué",
-    etoiles: 5,
-    likes: "9.8K",
-    commentaires: 403,
-    image: "https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 2,
-    categorie: "Couturière",
-    pays: "Italie",
-    ville: "Naples",
-    flag: "🇮🇹",
-    username: "@ModeNapoli",
-    description: "Confection robe de mariée sur mesure",
-    etoiles: 5,
-    likes: "6.3K",
-    commentaires: 218,
-    image: "https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 3,
-    categorie: "Maçon",
-    pays: "Chine",
-    ville: "Shenzhen",
-    flag: "🇨🇳",
-    username: "@MaçonShenzhen",
-    description: "Construction murs en brique traditionnelle",
-    etoiles: 4,
-    likes: "4.1K",
-    commentaires: 97,
-    image: "https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 4,
-    categorie: "Menuisier",
-    pays: "Cameroun",
-    ville: "Yaoundé",
-    flag: "🇨🇲",
-    username: "@BoisYaoundé237",
-    description: "Fabrication meuble salon bois massif",
-    etoiles: 4,
-    likes: "3.7K",
-    commentaires: 142,
-    image: "https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 5,
-    categorie: "Électricien",
-    pays: "Japon",
-    ville: "Tokyo",
-    flag: "🇯🇵",
-    username: "@ElecTokyo81",
-    description: "Installation tableau électrique neuf",
-    etoiles: 5,
-    likes: "5.2K",
-    commentaires: 189,
-    image: "https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 6,
-    categorie: "Soudeur",
-    pays: "Nigeria",
-    ville: "Lagos",
-    flag: "🇳🇬",
-    username: "@SoudeurLagos",
-    description: "Fabrication portail métallique sur mesure",
-    etoiles: 4,
-    likes: "2.9K",
-    commentaires: 76,
-    image: "https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 7,
-    categorie: "Forgeron artisanal",
-    pays: "Ghana",
-    ville: "Kumasi",
-    flag: "🇬🇭",
-    username: "@ForgeKumasi",
-    description: "Forge couteaux et outils traditionnels",
-    etoiles: 5,
-    likes: "7.6K",
-    commentaires: 311,
-    image: "https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
-  {
-    id: 8,
-    categorie: "Vendeuse de fruits",
-    pays: "Bénin",
-    ville: "Calavi",
-    flag: "🇧🇯",
-    username: "@FruitsCalavi",
-    description: "Fruits frais du marché local chaque matin",
-    etoiles: 4,
-    likes: "1.8K",
-    commentaires: 53,
-    image: "https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100",
-    verifie: true,
-  },
+  { id:1, categorie:"Mécanicien auto",     pays:"France",   ville:"Paris",    flag:"🇫🇷", username:"@JeanGarage75",    description:"Réparation de moteur compliqué",           etoiles:5, likes:"9.8K", commentaires:403, verifie:true,
+    image:"https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:2, categorie:"Couturière",           pays:"Italie",   ville:"Naples",   flag:"🇮🇹", username:"@ModeNapoli",      description:"Confection robe de mariée sur mesure",     etoiles:5, likes:"6.3K", commentaires:218, verifie:true,
+    image:"https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:3, categorie:"Maçon",                pays:"Chine",    ville:"Shenzhen", flag:"🇨🇳", username:"@MaçonShenzhen",   description:"Construction murs en brique traditionnelle",etoiles:4, likes:"4.1K", commentaires:97,  verifie:true,
+    image:"https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:4, categorie:"Menuisier",            pays:"Cameroun", ville:"Yaoundé",  flag:"🇨🇲", username:"@BoisYaoundé237",  description:"Fabrication meuble salon bois massif",     etoiles:4, likes:"3.7K", commentaires:142, verifie:true,
+    image:"https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:5, categorie:"Électricien",          pays:"Japon",    ville:"Tokyo",    flag:"🇯🇵", username:"@ElecTokyo81",     description:"Installation tableau électrique neuf",     etoiles:5, likes:"5.2K", commentaires:189, verifie:true,
+    image:"https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:6, categorie:"Soudeur",              pays:"Nigeria",  ville:"Lagos",    flag:"🇳🇬", username:"@SoudeurLagos",    description:"Fabrication portail métallique sur mesure",etoiles:4, likes:"2.9K", commentaires:76,  verifie:true,
+    image:"https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:7, categorie:"Forgeron artisanal",   pays:"Ghana",    ville:"Kumasi",   flag:"🇬🇭", username:"@ForgeKumasi",     description:"Forge couteaux et outils traditionnels",   etoiles:5, likes:"7.6K", commentaires:311, verifie:true,
+    image:"https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:8, categorie:"Vendeuse de fruits",   pays:"Bénin",    ville:"Calavi",   flag:"🇧🇯", username:"@FruitsCalavi",    description:"Fruits frais du marché local chaque matin", etoiles:4, likes:"1.8K", commentaires:53,  verifie:true,
+    image:"https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=600",
+    avatar:"https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100" },
 ];
 
-const RED = "#E53935";
-const GREEN = "#2E7D32";
-const GREEN_L = "#43A047";
+const logoSVG = `<svg width="20" height="14" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+  <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+  <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+  <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+  <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+  <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+</svg>`;
 
-// Thumb up SVG
-const ThumbUp = ({ filled }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill={filled ? RED : "white"}>
+const thumbUpSVG = (filled) =>
+  `<svg width="22" height="22" viewBox="0 0 24 24" fill="${filled ? '#E53935' : 'white'}">
     <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-  </svg>
-);
-const CommentIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+  </svg>`;
+
+const commentSVG =
+  `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
     <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-  </svg>
-);
-const DownloadIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+  </svg>`;
+
+const downloadSVG =
+  `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-  </svg>
-);
-const LogoSVG = ({ size = 32 }) => {
-  const w = size * (160/110);
-  const h = size;
-  return (
-    <svg width={w} height={h} viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-      {/* ROUGE anneau complet */}
-      <path fill="#e02010" fillRule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-      {/* VERT anneau complet */}
-      <path fill="#27a945" fillRule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-      {/* ROUGE bras haut par-dessus */}
-      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-      {/* VERT bras bas par-dessus */}
-      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-      {/* Blanc + rouge pour zone haut */}
-      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-      {/* Blanc + vert pour zone bas */}
-      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-    </svg>
-  );
-};
+  </svg>`;
 
-function Card({ artisan, liked, onLike, onComment, saved, onSave }) {
-  const stars = Array.from({ length: 5 }, (_, i) => i < artisan.etoiles ? "⭐" : "☆").join("");
-  return (
-    <div style={{
-      width: "100%",
-      height: "100%",
-      position: "relative",
-      flexShrink: 0,
-      overflow: "hidden",
-      background: "#000",
-      scrollSnapAlign: "start",
-    }}>
-      {/* BG image */}
-      <img
-        src={artisan.image}
-        alt={artisan.categorie}
-        style={{
-          position: "absolute", inset: 0,
-          width: "100%", height: "100%",
-          objectFit: "cover",
-          filter: "brightness(0.72)",
-        }}
-      />
-
-      {/* Gradient overlay bottom */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)",
-      }} />
-
-      {/* Verified badge */}
-      {artisan.verifie && (
-        <div style={{
-          position: "absolute", top: 12, left: 12,
-          background: GREEN,
-          color: "white",
-          fontSize: 12, fontWeight: 700,
-          padding: "5px 11px",
-          borderRadius: 20,
-          display: "flex", alignItems: "center", gap: 5,
-          zIndex: 5,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-        }}>
-          ✔ Vérifié
-        </div>
-      )}
-
-      {/* Right actions */}
-      <div style={{
-        position: "absolute",
-        right: 10, bottom: 110,
-        display: "flex", flexDirection: "column",
-        alignItems: "center", gap: 18,
-        zIndex: 5,
-      }}>
-        {/* Avatar + plus */}
-        <div style={{ position: "relative", marginBottom: 4 }}>
-          <div style={{
-            width: 48, height: 48,
-            borderRadius: "50%",
-            border: "2.5px solid white",
-            overflow: "hidden",
-          }}>
-            <img src={artisan.avatar} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </div>
-          <div style={{
-            position: "absolute", bottom: -7, left: "50%",
-            transform: "translateX(-50%)",
-            width: 20, height: 20,
-            background: GREEN, borderRadius: "50%",
-            border: "2px solid white",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "white", fontSize: 15, fontWeight: 900,
-            lineHeight: 1,
-          }}>+</div>
-        </div>
-
-        {/* Like - YouTube style */}
-        <button onClick={onLike} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-          <div style={{
-            width: 46, height: 46, borderRadius: "50%",
-            background: liked ? "rgba(229,57,53,0.4)" : "rgba(0,0,0,0.38)",
-            backdropFilter: "blur(4px)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.18s",
-          }}>
-            <ThumbUp filled={liked} />
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: liked ? RED : "white", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
-            {artisan.likes}
-          </span>
-        </button>
-
-        {/* Comments */}
-        <button onClick={onComment} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-          <div style={{
-            width: 46, height: 46, borderRadius: "50%",
-            background: "rgba(0,0,0,0.38)",
-            backdropFilter: "blur(4px)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <CommentIcon />
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "white", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
-            {artisan.commentaires}
-          </span>
-        </button>
-
-        {/* Download / Sauvegarder */}
-        <button onClick={onSave} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-          <div style={{
-            width: 46, height: 46, borderRadius: "50%",
-            background: saved ? "rgba(46,125,50,0.45)" : "rgba(0,0,0,0.38)",
-            backdropFilter: "blur(4px)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.18s",
-          }}>
-            <DownloadIcon />
-          </div>
-          <span style={{ fontSize: 11, fontWeight: 700, color: saved ? "#81C784" : "white", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
-            Sauver
-          </span>
-        </button>
-      </div>
-
-      {/* Bottom info */}
-      <div style={{
-        position: "absolute",
-        left: 0, right: 64,
-        bottom: 0,
-        padding: "14px 14px 18px",
-        zIndex: 5,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-          <span style={{ fontSize: 20 }}>{artisan.flag}</span>
-          <span style={{ fontSize: 19, fontWeight: 800, color: "white", textShadow: "0 2px 6px rgba(0,0,0,0.5)" }}>
-            {artisan.categorie}
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
-          <span style={{ fontSize: 14 }}>{artisan.flag}</span>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 500 }}>
-            {artisan.ville} • {artisan.pays}
-          </span>
-        </div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 2 }}>{artisan.username}</div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", marginBottom: 8, lineHeight: 1.4 }}>
-          {artisan.description}
-        </div>
-        <div style={{ fontSize: 16, marginBottom: 12 }}>{stars}</div>
-        <div style={{ display: "flex", gap: 10 }}>
-          <button style={{
-            display: "flex", alignItems: "center", gap: 6,
-            background: GREEN, color: "white",
-            border: "none", padding: "9px 16px",
-            borderRadius: 22, fontSize: 13, fontWeight: 700,
-            cursor: "pointer",
-          }}>💬 Discussion</button>
-          <button style={{
-            display: "flex", alignItems: "center", gap: 4,
-            background: RED, color: "white",
-            border: "none", padding: "9px 16px",
-            borderRadius: 22, fontSize: 13, fontWeight: 700,
-            cursor: "pointer",
-          }}>+ Live</button>
-        </div>
-      </div>
-
-      {/* Watermark */}
-      <div style={{
-        position: "absolute", right: 14, bottom: 18,
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-        zIndex: 6,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <LogoSVG size={20} />
-          <span style={{ fontSize: 12, fontWeight: 800 }}>
-            <span style={{ color: RED }}>Arti</span><span style={{ color: GREEN }}>Royce</span>
-          </span>
-        </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", textAlign: "center" }}>
-          Téléchargé sur ArtiRoyce
-        </span>
-      </div>
-    </div>
-  );
+function stars(n) {
+  return Array.from({length:5}, (_,i) => i < n ? '⭐' : '☆').join('');
 }
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState("Accueil");
-  const [activeNav, setActiveNav] = useState("Discussion");
-  const [likedIds, setLikedIds] = useState(new Set());
-  const [savedIds, setSavedIds] = useState(new Set());
-  const [toast, setToast] = useState(null);
-  const feedRef = useRef(null);
+function buildCard(a) {
+  return `
+  <div class="card" id="card-${a.id}">
+    <div class="card-bg" style="background-image:url('${a.image}')"></div>
+    <div class="card-gradient"></div>
 
-  const tabs = [
-    { label: "Accueil", icon: null },
-    { label: "Statuts", dot: true },
-    { label: "Artisans", icon: "👤" },
-    { label: "Mon Profil", icon: "👤" },
-  ];
+    ${a.verifie ? `<div class="verified">✔ Vérifié</div>` : ''}
 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2000);
-  };
-
-  const toggleLike = (id) => {
-    setLikedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); showToast("J'aime retiré"); }
-      else { next.add(id); showToast("👍 J'aime !"); }
-      return next;
-    });
-  };
-
-  const toggleSave = (id) => {
-    setSavedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); showToast("Supprimé des favoris"); }
-      else { next.add(id); showToast("✅ Sauvegardé !"); }
-      return next;
-    });
-  };
-
-  return (
-    <div style={{
-      width: "100%", maxWidth: 430,
-      height: "100vh",
-      margin: "0 auto",
-      display: "flex", flexDirection: "column",
-      background: "#F5F5F5",
-      overflow: "hidden",
-      fontFamily: "'Segoe UI', sans-serif",
-      position: "relative",
-    }}>
-
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: "absolute", top: 130, left: "50%",
-          transform: "translateX(-50%)",
-          background: "rgba(0,0,0,0.75)",
-          color: "white", padding: "8px 18px",
-          borderRadius: 20, fontSize: 13, fontWeight: 600,
-          zIndex: 999, whiteSpace: "nowrap",
-          backdropFilter: "blur(6px)",
-        }}>{toast}</div>
-      )}
-
-      {/* ── HEADER ── */}
-      <div style={{
-        background: "white",
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px 14px",
-        borderBottom: "2px solid #EEE",
-        flexShrink: 0, zIndex: 10,
-      }}>
-        <span style={{ fontSize: 22, cursor: "pointer" }}>🏠</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <LogoSVG size={34} />
-          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.5 }}>
-            <span style={{ color: RED }}>Arti</span><span style={{ color: GREEN }}>Royce</span>
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ position: "relative", cursor: "pointer" }}>
-            <span style={{ fontSize: 22 }}>🔔</span>
-            <div style={{
-              position: "absolute", top: -5, right: -7,
-              background: RED, color: "white",
-              fontSize: 10, fontWeight: 700,
-              width: 17, height: 17, borderRadius: "50%",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>3</div>
-          </div>
-          <span style={{ fontSize: 22, cursor: "pointer", color: "#333" }}>⋮</span>
-        </div>
+    <div class="right-actions">
+      <div class="avatar-wrap">
+        <div class="avatar"><img src="${a.avatar}" alt="avatar" loading="lazy"/></div>
+        <div class="avatar-plus">+</div>
       </div>
 
-      {/* ── TABS ── */}
-      <div style={{
-        background: "white",
-        display: "flex", alignItems: "center",
-        padding: "0 8px 8px", gap: 4,
-        borderBottom: "1px solid #E8E8E8",
-        flexShrink: 0, overflowX: "auto",
-        scrollbarWidth: "none",
-      }}>
-        {tabs.map(t => (
-          <button key={t.label} onClick={() => setActiveTab(t.label)} style={{
-            display: "flex", alignItems: "center", gap: 5,
-            padding: "7px 13px",
-            borderRadius: 20,
-            fontSize: 13, fontWeight: 600,
-            cursor: "pointer",
-            border: "none",
-            whiteSpace: "nowrap",
-            background: activeTab === t.label ? RED : "transparent",
-            color: activeTab === t.label ? "white" : "#555",
-            transition: "all 0.2s",
-          }}>
-            {t.dot && <div style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN_L }} />}
-            {t.icon && <span style={{ fontSize: 13 }}>{t.icon}</span>}
-            {t.label}
-          </button>
-        ))}
+      <button class="action-btn" id="like-${a.id}" onclick="toggleLike(${a.id})">
+        <div class="action-circle">${thumbUpSVG(false)}</div>
+        <span class="action-count" id="like-count-${a.id}">${a.likes}</span>
+      </button>
+
+      <button class="action-btn" onclick="showToast('💬 Commentaires — bientôt disponible')">
+        <div class="action-circle">${commentSVG}</div>
+        <span class="action-count">${a.commentaires}</span>
+      </button>
+
+      <button class="action-btn" id="save-${a.id}" onclick="toggleSave(${a.id})">
+        <div class="action-circle">${downloadSVG}</div>
+        <span class="action-count" id="save-count-${a.id}">Sauver</span>
+      </button>
+    </div>
+
+    <div class="card-info">
+      <div class="info-cat">
+        <span style="font-size:20px">${a.flag}</span>
+        <span class="info-cat-text">${a.categorie}</span>
       </div>
-
-      {/* ── FEED ── */}
-      <div ref={feedRef} style={{
-        flex: 1,
-        overflowY: "scroll",
-        scrollSnapType: "y mandatory",
-        scrollbarWidth: "none",
-      }}>
-        {artisans.map(a => (
-          <div key={a.id} style={{ height: "100%", scrollSnapAlign: "start" }}>
-            <Card
-              artisan={a}
-              liked={likedIds.has(a.id)}
-              onLike={() => toggleLike(a.id)}
-              saved={savedIds.has(a.id)}
-              onSave={() => toggleSave(a.id)}
-              onComment={() => showToast("💬 Commentaires — bientôt disponible")}
-            />
-          </div>
-        ))}
+      <div class="info-loc">
+        <span style="font-size:14px">${a.flag}</span>
+        <span class="info-loc-text">${a.ville} • ${a.pays}</span>
       </div>
+      <div class="info-user">${a.username}</div>
+      <div class="info-desc">${a.description}</div>
+      <div class="info-stars">${stars(a.etoiles)}</div>
+      <div class="card-btns">
+        <button class="btn-disc">💬 Discussion</button>
+        <button class="btn-live">+ Live</button>
+      </div>
+    </div>
 
-      {/* ── BOTTOM NAV ── */}
-      <div style={{
-        background: "white",
-        display: "flex", justifyContent: "space-around",
-        alignItems: "center",
-        padding: "8px 4px 14px",
-        borderTop: "1px solid #E0E0E0",
-        flexShrink: 0, zIndex: 10,
-      }}>
-        {[
-          { label: "Discussion", icon: "💬" },
-          { label: "Messages", icon: "📩" },
-        ].map(n => (
-          <button key={n.label} onClick={() => setActiveNav(n.label)} style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            gap: 3, cursor: "pointer", background: "none", border: "none",
-            color: activeNav === n.label ? GREEN : "#888",
-            fontSize: 10, fontWeight: 600, flex: 1,
-          }}>
-            <span style={{ fontSize: 22 }}>{n.icon}</span>
-            {n.label}
-          </button>
-        ))}
+    <div class="watermark">
+      <div class="wm-logo">
+        ${logoSVG}
+        <span class="wm-name"><span class="arti">Arti</span><span class="royce">Royce</span></span>
+      </div>
+      <span class="wm-sub">Téléchargé sur ArtiRoyce</span>
+    </div>
+  </div>`;
+}
 
-        <button style={{
-          width: 50, height: 50, borderRadius: "50%",
-          background: RED, color: "white",
-          border: "none", fontSize: 26, cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 14px rgba(229,57,53,0.45)",
-          flexShrink: 0,
-        }}>+</button>
+// Render feed
+document.getElementById('feed').innerHTML = artisans.map(buildCard).join('');
 
-        {[
-          { label: "Live", icon: "▶", red: true },
-          { label: "Profil", icon: "👤" },
-        ].map(n => (
-          <button key={n.label} onClick={() => setActiveNav(n.label)} style={{
-            display: "flex", flexDirection: "column", alignItems: "center",
-            gap: 3, cursor: "pointer", background: "none", border: "none",
-            color: n.red ? (activeNav === n.label ? RED : "#888") : (activeNav === n.label ? GREEN : "#888"),
-            fontSize: 10, fontWeight: 600, flex: 1,
-          }}>
-            <div style={{
-              width: 26, height: 2
+// Fix card heights after render
+function fixHeights() {
+  const h = document.getElementById('feed').clientHeight;
+  document.querySelectorAll('.card').forEach(c => c.style.height = h + 'px');
+}
+fixHeights();
+window.addEventListener('resize', fixHeights);
+
+// Like toggle
+const likedSet = new Set();
+function toggleLike(id) {
+  const btn = document.getElementById('like-' + id);
+  if (likedSet.has(id)) {
+    likedSet.delete(id);
+    btn.classList.remove('liked');
+    btn.querySelector('.action-circle').innerHTML = thumbUpSVG(false);
+    showToast("J'aime retiré");
+  } else {
+    likedSet.add(id);
+    btn.classList.add('liked');
+    btn.querySelector('.action-circle').innerHTML = thumbUpSVG(true);
+    showToast('👍 J\'aime !', 'green');
+  }
+}
+
+// Save toggle
+const savedSet = new Set();
+function toggleSave(id) {
+  const btn = document.getElementById('save-' + id);
+  const cnt = document.getElementById('save-count-' + id);
+  if (savedSet.has(id)) {
+    savedSet.delete(id);
+    btn.classList.remove('saved');
+    cnt.textContent = 'Sauver';
+    showToast('Supprimé des favoris');
+  } else {
+    savedSet.add(id);
+    btn.classList.add('saved');
+    cnt.textContent = '✅ Sauvé';
+    showToast('✅ Sauvegardé !', 'green');
+  }
+}
+
+// Toast
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = '', 2200);
+}
+
+// Tabs
+function switchTab(el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Bottom nav
+function switchNav(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
