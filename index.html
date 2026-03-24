@@ -62,6 +62,7 @@ header{
   transition: background 0.18s, color 0.18s;
 }
 
+/* Indicateur actif : fond rouge, texte blanc — même effet que le bouton Accueil sur inscription */
 .menu a.active{
   background: #e63224;
   color: #fff;
@@ -96,6 +97,27 @@ main{ padding:12px; }
   padding:4px 10px 4px 28px;
   border-radius:14px;
   font-weight:bold;
+  letter-spacing:0.3px;
+}
+.badge .medal{
+  position:absolute;
+  left:5px;
+  top:50%;
+  transform:translateY(-50%);
+  width:19px;
+  height:19px;
+  background:#2ecc71;
+  clip-path:polygon(50% 0%,61% 15%,79% 9%,79% 27%,97% 35%,88% 50%,97% 65%,79% 73%,79% 91%,61% 85%,50% 100%,39% 85%,21% 91%,21% 73%,3% 65%,12% 50%,3% 35%,21% 27%,21% 9%,39% 15%);
+}
+.badge .check{
+  position:absolute;
+  left:9px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:9px;
+  color:#fff;
+  font-weight:900;
+  line-height:1;
 }
 .play{
   position:absolute;
@@ -117,13 +139,49 @@ main{ padding:12px; }
 .stars{ color:#f1c40f; margin-top:4px; font-size:13px; }
 </style>
 </head>
-
 <body>
 
 <div class="top-bar"></div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.badge').forEach(function(b){
+    b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
+  });
+
+  /* Détection de la page active selon l'URL */
+  const page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.menu a').forEach(function(link){
+    const href = link.getAttribute('href');
+    if(href === page){
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+
+  /* Flash rouge visible au clic avant changement de page */
+  document.querySelectorAll('.menu a').forEach(function(link){
+    link.addEventListener('click', function(){
+      document.querySelectorAll('.menu a').forEach(function(l){ l.classList.remove('active'); });
+      link.classList.add('active');
+    });
+  });
+});
+</script>
+
 <header>
   <div class="logo-wrap">
+    <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
     <div class="logo-text">
       <span class="arti">Arti</span><span class="royce">Royce</span>
     </div>
@@ -157,31 +215,98 @@ main{ padding:12px; }
   </div>
 </div>
 
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Couturière</div>
+    <div class="place">🇮🇹 Italie — Naples</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Maçon</div>
+    <div class="place">🇨🇳 Chine — Shenzhen</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Menuisier</div>
+    <div class="place">🇨🇲 Cameroun — Yaoundé</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Électricien</div>
+    <div class="place">🇯🇵 Japon — Tokyo</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Peintre</div>
+    <div class="place">🇮🇹 Italie — Rome</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Soudeur</div>
+    <div class="place">🇳🇬 Nigeria — Lagos</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Forgeron artisanal</div>
+    <div class="place">🇬🇭 Ghana — Kumasi</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Vendeuse de fruits</div>
+    <div class="place">🇧🇯 Bénin — Calavi</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
 </section>
 </main>
 
 <div class="bottom-bar"></div>
-
-<!-- FIREBASE -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-    authDomain: "artiroyce-f42e4.firebaseapp.com",
-    projectId: "artiroyce-f42e4",
-    storageBucket: "artiroyce-f42e4.firebasestorage.app",
-    messagingSenderId: "588140774605",
-    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
-    measurementId: "G-X4XLHDJCE7"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-
-  console.log("Firebase connecté ✅");
-</script>
 
 </body>
 </html>
