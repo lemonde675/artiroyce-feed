@@ -341,7 +341,6 @@
         </div>
         <button class="avatar-edit" onclick="changeAvatar()">📷</button>
       </div>
-      <!-- Historique photos -->
       <div class="avatar-history" id="avatarHistory">
         <div class="avatar-mini"><img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=60" alt=""/></div>
         <div class="avatar-mini" style="background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">+</div>
@@ -353,32 +352,28 @@
     </div>
   </div>
 
-  <!-- Nom + Badge -->
-  <div class="profile-name" id="profileName">Jean-Pierre Garage</div>
+  <div class="profile-name" id="profileName">Chargement…</div>
   <div class="profile-meta">
     <span class="verified-badge">✔ Vérifié</span>
-    <span class="profile-category" id="profileCategory">🔧 Mécanicien auto</span>
+    <span class="profile-category" id="profileCategory"></span>
   </div>
-  <div class="profile-bio" id="profileBio">
-    Spécialiste en réparation moteur, diagnostic électronique et révision complète. 10 ans d'expérience. Intervention rapide sur Paris et région. Devis gratuit sous 24h. Paiement en plusieurs fois accepté. Pièces d'origine garanties.
-  </div>
+  <div class="profile-bio" id="profileBio">Chargement des informations…</div>
 
-  <!-- Stats / Likes -->
   <div class="stats-row">
     <div class="stat-item">
-      <div class="stat-num red" id="statLikes">9.8K</div>
+      <div class="stat-num red" id="statLikes">0</div>
       <div class="stat-label">❤️ J'aime</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" id="statFollowers">1.2K</div>
+      <div class="stat-num" id="statFollowers">0</div>
       <div class="stat-label">👥 Abonnés</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" id="statPosts">47</div>
+      <div class="stat-num" id="statPosts">0</div>
       <div class="stat-label">📸 Posts</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" id="statAvis">4.9⭐</div>
+      <div class="stat-num" id="statAvis">—</div>
       <div class="stat-label">💬 Avis</div>
     </div>
   </div>
@@ -388,61 +383,54 @@
 <div class="section">
   <div class="section-title"><span>📋</span> Coordonnées</div>
   <div class="coords-grid">
-
     <div class="coord-item">
       <div class="coord-circle phone">📞</div>
       <div class="coord-text">
         <div class="coord-label">TÉLÉPHONE</div>
-        <div class="coord-value" id="coordTel">+33 6 12 34 56 78</div>
+        <div class="coord-value" id="coordTel">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('tel')" title="Enregistrer">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('tel')">💾</button>
     </div>
-
     <div class="coord-item">
       <div class="coord-circle whatsapp">💬</div>
       <div class="coord-text">
         <div class="coord-label">WHATSAPP</div>
-        <div class="coord-value" id="coordWa">+33 6 12 34 56 78</div>
+        <div class="coord-value" id="coordWa">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('whatsapp')" title="Ouvrir">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('whatsapp')">💾</button>
     </div>
-
     <div class="coord-item">
       <div class="coord-circle email">📧</div>
       <div class="coord-text">
         <div class="coord-label">EMAIL</div>
-        <div class="coord-value" id="coordEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a8c2cdc9c6e8cfc9dac9cfcd86ceda">[email&#160;protected]</a></div>
+        <div class="coord-value" id="coordEmail">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('email')" title="Copier">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('email')">💾</button>
     </div>
-
     <div class="coord-item">
       <div class="coord-circle web">🌐</div>
       <div class="coord-text">
         <div class="coord-label">SITE WEB</div>
-        <div class="coord-value" id="coordWeb">garage75.fr</div>
+        <div class="coord-value" id="coordWeb">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('web')" title="Visiter">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('web')">💾</button>
     </div>
-
     <div class="coord-item">
       <div class="coord-circle location">📍</div>
       <div class="coord-text">
         <div class="coord-label">ADRESSE</div>
-        <div class="coord-value" id="coordAdresse">Paris 15e, France</div>
+        <div class="coord-value" id="coordAdresse">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('adresse')" title="Copier">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('adresse')">💾</button>
     </div>
-
     <div class="coord-item">
       <div class="coord-circle hours">🕐</div>
       <div class="coord-text">
         <div class="coord-label">HORAIRES</div>
-        <div class="coord-value" id="coordHoraires">Lun–Sam 8h–18h</div>
+        <div class="coord-value" id="coordHoraires">—</div>
       </div>
-      <button class="coord-save-btn" onclick="saveCoord('horaires')" title="Enregistrer">💾</button>
+      <button class="coord-save-btn" onclick="saveCoord('horaires')">💾</button>
     </div>
-
   </div>
 </div>
 
@@ -452,7 +440,7 @@
   <div class="map-box" onclick="openMap()" id="mapBox">
     <div class="map-icon">📍</div>
     <div class="map-text">Voir sur la carte</div>
-    <div class="map-subtext">Paris 15e arrondissement, France<br>Cliquez pour ouvrir Google Maps</div>
+    <div class="map-subtext" id="mapSubtext">Cliquez pour ouvrir Google Maps</div>
   </div>
   <button class="btn-directions" onclick="getDirections()">
     🧭 Obtenir l'itinéraire → Boutique
@@ -474,14 +462,12 @@
 
 <!-- ── PORTFOLIO MÉDIAS ── -->
 <div class="media-section">
-  <div class="section-title" style="padding:0 0 0 0"><span>🎬</span> Portfolio</div>
+  <div class="section-title"><span>🎬</span> Portfolio</div>
   <div class="media-tabs">
     <div class="media-tab active" onclick="switchMedia('posts', this)">📸 Photos</div>
     <div class="media-tab" onclick="switchMedia('videos', this)">🎬 Vidéos</div>
     <div class="media-tab" onclick="switchMedia('avis', this)">⭐ Avis</div>
   </div>
-
-  <!-- Photos grid -->
   <div class="media-grid" id="mediaGrid">
     <div class="media-item">
       <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?w=200" alt=""/>
@@ -508,19 +494,15 @@
       <div class="media-overlay"></div>
       <div class="media-views">👁 543</div>
     </div>
-    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ccc;cursor:pointer;" onclick="showToast('Bientôt disponible')">
-      +
-    </div>
+    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ccc;cursor:pointer;">+</div>
   </div>
-
-  <!-- Avis (caché par défaut) -->
   <div id="avisSection" style="display:none;padding:14px 0;">
     <div class="review-item">
       <div class="reviewer-avatar">M</div>
       <div class="review-content">
         <div class="review-name">Marie Dupont</div>
         <div class="review-stars">⭐⭐⭐⭐⭐</div>
-        <div class="review-text">Excellent travail ! Très professionnel, rapide et honnête. Je recommande vivement.</div>
+        <div class="review-text">Excellent travail ! Très professionnel, rapide et honnête.</div>
         <div class="review-date">Il y a 2 jours</div>
       </div>
     </div>
@@ -529,17 +511,8 @@
       <div class="review-content">
         <div class="review-name">Kofi Mensah</div>
         <div class="review-stars">⭐⭐⭐⭐⭐</div>
-        <div class="review-text">Ma voiture est comme neuve ! Prix raisonnable et travail de qualité.</div>
+        <div class="review-text">Ma voiture est comme neuve ! Prix raisonnable.</div>
         <div class="review-date">Il y a 1 semaine</div>
-      </div>
-    </div>
-    <div class="review-item">
-      <div class="reviewer-avatar">S</div>
-      <div class="review-content">
-        <div class="review-name">Sylvie Martin</div>
-        <div class="review-stars">⭐⭐⭐⭐☆</div>
-        <div class="review-text">Bon travail, délai respecté. Je reviendrai.</div>
-        <div class="review-date">Il y a 2 semaines</div>
       </div>
     </div>
   </div>
@@ -547,67 +520,151 @@
 
 <div class="bottom-space"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(() => t.className = 'toast', 2500);
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+  measurementId: "G-X4XLHDJCE7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// Lire l'ID dans l'URL
+const uid = new URLSearchParams(window.location.search).get('id');
+
+async function loadProfile() {
+  if (!uid || uid.startsWith('ex')) {
+    // Profil exemple — garder les données par défaut
+    document.getElementById('profileName').textContent = 'Jean-Pierre Garage';
+    document.getElementById('profileCategory').textContent = '🔧 Mécanicien auto';
+    document.getElementById('profileBio').textContent = 'Spécialiste en réparation moteur, diagnostic électronique et révision complète. 10 ans d\'expérience. Intervention rapide sur Paris et région.';
+    document.getElementById('coordTel').textContent = '+33 6 12 34 56 78';
+    document.getElementById('coordWa').textContent = '+33 6 12 34 56 78';
+    document.getElementById('coordEmail').textContent = 'jean@garage.fr';
+    document.getElementById('coordWeb').textContent = 'garage75.fr';
+    document.getElementById('coordAdresse').textContent = 'Paris 15e, France';
+    document.getElementById('coordHoraires').textContent = 'Lun–Sam 8h–18h';
+    document.getElementById('statLikes').textContent = '9.8K';
+    document.getElementById('statFollowers').textContent = '1.2K';
+    document.getElementById('statPosts').textContent = '47';
+    document.getElementById('statAvis').textContent = '4.9⭐';
+    document.getElementById('mapSubtext').innerHTML = 'Paris 15e arrondissement, France<br>Cliquez pour ouvrir Google Maps';
+    return;
   }
 
-  function toggleFollow() {
-    const btn = document.getElementById('followBtn');
-    if (btn.classList.contains('following')) {
-      btn.classList.remove('following');
-      btn.textContent = '+ Suivre';
-      showToast('Vous ne suivez plus cet artisan.');
-    } else {
-      btn.classList.add('following');
-      btn.textContent = '✔ Abonné';
-      showToast('✅ Vous suivez maintenant cet artisan !', 'success');
+  try {
+    const snap = await getDoc(doc(db, 'utilisateurs', uid));
+    if (snap.exists()) {
+      const d = snap.data();
+
+      // Nom complet
+      document.getElementById('profileName').textContent = (d.prenom || '') + ' ' + (d.nom || '');
+      document.title = 'ArtiRoyce – ' + (d.prenom || '') + ' ' + (d.nom || '');
+
+      // Catégorie / métier
+      document.getElementById('profileCategory').textContent = d.categorie || d.metier || 'Artisan';
+
+      // Bio
+      document.getElementById('profileBio').textContent = d.bio || 'Artisan professionnel vérifié sur ArtiRoyce.';
+
+      // Coordonnées
+      document.getElementById('coordTel').textContent = d.telephone || '—';
+      document.getElementById('coordWa').textContent = d.telephone || '—';
+      document.getElementById('coordEmail').textContent = d.email || '—';
+      document.getElementById('coordWeb').textContent = d.siteWeb || '—';
+      document.getElementById('coordAdresse').textContent = d.adresse || (d.ville ? d.ville + (d.pays ? ', ' + d.pays : '') : '—');
+      document.getElementById('coordHoraires').textContent = d.horaires || '—';
+
+      // Carte
+      const adresse = d.adresse || d.ville || '';
+      document.getElementById('mapSubtext').innerHTML = adresse + '<br>Cliquez pour ouvrir Google Maps';
+
+      // Stats
+      document.getElementById('statLikes').textContent = d.likes || '0';
+      document.getElementById('statFollowers').textContent = d.followers || '0';
+      document.getElementById('statPosts').textContent = d.posts || '0';
+      document.getElementById('statAvis').textContent = d.noteAvis ? d.noteAvis + '⭐' : '—';
+
+      // Avatar
+      if (d.photoURL) {
+        document.getElementById('avatarImg').src = d.photoURL;
+      } else {
+        const initiale = (d.prenom || d.nom || '?')[0].toUpperCase();
+        const av = document.getElementById('avatarImg');
+        av.style.display = 'none';
+        av.parentElement.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;">${initiale}</div>`;
+      }
     }
+  } catch(e) {
+    console.log('Erreur chargement profil:', e);
   }
+}
 
-  function contacterArtisan() {
-    showToast('💬 Ouverture de la messagerie…', 'success');
+loadProfile();
+
+// Fonctions interactives
+window.toggleFollow = function() {
+  const btn = document.getElementById('followBtn');
+  if (btn.classList.contains('following')) {
+    btn.classList.remove('following'); btn.textContent = '+ Suivre';
+    showToast('Vous ne suivez plus cet artisan.');
+  } else {
+    btn.classList.add('following'); btn.textContent = '✔ Abonné';
+    showToast('✅ Vous suivez maintenant cet artisan !', 'success');
   }
+};
 
-  function saveCoord(type) {
-    const msgs = {
-      tel: '📞 Numéro copié !',
-      whatsapp: '💬 WhatsApp ouvert !',
-      email: '📧 Email copié !',
-      web: '🌐 Site web ouvert !',
-      adresse: '📍 Adresse copiée !',
-      horaires: '🕐 Horaires enregistrés !'
-    };
-    showToast(msgs[type] || '✅ Enregistré !', 'success');
-  }
+window.contacterArtisan = function() { showToast('💬 Ouverture de la messagerie…', 'success'); };
 
-  function openMap() {
-    const adresse = document.getElementById('coordAdresse').textContent;
-    showToast('🗺️ Ouverture de la carte…', 'success');
-    // window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
-  }
+window.saveCoord = function(type) {
+  const msgs = { tel:'📞 Numéro copié !', whatsapp:'💬 WhatsApp ouvert !', email:'📧 Email copié !', web:'🌐 Site web ouvert !', adresse:'📍 Adresse copiée !', horaires:'🕐 Horaires enregistrés !' };
+  showToast(msgs[type] || '✅ Enregistré !', 'success');
+};
 
-  function getDirections() {
-    showToast('🧭 Calcul de l\'itinéraire…', 'success');
-  }
+window.openMap = function() {
+  const adresse = document.getElementById('coordAdresse').textContent;
+  if (adresse !== '—') window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
+  else showToast('📍 Adresse non renseignée.');
+};
 
-  function shareProfile() {
-    showToast('📤 Lien copié ! Partagez ce profil.', 'success');
-  }
+window.getDirections = function() {
+  const adresse = document.getElementById('coordAdresse').textContent;
+  if (adresse !== '—') window.open('https://maps.google.com/dir/?api=1&destination=' + encodeURIComponent(adresse), '_blank');
+  else showToast('📍 Adresse non renseignée.');
+};
 
-  function changeAvatar() {
-    showToast('📷 Changement de photo de profil…');
-  }
+window.shareProfile = function() {
+  if (navigator.share) { navigator.share({ title: document.title, url: window.location.href }); }
+  else { navigator.clipboard.writeText(window.location.href); showToast('📤 Lien copié !', 'success'); }
+};
 
-  function changeCover() {
-    showToast('📷 Changement de photo de couverture…');
-  }
+window.changeAvatar = function() { showToast('📷 Changement de photo de profil…'); };
+window.changeCover  = function() { showToast('📷 Changement de photo de couverture…'); };
 
-  function switchMedia(tab, el) {
-    document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    const grid = document.getElementById('mediaGrid');
-    const avis = document.getElementById('avisSe
+window.switchMedia = function(tab, el) {
+  document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const grid = document.getElementById('mediaGrid');
+  const avis = document.getElementById('avisSection');
+  if (tab === 'avis') { grid.style.display = 'none'; avis.style.display = 'block'; }
+  else { grid.style.display = 'grid'; avis.style.display = 'none'; }
+};
+
+let toastTimer;
+window.showToast = function(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2500);
+};
+</script>
+</body>
+</html>
