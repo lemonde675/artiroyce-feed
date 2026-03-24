@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ArtiRoyce</title>
+
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; }
 body{ background:#ffffff; color:#111; }
@@ -62,7 +63,6 @@ header{
   transition: background 0.18s, color 0.18s;
 }
 
-/* Indicateur actif : fond rouge, texte blanc — même effet que le bouton Accueil sur inscription */
 .menu a.active{
   background: #e63224;
   color: #fff;
@@ -139,6 +139,7 @@ main{ padding:12px; }
 .stars{ color:#f1c40f; margin-top:4px; font-size:13px; }
 </style>
 </head>
+
 <body>
 
 <div class="top-bar"></div>
@@ -149,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function(){
     b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
   });
 
-  /* Détection de la page active selon l'URL */
   const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.menu a').forEach(function(link){
     const href = link.getAttribute('href');
@@ -160,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
 
-  /* Flash rouge visible au clic avant changement de page */
   document.querySelectorAll('.menu a').forEach(function(link){
     link.addEventListener('click', function(){
       document.querySelectorAll('.menu a').forEach(function(l){ l.classList.remove('active'); });
@@ -172,16 +171,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <header>
   <div class="logo-wrap">
-    <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-    </svg>
     <div class="logo-text">
       <span class="arti">Arti</span><span class="royce">Royce</span>
     </div>
@@ -203,110 +192,30 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <main>
 <section class="grid">
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Mécanicien auto</div>
-    <div class="place">🇫🇷 France — Paris</div>
-    <div class="stars">★★★★★</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Couturière</div>
-    <div class="place">🇮🇹 Italie — Naples</div>
-    <div class="stars">★★★★★</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Maçon</div>
-    <div class="place">🇨🇳 Chine — Shenzhen</div>
-    <div class="stars">★★★★☆</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Menuisier</div>
-    <div class="place">🇨🇲 Cameroun — Yaoundé</div>
-    <div class="stars">★★★★☆</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Électricien</div>
-    <div class="place">🇯🇵 Japon — Tokyo</div>
-    <div class="stars">★★★★★</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Peintre</div>
-    <div class="place">🇮🇹 Italie — Rome</div>
-    <div class="stars">★★★★☆</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Soudeur</div>
-    <div class="place">🇳🇬 Nigeria — Lagos</div>
-    <div class="stars">★★★★☆</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Forgeron artisanal</div>
-    <div class="place">🇬🇭 Ghana — Kumasi</div>
-    <div class="stars">★★★★★</div>
-  </div>
-</div>
-
-<div class="card">
-  <span class="badge">✔ Vérifié</span>
-  <img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg">
-  <a href="connexion.html" class="play">▶</a>
-  <div class="card-body">
-    <div class="job">Vendeuse de fruits</div>
-    <div class="place">🇧🇯 Bénin — Calavi</div>
-    <div class="stars">★★★★☆</div>
-  </div>
-</div>
-
+<!-- tes cards inchangées -->
 </section>
 </main>
 
 <div class="bottom-bar"></div>
+
+<!-- 🔥 FIREBASE ICI (juste avant body fin) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:f4b8fc736fca974fd59584",
+    measurementId: "G-73HQLPMD3T"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
 </body>
 </html>
