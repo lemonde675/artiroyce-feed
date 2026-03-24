@@ -62,6 +62,7 @@ header{
   transition: background 0.18s, color 0.18s;
 }
 
+/* Indicateur actif : fond rouge, texte blanc — même effet que le bouton Accueil sur inscription */
 .menu a.active{
   background: #e63224;
   color: #fff;
@@ -148,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function(){
     b.innerHTML = '<span class="medal"></span><span class="check">✔</span> Vérifié';
   });
 
+  /* Détection de la page active selon l'URL */
   const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.menu a').forEach(function(link){
     const href = link.getAttribute('href');
@@ -158,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
 
+  /* Flash rouge visible au clic avant changement de page */
   document.querySelectorAll('.menu a').forEach(function(link){
     link.addEventListener('click', function(){
       document.querySelectorAll('.menu a').forEach(function(l){ l.classList.remove('active'); });
@@ -188,4 +191,122 @@ document.addEventListener('DOMContentLoaded', function(){
     Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde
   </div>
 
-  <
+  <div class="menu-wrap">
+    <nav class="menu">
+      <a class="active" href="index.html">Accueil</a>
+      <a href="connexion.html">Favoris</a>
+      <a href="connexion.html">Connexion</a>
+      <a href="enregistrer.html">Inscription</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="grid">
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Mécanicien auto</div>
+    <div class="place">🇫🇷 France — Paris</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Couturière</div>
+    <div class="place">🇮🇹 Italie — Naples</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Maçon</div>
+    <div class="place">🇨🇳 Chine — Shenzhen</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Menuisier</div>
+    <div class="place">🇨🇲 Cameroun — Yaoundé</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Électricien</div>
+    <div class="place">🇯🇵 Japon — Tokyo</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Peintre</div>
+    <div class="place">🇮🇹 Italie — Rome</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Soudeur</div>
+    <div class="place">🇳🇬 Nigeria — Lagos</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Forgeron artisanal</div>
+    <div class="place">🇬🇭 Ghana — Kumasi</div>
+    <div class="stars">★★★★★</div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="badge">✔ Vérifié</span>
+  <img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg">
+  <a href="connexion.html" class="play">▶</a>
+  <div class="card-body">
+    <div class="job">Vendeuse de fruits</div>
+    <div class="place">🇧🇯 Bénin — Calavi</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+</div>
+
+</section>
+</main>
+
+<div class="bottom-bar"></div>
+
+</body>
+</html>
