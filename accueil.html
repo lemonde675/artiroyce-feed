@@ -159,7 +159,10 @@
       display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
     }
     .info-loc-text { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; }
-    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .info-user {
+      font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px;
+      cursor: pointer; text-decoration: underline; display: inline-block;
+    }
     .info-desc { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.4; }
     .info-stars { font-size: 16px; margin-bottom: 12px; }
     .card-btns { display: flex; gap: 10px; }
@@ -341,6 +344,11 @@ function stars(n) {
   return Array.from({length:5}, (_,i) => i < n ? '⭐' : '☆').join('');
 }
 
+// ── SEUL CHANGEMENT : goToProfile + avatar cliquable + username cliquable ──
+function goToProfile(id) {
+  window.location.href = 'profil.html?id=' + id;
+}
+
 function buildCard(a) {
   return `
   <div class="card" id="card-${a.id}">
@@ -350,7 +358,7 @@ function buildCard(a) {
     ${a.verifie ? `<div class="verified">✔ Vérifié</div>` : ''}
 
     <div class="right-actions">
-      <div class="avatar-wrap">
+      <div class="avatar-wrap" onclick="goToProfile(${a.id})">
         <div class="avatar"><img src="${a.avatar}" alt="avatar" loading="lazy"/></div>
         <div class="avatar-plus">+</div>
       </div>
@@ -380,7 +388,7 @@ function buildCard(a) {
         <span style="font-size:14px">${a.flag}</span>
         <span class="info-loc-text">${a.ville} • ${a.pays}</span>
       </div>
-      <div class="info-user">${a.username}</div>
+      <div class="info-user" onclick="goToProfile(${a.id})">${a.username}</div>
       <div class="info-desc">${a.description}</div>
       <div class="info-stars">${stars(a.etoiles)}</div>
       <div class="card-btns">
