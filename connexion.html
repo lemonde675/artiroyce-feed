@@ -83,7 +83,6 @@
     .register a { color: #27a945; text-decoration: none; font-weight: 600; }
     .register a:hover { text-decoration: underline; }
 
-    /* Toast notification */
     .toast {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
       background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px;
@@ -125,7 +124,7 @@
       </div>
 
       <h1>Connexion</h1>
-      <p class="subtitle">Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong> — vos prochains clients vous attendent.</p>
+      <p class="subtitle">Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong> — vos prochains clients et fans vous attendent.</p>
 
       <form id="loginForm" novalidate>
         <label for="email">EMAIL / TÉLÉPHONE</label>
@@ -155,11 +154,27 @@
     <div class="bottom-bar"></div>
   </div>
 
-  <script>
-    function togglePass() {
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+      authDomain: "artiroyce-f42e4.firebaseapp.com",
+      projectId: "artiroyce-f42e4",
+      storageBucket: "artiroyce-f42e4.firebasestorage.app",
+      messagingSenderId: "588140774605",
+      appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+      measurementId: "G-X4XLHDJCE7"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.togglePass = function() {
       const p = document.getElementById('password');
       p.type = p.type === 'password' ? 'text' : 'password';
-    }
+    };
 
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
@@ -172,7 +187,7 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
     }
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       let valid = true;
 
@@ -181,11 +196,9 @@
       const emailErr = document.getElementById('emailError');
       const passErr  = document.getElementById('passwordError');
 
-      // Reset
       email.className = ''; password.className = '';
       emailErr.textContent = ''; passErr.textContent = '';
 
-      // Vérif email
       if (!email.value.trim()) {
         emailErr.textContent = '⚠ Veuillez entrer votre email.';
         email.className = 'error'; valid = false;
@@ -196,7 +209,6 @@
         email.className = 'valid';
       }
 
-      // Vérif mot de passe
       if (!password.value.trim()) {
         passErr.textContent = '⚠ Veuillez entrer votre mot de passe.';
         password.className = 'error'; valid = false;
@@ -209,18 +221,25 @@
 
       if (!valid) return;
 
-      // Bouton chargement
       const btn = document.getElementById('btnLogin');
       btn.disabled = true;
       btn.textContent = 'Connexion en cours…';
 
-      // Simulation connexion → redirection accueil
-      setTimeout(() => {
+      try {
+        await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
         showToast('✅ Connexion réussie ! Bienvenue.', 'success');
-        setTimeout(() => {
-          window.location.href = 'accueil.html';
-        }, 1000);
-      }, 1200);
+        setTimeout(() => { window.location.href = 'accueil.html'; }, 1000);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'CONNEXION →';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          showToast('⚠ Email ou mot de passe incorrect.', 'error-toast');
+        } else if (err.code === 'auth/too-many-requests') {
+          showToast('⚠ Trop de tentatives. Réessayez plus tard.', 'error-toast');
+        } else {
+          showToast('⚠ Erreur de connexion. Réessayez.', 'error-toast');
+        }
+      }
     });
   </script>
 </body>
