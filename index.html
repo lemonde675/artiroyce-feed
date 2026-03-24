@@ -106,6 +106,7 @@ main{ padding:12px; }
   width:19px;
   height:19px;
   background:#2ecc71;
+  clip-path:polygon(50% 0%,61% 15%,79% 9%,79% 27%,97% 35%,88% 50%,97% 65%,79% 73%,79% 91%,61% 85%,50% 100%,39% 85%,21% 91%,21% 73%,3% 65%,12% 50%,3% 35%,21% 27%,21% 9%,39% 15%);
 }
 .badge .check{
   position:absolute;
@@ -115,6 +116,7 @@ main{ padding:12px; }
   font-size:9px;
   color:#fff;
   font-weight:900;
+  line-height:1;
 }
 .play{
   position:absolute;
@@ -128,6 +130,7 @@ main{ padding:12px; }
   justify-content:center;
   color:#fff;
   font-size:18px;
+  text-decoration:none;
 }
 .card-body{ padding:10px; }
 .job{ font-weight:bold; font-size:14px; }
@@ -135,7 +138,6 @@ main{ padding:12px; }
 .stars{ color:#f1c40f; margin-top:4px; font-size:13px; }
 </style>
 </head>
-
 <body>
 
 <div class="top-bar"></div>
@@ -148,37 +150,42 @@ document.addEventListener('DOMContentLoaded', function(){
 
   const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.menu a').forEach(function(link){
-    if(link.getAttribute('href') === page){
+    const href = link.getAttribute('href');
+    if(href === page){
       link.classList.add('active');
+    } else {
+      link.classList.remove('active');
     }
+  });
+
+  document.querySelectorAll('.menu a').forEach(function(link){
+    link.addEventListener('click', function(){
+      document.querySelectorAll('.menu a').forEach(function(l){ l.classList.remove('active'); });
+      link.classList.add('active');
+    });
   });
 });
 </script>
 
-<header> ... (TON CODE HEADER INCHANGÉ) ... </header>
+<header>
+  <div class="logo-wrap">
+    <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+    <div class="logo-text">
+      <span class="arti">Arti</span><span class="royce">Royce</span>
+    </div>
+  </div>
 
-<main> ... (TES CARDS INCHANGÉES) ... </main>
+  <div class="subtitle">
+    Retrouvez les meilleurs indépendants et auto-entrepreneurs du monde
+  </div>
 
-<div class="bottom-bar"></div>
-
-<!-- ✅ FIREBASE (AJOUTÉ ICI, RIEN D'AUTRE TOUCHÉ) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-    authDomain: "artiroyce-f42e4.firebaseapp.com",
-    projectId: "artiroyce-f42e4",
-    storageBucket: "artiroyce-f42e4.firebasestorage.app",
-    messagingSenderId: "588140774605",
-    appId: "1:588140774605:web:f4b8fc736fca974fd59584",
-    measurementId: "G-73HQLPMD3T"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-
-</body>
-</html>
+  <
