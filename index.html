@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ArtiRoyce</title>
-
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, Helvetica, sans-serif; }
 body{ background:#ffffff; color:#111; }
@@ -139,7 +138,6 @@ main{ padding:12px; }
 .stars{ color:#f1c40f; margin-top:4px; font-size:13px; }
 </style>
 </head>
-
 <body>
 
 <div class="top-bar"></div>
@@ -171,6 +169,16 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <header>
   <div class="logo-wrap">
+    <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
     <div class="logo-text">
       <span class="arti">Arti</span><span class="royce">Royce</span>
     </div>
@@ -192,13 +200,15 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <main>
 <section class="grid">
-<!-- tes cards inchangées -->
+
+<!-- TES CARDS (inchangées) -->
+
 </section>
 </main>
 
 <div class="bottom-bar"></div>
 
-<!-- 🔥 FIREBASE ICI (juste avant body fin) -->
+<!-- 🔥 FIREBASE AJOUTÉ SANS RIEN MODIFIER -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
