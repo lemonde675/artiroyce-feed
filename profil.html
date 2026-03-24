@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>ArtiRoyce – Profil Artisan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --red: #e63224;
+      --green: #27a945;
+      --gray: #f5f5f5;
+      --dark: #1a1a1a;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f0f0;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .top-header {
+      background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 2px solid #eee;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--red); font-size: 13px; font-weight: 700;
+      text-decoration: none; background: none; border: none; cursor: pointer;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 6px; }
+    .logo-text { font-size: 18px; font-weight: 800; }
+    .logo-text .arti { color: var(--red); }
+    .logo-text .royce { color: var(--green); }
+    .header-actions { display: flex; gap: 10px; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gray); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    /* ── COVER & AVATAR ── */
+    .cover-section { position: relative; }
+    .cover-photo {
+      width: 100%; height: 180px;
+      background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%);
+      position: relative; overflow: hidden;
+    }
+    .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-edit-btn {
+      position: absolute; bottom: 10px; right: 10px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .avatar-section {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 0 16px; margin-top: -40px; position: relative;
+    }
+    .avatar-wrap { position: relative; }
+    .avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 4px solid #fff;
+      background: linear-gradient(135deg, var(--red), var(--green));
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-edit {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--red); color: #fff; border: 2px solid #fff;
+      font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-history {
+      display: flex; gap: 4px; margin-top: 6px;
+    }
+    .avatar-mini {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #ddd; overflow: hidden;
+      background: #eee; cursor: pointer;
+    }
+    .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
+    .btn-contact {
+      background: var(--red); color: #fff; border: none;
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-follow {
+      background: #fff; color: var(--green); border: 2px solid var(--green);
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-follow.following { background: var(--green); color: #fff; }
+
+    /* ── INFOS PRINCIPALES ── */
+    .profile-info { background: #fff; padding: 14px 16px 0; }
+    .profile-name { font-size: 20px; font-weight: 800; color: var(--dark); }
+    .profile-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+    .verified-badge {
+      background: var(--green); color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    .profile-category { font-size: 14px; color: #555; font-weight: 600; }
+    .profile-bio { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 80px; }
+
+    /* ── STATS LIKES ── */
+    .stats-row {
+      display: flex; gap: 0; border-top: 1px solid #eee; margin-top: 14px;
+    }
+    .stat-item {
+      flex: 1; text-align: center; padding: 12px 6px;
+      border-right: 1px solid #eee; cursor: pointer;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-size: 18px; font-weight: 800; color: var(--dark); }
+    .stat-num.red { color: var(--red); }
+    .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+
+    /* ── COORDONNÉES CIRCLES ── */
+    .section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .section-title {
+      font-size: 14px; font-weight: 800; color: var(--dark);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+    }
+    .section-title span { font-size: 16px; }
+
+    .coords-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      width: 100%;
+    }
+    .coord-item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--gray); border-radius: 12px; padding: 10px 12px;
+      position: relative;
+    }
+    .coord-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .coord-circle.phone { background: #e8f5e9; }
+    .coord-circle.location { background: #fff3e0; }
+    .coord-circle.whatsapp { background: #e8f5e9; }
+    .coord-circle.email { background: #fce4ec; }
+    .coord-circle.web { background: #e3f2fd; }
+    .coord-circle.hours { background: #f3e5f5; }
+
+    .coord-text { flex: 1; min-width: 0; }
+    .coord-label { font-size: 10px; color: #888; font-weight: 600; letter-spacing: 0.5px; }
+    .coord-value { font-size: 11px; color: var(--dark); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+
+    .coord-save-btn {
+      position: absolute; top: 6px; right: 6px;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--green); color: #fff; border: none;
+      font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── GÉOLOCALISATION ── */
+    .map-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .map-box {
+      width: 100%; height: 160px; border-radius: 12px;
+      background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; border: 2px dashed #27a945;
+      transition: all 0.2s;
+    }
+    .map-box:hover { background: #f5fff7; }
+    .map-icon { font-size: 36px; }
+    .map-text { font-size: 13px; color: var(--green); font-weight: 700; }
+    .map-subtext { font-size: 11px; color: #888; text-align: center; }
+    .btn-directions {
+      width: 100%; margin-top: 10px;
+      background: var(--green); color: #fff; border: none;
+      padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    /* ── MONÉTISATION ── */
+    .monetize-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .monetize-card {
+      background: linear-gradient(135deg, #fff8e1, #fffde7);
+      border: 1px solid #ffe082; border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .monetize-icon { font-size: 32px; }
+    .monetize-text h3 { font-size: 14px; font-weight: 800; color: #333; }
+    .monetize-text p { font-size: 12px; color: #888; margin-top: 3px; }
+    .monetize-badge {
+      margin-top: 8px; background: #ff9800; color: #fff;
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 10px; display: inline-block;
+    }
+
+    /* ── PORTFOLIO MEDIA ── */
+    .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; width: 100%; overflow: hidden; }
+    .media-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2px; }
+    .media-tab {
+      flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 700;
+      color: #888; cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .media-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+    .media-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+      margin: 0 -16px;
+    }
+    .media-item {
+      aspect-ratio: 1; background: #eee; overflow: hidden;
+      position: relative; cursor: pointer;
+    }
+    .media-item img, .media-item video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .media-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.0);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .media-item:hover .media-overlay { background: rgba(0,0,0,0.3); }
+    .media-play {
+      color: white; font-size: 28px; opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .media-item:hover .media-play { opacity: 1; }
+    .media-views {
+      position: absolute; bottom: 4px; left: 4px;
+      color: #fff; font-size: 10px; font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+    .video-badge {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,0.6); color: #fff;
+      font-size: 9px; padding: 2px 5px; border-radius: 4px;
+    }
+
+    /* ── AVIS ── */
+    .reviews-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .review-item {
+      display: flex; gap: 10px; margin-bottom: 14px;
+      padding-bottom: 14px; border-bottom: 1px solid #f0f0f0;
+    }
+    .review-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .reviewer-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--green));
+      color: #fff; font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .review-content { flex: 1; }
+    .review-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+    .review-stars { font-size: 12px; color: #FFD700; }
+    .review-text { font-size: 12px; color: #666; margin-top: 3px; line-height: 1.4; }
+    .review-date { font-size: 10px; color: #aaa; margin-top: 3px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { background: var(--green); }
+
+    /* Bottom space */
+    .bottom-space { height: 30px; }
+
+    /* Responsive */
+    @media (max-width: 360px) {
+      .coords-grid { grid-template-columns: 1fr; }
+      .profile-actions { gap: 6px; }
+      .btn-contact, .btn-follow { padding: 7px 12px; font-size: 12px; }
+      .stats-row .stat-num { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── TOP HEADER ── -->
+<div class="top-header">
+  <a href="accueil.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour
+  </a>
+  <div class="logo-wrap">
+    <svg width="32" height="23" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+    <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="shareProfile()">📤</button>
+    <button class="icon-btn">⋮</button>
+  </div>
+</div>
+
+<!-- ── COVER PHOTO ── -->
+<div class="cover-section">
+  <div class="cover-photo" id="coverPhoto">
+    <img id="coverImg" src="" alt="" style="display:none"/>
+    <button class="cover-edit-btn" onclick="changeCover()">📷 Modifier</button>
+  </div>
+</div>
+
+<!-- ── AVATAR + ACTIONS ── -->
+<div class="profile-info">
+  <div class="avatar-section" style="padding:0;margin-top:-45px;margin-bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div>
+      <div class="avatar-wrap">
+        <div class="avatar">
+          <img id="avatarImg" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=200" alt="avatar"/>
+        </div>
+        <button class="avatar-edit" onclick="changeAvatar()">📷</button>
+      </div>
+      <!-- Historique photos -->
+      <div class="avatar-history" id="avatarHistory">
+        <div class="avatar-mini"><img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=60" alt=""/></div>
+        <div class="avatar-mini" style="background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">+</div>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-contact" onclick="contacterArtisan()">💬 Contacter</button>
+      <button class="btn-follow" id="followBtn" onclick="toggleFollow()">+ Suivre</button>
+    </div>
+  </div>
+
+  <!-- Nom + Badge -->
+  <div class="profile-name" id="profileName">Jean-Pierre Garage</div>
+  <div class="profile-meta">
+    <span class="verified-badge">✔ Vérifié</span>
+    <span class="profile-category" id="profileCategory">🔧 Mécanicien auto</span>
+  </div>
+  <div class="profile-bio" id="profileBio">
+    Spécialiste en réparation moteur, diagnostic électronique et révision complète. 10 ans d'expérience. Intervention rapide sur Paris et région. Devis gratuit sous 24h. Paiement en plusieurs fois accepté. Pièces d'origine garanties.
+  </div>
+
+  <!-- Stats / Likes -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-num red" id="statLikes">9.8K</div>
+      <div class="stat-label">❤️ J'aime</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statFollowers">1.2K</div>
+      <div class="stat-label">👥 Abonnés</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statPosts">47</div>
+      <div class="stat-label">📸 Posts</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statAvis">4.9⭐</div>
+      <div class="stat-label">💬 Avis</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COORDONNÉES ── -->
+<div class="section">
+  <div class="section-title"><span>📋</span> Coordonnées</div>
+  <div class="coords-grid">
+
+    <div class="coord-item">
+      <div class="coord-circle phone">📞</div>
+      <div class="coord-text">
+        <div class="coord-label">TÉLÉPHONE</div>
+        <div class="coord-value" id="coordTel">+33 6 12 34 56 78</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('tel')" title="Enregistrer">💾</button>
+    </div>
+
+    <div class="coord-item">
+      <div class="coord-circle whatsapp">💬</div>
+      <div class="coord-text">
+        <div class="coord-label">WHATSAPP</div>
+        <div class="coord-value" id="coordWa">+33 6 12 34 56 78</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('whatsapp')" title="Ouvrir">💾</button>
+    </div>
+
+    <div class="coord-item">
+      <div class="coord-circle email">📧</div>
+      <div class="coord-text">
+        <div class="coord-label">EMAIL</div>
+        <div class="coord-value" id="coordEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a8c2cdc9c6e8cfc9dac9cfcd86ceda">[email&#160;protected]</a></div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('email')" title="Copier">💾</button>
+    </div>
+
+    <div class="coord-item">
+      <div class="coord-circle web">🌐</div>
+      <div class="coord-text">
+        <div class="coord-label">SITE WEB</div>
+        <div class="coord-value" id="coordWeb">garage75.fr</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('web')" title="Visiter">💾</button>
+    </div>
+
+    <div class="coord-item">
+      <div class="coord-circle location">📍</div>
+      <div class="coord-text">
+        <div class="coord-label">ADRESSE</div>
+        <div class="coord-value" id="coordAdresse">Paris 15e, France</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('adresse')" title="Copier">💾</button>
+    </div>
+
+    <div class="coord-item">
+      <div class="coord-circle hours">🕐</div>
+      <div class="coord-text">
+        <div class="coord-label">HORAIRES</div>
+        <div class="coord-value" id="coordHoraires">Lun–Sam 8h–18h</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('horaires')" title="Enregistrer">💾</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── GÉOLOCALISATION ── -->
+<div class="map-section">
+  <div class="section-title"><span>🗺️</span> Localisation & Boutique</div>
+  <div class="map-box" onclick="openMap()" id="mapBox">
+    <div class="map-icon">📍</div>
+    <div class="map-text">Voir sur la carte</div>
+    <div class="map-subtext">Paris 15e arrondissement, France<br>Cliquez pour ouvrir Google Maps</div>
+  </div>
+  <button class="btn-directions" onclick="getDirections()">
+    🧭 Obtenir l'itinéraire → Boutique
+  </button>
+</div>
+
+<!-- ── MONÉTISATION ── -->
+<div class="monetize-section">
+  <div class="section-title"><span>💰</span> Monétisation</div>
+  <div class="monetize-card">
+    <div class="monetize-icon">💎</div>
+    <div class="monetize-text">
+      <h3>Compte Professionnel</h3>
+      <p>Cet artisan peut recevoir des paiements directs et des pourboires via ArtiRoyce.</p>
+      <span class="monetize-badge">✔ Monétisé</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── PORTFOLIO MÉDIAS ── -->
+<div class="media-section">
+  <div class="section-title" style="padding:0 0 0 0"><span>🎬</span> Portfolio</div>
+  <div class="media-tabs">
+    <div class="media-tab active" onclick="switchMedia('posts', this)">📸 Photos</div>
+    <div class="media-tab" onclick="switchMedia('videos', this)">🎬 Vidéos</div>
+    <div class="media-tab" onclick="switchMedia('avis', this)">⭐ Avis</div>
+  </div>
+
+  <!-- Photos grid -->
+  <div class="media-grid" id="mediaGrid">
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 2.3K</div>
+    </div>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 1.8K</div>
+    </div>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 987</div>
+    </div>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 756</div>
+    </div>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 543</div>
+    </div>
+    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:28px;color:#ccc;cursor:pointer;" onclick="showToast('Bientôt disponible')">
+      +
+    </div>
+  </div>
+
+  <!-- Avis (caché par défaut) -->
+  <div id="avisSection" style="display:none;padding:14px 0;">
+    <div class="review-item">
+      <div class="reviewer-avatar">M</div>
+      <div class="review-content">
+        <div class="review-name">Marie Dupont</div>
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">Excellent travail ! Très professionnel, rapide et honnête. Je recommande vivement.</div>
+        <div class="review-date">Il y a 2 jours</div>
+      </div>
+    </div>
+    <div class="review-item">
+      <div class="reviewer-avatar">K</div>
+      <div class="review-content">
+        <div class="review-name">Kofi Mensah</div>
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">Ma voiture est comme neuve ! Prix raisonnable et travail de qualité.</div>
+        <div class="review-date">Il y a 1 semaine</div>
+      </div>
+    </div>
+    <div class="review-item">
+      <div class="reviewer-avatar">S</div>
+      <div class="review-content">
+        <div class="review-name">Sylvie Martin</div>
+        <div class="review-stars">⭐⭐⭐⭐☆</div>
+        <div class="review-text">Bon travail, délai respecté. Je reviendrai.</div>
+        <div class="review-date">Il y a 2 semaines</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-space"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  function toggleFollow() {
+    const btn = document.getElementById('followBtn');
+    if (btn.classList.contains('following')) {
+      btn.classList.remove('following');
+      btn.textContent = '+ Suivre';
+      showToast('Vous ne suivez plus cet artisan.');
+    } else {
+      btn.classList.add('following');
+      btn.textContent = '✔ Abonné';
+      showToast('✅ Vous suivez maintenant cet artisan !', 'success');
+    }
+  }
+
+  function contacterArtisan() {
+    showToast('💬 Ouverture de la messagerie…', 'success');
+  }
+
+  function saveCoord(type) {
+    const msgs = {
+      tel: '📞 Numéro copié !',
+      whatsapp: '💬 WhatsApp ouvert !',
+      email: '📧 Email copié !',
+      web: '🌐 Site web ouvert !',
+      adresse: '📍 Adresse copiée !',
+      horaires: '🕐 Horaires enregistrés !'
+    };
+    showToast(msgs[type] || '✅ Enregistré !', 'success');
+  }
+
+  function openMap() {
+    const adresse = document.getElementById('coordAdresse').textContent;
+    showToast('🗺️ Ouverture de la carte…', 'success');
+    // window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
+  }
+
+  function getDirections() {
+    showToast('🧭 Calcul de l\'itinéraire…', 'success');
+  }
+
+  function shareProfile() {
+    showToast('📤 Lien copié ! Partagez ce profil.', 'success');
+  }
+
+  function changeAvatar() {
+    showToast('📷 Changement de photo de profil…');
+  }
+
+  function changeCover() {
+    showToast('📷 Changement de photo de couverture…');
+  }
+
+  function switchMedia(tab, el) {
+    document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const grid = document.getElementById('mediaGrid');
+    const avis = document.getElementById('avisSe
