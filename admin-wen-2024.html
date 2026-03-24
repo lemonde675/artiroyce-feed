@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtiRoyce – Administration</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f0f0;
+    }
+
+    /* ── LOGIN SCREEN ── */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    }
+    .top-bar, .bottom-bar {
+      height: 10px;
+      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
+    }
+    .login-body { padding: 36px 32px 32px; }
+    .logo-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 24px;
+    }
+    .logo-text { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .logo-text .arti { color: #e63224; }
+    .logo-text .royce { color: #27a945; }
+    .admin-badge {
+      text-align: center; margin-bottom: 24px;
+    }
+    .admin-badge h1 { font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+    .admin-badge p { font-size: 13px; color: #888; }
+    .admin-badge .admin-name { font-size: 13px; color: #27a945; font-weight: 700; margin-top: 4px; }
+    .admin-icon {
+      width: 56px; height: 56px; background: linear-gradient(135deg, #e63224, #27a945);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; font-size: 26px;
+    }
+
+    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
+    .input-wrap { position: relative; margin-bottom: 20px; }
+    input[type="password"], input[type="text"] {
+      width: 100%; padding: 12px 44px 12px 14px;
+      border: 1.5px solid #ddd; border-radius: 6px;
+      font-size: 15px; color: #333; outline: none;
+      background: #fafafa; transition: border-color 0.2s;
+    }
+    input:focus { border-color: #e63224; background: #fff; }
+    input.error { border-color: #e63224; background: #fff5f5; }
+    .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: #888;
+      display: flex; align-items: center;
+    }
+    .btn-admin {
+      width: 100%; padding: 13px; background: #e63224; color: #fff;
+      border: none; border-radius: 6px; font-size: 15px; font-weight: 700;
+      letter-spacing: 1px; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-admin:hover { background: #c42a1e; }
+    .btn-admin:disabled { background: #ccc; cursor: not-allowed; }
+    .err-login { font-size: 12px; color: #e63224; text-align: center; min-height: 18px; margin-bottom: 10px; }
+
+    /* ── ADMIN PANEL ── */
+    #adminPanel { display: none; }
+
+    .header {
+      background: #fff; padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-title { font-size: 15px; font-weight: 800; color: #1a1a1a; }
+    .header-subtitle { font-size: 11px; color: #888; }
+    .btn-logout {
+      background: none; border: 1.5px solid #e63224; color: #e63224;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { background: #e63224; color: #fff; }
+
+    .panel-body { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+    /* Stats */
+    .stats-row { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .stat-card {
+      background: #fff; border-radius: 10px; padding: 16px 20px;
+      flex: 1; min-width: 120px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-left: 4px solid #ddd;
+    }
+    .stat-card.orange { border-left-color: #ff9800; }
+    .stat-card.green  { border-left-color: #27a945; }
+    .stat-card.red    { border-left-color: #e63224; }
+    .stat-card.blue   { border-left-color: #2196f3; }
+    .stat-num { font-size: 28px; font-weight: 800; color: #1a1a1a; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tab {
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; background: #e8e8e8; color: #555;
+      transition: all 0.2s;
+    }
+    .tab.active { background: #e63224; color: #fff; }
+
+    /* Table */
+    .table-wrap {
+      background: #fff; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden;
+    }
+    .table-header {
+      padding: 14px 20px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
+    .refresh-btn {
+      background: none; border: 1.5px solid #27a945; color: #27a945;
+      padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: #27a945; color: #fff; }
+
+    .user-row {
+      padding: 14px 20px; border-bottom: 1px solid #f5f5f5;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .user-row:last-child { border-bottom: none; }
+    .user-row:hover { background: #fafafa; }
+
+    .user-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, #e63224, #27a945);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 800; flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 160px; }
+    .user-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+    .user-email { font-size: 12px; color: #888; }
+    .user-tel { font-size: 12px; color: #555; }
+    .user-date { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+    .status-badge {
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .status-badge.en_attente { background: #fff3cd; color: #856404; }
+    .status-badge.verifie    { background: #d1fae5; color: #065f46; }
+    .status-badge.rejete     { background: #fee2e2; color: #991b1b; }
+
+    .action-btns { display: flex; gap: 6px; }
+    .btn-valider {
+      background: #27a945; color: #fff; border: none;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-valider:hover { opacity: 0.85; }
+    .btn-rejeter {
+      background: #e63224; color: #fff; border: none;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-rejeter:hover { opacity: 0.85; }
+
+    .empty-state {
+      padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px;
+    }
+    .loading { padding: 30px; text-align: center; color: #888; font-size: 13px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { background: #27a945; }
+    .toast.error-toast { background: #e63224; }
+
+    @media (max-width: 500px) {
+      .stats-row { gap: 8px; }
+      .user-row { padding: 12px 14px; }
+      .panel-body { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── LOGIN ── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="top-bar"></div>
+    <div class="login-body">
+
+      <div class="logo-wrap">
+        <svg width="70" height="50" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+          <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        </svg>
+        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+      </div>
+
+      <div class="admin-badge">
+        <div class="admin-icon">🛡️</div>
+        <h1>Espace Administrateur</h1>
+        <p>Panel de gestion & validation KYC</p>
+        <p class="admin-name">Isidore Wenon</p>
+      </div>
+
+      <label for="adminPass">MOT DE PASSE ADMIN</label>
+      <div class="input-wrap">
+        <input type="password" id="adminPass" placeholder="••••••••••" autocomplete="off"/>
+        <button type="button" class="eye-btn" onclick="toggleAdminPass()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="err-login" id="loginErr"></p>
+      <button class="btn-admin" onclick="checkLogin()">ACCÉDER AU PANEL →</button>
+
+    </div>
+    <div class="bottom-bar"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel">
+
+  <div class="header">
+    <div class="header-left">
+      <svg width="36" height="26" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div>
+        <div class="header-title">Panel Administrateur — Isidore Wenon</div>
+        <div class="header-subtitle">Gestion & Validation KYC des artisans</div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Déconnexion</button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card orange">
+        <div class="stat-num" id="statAttente">—</div>
+        <div class="stat-label">En attente</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-num" id="statVerifie">—</div>
+        <div class="stat-label">Vérifiés</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num" id="statRejete">—</div>
+        <div class="stat-label">Rejetés</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-num" id="statTotal">—</div>
+        <div class="stat-label">Total inscrits</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('en_attente', this)">⏳ En attente</button>
+      <button class="tab" onclick="switchTab('verifie', this)">✅ Vérifiés</button>
+      <button class="tab" onclick="switchTab('rejete', this)">❌ Rejetés</button>
+      <button class="tab" onclick="switchTab('tous', this)">👥 Tous</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title" id="tableTitle">Inscriptions en attente de validation</span>
+        <button class="refresh-btn" onclick="loadUsers()">↻ Actualiser</button>
+      </div>
+      <div id="userList"><div class="loading">Chargement…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+    measurementId: "G-X4XLHDJCE7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Mots de passe admin
+  const PASSWORDS = ["Bonjour1@", "AKOUEGNIGAN"];
+
+  let allUsers = [];
+  let currentTab = 'en_attente';
+
+  // ── LOGIN ──
+  window.toggleAdminPass = function() {
+    const p = document.getElementById('adminPass');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  };
+
+  window.checkLogin = function() {
+    const val = document.getElementById('adminPass').value;
+    const err = document.getElementById('loginErr');
+    if (PASSWORDS.includes(val)) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadUsers();
+    } else {
+      err.textContent = '⚠ Mot de passe incorrect.';
+      document.getElementById('adminPass').className = 'error';
+      setTimeout(() => { err.textContent = ''; }, 3000);
+    }
+  };
+
+  // Entrée clavier
+  document.getElementById('adminPass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') window.checkLogin();
+  });
+
+  window.logout = function() {
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminPass').value = '';
+  };
+
+  // ── TOAST ──
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // ── LOAD USERS ──
+  window.loadUsers = async function() {
+    document.getElementById('userList').innerHTML = '<div class="loading">Chargement…</div>';
+    try {
+      const snap = await getDocs(collection(db, 'utilisateurs'));
+      allUsers = [];
+      snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+
+      // Stats
+      const attente = allUsers.filter(u => u.statut === 'en_attente').length;
+      const verifie = allUsers.filter(u => u.statut === 'verifie').length;
+      const rejete  = allUsers.filter(u => u.statut === 'rejete').length;
+      document.getElementById('statAttente').textContent = attente;
+      document.getElementById('statVerifie').textContent = verifie;
+      document.getElementById('statRejete').textContent  = rejete;
+      document.getElementById('statTotal').textContent   = allUsers.length;
+
+      renderUsers(currentTab);
+    } catch(e) {
+      document.getElementById('userList').innerHTML = '<div class="empty-state">⚠ Erreur de chargement. Vérifiez votre connexion.</div>';
+    }
+  };
+
+  window.switchTab = function(tab, btn) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const titles = {
+      en_attente: 'Inscriptions en attente de validation',
+      verifie:    'Artisans vérifiés',
+      rejete:     'Inscriptions rejetées',
+      tous:       'Tous les inscrits'
+    };
+    document.getElementById('tableTitle').textContent = titles[tab];
+    renderUsers(tab);
+  };
+
+  function renderUsers(tab) {
+    const list = tab === 'tous' ? allUsers : allUsers.filter(u => u.statut === tab);
+    const container = document.getElementById('userList');
+
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-state">Aucun utilisateur dans cette catégorie.</div>';
+      return;
+    }
+
+    container.innerHTML = list.map(u => {
+      const initiale = (u.prenom || u.nom || '?')[0].toUpperCase();
+      const date = u.dateInscription?.toDate ? u.dateInscription.toDate().toLocaleDateString('fr-FR') : '—';
+      const actions = u.statut === 'en_attente' ? `
+        <div class="action-btns">
+          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie')">✔ Valider</button>
+          <button class="btn-rejeter" onclick="updateStatus('${u.id}', 'rejete')">✘ Rejeter</button>
+        </div>` :
+        u.statut === 'verifie' ? `
+        <div class="action-btns">
+          <button class="btn-rejeter" onclick="updateStatus('${u.id}', 'rejete')">✘ Révoquer</button>
+        </div>` :
+        `<div class="action-btns">
+          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie')">✔ Réactiver</button>
+        </div>`;
+
+      return `
+      <div class="user-row">
+        <div class="user-avatar">${initiale}</div>
+        <div class="user-info">
+          <div class="user-name">${u.nom || ''} ${u.prenom || ''}</div>
+          <div class="user-email">📧 ${u.email || '—'}</div>
+          <div class="user-tel">📞 ${u.telephone || '—'}</div>
+          <div class="user-date">Inscrit le ${date}</div>
+        </div>
+        <span class="status-badge ${u.statut}">${
+          u.statut === 'en_attente' ? '⏳ En attente' :
+          u.statut === 'verifie'    ? '✅ Vérifié' : '❌ Rejeté'
+        }</span>
+        ${actions}
+      </div>`;
+    }).join('');
+  }
+
+  window.updateStatus = async function(uid, newStatut) {
+    try {
+      await updateDoc(doc(db, 'utilisateurs', uid), {
+        statut:  newStatut,
+        verifie: newStatut === 'verifie'
+      });
+      showToast(
+        newStatut === 'verifie' ? '✅ Profil validé !' :
+        newStatut === 'rejete'  ? '❌ Profil rejeté.' : '↩ Statut mis à jour.',
+        newStatut === 'verifie' ? 'success' : 'error-toast'
+      );
+      await loadUsers();
+    } catch(e) {
+      showToast('⚠ Erreur. Réessayez.', 'error-toast');
+    }
+  };
+</script>
+</body>
+</html>
