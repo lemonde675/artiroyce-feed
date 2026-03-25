@@ -34,27 +34,25 @@
     .logo-text { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
     .logo-text .arti { color: #e63224; }
     .logo-text .royce { color: #27a945; }
-    .admin-badge {
-      text-align: center; margin-bottom: 24px;
-    }
+    .admin-badge { text-align: center; margin-bottom: 24px; }
     .admin-badge h1 { font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
     .admin-badge p { font-size: 13px; color: #888; }
     .admin-badge .admin-name { font-size: 13px; color: #27a945; font-weight: 700; margin-top: 4px; }
     .admin-icon {
-      width: 56px; height: 56px; background: linear-gradient(135deg, #e63224, #27a945);
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #e63224, #27a945);
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       margin: 0 auto 14px; font-size: 26px;
     }
-
     label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
     .input-wrap { position: relative; margin-bottom: 20px; }
-    input[type="password"], input[type="text"] {
+    input[type="password"], input[type="text"], textarea {
       width: 100%; padding: 12px 44px 12px 14px;
       border: 1.5px solid #ddd; border-radius: 6px;
       font-size: 15px; color: #333; outline: none;
       background: #fafafa; transition: border-color 0.2s;
     }
-    input:focus { border-color: #e63224; background: #fff; }
+    input:focus, textarea:focus { border-color: #e63224; background: #fff; }
     input.error { border-color: #e63224; background: #fff5f5; }
     .eye-btn {
       position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
@@ -77,7 +75,7 @@
       background: #fff; padding: 12px 20px;
       display: flex; align-items: center; justify-content: space-between;
       border-bottom: 2px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      position: sticky; top: 0; z-index: 100;
+      position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px;
     }
     .header-left { display: flex; align-items: center; gap: 10px; }
     .header-title { font-size: 15px; font-weight: 800; color: #1a1a1a; }
@@ -107,7 +105,7 @@
     .stat-label { font-size: 12px; color: #888; margin-top: 2px; }
 
     /* Tabs */
-    .tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
     .tab {
       padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600;
       cursor: pointer; border: none; background: #e8e8e8; color: #555;
@@ -158,7 +156,15 @@
     .status-badge.verifie    { background: #d1fae5; color: #065f46; }
     .status-badge.rejete     { background: #fee2e2; color: #991b1b; }
 
-    .action-btns { display: flex; gap: 6px; }
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Bouton "Voir le dossier" */
+    .btn-voir {
+      background: #2196f3; color: #fff; border: none;
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-voir:hover { opacity: 0.85; }
     .btn-valider {
       background: #27a945; color: #fff; border: none;
       padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
@@ -172,10 +178,122 @@
     }
     .btn-rejeter:hover { opacity: 0.85; }
 
-    .empty-state {
-      padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px;
-    }
+    .empty-state { padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px; }
     .loading { padding: 30px; text-align: center; color: #888; font-size: 13px; }
+
+    /* ── MODALE DÉTAIL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.25);
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-topbar {
+      height: 8px;
+      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
+    }
+    .modal-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 16px; font-weight: 800; color: #1a1a1a; }
+    .modal-close {
+      background: none; border: none; cursor: pointer; font-size: 22px;
+      color: #888; line-height: 1; padding: 0 4px;
+    }
+    .modal-close:hover { color: #e63224; }
+    .modal-body { padding: 20px; }
+
+    /* Profil dans la modale */
+    .modal-avatar-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+    }
+    .modal-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #e63224, #27a945);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 22px; font-weight: 800; flex-shrink: 0;
+    }
+    .modal-user-name { font-size: 18px; font-weight: 800; color: #1a1a1a; }
+    .modal-user-sub  { font-size: 13px; color: #888; margin-top: 2px; }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 18px;
+    }
+    .info-item {
+      background: #f8f8f8; border-radius: 8px; padding: 10px 12px;
+    }
+    .info-item-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      color: #aaa; text-transform: uppercase; margin-bottom: 3px;
+    }
+    .info-item-val { font-size: 13px; color: #333; font-weight: 600; }
+
+    /* Section raison du rejet dans la modale */
+    .rejet-section { margin-bottom: 18px; }
+    .rejet-section label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      color: #e63224; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .rejet-section textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #f5c6cb; border-radius: 8px;
+      font-size: 13px; color: #333; resize: vertical; min-height: 90px;
+      background: #fff5f5; font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .rejet-section textarea:focus { border-color: #e63224; outline: none; }
+
+    /* Raison existante affichée */
+    .raison-affichee {
+      background: #fff0f0; border: 1.5px solid #f5c6cb;
+      border-radius: 8px; padding: 10px 12px; margin-bottom: 18px;
+    }
+    .raison-affichee-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      color: #e63224; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .raison-affichee-text { font-size: 13px; color: #555; line-height: 1.5; }
+
+    .modal-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .modal-actions button {
+      flex: 1; padding: 11px;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .modal-actions button:hover { opacity: 0.85; }
+    .btn-modal-valider { background: #27a945; color: #fff; }
+    .btn-modal-rejeter { background: #e63224; color: #fff; }
+    .btn-modal-revoquer { background: #ff9800; color: #fff; }
+    .btn-modal-reactiver { background: #2196f3; color: #fff; }
+    .btn-modal-cancel {
+      background: #f0f0f0; color: #555;
+      border: 1.5px solid #ddd !important;
+    }
 
     /* Toast */
     .toast {
@@ -192,12 +310,27 @@
       .stats-row { gap: 8px; }
       .user-row { padding: 12px 14px; }
       .panel-body { padding: 14px; }
+      .info-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══════════════ MODALE DÉTAIL ARTISAN ══════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-topbar"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Dossier artisan</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Contenu injecté dynamiquement -->
+    </div>
+  </div>
+</div>
 
 <!-- ── LOGIN ── -->
 <div id="loginScreen">
@@ -214,7 +347,6 @@
   <div class="login-card">
     <div class="top-bar"></div>
     <div class="login-body">
-
       <div class="logo-wrap">
         <svg width="70" height="50" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
           <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -226,14 +358,12 @@
         </svg>
         <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
       </div>
-
       <div class="admin-badge">
         <div class="admin-icon">🛡️</div>
         <h1>Espace Administrateur</h1>
         <p>Panel de gestion & validation KYC</p>
         <p class="admin-name">Isidore Wenon</p>
       </div>
-
       <label for="adminPass">MOT DE PASSE ADMIN</label>
       <div class="input-wrap">
         <input type="password" id="adminPass" placeholder="••••••••••" autocomplete="off"/>
@@ -243,10 +373,8 @@
           </svg>
         </button>
       </div>
-
       <p class="err-login" id="loginErr"></p>
       <button class="btn-admin" onclick="checkLogin()">ACCÉDER AU PANEL →</button>
-
     </div>
     <div class="bottom-bar"></div>
   </div>
@@ -254,7 +382,6 @@
 
 <!-- ── ADMIN PANEL ── -->
 <div id="adminPanel">
-
   <div class="header">
     <div class="header-left">
       <svg width="36" height="26" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
@@ -284,23 +411,11 @@
   </div>
 
   <div class="panel-body">
-    <div class="stats-row" id="statsRow">
-      <div class="stat-card orange">
-        <div class="stat-num" id="statAttente">—</div>
-        <div class="stat-label">En attente</div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-num" id="statVerifie">—</div>
-        <div class="stat-label">Vérifiés</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-num" id="statRejete">—</div>
-        <div class="stat-label">Rejetés</div>
-      </div>
-      <div class="stat-card blue">
-        <div class="stat-num" id="statTotal">—</div>
-        <div class="stat-label">Total inscrits</div>
-      </div>
+    <div class="stats-row">
+      <div class="stat-card orange"><div class="stat-num" id="statAttente">—</div><div class="stat-label">En attente</div></div>
+      <div class="stat-card green"> <div class="stat-num" id="statVerifie">—</div><div class="stat-label">Vérifiés</div></div>
+      <div class="stat-card red">   <div class="stat-num" id="statRejete">—</div> <div class="stat-label">Rejetés</div></div>
+      <div class="stat-card blue">  <div class="stat-num" id="statTotal">—</div>  <div class="stat-label">Total inscrits</div></div>
     </div>
 
     <div class="tabs">
@@ -337,17 +452,17 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  const PASSWORDS = ["Bonjour1@", "AKOUEGNIGAN"];
+  const PASSWORDS   = ["Bonjour1@", "AKOUEGNIGAN"];
   const SESSION_KEY = "artiroyce_admin_ok";
 
-  let allUsers = [];
-  let currentTab = 'en_attente';
+  let allUsers    = [];
+  let currentTab  = 'en_attente';
+  let currentUser = null; // artisan affiché dans la modale
 
-  // ── VÉRIFIER SESSION AU CHARGEMENT ──
-  // Si déjà connecté → afficher directement le panel
+  // ── SESSION ──
   if (sessionStorage.getItem(SESSION_KEY) === 'true') {
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('adminPanel').style.display  = 'block';
     loadUsers();
   }
 
@@ -361,10 +476,9 @@
     const val = document.getElementById('adminPass').value;
     const err = document.getElementById('loginErr');
     if (PASSWORDS.includes(val)) {
-      // Sauvegarder la session
       sessionStorage.setItem(SESSION_KEY, 'true');
       document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display = 'block';
+      document.getElementById('adminPanel').style.display  = 'block';
       loadUsers();
     } else {
       err.textContent = '⚠ Mot de passe incorrect.';
@@ -378,9 +492,8 @@
   });
 
   window.logout = function() {
-    // Supprimer la session
     sessionStorage.removeItem(SESSION_KEY);
-    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('adminPanel').style.display  = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminPass').value = '';
   };
@@ -411,7 +524,8 @@
 
       renderUsers(currentTab);
     } catch(e) {
-      document.getElementById('userList').innerHTML = '<div class="empty-state">⚠ Erreur de chargement. Vérifiez votre connexion.</div>';
+      document.getElementById('userList').innerHTML =
+        '<div class="empty-state">⚠ Erreur de chargement. Vérifiez votre connexion.</div>';
     }
   };
 
@@ -440,52 +554,237 @@
 
     container.innerHTML = list.map(u => {
       const initiale = (u.prenom || u.nom || '?')[0].toUpperCase();
-      const date = u.dateInscription?.toDate ? u.dateInscription.toDate().toLocaleDateString('fr-FR') : '—';
-      const actions = u.statut === 'en_attente' ? `
-        <div class="action-btns">
-          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie')">✔ Valider</button>
-          <button class="btn-rejeter" onclick="updateStatus('${u.id}', 'rejete')">✘ Rejeter</button>
-        </div>` :
-        u.statut === 'verifie' ? `
-        <div class="action-btns">
-          <button class="btn-rejeter" onclick="updateStatus('${u.id}', 'rejete')">✘ Révoquer</button>
-        </div>` :
-        `<div class="action-btns">
-          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie')">✔ Réactiver</button>
-        </div>`;
+      const date = u.dateInscription?.toDate
+        ? u.dateInscription.toDate().toLocaleDateString('fr-FR')
+        : '—';
+
+      const statusLabels = {
+        en_attente: '⏳ En attente',
+        verifie:    '✅ Vérifié',
+        rejete:     '❌ Rejeté'
+      };
+
+      // Boutons selon statut
+      let actions = '';
+      if (u.statut === 'en_attente') {
+        actions = `
+          <button class="btn-voir"    onclick="openModal('${u.id}')">📋 Voir le dossier</button>
+          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie', null, event)">✔ Valider</button>
+          <button class="btn-rejeter" onclick="openRejetModal('${u.id}', event)">✘ Rejeter</button>`;
+      } else if (u.statut === 'verifie') {
+        actions = `
+          <button class="btn-voir"    onclick="openModal('${u.id}')">📋 Voir le dossier</button>
+          <button class="btn-rejeter" onclick="openRejetModal('${u.id}', event)">✘ Révoquer</button>`;
+      } else {
+        actions = `
+          <button class="btn-voir"    onclick="openModal('${u.id}')">📋 Voir le dossier</button>
+          <button class="btn-valider" onclick="updateStatus('${u.id}', 'verifie', null, event)">✔ Réactiver</button>`;
+      }
 
       return `
-      <div class="user-row">
+      <div class="user-row" id="row-${u.id}">
         <div class="user-avatar">${initiale}</div>
         <div class="user-info">
           <div class="user-name">${u.nom || ''} ${u.prenom || ''}</div>
-          <div class="user-email">📧 ${u.email || '—'}</div>
+          <div class="user-email">✉ ${u.email || '—'}</div>
           <div class="user-tel">📞 ${u.telephone || '—'}</div>
           <div class="user-date">Inscrit le ${date}</div>
         </div>
-        <span class="status-badge ${u.statut}">${
-          u.statut === 'en_attente' ? '⏳ En attente' :
-          u.statut === 'verifie'    ? '✅ Vérifié' : '❌ Rejeté'
-        }</span>
-        ${actions}
+        <span class="status-badge ${u.statut}">${statusLabels[u.statut] || u.statut}</span>
+        <div class="action-btns">${actions}</div>
       </div>`;
     }).join('');
   }
 
-  window.updateStatus = async function(uid, newStatut) {
+  // ── MODALE : voir le dossier complet ──
+  window.openModal = function(uid) {
+    const u = allUsers.find(x => x.id === uid);
+    if (!u) return;
+    currentUser = u;
+
+    const initiale = (u.prenom || u.nom || '?')[0].toUpperCase();
+    const date = u.dateInscription?.toDate
+      ? u.dateInscription.toDate().toLocaleDateString('fr-FR')
+      : '—';
+
+    const statusLabels = {
+      en_attente: '⏳ En attente de validation',
+      verifie:    '✅ Compte vérifié',
+      rejete:     '❌ Compte rejeté'
+    };
+
+    document.getElementById('modalTitle').textContent = `Dossier — ${u.prenom || ''} ${u.nom || ''}`;
+
+    let bodyHTML = `
+      <div class="modal-avatar-row">
+        <div class="modal-avatar">${initiale}</div>
+        <div>
+          <div class="modal-user-name">${u.prenom || ''} ${u.nom || ''}</div>
+          <div class="modal-user-sub">${statusLabels[u.statut] || u.statut}</div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-item-label">Email</div>
+          <div class="info-item-val">${u.email || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-label">Téléphone</div>
+          <div class="info-item-val">${u.telephone || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-label">Nom</div>
+          <div class="info-item-val">${u.nom || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-label">Prénom(s)</div>
+          <div class="info-item-val">${u.prenom || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-label">Date d'inscription</div>
+          <div class="info-item-val">${date}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-label">Statut actuel</div>
+          <div class="info-item-val">${statusLabels[u.statut] || '—'}</div>
+        </div>
+      </div>
+    `;
+
+    // Pièces justificatives (si elles existent dans Firestore)
+    if (u.pieceRecto || u.pieceVerso || u.photoVisage || u.documentUrl) {
+      bodyHTML += `
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.8px;color:#888;text-transform:uppercase;margin-bottom:10px;">📎 Pièces justificatives</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${u.pieceRecto    ? `<a href="${u.pieceRecto}"    target="_blank" style="flex:1;min-width:120px;padding:10px;background:#f0f9f2;border:1px solid #c3e6cb;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:700;color:#27a945;">📄 Recto pièce</a>` : ''}
+            ${u.pieceVerso    ? `<a href="${u.pieceVerso}"    target="_blank" style="flex:1;min-width:120px;padding:10px;background:#f0f9f2;border:1px solid #c3e6cb;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:700;color:#27a945;">📄 Verso pièce</a>` : ''}
+            ${u.photoVisage   ? `<a href="${u.photoVisage}"   target="_blank" style="flex:1;min-width:120px;padding:10px;background:#e8f4fd;border:1px solid #bee5f5;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:700;color:#2196f3;">🤳 Photo visage</a>` : ''}
+            ${u.documentUrl   ? `<a href="${u.documentUrl}"   target="_blank" style="flex:1;min-width:120px;padding:10px;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:700;color:#856404;">📋 Document</a>` : ''}
+          </div>
+        </div>`;
+    } else {
+      bodyHTML += `
+        <div style="background:#f8f8f8;border-radius:8px;padding:12px 14px;margin-bottom:16px;text-align:center;color:#aaa;font-size:13px;">
+          📎 Aucune pièce justificative uploadée pour l'instant.
+        </div>`;
+    }
+
+    // Raison de rejet si rejeté
+    if (u.statut === 'rejete' && u.raisonRejet) {
+      bodyHTML += `
+        <div class="raison-affichee">
+          <div class="raison-affichee-label">📋 Raison du rejet</div>
+          <div class="raison-affichee-text">${u.raisonRejet}</div>
+        </div>`;
+    }
+
+    // Actions selon statut
+    bodyHTML += `<div class="modal-actions">`;
+    if (u.statut === 'en_attente') {
+      bodyHTML += `
+        <button class="btn-modal-valider" onclick="updateStatus('${u.id}', 'verifie', null)">✔ Valider</button>
+        <button class="btn-modal-rejeter" onclick="showRejetForm('${u.id}')">✘ Rejeter</button>`;
+    } else if (u.statut === 'verifie') {
+      bodyHTML += `
+        <button class="btn-modal-revoquer" onclick="showRejetForm('${u.id}')">✘ Révoquer</button>`;
+    } else {
+      bodyHTML += `
+        <button class="btn-modal-reactiver" onclick="updateStatus('${u.id}', 'verifie', null)">✔ Réactiver</button>`;
+    }
+    bodyHTML += `
+        <button class="btn-modal-cancel" onclick="closeModal()">Fermer</button>
+      </div>`;
+
+    document.getElementById('modalBody').innerHTML = bodyHTML;
+    document.getElementById('modalOverlay').classList.add('open');
+  };
+
+  // ── Afficher le formulaire de rejet DANS la modale ──
+  window.showRejetForm = function(uid) {
+    const actionsDiv = document.querySelector('.modal-actions');
+    if (!actionsDiv) return;
+
+    actionsDiv.innerHTML = `
+      <div style="width:100%;">
+        <div class="rejet-section">
+          <label for="raisonInput">RAISON DU REJET (visible par l'artisan)</label>
+          <textarea id="raisonInput" placeholder="Ex: Pièce d'identité illisible, photo de mauvaise qualité, informations incomplètes…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-modal-rejeter" style="flex:1;" onclick="confirmerRejet('${uid}')">✘ Confirmer le rejet</button>
+          <button class="btn-modal-cancel" style="flex:1;" onclick="openModal('${uid}')">Annuler</button>
+        </div>
+      </div>`;
+  };
+
+  // ── Rejet rapide depuis la liste (sans modale) ──
+  window.openRejetModal = function(uid, event) {
+    if (event) event.stopPropagation();
+    openModal(uid);
+    // Petit délai pour laisser la modale s'ouvrir, puis afficher le form rejet
+    setTimeout(() => showRejetForm(uid), 80);
+  };
+
+  // ── Confirmer le rejet avec raison ──
+  window.confirmerRejet = async function(uid) {
+    const raison = (document.getElementById('raisonInput')?.value || '').trim();
+    if (!raison) {
+      showToast('⚠ Veuillez indiquer une raison.', 'error-toast');
+      return;
+    }
+    await updateStatus(uid, 'rejete', raison);
+  };
+
+  // ── UPDATE STATUT ──
+  window.updateStatus = async function(uid, newStatus, raison, event) {
+    if (event) event.stopPropagation();
     try {
-      await updateDoc(doc(db, 'utilisateurs', uid), {
-        statut:  newStatut,
-        verifie: newStatut === 'verifie'
-      });
-      showToast(
-        newStatut === 'verifie' ? '✅ Profil validé !' :
-        newStatut === 'rejete'  ? '❌ Profil rejeté.' : '↩ Statut mis à jour.',
-        newStatut === 'verifie' ? 'success' : 'error-toast'
-      );
-      await loadUsers();
+      const updateData = { statut: newStatus };
+      if (raison) updateData.raisonRejet = raison;
+      if (newStatus === 'verifie') updateData.raisonRejet = ''; // on efface si réactivé
+
+      await updateDoc(doc(db, 'utilisateurs', uid), updateData);
+
+      // Mettre à jour localement
+      const idx = allUsers.findIndex(u => u.id === uid);
+      if (idx !== -1) {
+        allUsers[idx].statut = newStatus;
+        if (raison) allUsers[idx].raisonRejet = raison;
+        if (newStatus === 'verifie') allUsers[idx].raisonRejet = '';
+      }
+
+      // Recalculer les stats
+      const attente = allUsers.filter(u => u.statut === 'en_attente').length;
+      const verifie = allUsers.filter(u => u.statut === 'verifie').length;
+      const rejete  = allUsers.filter(u => u.statut === 'rejete').length;
+      document.getElementById('statAttente').textContent = attente;
+      document.getElementById('statVerifie').textContent = verifie;
+      document.getElementById('statRejete').textContent  = rejete;
+
+      renderUsers(currentTab);
+      closeModal();
+
+      const msgs = {
+        verifie: '✅ Artisan validé avec succès !',
+        rejete:  '❌ Inscription rejetée.',
+      };
+      showToast(msgs[newStatus] || 'Statut mis à jour.', newStatus === 'verifie' ? 'success' : 'error-toast');
     } catch(e) {
-      showToast('⚠ Erreur. Réessayez.', 'error-toast');
+      showToast('⚠ Erreur lors de la mise à jour.', 'error-toast');
+    }
+  };
+
+  // ── MODALE : fermer ──
+  window.closeModal = function() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    currentUser = null;
+  };
+
+  window.closeModalOutside = function(event) {
+    if (event.target === document.getElementById('modalOverlay')) {
+      closeModal();
     }
   };
 </script>
