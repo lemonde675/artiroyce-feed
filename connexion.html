@@ -6,89 +6,40 @@
   <title>ArtiRoyce – Connexion</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f0f0f0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-    }
-
-    .back-home {
-      position: fixed; top: 18px; left: 18px;
-      display: flex; align-items: center; gap: 7px;
-      background: #fff; color: #e63224;
-      border: 1.5px solid #e63224; border-radius: 50px;
-      padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700;
-      letter-spacing: 0.4px; text-decoration: none;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
-      transition: background 0.18s, color 0.18s; z-index: 100;
-    }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; }
+    .back-home { position: fixed; top: 18px; left: 18px; display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; z-index: 100; }
     .back-home:hover { background: #e63224; color: #fff; }
     .back-home:hover svg { transform: translateX(-3px); }
     .back-home svg { transition: transform 0.18s; }
-
-    .card {
-      background: #fff; border-radius: 12px; overflow: hidden;
-      width: 380px; box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-    }
-    .top-bar, .bottom-bar {
-      height: 10px;
-      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
-    }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; width: 380px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+    .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
     .card-body { padding: 36px 32px 32px; }
-    .logo-wrap {
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; margin-bottom: 32px;
-    }
+    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 32px; }
     .logo-text { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
     .logo-text .arti  { color: #e63224; }
     .logo-text .royce { color: #27a945; }
     h1 { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
     .subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
     label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
-    input[type="email"], input[type="password"], input[type="text"] {
-      width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 6px;
-      font-size: 15px; color: #333; outline: none; transition: border-color 0.2s;
-      margin-bottom: 4px; background: #fafafa;
-    }
+    input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 15px; color: #333; outline: none; transition: border-color 0.2s; margin-bottom: 4px; background: #fafafa; }
     input:focus { border-color: #e63224; background: #fff; }
     input.error { border-color: #e63224; background: #fff5f5; }
     input.valid { border-color: #27a945; background: #f5fff7; }
     input::placeholder { color: #bbb; }
-    .error-msg {
-      font-size: 11px; color: #e63224; margin-bottom: 12px;
-      min-height: 16px; display: block;
-    }
+    .error-msg { font-size: 11px; color: #e63224; margin-bottom: 12px; min-height: 16px; display: block; }
     .password-wrap { position: relative; }
     .password-wrap input { padding-right: 44px; }
-    .eye-btn {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; color: #888; padding: 0;
-      display: flex; align-items: center;
-    }
+    .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; padding: 0; display: flex; align-items: center; }
     .forgot { text-align: right; margin-top: 4px; margin-bottom: 22px; }
     .forgot a { color: #e63224; font-size: 13px; text-decoration: none; font-style: italic; }
     .forgot a:hover { text-decoration: underline; }
-    .btn-login {
-      width: 100%; padding: 14px; background: #e63224; color: #fff; border: none;
-      border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 8px; transition: background 0.2s; margin-top: 4px;
-    }
+    .btn-login { width: 100%; padding: 14px; background: #e63224; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; margin-top: 4px; }
     .btn-login:hover { background: #c42a1e; }
     .btn-login:disabled { background: #ccc; cursor: not-allowed; }
     .register { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
     .register a { color: #27a945; text-decoration: none; font-weight: 600; }
     .register a:hover { text-decoration: underline; }
-
-    .toast {
-      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px;
-      font-size: 13px; font-weight: 600; z-index: 999;
-      opacity: 0; transition: opacity 0.3s; pointer-events: none;
-    }
+    .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
     .toast.show { opacity: 1; }
     .toast.success { background: #27a945; }
     .toast.error-toast { background: #e63224; }
@@ -96,20 +47,16 @@
   </style>
 </head>
 <body>
-
   <div class="toast" id="toast"></div>
 
   <a href="index.html" class="back-home">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Accueil
   </a>
 
   <div class="card">
     <div class="top-bar"></div>
     <div class="card-body">
-
       <div class="logo-wrap">
         <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
           <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -119,9 +66,7 @@
           <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
           <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
         </svg>
-        <div class="logo-text">
-          <span class="arti">Arti</span><span class="royce">Royce</span>
-        </div>
+        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
       </div>
 
       <h1>Connexion</h1>
@@ -136,10 +81,7 @@
         <div class="password-wrap">
           <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password"/>
           <button type="button" class="eye-btn" onclick="togglePass()" title="Afficher/masquer">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="12" rx="9" ry="6"/>
-              <circle cx="12" cy="12" r="2.5"/>
-            </svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
           </button>
         </div>
         <span class="error-msg" id="passwordError"></span>
@@ -181,8 +123,7 @@
 
     function showToast(msg, type = '') {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
+      t.textContent = msg; t.className = 'toast show ' + type;
       setTimeout(() => t.className = 'toast', 2800);
     }
 
@@ -206,11 +147,9 @@
         emailErr.textContent = '⚠ Veuillez entrer votre email.';
         email.className = 'error'; valid = false;
       } else if (!validateEmail(email.value)) {
-        emailErr.textContent = '⚠ Format email invalide (ex: nom@exemple.com)';
+        emailErr.textContent = '⚠ Format email invalide.';
         email.className = 'error'; valid = false;
-      } else {
-        email.className = 'valid';
-      }
+      } else { email.className = 'valid'; }
 
       if (!password.value.trim()) {
         passErr.textContent = '⚠ Veuillez entrer votre mot de passe.';
@@ -218,9 +157,7 @@
       } else if (password.value.length < 6) {
         passErr.textContent = '⚠ Le mot de passe doit faire au moins 6 caractères.';
         password.className = 'error'; valid = false;
-      } else {
-        password.className = 'valid';
-      }
+      } else { password.className = 'valid'; }
 
       if (!valid) return;
 
@@ -229,16 +166,16 @@
       btn.textContent = 'Connexion en cours…';
 
       try {
-        // 1. Authentification Firebase Auth
+        // 1. Authentification
         const userCredential = await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
         const uid = userCredential.user.uid;
 
-        // 2. Récupérer le document Firestore pour lire le statut
+        // 2. Lire le statut dans Firestore
         const userDoc = await getDoc(doc(db, 'utilisateurs', uid));
 
         if (!userDoc.exists()) {
-          // Document pas encore créé (rare) → accueil par défaut
-          showToast('✅ Connexion réussie ! Bienvenue.', 'success');
+          // Document absent → accueil par défaut
+          showToast('✅ Connexion réussie !', 'success');
           setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
           return;
         }
@@ -246,17 +183,16 @@
         const userData = userDoc.data();
         const statut   = userData.statut || 'en_attente';
 
-        // 3. Rediriger selon le statut
+        // 3. ✅ REDIRECTION SELON STATUT
         if (statut === 'verifie') {
+          // Compte validé → accueil général
           showToast('✅ Connexion réussie ! Bienvenue.', 'success');
           setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
-        } else if (statut === 'rejete') {
-          showToast('⚠ Votre compte a été rejeté.', 'warning');
-          setTimeout(() => { window.location.href = 'profil-attente.html'; }, 1200);
         } else {
-          // en_attente ou autre
-          showToast('⏳ Votre compte est en cours de validation.', 'warning');
-          setTimeout(() => { window.location.href = 'profil-attente.html'; }, 1200);
+          // en_attente ou rejeté → SON PROPRE profil personnel
+          // profil.html détecte automatiquement l'utilisateur connecté via Firebase Auth
+          showToast('⏳ Compte en attente — accès à votre profil.', 'warning');
+          setTimeout(() => { window.location.href = 'profil.html'; }, 1200);
         }
 
       } catch (err) {
