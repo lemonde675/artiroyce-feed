@@ -6,129 +6,55 @@
   <title>ArtiRoyce – Inscription</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      background: #f0f0f0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      padding: 40px 16px;
-    }
-
-    .back-home {
-      position: fixed; top: 18px; left: 18px;
-      display: flex; align-items: center; gap: 7px;
-      background: #fff; color: #e63224;
-      border: 1.5px solid #e63224; border-radius: 50px;
-      padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700;
-      text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10);
-      transition: background 0.18s, color 0.18s; z-index: 100;
-    }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; padding: 40px 16px; }
+    .back-home { position: fixed; top: 18px; left: 18px; display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; z-index: 100; }
     .back-home:hover { background: #e63224; color: #fff; }
-    .back-home:hover svg { transform: translateX(-3px); }
     .back-home svg { transition: transform 0.18s; }
-
-    .card {
-      background: #fff; border-radius: 12px; overflow: hidden;
-      width: 100%; max-width: 420px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-    }
-    .top-bar, .bottom-bar {
-      height: 10px;
-      background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%);
-    }
+    .back-home:hover svg { transform: translateX(-3px); }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; width: 100%; max-width: 420px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+    .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
     .card-body { padding: 32px 28px 28px; }
-    .logo-wrap {
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; margin-bottom: 24px;
-    }
+    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
     .logo-text { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-    .logo-text .arti  { color: #e63224; }
+    .logo-text .arti { color: #e63224; }
     .logo-text .royce { color: #27a945; }
     h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
     .subtitle { font-size: 13px; color: #888; margin-bottom: 22px; }
-
-    label {
-      display: block; font-size: 11px; font-weight: 700;
-      letter-spacing: 0.8px; color: #333; margin-bottom: 5px;
-    }
-    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
-      width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 6px;
-      font-size: 14px; color: #333; outline: none; background: #fafafa;
-      transition: border-color 0.2s; margin-bottom: 2px;
-    }
+    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 5px; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; color: #333; outline: none; background: #fafafa; transition: border-color 0.2s; margin-bottom: 2px; }
     input:focus { border-color: #e63224; background: #fff; }
     input.error { border-color: #e63224 !important; background: #fff5f5; }
     input.valid { border-color: #27a945 !important; background: #f5fff7; }
     input::placeholder { color: #bbb; }
-
-    .error-msg {
-      font-size: 11px; color: #e63224;
-      min-height: 16px; display: block; margin-bottom: 10px;
-    }
-
+    .error-msg { font-size: 11px; color: #e63224; min-height: 16px; display: block; margin-bottom: 10px; }
     .password-wrap { position: relative; }
     .password-wrap input { padding-right: 44px; }
-    .eye-btn {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; color: #888;
-      display: flex; align-items: center;
-    }
-
-    .strength-bar {
-      height: 4px; border-radius: 4px; background: #eee;
-      margin-bottom: 4px; overflow: hidden;
-    }
-    .strength-fill {
-      height: 100%; border-radius: 4px; width: 0;
-      transition: width 0.3s, background 0.3s;
-    }
+    .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; display: flex; align-items: center; }
+    .strength-bar { height: 4px; border-radius: 4px; background: #eee; margin-bottom: 4px; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 4px; width: 0; transition: width 0.3s, background 0.3s; }
     .strength-label { font-size: 10px; color: #888; margin-bottom: 10px; }
-
-    .btn-register {
-      width: 100%; padding: 14px; background: #27a945; color: #fff; border: none;
-      border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.2px;
-      cursor: pointer; transition: background 0.2s; margin-top: 6px;
-    }
+    .btn-register { width: 100%; padding: 14px; background: #27a945; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.2px; cursor: pointer; transition: background 0.2s; margin-top: 6px; }
     .btn-register:hover { background: #1e8c38; }
     .btn-register:disabled { background: #ccc; cursor: not-allowed; }
-
     .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
     .login-link a { color: #e63224; text-decoration: none; font-weight: 600; }
-    .login-link a:hover { text-decoration: underline; }
-
-    .kyc-info {
-      background: #fffbe6; border: 1px solid #ffe066; border-radius: 8px;
-      padding: 10px 14px; font-size: 12px; color: #7a6000; margin-bottom: 18px;
-      display: flex; gap: 8px; align-items: flex-start;
-    }
+    .kyc-info { background: #fffbe6; border: 1px solid #ffe066; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #7a6000; margin-bottom: 18px; display: flex; gap: 8px; align-items: flex-start; }
     .kyc-info span { font-size: 16px; flex-shrink: 0; }
-
-    .toast {
-      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-      background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px;
-      font-size: 13px; font-weight: 600; z-index: 999;
-      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
-    }
+    .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.success { background: #27a945; }
     .toast.error-toast { background: #e63224; }
   </style>
 </head>
 <body>
-
   <div class="toast" id="toast"></div>
-
   <a href="index.html" class="back-home">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="15 18 9 12 15 6"/>
-    </svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Accueil
   </a>
-
   <div class="card">
     <div class="top-bar"></div>
     <div class="card-body">
-
       <div class="logo-wrap">
         <svg width="70" height="50" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
           <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -138,227 +64,106 @@
           <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
           <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
         </svg>
-        <div class="logo-text">
-          <span class="arti">Arti</span><span class="royce">Royce</span>
-        </div>
+        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
       </div>
-
       <h1>Inscription</h1>
       <p class="subtitle">Créez votre compte professionnel et commencez à gagner de l'argent dès aujourd'hui</p>
-
       <div class="kyc-info">
         <span>ℹ️</span>
-        <div>Votre profil sera <strong>vérifié par notre équipe</strong> avant d'être visible. La validation KYC peut prendre 24–48h.</div>
+        <div>Votre profil sera <strong>vérifié par notre équipe</strong> avant d'être visible. Vous soumettrez votre KYC après l'inscription.</div>
       </div>
-
       <form id="registerForm" novalidate>
-
-        <!-- Nom -->
         <label for="nom">NOM</label>
-        <input type="text" id="nom" placeholder="Gicquel" autocomplete="family-name"/>
+        <input type="text" id="nom" placeholder="Wenon" autocomplete="family-name"/>
         <span class="error-msg" id="nomError"></span>
-
-        <!-- Prénom -->
         <label for="prenom">PRÉNOM(S)</label>
-        <input type="text" id="prenom" placeholder="Georges-François" autocomplete="given-name"/>
+        <input type="text" id="prenom" placeholder="Isidore" autocomplete="given-name"/>
         <span class="error-msg" id="prenomError"></span>
-
-        <!-- Email -->
         <label for="email">EMAIL</label>
         <input type="email" id="email" placeholder="name@exemple.com" autocomplete="email"/>
         <span class="error-msg" id="emailError"></span>
-
-        <!-- Téléphone -->
         <label for="tel">NUMÉRO DE TÉLÉPHONE</label>
-        <input type="tel" id="tel" placeholder="+33 6 12 34 56 78" autocomplete="tel"/>
+        <input type="tel" id="tel" placeholder="+229 01 60 23 35 85" autocomplete="tel"/>
         <span class="error-msg" id="telError"></span>
-
-        <!-- Mot de passe -->
         <label for="password">MOT DE PASSE</label>
         <div class="password-wrap">
           <input type="password" id="password" placeholder="Minimum 8 caractères" autocomplete="new-password" oninput="checkStrength(this.value)"/>
-          <button type="button" class="eye-btn" onclick="togglePass('password')" title="Voir">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/>
-            </svg>
+          <button type="button" class="eye-btn" onclick="togglePass('password')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
           </button>
         </div>
         <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
         <div class="strength-label" id="strengthLabel"></div>
         <span class="error-msg" id="passwordError"></span>
-
-        <!-- Confirmer mot de passe -->
         <label for="password2">CONFIRMER LE MOT DE PASSE</label>
         <div class="password-wrap">
           <input type="password" id="password2" placeholder="Répétez le mot de passe" autocomplete="new-password"/>
-          <button type="button" class="eye-btn" onclick="togglePass('password2')" title="Voir">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/>
-            </svg>
+          <button type="button" class="eye-btn" onclick="togglePass('password2')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
           </button>
         </div>
         <span class="error-msg" id="password2Error"></span>
-
         <button type="submit" class="btn-register" id="btnRegister">CRÉER MON COMPTE &nbsp;→</button>
       </form>
-
-      <div class="login-link">
-        Déjà un compte ? <a href="connexion.html">Se connecter</a>
-      </div>
+      <div class="login-link">Déjà un compte ? <a href="connexion.html">Se connecter</a></div>
     </div>
     <div class="bottom-bar"></div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-      authDomain: "artiroyce-f42e4.firebaseapp.com",
-      projectId: "artiroyce-f42e4",
-      storageBucket: "artiroyce-f42e4.firebasestorage.app",
-      messagingSenderId: "588140774605",
-      appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
-      measurementId: "G-X4XLHDJCE7"
-    };
-
-    const app  = initializeApp(firebaseConfig);
+    const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
+    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
-
-    window.togglePass = function(id) {
-      const p = document.getElementById(id);
-      p.type = p.type === 'password' ? 'text' : 'password';
+    const db = getFirestore(app);
+    window.togglePass = id => { const p = document.getElementById(id); p.type = p.type==='password'?'text':'password'; };
+    window.checkStrength = val => {
+      const fill = document.getElementById('strengthFill'), label = document.getElementById('strengthLabel');
+      let s = 0;
+      if (val.length>=8) s++; if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+      const l = [{pct:'0%',c:'#eee',t:''},{pct:'25%',c:'#e63224',t:'⚠ Très faible'},{pct:'50%',c:'#ff9800',t:'😐 Moyen'},{pct:'75%',c:'#4caf50',t:'👍 Bon'},{pct:'100%',c:'#27a945',t:'🔒 Très fort'}];
+      fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
     };
-
-    window.checkStrength = function(val) {
-      const fill  = document.getElementById('strengthFill');
-      const label = document.getElementById('strengthLabel');
-      let score = 0;
-      if (val.length >= 8)  score++;
-      if (/[A-Z]/.test(val)) score++;
-      if (/[0-9]/.test(val)) score++;
-      if (/[^A-Za-z0-9]/.test(val)) score++;
-      const levels = [
-        { pct: '0%',   color: '#eee',    txt: '' },
-        { pct: '25%',  color: '#e63224', txt: '⚠ Très faible' },
-        { pct: '50%',  color: '#ff9800', txt: '😐 Moyen' },
-        { pct: '75%',  color: '#4caf50', txt: '👍 Bon' },
-        { pct: '100%', color: '#27a945', txt: '🔒 Très fort' },
-      ];
-      fill.style.width      = levels[score].pct;
-      fill.style.background = levels[score].color;
-      label.textContent     = levels[score].txt;
-    };
-
-    function showToast(msg, type = '') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + type;
-      setTimeout(() => t.className = 'toast', 3000);
-    }
-
-    function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim()); }
-    function validatePhone(p) { return /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim()); }
-    function validateName(n)  { return /^[a-zA-ZÀ-ÿ\s\-\']{3,50}$/.test(n.trim()); }
-
+    function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+    const vEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
+    const vPhone = p => /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim());
+    const vName  = n => /^[a-zA-ZÀ-ÿ\s\-\']{2,50}$/.test(n.trim());
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      let valid = true;
-
-      const fields = {
-        nom:       { el: document.getElementById('nom'),       err: document.getElementById('nomError') },
-        prenom:    { el: document.getElementById('prenom'),    err: document.getElementById('prenomError') },
-        email:     { el: document.getElementById('email'),     err: document.getElementById('emailError') },
-        tel:       { el: document.getElementById('tel'),       err: document.getElementById('telError') },
-        password:  { el: document.getElementById('password'),  err: document.getElementById('passwordError') },
-        password2: { el: document.getElementById('password2'), err: document.getElementById('password2Error') },
+      e.preventDefault(); let valid = true;
+      const f = {
+        nom:{el:document.getElementById('nom'),err:document.getElementById('nomError')},
+        prenom:{el:document.getElementById('prenom'),err:document.getElementById('prenomError')},
+        email:{el:document.getElementById('email'),err:document.getElementById('emailError')},
+        tel:{el:document.getElementById('tel'),err:document.getElementById('telError')},
+        password:{el:document.getElementById('password'),err:document.getElementById('passwordError')},
+        password2:{el:document.getElementById('password2'),err:document.getElementById('password2Error')},
       };
-
-      Object.values(fields).forEach(f => { f.el.className = ''; f.err.textContent = ''; });
-
-      if (!fields.nom.el.value.trim()) {
-        fields.nom.err.textContent = '⚠ Veuillez entrer votre nom.';
-        fields.nom.el.className = 'error'; valid = false;
-      } else if (!validateName(fields.nom.el.value)) {
-        fields.nom.err.textContent = '⚠ Nom invalide (lettres uniquement, min 2 caractères).';
-        fields.nom.el.className = 'error'; valid = false;
-      } else { fields.nom.el.className = 'valid'; }
-
-      if (!fields.prenom.el.value.trim()) {
-        fields.prenom.err.textContent = '⚠ Veuillez entrer votre prénom.';
-        fields.prenom.el.className = 'error'; valid = false;
-      } else if (!validateName(fields.prenom.el.value)) {
-        fields.prenom.err.textContent = '⚠ Prénom invalide (lettres uniquement, min 2 caractères).';
-        fields.prenom.el.className = 'error'; valid = false;
-      } else { fields.prenom.el.className = 'valid'; }
-
-      if (!fields.email.el.value.trim()) {
-        fields.email.err.textContent = '⚠ Veuillez entrer votre email.';
-        fields.email.el.className = 'error'; valid = false;
-      } else if (!validateEmail(fields.email.el.value)) {
-        fields.email.err.textContent = '⚠ Format email invalide (ex: nom@exemple.com).';
-        fields.email.el.className = 'error'; valid = false;
-      } else { fields.email.el.className = 'valid'; }
-
-      if (!fields.tel.el.value.trim()) {
-        fields.tel.err.textContent = '⚠ Veuillez entrer votre numéro de téléphone.';
-        fields.tel.el.className = 'error'; valid = false;
-      } else if (!validatePhone(fields.tel.el.value)) {
-        fields.tel.err.textContent = '⚠ Numéro invalide. Format : +33 6 12 34 56 78';
-        fields.tel.el.className = 'error'; valid = false;
-      } else { fields.tel.el.className = 'valid'; }
-
-      if (!fields.password.el.value) {
-        fields.password.err.textContent = '⚠ Veuillez choisir un mot de passe.';
-        fields.password.el.className = 'error'; valid = false;
-      } else if (fields.password.el.value.length < 8) {
-        fields.password.err.textContent = '⚠ Le mot de passe doit faire au moins 8 caractères.';
-        fields.password.el.className = 'error'; valid = false;
-      } else { fields.password.el.className = 'valid'; }
-
-      if (!fields.password2.el.value) {
-        fields.password2.err.textContent = '⚠ Veuillez confirmer votre mot de passe.';
-        fields.password2.el.className = 'error'; valid = false;
-      } else if (fields.password.el.value !== fields.password2.el.value) {
-        fields.password2.err.textContent = '⚠ Les mots de passe ne correspondent pas.';
-        fields.password2.el.className = 'error'; valid = false;
-      } else { fields.password2.el.className = 'valid'; }
-
-      if (!valid) {
-        showToast('⚠ Corrigez les erreurs avant de continuer.', 'error-toast');
-        return;
-      }
-
-      const btn = document.getElementById('btnRegister');
-      btn.disabled = true;
-      btn.textContent = 'Création du compte…';
-
+      Object.values(f).forEach(x=>{x.el.className='';x.err.textContent='';});
+      if (!f.nom.el.value.trim()||!vName(f.nom.el.value)){f.nom.err.textContent='⚠ Nom invalide.';f.nom.el.className='error';valid=false;}else{f.nom.el.className='valid';}
+      if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent='⚠ Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
+      if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent='⚠ Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
+      if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent='⚠ Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
+      if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent='⚠ Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
+      if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent='⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
+      if (!valid){showToast('⚠ Corrigez les erreurs.','error-toast');return;}
+      const btn=document.getElementById('btnRegister');
+      btn.disabled=true;btn.textContent='Création du compte…';
       try {
-        const cred = await createUserWithEmailAndPassword(auth, fields.email.el.value.trim(), fields.password.el.value);
-        await setDoc(doc(db, 'utilisateurs', cred.user.uid), {
-          nom:       fields.nom.el.value.trim(),
-          prenom:    fields.prenom.el.value.trim(),
-          email:     fields.email.el.value.trim(),
-          telephone: fields.tel.el.value.trim(),
-          statut:    'en_attente',
-          role:      'artisan',
-          verifie:   false,
-          dateInscription: serverTimestamp(),
+        const cred = await createUserWithEmailAndPassword(auth, f.email.el.value.trim(), f.password.el.value);
+        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+          nom: f.nom.el.value.trim(), prenom: f.prenom.el.value.trim(),
+          email: f.email.el.value.trim(), telephone: f.tel.el.value.trim(),
+          statut:'en_attente', kycStatut:'non_soumis', role:'artisan',
+          verifie:false, dateInscription:serverTimestamp(),
         });
-        showToast('✅ Compte créé ! En attente de validation KYC.', 'success');
-        setTimeout(() => { window.location.href = 'accueil.html'; }, 1500);
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = 'CRÉER MON COMPTE →';
-        if (err.code === 'auth/email-already-in-use') {
-          showToast('⚠ Cet email est déjà utilisé.', 'error-toast');
-          fields.email.el.className = 'error';
-        } else {
-          showToast('⚠ Erreur : ' + err.message, 'error-toast');
-        }
+        showToast('✅ Compte créé ! Complétez votre KYC.','success');
+        // ✅ REDIRECTION VERS PROFIL (pas accueil)
+        setTimeout(()=>{ window.location.href='profil.html'; },1500);
+      } catch(err) {
+        btn.disabled=false; btn.innerHTML='CRÉER MON COMPTE &nbsp;→';
+        if(err.code==='auth/email-already-in-use'){showToast('⚠ Cet email est déjà utilisé.','error-toast');f.email.el.className='error';}
+        else {showToast('⚠ Erreur : '+err.message,'error-toast');}
       }
     });
   </script>
