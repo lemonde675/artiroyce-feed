@@ -76,13 +76,19 @@
     .card {
       width: 100%; height: 100dvh;
       position: relative; overflow: hidden;
-      background: #000; scroll-snap-align: start;
+      background: #1a1a2e; scroll-snap-align: start;
       flex-shrink: 0;
     }
     .card-bg {
       position: absolute; inset: 0;
       background-size: cover; background-position: center;
       filter: brightness(0.72);
+    }
+    /* Fond coloré quand pas de photo */
+    .card-bg-fallback {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px; font-weight: 900; color: rgba(255,255,255,0.15);
     }
     .card-gradient {
       position: absolute; inset: 0;
@@ -103,13 +109,13 @@
     .right-actions {
       position: absolute; right: 10px; bottom: 110px;
       display: flex; flex-direction: column;
-      align-items: center; gap: 18px; z-index: 5;
+      align-items: center; gap: 14px; z-index: 5;
     }
     .avatar-wrap { position: relative; margin-bottom: 4px; cursor: pointer; }
     .avatar {
       width: 48px; height: 48px; border-radius: 50%;
       border: 2.5px solid #fff; overflow: hidden;
-      background: #555;
+      background: linear-gradient(135deg, var(--red), var(--green));
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-plus {
@@ -140,6 +146,8 @@
     }
     .action-btn.liked .action-circle { background: rgba(229,57,53,0.45); }
     .action-btn.liked .action-count  { color: var(--red); }
+    .action-btn.disliked .action-circle { background: rgba(100,100,100,0.55); }
+    .action-btn.disliked .action-count  { color: #bbb; }
     .action-btn.saved .action-circle  { background: rgba(46,125,50,0.45); }
     .action-btn.saved .action-count   { color: #81C784; }
 
@@ -183,17 +191,19 @@
     }
     .btn-live:active { opacity: 0.85; }
 
-    /* watermark */
+    /* watermark — enrichi avec username + likes */
     .watermark {
-      position: absolute; right: 14px; bottom: 18px;
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      position: absolute; right: 10px; bottom: 14px;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
       z-index: 6;
     }
     .wm-logo { display: flex; align-items: center; gap: 4px; }
     .wm-name { font-size: 12px; font-weight: 800; }
     .wm-name .arti  { color: var(--red); }
     .wm-name .royce { color: var(--green); }
-    .wm-sub { font-size: 9px; color: rgba(255,255,255,0.7); text-align: center; }
+    .wm-sub { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; }
+    .wm-user { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; text-align: right; }
+    .wm-likes { font-size: 10px; color: rgba(255,255,255,0.7); text-align: right; }
 
     /* ── BOTTOM NAV ── */
     #bottom-nav {
@@ -241,7 +251,6 @@
 <body>
 <div id="app">
 
-  <!-- TOAST -->
   <div id="toast"></div>
 
   <!-- HEADER -->
@@ -288,32 +297,42 @@
 
 </div>
 
-<script>
-const artisans = [
-  { id:1, categorie:"Mécanicien auto",     pays:"France",   ville:"Paris",    flag:"🇫🇷", username:"@JeanGarage75",    description:"Réparation de moteur compliqué",           etoiles:5, likes:"9.8K", commentaires:403, verifie:true,
-    image:"https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:2, categorie:"Couturière",           pays:"Italie",   ville:"Naples",   flag:"🇮🇹", username:"@ModeNapoli",      description:"Confection robe de mariée sur mesure",     etoiles:5, likes:"6.3K", commentaires:218, verifie:true,
-    image:"https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:3, categorie:"Maçon",                pays:"Chine",    ville:"Shenzhen", flag:"🇨🇳", username:"@MaçonShenzhen",   description:"Construction murs en brique traditionnelle",etoiles:4, likes:"4.1K", commentaires:97,  verifie:true,
-    image:"https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:4, categorie:"Menuisier",            pays:"Cameroun", ville:"Yaoundé",  flag:"🇨🇲", username:"@BoisYaoundé237",  description:"Fabrication meuble salon bois massif",     etoiles:4, likes:"3.7K", commentaires:142, verifie:true,
-    image:"https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:5, categorie:"Électricien",          pays:"Japon",    ville:"Tokyo",    flag:"🇯🇵", username:"@ElecTokyo81",     description:"Installation tableau électrique neuf",     etoiles:5, likes:"5.2K", commentaires:189, verifie:true,
-    image:"https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:6, categorie:"Soudeur",              pays:"Nigeria",  ville:"Lagos",    flag:"🇳🇬", username:"@SoudeurLagos",    description:"Fabrication portail métallique sur mesure",etoiles:4, likes:"2.9K", commentaires:76,  verifie:true,
-    image:"https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:7, categorie:"Forgeron artisanal",   pays:"Ghana",    ville:"Kumasi",   flag:"🇬🇭", username:"@ForgeKumasi",     description:"Forge couteaux et outils traditionnels",   etoiles:5, likes:"7.6K", commentaires:311, verifie:true,
-    image:"https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:8, categorie:"Vendeuse de fruits",   pays:"Bénin",    ville:"Calavi",   flag:"🇧🇯", username:"@FruitsCalavi",    description:"Fruits frais du marché local chaque matin", etoiles:4, likes:"1.8K", commentaires:53,  verifie:true,
-    image:"https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=600",
-    avatar:"https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100" },
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+  measurementId: "G-X4XLHDJCE7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const exemples = [
+  { id:'ex1', categorie:"Mécanicien auto", pays:"France", ville:"Paris", flag:"🇫🇷", username:"@JeanGarage75", description:"Réparation de moteur compliqué", etoiles:5, likes:"9.8K", commentaires:403, verifie:true, image:"https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex2', categorie:"Couturière", pays:"Italie", ville:"Naples", flag:"🇮🇹", username:"@ModeNapoli", description:"Confection robe de mariée sur mesure", etoiles:5, likes:"6.3K", commentaires:218, verifie:true, image:"https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex3', categorie:"Maçon", pays:"Chine", ville:"Shenzhen", flag:"🇨🇳", username:"@MaçonShenzhen", description:"Construction murs en brique traditionnelle", etoiles:4, likes:"4.1K", commentaires:97, verifie:true, image:"https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex4', categorie:"Menuisier", pays:"Cameroun", ville:"Yaoundé", flag:"🇨🇲", username:"@BoisYaoundé237", description:"Fabrication meuble salon bois massif", etoiles:4, likes:"3.7K", commentaires:142, verifie:true, image:"https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex5', categorie:"Électricien", pays:"Japon", ville:"Tokyo", flag:"🇯🇵", username:"@ElecTokyo81", description:"Installation tableau électrique neuf", etoiles:5, likes:"5.2K", commentaires:189, verifie:true, image:"https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex6', categorie:"Soudeur", pays:"Nigeria", ville:"Lagos", flag:"🇳🇬", username:"@SoudeurLagos", description:"Fabrication portail métallique sur mesure", etoiles:4, likes:"2.9K", commentaires:76, verifie:true, image:"https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex7', categorie:"Forgeron artisanal", pays:"Ghana", ville:"Kumasi", flag:"🇬🇭", username:"@ForgeKumasi", description:"Forge couteaux et outils traditionnels", etoiles:5, likes:"7.6K", commentaires:311, verifie:true, image:"https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100" },
+  { id:'ex8', categorie:"Vendeuse de fruits", pays:"Bénin", ville:"Calavi", flag:"🇧🇯", username:"@FruitsCalavi", description:"Fruits frais du marché local chaque matin", etoiles:4, likes:"1.8K", commentaires:53, verifie:true, image:"https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100" },
+];
+
+// Couleurs de fond pour artisans sans photo
+const bgColors = [
+  'linear-gradient(135deg,#1a237e,#283593)',
+  'linear-gradient(135deg,#1b5e20,#2e7d32)',
+  'linear-gradient(135deg,#b71c1c,#c62828)',
+  'linear-gradient(135deg,#4a148c,#6a1b9a)',
+  'linear-gradient(135deg,#e65100,#ef6c00)',
+  'linear-gradient(135deg,#006064,#00838f)',
 ];
 
 const logoSVG = `<svg width="20" height="14" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
@@ -330,50 +349,78 @@ const thumbUpSVG = (filled) =>
     <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
   </svg>`;
 
-const commentSVG =
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+const thumbDownSVG = (filled) =>
+  `<svg width="22" height="22" viewBox="0 0 24 24" fill="${filled ? '#888' : 'white'}">
+    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
   </svg>`;
 
-const downloadSVG =
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-  </svg>`;
+const commentSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+</svg>`;
+
+const downloadSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+</svg>`;
 
 function stars(n) {
   return Array.from({length:5}, (_,i) => i < n ? '⭐' : '☆').join('');
 }
 
-// ── SEUL CHANGEMENT : goToProfile + avatar cliquable + username cliquable ──
-function goToProfile(id) {
-  window.location.href = 'profil.html?id=' + id;
-}
+function goToProfile(id) { window.location.href = 'profil.html?id=' + id; }
+window.goToProfile = goToProfile;
 
-function buildCard(a) {
+function buildCard(a, idx) {
+  const username  = a.username || ('@' + (a.prenom || a.nom || 'artisan').toLowerCase().replace(/\s/g,''));
+  const categorie = a.categorie || a.metier || 'Artisan';
+  const ville     = a.ville || '';
+  const pays      = a.pays || '';
+  const flag      = a.flag || '🌍';
+  const desc      = a.description || a.bio || 'Artisan professionnel vérifié sur ArtiRoyce.';
+  const likes     = a.likes || '0';
+  const commentaires = a.commentaires || 0;
+  const initiale  = (a.prenom || a.nom || username).replace('@','')[0].toUpperCase();
+
+  // Fond : image si dispo, sinon gradient coloré avec initiale
+  const bgStyle = a.image
+    ? `background-image:url('${a.image}')`
+    : `background:${bgColors[idx % bgColors.length]}`;
+
+  const avatarHtml = a.avatar
+    ? `<img src="${a.avatar}" alt="avatar" loading="lazy"/>`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800;">${initiale}</div>`;
+
   return `
   <div class="card" id="card-${a.id}">
-    <div class="card-bg" style="background-image:url('${a.image}')"></div>
+    <div class="card-bg" style="${bgStyle}"></div>
     <div class="card-gradient"></div>
-
     ${a.verifie ? `<div class="verified">✔ Vérifié</div>` : ''}
 
     <div class="right-actions">
-      <div class="avatar-wrap" onclick="goToProfile(${a.id})">
-        <div class="avatar"><img src="${a.avatar}" alt="avatar" loading="lazy"/></div>
+      <div class="avatar-wrap" onclick="goToProfile('${a.id}')">
+        <div class="avatar">${avatarHtml}</div>
         <div class="avatar-plus">+</div>
       </div>
 
-      <button class="action-btn" id="like-${a.id}" onclick="toggleLike(${a.id})">
+      <!-- 👍 J'aime -->
+      <button class="action-btn" id="like-${a.id}" onclick="toggleLike('${a.id}')">
         <div class="action-circle">${thumbUpSVG(false)}</div>
-        <span class="action-count" id="like-count-${a.id}">${a.likes}</span>
+        <span class="action-count" id="like-count-${a.id}">${likes}</span>
       </button>
 
+      <!-- 👎 Je n'aime pas -->
+      <button class="action-btn" id="dislike-${a.id}" onclick="toggleDislike('${a.id}')">
+        <div class="action-circle">${thumbDownSVG(false)}</div>
+        <span class="action-count" id="dislike-count-${a.id}">0</span>
+      </button>
+
+      <!-- 💬 Commentaires -->
       <button class="action-btn" onclick="showToast('💬 Commentaires — bientôt disponible')">
         <div class="action-circle">${commentSVG}</div>
-        <span class="action-count">${a.commentaires}</span>
+        <span class="action-count">${commentaires}</span>
       </button>
 
-      <button class="action-btn" id="save-${a.id}" onclick="toggleSave(${a.id})">
+      <!-- ⬇ Sauver -->
+      <button class="action-btn" id="save-${a.id}" onclick="toggleSave('${a.id}')">
         <div class="action-circle">${downloadSVG}</div>
         <span class="action-count" id="save-count-${a.id}">Sauver</span>
       </button>
@@ -381,99 +428,133 @@ function buildCard(a) {
 
     <div class="card-info">
       <div class="info-cat">
-        <span style="font-size:20px">${a.flag}</span>
-        <span class="info-cat-text">${a.categorie}</span>
+        <span style="font-size:20px">${flag}</span>
+        <span class="info-cat-text">${categorie}</span>
       </div>
       <div class="info-loc">
-        <span style="font-size:14px">${a.flag}</span>
-        <span class="info-loc-text">${a.ville} • ${a.pays}</span>
+        <span style="font-size:14px">${flag}</span>
+        <span class="info-loc-text">${ville}${ville && pays ? ' • ' : ''}${pays}</span>
       </div>
-      <div class="info-user" onclick="goToProfile(${a.id})">${a.username}</div>
-      <div class="info-desc">${a.description}</div>
-      <div class="info-stars">${stars(a.etoiles)}</div>
+      <div class="info-user" onclick="goToProfile('${a.id}')">${username}</div>
+      <div class="info-desc">${desc}</div>
+      <div class="info-stars">${stars(a.etoiles || 5)}</div>
       <div class="card-btns">
         <button class="btn-disc">💬 Discussion</button>
         <button class="btn-live">+ Live</button>
       </div>
     </div>
 
+    <!-- Watermark enrichi : logo + username + likes -->
     <div class="watermark">
       <div class="wm-logo">
         ${logoSVG}
         <span class="wm-name"><span class="arti">Arti</span><span class="royce">Royce</span></span>
       </div>
+      <span class="wm-user">${username}</span>
+      <span class="wm-likes">👍 ${likes}</span>
       <span class="wm-sub">Téléchargé sur ArtiRoyce</span>
     </div>
   </div>`;
 }
 
-// Render feed
-document.getElementById('feed').innerHTML = artisans.map(buildCard).join('');
-
-// Fix card heights after render
 function fixHeights() {
   const h = document.getElementById('feed').clientHeight;
   document.querySelectorAll('.card').forEach(c => c.style.height = h + 'px');
 }
-fixHeights();
 window.addEventListener('resize', fixHeights);
+
+async function loadFeed() {
+  const feed = document.getElementById('feed');
+  feed.innerHTML = '<div style="color:#fff;text-align:center;padding:60px 20px;font-size:14px;">⏳ Chargement…</div>';
+  try {
+    const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
+    const snap = await getDocs(q);
+    let artisans = [];
+    snap.forEach(d => artisans.push({ id: d.id, ...d.data() }));
+    if (artisans.length === 0) artisans = exemples;
+    feed.innerHTML = artisans.map((a, i) => buildCard(a, i)).join('');
+    fixHeights();
+  } catch(e) {
+    feed.innerHTML = exemples.map((a, i) => buildCard(a, i)).join('');
+    fixHeights();
+  }
+}
 
 // Like toggle
 const likedSet = new Set();
-function toggleLike(id) {
+const dislikedSet = new Set();
+
+window.toggleLike = function(id) {
   const btn = document.getElementById('like-' + id);
+  const dBtn = document.getElementById('dislike-' + id);
   if (likedSet.has(id)) {
-    likedSet.delete(id);
-    btn.classList.remove('liked');
+    likedSet.delete(id); btn.classList.remove('liked');
     btn.querySelector('.action-circle').innerHTML = thumbUpSVG(false);
     showToast("J'aime retiré");
   } else {
-    likedSet.add(id);
-    btn.classList.add('liked');
+    // Retirer dislike si actif
+    if (dislikedSet.has(id)) {
+      dislikedSet.delete(id); dBtn.classList.remove('disliked');
+      dBtn.querySelector('.action-circle').innerHTML = thumbDownSVG(false);
+    }
+    likedSet.add(id); btn.classList.add('liked');
     btn.querySelector('.action-circle').innerHTML = thumbUpSVG(true);
-    showToast('👍 J\'aime !', 'green');
+    showToast("👍 J'aime !", 'green');
   }
-}
+};
 
-// Save toggle
+window.toggleDislike = function(id) {
+  const btn  = document.getElementById('dislike-' + id);
+  const lBtn = document.getElementById('like-' + id);
+  if (dislikedSet.has(id)) {
+    dislikedSet.delete(id); btn.classList.remove('disliked');
+    btn.querySelector('.action-circle').innerHTML = thumbDownSVG(false);
+    showToast("Avis retiré");
+  } else {
+    // Retirer like si actif
+    if (likedSet.has(id)) {
+      likedSet.delete(id); lBtn.classList.remove('liked');
+      lBtn.querySelector('.action-circle').innerHTML = thumbUpSVG(false);
+    }
+    dislikedSet.add(id); btn.classList.add('disliked');
+    btn.querySelector('.action-circle').innerHTML = thumbDownSVG(true);
+    showToast("👎 Je n'aime pas");
+  }
+};
+
 const savedSet = new Set();
-function toggleSave(id) {
+window.toggleSave = function(id) {
   const btn = document.getElementById('save-' + id);
   const cnt = document.getElementById('save-count-' + id);
   if (savedSet.has(id)) {
-    savedSet.delete(id);
-    btn.classList.remove('saved');
-    cnt.textContent = 'Sauver';
-    showToast('Supprimé des favoris');
+    savedSet.delete(id); btn.classList.remove('saved');
+    cnt.textContent = 'Sauver'; showToast('Supprimé des favoris');
   } else {
-    savedSet.add(id);
-    btn.classList.add('saved');
-    cnt.textContent = '✅ Sauvé';
-    showToast('✅ Sauvegardé !', 'green');
+    savedSet.add(id); btn.classList.add('saved');
+    cnt.textContent = '✅ Sauvé'; showToast('✅ Sauvegardé !', 'green');
   }
-}
+};
 
-// Toast
 let toastTimer;
-function showToast(msg, type = '') {
+window.showToast = function(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'show' + (type ? ' ' + type : '');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.className = '', 2200);
-}
+};
 
-// Tabs
-function switchTab(el) {
+window.switchTab = function(el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-}
+};
 
-// Bottom nav
-function switchNav(el) {
+window.switchNav = function(el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   el.classList.add('active');
-}
+};
+
+loadFeed();
 </script>
 </body>
 </html>
