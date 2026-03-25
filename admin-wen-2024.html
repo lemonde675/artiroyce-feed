@@ -284,8 +284,6 @@
   </div>
 
   <div class="panel-body">
-
-    <!-- Stats -->
     <div class="stats-row" id="statsRow">
       <div class="stat-card orange">
         <div class="stat-num" id="statAttente">—</div>
@@ -305,7 +303,6 @@
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
       <button class="tab active" onclick="switchTab('en_attente', this)">⏳ En attente</button>
       <button class="tab" onclick="switchTab('verifie', this)">✅ Vérifiés</button>
@@ -313,7 +310,6 @@
       <button class="tab" onclick="switchTab('tous', this)">👥 Tous</button>
     </div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <div class="table-header">
         <span class="table-title" id="tableTitle">Inscriptions en attente de validation</span>
@@ -321,7 +317,6 @@
       </div>
       <div id="userList"><div class="loading">Chargement…</div></div>
     </div>
-
   </div>
 </div>
 
@@ -342,11 +337,19 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  // Mots de passe admin
   const PASSWORDS = ["Bonjour1@", "AKOUEGNIGAN"];
+  const SESSION_KEY = "artiroyce_admin_ok";
 
   let allUsers = [];
   let currentTab = 'en_attente';
+
+  // ── VÉRIFIER SESSION AU CHARGEMENT ──
+  // Si déjà connecté → afficher directement le panel
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadUsers();
+  }
 
   // ── LOGIN ──
   window.toggleAdminPass = function() {
@@ -358,6 +361,8 @@
     const val = document.getElementById('adminPass').value;
     const err = document.getElementById('loginErr');
     if (PASSWORDS.includes(val)) {
+      // Sauvegarder la session
+      sessionStorage.setItem(SESSION_KEY, 'true');
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
       loadUsers();
@@ -368,12 +373,13 @@
     }
   };
 
-  // Entrée clavier
   document.getElementById('adminPass').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') window.checkLogin();
   });
 
   window.logout = function() {
+    // Supprimer la session
+    sessionStorage.removeItem(SESSION_KEY);
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminPass').value = '';
@@ -395,7 +401,6 @@
       allUsers = [];
       snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
 
-      // Stats
       const attente = allUsers.filter(u => u.statut === 'en_attente').length;
       const verifie = allUsers.filter(u => u.statut === 'verifie').length;
       const rejete  = allUsers.filter(u => u.statut === 'rejete').length;
