@@ -243,7 +243,7 @@
         <div class="kyc-banner-icon">🛡️</div>
         <div class="kyc-banner-text">
           <h3>Passez votre vérification KYC</h3>
-          <p>Sans vérification, votre profil est <strong style="color:#ff9800;">invisible</strong> pour les clients.</p>
+          <p>Sans vérification, votre profil est <strong style="color:#ff9800;">invisible</strong> pour les clients et les fans.</p>
         </div>
       </div>
       <button class="kyc-btn-primary" onclick="window.location.href='kyc.html'">🚀 Commencer la vérification KYC →</button>
@@ -292,7 +292,7 @@
     </div>
     <div class="kyc-verified-text">
       <h3>Profil vérifié et visible !</h3>
-      <p>Votre compte est actif. Les clients peuvent vous trouver.</p>
+      <p>Votre compte est actif. Les clients et les fans peuvent vous trouver.</p>
     </div>
   </div>
 </div>
@@ -532,8 +532,8 @@
           </span>
           <span class="profile-category">Professionnel vérifié</span>`;
         document.getElementById('bannerVerified').classList.add('show');
-        document.getElementById('monetizeBadge').textContent = '✔ Compte actif';
-        document.getElementById('monetizeBadge').style.background = '#27a945';
+        document.getElementById('monetizeBadge').textContent = '⏳ En attente de validation';
+        document.getElementById('monetizeBadge').style.background = '#ff9800';
 
       } else if (kycStatut === 'non_soumis') {
         meta.innerHTML = `<span class="pending-badge">⏳ KYC requis</span><span class="profile-category">Professionnel</span>`;
