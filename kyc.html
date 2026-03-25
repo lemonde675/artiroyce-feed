@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>ArtiRoyce – Vérification KYC</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --red: #e63224;
+      --green: #27a945;
+      --orange: #ff9800;
+      --dark: #1a1a1a;
+      --gray: #f5f5f5;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f0f0;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* ── HEADER ── */
+    .top-header {
+      background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 2px solid #eee;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--red); font-size: 13px; font-weight: 700;
+      text-decoration: none; background: none; border: none; cursor: pointer;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 6px; }
+    .logo-text { font-size: 18px; font-weight: 800; }
+    .logo-text .arti { color: var(--red); }
+    .logo-text .royce { color: var(--green); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      background: #fff;
+      padding: 14px 16px 16px;
+      border-bottom: 1px solid #eee;
+    }
+    .progress-title {
+      font-size: 13px; font-weight: 700; color: var(--dark);
+      margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .progress-steps {
+      display: flex; gap: 6px; align-items: center;
+    }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+      background: #e0e0e0; color: #888;
+      flex-shrink: 0; transition: all 0.3s;
+    }
+    .step-dot.done   { background: var(--green); color: #fff; }
+    .step-dot.active { background: var(--red); color: #fff; }
+    .step-line {
+      flex: 1; height: 3px; background: #e0e0e0; border-radius: 2px;
+      transition: background 0.3s;
+    }
+    .step-line.done { background: var(--green); }
+
+    /* ── HERO BANNER ── */
+    .kyc-hero {
+      margin: 16px; border-radius: 16px; overflow: hidden;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      padding: 24px 20px;
+      position: relative;
+    }
+    .kyc-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(230,50,36,0.15), rgba(39,169,69,0.15));
+    }
+    .kyc-hero-content { position: relative; z-index: 1; }
+    .kyc-hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 4px 12px;
+      font-size: 11px; font-weight: 700; color: #fff;
+      margin-bottom: 12px; letter-spacing: 0.5px;
+    }
+    .kyc-hero h2 {
+      font-size: 20px; font-weight: 800; color: #fff;
+      margin-bottom: 8px; line-height: 1.3;
+    }
+    .kyc-hero p {
+      font-size: 13px; color: rgba(255,255,255,0.75);
+      line-height: 1.5; margin-bottom: 16px;
+    }
+    .kyc-hero-steps {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .kyc-hero-step {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 8px 10px;
+      font-size: 11px; color: rgba(255,255,255,0.85);
+      font-weight: 600; flex: 1; min-width: 100px;
+      text-align: center;
+    }
+    .kyc-hero-step span { display: block; font-size: 18px; margin-bottom: 3px; }
+
+    /* ── SECTION CARD ── */
+    .kyc-section {
+      background: #fff; margin: 12px 16px;
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .kyc-section-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .section-icon.red    { background: #fff0ee; }
+    .section-icon.green  { background: #f0fff4; }
+    .section-icon.blue   { background: #e8f4fd; }
+    .section-icon.orange { background: #fff8e1; }
+    .section-icon.purple { background: #f3e5f5; }
+
+    .section-header-text {}
+    .section-header-title {
+      font-size: 14px; font-weight: 800; color: var(--dark);
+    }
+    .section-header-sub {
+      font-size: 11px; color: #888; margin-top: 1px;
+    }
+    .required-badge {
+      margin-left: auto;
+      background: #fff0ee; color: var(--red);
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 10px; letter-spacing: 0.3px; flex-shrink: 0;
+    }
+    .optional-badge {
+      margin-left: auto;
+      background: #e8f4fd; color: #2196f3;
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 10px; letter-spacing: 0.3px; flex-shrink: 0;
+    }
+
+    .kyc-section-body { padding: 16px; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2px dashed #ddd; border-radius: 12px;
+      padding: 20px 16px; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: #fafafa;
+      position: relative; overflow: hidden;
+    }
+    .upload-zone:hover { border-color: var(--green); background: #f0fff4; }
+    .upload-zone.has-file { border-color: var(--green); background: #f0fff4; border-style: solid; }
+    .upload-zone.required-missing { border-color: var(--red); background: #fff5f5; }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-title { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .upload-sub { font-size: 11px; color: #888; }
+    .upload-preview {
+      width: 100%; max-height: 200px; object-fit: cover;
+      border-radius: 8px; margin-top: 10px; display: none;
+    }
+    .upload-filename {
+      font-size: 12px; color: var(--green); font-weight: 600;
+      margin-top: 6px; display: none;
+    }
+    .upload-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      display: none; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .upload-zone.has-file .upload-check { display: flex; }
+
+    .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── CONSEILS ── */
+    .tip-box {
+      background: #f8f9fa; border-radius: 10px; padding: 12px 14px;
+      margin-top: 12px; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .tip-box.warning { background: #fff8e1; }
+    .tip-box.info    { background: #e8f4fd; }
+    .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .tip-text { font-size: 12px; color: #555; line-height: 1.5; }
+    .tip-text strong { color: var(--dark); }
+
+    /* ── BOTTOM SUBMIT ── */
+    .submit-section {
+      background: #fff; margin: 12px 16px;
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .checklist { margin-bottom: 18px; }
+    .checklist-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid #f5f5f5;
+      font-size: 13px; color: #555;
+    }
+    .checklist-item:last-child { border-bottom: none; }
+    .check-circle {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid #ddd; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; transition: all 0.2s;
+    }
+    .check-circle.done { background: var(--green); border-color: var(--green); color: #fff; }
+
+    .btn-submit {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--green), #1e8c38);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 800; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(39,169,69,0.3);
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(39,169,69,0.4); }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .submit-note {
+      text-align: center; font-size: 11px; color: #aaa; margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* ── UPLOAD PROGRESS ── */
+    .upload-progress-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 500;
+      display: none; align-items: center; justify-content: center;
+    }
+    .upload-progress-overlay.show { display: flex; }
+    .upload-progress-card {
+      background: #fff; border-radius: 20px; padding: 30px 24px;
+      width: 300px; text-align: center;
+    }
+    .upload-spinner {
+      width: 60px; height: 60px; border-radius: 50%;
+      border: 4px solid #eee; border-top-color: var(--green);
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .upload-progress-title { font-size: 16px; font-weight: 800; color: var(--dark); margin-bottom: 8px; }
+    .upload-progress-text  { font-size: 13px; color: #888; }
+    .upload-progress-bar-wrap { background: #eee; border-radius: 4px; height: 6px; margin-top: 16px; overflow: hidden; }
+    .upload-progress-bar { height: 100%; background: var(--green); border-radius: 4px; width: 0; transition: width 0.3s; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error-toast { background: var(--red); }
+    .toast.warning { background: var(--orange); }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- Upload overlay -->
+<div class="upload-progress-overlay" id="uploadOverlay">
+  <div class="upload-progress-card">
+    <div class="upload-spinner"></div>
+    <div class="upload-progress-title">Envoi en cours…</div>
+    <div class="upload-progress-text" id="uploadProgressText">Préparation des fichiers</div>
+    <div class="upload-progress-bar-wrap">
+      <div class="upload-progress-bar" id="uploadProgressBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="top-header">
+  <a href="profil.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour
+  </a>
+  <div class="logo-wrap">
+    <svg width="32" height="23" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+    <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+  </div>
+  <div style="width:60px;"></div>
+</div>
+
+<!-- ── PROGRESS ── -->
+<div class="progress-wrap">
+  <div class="progress-title">
+    <span>Vérification KYC</span>
+    <span style="font-size:12px;color:#888;" id="progressCount">0 / 5 complétés</span>
+  </div>
+  <div class="progress-steps">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-dot" id="dot3">3</div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-dot" id="dot4">4</div>
+    <div class="step-line" id="line4"></div>
+    <div class="step-dot" id="dot5">5</div>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<div class="kyc-hero">
+  <div class="kyc-hero-content">
+    <div class="kyc-hero-badge">🛡️ VÉRIFICATION IDENTITÉ</div>
+    <h2>Prouvez votre identité pour être visible</h2>
+    <p>Sans cette vérification, votre profil ne sera pas visible par les clients. La vérification prend 24 à 48h.</p>
+    <div class="kyc-hero-steps">
+      <div class="kyc-hero-step"><span>🤳</span>Selfie + carte</div>
+      <div class="kyc-hero-step"><span>👤</span>Photo identité</div>
+      <div class="kyc-hero-step"><span>🪪</span>CNI recto/verso</div>
+      <div class="kyc-hero-step"><span>📄</span>Documents</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 1. SELFIE AVEC CARTE ── -->
+<div class="kyc-section">
+  <div class="kyc-section-header">
+    <div class="section-icon red">🤳</div>
+    <div class="section-header-text">
+      <div class="section-header-title">Selfie avec carte d'identité</div>
+      <div class="section-header-sub">Votre visage + carte visible dans la main</div>
+    </div>
+    <span class="required-badge">OBLIGATOIRE</span>
+  </div>
+  <div class="kyc-section-body">
+    <div class="upload-zone" id="zone-selfie" onclick="triggerUpload('selfie')">
+      <input type="file" id="file-selfie" accept="image/*" capture="user" onchange="handleFile('selfie', this)"/>
+      <div class="upload-icon">📸</div>
+      <div class="upload-title">Prendre ou choisir une photo</div>
+      <div class="upload-sub">Tenez votre CNI bien visible à côté de votre visage</div>
+      <img class="upload-preview" id="preview-selfie" alt=""/>
+      <div class="upload-filename" id="name-selfie"></div>
+      <div class="upload-check">✓</div>
+    </div>
+    <div class="tip-box warning">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Conseil :</strong> Bonne lumière, visage et carte tous les deux nets. Le nom sur la carte doit être lisible.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 2. PHOTO D'IDENTITÉ SEULE ── -->
+<div class="kyc-section">
+  <div class="kyc-section-header">
+    <div class="section-icon blue">👤</div>
+    <div class="section-header-text">
+      <div class="section-header-title">Photo d'identité personnelle</div>
+      <div class="section-header-sub">Portrait seul, visage bien visible</div>
+    </div>
+    <span class="required-badge">OBLIGATOIRE</span>
+  </div>
+  <div class="kyc-section-body">
+    <div class="upload-zone" id="zone-photo" onclick="triggerUpload('photo')">
+      <input type="file" id="file-photo" accept="image/*" capture="user" onchange="handleFile('photo', this)"/>
+      <div class="upload-icon">🧑</div>
+      <div class="upload-title">Photo portrait</div>
+      <div class="upload-sub">Fond clair, visage droit, sans lunettes de soleil</div>
+      <img class="upload-preview" id="preview-photo" alt=""/>
+      <div class="upload-filename" id="name-photo"></div>
+      <div class="upload-check">✓</div>
+    </div>
+    <div class="tip-box info">
+      <div class="tip-icon">ℹ️</div>
+      <div class="tip-text">Cette photo sera comparée à votre carte d'identité par notre équipe pour confirmer que c'est bien vous.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 3. CNI RECTO + VERSO ── -->
+<div class="kyc-section">
+  <div class="kyc-section-header">
+    <div class="section-icon green">🪪</div>
+    <div class="section-header-text">
+      <div class="section-header-title">Carte d'identité nationale</div>
+      <div class="section-header-sub">Recto ET verso obligatoires</div>
+    </div>
+    <span class="required-badge">OBLIGATOIRE</span>
+  </div>
+  <div class="kyc-section-body">
+    <div class="upload-grid">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;text-align:center;">FACE AVANT (RECTO)</div>
+        <div class="upload-zone" id="zone-cni-recto" onclick="triggerUpload('cni-recto')">
+          <input type="file" id="file-cni-recto" accept="image/*" onchange="handleFile('cni-recto', this)"/>
+          <div class="upload-icon">📋</div>
+          <div class="upload-title" style="font-size:12px;">Recto CNI</div>
+          <div class="upload-sub" style="font-size:10px;">Face principale</div>
+          <img class="upload-preview" id="preview-cni-recto" alt=""/>
+          <div class="upload-filename" id="name-cni-recto"></div>
+          <div class="upload-check">✓</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;text-align:center;">FACE ARRIÈRE (VERSO)</div>
+        <div class="upload-zone" id="zone-cni-verso" onclick="triggerUpload('cni-verso')">
+          <input type="file" id="file-cni-verso" accept="image/*" onchange="handleFile('cni-verso', this)"/>
+          <div class="upload-icon">📋</div>
+          <div class="upload-title" style="font-size:12px;">Verso CNI</div>
+          <div class="upload-sub" style="font-size:10px;">Face arrière</div>
+          <img class="upload-preview" id="preview-cni-verso" alt=""/>
+          <div class="upload-filename" id="name-cni-verso"></div>
+          <div class="upload-check">✓</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip-box warning">
+      <div class="tip-icon">⚠️</div>
+      <div class="tip-text"><strong>Important :</strong> La carte doit être à plat, bien éclairée, sans reflet. Tous les coins doivent être visibles.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. DOCUMENT OFFICIEL ── -->
+<div class="kyc-section">
+  <div class="kyc-section-header">
+    <div class="section-icon orange">📄</div>
+    <div class="section-header-text">
+      <div class="section-header-title">Document officiel</div>
+      <div class="section-header-sub">Acte de naissance, certificat de nationalité…</div>
+    </div>
+    <span class="required-badge">OBLIGATOIRE</span>
+  </div>
+  <div class="kyc-section-body">
+    <div class="upload-zone" id="zone-doc" onclick="triggerUpload('doc')">
+      <input type="file" id="file-doc" accept="image/*,application/pdf" onchange="handleFile('doc', this)"/>
+      <div class="upload-icon">🗂️</div>
+      <div class="upload-title">Acte de naissance ou certificat</div>
+      <div class="upload-sub">Document délivré par l'État — image ou PDF</div>
+      <img class="upload-preview" id="preview-doc" alt=""/>
+      <div class="upload-filename" id="name-doc"></div>
+      <div class="upload-check">✓</div>
+    </div>
+    <div class="tip-box info">
+      <div class="tip-icon">📋</div>
+      <div class="tip-text">Exemples acceptés : acte de naissance, certificat de nationalité, extrait de casier judiciaire, document officiel d'état civil.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 5. AUTRES DOCUMENTS (optionnel) ── -->
+<div class="kyc-section">
+  <div class="kyc-section-header">
+    <div class="section-icon purple">📎</div>
+    <div class="section-header-text">
+      <div class="section-header-title">Documents supplémentaires</div>
+      <div class="section-header-sub">Tout document utile à votre dossier</div>
+    </div>
+    <span class="optional-badge">OPTIONNEL</span>
+  </div>
+  <div class="kyc-section-body">
+    <div class="upload-zone" id="zone-extra" onclick="triggerUpload('extra')">
+      <input type="file" id="file-extra" accept="image/*,application/pdf" onchange="handleFile('extra', this)"/>
+      <div class="upload-icon">📁</div>
+      <div class="upload-title">Ajouter un document</div>
+      <div class="upload-sub">Attestation, diplôme, licence professionnelle…</div>
+      <img class="upload-preview" id="preview-extra" alt=""/>
+      <div class="upload-filename" id="name-extra"></div>
+      <div class="upload-check">✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUBMIT ── -->
+<div class="submit-section">
+  <div class="checklist" id="checklist">
+    <div class="checklist-item">
+      <div class="check-circle" id="chk-selfie">—</div>
+      <span>🤳 Selfie avec carte d'identité en main</span>
+    </div>
+    <div class="checklist-item">
+      <div class="check-circle" id="chk-photo">—</div>
+      <span>👤 Photo d'identité personnelle</span>
+    </div>
+    <div class="checklist-item">
+      <div class="check-circle" id="chk-cni-recto">—</div>
+      <span>🪪 CNI Recto</span>
+    </div>
+    <div class="checklist-item">
+      <div class="check-circle" id="chk-cni-verso">—</div>
+      <span>🪪 CNI Verso</span>
+    </div>
+    <div class="checklist-item">
+      <div class="check-circle" id="chk-doc">—</div>
+      <span>📄 Document officiel</span>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btnSubmit" onclick="submitKYC()" disabled>
+    🔒 Soumettre mon dossier KYC
+  </button>
+  <div class="submit-note">
+    Vos documents sont chiffrés et sécurisés.<br/>
+    La vérification prend 24 à 48 heures ouvrables.
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+    measurementId: "G-X4XLHDJCE7"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  let currentUser = null;
+
+  // Fichiers sélectionnés
+  const files = {
+    'selfie':    null,
+    'photo':     null,
+    'cni-recto': null,
+    'cni-verso': null,
+    'doc':       null,
+    'extra':     null,
+  };
+
+  const required = ['selfie', 'photo', 'cni-recto', 'cni-verso', 'doc'];
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = 'connexion.html'; return; }
+    currentUser = user;
+  });
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // Déclencher le file input
+  window.triggerUpload = function(key) {
+    // Ne rien faire — le click sur la zone déclenche l'input file directement
+  };
+
+  window.handleFile = function(key, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    files[key] = file;
+
+    const zone    = document.getElementById(`zone-${key}`);
+    const preview = document.getElementById(`preview-${key}`);
+    const fname   = document.getElementById(`name-${key}`);
+
+    zone.classList.add('has-file');
+    zone.classList.remove('required-missing');
+    fname.textContent = '✓ ' + file.name;
+    fname.style.display = 'block';
+
+    // Preview image
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    updateChecklist();
+  };
+
+  function updateChecklist() {
+    let done = 0;
+    required.forEach(key => {
+      const chk = document.getElementById(`chk-${key}`);
+      const dot = document.getElementById(`dot${required.indexOf(key) + 1}`);
+      const line = document.getElementById(`line${required.indexOf(key) + 1}`);
+
+      if (files[key]) {
+        chk.classList.add('done');
+        chk.textContent = '✓';
+        if (dot)  { dot.classList.remove('active'); dot.classList.add('done'); }
+        if (line) line.classList.add('done');
+        done++;
+      } else {
+        chk.classList.remove('done');
+        chk.textContent = '—';
+      }
+    });
+
+    document.getElementById('progressCount').textContent = `${done} / 5 complétés`;
+
+    // Activer le bouton si tout est rempli
+    const allDone = required.every(k => files[k]);
+    document.getElementById('btnSubmit').disabled = !allDone;
+    if (allDone) {
+      document.getElementById('btnSubmit').style.background = 'linear-gradient(135deg, #27a945, #1e8c38)';
+    }
+  }
+
+  window.submitKYC = async function() {
+    if (!currentUser) { showToast('⚠ Vous devez être connecté.', 'error-toast'); return; }
+
+    // Vérifier tous les champs obligatoires
+    const missing = required.filter(k => !files[k]);
+    if (missing.length > 0) {
+      missing.forEach(k => document.getElementById(`zone-${k}`).classList.add('required-missing'));
+      showToast('⚠ Tous les documents obligatoires sont requis.', 'error-toast');
+      return;
+    }
+
+    const overlay  = document.getElementById('uploadOverlay');
+    const progText = document.getElementById('uploadProgressText');
+    const progBar  = document.getElementById('uploadProgressBar');
+    overlay.classList.add('show');
+
+    try {
+      const uid = currentUser.uid;
+      const urls = {};
+      const uploadKeys = Object.keys(files).filter(k => files[k]);
+      let uploaded = 0;
+
+      for (const key of uploadKeys) {
+        progText.textContent = `Envoi : ${key.replace('-', ' ')}…`;
+        const file = files[key];
+        const ext  = file.name.split('.').pop();
+        const storageRef = ref(storage, `kyc/${uid}/${key}.${ext}`);
+        await uploadBytes(storageRef, file);
+        urls[key] = await getDownloadURL(storageRef);
+        uploaded++;
+        progBar.style.width = `${Math.round((uploaded / uploadKeys.length) * 100)}%`;
+      }
+
+      // Mettre à jour Firestore
+      progText.textContent = 'Enregistrement du dossier…';
+      await updateDoc(doc(db, 'utilisateurs', uid), {
+        kycStatut:       'en_attente',
+        kycSoumisLe:     serverTimestamp(),
+        kycSelfie:       urls['selfie']    || null,
+        kycPhoto:        urls['photo']     || null,
+        kycCniRecto:     urls['cni-recto'] || null,
+        kycCniVerso:     urls['cni-verso'] || null,
+        kycDocument:     urls['doc']       || null,
+        kycExtra:        urls['extra']     || null,
+      });
+
+      overlay.classList.remove('show');
+      showToast('✅ Dossier KYC soumis avec succès !', 'success');
+      setTimeout(() => { window.location.href = 'profil.html'; }, 1500);
+
+    } catch (err) {
+      overlay.classList.remove('show');
+      showToast('⚠ Erreur lors de l\'envoi : ' + err.message, 'error-toast');
+    }
+  };
+</script>
+</body>
+</html>
