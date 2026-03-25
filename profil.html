@@ -3,175 +3,302 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>ArtiRoyce – Mon Profil</title>
+  <title>ArtiRoyce – Profil Artisan</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root {
-      --red: #e63224; --green: #27a945; --orange: #ff9800;
-      --gray: #f5f5f5; --dark: #1a1a1a;
+      --red: #e63224;
+      --green: #27a945;
+      --gray: #f5f5f5;
+      --dark: #1a1a1a;
     }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; width: 100%; max-width: 100%; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f0f0;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-    .top-header { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 2px solid #eee; position: sticky; top: 0; z-index: 100; }
-    .back-btn { display: flex; align-items: center; gap: 6px; color: var(--red); font-size: 13px; font-weight: 700; text-decoration: none; background: none; border: none; cursor: pointer; }
+    /* ── HEADER ── */
+    .top-header {
+      background: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 2px solid #eee;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--red); font-size: 13px; font-weight: 700;
+      text-decoration: none; background: none; border: none; cursor: pointer;
+    }
     .logo-wrap { display: flex; align-items: center; gap: 6px; }
     .logo-text { font-size: 18px; font-weight: 800; }
     .logo-text .arti { color: var(--red); }
     .logo-text .royce { color: var(--green); }
     .header-actions { display: flex; gap: 10px; }
-    .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-
-    /* ── BANDEAUX KYC ── */
-    .kyc-banner { display: none; }
-    .kyc-banner.show { display: block; }
-
-    .kyc-banner-new { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 18px 16px; position: relative; overflow: hidden; }
-    .kyc-banner-new::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(230,50,36,0.2), rgba(39,169,69,0.2)); }
-    .kyc-banner-new-content { position: relative; z-index: 1; }
-    .kyc-banner-new-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .kyc-banner-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    .kyc-banner-text h3 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px; }
-    .kyc-banner-text p { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
-    .kyc-btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--green), #1e8c38); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(39,169,69,0.4); transition: all 0.2s; }
-
-    .kyc-banner-waiting { background: linear-gradient(135deg, #fff8e1, #fffde7); border-left: 5px solid var(--orange); padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
-    .kyc-waiting-icon { font-size: 28px; flex-shrink: 0; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.5;} }
-    .kyc-waiting-text h3 { font-size: 14px; font-weight: 800; color: #7a4f00; margin-bottom: 3px; }
-    .kyc-waiting-text p { font-size: 12px; color: #6d4c00; line-height: 1.4; }
-    .kyc-waiting-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 8px; }
-
-    .kyc-banner-rejected { background: #fff0f0; border-left: 5px solid var(--red); padding: 16px; }
-    .kyc-rejected-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .kyc-rejected-icon { font-size: 28px; flex-shrink: 0; }
-    .kyc-rejected-title { font-size: 14px; font-weight: 800; color: #c0392b; }
-    .kyc-rejected-sub { font-size: 12px; color: #888; margin-top: 1px; }
-    .kyc-rejected-reason { background: #fff5f5; border: 1px solid #f5c6cb; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
-    .kyc-rejected-reason-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: var(--red); text-transform: uppercase; margin-bottom: 4px; }
-    .kyc-rejected-reason-text { font-size: 13px; color: #333; line-height: 1.4; }
-    .kyc-btn-retry { width: 100%; padding: 12px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-    .kyc-banner-verified { background: linear-gradient(135deg, #f0fff4, #e8f5e9); border-left: 5px solid var(--green); padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
-    .kyc-verified-icon { font-size: 28px; flex-shrink: 0; }
-    .kyc-verified-text h3 { font-size: 14px; font-weight: 800; color: #155724; margin-bottom: 2px; }
-    .kyc-verified-text p { font-size: 12px; color: #2d6a4f; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--gray); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
 
     /* ── COVER & AVATAR ── */
-    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
+    .cover-section { position: relative; }
+    .cover-photo {
+      width: 100%; height: 180px;
+      background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%);
+      position: relative; overflow: hidden;
+    }
     .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
-    .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+    .cover-edit-btn {
+      position: absolute; bottom: 10px; right: 10px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+    }
 
-    .profile-info { background: #fff; padding: 14px 16px 0; }
-    .avatar-section { padding: 0; margin-top: -45px; margin-bottom: 10px; display: flex; align-items: flex-end; justify-content: space-between; }
+    .avatar-section {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 0 16px; margin-top: -40px; position: relative;
+    }
     .avatar-wrap { position: relative; }
-    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--red), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+    .avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 4px solid #fff;
+      background: linear-gradient(135deg, var(--red), var(--green));
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    /* Initiale quand pas de photo */
-    .avatar-initiale { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
-    .avatar-edit { position: absolute; bottom: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .avatar-edit {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--red); color: #fff; border: 2px solid #fff;
+      font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-history {
+      display: flex; gap: 4px; margin-top: 6px;
+    }
+    .avatar-mini {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid #ddd; overflow: hidden;
+      background: #eee; cursor: pointer;
+    }
+    .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
 
     .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
-    .btn-contact { background: var(--red); color: #fff; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn-follow { background: #fff; color: var(--green); border: 2px solid var(--green); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-contact {
+      background: var(--red); color: #fff; border: none;
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-follow {
+      background: #fff; color: var(--green); border: 2px solid var(--green);
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
     .btn-follow.following { background: var(--green); color: #fff; }
 
+    /* ── INFOS PRINCIPALES ── */
+    .profile-info { background: #fff; padding: 14px 16px 0; }
     .profile-name { font-size: 20px; font-weight: 800; color: var(--dark); }
     .profile-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-    .verified-badge { background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; display: flex; align-items: center; gap: 3px; }
-    .pending-badge { background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+    .verified-badge {
+      background: var(--green); color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px;
+      display: flex; align-items: center; gap: 3px;
+    }
     .profile-category { font-size: 14px; color: #555; font-weight: 600; }
-    .profile-bio { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 60px; }
+    .profile-bio { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 80px; }
 
-    .stats-row { display: flex; border-top: 1px solid #eee; margin-top: 14px; }
-    .stat-item { flex: 1; text-align: center; padding: 12px 6px; border-right: 1px solid #eee; cursor: pointer; }
+    /* ── STATS LIKES ── */
+    .stats-row {
+      display: flex; gap: 0; border-top: 1px solid #eee; margin-top: 14px;
+    }
+    .stat-item {
+      flex: 1; text-align: center; padding: 12px 6px;
+      border-right: 1px solid #eee; cursor: pointer;
+    }
     .stat-item:last-child { border-right: none; }
     .stat-num { font-size: 18px; font-weight: 800; color: var(--dark); }
     .stat-num.red { color: var(--red); }
     .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
 
-    /* ── COORDONNÉES ── */
-    .section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .section-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
-    .coords-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .coord-item { display: flex; align-items: center; gap: 10px; background: var(--gray); border-radius: 12px; padding: 10px 12px; position: relative; }
-    .coord-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    /* ── COORDONNÉES CIRCLES ── */
+    .section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .section-title {
+      font-size: 14px; font-weight: 800; color: var(--dark);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+    }
+    .section-title span { font-size: 16px; }
+
+    .coords-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      width: 100%;
+    }
+    .coord-item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--gray); border-radius: 12px; padding: 10px 12px;
+      position: relative;
+    }
+    .coord-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
     .coord-circle.phone { background: #e8f5e9; }
+    .coord-circle.location { background: #fff3e0; }
     .coord-circle.whatsapp { background: #e8f5e9; }
     .coord-circle.email { background: #fce4ec; }
     .coord-circle.web { background: #e3f2fd; }
-    .coord-circle.location { background: #fff3e0; }
     .coord-circle.hours { background: #f3e5f5; }
+
     .coord-text { flex: 1; min-width: 0; }
     .coord-label { font-size: 10px; color: #888; font-weight: 600; letter-spacing: 0.5px; }
     .coord-value { font-size: 11px; color: var(--dark); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
-    .coord-save-btn { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 6px; background: var(--green); color: #fff; border: none; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-    /* ── MAP ── */
-    .map-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .map-box { width: 100%; height: 160px; border-radius: 12px; background: linear-gradient(135deg, #e8f5e9, #e3f2fd); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 2px dashed #27a945; }
+    .coord-save-btn {
+      position: absolute; top: 6px; right: 6px;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--green); color: #fff; border: none;
+      font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── GÉOLOCALISATION ── */
+    .map-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .map-box {
+      width: 100%; height: 160px; border-radius: 12px;
+      background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; border: 2px dashed #27a945;
+      transition: all 0.2s;
+    }
+    .map-box:hover { background: #f5fff7; }
     .map-icon { font-size: 36px; }
     .map-text { font-size: 13px; color: var(--green); font-weight: 700; }
     .map-subtext { font-size: 11px; color: #888; text-align: center; }
-    .btn-directions { width: 100%; margin-top: 10px; background: var(--green); color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-directions {
+      width: 100%; margin-top: 10px;
+      background: var(--green); color: #fff; border: none;
+      padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
 
     /* ── MONÉTISATION ── */
-    .monetize-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .monetize-card { background: linear-gradient(135deg, #fff8e1, #fffde7); border: 1px solid #ffe082; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+    .monetize-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .monetize-card {
+      background: linear-gradient(135deg, #fff8e1, #fffde7);
+      border: 1px solid #ffe082; border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
     .monetize-icon { font-size: 32px; }
     .monetize-text h3 { font-size: 14px; font-weight: 800; color: #333; }
     .monetize-text p { font-size: 12px; color: #888; margin-top: 3px; }
-    .monetize-badge { margin-top: 8px; background: #ff9800; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; display: inline-block; }
+    .monetize-badge {
+      margin-top: 8px; background: #ff9800; color: #fff;
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 10px; display: inline-block;
+    }
 
-    /* ── PORTFOLIO ── */
-    .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; }
+    /* ── PORTFOLIO MEDIA ── */
+    .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; width: 100%; overflow: hidden; }
     .media-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2px; }
-    .media-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+    .media-tab {
+      flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 700;
+      color: #888; cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
     .media-tab.active { color: var(--red); border-bottom-color: var(--red); }
-    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -16px; }
-    .media-item { aspect-ratio: 1; background: #eee; overflow: hidden; position: relative; cursor: pointer; }
-    .media-item img { width: 100%; height: 100%; object-fit: cover; }
-    .media-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background 0.2s; }
-    .media-item:hover .media-overlay { background: rgba(0,0,0,0.3); }
-    .media-views { position: absolute; bottom: 4px; left: 4px; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
 
-    /* ── DÉCONNEXION ── */
-    .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .btn-logout:hover { background: var(--red); color: #fff; }
+    .media-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+      margin: 0 -16px;
+    }
+    .media-item {
+      aspect-ratio: 1; background: #eee; overflow: hidden;
+      position: relative; cursor: pointer;
+    }
+    .media-item img, .media-item video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .media-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.0);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .media-item:hover .media-overlay { background: rgba(0,0,0,0.3); }
+    .media-play {
+      color: white; font-size: 28px; opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .media-item:hover .media-play { opacity: 1; }
+    .media-views {
+      position: absolute; bottom: 4px; left: 4px;
+      color: #fff; font-size: 10px; font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+    .video-badge {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,0.6); color: #fff;
+      font-size: 9px; padding: 2px 5px; border-radius: 4px;
+    }
+
+    /* ── AVIS ── */
+    .reviews-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
+    .review-item {
+      display: flex; gap: 10px; margin-bottom: 14px;
+      padding-bottom: 14px; border-bottom: 1px solid #f0f0f0;
+    }
+    .review-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .reviewer-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--green));
+      color: #fff; font-size: 14px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .review-content { flex: 1; }
+    .review-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+    .review-stars { font-size: 12px; color: #FFD700; }
+    .review-text { font-size: 12px; color: #666; margin-top: 3px; line-height: 1.4; }
+    .review-date { font-size: 10px; color: #aaa; margin-top: 3px; }
 
     /* Toast */
-    .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
     .toast.show { opacity: 1; }
     .toast.success { background: var(--green); }
-    .toast.warning { background: var(--orange); }
 
-    /* Écran de chargement */
-    .loading-screen { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 16px; }
-    .loading-spinner { width: 48px; height: 48px; border-radius: 50%; border: 4px solid #eee; border-top-color: var(--green); animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 14px; color: #888; font-weight: 600; }
-
+    /* Bottom space */
     .bottom-space { height: 30px; }
-    @media (max-width: 360px) { .coords-grid { grid-template-columns: 1fr; } .profile-actions { gap: 6px; } .btn-contact, .btn-follow { padding: 7px 12px; font-size: 12px; } }
+
+    /* Responsive */
+    @media (max-width: 360px) {
+      .coords-grid { grid-template-columns: 1fr; }
+      .profile-actions { gap: 6px; }
+      .btn-contact, .btn-follow { padding: 7px 12px; font-size: 12px; }
+      .stats-row .stat-num { font-size: 15px; }
+    }
   </style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
-
-<!-- Écran de chargement -->
-<div class="loading-screen" id="loadingScreen">
-  <svg width="48" height="35" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-    <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-    <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-    <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-    <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-    <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-    <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-  </svg>
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Chargement de votre profil…</div>
-</div>
 
 <!-- ── TOP HEADER ── -->
 <div class="top-header">
@@ -192,84 +319,31 @@
   </div>
   <div class="header-actions">
     <button class="icon-btn" onclick="shareProfile()">📤</button>
-    <button class="icon-btn" onclick="deconnexion()">🚪</button>
+    <button class="icon-btn">⋮</button>
   </div>
 </div>
 
-<!-- ── BANDEAUX KYC ── -->
-<div class="kyc-banner" id="bannerNew">
-  <div class="kyc-banner-new">
-    <div class="kyc-banner-new-content">
-      <div class="kyc-banner-new-top">
-        <div class="kyc-banner-icon">🛡️</div>
-        <div class="kyc-banner-text">
-          <h3>Passez votre vérification KYC</h3>
-          <p>Sans vérification, votre profil est <strong style="color:#ff9800;">invisible</strong> pour les clients. Complétez votre dossier pour apparaître sur l'accueil.</p>
-        </div>
-      </div>
-      <button class="kyc-btn-primary" onclick="window.location.href='kyc.html'">
-        🚀 Commencer la vérification KYC →
-      </button>
-    </div>
+<!-- ── COVER PHOTO ── -->
+<div class="cover-section">
+  <div class="cover-photo" id="coverPhoto">
+    <img id="coverImg" src="" alt="" style="display:none"/>
+    <button class="cover-edit-btn" onclick="changeCover()">📷 Modifier</button>
   </div>
 </div>
 
-<div class="kyc-banner" id="bannerWaiting">
-  <div class="kyc-banner-waiting">
-    <div class="kyc-waiting-icon">⏳</div>
-    <div class="kyc-waiting-text">
-      <h3>Vérification en cours…</h3>
-      <p>Votre dossier KYC est en cours d'examen. Notre équipe vous validera dans 24 à 48 heures.</p>
-      <div class="kyc-waiting-badge">⏰ En cours d'examen</div>
-    </div>
-  </div>
-</div>
-
-<div class="kyc-banner" id="bannerRejected">
-  <div class="kyc-banner-rejected">
-    <div class="kyc-rejected-top">
-      <div class="kyc-rejected-icon">❌</div>
-      <div>
-        <div class="kyc-rejected-title">Vérification KYC rejetée</div>
-        <div class="kyc-rejected-sub">Consultez la raison et soumettez à nouveau</div>
-      </div>
-    </div>
-    <div class="kyc-rejected-reason" id="rejectReasonBox" style="display:none;">
-      <div class="kyc-rejected-reason-label">📋 Raison du rejet</div>
-      <div class="kyc-rejected-reason-text" id="rejectReasonText">—</div>
-    </div>
-    <button class="kyc-btn-retry" onclick="window.location.href='kyc.html'">
-      🔄 Soumettre à nouveau mon KYC →
-    </button>
-  </div>
-</div>
-
-<div class="kyc-banner" id="bannerVerified">
-  <div class="kyc-banner-verified">
-    <div class="kyc-verified-icon">✅</div>
-    <div class="kyc-verified-text">
-      <h3>Profil vérifié et visible !</h3>
-      <p>Votre compte est actif. Les clients peuvent vous trouver sur l'accueil.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ── COVER ── -->
-<div class="cover-photo" id="coverPhoto">
-  <img id="coverImg" src="" alt="" style="display:none"/>
-  <button class="cover-edit-btn" onclick="changeCover()">📷 Modifier</button>
-</div>
-
-<!-- ── PROFIL ── -->
+<!-- ── AVATAR + ACTIONS ── -->
 <div class="profile-info">
-  <div class="avatar-section">
+  <div class="avatar-section" style="padding:0;margin-top:-45px;margin-bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;">
     <div>
       <div class="avatar-wrap">
-        <div class="avatar" id="avatarWrap">
-          <!-- Initiale ou photo chargée dynamiquement -->
-          <span class="avatar-initiale" id="avatarInitiale">?</span>
+        <div class="avatar">
+          <img id="avatarImg" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=200" alt="avatar"/>
         </div>
         <button class="avatar-edit" onclick="changeAvatar()">📷</button>
+      </div>
+      <div class="avatar-history" id="avatarHistory">
+        <div class="avatar-mini"><img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=60" alt=""/></div>
+        <div class="avatar-mini" style="background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;">+</div>
       </div>
     </div>
     <div class="profile-actions">
@@ -278,20 +352,30 @@
     </div>
   </div>
 
-  <!-- NOM chargé depuis Firebase -->
-  <div class="profile-name" id="profileName">…</div>
-
-  <!-- BADGE statut -->
-  <div class="profile-meta" id="profileMeta"></div>
-
-  <!-- BIO -->
-  <div class="profile-bio" id="profileBio">Chargement…</div>
+  <div class="profile-name" id="profileName">Chargement…</div>
+  <div class="profile-meta">
+    <span class="verified-badge">✔ Vérifié</span>
+    <span class="profile-category" id="profileCategory"></span>
+  </div>
+  <div class="profile-bio" id="profileBio">Chargement des informations…</div>
 
   <div class="stats-row">
-    <div class="stat-item"><div class="stat-num red" id="statLikes">0</div><div class="stat-label">❤️ J'aime</div></div>
-    <div class="stat-item"><div class="stat-num" id="statFollowers">0</div><div class="stat-label">👥 Abonnés</div></div>
-    <div class="stat-item"><div class="stat-num" id="statPosts">0</div><div class="stat-label">📸 Posts</div></div>
-    <div class="stat-item"><div class="stat-num" id="statAvis">—</div><div class="stat-label">💬 Avis</div></div>
+    <div class="stat-item">
+      <div class="stat-num red" id="statLikes">0</div>
+      <div class="stat-label">❤️ J'aime</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statFollowers">0</div>
+      <div class="stat-label">👥 Abonnés</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statPosts">0</div>
+      <div class="stat-label">📸 Posts</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="statAvis">—</div>
+      <div class="stat-label">💬 Avis</div>
+    </div>
   </div>
 </div>
 
@@ -301,46 +385,66 @@
   <div class="coords-grid">
     <div class="coord-item">
       <div class="coord-circle phone">📞</div>
-      <div class="coord-text"><div class="coord-label">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">TÉLÉPHONE</div>
+        <div class="coord-value" id="coordTel">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('tel')">💾</button>
     </div>
     <div class="coord-item">
       <div class="coord-circle whatsapp">💬</div>
-      <div class="coord-text"><div class="coord-label">WHATSAPP</div><div class="coord-value" id="coordWa">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">WHATSAPP</div>
+        <div class="coord-value" id="coordWa">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('whatsapp')">💾</button>
     </div>
     <div class="coord-item">
       <div class="coord-circle email">📧</div>
-      <div class="coord-text"><div class="coord-label">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">EMAIL</div>
+        <div class="coord-value" id="coordEmail">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('email')">💾</button>
     </div>
     <div class="coord-item">
       <div class="coord-circle web">🌐</div>
-      <div class="coord-text"><div class="coord-label">SITE WEB</div><div class="coord-value" id="coordWeb">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">SITE WEB</div>
+        <div class="coord-value" id="coordWeb">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('web')">💾</button>
     </div>
     <div class="coord-item">
       <div class="coord-circle location">📍</div>
-      <div class="coord-text"><div class="coord-label">ADRESSE</div><div class="coord-value" id="coordAdresse">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">ADRESSE</div>
+        <div class="coord-value" id="coordAdresse">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('adresse')">💾</button>
     </div>
     <div class="coord-item">
       <div class="coord-circle hours">🕐</div>
-      <div class="coord-text"><div class="coord-label">HORAIRES</div><div class="coord-value" id="coordHoraires">—</div></div>
-      <button class="coord-save-btn" title="Enregistrer">💾</button>
+      <div class="coord-text">
+        <div class="coord-label">HORAIRES</div>
+        <div class="coord-value" id="coordHoraires">—</div>
+      </div>
+      <button class="coord-save-btn" onclick="saveCoord('horaires')">💾</button>
     </div>
   </div>
 </div>
 
-<!-- ── MAP ── -->
+<!-- ── GÉOLOCALISATION ── -->
 <div class="map-section">
   <div class="section-title"><span>🗺️</span> Localisation & Boutique</div>
-  <div class="map-box" onclick="openMap()">
+  <div class="map-box" onclick="openMap()" id="mapBox">
     <div class="map-icon">📍</div>
     <div class="map-text">Voir sur la carte</div>
-    <div class="map-subtext">Cliquez pour ouvrir Google Maps</div>
+    <div class="map-subtext" id="mapSubtext">Cliquez pour ouvrir Google Maps</div>
   </div>
-  <button class="btn-directions" onclick="getDirections()">🧭 Obtenir l'itinéraire → Boutique</button>
+  <button class="btn-directions" onclick="getDirections()">
+    🧭 Obtenir l'itinéraire → Boutique
+  </button>
 </div>
 
 <!-- ── MONÉTISATION ── -->
@@ -350,13 +454,13 @@
     <div class="monetize-icon">💎</div>
     <div class="monetize-text">
       <h3>Compte Professionnel</h3>
-      <p>Recevez des paiements directs et des pourboires via ArtiRoyce.</p>
-      <span class="monetize-badge" id="monetizeBadge">⏳ En attente de validation</span>
+      <p>Cet artisan peut recevoir des paiements directs et des pourboires via ArtiRoyce.</p>
+      <span class="monetize-badge">✔ Monétisé</span>
     </div>
   </div>
 </div>
 
-<!-- ── PORTFOLIO ── -->
+<!-- ── PORTFOLIO MÉDIAS ── -->
 <div class="media-section">
   <div class="section-title"><span>🎬</span> Portfolio</div>
   <div class="media-tabs">
@@ -365,172 +469,29 @@
     <div class="media-tab" onclick="switchMedia('avis', this)">⭐ Avis</div>
   </div>
   <div class="media-grid" id="mediaGrid">
-    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:28px;">📸</span>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 2.3K</div>
     </div>
-    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:28px;">🖼️</span>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 1.8K</div>
     </div>
-    <div class="media-item" style="background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:28px;">➕</span>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 987</div>
     </div>
-  </div>
-</div>
-
-<!-- ── DÉCONNEXION ── -->
-<div class="logout-section">
-  <button class="btn-logout" onclick="deconnexion()">🚪 Se déconnecter</button>
-</div>
-
-<div class="bottom-space"></div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-    authDomain: "artiroyce-f42e4.firebaseapp.com",
-    projectId: "artiroyce-f42e4",
-    storageBucket: "artiroyce-f42e4.firebasestorage.app",
-    messagingSenderId: "588140774605",
-    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
-    measurementId: "G-X4XLHDJCE7"
-  };
-
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
-
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.className = 'toast show ' + type;
-    setTimeout(() => t.className = 'toast', 2800);
-  }
-
-  function hideLoading() {
-    document.getElementById('loadingScreen').style.display = 'none';
-  }
-
-  // ══════════════════════════════════════════
-  // CŒUR : détecter l'utilisateur connecté
-  // et charger SES données depuis Firestore
-  // ══════════════════════════════════════════
-  onAuthStateChanged(auth, async (user) => {
-
-    // Pas connecté → retour connexion
-    if (!user) {
-      window.location.href = 'connexion.html';
-      return;
-    }
-
-    try {
-      // Lire le document Firestore avec l'uid de l'utilisateur connecté
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-
-      if (!snap.exists()) {
-        hideLoading();
-        showToast('⚠ Profil introuvable.', '');
-        return;
-      }
-
-      const data      = snap.data();
-      const statut    = data.statut    || 'en_attente';
-      const kycStatut = data.kycStatut || 'non_soumis';
-      const prenom    = data.prenom    || '';
-      const nom       = data.nom       || '';
-      const initiale  = (prenom || nom || '?')[0].toUpperCase();
-
-      // ── Nom complet ──
-      document.getElementById('profileName').textContent = `${prenom} ${nom}`.trim();
-
-      // ── Initiale dans l'avatar ──
-      document.getElementById('avatarInitiale').textContent = initiale;
-
-      // ── Coordonnées ──
-      document.getElementById('coordTel').textContent      = data.telephone || '—';
-      document.getElementById('coordEmail').textContent    = data.email     || user.email || '—';
-      document.getElementById('coordWa').textContent       = data.whatsapp  || data.telephone || '—';
-      document.getElementById('coordWeb').textContent      = data.siteWeb   || '—';
-      document.getElementById('coordAdresse').textContent  = data.adresse   || '—';
-      document.getElementById('coordHoraires').textContent = data.horaires  || '—';
-
-      // ── Bio ──
-      document.getElementById('profileBio').textContent =
-        data.bio || 'Artisan professionnel sur ArtiRoyce. Complétez votre profil pour attirer plus de clients.';
-
-      // ══════════════════════════════════════
-      // LOGIQUE BANDEAU KYC + BADGE
-      // ══════════════════════════════════════
-      const meta = document.getElementById('profileMeta');
-
-      // Cacher tous les bandeaux
-      ['bannerNew','bannerWaiting','bannerRejected','bannerVerified']
-        .forEach(id => document.getElementById(id).classList.remove('show'));
-
-      if (statut === 'verifie') {
-        meta.innerHTML = `<span class="verified-badge">✔ Vérifié</span><span class="profile-category">Artisan</span>`;
-        document.getElementById('bannerVerified').classList.add('show');
-        document.getElementById('monetizeBadge').textContent = '✔ Compte actif';
-        document.getElementById('monetizeBadge').style.background = '#27a945';
-
-      } else if (kycStatut === 'non_soumis') {
-        meta.innerHTML = `<span class="pending-badge">⏳ KYC requis</span><span class="profile-category">Artisan</span>`;
-        document.getElementById('bannerNew').classList.add('show');
-
-      } else if (kycStatut === 'en_attente') {
-        meta.innerHTML = `<span class="pending-badge">⏳ Vérification en cours</span><span class="profile-category">Artisan</span>`;
-        document.getElementById('bannerWaiting').classList.add('show');
-
-      } else if (kycStatut === 'rejete') {
-        meta.innerHTML = `<span style="background:#e63224;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">❌ KYC rejeté</span><span class="profile-category">Artisan</span>`;
-        document.getElementById('bannerRejected').classList.add('show');
-        if (data.kycRaisonRejet) {
-          document.getElementById('rejectReasonBox').style.display = 'block';
-          document.getElementById('rejectReasonText').textContent = data.kycRaisonRejet;
-        }
-      }
-
-      hideLoading();
-
-    } catch (err) {
-      hideLoading();
-      showToast('⚠ Erreur de chargement.', '');
-    }
-  });
-
-  // ── Déconnexion ──
-  window.deconnexion = async function() {
-    await signOut(auth);
-    window.location.href = 'connexion.html';
-  };
-
-  // ── Autres actions UI ──
-  window.shareProfile = function() {
-    if (navigator.share) {
-      navigator.share({ title: 'ArtiRoyce', url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      showToast('🔗 Lien copié !', 'success');
-    }
-  };
-  window.toggleFollow   = function() { const b = document.getElementById('followBtn'); const f = b.classList.toggle('following'); b.textContent = f ? '✓ Abonné' : '+ Suivre'; };
-  window.contacterArtisan = function() { showToast('💬 Ouverture du chat…', 'success'); };
-  window.changeCover    = function() { showToast('📷 Fonctionnalité bientôt disponible.', ''); };
-  window.changeAvatar   = function() { showToast('📷 Fonctionnalité bientôt disponible.', ''); };
-  window.openMap        = function() { showToast('🗺️ Carte bientôt disponible.', ''); };
-  window.getDirections  = function() { showToast('🧭 Itinéraire bientôt disponible.', ''); };
-  window.switchMedia    = function(type, el) {
-    document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-  };
-
-  function showToast(msg, type = '') {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.className = 'toast show ' + type;
-    setTimeout(() => t.className = 'toast', 2800);
-  }
-</script>
-</body>
-</html>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 756</div>
+    </div>
+    <div class="media-item">
+      <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?w=200" alt=""/>
+      <div class="media-overlay"></div>
+      <div class="media-views">👁 543</div>
+    </div>
+    <div class="media-i
