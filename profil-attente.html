@@ -9,17 +9,15 @@
     :root {
       --red: #e63224;
       --green: #27a945;
+      --orange: #ff9800;
       --gray: #f5f5f5;
       --dark: #1a1a1a;
     }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background: #f0f0f0;
-      width: 100%;
-      max-width: 100%;
-      margin: 0 auto;
-      min-height: 100vh;
-      overflow-x: hidden;
+      width: 100%; max-width: 100%;
+      margin: 0 auto; min-height: 100vh; overflow-x: hidden;
     }
 
     /* ── HEADER ── */
@@ -43,9 +41,112 @@
     .icon-btn {
       width: 36px; height: 36px; border-radius: 50%;
       background: var(--gray); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
     }
+
+    /* ══════════════════════════════════════
+       ── KYC BANNERS ──
+    ══════════════════════════════════════ */
+
+    /* Bandeau non soumis */
+    .kyc-banner {
+      display: none;
+      margin: 0;
+    }
+    .kyc-banner.show { display: block; }
+
+    /* NON SOUMIS */
+    .kyc-banner-new {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      padding: 18px 16px;
+      position: relative; overflow: hidden;
+    }
+    .kyc-banner-new::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(230,50,36,0.2), rgba(39,169,69,0.2));
+    }
+    .kyc-banner-new-content { position: relative; z-index: 1; }
+    .kyc-banner-new-top {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .kyc-banner-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+      flex-shrink: 0;
+    }
+    .kyc-banner-text h3 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    .kyc-banner-text p  { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
+    .kyc-btn-primary {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--green), #1e8c38);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 14px rgba(39,169,69,0.4);
+      transition: all 0.2s;
+    }
+    .kyc-btn-primary:hover { transform: translateY(-1px); }
+
+    /* EN ATTENTE */
+    .kyc-banner-waiting {
+      background: linear-gradient(135deg, #fff8e1, #fffde7);
+      border-left: 5px solid var(--orange);
+      padding: 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .kyc-waiting-icon { font-size: 28px; flex-shrink: 0; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+    .kyc-waiting-text h3 { font-size: 14px; font-weight: 800; color: #7a4f00; margin-bottom: 3px; }
+    .kyc-waiting-text p  { font-size: 12px; color: #6d4c00; line-height: 1.4; }
+    .kyc-waiting-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--orange); color: #fff;
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; margin-top: 8px;
+    }
+
+    /* REJETÉ */
+    .kyc-banner-rejected {
+      background: #fff0f0;
+      border-left: 5px solid var(--red);
+      padding: 16px;
+    }
+    .kyc-rejected-top {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .kyc-rejected-icon { font-size: 28px; flex-shrink: 0; }
+    .kyc-rejected-title { font-size: 14px; font-weight: 800; color: #c0392b; }
+    .kyc-rejected-sub   { font-size: 12px; color: #888; margin-top: 1px; }
+    .kyc-rejected-reason {
+      background: #fff5f5; border: 1px solid #f5c6cb;
+      border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
+    }
+    .kyc-rejected-reason-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      color: var(--red); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .kyc-rejected-reason-text { font-size: 13px; color: #333; line-height: 1.4; }
+    .kyc-btn-retry {
+      width: 100%; padding: 12px;
+      background: var(--red); color: #fff; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity 0.2s;
+    }
+    .kyc-btn-retry:hover { opacity: 0.85; }
+
+    /* VERIFIÉ */
+    .kyc-banner-verified {
+      background: linear-gradient(135deg, #f0fff4, #e8f5e9);
+      border-left: 5px solid var(--green);
+      padding: 14px 16px;
+      display: flex; gap: 12px; align-items: center;
+    }
+    .kyc-verified-icon { font-size: 28px; flex-shrink: 0; }
+    .kyc-verified-text h3 { font-size: 14px; font-weight: 800; color: #155724; margin-bottom: 2px; }
+    .kyc-verified-text p  { font-size: 12px; color: #2d6a4f; }
 
     /* ── COVER & AVATAR ── */
     .cover-section { position: relative; }
@@ -72,8 +173,7 @@
       width: 90px; height: 90px; border-radius: 50%;
       border: 4px solid #fff;
       background: linear-gradient(135deg, var(--red), var(--green));
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-edit {
@@ -83,26 +183,21 @@
       font-size: 13px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .avatar-history {
-      display: flex; gap: 4px; margin-top: 6px;
-    }
+    .avatar-history { display: flex; gap: 4px; margin-top: 6px; }
     .avatar-mini {
       width: 28px; height: 28px; border-radius: 50%;
-      border: 2px solid #ddd; overflow: hidden;
-      background: #eee; cursor: pointer;
+      border: 2px solid #ddd; overflow: hidden; background: #eee; cursor: pointer;
     }
     .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
 
     .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
     .btn-contact {
       background: var(--red); color: #fff; border: none;
-      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
-      cursor: pointer;
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer;
     }
     .btn-follow {
       background: #fff; color: var(--green); border: 2px solid var(--green);
-      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700;
-      cursor: pointer;
+      padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer;
     }
     .btn-follow.following { background: var(--green); color: #fff; }
 
@@ -112,14 +207,20 @@
     .profile-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
     .verified-badge {
       background: var(--green); color: #fff;
-      font-size: 11px; font-weight: 700;
-      padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
       display: flex; align-items: center; gap: 3px;
     }
+    .pending-badge {
+      background: var(--orange); color: #fff;
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+    }
     .profile-category { font-size: 14px; color: #555; font-weight: 600; }
-    .profile-bio { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 80px; }
+    .profile-bio {
+      font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6;
+      padding: 10px 12px; background: #f9f9f9; border-radius: 8px;
+      border-left: 3px solid var(--green); min-height: 60px;
+    }
 
-    /* ── STATS LIKES ── */
     .stats-row {
       display: flex; gap: 0; border-top: 1px solid #eee; margin-top: 14px;
     }
@@ -132,39 +233,31 @@
     .stat-num.red { color: var(--red); }
     .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
 
-    /* ── COORDONNÉES CIRCLES ── */
+    /* ── COORDONNÉES ── */
     .section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
     .section-title {
       font-size: 14px; font-weight: 800; color: var(--dark);
       margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
     }
-    .section-title span { font-size: 16px; }
-
-    .coords-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      width: 100%;
-    }
+    .coords-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
     .coord-item {
       display: flex; align-items: center; gap: 10px;
-      background: var(--gray); border-radius: 12px; padding: 10px 12px;
-      position: relative;
+      background: var(--gray); border-radius: 12px; padding: 10px 12px; position: relative;
     }
     .coord-circle {
       width: 42px; height: 42px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 20px; flex-shrink: 0;
     }
-    .coord-circle.phone { background: #e8f5e9; }
+    .coord-circle.phone    { background: #e8f5e9; }
     .coord-circle.location { background: #fff3e0; }
     .coord-circle.whatsapp { background: #e8f5e9; }
-    .coord-circle.email { background: #fce4ec; }
-    .coord-circle.web { background: #e3f2fd; }
-    .coord-circle.hours { background: #f3e5f5; }
-
+    .coord-circle.email    { background: #fce4ec; }
+    .coord-circle.web      { background: #e3f2fd; }
+    .coord-circle.hours    { background: #f3e5f5; }
     .coord-text { flex: 1; min-width: 0; }
     .coord-label { font-size: 10px; color: #888; font-weight: 600; letter-spacing: 0.5px; }
     .coord-value { font-size: 11px; color: var(--dark); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
-
     .coord-save-btn {
       position: absolute; top: 6px; right: 6px;
       width: 22px; height: 22px; border-radius: 6px;
@@ -173,17 +266,14 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* ── GÉOLOCALISATION ── */
+    /* ── MAP ── */
     .map-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
     .map-box {
       width: 100%; height: 160px; border-radius: 12px;
       background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px; cursor: pointer; border: 2px dashed #27a945;
-      transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; border: 2px dashed #27a945; transition: all 0.2s;
     }
-    .map-box:hover { background: #f5fff7; }
     .map-icon { font-size: 36px; }
     .map-text { font-size: 13px; color: var(--green); font-weight: 700; }
     .map-subtext { font-size: 11px; color: #888; text-align: center; }
@@ -203,76 +293,40 @@
     }
     .monetize-icon { font-size: 32px; }
     .monetize-text h3 { font-size: 14px; font-weight: 800; color: #333; }
-    .monetize-text p { font-size: 12px; color: #888; margin-top: 3px; }
+    .monetize-text p  { font-size: 12px; color: #888; margin-top: 3px; }
     .monetize-badge {
       margin-top: 8px; background: #ff9800; color: #fff;
       font-size: 11px; font-weight: 700; padding: 3px 10px;
       border-radius: 10px; display: inline-block;
     }
 
-    /* ── PORTFOLIO MEDIA ── */
+    /* ── PORTFOLIO ── */
     .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; width: 100%; overflow: hidden; }
     .media-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2px; }
     .media-tab {
       flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 700;
-      color: #888; cursor: pointer; border-bottom: 3px solid transparent;
-      transition: all 0.2s;
+      color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
     }
     .media-tab.active { color: var(--red); border-bottom-color: var(--red); }
-
-    .media-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
-      margin: 0 -16px;
-    }
-    .media-item {
-      aspect-ratio: 1; background: #eee; overflow: hidden;
-      position: relative; cursor: pointer;
-    }
-    .media-item img, .media-item video {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    .media-overlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.0);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s;
-    }
+    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -16px; }
+    .media-item { aspect-ratio: 1; background: #eee; overflow: hidden; position: relative; cursor: pointer; }
+    .media-item img { width: 100%; height: 100%; object-fit: cover; }
+    .media-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
     .media-item:hover .media-overlay { background: rgba(0,0,0,0.3); }
-    .media-play {
-      color: white; font-size: 28px; opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .media-item:hover .media-play { opacity: 1; }
-    .media-views {
-      position: absolute; bottom: 4px; left: 4px;
-      color: #fff; font-size: 10px; font-weight: 700;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-    }
-    .video-badge {
-      position: absolute; top: 4px; right: 4px;
-      background: rgba(0,0,0,0.6); color: #fff;
-      font-size: 9px; padding: 2px 5px; border-radius: 4px;
-    }
+    .media-views { position: absolute; bottom: 4px; left: 4px; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
 
     /* ── AVIS ── */
     .reviews-section { background: #fff; margin-top: 10px; padding: 14px 12px; width: 100%; overflow: hidden; }
-    .review-item {
-      display: flex; gap: 10px; margin-bottom: 14px;
-      padding-bottom: 14px; border-bottom: 1px solid #f0f0f0;
-    }
-    .review-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .review-item { display: flex; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0; }
     .reviewer-avatar {
       width: 36px; height: 36px; border-radius: 50%;
       background: linear-gradient(135deg, var(--red), var(--green));
       color: #fff; font-size: 14px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .review-content { flex: 1; }
     .review-name { font-size: 13px; font-weight: 700; color: var(--dark); }
     .review-stars { font-size: 12px; color: #FFD700; }
     .review-text { font-size: 12px; color: #666; margin-top: 3px; line-height: 1.4; }
-    .review-date { font-size: 10px; color: #aaa; margin-top: 3px; }
 
     /* Toast */
     .toast {
@@ -284,15 +338,12 @@
     .toast.show { opacity: 1; }
     .toast.success { background: var(--green); }
 
-    /* Bottom space */
     .bottom-space { height: 30px; }
 
-    /* Responsive */
     @media (max-width: 360px) {
       .coords-grid { grid-template-columns: 1fr; }
       .profile-actions { gap: 6px; }
       .btn-contact, .btn-follow { padding: 7px 12px; font-size: 12px; }
-      .stats-row .stat-num { font-size: 15px; }
     }
   </style>
 </head>
@@ -320,6 +371,71 @@
   <div class="header-actions">
     <button class="icon-btn" onclick="shareProfile()">📤</button>
     <button class="icon-btn">⋮</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ── BANDEAUX KYC DYNAMIQUES ──
+══════════════════════════════════ -->
+
+<!-- Bandeau 1 : KYC non soumis -->
+<div class="kyc-banner" id="bannerNew">
+  <div class="kyc-banner-new">
+    <div class="kyc-banner-new-content">
+      <div class="kyc-banner-new-top">
+        <div class="kyc-banner-icon">🛡️</div>
+        <div class="kyc-banner-text">
+          <h3>Passez votre vérification KYC</h3>
+          <p>Sans vérification, votre profil est <strong style="color:#ff9800;">invisible</strong> pour les clients. Complétez votre dossier pour apparaître sur l'accueil.</p>
+        </div>
+      </div>
+      <button class="kyc-btn-primary" onclick="window.location.href='kyc.html'">
+        🚀 Commencer la vérification KYC →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Bandeau 2 : KYC en attente -->
+<div class="kyc-banner" id="bannerWaiting">
+  <div class="kyc-banner-waiting">
+    <div class="kyc-waiting-icon">⏳</div>
+    <div class="kyc-waiting-text">
+      <h3>Vérification en cours…</h3>
+      <p>Votre dossier KYC est en cours d'examen. Notre équipe vous validera dans 24 à 48 heures.</p>
+      <div class="kyc-waiting-badge">⏰ En cours d'examen</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bandeau 3 : KYC rejeté -->
+<div class="kyc-banner" id="bannerRejected">
+  <div class="kyc-banner-rejected">
+    <div class="kyc-rejected-top">
+      <div class="kyc-rejected-icon">❌</div>
+      <div>
+        <div class="kyc-rejected-title">Vérification KYC rejetée</div>
+        <div class="kyc-rejected-sub">Consultez la raison et soumettez à nouveau</div>
+      </div>
+    </div>
+    <div class="kyc-rejected-reason" id="rejectReasonBox" style="display:none;">
+      <div class="kyc-rejected-reason-label">📋 Raison du rejet</div>
+      <div class="kyc-rejected-reason-text" id="rejectReasonText">—</div>
+    </div>
+    <button class="kyc-btn-retry" onclick="window.location.href='kyc.html'">
+      🔄 Soumettre à nouveau mon KYC →
+    </button>
+  </div>
+</div>
+
+<!-- Bandeau 4 : KYC validé -->
+<div class="kyc-banner" id="bannerVerified">
+  <div class="kyc-banner-verified">
+    <div class="kyc-verified-icon">✅</div>
+    <div class="kyc-verified-text">
+      <h3>Profil vérifié et visible !</h3>
+      <p>Votre compte est actif. Les clients peuvent vous trouver sur l'accueil.</p>
+    </div>
   </div>
 </div>
 
@@ -353,9 +469,8 @@
   </div>
 
   <div class="profile-name" id="profileName">Chargement…</div>
-  <div class="profile-meta">
-    <span class="verified-badge">✔ Vérifié</span>
-    <span class="profile-category" id="profileCategory"></span>
+  <div class="profile-meta" id="profileMeta">
+    <!-- Badge injecté dynamiquement -->
   </div>
   <div class="profile-bio" id="profileBio">Chargement des informations…</div>
 
@@ -434,17 +549,15 @@
   </div>
 </div>
 
-<!-- ── GÉOLOCALISATION ── -->
+<!-- ── MAP ── -->
 <div class="map-section">
   <div class="section-title"><span>🗺️</span> Localisation & Boutique</div>
-  <div class="map-box" onclick="openMap()" id="mapBox">
+  <div class="map-box" onclick="openMap()">
     <div class="map-icon">📍</div>
     <div class="map-text">Voir sur la carte</div>
-    <div class="map-subtext" id="mapSubtext">Cliquez pour ouvrir Google Maps</div>
+    <div class="map-subtext">Cliquez pour ouvrir Google Maps</div>
   </div>
-  <button class="btn-directions" onclick="getDirections()">
-    🧭 Obtenir l'itinéraire → Boutique
-  </button>
+  <button class="btn-directions" onclick="getDirections()">🧭 Obtenir l'itinéraire → Boutique</button>
 </div>
 
 <!-- ── MONÉTISATION ── -->
@@ -460,7 +573,7 @@
   </div>
 </div>
 
-<!-- ── PORTFOLIO MÉDIAS ── -->
+<!-- ── PORTFOLIO ── -->
 <div class="media-section">
   <div class="section-title"><span>🎬</span> Portfolio</div>
   <div class="media-tabs">
@@ -484,14 +597,152 @@
       <div class="media-overlay"></div>
       <div class="media-views">👁 987</div>
     </div>
-    <div class="media-item">
-      <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?w=200" alt=""/>
-      <div class="media-overlay"></div>
-      <div class="media-views">👁 756</div>
-    </div>
-    <div class="media-item">
-      <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?w=200" alt=""/>
-      <div class="media-overlay"></div>
-      <div class="media-views">👁 543</div>
-    </div>
-    <div class="media-i
+  </div>
+</div>
+
+<!-- ── AVIS ── -->
+<div class="reviews-section" id="reviewsSection" style="display:none;">
+  <div class="section-title"><span>⭐</span> Avis clients</div>
+  <div id="reviewsList">
+    <p style="text-align:center;color:#aaa;font-size:13px;padding:20px;">Aucun avis pour l'instant.</p>
+  </div>
+</div>
+
+<div class="bottom-space"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+    measurementId: "G-X4XLHDJCE7"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 2800);
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'connexion.html'; return; }
+
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (!snap.exists()) { window.location.href = 'connexion.html'; return; }
+
+      const data      = snap.data();
+      const statut    = data.statut    || 'en_attente';
+      const kycStatut = data.kycStatut || 'non_soumis';
+
+      // ── Nom ──
+      document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`;
+
+      // ── Coordonnées ──
+      document.getElementById('coordTel').textContent     = data.telephone  || '—';
+      document.getElementById('coordEmail').textContent   = data.email      || '—';
+      document.getElementById('coordWa').textContent      = data.whatsapp   || data.telephone || '—';
+      document.getElementById('coordWeb').textContent     = data.siteWeb    || '—';
+      document.getElementById('coordAdresse').textContent = data.adresse    || '—';
+      document.getElementById('coordHoraires').textContent= data.horaires   || '—';
+
+      // ── Bio ──
+      document.getElementById('profileBio').textContent =
+        data.bio || 'Artisan professionnel sur ArtiRoyce.';
+
+      // ══════════════════════════════════════
+      // LOGIQUE BANDEAU KYC + BADGE STATUT
+      // ══════════════════════════════════════
+      const meta = document.getElementById('profileMeta');
+
+      // Cacher tous les bandeaux
+      ['bannerNew','bannerWaiting','bannerRejected','bannerVerified'].forEach(id => {
+        document.getElementById(id).classList.remove('show');
+      });
+
+      if (statut === 'verifie') {
+        // ✅ VERIFIÉ → badge vert + bandeau vert discret
+        meta.innerHTML = `<span class="verified-badge">✔ Vérifié</span><span class="profile-category">Artisan</span>`;
+        document.getElementById('bannerVerified').classList.add('show');
+
+      } else if (kycStatut === 'non_soumis') {
+        // 🔴 KYC PAS ENCORE SOUMIS → gros bandeau rouge/sombre
+        meta.innerHTML = `<span class="pending-badge">⏳ En attente KYC</span><span class="profile-category">Artisan</span>`;
+        document.getElementById('bannerNew').classList.add('show');
+
+      } else if (kycStatut === 'en_attente') {
+        // 🟠 KYC SOUMIS EN ATTENTE → bandeau orange
+        meta.innerHTML = `<span class="pending-badge">⏳ Vérification en cours</span><span class="profile-category">Artisan</span>`;
+        document.getElementById('bannerWaiting').classList.add('show');
+
+      } else if (kycStatut === 'rejete') {
+        // ❌ KYC REJETÉ → bandeau rouge avec raison
+        meta.innerHTML = `<span style="background:#e63224;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">❌ KYC rejeté</span><span class="profile-category">Artisan</span>`;
+        document.getElementById('bannerRejected').classList.add('show');
+
+        if (data.kycRaisonRejet) {
+          document.getElementById('rejectReasonBox').style.display = 'block';
+          document.getElementById('rejectReasonText').textContent = data.kycRaisonRejet;
+        }
+      }
+
+    } catch (err) {
+      showToast('⚠ Erreur de chargement du profil.', '');
+    }
+  });
+
+  // ── FONCTIONS UI ──
+  window.shareProfile = function() {
+    if (navigator.share) {
+      navigator.share({ title: 'ArtiRoyce', text: 'Découvrez ce profil artisan !', url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      showToast('🔗 Lien copié !', 'success');
+    }
+  };
+
+  window.toggleFollow = function() {
+    const btn = document.getElementById('followBtn');
+    const following = btn.classList.toggle('following');
+    btn.textContent = following ? '✓ Abonné' : '+ Suivre';
+    showToast(following ? '✅ Vous suivez cet artisan !' : 'Abonnement annulé', following ? 'success' : '');
+  };
+
+  window.contacterArtisan = function() { showToast('💬 Ouverture du chat…', 'success'); };
+  window.changeCover   = function() { showToast('📷 Modification de la couverture…', ''); };
+  window.changeAvatar  = function() { showToast('📷 Modification de la photo…', ''); };
+  window.saveCoord     = function(type) { showToast(`💾 Coordonnée ${type} sauvegardée`, 'success'); };
+  window.openMap       = function() { showToast('🗺️ Ouverture de la carte…', ''); };
+  window.getDirections = function() { showToast('🧭 Calcul de l\'itinéraire…', ''); };
+
+  window.switchMedia = function(type, el) {
+    document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    if (type === 'avis') {
+      document.getElementById('reviewsSection').style.display = 'block';
+      document.getElementById('mediaGrid').style.display = 'none';
+    } else {
+      document.getElementById('reviewsSection').style.display = 'none';
+      document.getElementById('mediaGrid').style.display = 'grid';
+    }
+  };
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 2800);
+  }
+</script>
+</body>
+</html>
