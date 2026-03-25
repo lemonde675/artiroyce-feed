@@ -92,6 +92,7 @@
     .toast.show { opacity: 1; }
     .toast.success { background: #27a945; }
     .toast.error-toast { background: #e63224; }
+    .toast.warning { background: #ff9800; }
   </style>
 </head>
 <body>
@@ -157,6 +158,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -170,6 +172,7 @@
 
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     window.togglePass = function() {
       const p = document.getElementById('password');
@@ -226,12 +229,39 @@
       btn.textContent = 'Connexion en cours…';
 
       try {
-        await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
-        showToast('✅ Connexion réussie ! Bienvenue.', 'success');
-        setTimeout(() => { window.location.href = 'accueil.html'; }, 1000);
+        // 1. Authentification Firebase Auth
+        const userCredential = await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
+        const uid = userCredential.user.uid;
+
+        // 2. Récupérer le document Firestore pour lire le statut
+        const userDoc = await getDoc(doc(db, 'utilisateurs', uid));
+
+        if (!userDoc.exists()) {
+          // Document pas encore créé (rare) → accueil par défaut
+          showToast('✅ Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+          return;
+        }
+
+        const userData = userDoc.data();
+        const statut   = userData.statut || 'en_attente';
+
+        // 3. Rediriger selon le statut
+        if (statut === 'verifie') {
+          showToast('✅ Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+        } else if (statut === 'rejete') {
+          showToast('⚠ Votre compte a été rejeté.', 'warning');
+          setTimeout(() => { window.location.href = 'profil-attente.html'; }, 1200);
+        } else {
+          // en_attente ou autre
+          showToast('⏳ Votre compte est en cours de validation.', 'warning');
+          setTimeout(() => { window.location.href = 'profil-attente.html'; }, 1200);
+        }
+
       } catch (err) {
         btn.disabled = false;
-        btn.textContent = 'CONNEXION →';
+        btn.innerHTML = 'CONNEXION &nbsp;→';
         if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
           showToast('⚠ Email ou mot de passe incorrect.', 'error-toast');
         } else if (err.code === 'auth/too-many-requests') {
