@@ -18,9 +18,33 @@
     .header-actions { display: flex; gap: 10px; }
     .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
+    /* ══════════════════════════════════
+       ── NOUVEAU BADGE VÉRIFIÉ ──
+    ══════════════════════════════════ */
+    .verified-badge-new {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #1a8c3a, #27a945);
+      color: #fff; font-size: 12px; font-weight: 800;
+      padding: 4px 10px 4px 4px; border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(39,169,69,0.35);
+    }
+    .verified-badge-new .badge-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .verified-badge-new .badge-icon svg { display: block; }
+
+    /* Badge en attente / rejeté */
+    .pending-badge { background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+    .rejected-badge { background: var(--red); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+    .profile-category { font-size: 13px; color: #555; font-weight: 600; }
+
     /* ── BANDEAUX KYC ── */
     .kyc-banner { display: none; }
     .kyc-banner.show { display: block; }
+
     .kyc-banner-new { background: linear-gradient(135deg, #1a1a2e, #0f3460); padding: 18px 16px; position: relative; overflow: hidden; }
     .kyc-banner-new::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(230,50,36,0.2), rgba(39,169,69,0.2)); }
     .kyc-banner-new-content { position: relative; z-index: 1; }
@@ -29,22 +53,38 @@
     .kyc-banner-text h3 { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px; }
     .kyc-banner-text p { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
     .kyc-btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--green), #1e8c38); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
     .kyc-banner-waiting { background: linear-gradient(135deg, #fff8e1, #fffde7); border-left: 5px solid var(--orange); padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
     .kyc-waiting-icon { font-size: 28px; flex-shrink: 0; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.5;} }
     .kyc-waiting-text h3 { font-size: 14px; font-weight: 800; color: #7a4f00; margin-bottom: 3px; }
     .kyc-waiting-text p { font-size: 12px; color: #6d4c00; line-height: 1.4; }
     .kyc-waiting-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 8px; }
+
+    /* ── BANDEAU REJETÉ avec raison ── */
     .kyc-banner-rejected { background: #fff0f0; border-left: 5px solid var(--red); padding: 16px; }
     .kyc-rejected-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .kyc-rejected-icon { font-size: 28px; flex-shrink: 0; }
     .kyc-rejected-title { font-size: 14px; font-weight: 800; color: #c0392b; }
     .kyc-rejected-sub { font-size: 12px; color: #888; margin-top: 1px; }
-    .kyc-rejected-reason { background: #fff5f5; border: 1px solid #f5c6cb; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
-    .kyc-rejected-reason-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: var(--red); text-transform: uppercase; margin-bottom: 4px; }
-    .kyc-rejected-reason-text { font-size: 13px; color: #333; line-height: 1.4; }
+    .kyc-rejected-reason {
+      background: #fff5f5; border: 1.5px solid #f5c6cb;
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+    }
+    .kyc-rejected-reason-label {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+      color: var(--red); text-transform: uppercase; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .kyc-rejected-reason-text { font-size: 13px; color: #333; line-height: 1.6; font-weight: 500; }
     .kyc-btn-retry { width: 100%; padding: 12px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .kyc-banner-verified { background: linear-gradient(135deg, #f0fff4, #e8f5e9); border-left: 5px solid var(--green); padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+
+    /* ── BANDEAU VÉRIFIÉ ── */
+    .kyc-banner-verified {
+      background: linear-gradient(135deg, #e8f5e9, #f0fff4);
+      border-left: 5px solid var(--green);
+      padding: 14px 16px; display: flex; gap: 12px; align-items: center;
+    }
     .kyc-verified-icon { font-size: 28px; flex-shrink: 0; }
     .kyc-verified-text h3 { font-size: 14px; font-weight: 800; color: #155724; margin-bottom: 2px; }
     .kyc-verified-text p { font-size: 12px; color: #2d6a4f; }
@@ -52,21 +92,23 @@
     /* ── COVER & AVATAR ── */
     .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
     .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
     .profile-info { background: #fff; padding: 14px 16px 0; }
     .avatar-section { padding: 0; margin-top: -45px; margin-bottom: 10px; display: flex; align-items: flex-end; justify-content: space-between; }
     .avatar-wrap { position: relative; }
     .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--red), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
     .avatar-initiale { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
     .avatar-edit { position: absolute; bottom: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
     .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
     .btn-contact { background: var(--red); color: #fff; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
     .btn-follow { background: #fff; color: var(--green); border: 2px solid var(--green); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-follow.following { background: var(--green); color: #fff; }
+
     .profile-name { font-size: 20px; font-weight: 800; color: var(--dark); }
-    .profile-meta { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-    .verified-badge { background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
-    .pending-badge { background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
-    .profile-category { font-size: 14px; color: #555; font-weight: 600; }
+    .profile-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
     .profile-bio { font-size: 13px; color: #666; margin-top: 8px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 60px; }
+
     .stats-row { display: flex; border-top: 1px solid #eee; margin-top: 14px; }
     .stat-item { flex: 1; text-align: center; padding: 12px 6px; border-right: 1px solid #eee; }
     .stat-item:last-child { border-right: none; }
@@ -113,24 +155,21 @@
     .media-item { aspect-ratio: 1; background: #eee; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .btn-logout:hover { background: var(--red); color: #fff; }
 
-    /* Toast */
     .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.success { background: var(--green); }
     .toast.warning { background: var(--orange); }
     .toast.error-t { background: var(--red); }
 
-    /* ── ÉCRAN DE CHARGEMENT ── */
     .loading-screen { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 16px; transition: opacity 0.3s; }
     .loading-screen.hidden { opacity: 0; pointer-events: none; }
     .loading-spinner { width: 48px; height: 48px; border-radius: 50%; border: 4px solid #eee; border-top-color: var(--green); animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 14px; color: #888; font-weight: 600; }
 
-    /* ── ÉCRAN D'ERREUR ── */
     .error-screen { position: fixed; inset: 0; background: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 16px; padding: 30px; text-align: center; }
     .error-screen.show { display: flex; }
     .error-icon { font-size: 48px; }
@@ -148,7 +187,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ── ÉCRAN CHARGEMENT ── -->
+<!-- ── CHARGEMENT ── -->
 <div class="loading-screen" id="loadingScreen">
   <svg width="48" height="35" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
     <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -159,14 +198,14 @@
     <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
   </svg>
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loadingText">Chargement de votre profil…</div>
+  <div class="loading-text">Chargement de votre profil…</div>
 </div>
 
-<!-- ── ÉCRAN ERREUR ── -->
+<!-- ── ERREUR ── -->
 <div class="error-screen" id="errorScreen">
   <div class="error-icon">⚠️</div>
   <div class="error-title">Problème de connexion</div>
-  <div class="error-msg-text" id="errorMsgText">Impossible de charger votre profil. Vérifiez votre connexion internet et réessayez.</div>
+  <div class="error-msg-text" id="errorMsgText">Impossible de charger votre profil.</div>
   <div class="error-actions">
     <button class="btn-retry" onclick="location.reload()">🔄 Réessayer</button>
     <button class="btn-relogin" onclick="forceLogout()">🚪 Se reconnecter</button>
@@ -223,26 +262,34 @@
   </div>
 </div>
 
+<!-- ── BANDEAU REJETÉ avec raison bien visible ── -->
 <div class="kyc-banner" id="bannerRejected">
   <div class="kyc-banner-rejected">
     <div class="kyc-rejected-top">
       <div class="kyc-rejected-icon">❌</div>
       <div>
         <div class="kyc-rejected-title">Vérification KYC rejetée</div>
-        <div class="kyc-rejected-sub">Consultez la raison et soumettez à nouveau</div>
+        <div class="kyc-rejected-sub">Lisez la raison ci-dessous et soumettez à nouveau</div>
       </div>
     </div>
-    <div class="kyc-rejected-reason" id="rejectReasonBox" style="display:none;">
-      <div class="kyc-rejected-reason-label">📋 Raison du rejet</div>
-      <div class="kyc-rejected-reason-text" id="rejectReasonText">—</div>
+    <!-- ✅ RAISON DU REJET — toujours visible si présente -->
+    <div class="kyc-rejected-reason" id="rejectReasonBox">
+      <div class="kyc-rejected-reason-label">📋 Raison communiquée par l'équipe ArtiRoyce</div>
+      <div class="kyc-rejected-reason-text" id="rejectReasonText">Aucune raison précisée.</div>
     </div>
-    <button class="kyc-btn-retry" onclick="window.location.href='kyc.html'">🔄 Soumettre à nouveau →</button>
+    <button class="kyc-btn-retry" onclick="window.location.href='kyc.html'">🔄 Soumettre à nouveau mon dossier →</button>
   </div>
 </div>
 
 <div class="kyc-banner" id="bannerVerified">
   <div class="kyc-banner-verified">
-    <div class="kyc-verified-icon">✅</div>
+    <div class="kyc-verified-icon">
+      <!-- Badge étoile vérifié SVG -->
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 2L19.5 7.5L26 6L24.5 12.5L30 16L24.5 19.5L26 26L19.5 24.5L16 30L12.5 24.5L6 26L7.5 19.5L2 16L7.5 12.5L6 6L12.5 7.5L16 2Z" fill="#27a945"/>
+        <path d="M11 16L14.5 19.5L21 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
     <div class="kyc-verified-text">
       <h3>Profil vérifié et visible !</h3>
       <p>Votre compte est actif. Les clients peuvent vous trouver.</p>
@@ -271,9 +318,14 @@
       <button class="btn-follow" id="followBtn" onclick="toggleFollow()">+ Suivre</button>
     </div>
   </div>
+
   <div class="profile-name" id="profileName">…</div>
+
+  <!-- Badge statut dynamique -->
   <div class="profile-meta" id="profileMeta"></div>
+
   <div class="profile-bio" id="profileBio">Chargement…</div>
+
   <div class="stats-row">
     <div class="stat-item"><div class="stat-num red">0</div><div class="stat-label">❤️ J'aime</div></div>
     <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">👥 Abonnés</div></div>
@@ -402,27 +454,24 @@
     document.getElementById('errorScreen').classList.add('show');
   }
 
-  window.forceLogout = async function() {
+  window.forceLogout = async () => {
     try { await signOut(auth); } catch(e) {}
     window.location.href = 'connexion.html';
   };
 
-  window.deconnexion = async function() {
+  window.deconnexion = async () => {
     try { await signOut(auth); } catch(e) {}
     window.location.href = 'connexion.html';
   };
 
-  // ── TIMEOUT 10 secondes ──
   const timeoutId = setTimeout(() => {
-    showError('Délai dépassé. Vérifiez votre connexion internet ou les règles Firebase (Firestore Rules).');
+    showError('Délai dépassé. Vérifiez votre connexion internet.');
   }, 10000);
 
   // ══════════════════════════════════════════
-  // DÉTECTION UTILISATEUR CONNECTÉ
+  // CHARGER LES DONNÉES DE L'UTILISATEUR CONNECTÉ
   // ══════════════════════════════════════════
   onAuthStateChanged(auth, async (user) => {
-
-    // Pas connecté → retour connexion
     if (!user) {
       clearTimeout(timeoutId);
       window.location.href = 'connexion.html';
@@ -430,24 +479,16 @@
     }
 
     try {
-      // Lire Firestore avec timeout manuel
-      const fetchPromise = getDoc(doc(db, 'utilisateurs', user.uid));
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('TIMEOUT_FIRESTORE')), 8000)
-      );
-
-      const snap = await Promise.race([fetchPromise, timeoutPromise]);
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       clearTimeout(timeoutId);
 
-      // Firestore inaccessible → afficher données de base depuis Auth
       if (!snap.exists()) {
-        // Profil pas encore dans Firestore → afficher info minimale
-        document.getElementById('profileName').textContent = user.email || 'Artisan';
-        document.getElementById('avatarInitiale').textContent = (user.email || 'A')[0].toUpperCase();
+        document.getElementById('profileName').textContent = user.email || 'Professionnel';
+        document.getElementById('avatarInitiale').textContent = (user.email || 'P')[0].toUpperCase();
         document.getElementById('profileBio').textContent = 'Profil en cours de configuration…';
         document.getElementById('profileMeta').innerHTML = `<span class="pending-badge">⏳ KYC requis</span>`;
-        document.getElementById('bannerNew').classList.add('show');
         document.getElementById('coordEmail').textContent = user.email || '—';
+        document.getElementById('bannerNew').classList.add('show');
         hideLoading();
         return;
       }
@@ -457,7 +498,7 @@
       const kycStatut = data.kycStatut || 'non_soumis';
       const prenom    = data.prenom    || '';
       const nom       = data.nom       || '';
-      const initiale  = (prenom || nom || user.email || '?')[0].toUpperCase();
+      const initiale  = (prenom || nom || user.email || 'P')[0].toUpperCase();
 
       // ── Remplir les données ──
       document.getElementById('profileName').textContent    = `${prenom} ${nom}`.trim() || user.email;
@@ -468,46 +509,56 @@
       document.getElementById('coordWeb').textContent       = data.siteWeb   || '—';
       document.getElementById('coordAdresse').textContent   = data.adresse   || '—';
       document.getElementById('coordHoraires').textContent  = data.horaires  || '—';
-      document.getElementById('profileBio').textContent     = data.bio || 'Artisan professionnel sur ArtiRoyce.';
+      document.getElementById('profileBio').textContent     = data.bio || 'Professionnel vérifié sur ArtiRoyce.';
 
-      // ── Badge + Bandeau KYC ──
+      // ══════════════════════════════════════
+      // BADGE + BANDEAU selon statut
+      // ══════════════════════════════════════
       const meta = document.getElementById('profileMeta');
       ['bannerNew','bannerWaiting','bannerRejected','bannerVerified']
         .forEach(id => document.getElementById(id).classList.remove('show'));
 
       if (statut === 'verifie') {
-        meta.innerHTML = `<span class="verified-badge">✔ Vérifié</span><span class="profile-category">Artisan</span>`;
+        // ✅ NOUVEAU BADGE VÉRIFIÉ avec étoile
+        meta.innerHTML = `
+          <span class="verified-badge-new">
+            <span class="badge-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+                <path d="M16 2L19.5 7.5L26 6L24.5 12.5L30 16L24.5 19.5L26 26L19.5 24.5L16 30L12.5 24.5L6 26L7.5 19.5L2 16L7.5 12.5L6 6L12.5 7.5L16 2Z" fill="#27a945"/>
+                <path d="M11 16L14.5 19.5L21 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Vérifié
+          </span>
+          <span class="profile-category">Professionnel vérifié</span>`;
         document.getElementById('bannerVerified').classList.add('show');
         document.getElementById('monetizeBadge').textContent = '✔ Compte actif';
         document.getElementById('monetizeBadge').style.background = '#27a945';
 
       } else if (kycStatut === 'non_soumis') {
-        meta.innerHTML = `<span class="pending-badge">⏳ KYC requis</span><span class="profile-category">Artisan</span>`;
+        meta.innerHTML = `<span class="pending-badge">⏳ KYC requis</span><span class="profile-category">Professionnel</span>`;
         document.getElementById('bannerNew').classList.add('show');
 
       } else if (kycStatut === 'en_attente') {
-        meta.innerHTML = `<span class="pending-badge">⏳ Vérification en cours</span><span class="profile-category">Artisan</span>`;
+        meta.innerHTML = `<span class="pending-badge">⏳ Vérification en cours</span><span class="profile-category">Professionnel</span>`;
         document.getElementById('bannerWaiting').classList.add('show');
 
       } else if (kycStatut === 'rejete') {
-        meta.innerHTML = `<span style="background:#e63224;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">❌ KYC rejeté</span><span class="profile-category">Artisan</span>`;
+        meta.innerHTML = `<span class="rejected-badge">❌ KYC rejeté</span><span class="profile-category">Professionnel</span>`;
         document.getElementById('bannerRejected').classList.add('show');
-        if (data.kycRaisonRejet) {
-          document.getElementById('rejectReasonBox').style.display = 'block';
-          document.getElementById('rejectReasonText').textContent = data.kycRaisonRejet;
-        }
+
+        // ✅ RAISON DU REJET — toujours affichée
+        const raison = data.kycRaisonRejet || 'Aucune raison précisée par l\'équipe.';
+        document.getElementById('rejectReasonText').textContent = raison;
       }
 
       hideLoading();
 
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err.message === 'TIMEOUT_FIRESTORE') {
-        showError('Firebase ne répond pas. Vérifiez vos règles Firestore dans la console Firebase.');
-      } else if (err.code === 'permission-denied') {
-        // ⚠️ Règles Firestore trop restrictives → afficher quand même les infos de base
-        document.getElementById('profileName').textContent = user.displayName || user.email || 'Artisan';
-        document.getElementById('avatarInitiale').textContent = (user.email || 'A')[0].toUpperCase();
+      if (err.code === 'permission-denied') {
+        document.getElementById('profileName').textContent = user.email || 'Professionnel';
+        document.getElementById('avatarInitiale').textContent = (user.email || 'P')[0].toUpperCase();
         document.getElementById('profileBio').textContent = 'Profil en cours de chargement…';
         document.getElementById('coordEmail').textContent = user.email || '—';
         document.getElementById('profileMeta').innerHTML = `<span class="pending-badge">⏳ En attente</span>`;
@@ -515,18 +566,18 @@
         hideLoading();
         showToast('⚠ Règles Firebase à configurer.', 'warning');
       } else {
-        showError('Erreur : ' + (err.message || 'Inconnue') + '. Réessayez ou reconnectez-vous.');
+        showError('Erreur : ' + (err.message || 'Inconnue'));
       }
     }
   });
 
-  window.toggleFollow = function() {
+  window.toggleFollow = () => {
     const b = document.getElementById('followBtn');
     const f = b.classList.toggle('following');
     b.textContent = f ? '✓ Abonné' : '+ Suivre';
   };
 
-  window.shareProfile = function() {
+  window.shareProfile = () => {
     if (navigator.share) {
       navigator.share({ title: 'ArtiRoyce', url: window.location.href });
     } else {
