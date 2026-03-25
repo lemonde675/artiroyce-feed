@@ -70,7 +70,7 @@
       <p class="subtitle">Créez votre compte professionnel et commencez à gagner de l'argent dès aujourd'hui</p>
       <div class="kyc-info">
         <span>ℹ️</span>
-        <div>Votre profil sera <strong>vérifié par notre équipe</strong> avant d'être visible. Vous soumettrez votre KYC après l'inscription.</div>
+        <div>Votre profil sera <strong>vérifié par notre équipe</strong> avant d'être visible. Vous soumettrez votre KYC après connexion.</div>
       </div>
       <form id="registerForm" novalidate>
         <label for="nom">NOM</label>
@@ -157,9 +157,9 @@
           statut:'en_attente', kycStatut:'non_soumis', role:'artisan',
           verifie:false, dateInscription:serverTimestamp(),
         });
-        showToast('✅ Compte créé ! Complétez votre KYC.','success');
-        // ✅ REDIRECTION VERS PROFIL (pas accueil)
-        setTimeout(()=>{ window.location.href='profil.html'; },1500);
+        showToast('✅ Compte créé ! Connectez-vous maintenant.','success');
+        // ✅ REDIRECTION VERS CONNEXION
+        setTimeout(()=>{ window.location.href='connexion.html'; },1500);
       } catch(err) {
         btn.disabled=false; btn.innerHTML='CRÉER MON COMPTE &nbsp;→';
         if(err.code==='auth/email-already-in-use'){showToast('⚠ Cet email est déjà utilisé.','error-toast');f.email.el.className='error';}
