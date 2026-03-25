@@ -9,168 +9,167 @@
     body { min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; }
 
     /* ── LOGIN ── */
-    #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding-top: 100px; }
-    .login-card { background: #fff; border-radius: 12px; overflow: hidden; width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+    #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-card { background: #fff; border-radius: 12px; overflow: hidden; width: 100%; max-width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
     .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
-    .login-body { padding: 36px 32px 32px; }
-    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
-    .logo-text { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .login-body { padding: 32px 28px 28px; }
+    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .logo-text { font-size: 22px; font-weight: 700; }
     .logo-text .arti { color: #e63224; }
     .logo-text .royce { color: #27a945; }
-    .admin-badge { text-align: center; margin-bottom: 24px; }
+    .admin-badge { text-align: center; margin-bottom: 22px; }
+    .admin-icon { width: 60px; height: 60px; background: linear-gradient(135deg, #e63224, #27a945); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 28px; }
     .admin-badge h1 { font-size: 20px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
     .admin-badge p { font-size: 13px; color: #888; }
-    .admin-badge .admin-name { font-size: 13px; color: #27a945; font-weight: 700; margin-top: 4px; }
-    .admin-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #e63224, #27a945); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px; }
+    .admin-badge .admin-name { color: #27a945; font-weight: 700; margin-top: 4px; }
     label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
-    .input-wrap { position: relative; margin-bottom: 20px; }
+    .input-wrap { position: relative; margin-bottom: 18px; }
     input[type="password"], input[type="text"] { width: 100%; padding: 12px 44px 12px 14px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 15px; color: #333; outline: none; background: #fafafa; transition: border-color 0.2s; }
     input:focus { border-color: #e63224; background: #fff; }
     input.error { border-color: #e63224; background: #fff5f5; }
     .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; display: flex; align-items: center; }
-    .btn-admin { width: 100%; padding: 13px; background: #e63224; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; }
+    .btn-admin { width: 100%; padding: 13px; background: #e63224; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
     .btn-admin:hover { background: #c42a1e; }
-    .btn-admin:disabled { background: #ccc; cursor: not-allowed; }
     .err-login { font-size: 12px; color: #e63224; text-align: center; min-height: 18px; margin-bottom: 10px; }
 
-    /* ── PANEL ── */
+    /* ── NAV LINKS LOGIN ── */
+    .nav-links { position: fixed; top: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+    .nav-link { display: flex; align-items: center; gap: 6px; padding: 7px 14px 7px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,0.10); background: #fff; }
+    .nav-link.red { color: #e63224; border: 1.5px solid #e63224; }
+    .nav-link.green { color: #27a945; border: 1.5px solid #27a945; }
+
+    /* ── ADMIN PANEL ── */
     #adminPanel { display: none; }
-    .header { background: #fff; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px; }
+
+    .header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 8px; }
     .header-left { display: flex; align-items: center; gap: 10px; }
-    .header-title { font-size: 15px; font-weight: 800; color: #1a1a1a; }
+    .header-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
     .header-subtitle { font-size: 11px; color: #888; }
-    .btn-logout { background: none; border: 1.5px solid #e63224; color: #e63224; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .header-links { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .h-link { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+    .h-link.green { border: 1.5px solid #27a945; color: #27a945; }
+    .h-link.blue { border: 1.5px solid #2196f3; color: #2196f3; }
+    .btn-logout { background: none; border: 1.5px solid #e63224; color: #e63224; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-logout:hover { background: #e63224; color: #fff; }
-    .panel-body { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+    .panel-body { padding: 16px; max-width: 900px; margin: 0 auto; }
 
     /* Stats */
-    .stats-row { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    .stat-card { background: #fff; border-radius: 10px; padding: 16px 20px; flex: 1; min-width: 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-left: 4px solid #ddd; }
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-left: 4px solid #ddd; }
     .stat-card.orange { border-left-color: #ff9800; }
     .stat-card.green  { border-left-color: #27a945; }
     .stat-card.red    { border-left-color: #e63224; }
     .stat-card.blue   { border-left-color: #2196f3; }
-    .stat-num { font-size: 28px; font-weight: 800; color: #1a1a1a; }
+    .stat-num { font-size: 26px; font-weight: 800; color: #1a1a1a; }
     .stat-label { font-size: 12px; color: #888; margin-top: 2px; }
 
     /* Tabs */
-    .tabs { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
-    .tab { padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: #e8e8e8; color: #555; transition: all 0.2s; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #e0e0e0; color: #555; transition: all 0.2s; }
     .tab.active { background: #e63224; color: #fff; }
 
     /* Table */
     .table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
-    .table-header { padding: 14px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+    .table-header { padding: 14px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
     .table-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
-    .refresh-btn { background: none; border: 1.5px solid #27a945; color: #27a945; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .refresh-btn { background: none; border: 1.5px solid #27a945; color: #27a945; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
     .refresh-btn:hover { background: #27a945; color: #fff; }
-    .user-row { padding: 14px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .user-row { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .user-row:last-child { border-bottom: none; }
     .user-row:hover { background: #fafafa; }
-    .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #e63224, #27a945); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 800; flex-shrink: 0; }
-    .user-info { flex: 1; min-width: 160px; }
-    .user-name  { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e63224, #27a945); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 800; flex-shrink: 0; }
+    .user-info { flex: 1; min-width: 150px; }
+    .user-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
     .user-email { font-size: 12px; color: #888; }
-    .user-tel   { font-size: 12px; color: #555; }
-    .user-date  { font-size: 11px; color: #aaa; margin-top: 2px; }
-    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .user-tel { font-size: 12px; color: #555; }
+    .user-date { font-size: 11px; color: #aaa; margin-top: 2px; }
+    .user-kyc { font-size: 11px; color: #2196f3; margin-top: 1px; }
+
+    .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
     .status-badge.en_attente { background: #fff3cd; color: #856404; }
     .status-badge.verifie    { background: #d1fae5; color: #065f46; }
     .status-badge.rejete     { background: #fee2e2; color: #991b1b; }
+
     .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn-voir    { background: #2196f3; color: #fff; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-    .btn-voir:hover { opacity: 0.85; }
-    .btn-valider { background: #27a945; color: #fff; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-    .btn-valider:hover { opacity: 0.85; }
-    .btn-rejeter { background: #e63224; color: #fff; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-    .btn-rejeter:hover { opacity: 0.85; }
+    .btn-voir    { background: #2196f3; color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .btn-valider { background: #27a945; color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .btn-rejeter { background: #e63224; color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; }
+
     .empty-state { padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px; }
-    .loading { padding: 30px; text-align: center; color: #888; font-size: 13px; }
+    .loading-state { padding: 30px; text-align: center; color: #888; font-size: 13px; }
 
     /* ══════════════════════════════════
-       ── MODALE DOSSIER KYC COMPLÈTE ──
+       ── MODALE DOSSIER KYC COMPLET ──
     ══════════════════════════════════ */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
     .modal-overlay.open { display: flex; }
     .modal { background: #fff; border-radius: 16px; overflow: hidden; width: 100%; max-width: 520px; box-shadow: 0 8px 48px rgba(0,0,0,0.25); animation: modalIn 0.22s ease; margin: auto; }
-    @keyframes modalIn { from { opacity:0; transform:translateY(20px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+    @keyframes modalIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
     .modal-topbar { height: 8px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
-    .modal-header { padding: 16px 20px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-size: 16px; font-weight: 800; color: #1a1a1a; }
-    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: #888; line-height: 1; padding: 0 4px; }
+    .modal-header { padding: 14px 18px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 15px; font-weight: 800; color: #1a1a1a; }
+    .modal-close { background: none; border: none; cursor: pointer; font-size: 22px; color: #888; line-height: 1; }
     .modal-close:hover { color: #e63224; }
-    .modal-body { padding: 0; }
 
-    /* Sections dans la modale */
-    .modal-section { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+    /* Sections dans modale */
+    .modal-section { padding: 14px 18px; border-bottom: 1px solid #f0f0f0; }
     .modal-section:last-child { border-bottom: none; }
-    .modal-section-title {
-      font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
-      color: #888; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
-    }
-    .modal-section-title span { font-size: 15px; }
+    .modal-section-title { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #888; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
-    /* Profil artisan dans modale */
-    .modal-profile-row { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
-    .modal-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #e63224, #27a945); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 800; flex-shrink: 0; }
-    .modal-user-name { font-size: 18px; font-weight: 800; color: #1a1a1a; }
-    .modal-user-sub  { font-size: 12px; color: #888; margin-top: 2px; }
+    /* Infos artisan */
+    .modal-profile-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .modal-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #e63224, #27a945); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; font-weight: 800; flex-shrink: 0; }
+    .modal-user-name { font-size: 17px; font-weight: 800; color: #1a1a1a; }
+    .modal-user-sub { font-size: 12px; color: #888; margin-top: 2px; }
 
-    /* Grid infos */
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .info-item { background: #f8f8f8; border-radius: 8px; padding: 10px 12px; }
+    .info-item { background: #f8f8f8; border-radius: 8px; padding: 9px 11px; }
     .info-item-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: #aaa; text-transform: uppercase; margin-bottom: 3px; }
-    .info-item-val { font-size: 13px; color: #333; font-weight: 600; word-break: break-all; }
+    .info-item-val { font-size: 12px; color: #333; font-weight: 600; word-break: break-all; }
 
-    /* Grille photos KYC */
-    .kyc-docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .kyc-doc-item { border-radius: 10px; overflow: hidden; background: #f5f5f5; }
-    .kyc-doc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #555; text-transform: uppercase; padding: 8px 10px 4px; }
-    .kyc-doc-img {
-      width: 100%; aspect-ratio: 4/3; object-fit: cover;
-      display: block; cursor: pointer; transition: opacity 0.2s;
-    }
+    /* Docs KYC */
+    .kyc-docs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kyc-doc-item { border-radius: 10px; overflow: hidden; background: #f5f5f5; border: 1px solid #eee; }
+    .kyc-doc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #555; text-transform: uppercase; padding: 7px 9px 3px; }
+    .kyc-doc-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; cursor: pointer; transition: opacity 0.2s; }
     .kyc-doc-img:hover { opacity: 0.85; }
-    .kyc-doc-no-file { padding: 20px; text-align: center; color: #bbb; font-size: 12px; }
-    .kyc-doc-open {
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      padding: 6px 10px; background: #e8f4fd; color: #2196f3;
-      font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none;
-    }
+    .kyc-doc-empty { padding: 20px; text-align: center; color: #bbb; font-size: 12px; }
+    .kyc-doc-link { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 9px; background: #e8f4fd; color: #2196f3; font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none; }
 
-    /* Raison rejet dans modale */
-    .rejet-section { margin-bottom: 16px; }
-    .rejet-section label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #e63224; text-transform: uppercase; margin-bottom: 6px; }
-    .rejet-section textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #f5c6cb; border-radius: 8px; font-size: 13px; color: #333; resize: vertical; min-height: 90px; background: #fff5f5; font-family: 'Segoe UI', Arial, sans-serif; }
-    .rejet-section textarea:focus { border-color: #e63224; outline: none; }
+    /* Raison rejet */
+    .rejet-section { margin-bottom: 14px; }
+    .rejet-section label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #e63224; text-transform: uppercase; margin-bottom: 6px; display: block; }
+    .rejet-textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #f5c6cb; border-radius: 8px; font-size: 13px; color: #333; resize: vertical; min-height: 90px; background: #fff5f5; font-family: 'Segoe UI', Arial, sans-serif; outline: none; }
+    .rejet-textarea:focus { border-color: #e63224; }
 
-    /* Raison existante */
-    .raison-affichee { background: #fff0f0; border: 1.5px solid #f5c6cb; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; }
-    .raison-affichee-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: #e63224; text-transform: uppercase; margin-bottom: 4px; }
-    .raison-affichee-text { font-size: 13px; color: #555; line-height: 1.5; }
+    .raison-box { background: #fff0f0; border: 1.5px solid #f5c6cb; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; }
+    .raison-box-label { font-size: 10px; font-weight: 700; color: #e63224; text-transform: uppercase; margin-bottom: 4px; }
+    .raison-box-text { font-size: 13px; color: #555; line-height: 1.5; }
 
-    /* Boutons actions modale */
-    .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 20px; background: #fafafa; border-top: 1px solid #eee; }
-    .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+    /* KYC statut badge */
+    .kyc-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .kyc-badge.non_soumis { background: #f5f5f5; color: #888; }
+    .kyc-badge.en_attente { background: #fff3cd; color: #856404; }
+    .kyc-badge.verifie    { background: #d1fae5; color: #065f46; }
+    .kyc-badge.rejete     { background: #fee2e2; color: #991b1b; }
+
+    /* Actions modale */
+    .modal-actions { padding: 14px 18px; background: #fafafa; border-top: 1px solid #eee; display: flex; gap: 8px; flex-wrap: wrap; }
+    .modal-actions button { flex: 1; min-width: 100px; padding: 11px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
     .modal-actions button:hover { opacity: 0.85; }
-    .btn-modal-valider  { background: #27a945; color: #fff; }
-    .btn-modal-rejeter  { background: #e63224; color: #fff; }
-    .btn-modal-revoquer { background: #ff9800; color: #fff; }
-    .btn-modal-reactiver{ background: #2196f3; color: #fff; }
-    .btn-modal-cancel   { background: #f0f0f0 !important; color: #555 !important; border: 1.5px solid #ddd !important; }
+    .btn-m-valider  { background: #27a945; color: #fff; }
+    .btn-m-rejeter  { background: #e63224; color: #fff; }
+    .btn-m-revoquer { background: #ff9800; color: #fff; }
+    .btn-m-reactiver{ background: #2196f3; color: #fff; }
+    .btn-m-cancel   { background: #f0f0f0 !important; color: #555 !important; border: 1.5px solid #ddd !important; }
 
     /* Viewer image plein écran */
-    .img-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 900; display: none; align-items: center; justify-content: center; }
+    .img-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.93); z-index: 900; display: none; align-items: center; justify-content: center; }
     .img-viewer.open { display: flex; }
     .img-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 8px; }
     .img-viewer-close { position: absolute; top: 16px; right: 16px; color: #fff; font-size: 28px; cursor: pointer; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
-
-    /* Badge KYC statut */
-    .kyc-status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .kyc-status-badge.non_soumis { background: #f5f5f5; color: #888; }
-    .kyc-status-badge.en_attente { background: #fff3cd; color: #856404; }
-    .kyc-status-badge.verifie    { background: #d1fae5; color: #065f46; }
-    .kyc-status-badge.rejete     { background: #fee2e2; color: #991b1b; }
 
     /* Toast */
     .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
@@ -178,12 +177,12 @@
     .toast.success { background: #27a945; }
     .toast.error-toast { background: #e63224; }
 
-    @media (max-width: 500px) {
-      .stats-row { gap: 8px; }
-      .user-row { padding: 12px 14px; }
-      .panel-body { padding: 14px; }
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
       .info-grid { grid-template-columns: 1fr; }
       .kyc-docs-grid { grid-template-columns: 1fr; }
+      .panel-body { padding: 12px; }
+      .user-row { padding: 12px; }
     }
   </style>
 </head>
@@ -191,9 +190,9 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ── IMAGE VIEWER PLEIN ÉCRAN ── -->
+<!-- ── IMAGE VIEWER ── -->
 <div class="img-viewer" id="imgViewer" onclick="closeViewer()">
-  <button class="img-viewer-close" onclick="closeViewer()">✕</button>
+  <button class="img-viewer-close">✕</button>
   <img id="viewerImg" src="" alt=""/>
 </div>
 
@@ -207,26 +206,28 @@
       <span class="modal-title" id="modalTitle">Dossier artisan</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div id="modalBody"></div>
     <div class="modal-actions" id="modalActions"></div>
   </div>
 </div>
 
-<!-- ── LOGIN ── -->
+<!-- ── LOGIN SCREEN ── -->
 <div id="loginScreen">
-  <div style="position:fixed;top:18px;left:18px;display:flex;flex-direction:column;gap:8px;z-index:100;">
-    <a href="accueil.html" style="display:flex;align-items:center;gap:7px;background:#fff;color:#e63224;border:1.5px solid #e63224;border-radius:50px;padding:7px 14px 7px 10px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Accueil du site
+  <div class="nav-links">
+    <a href="accueil.html" class="nav-link red">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Accueil du site
     </a>
-    <a href="enregistrer.html" style="display:flex;align-items:center;gap:7px;background:#fff;color:#27a945;border:1.5px solid #27a945;border-radius:50px;padding:7px 14px 7px 10px;font-size:12px;font-weight:700;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.10);">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Page inscription
+    <a href="enregistrer.html" class="nav-link green">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Page inscription
     </a>
   </div>
   <div class="login-card">
     <div class="top-bar"></div>
     <div class="login-body">
       <div class="logo-wrap">
-        <svg width="70" height="50" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <svg width="60" height="44" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
           <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
           <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
           <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
@@ -260,7 +261,7 @@
 <div id="adminPanel">
   <div class="header">
     <div class="header-left">
-      <svg width="36" height="26" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <svg width="32" height="23" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
         <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
         <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
         <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
@@ -269,21 +270,396 @@
         <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
       </svg>
       <div>
-        <div class="header-title">Panel Administrateur — Isidore Wenon</div>
+        <div class="header-title">Panel Admin — Isidore Wenon</div>
         <div class="header-subtitle">Gestion & Validation KYC des artisans</div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <a href="accueil.html" style="border:1.5px solid #27a945;color:#27a945;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Accueil du site
+    <div class="header-links">
+      <a href="accueil.html" class="h-link green">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Accueil
       </a>
-      <a href="enregistrer.html" style="border:1.5px solid #2196f3;color:#2196f3;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Page inscription
+      <a href="enregistrer.html" class="h-link blue">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Inscription
       </a>
       <button class="btn-logout" onclick="logout()">Déconnexion</button>
     </div>
   </div>
 
   <div class="panel-body">
+    <!-- Stats -->
     <div class="stats-row">
-      <div cl
+      <div class="stat-card orange"><div class="stat-num" id="statAttente">—</div><div class="stat-label">En attente</div></div>
+      <div class="stat-card green"> <div class="stat-num" id="statVerifie">—</div><div class="stat-label">Vérifiés</div></div>
+      <div class="stat-card red">   <div class="stat-num" id="statRejete">—</div> <div class="stat-label">Rejetés</div></div>
+      <div class="stat-card blue">  <div class="stat-num" id="statTotal">—</div>  <div class="stat-label">Total inscrits</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('en_attente', this)">⏳ En attente</button>
+      <button class="tab" onclick="switchTab('verifie', this)">✅ Vérifiés</button>
+      <button class="tab" onclick="switchTab('rejete', this)">❌ Rejetés</button>
+      <button class="tab" onclick="switchTab('tous', this)">👥 Tous</button>
+    </div>
+
+    <!-- Liste -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="table-title" id="tableTitle">Inscriptions en attente</span>
+        <button class="refresh-btn" onclick="loadUsers()">↻ Actualiser</button>
+      </div>
+      <div id="userList"><div class="loading-state">Chargement…</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+    measurementId: "G-X4XLHDJCE7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const PASSWORDS   = ["Bonjour1@", "AKOUEGNIGAN"];
+  const SESSION_KEY = "artiroyce_admin_ok";
+
+  let allUsers   = [];
+  let currentTab = 'en_attente';
+
+  // ── Session ──
+  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display  = 'block';
+    loadUsers();
+  }
+
+  // ── Login ──
+  window.toggleAdminPass = () => {
+    const p = document.getElementById('adminPass');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  };
+
+  window.checkLogin = () => {
+    const val = document.getElementById('adminPass').value.trim();
+    const err = document.getElementById('loginErr');
+    if (PASSWORDS.includes(val)) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display  = 'block';
+      loadUsers();
+    } else {
+      err.textContent = '⚠ Mot de passe incorrect.';
+      document.getElementById('adminPass').className = 'error';
+      setTimeout(() => { err.textContent = ''; }, 3000);
+    }
+  };
+
+  document.getElementById('adminPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.checkLogin();
+  });
+
+  window.logout = () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('adminPanel').style.display  = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminPass').value = '';
+  };
+
+  // ── Toast ──
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // ── Charger les utilisateurs ──
+  window.loadUsers = async () => {
+    document.getElementById('userList').innerHTML = '<div class="loading-state">Chargement…</div>';
+    try {
+      const snap = await getDocs(collection(db, 'utilisateurs'));
+      allUsers = [];
+      snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+      updateStats();
+      renderUsers(currentTab);
+    } catch(e) {
+      document.getElementById('userList').innerHTML =
+        `<div class="empty-state">⚠ Erreur : ${e.message}<br><br>Vérifiez les règles Firestore dans la console Firebase.</div>`;
+    }
+  };
+
+  function updateStats() {
+    document.getElementById('statAttente').textContent = allUsers.filter(u => u.statut === 'en_attente').length;
+    document.getElementById('statVerifie').textContent = allUsers.filter(u => u.statut === 'verifie').length;
+    document.getElementById('statRejete').textContent  = allUsers.filter(u => u.statut === 'rejete').length;
+    document.getElementById('statTotal').textContent   = allUsers.length;
+  }
+
+  window.switchTab = (tab, btn) => {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const titles = {
+      en_attente: 'Inscriptions en attente',
+      verifie:    'Artisans vérifiés',
+      rejete:     'Inscriptions rejetées',
+      tous:       'Tous les inscrits'
+    };
+    document.getElementById('tableTitle').textContent = titles[tab];
+    renderUsers(tab);
+  };
+
+  function renderUsers(tab) {
+    const list = tab === 'tous' ? allUsers : allUsers.filter(u => u.statut === tab);
+    const container = document.getElementById('userList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-state">Aucun utilisateur dans cette catégorie.</div>';
+      return;
+    }
+
+    const kycLabels = {
+      non_soumis: '📋 KYC non soumis',
+      en_attente: '⏳ KYC en attente',
+      verifie:    '✅ KYC validé',
+      rejete:     '❌ KYC rejeté'
+    };
+    const statutLabels = {
+      en_attente: '⏳ En attente',
+      verifie:    '✅ Vérifié',
+      rejete:     '❌ Rejeté'
+    };
+
+    container.innerHTML = list.map(u => {
+      const initiale = (u.prenom || u.nom || '?')[0].toUpperCase();
+      const date = u.dateInscription?.toDate
+        ? u.dateInscription.toDate().toLocaleDateString('fr-FR') : '—';
+      const kycLabel = kycLabels[u.kycStatut || 'non_soumis'];
+
+      let actions = `<button class="btn-voir" onclick="openModal('${u.id}')">📂 Dossier</button>`;
+      if (u.statut === 'en_attente') {
+        actions += `<button class="btn-valider" onclick="quickAction('${u.id}','verifie',event)">✔ Valider</button>`;
+        actions += `<button class="btn-rejeter" onclick="openRejectFlow('${u.id}',event)">✘ Rejeter</button>`;
+      } else if (u.statut === 'verifie') {
+        actions += `<button class="btn-rejeter" onclick="openRejectFlow('${u.id}',event)">✘ Révoquer</button>`;
+      } else {
+        actions += `<button class="btn-valider" onclick="quickAction('${u.id}','verifie',event)">✔ Réactiver</button>`;
+      }
+
+      return `
+      <div class="user-row">
+        <div class="user-avatar">${initiale}</div>
+        <div class="user-info">
+          <div class="user-name">${u.prenom || ''} ${u.nom || ''}</div>
+          <div class="user-email">✉ ${u.email || '—'}</div>
+          <div class="user-tel">📞 ${u.telephone || '—'}</div>
+          <div class="user-date">Inscrit le ${date}</div>
+          <div class="user-kyc">${kycLabel}</div>
+        </div>
+        <span class="status-badge ${u.statut}">${statutLabels[u.statut] || u.statut}</span>
+        <div class="action-btns">${actions}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── MODALE DOSSIER COMPLET ──
+  window.openModal = (uid) => {
+    const u = allUsers.find(x => x.id === uid);
+    if (!u) return;
+
+    const initiale = (u.prenom || u.nom || '?')[0].toUpperCase();
+    const date = u.dateInscription?.toDate
+      ? u.dateInscription.toDate().toLocaleDateString('fr-FR') : '—';
+    const kycDate = u.kycSoumisLe?.toDate
+      ? u.kycSoumisLe.toDate().toLocaleDateString('fr-FR') : '—';
+    const kycStatut = u.kycStatut || 'non_soumis';
+
+    const kycBadgeText = {
+      non_soumis: '📋 Non soumis',
+      en_attente: '⏳ En attente',
+      verifie:    '✅ Validé',
+      rejete:     '❌ Rejeté'
+    }[kycStatut] || '—';
+
+    document.getElementById('modalTitle').textContent = `📂 ${u.prenom || ''} ${u.nom || ''}`;
+
+    // Fonction doc card
+    const docCard = (label, url) => url
+      ? `<div class="kyc-doc-item">
+           <div class="kyc-doc-label">${label}</div>
+           <img class="kyc-doc-img" src="${url}" onclick="viewImage('${url}')" alt="${label}"/>
+           <a class="kyc-doc-link" href="${url}" target="_blank">🔗 Agrandir</a>
+         </div>`
+      : `<div class="kyc-doc-item">
+           <div class="kyc-doc-label">${label}</div>
+           <div class="kyc-doc-empty">Non fourni</div>
+         </div>`;
+
+    let body = `
+      <!-- Infos inscription -->
+      <div class="modal-section">
+        <div class="modal-section-title">👤 Informations d'inscription</div>
+        <div class="modal-profile-row">
+          <div class="modal-avatar">${initiale}</div>
+          <div>
+            <div class="modal-user-name">${u.prenom || ''} ${u.nom || ''}</div>
+            <div class="modal-user-sub">Inscrit le ${date}</div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-item-label">Nom</div><div class="info-item-val">${u.nom || '—'}</div></div>
+          <div class="info-item"><div class="info-item-label">Prénom(s)</div><div class="info-item-val">${u.prenom || '—'}</div></div>
+          <div class="info-item"><div class="info-item-label">Email</div><div class="info-item-val">${u.email || '—'}</div></div>
+          <div class="info-item"><div class="info-item-label">Téléphone</div><div class="info-item-val">${u.telephone || '—'}</div></div>
+          <div class="info-item"><div class="info-item-label">Statut compte</div><div class="info-item-val">${u.statut || '—'}</div></div>
+          <div class="info-item"><div class="info-item-label">Statut KYC</div><div class="info-item-val"><span class="kyc-badge ${kycStatut}">${kycBadgeText}</span></div></div>
+        </div>
+      </div>
+
+      <!-- Documents KYC -->
+      <div class="modal-section">
+        <div class="modal-section-title">🛡️ Documents KYC ${kycDate !== '—' ? `<span style="margin-left:auto;font-size:10px;color:#aaa;font-weight:400;text-transform:none;">Soumis le ${kycDate}</span>` : ''}</div>
+        ${kycStatut === 'non_soumis'
+          ? `<div style="text-align:center;padding:20px;background:#f5f5f5;border-radius:10px;color:#aaa;">
+               <div style="font-size:32px;margin-bottom:8px;">📋</div>
+               <div style="font-size:13px;font-weight:700;">KYC non encore soumis</div>
+             </div>`
+          : `<div class="kyc-docs-grid">
+               ${docCard('🤳 Selfie + carte', u.kycSelfie)}
+               ${docCard('👤 Photo identité', u.kycPhoto)}
+               ${docCard('🪪 CNI Recto', u.kycCniRecto)}
+               ${docCard('🪪 CNI Verso', u.kycCniVerso)}
+             </div>
+             <div style="margin-top:8px;">
+               ${docCard('📄 Document officiel', u.kycDocument)}
+               ${u.kycExtra ? docCard('📎 Document supplémentaire', u.kycExtra) : ''}
+             </div>`
+        }
+      </div>
+
+      <!-- Raison rejet si existante -->
+      ${u.kycRaisonRejet ? `
+      <div class="modal-section">
+        <div class="modal-section-title">📋 Raison du rejet</div>
+        <div class="raison-box">
+          <div class="raison-box-label">Motif communiqué à l'artisan</div>
+          <div class="raison-box-text">${u.kycRaisonRejet}</div>
+        </div>
+      </div>` : ''}
+    `;
+
+    document.getElementById('modalBody').innerHTML = body;
+    renderModalActions(u);
+    document.getElementById('modalOverlay').classList.add('open');
+  };
+
+  function renderModalActions(u) {
+    let html = '';
+    if (u.statut === 'en_attente') {
+      html = `
+        <button class="btn-m-valider" onclick="updateStatus('${u.id}','verifie',null)">✔ Valider le compte</button>
+        <button class="btn-m-rejeter" onclick="showRejectForm('${u.id}')">✘ Rejeter</button>
+        <button class="btn-m-cancel"  onclick="closeModal()">Fermer</button>`;
+    } else if (u.statut === 'verifie') {
+      html = `
+        <button class="btn-m-revoquer" onclick="showRejectForm('${u.id}')">✘ Révoquer</button>
+        <button class="btn-m-cancel"   onclick="closeModal()">Fermer</button>`;
+    } else {
+      html = `
+        <button class="btn-m-reactiver" onclick="updateStatus('${u.id}','verifie',null)">✔ Réactiver</button>
+        <button class="btn-m-cancel"    onclick="closeModal()">Fermer</button>`;
+    }
+    document.getElementById('modalActions').innerHTML = html;
+  }
+
+  // ── Formulaire de rejet ──
+  window.showRejectForm = (uid) => {
+    document.getElementById('modalActions').innerHTML = `
+      <div style="width:100%;">
+        <div class="rejet-section">
+          <label>RAISON DU REJET (visible par l'artisan sur son profil)</label>
+          <textarea class="rejet-textarea" id="raisonInput" placeholder="Ex: Selfie avec carte non conforme, visage non visible. CNI expirée. Photo floue…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-m-rejeter" style="flex:1;" onclick="confirmReject('${uid}')">✘ Confirmer le rejet</button>
+          <button class="btn-m-cancel"  style="flex:1;" onclick="openModal('${uid}')">Annuler</button>
+        </div>
+      </div>`;
+  };
+
+  window.confirmReject = async (uid) => {
+    const raison = (document.getElementById('raisonInput')?.value || '').trim();
+    if (!raison) { showToast('⚠ Écrivez la raison du rejet.', 'error-toast'); return; }
+    await updateStatus(uid, 'rejete', raison);
+  };
+
+  window.openRejectFlow = (uid, event) => {
+    if (event) event.stopPropagation();
+    openModal(uid);
+    setTimeout(() => showRejectForm(uid), 80);
+  };
+
+  window.quickAction = async (uid, newStatus, event) => {
+    if (event) event.stopPropagation();
+    await updateStatus(uid, newStatus, null);
+  };
+
+  // ── Mise à jour Firebase ──
+  window.updateStatus = async (uid, newStatus, raison) => {
+    try {
+      const updateData = { statut: newStatus };
+      if (newStatus === 'verifie') {
+        updateData.kycStatut      = 'verifie';
+        updateData.kycRaisonRejet = '';
+        updateData.verifie        = true;
+      }
+      if (newStatus === 'rejete') {
+        updateData.kycStatut = 'rejete';
+        updateData.verifie   = false;
+        if (raison) updateData.kycRaisonRejet = raison;
+      }
+
+      await updateDoc(doc(db, 'utilisateurs', uid), updateData);
+
+      // Mise à jour locale
+      const idx = allUsers.findIndex(u => u.id === uid);
+      if (idx !== -1) {
+        allUsers[idx] = { ...allUsers[idx], ...updateData };
+      }
+
+      updateStats();
+      renderUsers(currentTab);
+      closeModal();
+
+      showToast(
+        newStatus === 'verifie'
+          ? '✅ Artisan validé ! Visible sur l\'accueil.'
+          : '❌ Compte rejeté. Artisan notifié.',
+        newStatus === 'verifie' ? 'success' : 'error-toast'
+      );
+    } catch(e) {
+      showToast('⚠ Erreur : ' + e.message, 'error-toast');
+    }
+  };
+
+  window.closeModal = () => document.getElementById('modalOverlay').classList.remove('open');
+  window.closeModalOutside = (e) => { if (e.target === document.getElementById('modalOverlay')) closeModal(); };
+
+  window.viewImage = (url) => {
+    document.getElementById('viewerImg').src = url;
+    document.getElementById('imgViewer').classList.add('open');
+  };
+  window.closeViewer = () => document.getElementById('imgViewer').classList.remove('open');
+</script>
+</body>
+</html>
