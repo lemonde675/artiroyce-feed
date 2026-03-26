@@ -226,4 +226,535 @@
 <div class="loading-screen" id="loadingScreen">
   <svg width="48" height="35" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
     <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-    <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L
+    <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+    <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+    <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+    <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+    <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+  </svg>
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Chargement de votre profil…</div>
+</div>
+
+<!-- ── ERREUR ── -->
+<div class="error-screen" id="errorScreen">
+  <div style="font-size:48px;">⚠️</div>
+  <div style="font-size:18px;font-weight:800;color:var(--dark);">Problème de connexion</div>
+  <div style="font-size:13px;color:#888;max-width:280px;text-align:center;" id="errorMsgText">Impossible de charger votre profil.</div>
+  <button class="btn-retry" onclick="location.reload()">🔄 Réessayer</button>
+  <button class="btn-relogin" onclick="forceLogout()">🚪 Se reconnecter</button>
+</div>
+
+<!-- ── MODALE MODIFIER PROFIL ── -->
+<div class="modal-overlay" id="modalModifier" onclick="closeModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">✏️ Modifier mon profil</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Champs non modifiables -->
+      <div class="field-group">
+        <label class="field-label">Nom complet (non modifiable)</label>
+        <input class="field-input field-readonly" id="editNom" readonly/>
+        <div class="field-note">🔒 Lié à votre KYC — inchangeable</div>
+      </div>
+      <!-- Métier -->
+      <div class="field-group">
+        <label class="field-label">🔨 Métier / Activité</label>
+        <input class="field-input" id="editMetier" placeholder="Ex: Menuisier, Tailleur, Bailleur, Boutique…"/>
+      </div>
+      <!-- Bio -->
+      <div class="field-group">
+        <label class="field-label">📝 Bio / Description</label>
+        <textarea class="field-input" id="editBio" rows="3" placeholder="Décrivez votre activité, votre expérience…" style="resize:vertical;"></textarea>
+      </div>
+      <!-- WhatsApp -->
+      <div class="field-group">
+        <label class="field-label">💬 WhatsApp</label>
+        <input class="field-input" id="editWhatsapp" type="tel" placeholder="+229 01 60 23 35 85"/>
+      </div>
+      <!-- Adresse -->
+      <div class="field-group">
+        <label class="field-label">📍 Adresse / Localisation</label>
+        <input class="field-input" id="editAdresse" placeholder="Ex: Cotonou, Akpakpa, Rue 12…"/>
+      </div>
+      <!-- Horaires -->
+      <div class="field-group">
+        <label class="field-label">🕐 Horaires</label>
+        <input class="field-input" id="editHoraires" placeholder="Ex: Lun-Sam 8h-18h"/>
+      </div>
+      <!-- Site web -->
+      <div class="field-group">
+        <label class="field-label">🌐 Site Web</label>
+        <input class="field-input" id="editSiteWeb" type="url" placeholder="https://monsite.com"/>
+      </div>
+      <button class="btn-save-profil" onclick="saveProfile()">💾 Enregistrer les modifications</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALE SIGNALER ── -->
+<div class="signal-overlay" id="signalOverlay" onclick="closeSignal()">
+  <div class="signal-sheet" onclick="event.stopPropagation()">
+    <div class="signal-header">
+      <span class="signal-title">⚑ Signaler ce profil</span>
+      <button class="modal-close" onclick="closeSignal()">✕</button>
+    </div>
+    <div class="signal-option" onclick="submitSignalement('Faux profil ou usurpation d\'identité')">
+      <div class="signal-option-icon">🎭</div>
+      <div><div class="signal-option-text">Faux profil</div><div class="signal-option-sub">Usurpation d'identité ou fausse identité</div></div>
+    </div>
+    <div class="signal-option" onclick="submitSignalement('Arnaque ou escroquerie')">
+      <div class="signal-option-icon">⚠️</div>
+      <div><div class="signal-option-text">Arnaque ou escroquerie</div><div class="signal-option-sub">Tentative de fraude ou vol d'argent</div></div>
+    </div>
+    <div class="signal-option" onclick="submitSignalement('Contenu inapproprié ou offensant')">
+      <div class="signal-option-icon">🚫</div>
+      <div><div class="signal-option-text">Contenu inapproprié</div><div class="signal-option-sub">Photos ou textes choquants ou offensants</div></div>
+    </div>
+    <div class="signal-option" onclick="submitSignalement('Comportement abusif ou harcèlement')">
+      <div class="signal-option-icon">😡</div>
+      <div><div class="signal-option-text">Harcèlement</div><div class="signal-option-sub">Comportement abusif envers des clients</div></div>
+    </div>
+    <div class="signal-option" onclick="submitSignalement('Autre raison')">
+      <div class="signal-option-icon">📋</div>
+      <div><div class="signal-option-text">Autre raison</div><div class="signal-option-sub">Signalement général</div></div>
+    </div>
+    <button class="signal-cancel" onclick="closeSignal()">Annuler</button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="top-header">
+  <a href="accueil.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour
+  </a>
+  <div class="logo-wrap">
+    <svg width="32" height="23" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+    <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+  </div>
+  <div class="header-actions">
+    <!-- Partager - vert -->
+    <button class="icon-btn" onclick="shareProfile()" title="Partager ce profil">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+    <!-- Signaler - rouge -->
+    <button class="btn-signaler-header" onclick="openSignal()" title="Signaler ce profil">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+    </button>
+    <!-- Déconnexion - rouge avec SVG power -->
+    <button class="btn-deconnexion" onclick="deconnexion()" title="Se déconnecter">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ── BANDEAUX KYC ── -->
+<div class="kyc-banner" id="bannerNew">
+  <div class="kyc-banner-new">
+    <div class="kyc-banner-new-content">
+      <div class="kyc-banner-new-top">
+        <div class="kyc-banner-icon">🛡️</div>
+        <div class="kyc-banner-text">
+          <h3>Passez votre vérification KYC</h3>
+          <p>Sans vérification, votre profil est <strong style="color:#ff9800;">invisible</strong> pour les clients et les fans.</p>
+        </div>
+      </div>
+      <button class="kyc-btn-primary" onclick="window.location.href='kyc.html'">🚀 Commencer la vérification KYC →</button>
+    </div>
+  </div>
+</div>
+<div class="kyc-banner" id="bannerWaiting">
+  <div class="kyc-banner-waiting">
+    <div class="kyc-waiting-icon">⏳</div>
+    <div class="kyc-waiting-text">
+      <h3>Vérification en cours…</h3>
+      <p>Notre équipe examine votre dossier. Validation sous 24 à 48 heures.</p>
+      <div class="kyc-waiting-badge">⏰ En cours d'examen</div>
+    </div>
+  </div>
+</div>
+<div class="kyc-banner" id="bannerRejected">
+  <div class="kyc-banner-rejected">
+    <div class="kyc-rejected-top">
+      <div class="kyc-rejected-icon">❌</div>
+      <div>
+        <div class="kyc-rejected-title">Vérification KYC rejetée</div>
+        <div class="kyc-rejected-sub">Lisez la raison ci-dessous et soumettez à nouveau</div>
+      </div>
+    </div>
+    <div class="kyc-rejected-reason" id="rejectReasonBox">
+      <div class="kyc-rejected-reason-label">📋 Raison communiquée par l'équipe ArtiRoyce</div>
+      <div class="kyc-rejected-reason-text" id="rejectReasonText">Aucune raison précisée.</div>
+    </div>
+    <button class="kyc-btn-retry" onclick="window.location.href='kyc.html'">🔄 Soumettre à nouveau mon dossier →</button>
+  </div>
+</div>
+<div class="kyc-banner" id="bannerVerified">
+  <div class="kyc-banner-verified">
+    <div class="kyc-verified-icon">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M16 2L19.5 7.5L26 6L24.5 12.5L30 16L24.5 19.5L26 26L19.5 24.5L16 30L12.5 24.5L6 26L7.5 19.5L2 16L7.5 12.5L6 6L12.5 7.5L16 2Z" fill="#27a945"/>
+        <path d="M11 16L14.5 19.5L21 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="kyc-verified-text">
+      <h3>Profil vérifié et visible !</h3>
+      <p>Les clients et les fans peuvent vous trouver.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── COVER ── -->
+<div class="cover-photo">
+  <button class="cover-edit-btn" onclick="showToast('📷 Bientôt disponible','')">📷 Modifier</button>
+</div>
+
+<!-- ── PROFIL ── -->
+<div class="profile-info">
+  <div class="avatar-section">
+    <div>
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarWrap">
+          <span class="avatar-initiale" id="avatarInitiale">?</span>
+        </div>
+        <button class="avatar-edit" onclick="showToast('📷 Bientôt disponible','')">📷</button>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-contact" onclick="showToast('💬 Bientôt disponible','')">💬 Contacter</button>
+      <button class="btn-follow" id="followBtn" onclick="toggleFollow()">+ Suivre</button>
+    </div>
+  </div>
+
+  <div class="profile-name" id="profileName">…</div>
+  <div class="profile-meta" id="profileMeta"></div>
+  <div class="profile-bio" id="profileBio">Chargement…</div>
+
+  <!-- Bouton modifier profil -->
+  <button class="btn-modifier-profil" id="btnModifier" onclick="openModal()" style="display:none;">
+    ✏️ Modifier mon profil
+  </button>
+
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num red">0</div><div class="stat-label">❤️ J'aime</div></div>
+    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">👥 Abonnés</div></div>
+    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">📸 Posts</div></div>
+    <div class="stat-item"><div class="stat-num">—</div><div class="stat-label">💬 Avis</div></div>
+  </div>
+</div>
+
+<!-- ── COORDONNÉES ── -->
+<div class="section">
+  <div class="section-title"><span>📋</span> Coordonnées</div>
+  <div class="coords-grid">
+    <div class="coord-item"><div class="coord-circle phone">📞</div><div class="coord-text"><div class="coord-label">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle whatsapp">💬</div><div class="coord-text"><div class="coord-label">WHATSAPP</div><div class="coord-value" id="coordWa">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle email">📧</div><div class="coord-text"><div class="coord-label">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle web">🌐</div><div class="coord-text"><div class="coord-label">SITE WEB</div><div class="coord-value" id="coordWeb">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle location">📍</div><div class="coord-text"><div class="coord-label">ADRESSE</div><div class="coord-value" id="coordAdresse">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle hours">🕐</div><div class="coord-text"><div class="coord-label">HORAIRES</div><div class="coord-value" id="coordHoraires">—</div></div></div>
+  </div>
+</div>
+
+<!-- ── MAP ── -->
+<div class="map-section">
+  <div class="section-title"><span>🗺️</span> Localisation</div>
+  <div class="map-box"><div class="map-icon">📍</div><div class="map-text">Voir sur la carte</div><div class="map-subtext">Cliquez pour ouvrir Google Maps</div></div>
+  <button class="btn-directions">🧭 Obtenir l'itinéraire</button>
+</div>
+
+<!-- ── MONÉTISATION ── -->
+<div class="monetize-section">
+  <div class="section-title"><span>💰</span> Monétisation</div>
+  <div class="monetize-card">
+    <div class="monetize-icon">💎</div>
+    <div class="monetize-text">
+      <h3>Compte Professionnel</h3>
+      <p>Recevez des paiements directs via ArtiRoyce.</p>
+      <span class="monetize-badge" id="monetizeBadge">⏳ En attente de validation</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── PORTFOLIO ── -->
+<div class="media-section">
+  <div class="section-title"><span>🎬</span> Portfolio</div>
+  <div class="media-tabs">
+    <div class="media-tab active">📸 Photos</div>
+    <div class="media-tab">🎬 Vidéos</div>
+    <div class="media-tab">⭐ Avis</div>
+  </div>
+  <div class="media-grid">
+    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">📸</span></div>
+    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">🖼️</span></div>
+    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">➕</span></div>
+  </div>
+</div>
+
+<!-- ── DÉCONNEXION ── -->
+<div class="logout-section">
+  <button class="btn-logout" onclick="deconnexion()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Se déconnecter
+  </button>
+</div>
+<div class="bottom-space"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let currentUser = null;
+  let userData    = null;
+  let profileUid  = null; // uid du profil affiché
+
+  window.showToast = function(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 2800);
+  };
+
+  function hideLoading() {
+    const s = document.getElementById('loadingScreen');
+    s.classList.add('hidden');
+    setTimeout(() => s.style.display = 'none', 300);
+  }
+
+  window.forceLogout = async () => { try { await signOut(auth); } catch(e) {} window.location.href = 'connexion.html'; };
+  window.deconnexion = window.forceLogout;
+
+  const timeoutId = setTimeout(() => {
+    hideLoading();
+    document.getElementById('errorMsgText').textContent = 'Délai dépassé. Vérifiez votre connexion.';
+    document.getElementById('errorScreen').classList.add('show');
+  }, 5000);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { clearTimeout(timeoutId); window.location.href = 'connexion.html'; return; }
+    currentUser = user;
+
+    // Lire uid depuis URL — si pas d'uid dans URL, c'est son propre profil
+    const params = new URLSearchParams(window.location.search);
+    const uidFromUrl = params.get('uid');
+    profileUid = uidFromUrl || user.uid;
+    const isOwnProfile = !uidFromUrl || uidFromUrl === user.uid;
+
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', profileUid));
+      clearTimeout(timeoutId);
+
+      if (!snap.exists()) { hideLoading(); return; }
+
+      userData = snap.data();
+      const statut    = userData.statut    || 'en_attente';
+      const kycStatut = userData.kycStatut || 'non_soumis';
+      const prenom    = userData.prenom    || '';
+      const nom       = userData.nom       || '';
+      const metier    = userData.metier    || '';
+      const initiale  = (prenom || nom || '?')[0].toUpperCase();
+
+      // ── Données ──
+      document.getElementById('profileName').textContent    = `${prenom} ${nom}`.trim();
+      document.getElementById('avatarInitiale').textContent = initiale;
+      document.getElementById('coordTel').textContent       = userData.telephone || '—';
+      document.getElementById('coordEmail').textContent     = userData.email     || user.email || '—';
+      document.getElementById('coordWa').textContent        = userData.whatsapp  || userData.telephone || '—';
+      document.getElementById('coordWeb').textContent       = userData.siteWeb   || '—';
+      document.getElementById('coordAdresse').textContent   = userData.adresse   || '—';
+      document.getElementById('coordHoraires').textContent  = userData.horaires  || '—';
+      document.getElementById('profileBio').textContent     = userData.bio || 'Professionnel vérifié sur ArtiRoyce.';
+
+      // ── Bouton modifier (seulement sur son propre profil) ──
+      if (isOwnProfile) {
+        document.getElementById('btnModifier').style.display = 'flex';
+      }
+
+      // ── Badge statut + métier ──
+      const meta = document.getElementById('profileMeta');
+      ['bannerNew','bannerWaiting','bannerRejected','bannerVerified']
+        .forEach(id => document.getElementById(id).classList.remove('show'));
+
+      // Compte suspendu
+      if (statut === 'gele') {
+        meta.innerHTML = `<span class="suspended-badge">❄️ Compte suspendu</span>`;
+        if (isOwnProfile) {
+          document.querySelector('.kyc-banner-new')?.remove();
+          const banner = document.createElement('div');
+          banner.style.cssText = 'background:#333;color:#fff;padding:16px;text-align:center;';
+          banner.innerHTML = '<h3 style="font-size:15px;margin-bottom:6px;">❄️ Compte suspendu</h3><p style="font-size:12px;color:#ccc;">Votre compte a été suspendu. Contactez le support ArtiRoyce.</p>';
+          document.querySelector('.cover-photo').before(banner);
+        }
+      } else if (statut === 'verifie') {
+        let metaHtml = `
+          <span class="verified-badge-new">
+            <span class="badge-icon">
+              <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+                <path d="M16 2L19.5 7.5L26 6L24.5 12.5L30 16L24.5 19.5L26 26L19.5 24.5L16 30L12.5 24.5L6 26L7.5 19.5L2 16L7.5 12.5L6 6L12.5 7.5L16 2Z" fill="#27a945"/>
+                <path d="M11 16L14.5 19.5L21 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            Vérifié
+          </span>`;
+        if (metier) {
+          metaHtml += `<span class="profile-metier green">🔨 ${metier}</span>`;
+        } else {
+          metaHtml += `<span class="profile-category" style="font-size:13px;color:#555;font-weight:600;">Professionnel vérifié</span>`;
+        }
+        meta.innerHTML = metaHtml;
+        document.getElementById('bannerVerified').classList.add('show');
+
+      } else if (kycStatut === 'non_soumis') {
+        let metaHtml = `<span class="pending-badge">⏳ KYC requis</span>`;
+        if (metier) metaHtml += `<span class="profile-metier">🔨 ${metier}</span>`;
+        else metaHtml += `<span style="font-size:13px;color:#555;font-weight:600;">Professionnel</span>`;
+        meta.innerHTML = metaHtml;
+        if (isOwnProfile) document.getElementById('bannerNew').classList.add('show');
+
+      } else if (kycStatut === 'en_attente') {
+        let metaHtml = `<span class="pending-badge">⏳ Vérification en cours</span>`;
+        if (metier) metaHtml += `<span class="profile-metier">🔨 ${metier}</span>`;
+        meta.innerHTML = metaHtml;
+        if (isOwnProfile) document.getElementById('bannerWaiting').classList.add('show');
+
+      } else if (kycStatut === 'rejete') {
+        let metaHtml = `<span class="rejected-badge">❌ KYC rejeté</span>`;
+        if (metier) metaHtml += `<span class="profile-metier">🔨 ${metier}</span>`;
+        meta.innerHTML = metaHtml;
+        if (isOwnProfile) {
+          document.getElementById('bannerRejected').classList.add('show');
+          const raison = userData.kycRaisonRejet || 'Aucune raison précisée.';
+          document.getElementById('rejectReasonText').textContent = raison;
+        }
+      }
+
+      // ── Vérification signalements automatique ──
+      const nbSignalements = userData.signalements || 0;
+      if (nbSignalements >= 10 && statut !== 'gele' && statut !== 'verifie') {
+        // Gel automatique si 10 signalements
+        await updateDoc(doc(db, 'utilisateurs', profileUid), { statut: 'gele' });
+      }
+
+      hideLoading();
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+      hideLoading();
+      showToast('⚠ Erreur : ' + err.message, 'error-t');
+    }
+  });
+
+  // ── MODALE MODIFIER PROFIL ──
+  window.openModal = function() {
+    if (!userData) return;
+    document.getElementById('editNom').value     = `${userData.prenom || ''} ${userData.nom || ''}`.trim();
+    document.getElementById('editMetier').value  = userData.metier   || '';
+    document.getElementById('editBio').value     = userData.bio      || '';
+    document.getElementById('editWhatsapp').value= userData.whatsapp || '';
+    document.getElementById('editAdresse').value = userData.adresse  || '';
+    document.getElementById('editHoraires').value= userData.horaires || '';
+    document.getElementById('editSiteWeb').value = userData.siteWeb  || '';
+    document.getElementById('modalModifier').classList.add('open');
+  };
+
+  window.closeModal = function() { document.getElementById('modalModifier').classList.remove('open'); };
+
+  window.saveProfile = async function() {
+    if (!currentUser) return;
+    const metier   = document.getElementById('editMetier').value.trim();
+    const bio      = document.getElementById('editBio').value.trim();
+    const whatsapp = document.getElementById('editWhatsapp').value.trim();
+    const adresse  = document.getElementById('editAdresse').value.trim();
+    const horaires = document.getElementById('editHoraires').value.trim();
+    const siteWeb  = document.getElementById('editSiteWeb').value.trim();
+
+    try {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), {
+        metier, bio, whatsapp, adresse, horaires, siteWeb
+      });
+      // Mettre à jour localement
+      userData = { ...userData, metier, bio, whatsapp, adresse, horaires, siteWeb };
+
+      // Mettre à jour l'affichage
+      document.getElementById('profileBio').textContent = bio || 'Professionnel vérifié sur ArtiRoyce.';
+      document.getElementById('coordWa').textContent    = whatsapp || userData.telephone || '—';
+      document.getElementById('coordAdresse').textContent = adresse || '—';
+      document.getElementById('coordHoraires').textContent = horaires || '—';
+      document.getElementById('coordWeb').textContent   = siteWeb || '—';
+
+      // Mettre à jour le badge métier
+      if (metier) {
+        const metierSpan = document.querySelector('.profile-metier');
+        if (metierSpan) metierSpan.textContent = '🔨 ' + metier;
+      }
+
+      closeModal();
+      showToast('✅ Profil mis à jour !', 'success');
+    } catch(e) {
+      showToast('⚠ Erreur : ' + e.message, 'error-t');
+    }
+  };
+
+  // ── SIGNALEMENT ──
+  window.openSignal  = () => document.getElementById('signalOverlay').classList.add('open');
+  window.closeSignal = () => document.getElementById('signalOverlay').classList.remove('open');
+
+  window.submitSignalement = async function(raison) {
+    if (!currentUser) { showToast('⚠ Connectez-vous pour signaler.', 'error-t'); return; }
+    // Bloquer seulement si c'est son propre profil
+    if (isOwnProfile) { showToast('⚠ Vous ne pouvez pas vous signaler vous-même.', 'error-t'); closeSignal(); return; }
+
+    try {
+      await updateDoc(doc(db, 'utilisateurs', profileUid), {
+        signalements: increment(1),
+        signalementsDetails: arrayUnion({
+          raison,
+          signalePar: currentUser.uid,
+          date: new Date().toISOString()
+        })
+      });
+      closeSignal();
+      showToast('✅ Signalement envoyé. Merci !', 'success');
+    } catch(e) {
+      showToast('⚠ Erreur lors du signalement.', 'error-t');
+    }
+  };
+
+  window.toggleFollow = () => {
+    const b = document.getElementById('followBtn');
+    const f = b.classList.toggle('following');
+    b.textContent = f ? '✓ Abonné' : '+ Suivre';
+  };
+
+  window.shareProfile = () => {
+    const url = window.location.href;
+    if (navigator.share) { navigator.share({ title: 'ArtiRoyce', url }); }
+    else { navigator.clipboard.writeText(url); showToast('🔗 Lien copié !', 'success'); }
+  };
+</script>
+</body>
+</html>
