@@ -561,7 +561,7 @@
 
     // Lire uid depuis URL — si pas d'uid dans URL, c'est son propre profil
     const params = new URLSearchParams(window.location.search);
-    const uidFromUrl = params.get('uid');
+    const uidFromUrl = params.get('uid') || params.get('id');
     profileUid   = uidFromUrl || user.uid;
     isOwnProfile = !uidFromUrl || uidFromUrl === user.uid;
 
