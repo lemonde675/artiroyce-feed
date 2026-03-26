@@ -529,9 +529,10 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  let currentUser = null;
-  let userData    = null;
-  let profileUid  = null; // uid du profil affiché
+  let currentUser  = null;
+  let userData     = null;
+  let profileUid   = null;
+  let isOwnProfile = true;
 
   window.showToast = function(msg, type = '') {
     const t = document.getElementById('toast');
@@ -561,8 +562,8 @@
     // Lire uid depuis URL — si pas d'uid dans URL, c'est son propre profil
     const params = new URLSearchParams(window.location.search);
     const uidFromUrl = params.get('uid');
-    profileUid = uidFromUrl || user.uid;
-    const isOwnProfile = !uidFromUrl || uidFromUrl === user.uid;
+    profileUid   = uidFromUrl || user.uid;
+    isOwnProfile = !uidFromUrl || uidFromUrl === user.uid;
 
     try {
       const snap = await getDoc(doc(db, 'utilisateurs', profileUid));
