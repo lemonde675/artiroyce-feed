@@ -160,9 +160,9 @@
     /* ══════════════════════════════════
        ── MODALE MODIFIER PROFIL ──
     ══════════════════════════════════ */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: flex-end; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; animation: slideUp 0.25s ease; padding-bottom: 20px; }
+    .modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s ease; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin: 12px auto 8px; }
     .modal-header { padding: 4px 20px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
@@ -180,7 +180,7 @@
     /* ══════════════════════════════════
        ── MODALE SIGNALER ──
     ══════════════════════════════════ */
-    .signal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: none; align-items: flex-end; justify-content: center; }
+    .signal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 600; display: none; align-items: flex-end; justify-content: center; }
     .signal-overlay.open { display: flex; }
     .signal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 540px; padding: 0 0 30px; animation: slideUp 0.25s ease; }
     .signal-header { padding: 16px 20px 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
@@ -227,6 +227,12 @@
     .avert-expire { font-size: 11px; color: #ff9800; font-weight: 700; margin-top: 6px; }
     .avert-note { font-size: 11px; color: #999; margin-top: 4px; }
 
+
+    /* ── VIEWER PHOTO ── */
+    .photo-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 99999; display: none; align-items: center; justify-content: center; }
+    .photo-viewer.open { display: flex; }
+    .photo-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 12px; object-fit: contain; }
+    .photo-viewer-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .bottom-space { height: 30px; }
     @media (max-width: 360px) { .coords-grid { grid-template-columns: 1fr; } }
   </style>
@@ -446,7 +452,7 @@
 <div class="cover-photo" id="coverPhoto">
   <img id="coverImg" src="" alt="" style="display:none;"/>
   <button class="cover-edit-btn" onclick="document.getElementById('inputCover').click()" id="coverEditBtn">📷 Modifier</button>
-  <input type="file" id="inputCover" accept="image/*" style="display:none;"/>
+  <input type="file" id="inputCover" accept="image/*" style="display:none;" />
 </div>
 
 <!-- ── PROFIL ── -->
@@ -454,11 +460,11 @@
   <div class="avatar-section">
     <div>
       <div class="avatar-wrap">
-        <div class="avatar" id="avatarWrap">
+        <div class="avatar" id="avatarWrap" onclick="agrandirAvatar()" style="cursor:pointer;">
           <span class="avatar-initiale" id="avatarInitiale">?</span>
         </div>
         <button class="avatar-edit" onclick="document.getElementById('inputAvatar').click()">📷</button>
-        <input type="file" id="inputAvatar" accept="image/*" style="display:none;"/>
+        <input type="file" id="inputAvatar" accept="image/*" style="display:none;" />
       </div>
     </div>
     <div class="profile-actions">
@@ -593,6 +599,8 @@
     const uidFromUrl = params.get('uid') || params.get('id');
     profileUid   = uidFromUrl || user.uid;
     isOwnProfile = !uidFromUrl || uidFromUrl === user.uid;
+    // Forcer isOwnProfile si pas de paramètre dans l'URL
+    if (!uidFromUrl) isOwnProfile = true;
 
     try {
       const snap = await getDoc(doc(db, 'utilisateurs', profileUid));
@@ -816,12 +824,15 @@
   };
 
   // ══════════════════════════════════════
-  // FONCTION COMPRESSION IMAGE
+  // PHOTO DE PROFIL (AVATAR)
+  // ══════════════════════════════════════
+  // ══════════════════════════════════════
+  // COMPRESSION IMAGE
   // ══════════════════════════════════════
   function compresserImage(file, maxSize, qualite) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onerror = () => reject(new Error('Lecture fichier échouée'));
+      reader.onerror = () => reject(new Error('Lecture échouée'));
       reader.onload = (e) => {
         const img = new Image();
         img.onerror = () => reject(new Error('Image invalide'));
@@ -841,46 +852,42 @@
   }
 
   // ══════════════════════════════════════
-  // PHOTO DE PROFIL (AVATAR) — listener direct
+  // PHOTO AVATAR — listener direct
   // ══════════════════════════════════════
   document.getElementById('inputAvatar').addEventListener('change', async function() {
     if (!currentUser || !isOwnProfile) return;
     const file = this.files[0];
     if (!file) return;
-    showToast('⏳ Compression en cours…', 'warning');
+    showToast('⏳ Compression…', 'warning');
     try {
       const b64 = await compresserImage(file, 250, 0.5);
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64 });
-      const avatarWrap = document.getElementById('avatarWrap');
-      avatarWrap.innerHTML = `<img src="${b64}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`;
+      document.getElementById('avatarWrap').innerHTML =
+        `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`;
       showToast('✅ Photo de profil mise à jour !', 'success');
-    } catch(e) {
-      showToast('⚠ Erreur : ' + e.message, 'error-t');
-    }
+    } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
     this.value = '';
   });
 
   // ══════════════════════════════════════
-  // PHOTO DE COUVERTURE — listener direct
+  // PHOTO COVER — listener direct
   // ══════════════════════════════════════
   document.getElementById('inputCover').addEventListener('change', async function() {
     if (!currentUser || !isOwnProfile) return;
     const file = this.files[0];
     if (!file) return;
-    showToast('⏳ Compression en cours…', 'warning');
+    showToast('⏳ Compression…', 'warning');
     try {
       const b64 = await compresserImage(file, 600, 0.45);
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoCover: b64 });
-      const coverPhoto = document.getElementById('coverPhoto');
-      coverPhoto.style.backgroundImage = `url(${b64})`;
-      coverPhoto.style.backgroundSize = 'cover';
-      coverPhoto.style.backgroundPosition = 'center';
-      const coverImg = document.getElementById('coverImg');
-      if (coverImg) { coverImg.src = b64; coverImg.style.display = 'block'; }
-      showToast('✅ Photo de couverture mise à jour !', 'success');
-    } catch(e) {
-      showToast('⚠ Erreur : ' + e.message, 'error-t');
-    }
+      const cp = document.getElementById('coverPhoto');
+      cp.style.backgroundImage = `url(${b64})`;
+      cp.style.backgroundSize = 'cover';
+      cp.style.backgroundPosition = 'center';
+      const ci = document.getElementById('coverImg');
+      if (ci) { ci.src = b64; ci.style.display = 'block'; }
+      showToast('✅ Couverture mise à jour !', 'success');
+    } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
     this.value = '';
   });
 
@@ -898,11 +905,25 @@
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${adresseEncodee}`, '_blank');
   };
 
+  window.agrandirAvatar = function() {
+    const avatarWrap = document.getElementById('avatarWrap');
+    const img = avatarWrap.querySelector('img');
+    if (!img) return; // pas de photo, juste initiale
+    document.getElementById('photoViewerImg').src = img.src;
+    document.getElementById('photoViewer').classList.add('open');
+  };
+
   window.shareProfile = () => {
     const url = window.location.href;
     if (navigator.share) { navigator.share({ title: 'ArtiRoyce', url }); }
     else { navigator.clipboard.writeText(url); showToast('🔗 Lien copié !', 'success'); }
   };
 </script>
+
+<!-- ── VIEWER PHOTO PROFIL ── -->
+<div class="photo-viewer" id="photoViewer" onclick="document.getElementById('photoViewer').classList.remove('open')">
+  <button class="photo-viewer-close" onclick="document.getElementById('photoViewer').classList.remove('open')">✕</button>
+  <img id="photoViewerImg" src="" alt="Photo"/>
+</div>
 </body>
 </html>
