@@ -233,6 +233,12 @@
     .photo-viewer.open { display: flex; }
     .photo-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 12px; object-fit: contain; }
     .photo-viewer-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* ── SUPPRIMER PHOTOS ── */
+    .btn-suppr-avatar { position: absolute; top: 0; right: 0; width: 22px; height: 22px; border-radius: 50%; background: #e63224; color: #fff; border: 2px solid #fff; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; font-weight: 800; line-height: 1; }
+    .btn-suppr-avatar.visible { display: flex; }
+    .btn-suppr-cover { position: absolute; top: 10px; left: 10px; background: rgba(200,0,0,0.8); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; z-index: 3; display: none; }
+    .btn-suppr-cover.visible { display: block; }
     .bottom-space { height: 30px; }
     @media (max-width: 360px) { .coords-grid { grid-template-columns: 1fr; } }
   </style>
@@ -452,6 +458,7 @@
 <div class="cover-photo" id="coverPhoto">
   <img id="coverImg" src="" alt="" style="display:none;"/>
   <button class="cover-edit-btn" onclick="document.getElementById('inputCover').click()" id="coverEditBtn">📷 Modifier</button>
+  <button class="btn-suppr-cover" id="btnSupprCover" onclick="supprimerCover()">🗑 Supprimer</button>
   <input type="file" id="inputCover" accept="image/*" style="display:none;" />
 </div>
 
@@ -464,6 +471,7 @@
           <span class="avatar-initiale" id="avatarInitiale">?</span>
         </div>
         <button class="avatar-edit" onclick="document.getElementById('inputAvatar').click()">📷</button>
+        <button class="btn-suppr-avatar" id="btnSupprAvatar" onclick="supprimerAvatar()" title="Supprimer la photo">✕</button>
         <input type="file" id="inputAvatar" accept="image/*" style="display:none;" />
       </div>
     </div>
@@ -631,6 +639,7 @@
       if (userData.photoAvatar) {
         document.getElementById('avatarWrap').innerHTML =
           `<img src="${userData.photoAvatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+        if (isOwnProfile) document.getElementById('btnSupprAvatar').classList.add('visible');
       }
       if (userData.photoCover) {
         const coverPhoto = document.getElementById('coverPhoto');
@@ -639,6 +648,7 @@
         coverPhoto.style.backgroundPosition = 'center';
         const ci = document.getElementById('coverImg');
         if (ci) { ci.src = userData.photoCover; ci.style.display = 'block'; }
+        if (isOwnProfile) document.getElementById('btnSupprCover').classList.add('visible');
       }
 
       // ── Bouton modifier (seulement sur son propre profil) ──
@@ -864,6 +874,7 @@
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64 });
       document.getElementById('avatarWrap').innerHTML =
         `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`;
+      if (isOwnProfile) document.getElementById('btnSupprAvatar').classList.add('visible');
       showToast('✅ Photo de profil mise à jour !', 'success');
     } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
     this.value = '';
@@ -886,6 +897,7 @@
       cp.style.backgroundPosition = 'center';
       const ci = document.getElementById('coverImg');
       if (ci) { ci.src = b64; ci.style.display = 'block'; }
+      if (isOwnProfile) document.getElementById('btnSupprCover').classList.add('visible');
       showToast('✅ Couverture mise à jour !', 'success');
     } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
     this.value = '';
@@ -903,6 +915,39 @@
     const adresseEncodee = encodeURIComponent(adresse);
     // Ouvrir Google Maps avec itinéraire depuis position actuelle
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${adresseEncodee}`, '_blank');
+  };
+
+  // ══════════════════════════════════════
+  // SUPPRIMER PHOTO AVATAR
+  // ══════════════════════════════════════
+  window.supprimerAvatar = async function() {
+    if (!currentUser || !isOwnProfile) return;
+    if (!confirm('Supprimer la photo de profil ?')) return;
+    try {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: '' });
+      const avatarWrap = document.getElementById('avatarWrap');
+      const initiale = (userData.prenom || userData.nom || '?')[0].toUpperCase();
+      avatarWrap.innerHTML = `<span class="avatar-initiale" id="avatarInitiale">${initiale}</span>`;
+      document.getElementById('btnSupprAvatar').classList.remove('visible');
+      showToast('✅ Photo de profil supprimée', 'success');
+    } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
+  };
+
+  // ══════════════════════════════════════
+  // SUPPRIMER PHOTO COVER
+  // ══════════════════════════════════════
+  window.supprimerCover = async function() {
+    if (!currentUser || !isOwnProfile) return;
+    if (!confirm('Supprimer la photo de couverture ?')) return;
+    try {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoCover: '' });
+      const cp = document.getElementById('coverPhoto');
+      cp.style.backgroundImage = '';
+      const ci = document.getElementById('coverImg');
+      if (ci) { ci.src = ''; ci.style.display = 'none'; }
+      document.getElementById('btnSupprCover').classList.remove('visible');
+      showToast('✅ Photo de couverture supprimée', 'success');
+    } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
   };
 
   window.agrandirAvatar = function() {
