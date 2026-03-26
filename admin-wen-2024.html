@@ -354,7 +354,7 @@
   let currentTab = 'en_attente';
   let mainTab    = 'comptes';
 
-  if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+  if (localStorage.getItem(SESSION_KEY) === 'true') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display  = 'block';
     loadUsers();
@@ -366,7 +366,7 @@
     const val = document.getElementById('adminPass').value.trim();
     const err = document.getElementById('loginErr');
     if (PASSWORDS.includes(val)) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
+      localStorage.setItem(SESSION_KEY, 'true');
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminPanel').style.display  = 'block';
       loadUsers();
@@ -380,7 +380,7 @@
   document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key==='Enter') window.checkLogin(); });
 
   window.logout = () => {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
     document.getElementById('adminPanel').style.display  = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('adminPass').value = '';
@@ -627,6 +627,19 @@
           <label style="color:#ff9800;">MESSAGE D'AVERTISSEMENT (visible sur le profil)</label>
           <textarea class="avertir-textarea" id="avertirInput" placeholder="Ex: Votre compte a reçu plusieurs signalements. Toute récidive entraînera une suspension."></textarea>
         </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:11px;font-weight:700;color:#ff9800;text-transform:uppercase;display:block;margin-bottom:6px;">DURÉE D'AFFICHAGE (minimum 7 jours)</label>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" id="avertirJours" min="2" value="7" style="width:80px;padding:10px 12px;border:1.5px solid #ffe082;border-radius:8px;font-size:14px;background:#fff8e1;outline:none;font-weight:700;color:#7a4f00;"/>
+            <span style="font-size:13px;color:#888;">jours</span>
+            <div style="display:flex;gap:6px;margin-left:auto;">
+              <button onclick="document.getElementById('avertirJours').value=2" style="padding:6px 10px;background:#fff3cd;border:1px solid #ffe082;border-radius:8px;font-size:11px;font-weight:700;color:#7a4f00;cursor:pointer;">2j</button>
+              <button onclick="document.getElementById('avertirJours').value=7" style="padding:6px 10px;background:#fff3cd;border:1px solid #ffe082;border-radius:8px;font-size:11px;font-weight:700;color:#7a4f00;cursor:pointer;">7j</button>
+              <button onclick="document.getElementById('avertirJours').value=14" style="padding:6px 10px;background:#fff3cd;border:1px solid #ffe082;border-radius:8px;font-size:11px;font-weight:700;color:#7a4f00;cursor:pointer;">14j</button>
+              <button onclick="document.getElementById('avertirJours').value=30" style="padding:6px 10px;background:#fff3cd;border:1px solid #ffe082;border-radius:8px;font-size:11px;font-weight:700;color:#7a4f00;cursor:pointer;">30j</button>
+            </div>
+          </div>
+        </div>
         <div style="display:flex;gap:8px;">
           <button class="btn-m-avertir" style="flex:1;" onclick="confirmAvertir('${uid}')">⚠️ Envoyer l'avertissement</button>
           <button class="btn-m-cancel"  style="flex:1;" onclick="openModal('${uid}')">Annuler</button>
@@ -635,14 +648,27 @@
   };
 
   window.confirmAvertir = async (uid) => {
-    const msg = (document.getElementById('avertirInput')?.value||'').trim();
+    const msg   = (document.getElementById('avertirInput')?.value||'').trim();
+    let   jours = parseInt(document.getElementById('avertirJours')?.value||'7');
     if (!msg) { showToast('⚠ Écrivez le message d\'avertissement.', 'error-toast'); return; }
+    if (jours < 2) jours = 2; // minimum 2 jours
+    const expireDate = new Date();
+    expireDate.setDate(expireDate.getDate() + jours);
     try {
-      await updateDoc(doc(db, 'utilisateurs', uid), { avertissement: msg });
+      await updateDoc(doc(db, 'utilisateurs', uid), {
+        avertissement:          msg,
+        avertissementExpire:    expireDate.toISOString(),
+        avertissementJours:     jours,
+        avertissementEnvoyeLe:  new Date().toISOString()
+      });
       const idx = allUsers.findIndex(u => u.id === uid);
-      if (idx !== -1) allUsers[idx].avertissement = msg;
+      if (idx !== -1) {
+        allUsers[idx].avertissement         = msg;
+        allUsers[idx].avertissementExpire   = expireDate.toISOString();
+        allUsers[idx].avertissementJours    = jours;
+      }
       closeModal();
-      showToast('⚠️ Avertissement envoyé sur le profil.', 'warning');
+      showToast(`⚠️ Avertissement envoyé — visible ${jours} jours.`, 'warning');
     } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-toast'); }
   };
 
