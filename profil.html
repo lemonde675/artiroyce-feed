@@ -214,6 +214,19 @@
     .suspended-banner h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
     .suspended-banner p { font-size: 13px; color: #ccc; line-height: 1.4; }
 
+    /* ── BANDEAU AVERTISSEMENT ADMIN ── */
+    .avertissement-banner {
+      display: none;
+      background: linear-gradient(135deg, #fff8e1, #fff3cd);
+      border-left: 5px solid var(--orange);
+      padding: 14px 16px;
+    }
+    .avertissement-banner.show { display: flex; gap: 12px; align-items: flex-start; }
+    .avert-icon { font-size: 26px; flex-shrink: 0; }
+    .avert-title { font-size: 14px; font-weight: 800; color: #7a4f00; margin-bottom: 4px; }
+    .avert-msg { font-size: 13px; color: #6d4c00; line-height: 1.5; }
+    .avert-note { font-size: 11px; color: #999; margin-top: 6px; }
+
     .bottom-space { height: 30px; }
     @media (max-width: 360px) { .coords-grid { grid-template-columns: 1fr; } }
   </style>
@@ -415,6 +428,16 @@
   </div>
 </div>
 
+<!-- ── BANDEAU AVERTISSEMENT ADMIN ── -->
+<div class="avertissement-banner" id="bannerAvertissement">
+  <div class="avert-icon">⚠️</div>
+  <div>
+    <div class="avert-title">⚠️ Avertissement de l'équipe ArtiRoyce</div>
+    <div class="avert-msg" id="avertMsg">—</div>
+    <div class="avert-note">Respectez les règles de la plateforme pour éviter une suspension de compte.</div>
+  </div>
+</div>
+
 <!-- ── COVER ── -->
 <div class="cover-photo">
   <button class="cover-edit-btn" onclick="showToast('📷 Bientôt disponible','')">📷 Modifier</button>
@@ -559,7 +582,6 @@
     if (!user) { clearTimeout(timeoutId); window.location.href = 'connexion.html'; return; }
     currentUser = user;
 
-    // Lire uid depuis URL — si pas d'uid dans URL, c'est son propre profil
     const params = new URLSearchParams(window.location.search);
     const uidFromUrl = params.get('uid') || params.get('id');
     profileUid   = uidFromUrl || user.uid;
@@ -651,6 +673,12 @@
           const raison = userData.kycRaisonRejet || 'Aucune raison précisée.';
           document.getElementById('rejectReasonText').textContent = raison;
         }
+      }
+
+      // ── Avertissement admin (visible seulement par l'intéressé) ──
+      if (isOwnProfile && userData.avertissement) {
+        document.getElementById('avertMsg').textContent = userData.avertissement;
+        document.getElementById('bannerAvertissement').classList.add('show');
       }
 
       // ── Vérification signalements automatique ──
