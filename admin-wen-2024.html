@@ -358,6 +358,12 @@
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display  = 'block';
     loadUsers();
+    // Recharger automatiquement si les données ne chargent pas après 3s
+    setTimeout(() => {
+      if (document.getElementById('statTotal').textContent === '—') {
+        loadUsers();
+      }
+    }, 3000);
   }
 
   window.toggleAdminPass = () => { const p = document.getElementById('adminPass'); p.type = p.type==='password'?'text':'password'; };
