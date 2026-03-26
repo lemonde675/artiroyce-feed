@@ -17,9 +17,13 @@
     .logo-text .arti { color: var(--red); }
     .logo-text .royce { color: var(--green); }
     .header-actions { display: flex; gap: 8px; }
-    .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    /* Bouton signaler rouge discret */
-    .btn-signaler-header { width: 36px; height: 36px; border-radius: 50%; background: #fff0ee; border: 1.5px solid var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    /* Boutons header colorés */
+    .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: #e8f5e9; border: 1.5px solid var(--green); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
+    .icon-btn:hover { background: var(--green); }
+    .btn-signaler-header { width: 36px; height: 36px; border-radius: 50%; background: #fff0ee; border: 1.5px solid var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .btn-signaler-header:hover { background: var(--red); }
+    .btn-deconnexion { width: 36px; height: 36px; border-radius: 50%; background: #fff0ee; border: 1.5px solid var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .btn-deconnexion:hover { background: var(--red); }
 
     /* ── BADGES KYC ── */
     .kyc-banner { display: none; }
@@ -222,15 +226,4 @@
 <div class="loading-screen" id="loadingScreen">
   <svg width="48" height="35" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
     <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-    <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-    <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-    <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-    <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-    <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-  </svg>
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Chargement de votre profil…</div>
-</div>
-
-<!-- ── ERREUR ── -->
-<div class="e
+    <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L
