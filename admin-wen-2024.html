@@ -357,13 +357,8 @@
   if (localStorage.getItem(SESSION_KEY) === 'true') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display  = 'block';
-    loadUsers();
-    // Recharger automatiquement si les données ne chargent pas après 3s
-    setTimeout(() => {
-      if (document.getElementById('statTotal').textContent === '—') {
-        loadUsers();
-      }
-    }, 3000);
+    // Attendre que Firebase soit initialisé puis charger
+    setTimeout(() => loadUsers(), 500);
   }
 
   window.toggleAdminPass = () => { const p = document.getElementById('adminPass'); p.type = p.type==='password'?'text':'password'; };
@@ -387,9 +382,10 @@
 
   window.logout = () => {
     localStorage.removeItem(SESSION_KEY);
-    document.getElementById('adminPanel').style.display  = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminPanel').style.display   = 'none';
+    document.getElementById('loginScreen').style.display  = 'flex';
     document.getElementById('adminPass').value = '';
+    document.getElementById('loginErr').textContent = '';
   };
 
   function showToast(msg, type = '') {
