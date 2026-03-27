@@ -7,409 +7,150 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    :root {
-      --red: #e63224;
-      --green: #27a945;
-      --dark-navy: #0d1b2a;
-      --dark-green: #0a3d1f;
-      --white: #fff;
-      --font-head: 'Syne', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
-    }
+    :root { --red: #e63224; --green: #27a945; --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
+    html, body { height: 100%; width: 100%; font-family: var(--font-body); background: #000; overflow: hidden; max-width: 480px; margin: 0 auto; }
 
-    html, body {
-      height: 100%; width: 100%;
-      font-family: var(--font-body);
-      background: #000;
-      overflow: hidden;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* ══ HEADER ══ */
-    .top-header {
-      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px;
-      z-index: 200;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-    }
-    .header-row1 {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 12px;
-    }
-    .logo-area { display: flex; align-items: center; gap: 8px; }
-    .logo-house { font-size: 22px; }
-
-    /* SVG Logo ArtiRoyce */
-    .logo-svg-wrap { display: flex; align-items: center; gap: 6px; }
-    .logo-text { font-family: var(--font-head); font-size: 20px; font-weight: 800; line-height: 1; }
+    /* HEADER */
+    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1.5px solid #eee; }
+    .header-row1 { display: flex; align-items: center; padding: 7px 10px 5px; gap: 6px; }
+    .logo-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+    .logo-house { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .logo-text { font-family: var(--font-head); font-size: 18px; font-weight: 800; line-height: 1; white-space: nowrap; }
     .logo-text .arti { color: var(--red); }
     .logo-text .royce { color: var(--green); }
-
-    .header-icons { display: flex; align-items: center; gap: 6px; }
-    .hico {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; cursor: pointer; position: relative;
-      background: #f5f5f5; border: 1.5px solid #eee;
-      transition: all 0.2s;
-    }
-    .hico:hover { background: #eee; }
+    .header-icons { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .hico { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; position: relative; background: #f5f5f5; border: 1.5px solid #e0e0e0; flex-shrink: 0; }
     .hico.notif { background: #fff8e1; border-color: #ffc107; }
     .hico.chat-sup { background: #e8f5e9; border-color: var(--green); }
-    .hico.lang { background: #f0f8ff; border-color: #2196f3; font-size: 12px; font-weight: 800; color: #333; gap: 1px; }
-    .badge-dot {
-      position: absolute; top: -3px; right: -3px;
-      min-width: 16px; height: 16px; border-radius: 8px;
-      background: var(--red); color: #fff;
-      font-size: 9px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid #fff; padding: 0 3px;
-    }
+    .hico.lang { background: #f0f8ff; border-color: #2196f3; flex-direction: column; gap: 0; }
+    .hico .bdot { position: absolute; top: -3px; right: -3px; min-width: 14px; height: 14px; border-radius: 7px; background: var(--red); color: #fff; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; padding: 0 2px; }
+    .hico.chat-sup .bdot { background: var(--green); }
 
-    /* Onglets scrollables */
-    .tabs-row {
-      display: flex; align-items: center;
-      overflow-x: auto; scrollbar-width: none;
-      padding: 0 8px 8px;
-      gap: 4px;
-    }
+    /* Onglets */
+    .tabs-row { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 8px 7px; gap: 4px; }
     .tabs-row::-webkit-scrollbar { display: none; }
-    .tab-item {
-      white-space: nowrap; padding: 6px 14px;
-      border-radius: 20px; font-size: 12px; font-weight: 700;
-      cursor: pointer; flex-shrink: 0;
-      transition: all 0.2s;
-      display: flex; align-items: center; gap: 5px;
-      color: #555; background: #f5f5f5; border: 1.5px solid transparent;
-    }
-    .tab-item.active {
-      background: var(--red); color: #fff;
-      border-color: var(--red);
-    }
-    .tab-item.active-green {
-      background: var(--green); color: #fff;
-    }
-    .tab-item.mon-profil {
-      background: var(--red); color: #fff;
-    }
-    .tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .tab-icon { font-size: 13px; }
+    .tab-item { white-space: nowrap; padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; color: #555; background: #f0f0f0; border: 1.5px solid transparent; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
+    .tab-item.active { background: var(--red); color: #fff; border-color: var(--red); }
+    .tab-item.tab-profil { background: var(--red); color: #fff; }
+    .tab-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
-    /* ══ FEED CONTAINER (TikTok scroll) ══ */
-    .feed-container {
-      position: fixed;
-      top: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px;
-      height: 100vh;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
+    /* FEED */
+    .feed-container { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .feed-container::-webkit-scrollbar { display: none; }
 
-    /* ══ CARD VIDÉO (plein écran) ══ */
-    .video-card {
-      width: 100%; height: 100vh;
-      scroll-snap-align: start;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
+    /* CARD */
+    .video-card { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
+    .video-bg-color { position: absolute; inset: 0; }
+    .video-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.72) 100%); }
 
-    /* Background vidéo / couleur */
-    .video-bg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-    }
-    .video-bg-color {
-      position: absolute; inset: 0;
-    }
-    /* Overlay dégradé bas */
-    .video-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(
-        to bottom,
-        transparent 30%,
-        rgba(0,0,0,0.3) 60%,
-        rgba(0,0,0,0.75) 100%
-      );
-    }
+    /* BADGE VÉRIFIÉ — style étoile capture 3 */
+    .badge-verifie { position: absolute; top: 14px; left: 12px; display: inline-flex; align-items: center; gap: 7px; background: var(--green); color: #fff; font-family: var(--font-head); font-size: 13px; font-weight: 800; padding: 5px 14px 5px 5px; border-radius: 30px; box-shadow: 0 3px 12px rgba(39,169,69,0.55); z-index: 10; }
+    .badge-star { width: 24px; height: 24px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-    /* ══ BADGE VÉRIFIÉ (haut gauche) ══ */
-    .badge-verifie {
-      position: absolute; top: 14px; left: 12px;
-      display: inline-flex; align-items: center; gap: 7px;
-      background: var(--green);
-      color: #fff; font-family: var(--font-head);
-      font-size: 13px; font-weight: 800;
-      padding: 6px 14px 6px 6px;
-      border-radius: 30px;
-      box-shadow: 0 2px 10px rgba(39,169,69,0.5);
-      z-index: 10;
-    }
-    .badge-verifie-star {
-      width: 26px; height: 26px;
-      background: #fff;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    /* Étoile verte SVG style capture 6 */
-    .star-check {
-      width: 22px; height: 22px;
-    }
-
-    /* ══ ACTIONS DROITE (like, dislike, comment, save) ══ */
-    .actions-right {
-      position: absolute; right: 10px; bottom: 140px;
-      display: flex; flex-direction: column; gap: 16px;
-      align-items: center; z-index: 10;
-    }
-    .action-avatar {
-      width: 46px; height: 46px; border-radius: 50%;
-      border: 2.5px solid #fff;
-      overflow: hidden; position: relative;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--red), var(--green));
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-head); font-size: 18px; font-weight: 800; color: #fff;
-    }
-    .action-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .action-avatar-plus {
-      position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--red); color: #fff;
-      font-size: 13px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid #fff;
-    }
-    .action-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 3px;
-      cursor: pointer;
-    }
-    .action-circle {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: rgba(20,20,20,0.75);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-      transition: transform 0.15s;
-    }
+    /* ACTIONS DROITE */
+    .actions-right { position: absolute; right: 10px; top: 50%; transform: translateY(-55%); display: flex; flex-direction: column; gap: 14px; align-items: center; z-index: 10; }
+    .action-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid #fff; overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, var(--red), var(--green)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; }
+    .action-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .action-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(15,15,15,0.72); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.15s; }
     .action-circle:active { transform: scale(1.2); }
-    .action-count {
-      font-size: 12px; font-weight: 700; color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
+    .action-count { font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+    .action-save { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .save-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(15,15,15,0.72); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .save-label { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
 
-    /* ══ INFOS BAS GAUCHE ══ */
-    .info-bottom {
-      position: absolute; left: 12px; bottom: 80px;
-      right: 72px; z-index: 10;
-    }
-    .info-metier {
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 6px;
-    }
-    .metier-globe { font-size: 20px; }
-    .metier-name {
-      font-family: var(--font-head); font-size: 17px; font-weight: 800;
-      color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
-    .info-username {
-      font-size: 14px; font-weight: 700; color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-      margin-bottom: 4px;
-    }
-    .info-desc {
-      font-size: 13px; color: rgba(255,255,255,0.9);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-      margin-bottom: 8px; line-height: 1.4;
-    }
-    .info-stars { display: flex; gap: 2px; margin-bottom: 10px; }
-    .star-gold { font-size: 18px; }
+    /* INFOS BAS */
+    .info-bottom { position: absolute; left: 12px; bottom: 74px; right: 68px; z-index: 10; }
+    .info-metier { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .metier-globe { font-size: 18px; }
+    .metier-name { font-family: var(--font-head); font-size: 17px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+    .info-username { font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-bottom: 3px; }
+    .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-bottom: 7px; line-height: 1.4; }
+    .info-stars { display: flex; gap: 2px; margin-bottom: 9px; }
+    .info-btns { display: flex; gap: 9px; }
+    .btn-discussion { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 25px; padding: 8px 15px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 10px rgba(39,169,69,0.4); }
+    .btn-live { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 25px; padding: 8px 15px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 10px rgba(230,50,36,0.4); }
 
-    /* Boutons Discussion + Live */
-    .info-btns { display: flex; gap: 10px; align-items: center; }
-    .btn-discussion {
-      display: flex; align-items: center; gap: 7px;
-      background: var(--green); color: #fff;
-      border: none; border-radius: 25px;
-      padding: 9px 18px; font-family: var(--font-body);
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 3px 12px rgba(39,169,69,0.4);
-    }
-    .btn-live {
-      display: flex; align-items: center; gap: 7px;
-      background: var(--red); color: #fff;
-      border: none; border-radius: 25px;
-      padding: 9px 18px; font-family: var(--font-body);
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 3px 12px rgba(230,50,36,0.4);
-    }
+    /* WATERMARK */
+    .watermark { position: absolute; right: 10px; bottom: 76px; z-index: 10; text-align: right; }
+    .wm-logo { display: flex; align-items: center; gap: 3px; justify-content: flex-end; margin-bottom: 1px; }
+    .wm-text { font-family: var(--font-head); font-size: 10px; font-weight: 800; }
+    .wm-text .arti { color: var(--red); } .wm-text .royce { color: var(--green); }
+    .wm-user { font-size: 10px; color: rgba(255,255,255,0.8); }
+    .wm-likes { font-size: 10px; color: rgba(255,255,255,0.75); }
+    .wm-dl { font-size: 9px; color: rgba(255,255,255,0.55); }
 
-    /* ══ WATERMARK BAS DROITE ══ */
-    .watermark {
-      position: absolute; right: 10px; bottom: 82px;
-      z-index: 10; text-align: right;
-    }
-    .watermark-logo {
-      display: flex; align-items: center; gap: 4px;
-      justify-content: flex-end; margin-bottom: 2px;
-    }
-    .watermark-text {
-      font-family: var(--font-head); font-size: 12px; font-weight: 800;
-    }
-    .watermark-text .arti { color: var(--red); }
-    .watermark-text .royce { color: var(--green); }
-    .watermark-user { font-size: 11px; color: rgba(255,255,255,0.8); }
-    .watermark-likes { font-size: 11px; color: rgba(255,255,255,0.8); }
-    .watermark-dl { font-size: 10px; color: rgba(255,255,255,0.6); }
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -3px 14px rgba(0,0,0,0.09); }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 9px; cursor: pointer; gap: 2px; }
+    .nav-icon { font-size: 20px; line-height: 1; }
+    .nav-label { font-size: 9px; font-weight: 700; color: #aaa; }
+    .nav-plus-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 9px; cursor: pointer; }
+    .nav-plus { width: 46px; height: 46px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 25px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.5); margin-top: -15px; }
 
-    /* ══ BOTTOM NAV ══ */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px;
-      background: #fff; border-top: 1px solid #eee;
-      display: flex; z-index: 200;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 8px 4px 10px; cursor: pointer; gap: 3px;
-    }
-    .nav-icon { font-size: 22px; line-height: 1; }
-    .nav-label { font-size: 9px; font-weight: 700; color: #aaa; letter-spacing: 0.2px; }
-    .nav-item.active .nav-label { color: var(--green); }
-    .nav-item.active .nav-icon { filter: none; }
-    .nav-plus-wrap {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      justify-content: flex-end; padding-bottom: 10px; cursor: pointer;
-    }
-    .nav-plus {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--red);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; color: #fff; font-weight: 300;
-      box-shadow: 0 4px 16px rgba(230,50,36,0.5);
-      margin-top: -18px;
-    }
+    /* CHAT FAB — toujours visible, pas caché par la nav */
+    .chat-fab { position: fixed; bottom: 70px; right: 14px; width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #1a1a2e, #0f3460); border: 2.5px solid var(--green); box-shadow: 0 3px 16px rgba(39,169,69,0.5); cursor: pointer; z-index: 300; display: flex; align-items: center; justify-content: center; font-size: 19px; animation: fabPulse 2.5s infinite; }
+    @keyframes fabPulse { 0%,100%{box-shadow:0 3px 16px rgba(39,169,69,0.35);} 50%{box-shadow:0 3px 24px rgba(39,169,69,0.75);} }
+    .chat-fab .bdot { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
-    /* ══ CHAT FAB ══ */
-    .chat-fab {
-      position: fixed; bottom: 76px; right: 16px;
-      width: 50px; height: 50px; border-radius: 50%;
-      background: linear-gradient(135deg, #1a1a2e, #0f3460);
-      border: 2.5px solid var(--green);
-      box-shadow: 0 4px 18px rgba(39,169,69,0.4);
-      cursor: pointer; z-index: 150;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
-      animation: fabPulse 3s infinite;
-    }
-    @keyframes fabPulse {
-      0%,100% { box-shadow: 0 4px 18px rgba(39,169,69,0.3); }
-      50% { box-shadow: 0 4px 26px rgba(39,169,69,0.7); }
-    }
-    .chat-fab-badge {
-      position: absolute; top: -4px; right: -4px;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: var(--red); color: #fff;
-      font-size: 9px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid #fff;
-    }
-
-    /* ══ SPACER pour header ══ */
-    .header-spacer {
-      height: 100px; /* hauteur du header fixe */
-      flex-shrink: 0;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed; top: 110px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.85); color: #fff;
-      padding: 9px 20px; border-radius: 20px;
-      font-size: 13px; font-weight: 600; z-index: 999;
-      opacity: 0; transition: opacity 0.3s; pointer-events: none;
-      white-space: nowrap;
-    }
+    /* TOAST */
+    .toast { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.green { background: var(--green); }
 
-    /* Modale lang */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-      z-index: 500; display: none; align-items: flex-end; justify-content: center;
-    }
+    /* MODALE LANGUE */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .lang-sheet {
-      background: #fff; border-radius: 20px 20px 0 0;
-      width: 100%; max-width: 480px; padding-bottom: 30px;
-      animation: slideUp 0.25s ease;
-    }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    .sheet-handle { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin: 12px auto; }
-    .sheet-title {
-      font-family: var(--font-head); font-size: 15px; font-weight: 800;
-      text-align: center; padding: 0 20px 14px; border-bottom: 1px solid #eee;
-    }
-    .lang-opt {
-      display: flex; align-items: center; gap: 14px;
-      padding: 15px 20px; border-bottom: 1px solid #f5f5f5;
-      cursor: pointer; transition: background 0.15s;
-    }
+    .lang-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 28px; animation: slideUp 0.22s ease; }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .sheet-handle { width: 38px; height: 4px; background: #ddd; border-radius: 4px; margin: 11px auto; }
+    .sheet-title { font-family: var(--font-head); font-size: 15px; font-weight: 800; text-align: center; padding: 0 20px 13px; border-bottom: 1px solid #eee; }
+    .lang-opt { display: flex; align-items: center; gap: 13px; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.15s; }
     .lang-opt:hover { background: #f9f9f9; }
     .lang-opt.active { background: #e8f5e9; }
-    .lang-flag { font-size: 26px; }
+    .lang-flag { font-size: 24px; }
     .lang-name { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
     .lang-native { font-size: 11px; color: #888; }
-    .lang-check { color: var(--green); font-size: 18px; font-weight: 800; margin-left: auto; }
+    .lang-check { color: var(--green); font-size: 17px; font-weight: 800; margin-left: auto; }
   </style>
 </head>
 <body>
 
-<!-- ══ HEADER FIXE ══ -->
-<header class="top-header">
+<!-- HEADER -->
+<header class="top-header" id="topHeader">
   <div class="header-row1">
     <div class="logo-area">
       <span class="logo-house">🏠</span>
-      <div class="logo-svg-wrap">
-        <!-- SVG Logo ArtiRoyce (chaînes entrelacées) -->
-        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 20 C8 12, 16 8, 20 14 C24 20, 20 28, 14 28 C10 28 8 24 8 20Z" fill="none" stroke="#e63224" stroke-width="4" stroke-linecap="round"/>
-          <path d="M32 20 C32 28, 24 32, 20 26 C16 20, 20 12, 26 12 C30 12 32 16 32 20Z" fill="none" stroke="#27a945" stroke-width="4" stroke-linecap="round"/>
-        </svg>
-        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
-      </div>
+      <svg width="26" height="20" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
     <div class="header-icons">
       <div class="hico lang" onclick="openLang()">
-        <span id="hLangFlag">🇫🇷</span>
-        <span id="hLangCode" style="font-size:10px;font-weight:800;">FR</span>
+        <span id="hFlag" style="font-size:12px;">🇫🇷</span>
+        <span id="hCode" style="font-size:8px;font-weight:800;">FR</span>
       </div>
-      <div class="hico notif" onclick="toast('🔔 Notifications', '')">
-        🔔
-        <div class="badge-dot">3</div>
+      <div class="hico notif" onclick="showToast('🔔 Notifications','')">
+        🔔<div class="bdot">3</div>
       </div>
-      <div class="hico" onclick="toast('⚙️ Paramètres', '')">⚙️</div>
-      <div class="hico chat-sup" onclick="toast('💬 Support ArtiRoyce', 'green')">
-        💬
-        <div class="badge-dot" style="background:var(--green);">1</div>
+      <div class="hico" onclick="showToast('⚙️ Paramètres','')">⚙️</div>
+      <div class="hico chat-sup" onclick="showToast('💬 Support en ligne','green')">
+        💬<div class="bdot">1</div>
       </div>
     </div>
   </div>
-
-  <!-- Onglets scrollables -->
   <div class="tabs-row">
     <div class="tab-item active" onclick="setTab(this)">🏠 Accueil</div>
-    <div class="tab-item" onclick="setTab(this)"><span class="tab-dot"></span> Statuts</div>
-    <div class="tab-item mon-profil" onclick="setTab(this)">👤 Mon Profil</div>
+    <div class="tab-item" onclick="setTab(this)"><span class="tab-dot"></span>Statuts</div>
+    <div class="tab-item tab-profil" onclick="setTab(this)">👤 Mon Profil</div>
     <div class="tab-item" onclick="setTab(this)">⭐ Élites</div>
     <div class="tab-item" onclick="setTab(this)">📂 Catégories</div>
     <div class="tab-item" onclick="setTab(this)">💬 Répert-Discussion</div>
@@ -417,276 +158,133 @@
   </div>
 </header>
 
-<!-- ══ FEED TIKTOK ══ -->
+<!-- FEED -->
 <div class="feed-container" id="feedContainer">
+  <div id="hSpacer"></div>
 
-  <!-- Spacer pour le header -->
-  <div style="height:100px;flex-shrink:0;background:#000;"></div>
-
-  <!-- ═══ CARD 1 ═══ -->
+  <!-- CARD 1 -->
   <div class="video-card">
     <div class="video-bg-color" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f);"></div>
     <div class="video-overlay"></div>
-
-    <!-- Badge vérifié haut gauche -->
     <div class="badge-verifie">
-      <div class="badge-verifie-star">
-        <svg class="star-check" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L14.4 8.6L21.5 9.1L16.5 13.6L18.1 20.6L12 17L5.9 20.6L7.5 13.6L2.5 9.1L9.6 8.6Z" fill="#27a945"/>
-          <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="badge-star">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <!-- Étoile 8 branches style capture 3 -->
+          <path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/>
+          <path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
       </div>
       Vérifié
     </div>
-
-    <!-- Actions droite -->
     <div class="actions-right">
-      <div class="action-avatar" onclick="toast('👤 Voir profil @amariella', '')">
-        A
-        <div class="action-avatar-plus">+</div>
-      </div>
-      <div class="action-btn" onclick="likeCard(this)">
-        <div class="action-circle">👍</div>
-        <span class="action-count">0</span>
-      </div>
-      <div class="action-btn" onclick="toast('👎 Signalé', '')">
-        <div class="action-circle">👎</div>
-        <span class="action-count">0</span>
-      </div>
-      <div class="action-btn" onclick="toast('💬 Commentaires', '')">
-        <div class="action-circle">💬</div>
-        <span class="action-count">0</span>
-      </div>
-      <div class="action-btn" onclick="toast('💾 Sauvegardé !', 'green')">
-        <div class="action-circle">⬇️</div>
-        <span class="action-count" style="font-size:10px;">Sauver</span>
-      </div>
+      <div class="action-avatar" onclick="showToast('👤 @amariella','')">A<div class="action-avatar-plus">+</div></div>
+      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">0</span></div>
+      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">0</span></div>
+      <div class="action-btn" onclick="showToast('💬 Commentaires','')"><div class="action-circle">💬</div><span class="action-count">0</span></div>
+      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
     </div>
-
-    <!-- Infos bas gauche -->
     <div class="info-bottom">
-      <div class="info-metier">
-        <span class="metier-globe">🌍</span>
-        <span class="metier-name">Professionnel</span>
-      </div>
+      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Professionnel</span></div>
       <div class="info-username">@amariella</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-      </div>
+      <div class="info-stars">⭐⭐⭐⭐⭐</div>
       <div class="info-btns">
-        <button class="btn-discussion" onclick="toast('💬 Discussion avec @amariella', 'green')">
-          💬 Discussion
-        </button>
-        <button class="btn-live" onclick="toast('🔴 Live @amariella', '')">
-          + Live
-        </button>
+        <button class="btn-discussion" onclick="showToast('💬 Discussion @amariella','green')">💬 Discussion</button>
+        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
       </div>
     </div>
-
-    <!-- Watermark -->
     <div class="watermark">
-      <div class="watermark-logo">
-        <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-          <path d="M8 20 C8 12,16 8,20 14 C24 20,20 28,14 28 C10 28 8 24 8 20Z" fill="none" stroke="#e63224" stroke-width="5"/>
-          <path d="M32 20 C32 28,24 32,20 26 C16 20,20 12,26 12 C30 12 32 16 32 20Z" fill="none" stroke="#27a945" stroke-width="5"/>
-        </svg>
-        <span class="watermark-text"><span class="arti">Arti</span><span class="royce">Royce</span></span>
-      </div>
-      <div class="watermark-user">@amariella</div>
-      <div class="watermark-likes">👍 0</div>
-      <div class="watermark-dl">Téléchargé sur ArtiRoyce</div>
+      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
+      <div class="wm-user">@amariella</div><div class="wm-likes">👍 0</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
     </div>
   </div>
 
-  <!-- ═══ CARD 2 ═══ -->
+  <!-- CARD 2 -->
   <div class="video-card">
     <div class="video-bg-color" style="background:linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00);"></div>
     <div class="video-overlay"></div>
-
-    <div class="badge-verifie">
-      <div class="badge-verifie-star">
-        <svg class="star-check" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L14.4 8.6L21.5 9.1L16.5 13.6L18.1 20.6L12 17L5.9 20.6L7.5 13.6L2.5 9.1L9.6 8.6Z" fill="#27a945"/>
-          <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      Vérifié
-    </div>
-
+    <div class="badge-verifie"><div class="badge-star"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/><path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>Vérifié</div>
     <div class="actions-right">
-      <div class="action-avatar" onclick="toast('👤 Voir profil @arsene_dj', '')" style="background:linear-gradient(135deg,#e63224,#27a945);">
-        A
-        <div class="action-avatar-plus">+</div>
-      </div>
-      <div class="action-btn" onclick="likeCard(this)">
-        <div class="action-circle">👍</div>
-        <span class="action-count">24</span>
-      </div>
-      <div class="action-btn">
-        <div class="action-circle">👎</div>
-        <span class="action-count">0</span>
-      </div>
-      <div class="action-btn" onclick="toast('💬 Commentaires', '')">
-        <div class="action-circle">💬</div>
-        <span class="action-count">3</span>
-      </div>
-      <div class="action-btn" onclick="toast('💾 Sauvegardé !', 'green')">
-        <div class="action-circle">⬇️</div>
-        <span class="action-count" style="font-size:10px;">Sauver</span>
-      </div>
+      <div class="action-avatar" style="background:linear-gradient(135deg,#e63224,#27a945);" onclick="showToast('👤 @arsene_dj','')">A<div class="action-avatar-plus">+</div></div>
+      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">24</span></div>
+      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">0</span></div>
+      <div class="action-btn" onclick="showToast('💬 3 commentaires','')"><div class="action-circle">💬</div><span class="action-count">3</span></div>
+      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
     </div>
-
     <div class="info-bottom">
-      <div class="info-metier">
-        <span class="metier-globe">🌍</span>
-        <span class="metier-name">Menuisier</span>
-      </div>
+      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Menuisier</span></div>
       <div class="info-username">@arsene_dj</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span style="font-size:18px;opacity:0.4;">⭐</span>
-      </div>
+      <div class="info-stars">⭐⭐⭐⭐</div>
       <div class="info-btns">
-        <button class="btn-discussion" onclick="toast('💬 Discussion avec @arsene_dj', 'green')">
-          💬 Discussion
-        </button>
-        <button class="btn-live" onclick="toast('🔴 Live @arsene_dj', '')">
-          + Live
-        </button>
+        <button class="btn-discussion" onclick="showToast('💬 Discussion @arsene_dj','green')">💬 Discussion</button>
+        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
       </div>
     </div>
-
     <div class="watermark">
-      <div class="watermark-logo">
-        <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-          <path d="M8 20 C8 12,16 8,20 14 C24 20,20 28,14 28 C10 28 8 24 8 20Z" fill="none" stroke="#e63224" stroke-width="5"/>
-          <path d="M32 20 C32 28,24 32,20 26 C16 20,20 12,26 12 C30 12 32 16 32 20Z" fill="none" stroke="#27a945" stroke-width="5"/>
-        </svg>
-        <span class="watermark-text"><span class="arti">Arti</span><span class="royce">Royce</span></span>
-      </div>
-      <div class="watermark-user">@arsene_dj</div>
-      <div class="watermark-likes">👍 24</div>
-      <div class="watermark-dl">Téléchargé sur ArtiRoyce</div>
+      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
+      <div class="wm-user">@arsene_dj</div><div class="wm-likes">👍 24</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
     </div>
   </div>
 
-  <!-- ═══ CARD 3 ═══ -->
+  <!-- CARD 3 -->
   <div class="video-card">
     <div class="video-bg-color" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40);"></div>
     <div class="video-overlay"></div>
-
-    <div class="badge-verifie">
-      <div class="badge-verifie-star">
-        <svg class="star-check" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L14.4 8.6L21.5 9.1L16.5 13.6L18.1 20.6L12 17L5.9 20.6L7.5 13.6L2.5 9.1L9.6 8.6Z" fill="#27a945"/>
-          <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      Vérifié
-    </div>
-
+    <div class="badge-verifie"><div class="badge-star"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/><path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>Vérifié</div>
     <div class="actions-right">
-      <div class="action-avatar" onclick="toast('👤 Voir profil @binta_pro', '')" style="background:linear-gradient(135deg,#ff6b6b,#ffa500);">
-        B
-        <div class="action-avatar-plus">+</div>
-      </div>
-      <div class="action-btn" onclick="likeCard(this)">
-        <div class="action-circle">👍</div>
-        <span class="action-count">142</span>
-      </div>
-      <div class="action-btn">
-        <div class="action-circle">👎</div>
-        <span class="action-count">1</span>
-      </div>
-      <div class="action-btn" onclick="toast('💬 12 commentaires', '')">
-        <div class="action-circle">💬</div>
-        <span class="action-count">12</span>
-      </div>
-      <div class="action-btn" onclick="toast('💾 Sauvegardé !', 'green')">
-        <div class="action-circle">⬇️</div>
-        <span class="action-count" style="font-size:10px;">Sauver</span>
-      </div>
+      <div class="action-avatar" style="background:linear-gradient(135deg,#ff6b6b,#ffa500);" onclick="showToast('👤 @binta_pro','')">B<div class="action-avatar-plus">+</div></div>
+      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">142</span></div>
+      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">1</span></div>
+      <div class="action-btn" onclick="showToast('💬 12 commentaires','')"><div class="action-circle">💬</div><span class="action-count">12</span></div>
+      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
     </div>
-
     <div class="info-bottom">
-      <div class="info-metier">
-        <span class="metier-globe">🌍</span>
-        <span class="metier-name">Couturière</span>
-      </div>
+      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Couturière</span></div>
       <div class="info-username">@binta_pro</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-        <span class="star-gold">⭐</span>
-      </div>
+      <div class="info-stars">⭐⭐⭐⭐⭐</div>
       <div class="info-btns">
-        <button class="btn-discussion" onclick="toast('💬 Discussion avec @binta_pro', 'green')">
-          💬 Discussion
-        </button>
-        <button class="btn-live" onclick="toast('🔴 Live @binta_pro', '')">
-          + Live
-        </button>
+        <button class="btn-discussion" onclick="showToast('💬 Discussion @binta_pro','green')">💬 Discussion</button>
+        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
       </div>
     </div>
-
     <div class="watermark">
-      <div class="watermark-logo">
-        <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-          <path d="M8 20 C8 12,16 8,20 14 C24 20,20 28,14 28 C10 28 8 24 8 20Z" fill="none" stroke="#e63224" stroke-width="5"/>
-          <path d="M32 20 C32 28,24 32,20 26 C16 20,20 12,26 12 C30 12 32 16 32 20Z" fill="none" stroke="#27a945" stroke-width="5"/>
-        </svg>
-        <span class="watermark-text"><span class="arti">Arti</span><span class="royce">Royce</span></span>
-      </div>
-      <div class="watermark-user">@binta_pro</div>
-      <div class="watermark-likes">👍 142</div>
-      <div class="watermark-dl">Téléchargé sur ArtiRoyce</div>
+      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
+      <div class="wm-user">@binta_pro</div><div class="wm-likes">👍 142</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
     </div>
   </div>
 
-</div><!-- /feed-container -->
+</div>
 
-<!-- ══ BOTTOM NAV ══ -->
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <div class="nav-item active" onclick="toast('💬 Discussion', 'green')">
+  <div class="nav-item active">
     <span class="nav-icon">💬</span>
     <span class="nav-label" style="color:var(--green);">Discussion</span>
   </div>
-  <div class="nav-item" onclick="toast('📩 Messages', '')">
+  <div class="nav-item" onclick="showToast('📩 Messages','')">
     <span class="nav-icon">📩</span>
     <span class="nav-label">Messages</span>
   </div>
-  <div class="nav-plus-wrap" onclick="toast('➕ Publier', 'green')">
+  <div class="nav-plus-wrap" onclick="showToast('➕ Publier','green')">
     <div class="nav-plus">＋</div>
   </div>
-  <div class="nav-item" onclick="toast('🎥 Live', '')">
+  <div class="nav-item" onclick="showToast('🎥 Live','')">
     <span class="nav-icon">▶️</span>
     <span class="nav-label">Live</span>
   </div>
-  <div class="nav-item" onclick="toast('📖 FAQ ArtiRoyce', '')">
+  <div class="nav-item" onclick="showToast('📖 FAQ ArtiRoyce','')">
     <span class="nav-icon">📖</span>
     <span class="nav-label">FAQ</span>
   </div>
 </nav>
 
-<!-- Chat FAB -->
-<div class="chat-fab" onclick="toast('💬 Support ArtiRoyce en ligne', 'green')">
-  💬
-  <div class="chat-fab-badge">1</div>
+<!-- Chat FAB visible -->
+<div class="chat-fab" onclick="showToast('💬 Support ArtiRoyce en ligne','green')">
+  💬<div class="bdot">1</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toastEl"></div>
 
 <!-- Modale langue -->
@@ -694,83 +292,56 @@
   <div class="lang-sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">🌐 Choisir la langue</div>
-    <div class="lang-opt active" onclick="setLang('fr','🇫🇷','FR')">
-      <span class="lang-flag">🇫🇷</span>
-      <div><div class="lang-name">Français</div><div class="lang-native">Langue française</div></div>
-      <span class="lang-check" id="ck-fr">✓</span>
-    </div>
-    <div class="lang-opt" onclick="setLang('en','🇬🇧','EN')">
-      <span class="lang-flag">🇬🇧</span>
-      <div><div class="lang-name">English</div><div class="lang-native">English language</div></div>
-      <span class="lang-check" id="ck-en" style="display:none">✓</span>
-    </div>
-    <div class="lang-opt" onclick="setLang('pt','🇧🇷','PT')">
-      <span class="lang-flag">🇧🇷</span>
-      <div><div class="lang-name">Português</div><div class="lang-native">Língua portuguesa</div></div>
-      <span class="lang-check" id="ck-pt" style="display:none">✓</span>
-    </div>
+    <div class="lang-opt active" onclick="setLang('fr','🇫🇷','FR')"><span class="lang-flag">🇫🇷</span><div><div class="lang-name">Français</div><div class="lang-native">Langue française</div></div><span class="lang-check" id="ck-fr">✓</span></div>
+    <div class="lang-opt" onclick="setLang('en','🇬🇧','EN')"><span class="lang-flag">🇬🇧</span><div><div class="lang-name">English</div><div class="lang-native">English language</div></div><span class="lang-check" id="ck-en" style="display:none">✓</span></div>
+    <div class="lang-opt" onclick="setLang('pt','🇧🇷','PT')"><span class="lang-flag">🇧🇷</span><div><div class="lang-name">Português</div><div class="lang-native">Língua portuguesa</div></div><span class="lang-check" id="ck-pt" style="display:none">✓</span></div>
   </div>
 </div>
 
 <script>
-  /* Toast */
-  function toast(msg, type) {
+  function adjustSpacer() {
+    const h = document.getElementById('topHeader').offsetHeight;
+    document.getElementById('hSpacer').style.height = h + 'px';
+  }
+  adjustSpacer();
+  window.addEventListener('resize', adjustSpacer);
+
+  function showToast(msg, type) {
     const el = document.getElementById('toastEl');
     el.textContent = msg;
-    el.className = 'toast show ' + (type === 'green' ? 'green' : '');
+    el.className = 'toast show' + (type === 'green' ? ' green' : '');
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.className = 'toast', 2500);
+    el._t = setTimeout(() => el.className = 'toast', 2400);
   }
 
-  /* Tabs */
   function setTab(el) {
-    document.querySelectorAll('.tab-item').forEach(t => {
-      t.classList.remove('active');
-      if (!t.classList.contains('mon-profil')) t.style.background = '';
-    });
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    toast('📂 ' + el.textContent.trim(), '');
   }
 
-  /* Like */
   function likeCard(btn) {
     const count = btn.querySelector('.action-count');
     const circle = btn.querySelector('.action-circle');
-    let n = parseInt(count.textContent) || 0;
-    count.textContent = n + 1;
-    circle.style.transform = 'scale(1.3)';
-    setTimeout(() => circle.style.transform = '', 200);
-    toast('👍 +1 J\'aime !', 'green');
+    count.textContent = (parseInt(count.textContent) || 0) + 1;
+    circle.style.transform = 'scale(1.25)';
+    setTimeout(() => circle.style.transform = '', 180);
+    showToast("👍 +1 J'aime !", 'green');
   }
 
-  /* Langue */
   function openLang() { document.getElementById('langModal').classList.add('open'); }
   function closeLang() { document.getElementById('langModal').classList.remove('open'); }
   function setLang(code, flag, label) {
-    document.getElementById('hLangFlag').textContent = flag;
-    document.getElementById('hLangCode').textContent = label;
+    document.getElementById('hFlag').textContent = flag;
+    document.getElementById('hCode').textContent = label;
     ['fr','en','pt'].forEach(l => {
-      document.getElementById('ck-'+l).style.display = l === code ? 'block' : 'none';
+      document.getElementById('ck-'+l).style.display = l === code ? 'inline' : 'none';
     });
     document.querySelectorAll('.lang-opt').forEach((o,i) => {
       o.classList.toggle('active', ['fr','en','pt'][i] === code);
     });
     closeLang();
-    toast(flag + ' Langue : ' + label, 'green');
+    showToast(flag + ' ' + label, 'green');
   }
-
-  /* Offset feed pour le header */
-  const header = document.querySelector('.top-header');
-  const feed = document.getElementById('feedContainer');
-  function adjustFeed() {
-    const h = header.offsetHeight;
-    feed.style.paddingTop = h + 'px';
-    // Fix: first spacer
-    const spacer = feed.querySelector('div[style*="height:100px"]');
-    if(spacer) spacer.style.height = h + 'px';
-  }
-  adjustFeed();
-  window.addEventListener('resize', adjustFeed);
 </script>
 </body>
 </html>
