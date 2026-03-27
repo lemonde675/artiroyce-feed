@@ -39,11 +39,11 @@
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
 
     /* Badge Vérifié */
-    .badge-v { position: absolute; left: 12px; top: 100px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
+    .badge-v { position: absolute; left: 12px; top: 115px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
 
     /* ══ ACTIONS DROITE ══ */
-    .actions-r { position: absolute; right: 10px; top: 100px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
+    .actions-r { position: absolute; right: 10px; top: 115px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
 
     .act-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: visible; flex-shrink: 0; margin-bottom: 2px; }
     .act-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
@@ -351,7 +351,13 @@
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
     document.getElementById('hSpacer').style.height = hh + 'px';
-    // badge et actions positionnés en CSS, pas besoin de JS
+    // Positionner badge et avatar selon hauteur réelle du header
+    document.querySelectorAll('.badge-v').forEach(el => {
+      el.style.top = (hh + 10) + 'px';
+    });
+    document.querySelectorAll('.actions-r').forEach(el => {
+      el.style.top = (hh + 8) + 'px';
+    });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = (NAV_H + 14) + 'px';
     });
@@ -359,6 +365,9 @@
 
   window.addEventListener('load', adjustLayout);
   window.addEventListener('resize', adjustLayout);
+  // Double appel pour navigateurs qui chargent le header lentement
+  setTimeout(adjustLayout, 100);
+  setTimeout(adjustLayout, 400);
 
   let toastT;
   function toast(msg, type) {
