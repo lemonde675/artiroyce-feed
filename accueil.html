@@ -3,558 +3,1087 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>ArtiRoyce – Accueil</title>
+  <title>ArtiRoyce – Mon Profil v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root {
-      --red:   #E53935;
-      --green: #2E7D32;
-      --green-l: #43A047;
+      --red: #e63224;
+      --green: #27a945;
+      --orange: #ff9800;
+      --dark: #111;
+      --gray: #f4f4f4;
+      --muted: #888;
+      --border: #e8e8e8;
+      --white: #fff;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
     }
-    html, body {
-      height: 100%; overflow: hidden;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #000;
-    }
-    #app {
-      max-width: 430px; margin: 0 auto;
-      height: 100dvh; display: flex; flex-direction: column;
-      position: relative; overflow: hidden;
+    body {
+      font-family: var(--font-body);
+      background: #f0f0f0;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
 
     /* ── HEADER ── */
-    #header {
-      background: #fff; display: flex; align-items: center;
-      justify-content: space-between; padding: 10px 14px;
-      border-bottom: 2px solid #EEE; flex-shrink: 0; z-index: 10;
+    .top-header {
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 2px solid #eee;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .logo-wrap { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-    .logo-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
-    .logo-name .arti  { color: var(--red); }
-    .logo-name .royce { color: var(--green); }
-    .bell-wrap { position: relative; cursor: pointer; font-size: 22px; }
-    .bell-badge {
-      position: absolute; top: -5px; right: -7px;
-      background: var(--red); color: #fff;
-      font-size: 10px; font-weight: 700;
-      width: 17px; height: 17px; border-radius: 50%;
+    .logo-text { font-family: var(--font-head); font-size: 20px; font-weight: 800; }
+    .logo-text .arti { color: var(--red); }
+    .logo-text .royce { color: var(--green); }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
+    /* Sélecteur de langue */
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--gray);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark);
+      position: relative;
+    }
+    .lang-flag { font-size: 14px; }
+    .lang-code { font-size: 11px; font-weight: 800; }
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+      display: none;
+      z-index: 300;
+      min-width: 140px;
+    }
+    .lang-dropdown.open { display: block; }
+    .lang-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .lang-option:last-child { border-bottom: none; }
+    .lang-option:hover { background: var(--gray); }
+    .lang-option.active { color: var(--green); }
+    .lang-option .flag { font-size: 18px; }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #e8f5e9; border: 1.5px solid var(--green);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    /* ── KYC BANNER ── */
+    .kyc-banner-new {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      padding: 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kyc-banner-new::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(230,50,36,0.2), rgba(39,169,69,0.2));
+    }
+    .kyc-banner-new-content { position: relative; z-index: 1; }
+    .kyc-banner-new-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .kyc-banner-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(255,255,255,0.15);
       display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
     }
-    .dots { font-size: 22px; cursor: pointer; color: #333; }
-
-    /* ── TABS ── */
-    #tabs {
-      background: #fff; display: flex; align-items: center;
-      padding: 0 8px 8px; gap: 4px;
-      border-bottom: 1px solid #E8E8E8; flex-shrink: 0;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    #tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      display: flex; align-items: center; gap: 5px;
-      padding: 7px 13px; border-radius: 20px;
-      font-size: 13px; font-weight: 600;
-      cursor: pointer; border: none; white-space: nowrap;
-      background: transparent; color: #555;
-      transition: all 0.2s;
-    }
-    .tab.active { background: var(--red); color: #fff; }
-    .tab-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green-l); flex-shrink: 0;
+    .kyc-banner-text h3 { font-family: var(--font-head); font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    .kyc-banner-text p { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4; }
+    .kyc-btn-primary {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--green), #1e8c38);
+      color: #fff; border: none; border-radius: 10px;
+      font-family: var(--font-head); font-size: 14px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
     }
 
-    /* ── FEED ── */
-    #feed {
-      flex: 1; overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scrollbar-width: none;
-    }
-    #feed::-webkit-scrollbar { display: none; }
-
-    /* ── CARD ── */
-    .card {
-      width: 100%; height: 100dvh;
+    /* ── COVER ── */
+    .cover-photo {
+      width: 100%; height: 180px;
+      background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%);
       position: relative; overflow: hidden;
-      background: #1a1a2e; scroll-snap-align: start;
-      flex-shrink: 0;
     }
-    .card-bg {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-      filter: brightness(0.72);
-    }
-    /* Fond coloré quand pas de photo */
-    .card-bg-fallback {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 80px; font-weight: 900; color: rgba(255,255,255,0.15);
-    }
-    .card-gradient {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.08) 50%, transparent 100%);
+    .cover-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .cover-edit-btn {
+      position: absolute; bottom: 10px; right: 10px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      border: none; border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 600; cursor: pointer; z-index: 2;
     }
 
-    /* verified */
-    .verified {
-      position: absolute; top: 12px; left: 12px;
-      background: var(--green); color: #fff;
-      font-size: 12px; font-weight: 700;
-      padding: 5px 11px; border-radius: 20px;
-      display: flex; align-items: center; gap: 5px;
-      z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    /* ── PROFIL INFO ── */
+    .profile-info { background: #fff; padding: 14px 16px 0; }
+    .avatar-section {
+      margin-top: -45px; margin-bottom: 10px;
+      display: flex; align-items: flex-end; justify-content: space-between;
     }
-
-    /* right actions */
-    .right-actions {
-      position: absolute; right: 10px; bottom: 110px;
-      display: flex; flex-direction: column;
-      align-items: center; gap: 14px; z-index: 5;
-    }
-    .avatar-wrap { position: relative; margin-bottom: 4px; cursor: pointer; }
+    .avatar-wrap { position: relative; }
     .avatar {
-      width: 48px; height: 48px; border-radius: 50%;
-      border: 2.5px solid #fff; overflow: hidden;
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 4px solid #fff;
       background: linear-gradient(135deg, var(--red), var(--green));
+      overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex; align-items: center; justify-content: center;
     }
+    .avatar-initiale { font-family: var(--font-head); font-size: 32px; font-weight: 800; color: #fff; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-plus {
-      position: absolute; bottom: -7px; left: 50%;
-      transform: translateX(-50%);
-      width: 20px; height: 20px;
-      background: var(--green); border-radius: 50%;
-      border: 2px solid #fff;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 15px; font-weight: 900; line-height: 1;
+    .avatar-edit {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      border: 2px solid #fff; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
-    .action-btn {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 3px;
-      cursor: pointer; background: none; border: none;
+    .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
+    .btn-modifier-profil {
+      background: var(--gray); color: var(--dark);
+      border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 8px 16px; font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: var(--font-body);
     }
-    .action-circle {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: rgba(0,0,0,0.38);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.18s;
-    }
-    .action-circle svg { width: 22px; height: 22px; }
-    .action-count {
-      font-size: 11px; font-weight: 700; color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-    }
-    .action-btn.liked .action-circle { background: rgba(229,57,53,0.45); }
-    .action-btn.liked .action-count  { color: var(--red); }
-    .action-btn.disliked .action-circle { background: rgba(100,100,100,0.55); }
-    .action-btn.disliked .action-count  { color: #bbb; }
-    .action-btn.saved .action-circle  { background: rgba(46,125,50,0.45); }
-    .action-btn.saved .action-count   { color: #81C784; }
 
-    /* bottom info */
-    .card-info {
-      position: absolute; left: 0; right: 64px; bottom: 0;
-      padding: 14px 14px 18px; z-index: 5;
+    .profile-name { font-family: var(--font-head); font-size: 20px; font-weight: 800; color: var(--dark); }
+    .profile-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+
+    .verified-badge-new {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #1a8c3a, #27a945);
+      color: #fff; font-size: 12px; font-weight: 800;
+      padding: 4px 10px 4px 4px; border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(39,169,69,0.35);
     }
-    .info-cat {
-      display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+    .verified-badge-new .badge-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center;
     }
-    .info-cat-text {
-      font-size: 19px; font-weight: 800; color: #fff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    .profile-metier {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, var(--red), #c0392b);
+      padding: 3px 10px; border-radius: 20px;
     }
-    .info-loc {
-      display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+
+    .profile-bio {
+      font-size: 13px; color: #666; margin-top: 10px; line-height: 1.6;
+      padding: 10px 12px; background: #f9f9f9; border-radius: 8px;
+      border-left: 3px solid var(--green); min-height: 60px;
     }
-    .info-loc-text { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; }
-    .info-user {
-      font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px;
-      cursor: pointer; text-decoration: underline; display: inline-block;
+
+    .stats-row { display: flex; border-top: 1px solid #eee; margin-top: 14px; }
+    .stat-item {
+      flex: 1; text-align: center; padding: 12px 6px;
+      border-right: 1px solid #eee;
     }
-    .info-desc { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; line-height: 1.4; }
-    .info-stars { font-size: 16px; margin-bottom: 12px; }
-    .card-btns { display: flex; gap: 10px; }
-    .btn-disc {
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: var(--font-head); font-size: 18px; font-weight: 800; color: var(--dark); }
+    .stat-num.red { color: var(--red); }
+    .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+
+    /* ── SECTIONS ── */
+    .section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .section-title {
+      font-family: var(--font-head); font-size: 14px; font-weight: 800;
+      color: var(--dark); margin-bottom: 14px;
       display: flex; align-items: center; gap: 6px;
-      background: var(--green); color: #fff; border: none;
-      padding: 9px 16px; border-radius: 22px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      transition: opacity 0.2s;
     }
-    .btn-disc:active { opacity: 0.85; }
-    .btn-live {
-      display: flex; align-items: center; gap: 4px;
-      background: var(--red); color: #fff; border: none;
-      padding: 9px 16px; border-radius: 22px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      transition: opacity 0.2s;
+    .coords-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .coord-item {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--gray); border-radius: 12px; padding: 10px 12px;
     }
-    .btn-live:active { opacity: 0.85; }
+    .coord-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .coord-circle.phone { background: #e8f5e9; }
+    .coord-circle.whatsapp { background: #e8f5e9; }
+    .coord-circle.email { background: #fce4ec; }
+    .coord-circle.web { background: #e3f2fd; }
+    .coord-text { flex: 1; min-width: 0; }
+    .coord-label { font-size: 10px; color: #888; font-weight: 600; letter-spacing: 0.5px; }
+    .coord-value {
+      font-size: 11px; color: var(--dark); font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+    }
 
-    /* watermark — enrichi avec username + likes */
-    .watermark {
-      position: absolute; right: 10px; bottom: 14px;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
-      z-index: 6;
+    /* ── ÉTOILES ── */
+    .stars-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .stars-card {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      border-radius: 16px; padding: 16px; position: relative; overflow: hidden;
     }
-    .wm-logo { display: flex; align-items: center; gap: 4px; }
-    .wm-name { font-size: 12px; font-weight: 800; }
-    .wm-name .arti  { color: var(--red); }
-    .wm-name .royce { color: var(--green); }
-    .wm-sub { font-size: 9px; color: rgba(255,255,255,0.7); text-align: right; }
-    .wm-user { font-size: 10px; color: rgba(255,255,255,0.85); font-weight: 700; text-align: right; }
-    .wm-likes { font-size: 10px; color: rgba(255,255,255,0.7); text-align: right; }
+    .stars-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(230,50,36,0.3), transparent 60%);
+    }
+    .stars-card-content { position: relative; z-index: 1; }
+    .stars-label {
+      font-family: var(--font-head); font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.6); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .stars-display { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .star-icon { font-size: 26px; filter: drop-shadow(0 0 6px rgba(255,215,0,0.8)); }
+    .stars-count {
+      font-family: var(--font-head); font-size: 28px; font-weight: 800; color: #fff;
+    }
+    .stars-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+    .stars-progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 6px;
+    }
+    .stars-progress-bar {
+      width: 100%; height: 6px; background: rgba(255,255,255,0.15);
+      border-radius: 10px; overflow: hidden;
+    }
+    .stars-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--orange), #ffd700);
+      border-radius: 10px;
+      width: 34%;
+      transition: width 0.8s ease;
+    }
+
+    /* ── MEDIA ── */
+    .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; }
+    .media-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2px; }
+    .media-tab {
+      flex: 1; text-align: center; padding: 10px;
+      font-size: 13px; font-weight: 700; color: #888;
+      cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+    }
+    .media-tab.active { color: var(--red); border-bottom-color: var(--red); }
+    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -12px; }
+    .media-item {
+      aspect-ratio: 1; background: #eee;
+      overflow: hidden; position: relative;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #ccc;
+    }
+
+    /* ── LOGOUT ── */
+    .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; margin-bottom: 80px; }
+    .btn-logout {
+      width: 100%; padding: 13px;
+      background: none; color: var(--red);
+      border: 1.5px solid var(--red); border-radius: 10px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 700; cursor: pointer;
+    }
 
     /* ── BOTTOM NAV ── */
-    #bottom-nav {
-      background: #fff; display: flex; justify-content: space-around;
-      align-items: center; padding: 8px 4px 14px;
-      border-top: 1px solid #E0E0E0; flex-shrink: 0; z-index: 10;
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      background: #fff; border-top: 1px solid #eee;
+      display: flex; z-index: 100;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     }
     .nav-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 3px; cursor: pointer; color: #888;
-      font-size: 10px; font-weight: 600; flex: 1;
-      background: none; border: none;
-      transition: color 0.2s;
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 8px 4px 10px; cursor: pointer; gap: 3px;
+      position: relative;
     }
-    .nav-item.active { color: var(--green); }
-    .nav-item span { font-size: 22px; }
-    .nav-add {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--red); color: #fff; border: none;
-      font-size: 26px; cursor: pointer; flex-shrink: 0;
+    .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-label { font-size: 9px; font-weight: 700; color: #aaa; letter-spacing: 0.3px; }
+    .nav-item.active .nav-label { color: var(--green); }
+    .nav-item.active .nav-icon { filter: none; }
+    .nav-plus {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), #c0392b);
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(229,57,53,0.45);
-      transition: transform 0.15s;
-    }
-    .nav-add:active { transform: scale(0.93); }
-    .nav-live-badge {
-      width: 26px; height: 26px; background: var(--red);
-      border-radius: 6px; display: flex; align-items: center;
-      justify-content: center; color: #fff; font-size: 13px; font-weight: 800;
+      font-size: 24px; color: #fff;
+      box-shadow: 0 4px 14px rgba(230,50,36,0.5);
+      margin-top: -16px;
     }
 
-    /* ── TOAST ── */
-    #toast {
-      position: fixed; top: 130px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.75); color: #fff;
-      padding: 8px 18px; border-radius: 20px;
-      font-size: 13px; font-weight: 600; z-index: 999;
-      white-space: nowrap; backdrop-filter: blur(6px);
-      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    /* ══════════════════════════════════
+       ── CHAT SUPPORT FLOTTANT ──
+    ══════════════════════════════════ */
+    .chat-fab {
+      position: fixed;
+      bottom: 76px;
+      right: 16px;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      border: 2.5px solid var(--green);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      z-index: 150;
+      transition: transform 0.2s;
+      animation: fabPulse 3s infinite;
     }
-    #toast.show { opacity: 1; }
-    #toast.green { background: rgba(39,169,69,0.88); }
+    @keyframes fabPulse {
+      0%,100% { box-shadow: 0 4px 20px rgba(39,169,69,0.3); }
+      50% { box-shadow: 0 4px 28px rgba(39,169,69,0.7); }
+    }
+    .chat-fab:hover { transform: scale(1.08); }
+    .chat-fab-badge {
+      position: absolute; top: -4px; right: -4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    /* Chat window */
+    .chat-window {
+      position: fixed;
+      bottom: 140px;
+      right: 12px;
+      width: calc(100% - 24px);
+      max-width: 340px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      animation: chatSlideUp 0.25s ease;
+      max-height: 70vh;
+    }
+    .chat-window.open { display: flex; }
+    @keyframes chatSlideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .chat-win-header {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .chat-win-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--green));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .chat-win-info { flex: 1; }
+    .chat-win-name { font-family: var(--font-head); font-size: 14px; font-weight: 800; color: #fff; }
+    .chat-win-status { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; }
+    .chat-win-status::before {
+      content: '';
+      width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+      display: inline-block;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+    .chat-win-close {
+      background: rgba(255,255,255,0.15); border: none;
+      color: #fff; width: 28px; height: 28px; border-radius: 50%;
+      cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .chat-win-messages {
+      flex: 1; padding: 14px 12px;
+      overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+      background: #f8f9fa;
+      min-height: 200px; max-height: 300px;
+    }
+    .chat-msg {
+      max-width: 80%; padding: 10px 12px;
+      border-radius: 14px; font-size: 13px; line-height: 1.5;
+    }
+    .chat-msg.support {
+      background: #fff; color: var(--dark);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      align-self: flex-start;
+    }
+    .chat-msg.user {
+      background: linear-gradient(135deg, var(--green), #1e8c38);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+    .chat-msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+
+    .chat-typing {
+      display: flex; align-items: center; gap: 4px;
+      padding: 8px 12px; background: #fff;
+      border-radius: 14px; border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .typing-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #aaa; animation: typingAnim 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingAnim {
+      0%,60%,100% { transform: translateY(0); background: #aaa; }
+      30% { transform: translateY(-5px); background: var(--green); }
+    }
+
+    .chat-win-input-row {
+      display: flex; gap: 8px; padding: 10px 12px;
+      border-top: 1px solid #eee; background: #fff;
+    }
+    .chat-win-input {
+      flex: 1; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: 20px;
+      font-size: 13px; outline: none;
+      font-family: var(--font-body);
+      background: var(--gray);
+    }
+    .chat-win-input:focus { border-color: var(--green); background: #fff; }
+    .chat-win-send {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #1e8c38);
+      border: none; color: #fff; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Quick replies */
+    .chat-quick-replies {
+      display: flex; gap: 6px; padding: 6px 12px 0;
+      overflow-x: auto; scrollbar-width: none; background: #f8f9fa;
+    }
+    .chat-quick-replies::-webkit-scrollbar { display: none; }
+    .quick-reply {
+      white-space: nowrap; padding: 6px 12px;
+      background: #fff; border: 1.5px solid var(--border);
+      border-radius: 20px; font-size: 11px; font-weight: 600;
+      cursor: pointer; color: var(--dark); transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .quick-reply:hover { border-color: var(--green); color: var(--green); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: white;
+      padding: 10px 20px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; z-index: 999;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    .toast.success { background: var(--green); }
+
+    /* ── MODALE LANGUE ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 400; display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .lang-modal {
+      background: #fff; border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 480px; padding: 0 0 30px;
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .lang-modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin: 12px auto; }
+    .lang-modal-title {
+      font-family: var(--font-head); font-size: 16px; font-weight: 800;
+      text-align: center; padding: 0 20px 16px; border-bottom: 1px solid #eee;
+    }
+    .lang-modal-option {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; border-bottom: 1px solid #f5f5f5;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .lang-modal-option:hover { background: var(--gray); }
+    .lang-modal-option.active { background: #e8f5e9; }
+    .lang-modal-flag { font-size: 28px; }
+    .lang-modal-info { flex: 1; }
+    .lang-modal-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--dark); }
+    .lang-modal-native { font-size: 12px; color: var(--muted); }
+    .lang-modal-check { color: var(--green); font-size: 20px; font-weight: 800; }
   </style>
 </head>
 <body>
-<div id="app">
 
-  <div id="toast"></div>
-
-  <!-- HEADER -->
-  <div id="header">
-    <span style="font-size:22px;cursor:pointer">🏠</span>
-    <a class="logo-wrap" href="#">
-      <svg width="38" height="27" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-      </svg>
-      <div class="logo-name"><span class="arti">Arti</span><span class="royce">Royce</span></div>
-    </a>
-    <div style="display:flex;align-items:center;gap:14px">
-      <div class="bell-wrap">🔔<div class="bell-badge">3</div></div>
-      <span class="dots">⋮</span>
+<!-- ── HEADER ── -->
+<header class="top-header">
+  <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+  <div class="header-right">
+    <!-- Sélecteur langue -->
+    <div class="lang-selector" onclick="openLangModal()">
+      <span class="lang-flag" id="headerFlag">🇫🇷</span>
+      <span class="lang-code" id="headerCode">FR</span>
+      <span>▾</span>
     </div>
+    <button class="icon-btn" onclick="showToast('🔔 Notifications', 'success')">🔔</button>
+    <button class="icon-btn" style="background:#fff0ee;border-color:var(--red);" onclick="showToast('👋 Déconnexion...', '')">⚙️</button>
   </div>
+</header>
 
-  <!-- TABS -->
-  <div id="tabs">
-    <button class="tab active" onclick="switchTab(this)">Accueil</button>
-    <button class="tab" onclick="switchTab(this)"><span class="tab-dot"></span>Statuts</button>
-    <button class="tab" onclick="switchTab(this)">👤 Artisans</button>
-    <button class="tab" onclick="switchTab(this)">👤 Mon Profil</button>
-  </div>
-
-  <!-- FEED -->
-  <div id="feed"></div>
-
-  <!-- BOTTOM NAV -->
-  <div id="bottom-nav">
-    <button class="nav-item active" onclick="switchNav(this)"><span>💬</span>Discussion</button>
-    <button class="nav-item" onclick="switchNav(this)"><span>📩</span>Messages</button>
-    <button class="nav-add">+</button>
-    <button class="nav-item" onclick="switchNav(this)">
-      <div class="nav-live-badge">▶</div>Live
+<!-- ── KYC BANNER ── -->
+<div class="kyc-banner-new">
+  <div class="kyc-banner-new-content">
+    <div class="kyc-banner-new-top">
+      <div class="kyc-banner-icon">🛡️</div>
+      <div class="kyc-banner-text">
+        <h3 data-i18n="kyc_title">Vérifiez votre identité</h3>
+        <p data-i18n="kyc_sub">Obtenez le badge ✔ et inspirez confiance à vos clients</p>
+      </div>
+    </div>
+    <button class="kyc-btn-primary">
+      <span>🚀</span>
+      <span data-i18n="kyc_btn">Commencer la vérification</span>
     </button>
-    <button class="nav-item" onclick="switchNav(this)"><span>👤</span>Profil</button>
   </div>
-
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<!-- ── COVER ── -->
+<div class="cover-photo">
+  <button class="cover-edit-btn">📷 <span data-i18n="edit_cover">Modifier</span></button>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-  authDomain: "artiroyce-f42e4.firebaseapp.com",
-  projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.firebasestorage.app",
-  messagingSenderId: "588140774605",
-  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
-  measurementId: "G-X4XLHDJCE7"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-const exemples = [
-  { id:'ex1', categorie:"Mécanicien auto", pays:"France", ville:"Paris", flag:"🇫🇷", username:"@JeanGarage75", description:"Réparation de moteur compliqué", etoiles:5, likes:"9.8K", commentaires:403, verifie:true, image:"https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex2', categorie:"Couturière", pays:"Italie", ville:"Naples", flag:"🇮🇹", username:"@ModeNapoli", description:"Confection robe de mariée sur mesure", etoiles:5, likes:"6.3K", commentaires:218, verifie:true, image:"https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex3', categorie:"Maçon", pays:"Chine", ville:"Shenzhen", flag:"🇨🇳", username:"@MaçonShenzhen", description:"Construction murs en brique traditionnelle", etoiles:4, likes:"4.1K", commentaires:97, verifie:true, image:"https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex4', categorie:"Menuisier", pays:"Cameroun", ville:"Yaoundé", flag:"🇨🇲", username:"@BoisYaoundé237", description:"Fabrication meuble salon bois massif", etoiles:4, likes:"3.7K", commentaires:142, verifie:true, image:"https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex5', categorie:"Électricien", pays:"Japon", ville:"Tokyo", flag:"🇯🇵", username:"@ElecTokyo81", description:"Installation tableau électrique neuf", etoiles:5, likes:"5.2K", commentaires:189, verifie:true, image:"https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex6', categorie:"Soudeur", pays:"Nigeria", ville:"Lagos", flag:"🇳🇬", username:"@SoudeurLagos", description:"Fabrication portail métallique sur mesure", etoiles:4, likes:"2.9K", commentaires:76, verifie:true, image:"https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex7', categorie:"Forgeron artisanal", pays:"Ghana", ville:"Kumasi", flag:"🇬🇭", username:"@ForgeKumasi", description:"Forge couteaux et outils traditionnels", etoiles:5, likes:"7.6K", commentaires:311, verifie:true, image:"https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=100" },
-  { id:'ex8', categorie:"Vendeuse de fruits", pays:"Bénin", ville:"Calavi", flag:"🇧🇯", username:"@FruitsCalavi", description:"Fruits frais du marché local chaque matin", etoiles:4, likes:"1.8K", commentaires:53, verifie:true, image:"https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=600", avatar:"https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100" },
-];
-
-// Couleurs de fond pour artisans sans photo
-const bgColors = [
-  'linear-gradient(135deg,#1a237e,#283593)',
-  'linear-gradient(135deg,#1b5e20,#2e7d32)',
-  'linear-gradient(135deg,#b71c1c,#c62828)',
-  'linear-gradient(135deg,#4a148c,#6a1b9a)',
-  'linear-gradient(135deg,#e65100,#ef6c00)',
-  'linear-gradient(135deg,#006064,#00838f)',
-];
-
-const logoSVG = `<svg width="20" height="14" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-  <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-  <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-  <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-  <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-  <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-  <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-</svg>`;
-
-const thumbUpSVG = (filled) =>
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="${filled ? '#E53935' : 'white'}">
-    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-  </svg>`;
-
-const thumbDownSVG = (filled) =>
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="${filled ? '#888' : 'white'}">
-    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L10.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-  </svg>`;
-
-const commentSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-</svg>`;
-
-const downloadSVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-</svg>`;
-
-function stars(n) {
-  return Array.from({length:5}, (_,i) => i < n ? '⭐' : '☆').join('');
-}
-
-function goToProfile(id) { window.location.href = 'profil.html?id=' + id; }
-window.goToProfile = goToProfile;
-
-function buildCard(a, idx) {
-  const username  = a.username || ('@' + (a.prenom || a.nom || 'artisan').toLowerCase().replace(/\s/g,''));
-  const categorie = a.categorie || a.metier || 'Artisan';
-  const ville     = a.ville || '';
-  const pays      = a.pays || '';
-  const flag      = a.flag || '🌍';
-  const desc      = a.description || a.bio || 'Artisan professionnel vérifié sur ArtiRoyce.';
-  const likes     = a.likes || '0';
-  const commentaires = a.commentaires || 0;
-  const initiale  = (a.prenom || a.nom || username).replace('@','')[0].toUpperCase();
-
-  // Fond : image si dispo, sinon gradient coloré avec initiale
-  const bgStyle = a.image
-    ? `background-image:url('${a.image}')`
-    : `background:${bgColors[idx % bgColors.length]}`;
-
-  const avatarHtml = a.avatar
-    ? `<img src="${a.avatar}" alt="avatar" loading="lazy"/>`
-    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:800;">${initiale}</div>`;
-
-  return `
-  <div class="card" id="card-${a.id}">
-    <div class="card-bg" style="${bgStyle}"></div>
-    <div class="card-gradient"></div>
-    ${a.verifie ? `<div class="verified">✔ Vérifié</div>` : ''}
-
-    <div class="right-actions">
-      <div class="avatar-wrap" onclick="goToProfile('${a.id}')">
-        <div class="avatar">${avatarHtml}</div>
-        <div class="avatar-plus">+</div>
+<!-- ── PROFIL INFO ── -->
+<div class="profile-info">
+  <div class="avatar-section">
+    <div class="avatar-wrap">
+      <div class="avatar">
+        <span class="avatar-initiale">A</span>
       </div>
-
-      <!-- 👍 J'aime -->
-      <button class="action-btn" id="like-${a.id}" onclick="toggleLike('${a.id}')">
-        <div class="action-circle">${thumbUpSVG(false)}</div>
-        <span class="action-count" id="like-count-${a.id}">${likes}</span>
-      </button>
-
-      <!-- 👎 Je n'aime pas -->
-      <button class="action-btn" id="dislike-${a.id}" onclick="toggleDislike('${a.id}')">
-        <div class="action-circle">${thumbDownSVG(false)}</div>
-        <span class="action-count" id="dislike-count-${a.id}">0</span>
-      </button>
-
-      <!-- 💬 Commentaires -->
-      <button class="action-btn" onclick="showToast('💬 Commentaires — bientôt disponible')">
-        <div class="action-circle">${commentSVG}</div>
-        <span class="action-count">${commentaires}</span>
-      </button>
-
-      <!-- ⬇ Sauver -->
-      <button class="action-btn" id="save-${a.id}" onclick="toggleSave('${a.id}')">
-        <div class="action-circle">${downloadSVG}</div>
-        <span class="action-count" id="save-count-${a.id}">Sauver</span>
+      <button class="avatar-edit">📷</button>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-modifier-profil" onclick="showToast('✏️ Modification du profil', 'success')">
+        ✏️ <span data-i18n="edit_profile">Modifier le profil</span>
       </button>
     </div>
+  </div>
 
-    <div class="card-info">
-      <div class="info-cat">
-        <span style="font-size:20px">${flag}</span>
-        <span class="info-cat-text">${categorie}</span>
+  <div class="profile-name">Arsène Djossou</div>
+  <div class="profile-meta">
+    <div class="verified-badge-new">
+      <div class="badge-icon">✔</div>
+      <span data-i18n="verified">Vérifié</span>
+    </div>
+    <div class="profile-metier">🔨 <span data-i18n="job">Menuisier</span></div>
+  </div>
+
+  <div class="profile-bio" data-i18n="bio">
+    Menuisier professionnel avec 8 ans d'expérience. Spécialisé dans la fabrication de meubles sur mesure, portes et fenêtres. Disponible 7j/7 à Cotonou et alentours. 🪵
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-num">3 400</div>
+      <div class="stat-label" data-i18n="followers">Abonnés</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">142</div>
+      <div class="stat-label" data-i18n="following">Abonnements</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num red">34 200</div>
+      <div class="stat-label" data-i18n="likes">J'aime</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">27</div>
+      <div class="stat-label" data-i18n="posts">Publications</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ÉTOILES ── -->
+<div class="stars-section">
+  <div class="stars-card">
+    <div class="stars-card-content">
+      <div class="stars-label" data-i18n="stars_label">MES ÉTOILES ARTIROYCE</div>
+      <div class="stars-display">
+        <span class="star-icon">⭐</span>
+        <span class="stars-count">2</span>
+        <span style="color:rgba(255,255,255,0.5); font-size:13px;" data-i18n="stars_of">/ 5 étoiles</span>
       </div>
-      <div class="info-loc">
-        <span style="font-size:14px">${flag}</span>
-        <span class="info-loc-text">${ville}${ville && pays ? ' • ' : ''}${pays}</span>
+      <div class="stars-sub" data-i18n="stars_sub">34 200 / 100 000 j'aime pour débloquer la monétisation</div>
+      <div class="stars-progress-label">
+        <span>34%</span>
+        <span data-i18n="stars_goal">Objectif : 100 000 j'aime</span>
       </div>
-      <div class="info-user" onclick="goToProfile('${a.id}')">${username}</div>
-      <div class="info-desc">${desc}</div>
-      <div class="info-stars">${stars(a.etoiles || 5)}</div>
-      <div class="card-btns">
-        <button class="btn-disc">💬 Discussion</button>
-        <button class="btn-live">+ Live</button>
+      <div class="stars-progress-bar">
+        <div class="stars-progress-fill"></div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Watermark enrichi : logo + username + likes -->
-    <div class="watermark">
-      <div class="wm-logo">
-        ${logoSVG}
-        <span class="wm-name"><span class="arti">Arti</span><span class="royce">Royce</span></span>
+<!-- ── COORDONNÉES ── -->
+<div class="section">
+  <div class="section-title">📋 <span data-i18n="coords_title">Coordonnées</span></div>
+  <div class="coords-grid">
+    <div class="coord-item">
+      <div class="coord-circle phone">📞</div>
+      <div class="coord-text">
+        <div class="coord-label" data-i18n="phone">Téléphone</div>
+        <div class="coord-value">+229 67 06 70 03</div>
       </div>
-      <span class="wm-user">${username}</span>
-      <span class="wm-likes">👍 ${likes}</span>
-      <span class="wm-sub">Téléchargé sur ArtiRoyce</span>
     </div>
-  </div>`;
-}
+    <div class="coord-item">
+      <div class="coord-circle whatsapp">💬</div>
+      <div class="coord-text">
+        <div class="coord-label">WhatsApp</div>
+        <div class="coord-value">+229 67 06 70 03</div>
+      </div>
+    </div>
+    <div class="coord-item">
+      <div class="coord-circle email">📧</div>
+      <div class="coord-text">
+        <div class="coord-label">Email</div>
+        <div class="coord-value">arsene@gmail.com</div>
+      </div>
+    </div>
+    <div class="coord-item">
+      <div class="coord-circle web">🌐</div>
+      <div class="coord-text">
+        <div class="coord-label">Web</div>
+        <div class="coord-value">artiroyce.com</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-function fixHeights() {
-  const h = document.getElementById('feed').clientHeight;
-  document.querySelectorAll('.card').forEach(c => c.style.height = h + 'px');
-}
-window.addEventListener('resize', fixHeights);
+<!-- ── MÉDIAS ── -->
+<div class="media-section">
+  <div class="section-title">🎬 <span data-i18n="media_title">Publications</span></div>
+  <div class="media-tabs">
+    <div class="media-tab active" data-i18n="media_all">Tout</div>
+    <div class="media-tab" data-i18n="media_videos">Vidéos</div>
+    <div class="media-tab" data-i18n="media_photos">Photos</div>
+    <div class="media-tab" data-i18n="media_offers">Offres</div>
+  </div>
+  <div class="media-grid">
+    <div class="media-item">🪵</div>
+    <div class="media-item">🚪</div>
+    <div class="media-item">🪑</div>
+    <div class="media-item">🛏️</div>
+    <div class="media-item">🪟</div>
+    <div class="media-item">🔨</div>
+  </div>
+</div>
 
-async function loadFeed() {
-  const feed = document.getElementById('feed');
-  feed.innerHTML = '<div style="color:#fff;text-align:center;padding:60px 20px;font-size:14px;">⏳ Chargement…</div>';
-  try {
-    const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
-    const snap = await getDocs(q);
-    let artisans = [];
-    snap.forEach(d => artisans.push({ id: d.id, ...d.data() }));
-    if (artisans.length === 0) artisans = exemples;
-    feed.innerHTML = artisans.map((a, i) => buildCard(a, i)).join('');
-    fixHeights();
-  } catch(e) {
-    feed.innerHTML = exemples.map((a, i) => buildCard(a, i)).join('');
-    fixHeights();
-  }
-}
+<!-- ── DÉCONNEXION ── -->
+<div class="logout-section">
+  <button class="btn-logout" data-i18n="logout">🚪 Se déconnecter</button>
+</div>
 
-// Like toggle
-const likedSet = new Set();
-const dislikedSet = new Set();
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <div class="nav-item" onclick="showToast('🏠 Accueil', '')">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label" data-i18n="nav_home">Accueil</span>
+  </div>
+  <div class="nav-item" onclick="showToast('💬 Répert-Discussion', '')">
+    <span class="nav-icon">💬</span>
+    <span class="nav-label" data-i18n="nav_discuss">Répert-Discussion</span>
+  </div>
+  <div class="nav-item" style="justify-content:flex-end;padding-bottom:14px;">
+    <div class="nav-plus" onclick="showToast('➕ Publier', 'success')">＋</div>
+  </div>
+  <div class="nav-item" onclick="showToast('🎥 Live', '')">
+    <span class="nav-icon">🎥</span>
+    <span class="nav-label" data-i18n="nav_live">Live</span>
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon">👤</span>
+    <span class="nav-label" data-i18n="nav_profile">Profil</span>
+  </div>
+</nav>
 
-window.toggleLike = function(id) {
-  const btn = document.getElementById('like-' + id);
-  const dBtn = document.getElementById('dislike-' + id);
-  if (likedSet.has(id)) {
-    likedSet.delete(id); btn.classList.remove('liked');
-    btn.querySelector('.action-circle').innerHTML = thumbUpSVG(false);
-    showToast("J'aime retiré");
-  } else {
-    // Retirer dislike si actif
-    if (dislikedSet.has(id)) {
-      dislikedSet.delete(id); dBtn.classList.remove('disliked');
-      dBtn.querySelector('.action-circle').innerHTML = thumbDownSVG(false);
+<!-- ══════════════════════════════════
+     ── CHAT SUPPORT FLOTTANT ──
+══════════════════════════════════ -->
+<div class="chat-fab" onclick="toggleChat()" id="chatFab">
+  💬
+  <div class="chat-fab-badge" id="chatBadge">1</div>
+</div>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-win-header">
+    <div class="chat-win-avatar">🛡️</div>
+    <div class="chat-win-info">
+      <div class="chat-win-name">Support ArtiRoyce</div>
+      <div class="chat-win-status" data-i18n="support_online">En ligne</div>
+    </div>
+    <button class="chat-win-close" onclick="toggleChat()">✕</button>
+  </div>
+
+  <div class="chat-win-messages" id="chatMessages">
+    <div class="chat-msg support">
+      👋 <span data-i18n="support_welcome">Bonjour ! Je suis l'équipe ArtiRoyce. Comment puis-je vous aider ?</span>
+      <div class="chat-msg-time">01:21</div>
+    </div>
+  </div>
+
+  <div class="chat-quick-replies" id="quickReplies">
+    <div class="quick-reply" onclick="sendQuick(this)" data-i18n="qr1">🔐 Vérification KYC</div>
+    <div class="quick-reply" onclick="sendQuick(this)" data-i18n="qr2">💰 Paiement</div>
+    <div class="quick-reply" onclick="sendQuick(this)" data-i18n="qr3">⭐ Mes étoiles</div>
+    <div class="quick-reply" onclick="sendQuick(this)" data-i18n="qr4">🐛 Signaler un bug</div>
+  </div>
+
+  <div class="chat-win-input-row">
+    <input class="chat-win-input" id="chatInput" placeholder="Écrivez votre message..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+    <button class="chat-win-send" onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- ── MODALE LANGUE ── -->
+<div class="modal-overlay" id="langModal">
+  <div class="lang-modal">
+    <div class="lang-modal-handle"></div>
+    <div class="lang-modal-title" data-i18n="lang_title">🌐 Choisir la langue</div>
+    <div class="lang-modal-option active" onclick="setLang('fr')">
+      <span class="lang-modal-flag">🇫🇷</span>
+      <div class="lang-modal-info">
+        <div class="lang-modal-name">Français</div>
+        <div class="lang-modal-native">Langue française</div>
+      </div>
+      <span class="lang-modal-check" id="check-fr">✓</span>
+    </div>
+    <div class="lang-modal-option" onclick="setLang('en')">
+      <span class="lang-modal-flag">🇬🇧</span>
+      <div class="lang-modal-info">
+        <div class="lang-modal-name">English</div>
+        <div class="lang-modal-native">English language</div>
+      </div>
+      <span class="lang-modal-check" id="check-en" style="display:none">✓</span>
+    </div>
+    <div class="lang-modal-option" onclick="setLang('pt')">
+      <span class="lang-modal-flag">🇧🇷</span>
+      <div class="lang-modal-info">
+        <div class="lang-modal-name">Português</div>
+        <div class="lang-modal-native">Língua portuguesa</div>
+      </div>
+      <span class="lang-modal-check" id="check-pt" style="display:none">✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ══ TRADUCTIONS ══ */
+  const i18n = {
+    fr: {
+      kyc_title: 'Vérifiez votre identité',
+      kyc_sub: 'Obtenez le badge ✔ et inspirez confiance à vos clients',
+      kyc_btn: 'Commencer la vérification',
+      edit_cover: 'Modifier',
+      edit_profile: 'Modifier le profil',
+      verified: 'Vérifié',
+      job: 'Menuisier',
+      bio: "Menuisier professionnel avec 8 ans d'expérience. Spécialisé dans la fabrication de meubles sur mesure, portes et fenêtres. Disponible 7j/7 à Cotonou et alentours. 🪵",
+      followers: 'Abonnés',
+      following: 'Abonnements',
+      likes: "J'aime",
+      posts: 'Publications',
+      stars_label: 'MES ÉTOILES ARTIROYCE',
+      stars_of: '/ 5 étoiles',
+      stars_sub: "34 200 / 100 000 j'aime pour débloquer la monétisation",
+      stars_goal: 'Objectif : 100 000 j\'aime',
+      coords_title: 'Coordonnées',
+      phone: 'Téléphone',
+      media_title: 'Publications',
+      media_all: 'Tout',
+      media_videos: 'Vidéos',
+      media_photos: 'Photos',
+      media_offers: 'Offres',
+      logout: '🚪 Se déconnecter',
+      nav_home: 'Accueil',
+      nav_discuss: 'Répert-Discussion',
+      nav_live: 'Live',
+      nav_profile: 'Profil',
+      support_online: 'En ligne',
+      support_welcome: 'Bonjour ! Je suis l\'équipe ArtiRoyce. Comment puis-je vous aider ?',
+      qr1: '🔐 Vérification KYC',
+      qr2: '💰 Paiement',
+      qr3: '⭐ Mes étoiles',
+      qr4: '🐛 Signaler un bug',
+      lang_title: '🌐 Choisir la langue',
+      toast_lang: '🇫🇷 Langue : Français',
+    },
+    en: {
+      kyc_title: 'Verify your identity',
+      kyc_sub: 'Get the ✔ badge and build trust with your clients',
+      kyc_btn: 'Start verification',
+      edit_cover: 'Edit',
+      edit_profile: 'Edit profile',
+      verified: 'Verified',
+      job: 'Carpenter',
+      bio: "Professional carpenter with 8 years of experience. Specialized in custom furniture, doors and windows. Available 7 days a week in Cotonou and surroundings. 🪵",
+      followers: 'Followers',
+      following: 'Following',
+      likes: 'Likes',
+      posts: 'Posts',
+      stars_label: 'MY ARTIROYCE STARS',
+      stars_of: '/ 5 stars',
+      stars_sub: "34,200 / 100,000 likes to unlock monetization",
+      stars_goal: 'Goal: 100,000 likes',
+      coords_title: 'Contact Info',
+      phone: 'Phone',
+      media_title: 'Posts',
+      media_all: 'All',
+      media_videos: 'Videos',
+      media_photos: 'Photos',
+      media_offers: 'Offers',
+      logout: '🚪 Log out',
+      nav_home: 'Home',
+      nav_discuss: 'Reper-Chat',
+      nav_live: 'Live',
+      nav_profile: 'Profile',
+      support_online: 'Online',
+      support_welcome: 'Hello! I\'m the ArtiRoyce team. How can I help you?',
+      qr1: '🔐 KYC Verification',
+      qr2: '💰 Payment',
+      qr3: '⭐ My stars',
+      qr4: '🐛 Report a bug',
+      lang_title: '🌐 Choose language',
+      toast_lang: '🇬🇧 Language: English',
+    },
+    pt: {
+      kyc_title: 'Verifique sua identidade',
+      kyc_sub: 'Obtenha o badge ✔ e inspire confiança nos seus clientes',
+      kyc_btn: 'Iniciar verificação',
+      edit_cover: 'Editar',
+      edit_profile: 'Editar perfil',
+      verified: 'Verificado',
+      job: 'Carpinteiro',
+      bio: "Carpinteiro profissional com 8 anos de experiência. Especializado em móveis sob medida, portas e janelas. Disponível 7 dias por semana em Cotonou. 🪵",
+      followers: 'Seguidores',
+      following: 'Seguindo',
+      likes: 'Curtidas',
+      posts: 'Publicações',
+      stars_label: 'MINHAS ESTRELAS ARTIROYCE',
+      stars_of: '/ 5 estrelas',
+      stars_sub: "34 200 / 100 000 curtidas para desbloquear monetização",
+      stars_goal: 'Meta: 100.000 curtidas',
+      coords_title: 'Contato',
+      phone: 'Telefone',
+      media_title: 'Publicações',
+      media_all: 'Tudo',
+      media_videos: 'Vídeos',
+      media_photos: 'Fotos',
+      media_offers: 'Ofertas',
+      logout: '🚪 Sair',
+      nav_home: 'Início',
+      nav_discuss: 'Repertório',
+      nav_live: 'Ao Vivo',
+      nav_profile: 'Perfil',
+      support_online: 'Online',
+      support_welcome: 'Olá! Sou a equipe ArtiRoyce. Como posso ajudar?',
+      qr1: '🔐 Verificação KYC',
+      qr2: '💰 Pagamento',
+      qr3: '⭐ Minhas estrelas',
+      qr4: '🐛 Reportar bug',
+      lang_title: '🌐 Escolher idioma',
+      toast_lang: '🇧🇷 Idioma: Português',
     }
-    likedSet.add(id); btn.classList.add('liked');
-    btn.querySelector('.action-circle').innerHTML = thumbUpSVG(true);
-    showToast("👍 J'aime !", 'green');
-  }
-};
+  };
 
-window.toggleDislike = function(id) {
-  const btn  = document.getElementById('dislike-' + id);
-  const lBtn = document.getElementById('like-' + id);
-  if (dislikedSet.has(id)) {
-    dislikedSet.delete(id); btn.classList.remove('disliked');
-    btn.querySelector('.action-circle').innerHTML = thumbDownSVG(false);
-    showToast("Avis retiré");
-  } else {
-    // Retirer like si actif
-    if (likedSet.has(id)) {
-      likedSet.delete(id); lBtn.classList.remove('liked');
-      lBtn.querySelector('.action-circle').innerHTML = thumbUpSVG(false);
+  const langMeta = {
+    fr: { flag: '🇫🇷', code: 'FR' },
+    en: { flag: '🇬🇧', code: 'EN' },
+    pt: { flag: '🇧🇷', code: 'PT' },
+  };
+
+  let currentLang = 'fr';
+
+  function applyLang(lang) {
+    currentLang = lang;
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+    // Update placeholder
+    const inp = document.getElementById('chatInput');
+    if (inp) inp.placeholder = lang === 'fr' ? 'Écrivez votre message...' : lang === 'en' ? 'Type your message...' : 'Escreva sua mensagem...';
+    // Update header lang
+    document.getElementById('headerFlag').textContent = langMeta[lang].flag;
+    document.getElementById('headerCode').textContent = langMeta[lang].code;
+    // Update checks
+    ['fr','en','pt'].forEach(l => {
+      const c = document.getElementById('check-'+l);
+      if (c) c.style.display = l === lang ? 'block' : 'none';
+      const opts = document.querySelectorAll('.lang-modal-option');
+      opts.forEach((o,i) => {
+        const langs = ['fr','en','pt'];
+        o.classList.toggle('active', langs[i] === lang);
+      });
+    });
+  }
+
+  function setLang(lang) {
+    applyLang(lang);
+    closeLangModal();
+    showToast(i18n[lang].toast_lang, 'success');
+  }
+
+  /* ── MODALE LANGUE ── */
+  function openLangModal() {
+    document.getElementById('langModal').classList.add('open');
+  }
+  function closeLangModal() {
+    document.getElementById('langModal').classList.remove('open');
+  }
+  document.getElementById('langModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLangModal();
+  });
+
+  /* ── CHAT SUPPORT ── */
+  let chatOpen = false;
+
+  function toggleChat() {
+    chatOpen = !chatOpen;
+    const win = document.getElementById('chatWindow');
+    const badge = document.getElementById('chatBadge');
+    if (chatOpen) {
+      win.classList.add('open');
+      badge.style.display = 'none';
+      setTimeout(() => scrollChat(), 100);
+    } else {
+      win.classList.remove('open');
     }
-    dislikedSet.add(id); btn.classList.add('disliked');
-    btn.querySelector('.action-circle').innerHTML = thumbDownSVG(true);
-    showToast("👎 Je n'aime pas");
   }
-};
 
-const savedSet = new Set();
-window.toggleSave = function(id) {
-  const btn = document.getElementById('save-' + id);
-  const cnt = document.getElementById('save-count-' + id);
-  if (savedSet.has(id)) {
-    savedSet.delete(id); btn.classList.remove('saved');
-    cnt.textContent = 'Sauver'; showToast('Supprimé des favoris');
-  } else {
-    savedSet.add(id); btn.classList.add('saved');
-    cnt.textContent = '✅ Sauvé'; showToast('✅ Sauvegardé !', 'green');
+  function scrollChat() {
+    const msgs = document.getElementById('chatMessages');
+    msgs.scrollTop = msgs.scrollHeight;
   }
-};
 
-let toastTimer;
-window.showToast = function(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show' + (type ? ' ' + type : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = '', 2200);
-};
+  function sendMsg() {
+    const inp = document.getElementById('chatInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    addMsg(text, 'user');
+    setTimeout(() => showTyping(), 500);
+    setTimeout(() => {
+      removeTyping();
+      const replies = {
+        fr: ['Merci pour votre message ! Notre équipe va vous répondre sous peu. 😊', 'Bien reçu ! Nous traitons votre demande. ✅', 'Parfait, un agent ArtiRoyce vous répond dans quelques instants. 🛡️'],
+        en: ['Thanks for your message! Our team will reply shortly. 😊', 'Got it! We\'re processing your request. ✅', 'Perfect, an ArtiRoyce agent will reply in a moment. 🛡️'],
+        pt: ['Obrigado pela mensagem! Nossa equipe responderá em breve. 😊', 'Recebido! Estamos processando seu pedido. ✅', 'Perfeito, um agente ArtiRoyce responderá em instantes. 🛡️']
+      };
+      const arr = replies[currentLang];
+      addMsg(arr[Math.floor(Math.random() * arr.length)], 'support');
+    }, 2000);
+  }
 
-window.switchTab = function(el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-};
+  function sendQuick(el) {
+    const text = el.textContent;
+    addMsg(text, 'user');
+    el.style.opacity = '0.4';
+    el.style.pointerEvents = 'none';
+    setTimeout(() => showTyping(), 500);
+    setTimeout(() => {
+      removeTyping();
+      const resp = {
+        fr: {
+          '🔐 Vérification KYC': "Pour la vérification, rendez-vous dans Paramètres > KYC. Vous aurez besoin d'une pièce d'identité valide. 📋",
+          '💰 Paiement': "Nous acceptons Orange Money, Wave, MTN, carte bancaire et PayPal. Contactez-nous pour tout problème de paiement. 💳",
+          '⭐ Mes étoiles': "Vous avez 2 étoiles. À 10 000 j'aime vous gagnez une étoile supplémentaire ! Continuez comme ça ! ⭐",
+          '🐛 Signaler un bug': "Décrivez le problème en détail et nous le corrigerons rapidement. Merci de nous aider à améliorer ArtiRoyce ! 🔧"
+        },
+        en: {
+          '🔐 KYC Verification': "For verification, go to Settings > KYC. You will need a valid ID. 📋",
+          '💰 Payment': "We accept Orange Money, Wave, MTN, credit card and PayPal. 💳",
+          '⭐ My stars': "You have 2 stars. At 10,000 likes you earn an extra star! Keep it up! ⭐",
+          '🐛 Report a bug': "Describe the issue in detail and we\'ll fix it quickly. Thank you! 🔧"
+        },
+        pt: {
+          '🔐 Verificação KYC': "Para verificação, vá em Configurações > KYC. Você precisará de um documento válido. 📋",
+          '💰 Pagamento': "Aceitamos Orange Money, Wave, MTN, cartão e PayPal. 💳",
+          '⭐ Minhas estrelas': "Você tem 2 estrelas. Com 10.000 curtidas você ganha mais uma! Continue! ⭐",
+          '🐛 Reportar bug': "Descreva o problema em detalhes e corrigiremos rapidamente. Obrigado! 🔧"
+        }
+      };
+      const r = resp[currentLang] || resp['fr'];
+      const msg = r[text] || (currentLang === 'en' ? "Thanks! An agent will assist you shortly. 😊" : currentLang === 'pt' ? "Obrigado! Um agente responderá em breve. 😊" : "Merci ! Un agent va vous répondre sous peu. 😊");
+      addMsg(msg, 'support');
+    }, 1800);
+  }
 
-window.switchNav = function(el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-};
+  let typingEl = null;
+  function showTyping() {
+    const msgs = document.getElementById('chatMessages');
+    typingEl = document.createElement('div');
+    typingEl.className = 'chat-typing';
+    typingEl.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    msgs.appendChild(typingEl);
+    scrollChat();
+  }
+  function removeTyping() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+  }
 
-loadFeed();
+  function addMsg(text, type) {
+    const msgs = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + type;
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    div.innerHTML = text + '<div class="chat-msg-time">' + time + '</div>';
+    msgs.appendChild(div);
+    scrollChat();
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  /* ── MEDIA TABS ── */
+  document.querySelectorAll('.media-tab').forEach((tab, i) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  /* Init */
+  applyLang('fr');
 </script>
 </body>
 </html>
