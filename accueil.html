@@ -4,343 +4,332 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>ArtiRoyce – Accueil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    :root { --red: #e63224; --green: #27a945; --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; }
-    html, body { height: 100%; width: 100%; font-family: var(--font-body); background: #000; overflow: hidden; max-width: 480px; margin: 0 auto; }
+    :root { --red: #e63224; --green: #27a945; }
+    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; max-width: 480px; margin: 0 auto; }
 
-    /* HEADER */
-    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1.5px solid #eee; }
-    .header-row1 { display: flex; align-items: center; padding: 7px 10px 5px; gap: 6px; }
-    .logo-area { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
-    .logo-house { font-size: 20px; line-height: 1; flex-shrink: 0; }
-    .logo-text { font-family: var(--font-head); font-size: 18px; font-weight: 800; line-height: 1; white-space: nowrap; }
-    .logo-text .arti { color: var(--red); }
-    .logo-text .royce { color: var(--green); }
-    .header-icons { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .hico { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; position: relative; background: #f5f5f5; border: 1.5px solid #e0e0e0; flex-shrink: 0; }
-    .hico.notif { background: #fff8e1; border-color: #ffc107; }
-    .hico.chat-sup { background: #e8f5e9; border-color: var(--green); }
-    .hico.lang { background: #f0f8ff; border-color: #2196f3; flex-direction: column; gap: 0; }
-    .hico .bdot { position: absolute; top: -3px; right: -3px; min-width: 14px; height: 14px; border-radius: 7px; background: var(--red); color: #fff; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; padding: 0 2px; }
-    .hico.chat-sup .bdot { background: var(--green); }
+    /* ══ HEADER ══ */
+    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    .h-row1 { display: flex; align-items: center; padding: 6px 10px 4px; gap: 4px; }
+    .h-house { font-size: 22px; flex-shrink: 0; }
+    .h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .h-logo-text { font-size: 20px; font-weight: 900; line-height: 1; }
+    .h-logo-text .arti { color: var(--red); }
+    .h-logo-text .royce { color: var(--green); }
+    .h-icons { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .h-ico { position: relative; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; flex-shrink: 0; }
+    .h-ico.bell { background: #fff8e1; border: 1.5px solid #ffc107; }
+    .h-ico.chat { background: #e8f5e9; border: 1.5px solid var(--green); }
+    .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 15px; height: 15px; border-radius: 50%; background: var(--red); color: #fff; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    .h-ico.chat .bdot { background: var(--green); }
+    .h-dots { font-size: 20px; color: #444; cursor: pointer; padding: 4px; }
+    .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 8px 6px; gap: 5px; }
+    .h-tabs::-webkit-scrollbar { display: none; }
+    .h-tab { white-space: nowrap; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #444; background: transparent; border: none; display: flex; align-items: center; gap: 4px; }
+    .h-tab.active { background: var(--red); color: #fff; }
+    .h-tab.tab-profil { background: var(--red); color: #fff; }
+    .tab-green-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
 
-    /* Onglets */
-    .tabs-row { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 8px 7px; gap: 4px; }
-    .tabs-row::-webkit-scrollbar { display: none; }
-    .tab-item { white-space: nowrap; padding: 5px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; color: #555; background: #f0f0f0; border: 1.5px solid transparent; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
-    .tab-item.active { background: var(--red); color: #fff; border-color: var(--red); }
-    .tab-item.tab-profil { background: var(--red); color: #fff; }
-    .tab-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    /* ══ FEED ══ */
+    .feed-wrap { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .feed-wrap::-webkit-scrollbar { display: none; }
 
-    /* FEED */
-    .feed-container { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-    .feed-container::-webkit-scrollbar { display: none; }
+    .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
+    .vcard-bg { position: absolute; inset: 0; }
+    .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 20%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.65) 100%); }
 
-    /* CARD */
-    .video-card { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
-    .video-bg-color { position: absolute; inset: 0; }
-    .video-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 35%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.72) 100%); }
+    /* Badge Vérifié */
+    .badge-v { position: absolute; top: 18%; left: 10px; display: inline-flex; align-items: center; gap: 5px; background: var(--green); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 12px 5px 8px; border-radius: 20px; box-shadow: 0 2px 8px rgba(39,169,69,0.4); z-index: 10; }
+    .badge-v-check { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
 
-    /* BADGE VÉRIFIÉ — style étoile capture 3 */
-    .badge-verifie { position: absolute; top: 14px; left: 12px; display: inline-flex; align-items: center; gap: 7px; background: var(--green); color: #fff; font-family: var(--font-head); font-size: 13px; font-weight: 800; padding: 5px 14px 5px 5px; border-radius: 30px; box-shadow: 0 3px 12px rgba(39,169,69,0.55); z-index: 10; }
-    .badge-star { width: 24px; height: 24px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    /* ══ FIX 2 : Actions droite — tout le groupe positionné pour que avatar soit visible ══
+       On calcule : avatar(42) + 6 boutons×(36+14) + gaps(6×6) = 42+300+36 = 378px environ
+       On place top depuis le header bas, pas transform:-50% qui coupe en haut
+    */
+    .actions-r {
+      position: absolute;
+      right: 8px;
+      /* Partir d'en haut du header vers le bas — laisser 15% depuis le top */
+      top: 15%;
+      display: flex; flex-direction: column;
+      gap: 5px; align-items: center; z-index: 10;
+    }
 
-    /* ACTIONS DROITE */
-    .actions-right { position: absolute; right: 10px; top: 50%; transform: translateY(-55%); display: flex; flex-direction: column; gap: 14px; align-items: center; z-index: 10; }
-    .action-avatar { width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid #fff; overflow: hidden; position: relative; cursor: pointer; background: linear-gradient(135deg, var(--red), var(--green)); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 17px; font-weight: 800; color: #fff; flex-shrink: 0; }
-    .action-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
-    .action-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-    .action-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(15,15,15,0.72); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 18px; transition: transform 0.15s; }
-    .action-circle:active { transform: scale(1.2); }
-    .action-count { font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
-    .action-save { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-    .save-circle { width: 42px; height: 42px; border-radius: 50%; background: rgba(15,15,15,0.72); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .save-label { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+    .act-avatar { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; background: linear-gradient(135deg, #c0392b, #27a945); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: visible; flex-shrink: 0; }
+    .act-avatar-plus { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 14px; height: 14px; border-radius: 50%; background: var(--red); color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 
-    /* INFOS BAS */
-    .info-bottom { position: absolute; left: 12px; bottom: 74px; right: 68px; z-index: 10; }
-    .info-metier { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
-    .metier-globe { font-size: 18px; }
-    .metier-name { font-family: var(--font-head); font-size: 17px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-    .info-username { font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-bottom: 3px; }
-    .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); text-shadow: 0 1px 3px rgba(0,0,0,0.5); margin-bottom: 7px; line-height: 1.4; }
-    .info-stars { display: flex; gap: 2px; margin-bottom: 9px; }
-    .info-btns { display: flex; gap: 9px; }
-    .btn-discussion { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 25px; padding: 8px 15px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 10px rgba(39,169,69,0.4); }
-    .btn-live { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 25px; padding: 8px 15px; font-family: var(--font-body); font-size: 12.5px; font-weight: 700; cursor: pointer; box-shadow: 0 3px 10px rgba(230,50,36,0.4); }
+    .act-btn { display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; }
+    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(20,20,20,0.6); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+    .act-circle:active { transform: scale(1.2); }
+    .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); line-height: 1; }
+    .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); line-height: 1; }
+    .ico { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* WATERMARK */
-    .watermark { position: absolute; right: 10px; bottom: 76px; z-index: 10; text-align: right; }
-    .wm-logo { display: flex; align-items: center; gap: 3px; justify-content: flex-end; margin-bottom: 1px; }
-    .wm-text { font-family: var(--font-head); font-size: 10px; font-weight: 800; }
-    .wm-text .arti { color: var(--red); } .wm-text .royce { color: var(--green); }
-    .wm-user { font-size: 10px; color: rgba(255,255,255,0.8); }
-    .wm-likes { font-size: 10px; color: rgba(255,255,255,0.75); }
-    .wm-dl { font-size: 9px; color: rgba(255,255,255,0.55); }
+    /* ══ INFOS BAS — right: 58px pour ne PAS chevaucher les actions ══ */
+    .info-bot {
+      position: absolute; left: 10px; bottom: 68px;
+      right: 58px; /* laisse la place aux actions droite */
+      z-index: 10;
+    }
+    .info-job { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+    .info-job-globe-big { font-size: 20px; }
+    .info-job-name { font-size: 16px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
+    .info-globe-small { font-size: 14px; margin-bottom: 4px; display: block; }
+    .info-user { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+    .info-desc { font-size: 12px; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+    .info-stars { margin-bottom: 6px; font-size: 15px; }
+
+    /* ══ FIX 1 : Watermark inline — même niveau, pas de chevauchement ══ */
+    .wm-inline {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-bottom: 8px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      padding: 3px 9px 3px 5px;
+      max-width: 100%; /* ne dépasse pas la zone info-bot */
+      overflow: hidden;
+    }
+    .wm-t { font-size: 10px; font-weight: 900; white-space: nowrap; flex-shrink: 0; }
+    .wm-t .a { color: var(--red); }
+    .wm-t .r { color: var(--green); }
+    .wm-sep { color: rgba(255,255,255,0.4); font-size: 10px; flex-shrink: 0; }
+    .wm-u { font-size: 10px; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wm-l { font-size: 10px; color: rgba(255,255,255,0.7); white-space: nowrap; flex-shrink: 0; }
+
+    .info-btns { display: flex; gap: 8px; }
+    .btn-disc { display: flex; align-items: center; gap: 5px; background: var(--green); color: #fff; border: none; border-radius: 22px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-lv { display: flex; align-items: center; gap: 5px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
     /* BOTTOM NAV */
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -3px 14px rgba(0,0,0,0.09); }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 9px; cursor: pointer; gap: 2px; }
-    .nav-icon { font-size: 20px; line-height: 1; }
-    .nav-label { font-size: 9px; font-weight: 700; color: #aaa; }
-    .nav-plus-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 9px; cursor: pointer; }
-    .nav-plus { width: 46px; height: 46px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 25px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.5); margin-top: -15px; }
+    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 12px rgba(0,0,0,0.08); }
+    .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
+    .nav-ic { font-size: 20px; line-height: 1; }
+    .nav-lb { font-size: 9px; font-weight: 700; color: #aaa; }
+    .nav-i.active .nav-lb { color: var(--green); }
+    .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; cursor: pointer; }
+    .nav-plus { width: 46px; height: 46px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; box-shadow: 0 3px 12px rgba(230,50,36,0.5); margin-top: -14px; }
 
-    /* CHAT FAB — toujours visible, pas caché par la nav */
-    .chat-fab { position: fixed; bottom: 70px; right: 14px; width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #1a1a2e, #0f3460); border: 2.5px solid var(--green); box-shadow: 0 3px 16px rgba(39,169,69,0.5); cursor: pointer; z-index: 300; display: flex; align-items: center; justify-content: center; font-size: 19px; animation: fabPulse 2.5s infinite; }
-    @keyframes fabPulse { 0%,100%{box-shadow:0 3px 16px rgba(39,169,69,0.35);} 50%{box-shadow:0 3px 24px rgba(39,169,69,0.75);} }
-    .chat-fab .bdot { position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 8px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; } .toast.g { background: var(--green); }
 
-    /* TOAST */
-    .toast { position: fixed; top: 96px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-    .toast.show { opacity: 1; }
-    .toast.green { background: var(--green); }
-
-    /* MODALE LANGUE */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .lang-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 28px; animation: slideUp 0.22s ease; }
-    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-    .sheet-handle { width: 38px; height: 4px; background: #ddd; border-radius: 4px; margin: 11px auto; }
-    .sheet-title { font-family: var(--font-head); font-size: 15px; font-weight: 800; text-align: center; padding: 0 20px 13px; border-bottom: 1px solid #eee; }
-    .lang-opt { display: flex; align-items: center; gap: 13px; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.15s; }
-    .lang-opt:hover { background: #f9f9f9; }
-    .lang-opt.active { background: #e8f5e9; }
-    .lang-flag { font-size: 24px; }
-    .lang-name { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
-    .lang-native { font-size: 11px; color: #888; }
-    .lang-check { color: var(--green); font-size: 17px; font-weight: 800; margin-left: auto; }
+    .moverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .moverlay.open { display: flex; }
+    .lsheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 26px; animation: su 0.22s ease; }
+    @keyframes su { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .lhandle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto; }
+    .ltitle { font-size: 14px; font-weight: 800; text-align: center; padding: 0 20px 12px; border-bottom: 1px solid #eee; }
+    .lopt { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .lopt:hover { background: #f9f9f9; } .lopt.active { background: #e8f5e9; }
+    .lflag { font-size: 22px; } .lname { font-size: 13px; font-weight: 700; } .lnat { font-size: 11px; color: #888; }
+    .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="top-header" id="topHeader">
-  <div class="header-row1">
-    <div class="logo-area">
-      <span class="logo-house">🏠</span>
-      <svg width="26" height="20" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+<header class="top-header" id="topH">
+  <div class="h-row1">
+    <span class="h-house">🏠</span>
+    <div class="h-logo">
+      <svg width="24" height="18" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93Z M71,55L59,34L33,34L21,55L33,76L59,76Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93Z M123,55L111,34L87,34L75,55L87,76L111,76Z"/>
+        <path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/>
         <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/>
         <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        <path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/>
       </svg>
-      <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
-    <div class="header-icons">
-      <div class="hico lang" onclick="openLang()">
-        <span id="hFlag" style="font-size:12px;">🇫🇷</span>
-        <span id="hCode" style="font-size:8px;font-weight:800;">FR</span>
-      </div>
-      <div class="hico notif" onclick="showToast('🔔 Notifications','')">
-        🔔<div class="bdot">3</div>
-      </div>
-      <div class="hico" onclick="showToast('⚙️ Paramètres','')">⚙️</div>
-      <div class="hico chat-sup" onclick="showToast('💬 Support en ligne','green')">
-        💬<div class="bdot">1</div>
-      </div>
+    <div class="h-icons">
+      <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
+      <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')">💬<div class="bdot">1</div></div>
+      <span class="h-dots" onclick="toast('⚙️ Paramètres','')">⋮</span>
     </div>
   </div>
-  <div class="tabs-row">
-    <div class="tab-item active" onclick="setTab(this)">🏠 Accueil</div>
-    <div class="tab-item" onclick="setTab(this)"><span class="tab-dot"></span>Statuts</div>
-    <div class="tab-item tab-profil" onclick="setTab(this)">👤 Mon Profil</div>
-    <div class="tab-item" onclick="setTab(this)">⭐ Élites</div>
-    <div class="tab-item" onclick="setTab(this)">📂 Catégories</div>
-    <div class="tab-item" onclick="setTab(this)">💬 Répert-Discussion</div>
-    <div class="tab-item" onclick="setTab(this)">📰 Actualités</div>
+  <div class="h-tabs">
+    <div class="h-tab active" onclick="setTab(this)">Accueil</div>
+    <div class="h-tab" onclick="setTab(this)"><span class="tab-green-dot"></span> Statuts</div>
+    <div class="h-tab tab-profil" onclick="goProfile()">👤 Mon Profil</div>
+    <div class="h-tab" onclick="setTab(this)">⭐ Élites</div>
+    <div class="h-tab" onclick="setTab(this)">📂 Catégories</div>
+    <div class="h-tab" onclick="setTab(this)">💬 Répert-Discussion</div>
+    <div class="h-tab" onclick="setTab(this)">📰 Actualités</div>
   </div>
 </header>
 
-<!-- FEED -->
-<div class="feed-container" id="feedContainer">
+<div class="feed-wrap" id="feedW">
   <div id="hSpacer"></div>
 
-  <!-- CARD 1 -->
-  <div class="video-card">
-    <div class="video-bg-color" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f);"></div>
-    <div class="video-overlay"></div>
-    <div class="badge-verifie">
-      <div class="badge-star">
-        <svg width="18" height="18" viewBox="0 0 24 24">
-          <!-- Étoile 8 branches style capture 3 -->
-          <path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/>
-          <path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-      </div>
-      Vérifié
+  <!-- ═══ CARD 1 ═══ -->
+  <div class="vcard">
+    <div class="vcard-bg" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f);"></div>
+    <div class="vcard-overlay"></div>
+    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+
+    <div class="actions-r">
+      <div class="act-avatar" onclick="goUserProfile('amariella')">A<div class="act-avatar-plus">+</div></div>
+      <div class="act-btn" onclick="likeC(this)"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div><span class="act-n">0</span></div>
+      <div class="act-btn"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div><span class="act-n">0</span></div>
+      <div class="act-btn" onclick="toast('💬','')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="act-n">0</span></div>
+      <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span class="act-lbl">Sauver</span></div>
+      <div class="act-btn" onclick="toast('📆 Réservation','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="act-lbl">Réserver</span></div>
+      <div class="act-btn" onclick="toast('🔗 Partager','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><span class="act-lbl">Partager</span></div>
     </div>
-    <div class="actions-right">
-      <div class="action-avatar" onclick="showToast('👤 @amariella','')">A<div class="action-avatar-plus">+</div></div>
-      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">0</span></div>
-      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">0</span></div>
-      <div class="action-btn" onclick="showToast('💬 Commentaires','')"><div class="action-circle">💬</div><span class="action-count">0</span></div>
-      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
-    </div>
-    <div class="info-bottom">
-      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Professionnel</span></div>
-      <div class="info-username">@amariella</div>
+
+    <div class="info-bot">
+      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+      <span class="info-globe-small">🌍</span>
+      <div class="info-user">@amariella</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
       <div class="info-stars">⭐⭐⭐⭐⭐</div>
-      <div class="info-btns">
-        <button class="btn-discussion" onclick="showToast('💬 Discussion @amariella','green')">💬 Discussion</button>
-        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
+      <div class="wm-inline">
+        <svg width="11" height="8" viewBox="0 0 160 110" flex-shrink="0"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/></svg>
+        <span class="wm-t"><span class="a">Arti</span><span class="r">Royce</span></span>
+        <span class="wm-sep">·</span><span class="wm-u">@amariella</span>
+        <span class="wm-sep">·</span><span class="wm-l">👍 0</span>
       </div>
-    </div>
-    <div class="watermark">
-      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
-      <div class="wm-user">@amariella</div><div class="wm-likes">👍 0</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
+      <div class="info-btns">
+        <button class="btn-disc" onclick="toast('💬 @amariella','g')">💬 Discussion</button>
+        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
+      </div>
     </div>
   </div>
 
-  <!-- CARD 2 -->
-  <div class="video-card">
-    <div class="video-bg-color" style="background:linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00);"></div>
-    <div class="video-overlay"></div>
-    <div class="badge-verifie"><div class="badge-star"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/><path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>Vérifié</div>
-    <div class="actions-right">
-      <div class="action-avatar" style="background:linear-gradient(135deg,#e63224,#27a945);" onclick="showToast('👤 @arsene_dj','')">A<div class="action-avatar-plus">+</div></div>
-      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">24</span></div>
-      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">0</span></div>
-      <div class="action-btn" onclick="showToast('💬 3 commentaires','')"><div class="action-circle">💬</div><span class="action-count">3</span></div>
-      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
+  <!-- ═══ CARD 2 ═══ -->
+  <div class="vcard">
+    <div class="vcard-bg" style="background:linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00);"></div>
+    <div class="vcard-overlay"></div>
+    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+    <div class="actions-r">
+      <div class="act-avatar" style="background:linear-gradient(135deg,#c0392b,#27a945);" onclick="goUserProfile('arsene')">A<div class="act-avatar-plus">+</div></div>
+      <div class="act-btn" onclick="likeC(this)"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div><span class="act-n">24</span></div>
+      <div class="act-btn"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div><span class="act-n">0</span></div>
+      <div class="act-btn" onclick="toast('💬 3','')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="act-n">3</span></div>
+      <div class="act-btn" onclick="toast('💾','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span class="act-lbl">Sauver</span></div>
+      <div class="act-btn" onclick="toast('📆 Réservation @arsene','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="act-lbl">Réserver</span></div>
+      <div class="act-btn" onclick="toast('🔗 Partager @arsene','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><span class="act-lbl">Partager</span></div>
     </div>
-    <div class="info-bottom">
-      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Menuisier</span></div>
-      <div class="info-username">@arsene_dj</div>
+    <div class="info-bot">
+      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Menuisier</span></div>
+      <span class="info-globe-small">🌍</span>
+      <div class="info-user">@arsene</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
       <div class="info-stars">⭐⭐⭐⭐</div>
-      <div class="info-btns">
-        <button class="btn-discussion" onclick="showToast('💬 Discussion @arsene_dj','green')">💬 Discussion</button>
-        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
+      <div class="wm-inline">
+        <svg width="11" height="8" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/></svg>
+        <span class="wm-t"><span class="a">Arti</span><span class="r">Royce</span></span>
+        <span class="wm-sep">·</span><span class="wm-u">@arsene</span>
+        <span class="wm-sep">·</span><span class="wm-l">👍 24</span>
       </div>
-    </div>
-    <div class="watermark">
-      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
-      <div class="wm-user">@arsene_dj</div><div class="wm-likes">👍 24</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
+      <div class="info-btns">
+        <button class="btn-disc" onclick="toast('💬 @arsene','g')">💬 Discussion</button>
+        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
+      </div>
     </div>
   </div>
 
-  <!-- CARD 3 -->
-  <div class="video-card">
-    <div class="video-bg-color" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40);"></div>
-    <div class="video-overlay"></div>
-    <div class="badge-verifie"><div class="badge-star"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l1.5 3.5L17 4l-1.5 3.5L19 9l-3.5 1.5L17 14l-3.5-1.5L12 16l-1.5-3.5L7 14l1.5-3.5L5 9l3.5-1.5L7 4l3.5 1.5Z" fill="white"/><path d="M9.5 12l1.5 1.5 3.5-3.5" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div>Vérifié</div>
-    <div class="actions-right">
-      <div class="action-avatar" style="background:linear-gradient(135deg,#ff6b6b,#ffa500);" onclick="showToast('👤 @binta_pro','')">B<div class="action-avatar-plus">+</div></div>
-      <div class="action-btn" onclick="likeCard(this)"><div class="action-circle">👍</div><span class="action-count">142</span></div>
-      <div class="action-btn"><div class="action-circle">👎</div><span class="action-count">1</span></div>
-      <div class="action-btn" onclick="showToast('💬 12 commentaires','')"><div class="action-circle">💬</div><span class="action-count">12</span></div>
-      <div class="action-save" onclick="showToast('💾 Sauvegardé !','green')"><div class="save-circle">⬇️</div><span class="save-label">Sauver</span></div>
+  <!-- ═══ CARD 3 ═══ -->
+  <div class="vcard">
+    <div class="vcard-bg" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40);"></div>
+    <div class="vcard-overlay"></div>
+    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+    <div class="actions-r">
+      <div class="act-avatar" style="background:linear-gradient(135deg,#ff6b35,#ffa500);" onclick="goUserProfile('binta')">B<div class="act-avatar-plus">+</div></div>
+      <div class="act-btn" onclick="likeC(this)"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div><span class="act-n">142</span></div>
+      <div class="act-btn"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div><span class="act-n">1</span></div>
+      <div class="act-btn" onclick="toast('💬 12','')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span class="act-n">12</span></div>
+      <div class="act-btn" onclick="toast('💾','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span class="act-lbl">Sauver</span></div>
+      <div class="act-btn" onclick="toast('📆 Réservation @binta','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="act-lbl">Réserver</span></div>
+      <div class="act-btn" onclick="toast('🔗 Partager @binta','g')"><div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><span class="act-lbl">Partager</span></div>
     </div>
-    <div class="info-bottom">
-      <div class="info-metier"><span class="metier-globe">🌍</span><span class="metier-name">Couturière</span></div>
-      <div class="info-username">@binta_pro</div>
+    <div class="info-bot">
+      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Couturière</span></div>
+      <span class="info-globe-small">🌍</span>
+      <div class="info-user">@binta</div>
       <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
       <div class="info-stars">⭐⭐⭐⭐⭐</div>
+      <div class="wm-inline">
+        <svg width="11" height="8" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/></svg>
+        <span class="wm-t"><span class="a">Arti</span><span class="r">Royce</span></span>
+        <span class="wm-sep">·</span><span class="wm-u">@binta</span>
+        <span class="wm-sep">·</span><span class="wm-l">👍 142</span>
+      </div>
       <div class="info-btns">
-        <button class="btn-discussion" onclick="showToast('💬 Discussion @binta_pro','green')">💬 Discussion</button>
-        <button class="btn-live" onclick="showToast('🔴 Live','')">+ Live</button>
+        <button class="btn-disc" onclick="toast('💬 @binta','g')">💬 Discussion</button>
+        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
       </div>
     </div>
-    <div class="watermark">
-      <div class="wm-logo"><svg width="12" height="9" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-text"><span class="arti">Arti</span><span class="royce">Royce</span></span></div>
-      <div class="wm-user">@binta_pro</div><div class="wm-likes">👍 142</div><div class="wm-dl">Téléchargé sur ArtiRoyce</div>
-    </div>
   </div>
 
 </div>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <div class="nav-item active">
-    <span class="nav-icon">💬</span>
-    <span class="nav-label" style="color:var(--green);">Discussion</span>
-  </div>
-  <div class="nav-item" onclick="showToast('📩 Messages','')">
-    <span class="nav-icon">📩</span>
-    <span class="nav-label">Messages</span>
-  </div>
-  <div class="nav-plus-wrap" onclick="showToast('➕ Publier','green')">
-    <div class="nav-plus">＋</div>
-  </div>
-  <div class="nav-item" onclick="showToast('🎥 Live','')">
-    <span class="nav-icon">▶️</span>
-    <span class="nav-label">Live</span>
-  </div>
-  <div class="nav-item" onclick="showToast('📖 FAQ ArtiRoyce','')">
-    <span class="nav-icon">📖</span>
-    <span class="nav-label">FAQ</span>
-  </div>
+<nav class="bot-nav">
+  <div class="nav-i active"><span class="nav-ic">💬</span><span class="nav-lb" style="color:var(--green);">Discussion</span></div>
+  <div class="nav-i" onclick="toast('📩 Messages','')"><span class="nav-ic">📩</span><span class="nav-lb">Messages</span></div>
+  <div class="nav-plus-w" onclick="toast('➕ Publier','g')"><div class="nav-plus">＋</div></div>
+  <div class="nav-i" onclick="toast('🎥 Live','')"><span class="nav-ic">▶️</span><span class="nav-lb">Live</span></div>
+  <div class="nav-i" onclick="toast('📖 FAQ','')"><span class="nav-ic">📖</span><span class="nav-lb">FAQ</span></div>
 </nav>
-
-<!-- Chat FAB visible -->
-<div class="chat-fab" onclick="showToast('💬 Support ArtiRoyce en ligne','green')">
-  💬<div class="bdot">1</div>
-</div>
 
 <div class="toast" id="toastEl"></div>
 
-<!-- Modale langue -->
-<div class="modal-overlay" id="langModal" onclick="if(event.target===this)closeLang()">
-  <div class="lang-sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">🌐 Choisir la langue</div>
-    <div class="lang-opt active" onclick="setLang('fr','🇫🇷','FR')"><span class="lang-flag">🇫🇷</span><div><div class="lang-name">Français</div><div class="lang-native">Langue française</div></div><span class="lang-check" id="ck-fr">✓</span></div>
-    <div class="lang-opt" onclick="setLang('en','🇬🇧','EN')"><span class="lang-flag">🇬🇧</span><div><div class="lang-name">English</div><div class="lang-native">English language</div></div><span class="lang-check" id="ck-en" style="display:none">✓</span></div>
-    <div class="lang-opt" onclick="setLang('pt','🇧🇷','PT')"><span class="lang-flag">🇧🇷</span><div><div class="lang-name">Português</div><div class="lang-native">Língua portuguesa</div></div><span class="lang-check" id="ck-pt" style="display:none">✓</span></div>
+<div class="moverlay" id="langM" onclick="if(event.target===this)closeLang()">
+  <div class="lsheet">
+    <div class="lhandle"></div>
+    <div class="ltitle">🌐 Choisir la langue</div>
+    <div class="lopt active" onclick="setLang('fr','🇫🇷','FR')"><span class="lflag">🇫🇷</span><div><div class="lname">Français</div><div class="lnat">Langue française</div></div><span class="lchk" id="ck-fr">✓</span></div>
+    <div class="lopt" onclick="setLang('en','🇬🇧','EN')"><span class="lflag">🇬🇧</span><div><div class="lname">English</div><div class="lnat">English language</div></div><span class="lchk" id="ck-en" style="display:none">✓</span></div>
+    <div class="lopt" onclick="setLang('pt','🇧🇷','PT')"><span class="lflag">🇧🇷</span><div><div class="lname">Português</div><div class="lnat">Língua portuguesa</div></div><span class="lchk" id="ck-pt" style="display:none">✓</span></div>
   </div>
 </div>
 
 <script>
   function adjustSpacer() {
-    const h = document.getElementById('topHeader').offsetHeight;
+    const h = document.getElementById('topH').offsetHeight;
+    // Ajuster le spacer ET vérifier que les actions ne débordent pas
     document.getElementById('hSpacer').style.height = h + 'px';
+    // Ajuster top des actions pour qu'elles partent juste sous le header
+    const pct = ((h / window.innerHeight) * 100) + 2; // 2% de marge
+    document.querySelectorAll('.actions-r').forEach(el => {
+      el.style.top = pct + '%';
+    });
   }
   adjustSpacer();
   window.addEventListener('resize', adjustSpacer);
 
-  function showToast(msg, type) {
+  function toast(msg, type) {
     const el = document.getElementById('toastEl');
     el.textContent = msg;
-    el.className = 'toast show' + (type === 'green' ? ' green' : '');
+    el.className = 'toast show' + (type === 'g' ? ' g' : '');
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.className = 'toast', 2400);
+    el._t = setTimeout(() => el.className = 'toast', 2300);
   }
 
   function setTab(el) {
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.h-tab').forEach(t => { if (!t.classList.contains('tab-profil')) t.classList.remove('active'); });
     el.classList.add('active');
   }
 
-  function likeCard(btn) {
-    const count = btn.querySelector('.action-count');
-    const circle = btn.querySelector('.action-circle');
-    count.textContent = (parseInt(count.textContent) || 0) + 1;
-    circle.style.transform = 'scale(1.25)';
-    setTimeout(() => circle.style.transform = '', 180);
-    showToast("👍 +1 J'aime !", 'green');
+  function likeC(btn) {
+    const n = btn.querySelector('.act-n');
+    const c = btn.querySelector('.act-circle');
+    n.textContent = (parseInt(n.textContent) || 0) + 1;
+    c.style.transform = 'scale(1.25)';
+    setTimeout(() => c.style.transform = '', 160);
+    toast("👍 +1 J'aime !", 'g');
   }
 
-  function openLang() { document.getElementById('langModal').classList.add('open'); }
-  function closeLang() { document.getElementById('langModal').classList.remove('open'); }
+  function goProfile() { toast('👤 Mon Profil...', 'g'); }
+  function goUserProfile(u) { toast('👤 Profil de @' + u, 'g'); }
+
+  function closeLang() { document.getElementById('langM').classList.remove('open'); }
   function setLang(code, flag, label) {
-    document.getElementById('hFlag').textContent = flag;
-    document.getElementById('hCode').textContent = label;
-    ['fr','en','pt'].forEach(l => {
-      document.getElementById('ck-'+l).style.display = l === code ? 'inline' : 'none';
-    });
-    document.querySelectorAll('.lang-opt').forEach((o,i) => {
-      o.classList.toggle('active', ['fr','en','pt'][i] === code);
-    });
+    ['fr','en','pt'].forEach(l => { document.getElementById('ck-'+l).style.display = l === code ? 'inline' : 'none'; });
+    document.querySelectorAll('.lopt').forEach((o,i) => { o.classList.toggle('active', ['fr','en','pt'][i] === code); });
     closeLang();
-    showToast(flag + ' ' + label, 'green');
+    toast(flag + ' ' + label, 'g');
   }
 </script>
 </body>
