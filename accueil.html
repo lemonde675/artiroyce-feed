@@ -70,7 +70,7 @@
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
 
     /* ══ WATERMARK BAS DROITE ══ */
-    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 9px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; }
+    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 9px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
     .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
@@ -116,12 +116,12 @@
     <span class="h-house">🏠</span>
     <div class="h-logo">
       <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93Z M71,55L59,34L33,34L21,55L33,76L59,76Z"/>
-        <path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93Z M123,55L111,34L87,34L75,55L87,76L111,76Z"/>
-        <path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/>
-        <path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/>
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
         <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
         <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
       </svg>
       <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
@@ -187,7 +187,7 @@
         <button class="btn-disc" onclick="toast('💬 @amariella','g')">💬 Discussion</button>
         <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
         <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="11" height="8" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
           <span style="font-size:9px;color:rgba(255,255,255,0.85);">@amariella</span>
           <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
         </span>
@@ -237,7 +237,7 @@
         <button class="btn-disc" onclick="toast('💬 @arsene','g')">💬 Discussion</button>
         <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
         <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="11" height="8" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
           <span style="font-size:9px;color:rgba(255,255,255,0.85);">@arsene</span>
           <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
         </span>
@@ -287,7 +287,7 @@
         <button class="btn-disc" onclick="toast('💬 @binta','g')">💬 Discussion</button>
         <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
         <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="11" height="8" viewBox="0 0 160 110"><path fill="#e02010" fill-rule="evenodd" d="M90,55L68,17L24,17L2,55L24,93L68,93ZM71,55L59,34L33,34L21,55L33,76L59,76Z"/><path fill="#27a945" fill-rule="evenodd" d="M142,55L120,17L76,17L54,55L76,93L120,93ZM123,55L111,34L87,34L75,55L87,76L111,76Z"/><path fill="#e02010" d="M68,17L90,55L71,55L59,34Z"/><path fill="#27a945" d="M76,93L54,55L75,55L87,76Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
           <span style="font-size:9px;color:rgba(255,255,255,0.85);">@binta</span>
           <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
         </span>
