@@ -297,7 +297,7 @@
 
 </div>
 
-<!-- BOTTOM NAV — capture 2 exacte -->
+<!-- BOTTOM NAV -->
 <nav class="bot-nav">
   <div class="nav-i active">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -345,13 +345,43 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════
+     SCRIPT — 2 modifications uniquement :
+     1. Firebase Auth : si pas connecté → connexion.html
+     2. goProfile() : redirige vers profil.html
+     Tout le reste est identique à l'original.
+════════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // ── MODIFICATION 1 : Protection de la page ──
+  // Si l'utilisateur n'est pas connecté → redirection vers connexion.html
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = 'connexion.html';
+    }
+  });
+</script>
+
 <script>
   const NAV_H = 60;
 
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
     document.getElementById('hSpacer').style.height = hh + 'px';
-    // Positionner badge et avatar selon hauteur réelle du header
     document.querySelectorAll('.badge-v').forEach(el => {
       el.style.top = (hh + 140 + 10) + "px";
     });
@@ -365,7 +395,6 @@
 
   window.addEventListener('load', adjustLayout);
   window.addEventListener('resize', adjustLayout);
-  // Double appel pour navigateurs qui chargent le header lentement
   setTimeout(adjustLayout, 100);
   setTimeout(adjustLayout, 400);
 
@@ -384,7 +413,6 @@
   }
 
   const wmLikes = document.querySelectorAll('.wm-likes');
-
   function likeC(btn, idx) {
     const circle = btn.querySelector('.act-circle');
     const num = btn.querySelector('.act-n');
@@ -395,8 +423,16 @@
     if (wmLikes[idx]) wmLikes[idx].textContent = '👍 ' + newVal;
   }
 
-  function goProfile() { toast('👤 Mon Profil', 'g'); }
-  function goUserProfile(u) { toast('👤 Profil @' + u, 'g'); }
+  // ── MODIFICATION 2 : goProfile redirige vers profil.html ──
+  // Avant : toast('👤 Mon Profil', 'g')
+  // Après : redirection réelle vers profil.html
+  function goProfile() {
+    window.location.href = 'profil.html';
+  }
+
+  function goUserProfile(u) {
+    toast('👤 Profil @' + u, 'g');
+  }
 
   function setLang(l) {
     ['fr','en','pt'].forEach(x => document.getElementById('chk-'+x).style.display = x===l?'':'none');
@@ -405,8 +441,10 @@
     setTimeout(closeLangAll, 300);
     toast(l==='fr'?'🇫🇷 Français':l==='en'?'🇬🇧 English':'🇧🇷 Português','g');
   }
+
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
 </script>
+
 </body>
 </html>
