@@ -44,12 +44,13 @@
     /* Métier */
     .card-metier { position: absolute; left: 12px; color: #fff; font-size: 14px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.8); z-index: 10; }
 
-    /* Bouton itinéraire — ajout uniquement */
+    /* Bouton itinéraire */
     .btn-itineraire { position: absolute; left: 12px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; z-index: 10; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
 
     /* ══ ACTIONS DROITE ══ */
     .actions-r { position: absolute; right: 10px; top: 317px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
-    .act-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: visible; flex-shrink: 0; margin-bottom: 2px; }
+    .act-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 2px; }
+    .act-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .act-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
@@ -101,6 +102,14 @@
     .lname { font-size: 13px; font-weight: 700; }
     .lnat { font-size: 11px; color: #888; }
     .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
+
+    /* Couleurs de fond par défaut */
+    .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
+    .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
+    .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
+    .bg3 { background: linear-gradient(160deg,#1a001a,#3d0033,#0d000d); }
+    .bg4 { background: linear-gradient(160deg,#001a2e,#003d5e,#000d1a); }
+    .bg5 { background: linear-gradient(160deg,#1a1a00,#3d3d00,#0d0d00); }
   </style>
 </head>
 <body>
@@ -138,114 +147,8 @@
 
 <div class="feed-wrap" id="feedW">
   <div id="hSpacer"></div>
-
-  <!-- ═══ CARD 1 ═══ -->
-  <div class="vcard">
-    <div class="vcard-bg" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f);"></div>
-    <div class="vcard-overlay"></div>
-    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
-    <div class="card-metier">🔨 Professionnel</div>
-    <div class="btn-itineraire" onclick="ouvrirItineraire('')">🧭 Obtenir l'itinéraire</div>
-    <div class="actions-r">
-      <div class="act-avatar" style="background:linear-gradient(135deg,#8B4513,#27a945);" onclick="goUserProfile('amariella')">A<div class="act-avatar-plus">+</div></div>
-      <div class="act-btn" onclick="likeC(this,0)">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-        <span class="act-n">0</span>
-      </div>
-      <div class="act-btn">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-        <span class="act-n">0</span>
-      </div>
-      <div class="act-btn" onclick="toast('💬','')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <span class="act-n">0</span>
-      </div>
-      <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <span class="act-lbl">Sauver</span>
-      </div>
-      <div class="act-btn" onclick="toast('📆 Réservation @amariella','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="act-lbl">Réserver</span>
-      </div>
-      <div class="act-btn" onclick="toast('🔗 Partager @amariella','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        <span class="act-lbl">Partager</span>
-      </div>
-    </div>
-    <div class="info-bot">
-      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
-      <span class="info-globe-small">🌍</span>
-      <div class="info-user">@amariella</div>
-      <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">⭐⭐⭐⭐⭐</div>
-      <div class="info-btns">
-        <button class="btn-disc" onclick="toast('💬 @amariella','g')">💬 Discussion</button>
-        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
-        <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
-          <span style="font-size:9px;color:rgba(255,255,255,0.85);">@amariella</span>
-          <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ CARD 2 ═══ -->
-  <div class="vcard">
-    <div class="vcard-bg" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40);"></div>
-    <div class="vcard-overlay"></div>
-    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
-    <div class="card-metier">🔨 Menuisier</div>
-    <div class="btn-itineraire" onclick="ouvrirItineraire('Cotonou, Bénin')">🧭 Obtenir l'itinéraire</div>
-    <div class="actions-r">
-      <div class="act-avatar" style="background:linear-gradient(135deg,#c0392b,#27a945);" onclick="goUserProfile('arsene')">A<div class="act-avatar-plus">+</div></div>
-      <div class="act-btn" onclick="likeC(this,1)">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-        <span class="act-n">24</span>
-      </div>
-      <div class="act-btn">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-        <span class="act-n">0</span>
-      </div>
-      <div class="act-btn" onclick="toast('💬 3','')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <span class="act-n">3</span>
-      </div>
-      <div class="act-btn" onclick="toast('💾','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <span class="act-lbl">Sauver</span>
-      </div>
-      <div class="act-btn" onclick="toast('📆 Réservation @arsene','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="act-lbl">Réserver</span>
-      </div>
-      <div class="act-btn" onclick="toast('🔗 Partager @arsene','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        <span class="act-lbl">Partager</span>
-      </div>
-    </div>
-    <div class="info-bot">
-      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Menuisier</span></div>
-      <span class="info-globe-small">🌍</span>
-      <div class="info-user">@arsene</div>
-      <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">⭐⭐⭐⭐</div>
-      <div class="info-btns">
-        <button class="btn-disc" onclick="toast('💬 @arsene','g')">💬 Discussion</button>
-        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
-        <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
-          <span style="font-size:9px;color:rgba(255,255,255,0.85);">@arsene</span>
-          <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
-        </span>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<!-- BOTTOM NAV -->
 <nav class="bot-nav">
   <div class="nav-i active">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -296,6 +199,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -308,9 +212,120 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) { window.location.href = 'connexion.html'; }
+  const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
+
+  const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
+
+  function creerCard(uid, data, index) {
+    // Données Firebase — seulement metier et adresse
+    const metier = data.metier || 'Professionnel';
+    const adresse = data.adresse || '';
+    const prenom = data.prenom || '';
+    const initiale = (prenom || '?')[0].toUpperCase();
+    const pseudo = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
+    const bg = bgClasses[index % bgClasses.length];
+
+    // Avatar : photo si disponible, sinon initiale
+    const avatarInner = data.photoAvatar
+      ? `<img src="${data.photoAvatar}" alt="${prenom}"/>`
+      : initiale;
+
+    // Fond : photo de couverture si disponible, sinon couleur
+    const bgStyle = data.photoCover
+      ? `background-image:url('${data.photoCover}');background-size:cover;background-position:center;`
+      : '';
+    const bgClass = data.photoCover ? '' : bg;
+
+    return `<div class="vcard">
+      <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
+      <div class="vcard-overlay"></div>
+
+      <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+
+      <div class="card-metier">🔨 ${metier}</div>
+
+      <div class="btn-itineraire" onclick="ouvrirItineraire('${adresse.replace(/'/g,"\\'")}')">🧭 Obtenir l'itinéraire</div>
+
+      <div class="actions-r">
+        <div class="act-avatar" style="background:linear-gradient(135deg,#333,#555);" onclick="goUserProfile('${uid}')">
+          ${avatarInner}
+          <div class="act-avatar-plus">+</div>
+        </div>
+        <div class="act-btn" onclick="likeC(this,${index})">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💬 ${pseudo}','')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <span class="act-lbl">Sauver</span>
+        </div>
+        <div class="act-btn" onclick="toast('📆 Réservation ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <span class="act-lbl">Réserver</span>
+        </div>
+        <div class="act-btn" onclick="toast('🔗 Partager ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <span class="act-lbl">Partager</span>
+        </div>
+      </div>
+
+      <div class="info-bot">
+        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <span class="info-globe-small">🌍</span>
+        <div class="info-user">${pseudo}</div>
+        <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
+        <div class="info-stars">⭐⭐</div>
+        <div class="info-btns">
+          <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
+          <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
+          <span class="wm-inline">
+            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
+          </span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'connexion.html'; return; }
+
+    try {
+      const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
+      const snap = await getDocs(q);
+      const feed = document.getElementById('feedW');
+
+      if (snap.empty) {
+        feed.innerHTML = `<div id="hSpacer"></div>
+          <div style="width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;scroll-snap-align:start;">
+            <div style="font-size:56px;">🌍</div>
+            <div style="font-size:18px;font-weight:800;margin-top:16px;">Aucun profil vérifié pour l'instant</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:8px;line-height:1.6;">Les premiers professionnels vérifiés apparaîtront ici bientôt.</div>
+          </div>`;
+      } else {
+        let html = '<div id="hSpacer"></div>';
+        let i = 0;
+        snap.forEach(docSnap => {
+          html += creerCard(docSnap.id, docSnap.data(), i);
+          i++;
+        });
+        feed.innerHTML = html;
+      }
+      adjustLayout();
+    } catch(err) {
+      console.error('Erreur Firebase:', err);
+    }
   });
 </script>
 
@@ -319,7 +334,8 @@
 
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
-    document.getElementById('hSpacer').style.height = hh + 'px';
+    const spacer = document.getElementById('hSpacer');
+    if (spacer) spacer.style.height = hh + 'px';
     document.querySelectorAll('.badge-v').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
     document.querySelectorAll('.card-metier').forEach(el => { el.style.top = (hh + 140 + 10 + 46) + 'px'; });
     document.querySelectorAll('.btn-itineraire').forEach(el => { el.style.top = (hh + 140 + 10 + 46 + 34) + 'px'; });
@@ -363,7 +379,7 @@
   }
 
   function goProfile() { window.location.href = 'profil.html'; }
-  function goUserProfile(u) { toast('👤 Profil @' + u, 'g'); }
+  function goUserProfile(uid) { window.location.href = 'profil.html?uid=' + uid; }
 
   function setLang(l) {
     ['fr','en','pt'].forEach(x => document.getElementById('chk-'+x).style.display = x===l?'':'none');
