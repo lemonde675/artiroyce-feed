@@ -24,7 +24,6 @@
     .h-ico.chat .bdot { background: var(--green); }
     .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
     .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
-
     .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
     .h-tabs::-webkit-scrollbar { display: none; }
     .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
@@ -42,12 +41,13 @@
     .badge-v { position: absolute; left: 12px; top: 255px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
 
+    /* ══ MÉTIER — ajout uniquement ══ */
+    .card-metier { position: absolute; left: 12px; top: 300px; color: #fff; font-size: 14px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.8); z-index: 10; }
+
     /* ══ ACTIONS DROITE ══ */
     .actions-r { position: absolute; right: 10px; top: 317px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
-
     .act-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: visible; flex-shrink: 0; margin-bottom: 2px; }
     .act-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
-
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
@@ -69,17 +69,11 @@
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
 
-    /* ══ WATERMARK BAS DROITE ══ */
+    /* ══ WATERMARK ══ */
     .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 9px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
     .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
-    .wm-logo-row { display: flex; align-items: center; gap: 3px; }
-    .wm-row2 { display: flex; align-items: center; gap: 2px; }
-    .wm-sep { color: rgba(255,255,255,0.4); font-size: 8px; }
-    .wm-user { font-size: 9px; color: rgba(255,255,255,0.85); font-weight: 500; }
-    .wm-likes { font-size: 9px; color: rgba(255,255,255,0.75); }
-    .wm-dl { font-size: 8px; color: rgba(255,255,255,0.5); font-style: italic; white-space: nowrap; }
 
     /* ══ BOTTOM NAV ══ */
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
@@ -93,7 +87,6 @@
     .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.g { background: var(--green); }
-
     .moverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
     .moverlay.open { display: flex; }
     .lsheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 26px; animation: su 0.22s ease; }
@@ -150,6 +143,8 @@
     <div class="vcard-bg" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f);"></div>
     <div class="vcard-overlay"></div>
     <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+    <!-- AJOUT MÉTIER CARD 1 -->
+    <div class="card-metier">🔨 Professionnel</div>
     <div class="actions-r">
       <div class="act-avatar" style="background:linear-gradient(135deg,#8B4513,#27a945);" onclick="goUserProfile('amariella')">A<div class="act-avatar-plus">+</div></div>
       <div class="act-btn" onclick="likeC(this,0)">
@@ -200,6 +195,8 @@
     <div class="vcard-bg" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40);"></div>
     <div class="vcard-overlay"></div>
     <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+    <!-- AJOUT MÉTIER CARD 2 -->
+    <div class="card-metier">🔨 Menuisier</div>
     <div class="actions-r">
       <div class="act-avatar" style="background:linear-gradient(135deg,#c0392b,#27a945);" onclick="goUserProfile('arsene')">A<div class="act-avatar-plus">+</div></div>
       <div class="act-btn" onclick="likeC(this,1)">
@@ -245,59 +242,9 @@
     </div>
   </div>
 
-  <!-- ═══ CARD 3 ═══ -->
-  <div class="vcard">
-    <div class="vcard-bg" style="background:linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00);"></div>
-    <div class="vcard-overlay"></div>
-    <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
-    <div class="actions-r">
-      <div class="act-avatar" style="background:linear-gradient(135deg,#ff6b35,#ffa500);" onclick="goUserProfile('binta')">B<div class="act-avatar-plus">+</div></div>
-      <div class="act-btn" onclick="likeC(this,2)">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-        <span class="act-n">142</span>
-      </div>
-      <div class="act-btn">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-        <span class="act-n">1</span>
-      </div>
-      <div class="act-btn" onclick="toast('💬 12','')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <span class="act-n">12</span>
-      </div>
-      <div class="act-btn" onclick="toast('💾','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <span class="act-lbl">Sauver</span>
-      </div>
-      <div class="act-btn" onclick="toast('📆 Réservation @binta','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span class="act-lbl">Réserver</span>
-      </div>
-      <div class="act-btn" onclick="toast('🔗 Partager @binta','g')">
-        <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-        <span class="act-lbl">Partager</span>
-      </div>
-    </div>
-    <div class="info-bot">
-      <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Couturière</span></div>
-      <span class="info-globe-small">🌍</span>
-      <div class="info-user">@binta</div>
-      <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-      <div class="info-stars">⭐⭐⭐⭐⭐</div>
-      <div class="info-btns">
-        <button class="btn-disc" onclick="toast('💬 @binta','g')">💬 Discussion</button>
-        <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
-        <span class="wm-inline">
-          <span style="display:flex;align-items:center;gap:3px;"><svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg><span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
-          <span style="font-size:9px;color:rgba(255,255,255,0.85);">@binta</span>
-          <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
-        </span>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<!-- BOTTOM NAV — capture 2 exacte -->
+<!-- BOTTOM NAV -->
 <nav class="bot-nav">
   <div class="nav-i active">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -345,27 +292,41 @@
   </div>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = 'connexion.html'; }
+  });
+</script>
+
 <script>
   const NAV_H = 60;
 
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
     document.getElementById('hSpacer').style.height = hh + 'px';
-    // Positionner badge et avatar selon hauteur réelle du header
-    document.querySelectorAll('.badge-v').forEach(el => {
-      el.style.top = (hh + 140 + 10) + "px";
-    });
-    document.querySelectorAll('.actions-r').forEach(el => {
-      el.style.top = (hh + 202 + 8) + "px";
-    });
-    document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = (NAV_H + 14) + 'px';
-    });
+    document.querySelectorAll('.badge-v').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
+    document.querySelectorAll('.card-metier').forEach(el => { el.style.top = (hh + 140 + 10 + 46) + 'px'; });
+    document.querySelectorAll('.actions-r').forEach(el => { el.style.top = (hh + 202 + 8) + 'px'; });
+    document.querySelectorAll('.info-bot').forEach(el => { el.style.bottom = (NAV_H + 14) + 'px'; });
   }
 
   window.addEventListener('load', adjustLayout);
   window.addEventListener('resize', adjustLayout);
-  // Double appel pour navigateurs qui chargent le header lentement
   setTimeout(adjustLayout, 100);
   setTimeout(adjustLayout, 400);
 
@@ -383,19 +344,15 @@
     el.classList.add('active');
   }
 
-  const wmLikes = document.querySelectorAll('.wm-likes');
-
   function likeC(btn, idx) {
     const circle = btn.querySelector('.act-circle');
     const num = btn.querySelector('.act-n');
     const liked = circle.classList.contains('liked');
     circle.classList.toggle('liked', !liked);
-    const newVal = parseInt(num.textContent) + (liked ? -1 : 1);
-    num.textContent = newVal;
-    if (wmLikes[idx]) wmLikes[idx].textContent = '👍 ' + newVal;
+    num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
   }
 
-  function goProfile() { toast('👤 Mon Profil', 'g'); }
+  function goProfile() { window.location.href = 'profil.html'; }
   function goUserProfile(u) { toast('👤 Profil @' + u, 'g'); }
 
   function setLang(l) {
@@ -405,8 +362,10 @@
     setTimeout(closeLangAll, 300);
     toast(l==='fr'?'🇫🇷 Français':l==='en'?'🇬🇧 English':'🇧🇷 Português','g');
   }
+
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
 </script>
+
 </body>
 </html>
