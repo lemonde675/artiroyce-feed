@@ -54,29 +54,18 @@
     /* ══ INFOS BAS GAUCHE ══ */
     .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
 
-    /* Avatar 60px */
-    .info-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 10px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    /* Avatar 48px — réduit pour ne pas chevaucher badge */
+    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
-
-    /* 4. Globe petit → espace avant @pseudo */
     .info-globe-small { font-size: 16px; margin-bottom: 8px; display: block; }
-
-    /* 4. @pseudo légèrement espacé */
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
-
-    /* 5. Bio légèrement plus bas */
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
-
-    /* 5. Étoiles légèrement plus bas */
     .info-stars { margin-top: 4px; margin-bottom: 6px; font-size: 16px; letter-spacing: 1px; }
-
-    /* 3. Métier — espace au-dessus */
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-top: 10px; margin-bottom: 8px; }
-
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -84,8 +73,6 @@
     .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
-
-    /* Bouton itinéraire */
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
 
     /* ══ BOTTOM NAV ══ */
@@ -339,14 +326,14 @@
       el.style.top = (hh + 140 + 10) + 'px';
     });
 
-    // Actions droite — 72px vers le haut par rapport à avant (300 - 72 = 228)
+    // Actions droite — 72px vers le haut (300 - 72 = 228)
     document.querySelectorAll('.actions-r').forEach(el => {
       el.style.top = (hh + 228) + 'px';
     });
 
-    // Info-bot — 88px vers le haut (bottom augmente de 88)
+    // Info-bot — bottom fixe, intact
     document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = (NAV_H + 14 + 88) + 'px';
+      el.style.bottom = (NAV_H + 14) + 'px';
     });
   }
 
