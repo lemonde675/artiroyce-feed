@@ -42,7 +42,7 @@
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
 
     /* ══ ACTIONS DROITE — sans avatar ══ */
-    .actions-r { position: absolute; right: 10px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
+    .actions-r { position: absolute; right: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
@@ -54,18 +54,18 @@
     /* ══ INFOS BAS GAUCHE ══ */
     .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
 
-    /* Avatar 60px dans info-bot */
-    .info-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    /* Avatar 60px */
+    .info-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 10px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-    .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
+    .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
     .info-globe-small { font-size: 16px; margin-bottom: 4px; display: block; }
-    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; text-decoration: underline; text-underline-offset: 2px; }
+    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-bottom: 6px; line-height: 1.4; }
     .info-stars { margin-bottom: 6px; font-size: 16px; letter-spacing: 1px; }
-    .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 6px; }
+    .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 8px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -233,17 +233,15 @@
       ? `background-image:url('${data.photoCover}');background-size:cover;background-position:center;`
       : '';
     const bgClass = data.photoCover ? '' : bg;
-
     const adresseEsc = adresse.replace(/'/g, "\\'");
 
     return `<div class="vcard">
       <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
       <div class="vcard-overlay"></div>
 
-      <!-- Badge Vérifié -->
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
 
-      <!-- Actions droite — sans avatar -->
+      <!-- Actions droite — sans avatar, poussées vers le milieu -->
       <div class="actions-r">
         <div class="act-btn" onclick="likeC(this,${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
@@ -271,25 +269,16 @@
         </div>
       </div>
 
-      <!-- Infos bas gauche — nouvel ordre -->
+      <!-- Infos bas gauche -->
       <div class="info-bot">
-        <!-- 1. Avatar 60px -->
         <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
-        <!-- 2. Globe gros + Professionnel -->
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
-        <!-- 3. Globe petit -->
         <span class="info-globe-small">🌍</span>
-        <!-- 4. @pseudo -->
         <div class="info-user">${pseudo}</div>
-        <!-- 5. Bio fixe -->
         <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
-        <!-- 6. Étoiles -->
         <div class="info-stars">⭐⭐</div>
-        <!-- 7. Métier depuis Firebase -->
         <div class="info-metier">🔨 ${metier}</div>
-        <!-- 8. Bouton itinéraire -->
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
-        <!-- 9. Discussion + Live + watermark -->
         <div class="info-btns">
           <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
           <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
@@ -335,9 +324,21 @@
     const hh = document.getElementById('topH').offsetHeight;
     const spacer = document.getElementById('hSpacer');
     if (spacer) spacer.style.height = hh + 'px';
-    document.querySelectorAll('.badge-v').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
-    document.querySelectorAll('.actions-r').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
-    document.querySelectorAll('.info-bot').forEach(el => { el.style.bottom = (NAV_H + 14) + 'px'; });
+
+    // Badge Vérifié — position originale
+    document.querySelectorAll('.badge-v').forEach(el => {
+      el.style.top = (hh + 140 + 10) + 'px';
+    });
+
+    // Actions droite — poussées vers le milieu comme capture 2
+    document.querySelectorAll('.actions-r').forEach(el => {
+      el.style.top = (hh + 300) + 'px';
+    });
+
+    // Info bas gauche — bottom fixe
+    document.querySelectorAll('.info-bot').forEach(el => {
+      el.style.bottom = (NAV_H + 14) + 'px';
+    });
   }
 
   window.addEventListener('load', adjustLayout);
