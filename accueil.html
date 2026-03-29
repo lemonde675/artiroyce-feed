@@ -38,20 +38,11 @@
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
 
     /* Badge Vérifié */
-    .badge-v { position: absolute; left: 12px; top: 255px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
+    .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
 
-    /* Métier */
-    .card-metier { position: absolute; left: 12px; color: #fff; font-size: 14px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,0.8); z-index: 10; }
-
-    /* Bouton itinéraire */
-    .btn-itineraire { position: absolute; left: 12px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; z-index: 10; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
-
-    /* ══ ACTIONS DROITE ══ */
-    .actions-r { position: absolute; right: 10px; top: 317px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
-    .act-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 2px; }
-    .act-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-    .act-avatar-plus { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    /* ══ ACTIONS DROITE — sans avatar ══ */
+    .actions-r { position: absolute; right: 10px; display: flex; flex-direction: column; gap: 4px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
@@ -62,13 +53,19 @@
 
     /* ══ INFOS BAS GAUCHE ══ */
     .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
+
+    /* Avatar 60px dans info-bot */
+    .info-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
     .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
     .info-globe-small { font-size: 16px; margin-bottom: 4px; display: block; }
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-bottom: 6px; line-height: 1.4; }
-    .info-stars { margin-bottom: 8px; font-size: 16px; letter-spacing: 1px; }
+    .info-stars { margin-bottom: 6px; font-size: 16px; letter-spacing: 1px; }
+    .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 6px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -76,6 +73,9 @@
     .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
+
+    /* Bouton itinéraire dans info-bot */
+    .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
 
     /* ══ BOTTOM NAV ══ */
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
@@ -103,7 +103,6 @@
     .lnat { font-size: 11px; color: #888; }
     .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
 
-    /* Couleurs de fond par défaut */
     .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
     .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
     .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
@@ -219,40 +218,33 @@
   const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
 
   function creerCard(uid, data, index) {
-    // Données Firebase — seulement metier et adresse
-    const metier = data.metier || 'Professionnel';
+    const metier  = data.metier  || 'Professionnel';
     const adresse = data.adresse || '';
-    const prenom = data.prenom || '';
+    const prenom  = data.prenom  || '';
     const initiale = (prenom || '?')[0].toUpperCase();
-    const pseudo = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
-    const bg = bgClasses[index % bgClasses.length];
+    const pseudo  = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
+    const bg      = bgClasses[index % bgClasses.length];
 
-    // Avatar : photo si disponible, sinon initiale
     const avatarInner = data.photoAvatar
       ? `<img src="${data.photoAvatar}" alt="${prenom}"/>`
       : initiale;
 
-    // Fond : photo de couverture si disponible, sinon couleur
     const bgStyle = data.photoCover
       ? `background-image:url('${data.photoCover}');background-size:cover;background-position:center;`
       : '';
     const bgClass = data.photoCover ? '' : bg;
 
+    const adresseEsc = adresse.replace(/'/g, "\\'");
+
     return `<div class="vcard">
       <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
       <div class="vcard-overlay"></div>
 
+      <!-- Badge Vérifié -->
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
 
-      <div class="card-metier">🔨 ${metier}</div>
-
-      <div class="btn-itineraire" onclick="ouvrirItineraire('${adresse.replace(/'/g,"\\'")}')">🧭 Obtenir l'itinéraire</div>
-
+      <!-- Actions droite — sans avatar -->
       <div class="actions-r">
-        <div class="act-avatar" style="background:linear-gradient(135deg,#333,#555);" onclick="goUserProfile('${uid}')">
-          ${avatarInner}
-          <div class="act-avatar-plus">+</div>
-        </div>
         <div class="act-btn" onclick="likeC(this,${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
           <span class="act-n">0</span>
@@ -279,12 +271,25 @@
         </div>
       </div>
 
+      <!-- Infos bas gauche — nouvel ordre -->
       <div class="info-bot">
+        <!-- 1. Avatar 60px -->
+        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <!-- 2. Globe gros + Professionnel -->
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <!-- 3. Globe petit -->
         <span class="info-globe-small">🌍</span>
+        <!-- 4. @pseudo -->
         <div class="info-user">${pseudo}</div>
+        <!-- 5. Bio fixe -->
         <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
+        <!-- 6. Étoiles -->
         <div class="info-stars">⭐⭐</div>
+        <!-- 7. Métier depuis Firebase -->
+        <div class="info-metier">🔨 ${metier}</div>
+        <!-- 8. Bouton itinéraire -->
+        <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <!-- 9. Discussion + Live + watermark -->
         <div class="info-btns">
           <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
           <button class="btn-lv" onclick="toast('🔴 Live','')">+ Live</button>
@@ -300,7 +305,6 @@
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = 'connexion.html'; return; }
-
     try {
       const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
       const snap = await getDocs(q);
@@ -316,16 +320,11 @@
       } else {
         let html = '<div id="hSpacer"></div>';
         let i = 0;
-        snap.forEach(docSnap => {
-          html += creerCard(docSnap.id, docSnap.data(), i);
-          i++;
-        });
+        snap.forEach(docSnap => { html += creerCard(docSnap.id, docSnap.data(), i); i++; });
         feed.innerHTML = html;
       }
       adjustLayout();
-    } catch(err) {
-      console.error('Erreur Firebase:', err);
-    }
+    } catch(err) { console.error('Erreur Firebase:', err); }
   });
 </script>
 
@@ -337,9 +336,7 @@
     const spacer = document.getElementById('hSpacer');
     if (spacer) spacer.style.height = hh + 'px';
     document.querySelectorAll('.badge-v').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
-    document.querySelectorAll('.card-metier').forEach(el => { el.style.top = (hh + 140 + 10 + 46) + 'px'; });
-    document.querySelectorAll('.btn-itineraire').forEach(el => { el.style.top = (hh + 140 + 10 + 46 + 34) + 'px'; });
-    document.querySelectorAll('.actions-r').forEach(el => { el.style.top = (hh + 202 + 8) + 'px'; });
+    document.querySelectorAll('.actions-r').forEach(el => { el.style.top = (hh + 140 + 10) + 'px'; });
     document.querySelectorAll('.info-bot').forEach(el => { el.style.bottom = (NAV_H + 14) + 'px'; });
   }
 
