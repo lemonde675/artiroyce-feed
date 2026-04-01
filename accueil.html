@@ -8,8 +8,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root { --red: #e63224; --green: #27a945; }
     html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; max-width: 480px; margin: 0 auto; }
-
-    /* ══ HEADER ══ */
     .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
     .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
     .h-house { font-size: 24px; flex-shrink: 0; }
@@ -29,19 +27,13 @@
     .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
     .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
     .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
-
-    /* ══ FEED ══ */
     .feed-wrap { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .feed-wrap::-webkit-scrollbar { display: none; }
     .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
-
-    /* Badge Vérifié */
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
-
-    /* ══ ACTIONS DROITE ══ */
     .actions-r { position: absolute; right: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
@@ -50,14 +42,9 @@
     .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    /* ══ INFOS BAS GAUCHE ══ */
     .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
-
-    /* Avatar 48px — margin-top -8px pour pousser vers le haut */
     .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; margin-top: -8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
@@ -74,8 +61,6 @@
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
-
-    /* ══ BOTTOM NAV ══ */
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
     .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
@@ -83,7 +68,6 @@
     .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; cursor: pointer; }
     .nav-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.55); margin-top: -16px; }
     .nav-ico { width: 24px; height: 24px; }
-
     .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.g { background: var(--green); }
@@ -100,7 +84,6 @@
     .lname { font-size: 13px; font-weight: 700; }
     .lnat { font-size: 11px; color: #888; }
     .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
-
     .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
     .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
     .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
@@ -222,23 +205,15 @@
     const initiale = (prenom || '?')[0].toUpperCase();
     const pseudo  = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
     const bg      = bgClasses[index % bgClasses.length];
-
-    const avatarInner = data.photoAvatar
-      ? `<img src="${data.photoAvatar}" alt="${prenom}"/>`
-      : initiale;
-
-    const bgStyle = data.photoCover
-      ? `background-image:url('${data.photoCover}');background-size:cover;background-position:center;`
-      : '';
+    const avatarInner = data.photoAvatar ? `<img src="${data.photoAvatar}" alt="${prenom}"/>` : initiale;
+    const bgStyle = data.photoCover ? `background-image:url('${data.photoCover}');background-size:cover;background-position:center;` : '';
     const bgClass = data.photoCover ? '' : bg;
     const adresseEsc = adresse.replace(/'/g, "\\'");
 
     return `<div class="vcard">
       <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
       <div class="vcard-overlay"></div>
-
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
-
       <div class="actions-r">
         <div class="act-btn" onclick="likeC(this,${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
@@ -265,7 +240,6 @@
           <span class="act-lbl">Partager</span>
         </div>
       </div>
-
       <div class="info-bot">
         <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
@@ -294,7 +268,6 @@
       const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
       const snap = await getDocs(q);
       const feed = document.getElementById('feedW');
-
       if (snap.empty) {
         feed.innerHTML = `<div id="hSpacer"></div>
           <div style="width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;scroll-snap-align:start;">
@@ -321,19 +294,17 @@
     const spacer = document.getElementById('hSpacer');
     if (spacer) spacer.style.height = hh + 'px';
 
-    // Badge Vérifié — intact
     document.querySelectorAll('.badge-v').forEach(el => {
       el.style.top = (hh + 140 + 10) + 'px';
     });
 
-    // Actions droite — hh + 310 pour aligner Partager avec watermark
     document.querySelectorAll('.actions-r').forEach(el => {
       el.style.top = (hh + 310) + 'px';
     });
 
-    // Info-bot — position originale stable
+    // ── MODIFICATION UNIQUE : +90px vers le haut ──
     document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = (NAV_H + 14) + 'px';
+      el.style.bottom = (NAV_H + 14 + 90) + 'px';
     });
   }
 
