@@ -34,7 +34,8 @@
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
-    .actions-r { position: absolute; right: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
+    /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
+    .actions-r { position: absolute; right: 10px; top: calc(30% - 140px); display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
@@ -42,8 +43,6 @@
     .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    /* BLOC HAUT */
     .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; }
     .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; margin-top: -8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
@@ -54,8 +53,6 @@
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
     .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
-
-    /* BLOC BAS */
     .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 8px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
@@ -66,7 +63,6 @@
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
-
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
     .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
@@ -246,8 +242,6 @@
           <span class="act-lbl">Partager</span>
         </div>
       </div>
-
-      <!-- BLOC HAUT : avatar → étoiles -->
       <div class="info-top">
         <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
@@ -256,8 +250,6 @@
         <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
         <div class="info-stars">⭐⭐</div>
       </div>
-
-      <!-- BLOC BAS : métier → Discussion -->
       <div class="info-bot">
         <div class="info-metier">🔨 ${metier}</div>
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
@@ -274,54 +266,17 @@
     </div>`;
   }
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'connexion.html'; return; }
-    try {
-      const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
-      const snap = await getDocs(q);
-      const feed = document.getElementById('feedW');
-      if (snap.empty) {
-        feed.innerHTML = `<div id="hSpacer"></div>
-          <div style="width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;scroll-snap-align:start;">
-            <div style="font-size:56px;">🌍</div>
-            <div style="font-size:18px;font-weight:800;margin-top:16px;">Aucun profil vérifié pour l'instant</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:8px;line-height:1.6;">Les premiers professionnels vérifiés apparaîtront ici bientôt.</div>
-          </div>`;
-      } else {
-        let html = '<div id="hSpacer"></div>';
-        let i = 0;
-        snap.forEach(docSnap => { html += creerCard(docSnap.id, docSnap.data(), i); i++; });
-        feed.innerHTML = html;
-      }
-      adjustLayout();
-    } catch(err) { console.error('Erreur Firebase:', err); }
-  });
-</script>
-
-<script>
-  const NAV_H = 60;
-
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
-    const spacer = document.getElementById('hSpacer');
-    if (spacer) spacer.style.height = hh + 'px';
-
+    document.getElementById('hSpacer').style.height = hh + 'px';
     document.querySelectorAll('.badge-v').forEach(el => {
-      el.style.top = (hh + 140 + 10) + 'px';
+      el.style.top = (hh + 10) + 'px';
     });
-
-    document.querySelectorAll('.actions-r').forEach(el => {
-      el.style.top = (hh + 310) + 'px';
-    });
-
-    // BLOC HAUT — +78px vers le haut
     document.querySelectorAll('.info-top').forEach(el => {
-      el.style.bottom = (NAV_H + 14 + 78) + 'px';
+      el.style.bottom = '200px';
     });
-
-    // BLOC BAS — position originale intacte
     document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = (NAV_H + 14) + 'px';
+      el.style.bottom = '70px';
     });
   }
 
@@ -330,29 +285,19 @@
   setTimeout(adjustLayout, 100);
   setTimeout(adjustLayout, 400);
 
-  let toastT;
-  function toast(msg, type) {
+  window.toast = function(msg, type) {
     const el = document.getElementById('toastEl');
     el.textContent = msg;
     el.className = 'toast show' + (type === 'g' ? ' g' : '');
-    clearTimeout(toastT);
-    toastT = setTimeout(() => el.className = 'toast', 2200);
+    setTimeout(() => el.className = 'toast', 2200);
   }
 
-  function ouvrirItineraire(adresse) {
-    if (!adresse || adresse.trim() === '') {
-      toast('🧭 Localisation non renseignée', '');
-      return;
-    }
-    window.open('https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(adresse), '_blank');
-  }
-
-  function setTab(el) {
+  window.setTab = function(el) {
     document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
   }
 
-  function likeC(btn, idx) {
+  window.likeC = function(btn, idx) {
     const circle = btn.querySelector('.act-circle');
     const num = btn.querySelector('.act-n');
     const liked = circle.classList.contains('liked');
@@ -360,8 +305,12 @@
     num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
   }
 
-  function goProfile() { window.location.href = 'profil.html'; }
-  function goUserProfile(uid) { window.location.href = 'profil.html?uid=' + uid; }
+  window.goProfile = function() { window.location.href = 'profil.html'; }
+  window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
+  window.ouvrirItineraire = function(adresse) {
+    if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
+    else toast('📍 Adresse non disponible', '');
+  }
 
   function setLang(l) {
     ['fr','en','pt'].forEach(x => document.getElementById('chk-'+x).style.display = x===l?'':'none');
@@ -370,10 +319,24 @@
     setTimeout(closeLangAll, 300);
     toast(l==='fr'?'🇫🇷 Français':l==='en'?'🇬🇧 English':'🇧🇷 Português','g');
   }
-
+  window.setLang = setLang;
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
-</script>
+  window.closeLang = closeLang;
 
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'connexion.html'; return; }
+    const feed = document.getElementById('feedW');
+    try {
+      const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
+      const snap = await getDocs(q);
+      let index = 0;
+      snap.forEach(doc => {
+        feed.innerHTML += creerCard(doc.id, doc.data(), index++);
+      });
+      adjustLayout();
+    } catch(e) { console.error(e); }
+  });
+</script>
 </body>
 </html>
