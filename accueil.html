@@ -62,6 +62,7 @@
     .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
+    .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
@@ -202,6 +203,31 @@
 
   function creerCard(uid, data, index) {
     const metier  = data.metier  || 'Professionnel';
+    const ville   = data.ville || data.adresse || '';
+    function getEmoji(m) {
+      const ml = m.toLowerCase();
+      if (ml.includes('coutur') || ml.includes('tailleur') || ml.includes('mode')) return '🧵';
+      if (ml.includes('mecanic') || ml.includes('mécan') || ml.includes('auto')) return '🔧';
+      if (ml.includes('menuisier') || ml.includes('menuiserie') || ml.includes('charpent')) return '🪚';
+      if (ml.includes('peint') || ml.includes('peintre')) return '🎨';
+      if (ml.includes('électric') || ml.includes('electric')) return '⚡';
+      if (ml.includes('plombier') || ml.includes('plomberie')) return '🚿';
+      if (ml.includes('coiffeur') || ml.includes('coiffure') || ml.includes('salon')) return '✂️';
+      if (ml.includes('cuisine') || ml.includes('cuisinier') || ml.includes('restaurant') || ml.includes('traiteur')) return '👨‍🍳';
+      if (ml.includes('maçon') || ml.includes('macon') || ml.includes('construct')) return '🧱';
+      if (ml.includes('soudeur') || ml.includes('soudure')) return '🔩';
+      if (ml.includes('informatique') || ml.includes('tech') || ml.includes('développ')) return '💻';
+      if (ml.includes('médecin') || ml.includes('medecin') || ml.includes('infirmier') || ml.includes('santé')) return '🏥';
+      if (ml.includes('vendeur') || ml.includes('commerce') || ml.includes('boutique') || ml.includes('marchand')) return '🛒';
+      if (ml.includes('transport') || ml.includes('chauffeur') || ml.includes('taxi')) return '🚗';
+      if (ml.includes('agricult') || ml.includes('ferme') || ml.includes('élevage')) return '🌾';
+      if (ml.includes('photographe') || ml.includes('photo') || ml.includes('vidéo')) return '📸';
+      if (ml.includes('music') || ml.includes('musique') || ml.includes('artiste')) return '🎵';
+      if (ml.includes('forgeron') || ml.includes('forge')) return '⚒️';
+      if (ml.includes('bijou') || ml.includes('orfévre')) return '💍';
+      if (ml.includes('jardin') || ml.includes('paysag')) return '🌿';
+      return '🔨';
+    }
     const adresse = data.adresse || '';
     const prenom  = data.prenom  || '';
     const initiale = (prenom || '?')[0].toUpperCase();
@@ -251,7 +277,8 @@
         <div class="info-stars">⭐⭐</div>
       </div>
       <div class="info-bot">
-        <div class="info-metier">🔨 ${metier}</div>
+        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
         <div class="info-btns">
           <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
