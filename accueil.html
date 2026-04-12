@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root { --red: #e63224; --green: #27a945; }
-    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #1a3a1a; overflow: hidden; max-width: 480px; margin: 0 auto; }
+    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a2e; overflow: hidden; max-width: 480px; margin: 0 auto; }
     .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
     .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
     .h-house { font-size: 24px; flex-shrink: 0; }
@@ -308,7 +308,7 @@
     const hh = document.getElementById('topH').offsetHeight;
     document.getElementById('hSpacer').style.height = hh + 'px';
     document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
-      el.style.top = (hh + 8) + 'px';
+      el.style.top = (hh + 50) + 'px';
     });
     document.querySelectorAll('.badge-v').forEach(el => {
       el.style.top = '230px';
