@@ -203,7 +203,7 @@
         } else if (err.code === 'auth/too-many-requests') {
           showToast('⚠ Trop de tentatives. Réessayez plus tard.', 'error-toast');
         } else {
-          showToast('⚠ Erreur de connexion. Réessayez.', 'error-toast');
+          showToast('⚠ ' + err.code + ' : ' + err.message, 'error-toast');
         }
       }
     });
