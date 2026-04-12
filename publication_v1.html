@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>ArtiRoyce – Ajouter au Portfolio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root { --red: #e63224; --green: #27a945; }
+    html, body { height: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; max-width: 480px; margin: 0 auto; overflow-x: hidden; }
+
+    /* HEADER */
+    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .h-row { display: flex; align-items: center; padding: 8px 14px; gap: 8px; }
+    .h-back { font-size: 13px; font-weight: 700; color: var(--red); background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .h-logo-text { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+    .h-logo-text .arti { color: var(--red); }
+    .h-logo-text .royce { color: var(--green); }
+    .btn-pub-head { background: var(--green); color: #fff; border: none; border-radius: 20px; padding: 7px 18px; font-size: 13px; font-weight: 800; cursor: pointer; opacity: 0.35; pointer-events: none; transition: all .2s; }
+    .btn-pub-head.ready { opacity: 1; pointer-events: all; }
+
+    /* SCROLL */
+    .scroll-area { padding-top: 68px; padding-bottom: 30px; }
+
+    /* SECTION */
+    .section { background: #fff; margin-bottom: 10px; }
+    .section-title { font-size: 12px; font-weight: 800; color: #888; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 16px 10px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 7px; }
+
+    /* TYPE TABS */
+    .type-tabs { display: flex; border-bottom: 2px solid #eee; }
+    .type-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; }
+    .type-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+    /* UPLOAD ZONE */
+    .upload-zone { margin: 14px 16px; border: 2px dashed #d0d0d0; border-radius: 14px; padding: 36px 16px; text-align: center; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: #f0fdf0; }
+    .upload-zone input { display: none; }
+    .uz-icon { font-size: 40px; }
+    .uz-text { font-size: 15px; color: #555; font-weight: 600; }
+    .uz-text span { color: var(--green); }
+    .uz-hint { font-size: 11px; color: #aaa; }
+
+    /* PREVIEW GRILLE PHOTOS */
+    .photos-preview { display: none; padding: 0 16px 14px; }
+    .photos-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .photos-strip::-webkit-scrollbar { height: 3px; }
+    .photos-strip::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+    .p-item { position: relative; flex-shrink: 0; width: 88px; height: 88px; border-radius: 10px; overflow: hidden; border: 2px solid #e8e8e8; }
+    .p-item img { width: 100%; height: 100%; object-fit: cover; }
+    .p-rm { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.65); border: none; color: #fff; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .p-add { flex-shrink: 0; width: 88px; height: 88px; border-radius: 10px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #aaa; cursor: pointer; transition: all .2s; }
+    .p-add:hover { border-color: var(--green); color: var(--green); }
+
+    /* PREVIEW VIDEO */
+    .video-preview { display: none; margin: 0 16px 14px; border-radius: 12px; overflow: hidden; position: relative; background: #000; }
+    .video-preview video { width: 100%; max-height: 240px; object-fit: cover; display: block; }
+    .video-rm { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* PROGRESS */
+    .prog-wrap { display: none; margin: 0 16px 12px; }
+    .prog-bar { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--green)); border-radius: 3px; width: 0%; transition: width .3s; }
+    .prog-lbl { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 4px; }
+
+    /* CHAMP TITRE */
+    .field { padding: 10px 16px; border-bottom: 1px solid #f5f5f5; }
+    .field:last-child { border-bottom: none; }
+    .field label { display: block; font-size: 11px; font-weight: 800; color: #888; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+    .field input { width: 100%; padding: 10px 0; border: none; outline: none; font-size: 15px; font-family: 'Segoe UI', Arial, sans-serif; color: #222; background: transparent; border-bottom: 1.5px solid #e8e8e8; transition: border-color .2s; }
+    .field input:focus { border-bottom-color: var(--green); }
+    .field input::placeholder { color: #bbb; }
+    .char-count { text-align: right; font-size: 10px; color: #bbb; margin-top: 2px; }
+
+    /* SUBMIT */
+    .btn-submit { display: flex; align-items: center; justify-content: center; gap: 8px; width: calc(100% - 32px); margin: 4px 16px 16px; padding: 15px; border: none; border-radius: 28px; background: var(--green); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; transition: all .2s; box-shadow: 0 4px 14px rgba(39,169,69,0.35); }
+    .btn-submit:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+    .btn-submit:not(:disabled):active { transform: scale(0.98); }
+    .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; animation: spin .7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 9px 20px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+    .toast.g { background: var(--green); }
+    .toast.r { background: var(--red); }
+
+    /* SUCCESS */
+    .success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px 24px; gap: 16px; background: #fff; position: fixed; inset: 0; z-index: 300; max-width: 480px; margin: 0 auto; }
+    .success-circle { width: 80px; height: 80px; border-radius: 50%; background: #f0fdf0; border: 3px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 36px; animation: popIn .4s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .success-title { font-size: 22px; font-weight: 900; color: #222; }
+    .success-sub { font-size: 14px; color: #888; }
+    .success-btns { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+    .btn-outline { padding: 11px 22px; border-radius: 22px; border: 2px solid var(--green); background: none; color: var(--green); font-size: 13px; font-weight: 800; cursor: pointer; }
+    .btn-filled { padding: 11px 22px; border-radius: 22px; border: none; background: var(--red); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-block; }
+
+    /* LOGIN */
+    .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 40px 24px; gap: 14px; }
+    .login-screen a { padding: 12px 28px; background: var(--red); color: #fff; border-radius: 24px; text-decoration: none; font-size: 14px; font-weight: 800; }
+
+    /* COMPTEUR FICHIERS */
+    .file-count { font-size: 11px; color: #888; text-align: center; padding: 4px 0 10px; }
+    .file-count span { color: var(--green); font-weight: 800; }
+  </style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="h-row">
+    <button class="h-back" onclick="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour
+    </button>
+    <div class="h-logo">
+      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <button class="btn-pub-head" id="headBtn" onclick="submitPub()">Ajouter</button>
+  </div>
+</header>
+
+<div id="mainForm">
+  <div class="scroll-area">
+
+    <!-- TYPE TABS -->
+    <div class="section">
+      <div class="type-tabs">
+        <div class="type-tab active" id="tabPhoto" onclick="switchType('photo')">📸 Photos</div>
+        <div class="type-tab" id="tabVideo" onclick="switchType('video')">🎬 Vidéo</div>
+      </div>
+
+      <!-- ZONE UPLOAD PHOTO -->
+      <div id="zonePhoto">
+        <div class="upload-zone" id="uploadZonePhoto" onclick="triggerPhoto()" ondragover="onDrag(event,'photo',true)" ondragleave="onDrag(event,'photo',false)" ondrop="onDropPhoto(event)">
+          <input type="file" id="filePhoto" multiple accept="image/*" onchange="onPhotoSel(event)"/>
+          <div class="uz-icon">📸</div>
+          <div class="uz-text">Appuyez ou glissez vos <span>photos</span></div>
+          <div class="uz-hint">JPG · PNG · WEBP — max 5 Mo par photo</div>
+        </div>
+        <div class="photos-preview" id="photosPreview">
+          <div class="photos-strip" id="photosStrip"></div>
+        </div>
+        <div class="file-count" id="photoCount" style="display:none">
+          <span id="photoCountNum">0</span> photo(s) sélectionnée(s) · max 10
+        </div>
+      </div>
+
+      <!-- ZONE UPLOAD VIDEO -->
+      <div id="zoneVideo" style="display:none">
+        <div class="upload-zone" id="uploadZoneVideo" onclick="triggerVideo()" ondragover="onDrag(event,'video',true)" ondragleave="onDrag(event,'video',false)" ondrop="onDropVideo(event)">
+          <input type="file" id="fileVideo" accept="video/mp4,video/webm,video/quicktime" onchange="onVideoSel(event)"/>
+          <div class="uz-icon">🎬</div>
+          <div class="uz-text">Appuyez ou glissez votre <span>vidéo</span></div>
+          <div class="uz-hint">MP4 · WebM — max 50 Mo</div>
+        </div>
+        <div class="video-preview" id="videoPreview">
+          <video id="videoEl" controls muted playsinline></video>
+          <button class="video-rm" onclick="removeVideo()">✕</button>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="prog-wrap" id="progWrap">
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        <div class="prog-lbl"><span id="progTxt">Envoi en cours…</span><span id="progPct">0%</span></div>
+      </div>
+    </div>
+
+    <!-- TITRE -->
+    <div class="section">
+      <div class="section-title">✏️ Titre (optionnel)</div>
+      <div class="field">
+        <input type="text" id="titreInp" placeholder="Ex : Rénovation salle de bain, Tenue de mariage…" maxlength="80" oninput="onTitre()"/>
+        <div class="char-count"><span id="titreCount">0</span>/80</div>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <button class="btn-submit" id="mainBtn" onclick="submitPub()" disabled>
+      <span id="btnLabel">📤 Ajouter au portfolio</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-circle">✅</div>
+  <div class="success-title">Ajouté !</div>
+  <div class="success-sub">Visible dans votre portfolio sur ArtiRoyce.</div>
+  <div class="success-btns">
+    <button class="btn-outline" onclick="resetForm()">+ Ajouter encore</button>
+    <a href="profil.html" class="btn-filled">Voir mon profil</a>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div style="font-size:48px">🔐</div>
+  <div style="font-size:20px;font-weight:900;">Connexion requise</div>
+  <p style="color:#888;font-size:14px;">Connectez-vous pour ajouter au portfolio.</p>
+  <a href="connexion.html">Se connecter</a>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    document.getElementById('mainForm').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    return;
+  }
+  window._uid = user.uid;
+});
+
+window.submitPub = async function() {
+  const uid = window._uid;
+  if (!uid) { showToast('🔐 Connectez-vous', 'r'); return; }
+
+  const type = window._mediaType || 'photo';
+  const photos = window._photos || [];
+  const videoFile = window._videoFile || null;
+  const titre = document.getElementById('titreInp').value.trim();
+
+  if (type === 'photo' && photos.length === 0) { showToast('⚠️ Choisissez au moins une photo', 'r'); return; }
+  if (type === 'video' && !videoFile) { showToast('⚠️ Choisissez une vidéo', 'r'); return; }
+
+  setLoading(true);
+  document.getElementById('progWrap').style.display = 'block';
+
+  try {
+    const items = [];
+
+    if (type === 'photo') {
+      for (let i = 0; i < photos.length; i++) {
+        const f = photos[i];
+        const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
+        const task = uploadBytesResumable(ref(storage, path), f);
+        const url = await new Promise((res, rej) => {
+          task.on('state_changed',
+            snap => {
+              const pct = Math.round(((i + snap.bytesTransferred/snap.totalBytes) / photos.length) * 100);
+              document.getElementById('progFill').style.width = pct + '%';
+              document.getElementById('progPct').textContent = pct + '%';
+              document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
+            }, rej,
+            async () => res(await getDownloadURL(task.snapshot.ref))
+          );
+        });
+        items.push({ type: 'photo', url, titre, date: new Date().toISOString() });
+      }
+    } else {
+      const ext = videoFile.name.split('.').pop();
+      const path = `portfolio/${uid}/${Date.now()}.${ext}`;
+      const task = uploadBytesResumable(ref(storage, path), videoFile);
+      const url = await new Promise((res, rej) => {
+        task.on('state_changed',
+          snap => {
+            const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+            document.getElementById('progFill').style.width = pct + '%';
+            document.getElementById('progPct').textContent = pct + '%';
+            document.getElementById('progTxt').textContent = 'Envoi vidéo…';
+          }, rej,
+          async () => res(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      items.push({ type: 'video', url, titre, date: new Date().toISOString() });
+    }
+
+    // Sauvegarder dans utilisateurs/{uid}.portfolio
+    await updateDoc(doc(db, 'utilisateurs', uid), {
+      portfolio: arrayUnion(...items)
+    });
+
+    setLoading(false);
+    document.getElementById('successScreen').style.display = 'flex';
+
+  } catch(err) {
+    setLoading(false);
+    showToast('❌ ' + err.message, 'r');
+    console.error(err);
+  }
+};
+
+function setLoading(on) {
+  document.getElementById('mainBtn').disabled = on;
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  document.getElementById('btnLabel').textContent = on ? 'Envoi en cours…' : '📤 Ajouter au portfolio';
+}
+</script>
+
+<script>
+window._photos = [];
+window._videoFile = null;
+window._mediaType = 'photo';
+window._uid = null;
+
+function switchType(type) {
+  window._mediaType = type;
+  document.getElementById('tabPhoto').classList.toggle('active', type === 'photo');
+  document.getElementById('tabVideo').classList.toggle('active', type === 'video');
+  document.getElementById('zonePhoto').style.display = type === 'photo' ? 'block' : 'none';
+  document.getElementById('zoneVideo').style.display = type === 'video' ? 'block' : 'none';
+  checkReady();
+}
+
+// PHOTOS
+function triggerPhoto() { document.getElementById('filePhoto').click(); }
+function onDrag(e, type, on) { e.preventDefault(); document.getElementById(type==='photo'?'uploadZonePhoto':'uploadZoneVideo').classList.toggle('drag', on); }
+function onDropPhoto(e) { e.preventDefault(); onDrag(e,'photo',false); handlePhotos(Array.from(e.dataTransfer.files)); }
+function onPhotoSel(e) { handlePhotos(Array.from(e.target.files)); }
+
+function handlePhotos(files) {
+  const ok = files.filter(f => f.size <= 5*1024*1024 && f.type.startsWith('image/'));
+  if (ok.length < files.length) showToast('⚠️ Certains fichiers ignorés (>5Mo ou non image)', 'r');
+  window._photos = [...window._photos, ...ok].slice(0, 10);
+  renderPhotos();
+  checkReady();
+}
+
+function renderPhotos() {
+  const photos = window._photos;
+  const strip = document.getElementById('photosStrip');
+  strip.innerHTML = '';
+  photos.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'p-item';
+    div.innerHTML = `<img src="${URL.createObjectURL(f)}" alt=""><button class="p-rm" onclick="removePhoto(${i})">✕</button>`;
+    strip.appendChild(div);
+  });
+  if (photos.length < 10) {
+    const add = document.createElement('div');
+    add.className = 'p-add'; add.textContent = '+'; add.onclick = triggerPhoto;
+    strip.appendChild(add);
+  }
+  document.getElementById('photosPreview').style.display = photos.length > 0 ? 'block' : 'none';
+  document.getElementById('uploadZonePhoto').style.display = photos.length >= 10 ? 'none' : 'flex';
+  document.getElementById('photoCount').style.display = photos.length > 0 ? 'block' : 'none';
+  document.getElementById('photoCountNum').textContent = photos.length;
+}
+
+function removePhoto(i) { window._photos.splice(i, 1); renderPhotos(); checkReady(); }
+
+// VIDEO
+function triggerVideo() { document.getElementById('fileVideo').click(); }
+function onDropVideo(e) { e.preventDefault(); onDrag(e,'video',false); const f = e.dataTransfer.files[0]; if(f) handleVideo(f); }
+function onVideoSel(e) { if(e.target.files[0]) handleVideo(e.target.files[0]); }
+
+function handleVideo(f) {
+  if (f.size > 50*1024*1024) { showToast('⚠️ Vidéo trop lourde (max 50Mo)', 'r'); return; }
+  window._videoFile = f;
+  document.getElementById('videoEl').src = URL.createObjectURL(f);
+  document.getElementById('videoPreview').style.display = 'block';
+  document.getElementById('uploadZoneVideo').style.display = 'none';
+  checkReady();
+}
+
+function removeVideo() {
+  window._videoFile = null;
+  document.getElementById('videoPreview').style.display = 'none';
+  document.getElementById('uploadZoneVideo').style.display = 'flex';
+  document.getElementById('videoEl').src = '';
+  checkReady();
+}
+
+// TITRE
+function onTitre() {
+  document.getElementById('titreCount').textContent = document.getElementById('titreInp').value.length;
+  checkReady();
+}
+
+// CHECK READY
+function checkReady() {
+  const type = window._mediaType;
+  const hasMedia = (type === 'photo' && window._photos.length > 0) || (type === 'video' && !!window._videoFile);
+  document.getElementById('mainBtn').disabled = !hasMedia;
+  document.getElementById('headBtn').classList.toggle('ready', hasMedia);
+}
+
+// RESET
+function resetForm() {
+  window._photos = []; window._videoFile = null;
+  document.getElementById('photosStrip').innerHTML = '';
+  document.getElementById('photosPreview').style.display = 'none';
+  document.getElementById('photoCount').style.display = 'none';
+  document.getElementById('uploadZonePhoto').style.display = 'flex';
+  document.getElementById('videoPreview').style.display = 'none';
+  document.getElementById('uploadZoneVideo').style.display = 'flex';
+  document.getElementById('videoEl').src = '';
+  document.getElementById('titreInp').value = '';
+  document.getElementById('titreCount').textContent = '0';
+  document.getElementById('progWrap').style.display = 'none';
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('mainBtn').disabled = true;
+  document.getElementById('headBtn').classList.remove('ready');
+  document.getElementById('successScreen').style.display = 'none';
+  switchType('photo');
+}
+
+// TOAST
+function showToast(msg, type) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => el.className = 'toast', 2500);
+}
+
+function goBack() { window.history.back(); }
+</script>
+</body>
+</html>
