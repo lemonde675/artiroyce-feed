@@ -1,123 +1,135 @@
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtiRoyce – Connexion</title>
 
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: Arial; }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      width: 350px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    h1 { margin-bottom: 15px; }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #e63224;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="card">
+  <h1>Connexion</h1>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Mot de passe" required />
+    <button type="submit">Connexion</button>
+  </form>
+</div>
+
+<!-- FIREBASE (VERSION STABLE MOBILE) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
   authDomain: "artiroyce-f42e4.firebaseapp.com",
   projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.appspot.com", // 🔥 CORRIGÉ
+  storageBucket: "artiroyce-f42e4.appspot.com",
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+// INIT
+firebase.initializeApp(firebaseConfig);
 
-// 👁️ afficher mot de passe
-window.togglePass = function() {
-  const p = document.getElementById('password');
-  p.type = p.type === 'password' ? 'text' : 'password';
-};
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-// 🔔 toast
-function showToast(msg, type = '') {
+// TOAST
+function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 3000);
+  t.innerText = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
 }
 
-// ✅ validation email
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-}
-
-// 🚀 LOGIN
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
+// LOGIN
+document.getElementById('loginForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const email    = document.getElementById('email');
-  const password = document.getElementById('password');
-  const emailErr = document.getElementById('emailError');
-  const passErr  = document.getElementById('passwordError');
-  const btn      = document.getElementById('btnLogin');
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-  emailErr.textContent = '';
-  passErr.textContent = '';
-  email.className = '';
-  password.className = '';
+  auth.signInWithEmailAndPassword(email, password)
+    .then(async (userCredential) => {
+      const uid = userCredential.user.uid;
 
-  let valid = true;
+      const docRef = db.collection('utilisateurs').doc(uid);
+      const docSnap = await docRef.get();
 
-  if (!email.value.trim()) {
-    emailErr.textContent = '⚠ Entrez votre email';
-    email.className = 'error';
-    valid = false;
-  } else if (!validateEmail(email.value)) {
-    emailErr.textContent = '⚠ Email invalide';
-    email.className = 'error';
-    valid = false;
-  } else {
-    email.className = 'valid';
-  }
+      if (!docSnap.exists) {
+        showToast("Connexion OK");
+        setTimeout(() => window.location.href = "accueil.html", 1000);
+        return;
+      }
 
-  if (!password.value.trim()) {
-    passErr.textContent = '⚠ Entrez votre mot de passe';
-    password.className = 'error';
-    valid = false;
-  } else {
-    password.className = 'valid';
-  }
+      const statut = docSnap.data().statut || "en_attente";
 
-  if (!valid) return;
-
-  btn.disabled = true;
-  btn.textContent = 'Connexion...';
-
-  try {
-    console.log("Tentative login:", email.value);
-
-    // 🔐 AUTH
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email.value.trim(),
-      password.value
-    );
-
-    console.log("SUCCESS LOGIN", userCredential.user);
-
-    const uid = userCredential.user.uid;
-
-    // 📦 FIRESTORE
-    const userDoc = await getDoc(doc(db, 'utilisateurs', uid));
-
-    if (!userDoc.exists()) {
-      showToast('✅ Connexion réussie', 'success');
-      setTimeout(() => window.location.href = 'accueil.html', 1200);
-      return;
-    }
-
-    const statut = userDoc.data().statut || 'en_attente';
-
-    if (statut === 'verifie') {
-      showToast('✅ Bienvenue', 'success');
-      setTimeout(() => window.location.href = 'accueil.html', 1200);
-    } else {
-      showToast('⏳ En attente', 'warning');
-      setTimeout(() => window.location.href = 'profil.html', 1200);
-    }
-
-  } catch (err) {
-    console.error("🔥 ERREUR FIREBASE:", err.code, err.message);
-
-    btn.disabled = false;
-    btn.textContent = 'CONNEXION →';
-
-    // ✅ MESSAGE RÉEL
-    showToast(err.code + " | " + err.message, 'error-toast');
-  }
+      if (statut === "verifie") {
+        showToast("Bienvenue !");
+        setTimeout(() => window.location.href = "accueil.html", 1000);
+      } else {
+        showToast("Compte en attente");
+        setTimeout(() => window.location.href = "profil.html", 1000);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      showToast(error.code + " | " + error.message);
+    });
 });
 </script>
+
+</body>
+</html>
