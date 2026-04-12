@@ -57,17 +57,17 @@
     .kyc-verified-text p { font-size: 12px; color: #2d6a4f; }
 
     /* ── COVER & AVATAR ── */
-    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #0a0a2e 0%, #1a1a6e 50%, #0d0d40 100%); position: relative; overflow: hidden; }
+    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
     .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .profile-info { background: #fff; padding: 14px 16px 0; }
     .avatar-section { padding: 0; margin-top: -45px; margin-bottom: 10px; display: flex; align-items: flex-end; justify-content: space-between; }
     .avatar-wrap { position: relative; }
-    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, #0a0a2e, #1a1a6e); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--red), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
     .avatar-initiale { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-edit { position: absolute; bottom: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     /* Cover avec photo */
-    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #0a0a2e 0%, #1a1a6e 50%, #0d0d40 100%); position: relative; overflow: hidden; }
+    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
     .cover-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
     .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; z-index: 2; }
     .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
@@ -151,8 +151,36 @@
     .media-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 2px; }
     .media-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
     .media-tab.active { color: var(--red); border-bottom-color: var(--red); }
-    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -16px; }
+    .media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
     .media-item { aspect-ratio: 1; background: #eee; overflow: hidden; position: relative; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .media-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .media-item .vid-badge { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px; }
+    .media-item .three-dots { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; line-height: 1; z-index: 5; }
+    .media-item-add { aspect-ratio: 1; background: #f5f5f5; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
+    .media-item-add:hover { border-color: var(--green); background: #f0fdf0; }
+    .media-empty { padding: 30px 16px; text-align: center; color: #bbb; font-size: 13px; font-weight: 600; grid-column: 1/-1; }
+
+    /* ── MENU CONTEXTUEL MEDIA ── */
+    .media-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 700; display: none; align-items: flex-end; justify-content: center; }
+    .media-menu-overlay.open { display: flex; }
+    .media-menu-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 28px; animation: slideUp 0.22s ease; }
+    .media-menu-preview { width: 100%; height: 200px; object-fit: cover; border-radius: 20px 20px 0 0; display: block; background: #000; }
+    .media-menu-preview-vid { width: 100%; height: 200px; object-fit: cover; border-radius: 20px 20px 0 0; display: block; background: #000; }
+    .media-menu-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto; }
+    .media-menu-opt { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background .15s; }
+    .media-menu-opt:hover { background: #f9f9f9; }
+    .media-menu-opt.danger { color: var(--red); }
+    .media-menu-opt .opt-icon { font-size: 22px; flex-shrink: 0; }
+    .media-menu-opt .opt-text { font-size: 14px; font-weight: 700; }
+    .media-menu-cancel { width: calc(100% - 32px); margin: 12px 16px 0; padding: 13px; background: #f5f5f5; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: #555; cursor: pointer; }
+
+    /* VIEWER FULLSCREEN */
+    .fullscreen-viewer { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 800; display: none; align-items: center; justify-content: center; }
+    .fullscreen-viewer.open { display: flex; }
+    .fullscreen-viewer img { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+    .fullscreen-viewer video { max-width: 95vw; max-height: 90vh; border-radius: 8px; }
+    .fv-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
     .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
@@ -535,15 +563,58 @@
 <div class="media-section">
   <div class="section-title"><span>🎬</span> Portfolio</div>
   <div class="media-tabs">
-    <div class="media-tab active">📸 Photos</div>
-    <div class="media-tab">🎬 Vidéos</div>
-    <div class="media-tab">⭐ Avis</div>
+    <div class="media-tab active" id="tabPhotos" onclick="showTab('photos')">📸 Photos</div>
+    <div class="media-tab" id="tabVideos" onclick="showTab('videos')">🎬 Vidéos</div>
+    <div class="media-tab" id="tabAvis" onclick="showTab('avis')">⭐ Avis</div>
   </div>
-  <div class="media-grid">
-    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">📸</span></div>
-    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">🖼️</span></div>
-    <div class="media-item" style="background:#f5f5f5;"><span style="font-size:24px;">➕</span></div>
+
+  <!-- Photos -->
+  <div id="gridPhotos" class="media-grid">
+    <div class="media-item-add" onclick="ajouterMedia()">
+      <span style="font-size:28px;color:#aaa;">➕</span>
+    </div>
   </div>
+
+  <!-- Vidéos -->
+  <div id="gridVideos" class="media-grid" style="display:none">
+    <div class="media-item-add" onclick="ajouterMedia()">
+      <span style="font-size:28px;color:#aaa;">➕</span>
+    </div>
+  </div>
+
+  <!-- Avis -->
+  <div id="gridAvis" style="display:none;padding:20px 16px 16px;text-align:center;color:#bbb;font-size:13px;font-weight:600;">
+    ⭐ Aucun avis pour le moment
+  </div>
+</div>
+
+<!-- ── MENU CONTEXTUEL MEDIA ── -->
+<div class="media-menu-overlay" id="mediaMenuOverlay" onclick="closeMediaMenu()">
+  <div class="media-menu-sheet" onclick="event.stopPropagation()">
+    <img class="media-menu-preview" id="menuPreviewImg" src="" alt="" style="display:none"/>
+    <video class="media-menu-preview-vid" id="menuPreviewVid" src="" muted style="display:none"></video>
+    <div class="media-menu-handle"></div>
+    <div class="media-menu-opt" onclick="menuUtiliserCouverture()">
+      <span class="opt-icon">🖼️</span><span class="opt-text">Utiliser comme photo de couverture</span>
+    </div>
+    <div class="media-menu-opt" onclick="menuPartager()">
+      <span class="opt-icon">🔗</span><span class="opt-text">Partager</span>
+    </div>
+    <div class="media-menu-opt" onclick="menuTelecharger()">
+      <span class="opt-icon">⬇️</span><span class="opt-text">Enregistrer sur le téléphone</span>
+    </div>
+    <div class="media-menu-opt danger" onclick="menuSupprimer()">
+      <span class="opt-icon">🗑️</span><span class="opt-text">Supprimer</span>
+    </div>
+    <button class="media-menu-cancel" onclick="closeMediaMenu()">Annuler</button>
+  </div>
+</div>
+
+<!-- ── FULLSCREEN VIEWER ── -->
+<div class="fullscreen-viewer" id="fullscreenViewer" onclick="document.getElementById('fullscreenViewer').classList.remove('open')">
+  <button class="fv-close" onclick="document.getElementById('fullscreenViewer').classList.remove('open')">✕</button>
+  <img id="fvImg" src="" style="display:none"/>
+  <video id="fvVid" src="" controls style="display:none"></video>
 </div>
 
 <!-- ── DÉCONNEXION ── -->
@@ -738,9 +809,11 @@
       // ── Vérification signalements automatique ──
       const nbSignalements = userData.signalements || 0;
       if (nbSignalements >= 10 && statut !== 'gele' && statut !== 'verifie') {
-        // Gel automatique si 10 signalements
         await updateDoc(doc(db, 'utilisateurs', profileUid), { statut: 'gele' });
       }
+
+      // ── CHARGER LE PORTFOLIO ──
+      chargerPortfolio(userData, isOwnProfile);
 
       hideLoading();
 
@@ -962,6 +1035,170 @@
     const url = window.location.href;
     if (navigator.share) { navigator.share({ title: 'ArtiRoyce', url }); }
     else { navigator.clipboard.writeText(url); showToast('🔗 Lien copié !', 'success'); }
+  };
+
+  // ══════════════════════════════════════
+  // PORTFOLIO
+  // ══════════════════════════════════════
+  window._portfolioItems = [];
+  window._menuItem = null;
+  window._menuIndex = -1;
+  let _ownPortfolio = false;
+
+  function chargerPortfolio(data, ownProfile) {
+    _ownPortfolio = ownProfile;
+    const items = data.portfolio || [];
+    window._portfolioItems = items;
+    const photos = items.filter(i => i.type === 'photo');
+    const videos = items.filter(i => i.type === 'video');
+    renderGridPhotos(photos, ownProfile);
+    renderGridVideos(videos, ownProfile);
+  }
+
+  function renderGridPhotos(photos, ownProfile) {
+    const grid = document.getElementById('gridPhotos');
+    grid.innerHTML = '';
+    if (photos.length === 0 && !ownProfile) {
+      grid.innerHTML = '<div class="media-empty">📸 Aucune photo pour le moment</div>';
+    } else {
+      photos.forEach((item) => {
+        const realIndex = window._portfolioItems.indexOf(item);
+        const div = document.createElement('div');
+        div.className = 'media-item';
+        div.innerHTML = `<img src="${item.url}" alt="${item.titre||''}" loading="lazy" onclick="ouvrirMedia(${realIndex})"/>
+          <button class="three-dots" onclick="event.stopPropagation();ouvrirMenu(${realIndex})">⋮</button>`;
+        grid.appendChild(div);
+      });
+    }
+    if (ownProfile) {
+      const add = document.createElement('div');
+      add.className = 'media-item-add';
+      add.onclick = () => { window.location.href = 'publication_v1.html'; };
+      add.innerHTML = '<span style="font-size:28px;color:#aaa;">➕</span>';
+      grid.appendChild(add);
+    }
+  }
+
+  function renderGridVideos(videos, ownProfile) {
+    const grid = document.getElementById('gridVideos');
+    grid.innerHTML = '';
+    if (videos.length === 0 && !ownProfile) {
+      grid.innerHTML = '<div class="media-empty">🎬 Aucune vidéo pour le moment</div>';
+    } else {
+      videos.forEach((item) => {
+        const realIndex = window._portfolioItems.indexOf(item);
+        const div = document.createElement('div');
+        div.className = 'media-item';
+        div.innerHTML = `<video src="${item.url}" muted preload="metadata" onclick="ouvrirMedia(${realIndex})"></video>
+          <span class="vid-badge">▶ Vidéo</span>
+          <button class="three-dots" onclick="event.stopPropagation();ouvrirMenu(${realIndex})">⋮</button>`;
+        grid.appendChild(div);
+      });
+    }
+    if (ownProfile) {
+      const add = document.createElement('div');
+      add.className = 'media-item-add';
+      add.onclick = () => { window.location.href = 'publication_v1.html'; };
+      add.innerHTML = '<span style="font-size:28px;color:#aaa;">➕</span>';
+      grid.appendChild(add);
+    }
+  }
+
+  window.showTab = function(tab) {
+    const tabs = ['photos','videos','avis'];
+    tabs.forEach(t => {
+      const gridId = 'grid' + t.charAt(0).toUpperCase() + t.slice(1);
+      const tabId  = 'tab'  + t.charAt(0).toUpperCase() + t.slice(1);
+      const el = document.getElementById(gridId);
+      if (el) el.style.display = t === tab ? (t === 'avis' ? 'block' : 'grid') : 'none';
+      const tabEl = document.getElementById(tabId);
+      if (tabEl) tabEl.classList.toggle('active', t === tab);
+    });
+  };
+
+  window.ouvrirMedia = function(index) {
+    const item = window._portfolioItems[index];
+    if (!item) return;
+    const viewer = document.getElementById('fullscreenViewer');
+    const fvImg  = document.getElementById('fvImg');
+    const fvVid  = document.getElementById('fvVid');
+    if (item.type === 'photo') {
+      fvImg.src = item.url; fvImg.style.display = 'block';
+      fvVid.style.display = 'none'; fvVid.src = '';
+    } else {
+      fvVid.src = item.url; fvVid.style.display = 'block';
+      fvImg.style.display = 'none'; fvImg.src = '';
+    }
+    viewer.classList.add('open');
+  };
+
+  window.ouvrirMenu = function(index) {
+    const item = window._portfolioItems[index];
+    if (!item) return;
+    window._menuItem  = item;
+    window._menuIndex = index;
+    const img = document.getElementById('menuPreviewImg');
+    const vid = document.getElementById('menuPreviewVid');
+    if (item.type === 'photo') {
+      img.src = item.url; img.style.display = 'block';
+      vid.style.display = 'none'; vid.src = '';
+    } else {
+      vid.src = item.url; vid.style.display = 'block';
+      img.style.display = 'none'; img.src = '';
+    }
+    document.getElementById('mediaMenuOverlay').classList.add('open');
+  };
+
+  window.closeMediaMenu = function() {
+    document.getElementById('mediaMenuOverlay').classList.remove('open');
+    window._menuItem = null; window._menuIndex = -1;
+  };
+
+  window.menuUtiliserCouverture = async function() {
+    const item = window._menuItem;
+    if (!item || item.type !== 'photo' || !currentUser) { closeMediaMenu(); return; }
+    try {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoCover: item.url });
+      const cp = document.getElementById('coverPhoto');
+      cp.style.backgroundImage = `url(${item.url})`;
+      cp.style.backgroundSize = 'cover'; cp.style.backgroundPosition = 'center';
+      const ci = document.getElementById('coverImg');
+      if (ci) { ci.src = item.url; ci.style.display = 'block'; }
+      closeMediaMenu();
+      showToast('✅ Photo de couverture mise à jour !', 'success');
+    } catch(e) { showToast('⚠ Erreur', 'error-t'); }
+  };
+
+  window.menuPartager = function() {
+    const item = window._menuItem;
+    if (!item) return;
+    if (navigator.share) { navigator.share({ title: item.titre || 'ArtiRoyce', url: item.url }); }
+    else { navigator.clipboard.writeText(item.url); showToast('🔗 Lien copié !', 'success'); }
+    closeMediaMenu();
+  };
+
+  window.menuTelecharger = function() {
+    const item = window._menuItem;
+    if (!item) return;
+    const a = document.createElement('a');
+    a.href = item.url; a.download = item.titre || 'artiroyce'; a.target = '_blank'; a.click();
+    closeMediaMenu();
+  };
+
+  window.menuSupprimer = async function() {
+    const item  = window._menuItem;
+    const index = window._menuIndex;
+    if (!item || !currentUser || !_ownPortfolio) { closeMediaMenu(); return; }
+    if (!confirm('Supprimer ce média du portfolio ?')) { closeMediaMenu(); return; }
+    try {
+      const newPortfolio = window._portfolioItems.filter((_, i) => i !== index);
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { portfolio: newPortfolio });
+      window._portfolioItems = newPortfolio;
+      renderGridPhotos(newPortfolio.filter(i => i.type === 'photo'), true);
+      renderGridVideos(newPortfolio.filter(i => i.type === 'video'), true);
+      closeMediaMenu();
+      showToast('🗑️ Média supprimé', 'success');
+    } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); closeMediaMenu(); }
   };
 </script>
 
