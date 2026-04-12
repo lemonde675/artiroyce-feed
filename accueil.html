@@ -58,8 +58,8 @@
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
-    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 9px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
-    .wm-brand { font-size: 10px; font-weight: 900; white-space: nowrap; }
+    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 7.5px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
+    .wm-brand { font-size: 8px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
@@ -277,7 +277,7 @@
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
         <span class="info-globe-small">🌍</span>
         <div class="info-user">${pseudo}</div>
-        <div class="info-desc">Professionnel vérifié sur ArtiRoyce.</div>
+        <div class="info-desc">Vérifié(e) sur ArtiRoyce.</div>
         <div class="info-stars">⭐⭐ <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;">4.8 (10k avis)</span></div>
       </div>
       <div class="info-bot">
@@ -304,7 +304,7 @@
       el.style.top = '230px';
     });
     document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '330px';
+      el.style.top = '290px';
     });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = '70px';
