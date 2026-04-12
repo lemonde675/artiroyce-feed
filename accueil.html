@@ -58,7 +58,7 @@
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
-    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 7.5px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: visible; align-self: center; white-space: nowrap; min-width: max-content; }
+    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 7.5px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
     .wm-brand { font-size: 8px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
@@ -304,7 +304,7 @@
       el.style.top = '230px';
     });
     document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '390px';
+      el.style.top = '330px';
     });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = '70px';
