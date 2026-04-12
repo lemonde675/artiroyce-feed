@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root { --red: #e63224; --green: #27a945; }
-    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #000; overflow: hidden; max-width: 480px; margin: 0 auto; }
+    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #1a3a1a; overflow: hidden; max-width: 480px; margin: 0 auto; }
     .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
     .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
     .h-house { font-size: 24px; flex-shrink: 0; }
@@ -44,7 +44,7 @@
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; }
-    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; margin-top: -8px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 8px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
@@ -304,7 +304,7 @@
       el.style.top = '230px';
     });
     document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '290px';
+      el.style.top = '330px';
     });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = '70px';
