@@ -4,132 +4,209 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ArtiRoyce – Connexion</title>
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: Arial; }
-
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      width: 350px;
-      padding: 25px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
-
-    h1 { margin-bottom: 15px; }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #e63224;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: black;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 20px;
-      display: none;
-    }
+    body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; }
+    .back-home { position: fixed; top: 18px; left: 18px; display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; z-index: 100; }
+    .back-home:hover { background: #e63224; color: #fff; }
+    .back-home:hover svg { transform: translateX(-3px); }
+    .back-home svg { transition: transform 0.18s; }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; width: 380px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+    .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
+    .card-body { padding: 36px 32px 32px; }
+    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 32px; }
+    .logo-text { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+    .logo-text .arti  { color: #e63224; }
+    .logo-text .royce { color: #27a945; }
+    h1 { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 14px; color: #888; margin-bottom: 28px; }
+    label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
+    input[type="email"], input[type="password"], input[type="text"] { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 15px; color: #333; outline: none; transition: border-color 0.2s; margin-bottom: 4px; background: #fafafa; }
+    input:focus { border-color: #e63224; background: #fff; }
+    input.error { border-color: #e63224; background: #fff5f5; }
+    input.valid { border-color: #27a945; background: #f5fff7; }
+    input::placeholder { color: #bbb; }
+    .error-msg { font-size: 11px; color: #e63224; margin-bottom: 12px; min-height: 16px; display: block; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 44px; }
+    .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; padding: 0; display: flex; align-items: center; }
+    .forgot { text-align: right; margin-top: 4px; margin-bottom: 22px; }
+    .forgot a { color: #e63224; font-size: 13px; text-decoration: none; font-style: italic; }
+    .forgot a:hover { text-decoration: underline; }
+    .btn-login { width: 100%; padding: 14px; background: #e63224; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; margin-top: 4px; }
+    .btn-login:hover { background: #c42a1e; }
+    .btn-login:disabled { background: #ccc; cursor: not-allowed; }
+    .register { text-align: center; margin-top: 20px; font-size: 13px; color: #888; }
+    .register a { color: #27a945; text-decoration: none; font-weight: 600; }
+    .register a:hover { text-decoration: underline; }
+    .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+    .toast.success { background: #27a945; }
+    .toast.error-toast { background: #e63224; }
+    .toast.warning { background: #ff9800; }
   </style>
 </head>
-
 <body>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
+  <a href="index.html" class="back-home">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Accueil
+  </a>
 
-<div class="card">
-  <h1>Connexion</h1>
+  <div class="card">
+    <div class="top-bar"></div>
+    <div class="card-body">
+      <div class="logo-wrap">
+        <svg width="80" height="58" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+          <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        </svg>
+        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+      </div>
 
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Mot de passe" required />
-    <button type="submit">Connexion</button>
-  </form>
-</div>
+      <h1>Connexion</h1>
+      <p class="subtitle">Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong> — vos prochains clients et fans vous attendent.</p>
 
-<!-- FIREBASE (VERSION STABLE MOBILE) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+      <form id="loginForm" novalidate>
+        <label for="email">EMAIL / TÉLÉPHONE</label>
+        <input type="email" id="email" name="email" placeholder="name@example.com" autocomplete="email"/>
+        <span class="error-msg" id="emailError"></span>
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-  authDomain: "artiroyce-f42e4.firebaseapp.com",
-  projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.appspot.com",
-  messagingSenderId: "588140774605",
-  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
-};
+        <label for="password">MOT DE PASSE</label>
+        <div class="password-wrap">
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password"/>
+          <button type="button" class="eye-btn" onclick="togglePass()" title="Afficher/masquer">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
+          </button>
+        </div>
+        <span class="error-msg" id="passwordError"></span>
 
-// INIT
-firebase.initializeApp(firebaseConfig);
+        <div class="forgot"><a href="mot-de-passe-oublie.html">Mot de passe oublié ?</a></div>
+        <button type="submit" class="btn-login" id="btnLogin">CONNEXION &nbsp;→</button>
+      </form>
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+      <div class="register">
+        Vous n'avez pas encore de compte ? <a href="enregistrer.html">Inscrivez-vous</a>
+      </div>
+    </div>
+    <div class="bottom-bar"></div>
+  </div>
 
-// TOAST
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.innerText = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// LOGIN
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-  e.preventDefault();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+      authDomain: "artiroyce-f42e4.firebaseapp.com",
+      projectId: "artiroyce-f42e4",
+      storageBucket: "artiroyce-f42e4.firebasestorage.app",
+      messagingSenderId: "588140774605",
+      appId: "1:588140774605:web:b69cf8740c2fe5f1d59584",
+      measurementId: "G-X4XLHDJCE7"
+    };
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(async (userCredential) => {
-      const uid = userCredential.user.uid;
+    window.togglePass = function() {
+      const p = document.getElementById('password');
+      p.type = p.type === 'password' ? 'text' : 'password';
+    };
 
-      const docRef = db.collection('utilisateurs').doc(uid);
-      const docSnap = await docRef.get();
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast show ' + type;
+      setTimeout(() => t.className = 'toast', 2800);
+    }
 
-      if (!docSnap.exists) {
-        showToast("Connexion OK");
-        setTimeout(() => window.location.href = "accueil.html", 1000);
-        return;
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const email    = document.getElementById('email');
+      const password = document.getElementById('password');
+      const emailErr = document.getElementById('emailError');
+      const passErr  = document.getElementById('passwordError');
+
+      email.className = ''; password.className = '';
+      emailErr.textContent = ''; passErr.textContent = '';
+
+      if (!email.value.trim()) {
+        emailErr.textContent = '⚠ Veuillez entrer votre email.';
+        email.className = 'error'; valid = false;
+      } else if (!validateEmail(email.value)) {
+        emailErr.textContent = '⚠ Format email invalide.';
+        email.className = 'error'; valid = false;
+      } else { email.className = 'valid'; }
+
+      if (!password.value.trim()) {
+        passErr.textContent = '⚠ Veuillez entrer votre mot de passe.';
+        password.className = 'error'; valid = false;
+      } else if (password.value.length < 6) {
+        passErr.textContent = '⚠ Le mot de passe doit faire au moins 6 caractères.';
+        password.className = 'error'; valid = false;
+      } else { password.className = 'valid'; }
+
+      if (!valid) return;
+
+      const btn = document.getElementById('btnLogin');
+      btn.disabled = true;
+      btn.textContent = 'Connexion en cours…';
+
+      try {
+        // 1. Authentification
+        const userCredential = await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
+        const uid = userCredential.user.uid;
+
+        // 2. Lire le statut dans Firestore
+        const userDoc = await getDoc(doc(db, 'utilisateurs', uid));
+
+        if (!userDoc.exists()) {
+          // Document absent → accueil par défaut
+          showToast('✅ Connexion réussie !', 'success');
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+          return;
+        }
+
+        const userData = userDoc.data();
+        const statut   = userData.statut || 'en_attente';
+
+        // 3. ✅ REDIRECTION SELON STATUT
+        if (statut === 'verifie') {
+          // Compte validé → accueil général
+          showToast('✅ Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+        } else {
+          // en_attente ou rejeté → SON PROPRE profil personnel
+          // profil.html détecte automatiquement l'utilisateur connecté via Firebase Auth
+          showToast('⏳ Compte en attente — accès à votre profil.', 'warning');
+          setTimeout(() => { window.location.href = 'profil.html'; }, 1200);
+        }
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = 'CONNEXION &nbsp;→';
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          showToast('⚠ Email ou mot de passe incorrect.', 'error-toast');
+        } else if (err.code === 'auth/too-many-requests') {
+          showToast('⚠ Trop de tentatives. Réessayez plus tard.', 'error-toast');
+        } else {
+          showToast('⚠ Erreur de connexion. Réessayez.', 'error-toast');
+        }
       }
-
-      const statut = docSnap.data().statut || "en_attente";
-
-      if (statut === "verifie") {
-        showToast("Bienvenue !");
-        setTimeout(() => window.location.href = "accueil.html", 1000);
-      } else {
-        showToast("Compte en attente");
-        setTimeout(() => window.location.href = "profil.html", 1000);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      showToast(error.code + " | " + error.message);
     });
-});
-</script>
-
+  </script>
 </body>
 </html>
