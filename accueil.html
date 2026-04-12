@@ -39,7 +39,7 @@
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
-    .act-circle.liked .ico { fill: #fff; stroke: #fff; }
+    .act-circle.liked { background: rgba(230,50,36,0.85); }
     .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -90,13 +90,6 @@
     .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
-    /* ── RECHERCHE ── */
-    .search-bar { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; z-index: 300; padding: 8px 12px; border-bottom: 1px solid #eee; display: none; animation: slideDown 0.2s ease; }
-    .search-bar.open { display: flex; gap: 8px; align-items: center; }
-    @keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-    .search-input { flex: 1; padding: 9px 14px; border: 1.5px solid #ddd; border-radius: 22px; font-size: 14px; outline: none; background: #f5f5f5; }
-    .search-input:focus { border-color: var(--green); background: #fff; }
-    .search-close { background: none; border: none; font-size: 20px; color: #888; cursor: pointer; padding: 4px; }
     .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
     .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
     .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
@@ -124,9 +117,6 @@
     <div class="h-icons">
       <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
       <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')">💬<div class="bdot">1</div></div>
-      <button onclick="toggleSearch()" style="background:none;border:none;cursor:pointer;padding:4px;" title="Rechercher">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
       <span class="h-dots" onclick="toast('⚙️ Paramètres','')">⋮</span>
     </div>
   </div>
@@ -140,12 +130,6 @@
     <div class="h-tab" onclick="setTab(this)">📰 Actualités</div>
   </div>
 </header>
-
-<!-- BARRE DE RECHERCHE -->
-<div class="search-bar" id="searchBar">
-  <input class="search-input" id="searchInput" type="text" placeholder="🔍 Métier, nom, ville..." oninput="filterCards(this.value)"/>
-  <button class="search-close" onclick="toggleSearch()">✕</button>
-</div>
 
 <div class="feed-wrap" id="feedW">
   <div id="hSpacer"></div>
@@ -165,7 +149,7 @@
     </svg>
     <span class="nav-lb">Messages</span>
   </div>
-  <div class="nav-plus-w" onclick="toast('➕ Publier','')">
+  <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
     <div class="nav-plus">+</div>
   </div>
   <div class="nav-i" onclick="toast('▶ Live','')">
@@ -201,7 +185,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs, doc, updateDoc, increment, arrayUnion, arrayRemove, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -219,15 +203,10 @@
   const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
 
   const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
-  const cardUids = []; // stocker uid de chaque card
 
   function creerCard(uid, data, index) {
-    cardUids[index] = uid; // mémoriser uid
     const metier  = data.metier  || 'Professionnel';
-    const jaimes  = data.jaimes  || 0;
-    const ville     = data.ville || data.adresse || '';
-    const whatsapp  = data.whatsapp || data.telephone || '';
-    const waNum     = whatsapp.replace(/[^0-9]/g, '');
+    const ville   = data.ville || data.adresse || '';
     function getEmoji(m) {
       const ml = m.toLowerCase();
       if (ml.includes('coutur') || ml.includes('tailleur') || ml.includes('mode')) return '🧵';
@@ -250,7 +229,7 @@
       if (ml.includes('forgeron') || ml.includes('forge')) return '⚒️';
       if (ml.includes('bijou') || ml.includes('orfévre')) return '💍';
       if (ml.includes('jardin') || ml.includes('paysag')) return '🌿';
-      return '';
+      return '🔨';
     }
     const adresse = data.adresse || '';
     const prenom  = data.prenom  || '';
@@ -267,8 +246,8 @@
       <div class="vcard-overlay"></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
       <div class="btn-suivre-wrap">
-        <button class="btn-suivre" id="suivre-${index}" onclick="toggleSuivre(this,'${uid}',${index})">+ Suivre</button>
-        <button class="btn-contacter" onclick="ouvrirWhatsApp('${waNum}')">Contacter</button>
+        <button class="btn-suivre" onclick="toast('✅ Suivi !','g')">+ Suivre</button>
+        <button class="btn-contacter" onclick="toast('💬 Contacter','g')">Contacter</button>
       </div>
       <div class="actions-r">
         <div class="act-btn" onclick="toast('🖼️ Réalisations','g')">
@@ -277,7 +256,7 @@
         </div>
         <div class="act-btn" onclick="likeC(this,${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-          <span class="act-n" id="likes-${index}">${jaimes}</span>
+          <span class="act-n">0</span>
         </div>
         <div class="act-btn">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
@@ -313,7 +292,7 @@
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
         <div class="info-btns">
-          <button class="btn-disc" onclick="window.location.href='discussion.html?uid=${uid}'">💬 Discussion</button>
+          <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
           <button class="btn-lv" onclick="toast('🔴 Live Pro','')">+ Live Pro</button>
           <span class="wm-inline">
             <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
@@ -339,28 +318,6 @@
     });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = '70px';
-    });
-  }
-
-  // Marquer les cards déjà aimées
-  async function marquerDejaAimes() {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-    cardUids.forEach(async (uid, idx) => {
-      if (!uid) return;
-      try {
-        const ref = doc(db, 'utilisateurs', uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.aimePar && data.aimePar.includes(currentUser.uid)) {
-            const cards = document.querySelectorAll('.act-btn');
-            // trouver le bouton like de cette card
-            const allLikeCircles = document.querySelectorAll('.act-circle');
-            if (allLikeCircles[idx * 7]) allLikeCircles[idx * 7].classList.add('liked');
-          }
-        }
-      } catch(e) {}
     });
   }
 
@@ -407,65 +364,6 @@
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
   window.closeLang = closeLang;
-
-  // ── RECHERCHE ──
-  // ── SUIVRE ──
-  // ── WHATSAPP ──
-  window.ouvrirWhatsApp = function(num) {
-    if (!num) { toast('📵 Numéro non disponible', ''); return; }
-    window.open('https://wa.me/' + num, '_blank');
-  };
-
-  window.toggleSuivre = async function(btn, uid, idx) {
-    const currentUser = auth.currentUser;
-    if (!currentUser) { toast('⚠️ Connectez-vous pour suivre', ''); return; }
-    const suivi = btn.dataset.suivi === '1';
-    try {
-      const ref = doc(db, 'utilisateurs', uid);
-      if (suivi) {
-        await updateDoc(ref, {
-          abonnes: increment(-1),
-          abonnePar: arrayRemove(currentUser.uid)
-        });
-        btn.textContent = '+ Suivre';
-        btn.dataset.suivi = '0';
-        btn.style.background = 'transparent';
-        btn.style.color = '#fff';
-        toast('👋 Abonnement retiré', '');
-      } else {
-        await updateDoc(ref, {
-          abonnes: increment(1),
-          abonnePar: arrayUnion(currentUser.uid)
-        });
-        btn.textContent = '✓ Suivi';
-        btn.dataset.suivi = '1';
-        btn.style.background = 'transparent';
-        btn.style.color = '#fff';
-        toast('✅ Vous suivez ce professionnel !', 'g');
-      }
-    } catch(e) {
-      toast('⚠️ Erreur réseau', '');
-    }
-  };
-
-  window.toggleSearch = function() {
-    const bar = document.getElementById('searchBar');
-    bar.classList.toggle('open');
-    if (bar.classList.contains('open')) {
-      setTimeout(() => document.getElementById('searchInput').focus(), 100);
-    } else {
-      document.getElementById('searchInput').value = '';
-      filterCards('');
-    }
-  };
-
-  window.filterCards = function(q) {
-    const term = q.toLowerCase().trim();
-    document.querySelectorAll('.vcard').forEach(card => {
-      const text = card.innerText.toLowerCase();
-      card.style.display = (!term || text.includes(term)) ? '' : 'none';
-    });
-  };
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = 'connexion.html'; return; }
