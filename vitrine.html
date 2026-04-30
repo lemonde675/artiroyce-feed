@@ -4,144 +4,253 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>ArtiRoyce – Vitrine</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
-    :root { --red: #e63224; --green: #27a945; --dark: #111; --bg: #f5f6f8; --border: #e8e8e8; --muted: #888; }
+    :root { --red: #e63224; --green: #27a945; --navy: #0a0e2e; --navy2: #0d1340; --border: #e8e8e8; --muted: #888; }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { font-family: 'Outfit', sans-serif; background: var(--bg); max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+    html, body { font-family: 'Outfit', sans-serif; background: #f5f6f8; max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
 
     /* ── HEADER ── */
     .header {
       position: fixed; top: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px; z-index: 200;
       background: #fff; border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: center;
     }
-    .h-top {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 16px 6px;
-    }
-    .h-logo { display: flex; align-items: center; gap: 7px; }
-    .h-logo-text { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+    .h-logo { display: flex; align-items: center; gap: 8px; }
+    .h-logo-text { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
     .h-logo-text .arti { color: var(--red); }
     .h-logo-text .royce { color: var(--green); }
-    .h-nav { display: flex; gap: 6px; }
-    .h-nav-btn {
-      padding: 6px 16px; border-radius: 20px; font-size: 13px;
-      font-weight: 700; cursor: pointer; border: 2px solid var(--green);
-      background: none; color: var(--green); font-family: 'Outfit', sans-serif;
-      transition: all .2s;
-    }
-    .h-nav-btn.active { background: var(--green); color: #fff; }
 
     /* ── FILTRES MÉTIERS ── */
+    .metiers-wrap {
+      position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; z-index: 190;
+      background: #fff; border-bottom: 1px solid var(--border);
+    }
     .metiers-bar {
       display: flex; overflow-x: auto; gap: 6px;
-      padding: 6px 14px 10px; scrollbar-width: none;
+      padding: 8px 14px 10px; scrollbar-width: none;
     }
     .metiers-bar::-webkit-scrollbar { display: none; }
     .metier-chip {
       display: flex; align-items: center; gap: 5px;
-      padding: 5px 12px; border-radius: 20px;
+      padding: 5px 14px; border-radius: 20px;
       font-size: 12px; font-weight: 700; white-space: nowrap;
       cursor: pointer; border: 1.5px solid var(--border);
       background: #fff; color: var(--muted); transition: all .2s; flex-shrink: 0;
     }
-    .metier-chip.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .metier-chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 
     /* ── SCROLL ── */
-    .scroll-area { padding: 110px 10px 80px; }
+    .scroll-area { padding: 118px 14px 80px; }
 
-    /* ── GRILLE MOSAIQUE ── */
-    .mosaic {
-      columns: 2; column-gap: 8px;
+    /* ── HERO BANNER ── */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1a2a6c 100%);
+      border-radius: 20px; padding: 22px 18px 20px;
+      margin-bottom: 20px; position: relative; overflow: hidden;
     }
-    .mosaic-item {
-      break-inside: avoid; margin-bottom: 8px;
-      border-radius: 14px; overflow: hidden;
-      position: relative; cursor: pointer;
-      background: #ddd;
-      animation: fadeUp .3s ease both;
+    .hero-banner::before {
+      content: ''; position: absolute; top: -30px; right: -30px;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(39,169,69,0.15);
     }
-    .mosaic-item:nth-child(odd) { animation-delay: .05s; }
-    .mosaic-item:nth-child(even) { animation-delay: .1s; }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .hero-banner::after {
+      content: ''; position: absolute; bottom: -40px; right: 50px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(230,50,36,0.1);
+    }
+    .hero-tag {
+      display: inline-block; background: var(--green); color: #fff;
+      font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px;
+      margin-bottom: 10px; letter-spacing: 0.5px; position: relative; z-index: 1;
+    }
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px; color: #fff; line-height: 1.2; margin-bottom: 6px;
+      position: relative; z-index: 1;
+    }
+    .hero-sub {
+      font-size: 12px; color: rgba(255,255,255,0.6);
+      margin-bottom: 16px; position: relative; z-index: 1;
+    }
+    .hero-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--red); color: #fff; border: none; border-radius: 12px;
+      padding: 10px 18px; font-size: 13px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      position: relative; z-index: 1; transition: all .2s;
+    }
+    .hero-btn:active { transform: scale(0.97); }
 
-    .mosaic-item img {
-      width: 100%; display: block;
-      object-fit: cover; transition: transform .3s;
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 16px; font-weight: 800; color: #111;
+      margin-bottom: 14px;
     }
-    .mosaic-item:active img { transform: scale(1.03); }
 
-    /* Placeholder si pas d'image */
-    .mosaic-placeholder {
-      width: 100%; aspect-ratio: 1;
+    /* ── CARTE FEATURED (grande, ronde) ── */
+    .card-featured {
+      background: #fff; border-radius: 24px;
+      overflow: hidden; margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    .featured-media {
+      width: 100%; height: 200px; object-fit: cover;
+      display: block; background: var(--navy);
+      cursor: pointer;
+    }
+    .featured-media-placeholder {
+      width: 100%; height: 200px;
+      background: linear-gradient(135deg, var(--navy), #27a945);
       display: flex; align-items: center; justify-content: center;
-      font-size: 40px;
-      background: linear-gradient(135deg, #1a2035 0%, #27a945 100%);
+      font-size: 56px; cursor: pointer;
     }
-    .mosaic-item.tall .mosaic-placeholder { aspect-ratio: 3/4; }
+    .vid-overlay {
+      position: relative;
+    }
+    .vid-play-btn {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; pointer-events: none;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    }
 
-    /* Badge video */
-    .vid-play {
+    .featured-body { padding: 14px 16px 16px; }
+    .featured-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .featured-av {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--navy); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; color: #fff;
+      border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      overflow: hidden; cursor: pointer;
+    }
+    .featured-av img { width: 100%; height: 100%; object-fit: cover; }
+    .featured-info { flex: 1; cursor: pointer; }
+    .featured-name { font-size: 15px; font-weight: 800; color: #111; }
+    .featured-metier { font-size: 12px; color: var(--muted); }
+    .badge-v {
+      background: var(--green); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 10px;
+    }
+    .featured-stats { display: flex; gap: 12px; margin-bottom: 12px; }
+    .stat { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .stat b { color: #111; }
+    .featured-btns { display: flex; gap: 8px; }
+    .btn-contacter {
+      flex: 1; padding: 10px; border: none; border-radius: 50px;
+      background: var(--red); color: #fff; font-size: 13px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all .2s;
+    }
+    .btn-reserver {
+      flex: 1; padding: 10px; border: 2px solid var(--green); border-radius: 50px;
+      background: #fff; color: var(--green); font-size: 13px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all .2s;
+    }
+    .btn-suivre {
+      padding: 10px 14px; border: 2px solid #ddd; border-radius: 50px;
+      background: #fff; color: #555; font-size: 12px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      white-space: nowrap; transition: all .2s; flex-shrink: 0;
+    }
+    .btn-suivre.suivi { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ── SCROLL HORIZONTAL CARTES ── */
+    .h-scroll-wrap { margin-bottom: 20px; }
+    .h-scroll-label {
+      font-size: 13px; font-weight: 800; color: #111;
+      margin-bottom: 10px; padding: 0 2px;
+    }
+    .h-scroll {
+      display: flex; gap: 12px; overflow-x: auto;
+      padding-bottom: 6px; scroll-snap-type: x mandatory;
+    }
+    .h-scroll::-webkit-scrollbar { height: 3px; }
+    .h-scroll::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+    /* CARTE MINI RONDE */
+    .card-mini {
+      flex-shrink: 0; width: 160px;
+      background: #fff; border-radius: 20px;
+      overflow: hidden; scroll-snap-align: start;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      cursor: pointer; transition: transform .2s;
+      animation: fadeUp .4s ease both;
+    }
+    .card-mini:active { transform: scale(0.97); }
+    .mini-media {
+      width: 100%; height: 120px; object-fit: cover;
+      display: block; background: var(--navy);
+    }
+    .mini-media-ph {
+      width: 100%; height: 120px;
+      background: linear-gradient(135deg, var(--navy), #27a945);
+      display: flex; align-items: center; justify-content: center; font-size: 32px;
+    }
+    .mini-body { padding: 10px; }
+    .mini-av-row { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+    .mini-av {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--navy); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; overflow: hidden;
+    }
+    .mini-av img { width: 100%; height: 100%; object-fit: cover; }
+    .mini-name { font-size: 11px; font-weight: 800; color: #111; line-height: 1.2; }
+    .mini-metier { font-size: 10px; color: var(--muted); }
+    .mini-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .mini-note { font-size: 11px; font-weight: 700; }
+    .mini-badge {
+      background: rgba(39,169,69,0.12); color: var(--green);
+      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+    }
+    .mini-vid-wrap { position: relative; }
+    .mini-vid-play {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      width: 38px; height: 38px; border-radius: 50%;
-      background: rgba(0,0,0,0.55); display: flex;
-      align-items: center; justify-content: center;
-      font-size: 16px; pointer-events: none;
-    }
-
-    /* Overlay info */
-    .mosaic-info {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
-      padding: 24px 8px 8px;
-    }
-    .mosaic-name { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.2; }
-    .mosaic-metier { font-size: 10px; color: rgba(255,255,255,0.75); }
-    .mosaic-badge {
-      position: absolute; top: 6px; left: 6px;
-      background: var(--green); color: #fff;
-      font-size: 9px; font-weight: 800; padding: 2px 6px;
-      border-radius: 8px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
     }
 
     /* ── SKELETON ── */
     .skel {
       background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
-      background-size: 200% 100%; animation: shimmer 1.4s infinite;
-      border-radius: 14px;
+      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 20px;
     }
     @keyframes shimmer { to { background-position: -200% 0; } }
 
-    /* ── EMPTY ── */
-    .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
-    .empty .e-icon { font-size: 48px; margin-bottom: 12px; }
-
-    /* ── BOTTOM NAV ── */
+    /* ── BOTTOM NAV (simplifié) ── */
     .bot-nav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px; background: #fff;
       border-top: 1px solid var(--border); display: flex; z-index: 200;
-      box-shadow: 0 -2px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 -2px 20px rgba(0,0,0,0.08); padding: 6px 0 12px;
     }
-    .nav-i {
+    .nav-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 8px 4px 10px; cursor: pointer; gap: 3px; text-decoration: none;
+      gap: 4px; cursor: pointer; text-decoration: none; padding: 4px;
+      border: none; background: none; font-family: 'Outfit', sans-serif;
     }
-    .nav-lb { font-size: 10px; font-weight: 700; color: var(--muted); }
-    .nav-i.active .nav-lb { color: var(--green); }
-    .nav-ico { font-size: 20px; }
-    .nav-plus-wrap {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-end; padding-bottom: 10px;
-    }
-    .nav-plus {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--red); display: flex; align-items: center;
-      justify-content: center; font-size: 26px; color: #fff;
-      box-shadow: 0 4px 16px rgba(230,50,36,0.5); margin-top: -18px;
-      cursor: pointer;
+    .nav-btn-ico { font-size: 22px; }
+    .nav-btn-lb { font-size: 11px; font-weight: 700; color: var(--muted); }
+    .nav-btn.green .nav-btn-lb { color: var(--green); }
+    .nav-divider {
+      width: 1px; background: var(--border); margin: 8px 0; flex-shrink: 0;
     }
 
     /* ── TOAST ── */
@@ -155,36 +264,30 @@
     .toast.g { background: var(--green); }
     .toast.r { background: var(--red); }
 
-    /* ── SECTION LABEL ── */
-    .section-label {
-      font-size: 12px; font-weight: 800; color: var(--muted);
-      letter-spacing: 0.06em; text-transform: uppercase;
-      margin-bottom: 10px; padding: 0 2px;
-    }
+    /* ── EMPTY ── */
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty .e-icon { font-size: 48px; margin-bottom: 12px; }
   </style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header class="header">
-  <div class="h-top">
-    <div class="h-logo">
-      <svg width="24" height="17" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-      </svg>
-      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
-    </div>
-    <div class="h-nav">
-      <button class="h-nav-btn active" onclick="window.location.href='vitrine.html'">Accueil</button>
-      <button class="h-nav-btn" onclick="window.location.href='profil.html'">Profil</button>
-    </div>
+  <div class="h-logo">
+    <svg width="28" height="20" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+      <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+      <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+      <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+      <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+      <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+    </svg>
+    <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
   </div>
-  <!-- FILTRES -->
+</header>
+
+<!-- FILTRES -->
+<div class="metiers-wrap">
   <div class="metiers-bar" id="metiersBar">
     <div class="metier-chip active" data-metier="" onclick="filtrer(this)">⭐ Tous</div>
     <div class="metier-chip" data-metier="maconnerie" onclick="filtrer(this)">🧱 Maçon</div>
@@ -197,20 +300,39 @@
     <div class="metier-chip" data-metier="cuisine" onclick="filtrer(this)">👨‍🍳 Cuisinier</div>
     <div class="metier-chip" data-metier="mecanique" onclick="filtrer(this)">🔧 Mécanicien</div>
   </div>
-</header>
+</div>
 
 <!-- CONTENU -->
 <main class="scroll-area">
-  <div class="section-label" id="sectionLabel">Toutes les réalisations</div>
-  <div class="mosaic" id="mosaicGrid">
-    <!-- Skeletons -->
-    <div class="skel" style="height:180px;margin-bottom:8px"></div>
-    <div class="skel" style="height:120px;margin-bottom:8px"></div>
-    <div class="skel" style="height:140px;margin-bottom:8px"></div>
-    <div class="skel" style="height:200px;margin-bottom:8px"></div>
-    <div class="skel" style="height:160px;margin-bottom:8px"></div>
-    <div class="skel" style="height:130px;margin-bottom:8px"></div>
+
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-tag">✨ Professionnels vérifiés</div>
+    <div class="hero-title">Trouvez le professionnel<br><em>qu'il vous faut</em></div>
+    <div class="hero-sub">Des centaines de professionnels vérifiés prêts à vous servir</div>
+    <button class="hero-btn" onclick="window.location.href='accueil.html'">
+      🔍 Découvrir sur le feed
+    </button>
   </div>
+
+  <!-- SECTION PRINCIPALE -->
+  <div class="section-label">Professionnels vérifiés</div>
+
+  <!-- CARTE FEATURED -->
+  <div id="featuredWrap">
+    <div class="skel" style="height:340px;margin-bottom:20px"></div>
+  </div>
+
+  <!-- SCROLL HORIZONTAL -->
+  <div class="h-scroll-wrap">
+    <div class="h-scroll-label">Autres professionnels</div>
+    <div class="h-scroll" id="hScroll">
+      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
+      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
+      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
+    </div>
+  </div>
+
 </main>
 
 <!-- TOAST -->
@@ -218,32 +340,22 @@
 
 <!-- BOTTOM NAV -->
 <nav class="bot-nav">
-  <a href="vitrine.html" class="nav-i active">
-    <span class="nav-ico">🏠</span>
-    <span class="nav-lb">Accueil</span>
-  </a>
-  <a href="messages.html" class="nav-i">
-    <span class="nav-ico">📩</span>
-    <span class="nav-lb">Messages</span>
-  </a>
-  <div class="nav-plus-wrap">
-    <div class="nav-plus" onclick="window.location.href='publication_v1.html'">+</div>
-  </div>
-  <a href="accueil.html" class="nav-i">
-    <span class="nav-ico">▶️</span>
-    <span class="nav-lb">Feed</span>
-  </a>
-  <a href="profil.html" class="nav-i">
-    <span class="nav-ico">👤</span>
-    <span class="nav-lb">Profil</span>
-  </a>
+  <button class="nav-btn green" onclick="window.location.href='accueil.html'">
+    <span class="nav-btn-ico">🏠</span>
+    <span class="nav-btn-lb" style="color:var(--green)">Accueil</span>
+  </button>
+  <div class="nav-divider"></div>
+  <button class="nav-btn" onclick="window.location.href='accueil.html?goto=profil'">
+    <span class="nav-btn-ico">👤</span>
+    <span class="nav-btn-lb">Profil</span>
+  </button>
 </nav>
 
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -258,9 +370,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Vérifier connexion
-onAuthStateChanged(auth, user => {
-  if (!user) { window.location.href = 'connexion.html'; }
+let currentUser = null;
+let tousUsers = [];
+let metierActif = '';
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = 'connexion.html'; return; }
+  currentUser = user;
+  charger();
 });
 
 const emojiMetier = {
@@ -269,104 +386,198 @@ const emojiMetier = {
   mecanique:'🔧', jardinage:'🌿', informatique:'💻', soudure:'🔩'
 };
 
-function getEmoji(metier) {
-  if (!metier) return '🔨';
-  const k = metier.toLowerCase();
-  for (const [key, e] of Object.entries(emojiMetier)) {
-    if (k.includes(key.slice(0,4))) return e;
-  }
+function getEmoji(m) {
+  if (!m) return '🔨';
+  const k = m.toLowerCase();
+  for (const [key, e] of Object.entries(emojiMetier)) { if (k.includes(key.slice(0,4))) return e; }
   return '🔨';
 }
-
-// Charger toutes les réalisations depuis portfolio des utilisateurs
-let tousItems = [];
 
 async function charger() {
   try {
     const snap = await getDocs(query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie')));
-    tousItems = [];
-    snap.forEach(d => {
-      const data = d.data();
-      const portfolio = data.portfolio || [];
-      portfolio.forEach(item => {
-        tousItems.push({
-          ...item,
-          uid: d.id,
-          nomArtisan: ((data.prenom||'') + ' ' + (data.nom||'')).trim() || 'Artisan',
-          metier: data.metier || data.specialite || '',
-          emoji: getEmoji(data.metier || data.specialite || '')
-        });
-      });
-    });
-
-    // Mélanger
-    tousItems = tousItems.sort(() => Math.random() - 0.5);
-    afficher(tousItems);
+    tousUsers = [];
+    snap.forEach(d => tousUsers.push({ id: d.id, ...d.data() }));
+    afficher(tousUsers);
   } catch(e) {
-    console.error(e);
     showToast('⚠ Erreur chargement', 'r');
   }
 }
 
-function afficher(items) {
-  const grid = document.getElementById('mosaicGrid');
-  const label = document.getElementById('sectionLabel');
+function getNom(u) { return ((u.prenom||'') + ' ' + (u.nom||'')).trim() || 'Professionnel'; }
 
-  if (items.length === 0) {
-    grid.innerHTML = '<div class="empty" style="column-span:all"><div class="e-icon">📭</div><p>Aucune réalisation pour le moment</p></div>';
+function getMediaUrl(u) {
+  const p = u.portfolio || [];
+  const item = p[Math.floor(Math.random() * Math.max(p.length,1))];
+  return item ? { url: item.url, type: item.type||'photo' } : null;
+}
+
+function afficher(users) {
+  if (users.length === 0) {
+    document.getElementById('featuredWrap').innerHTML = '<div class="empty"><div class="e-icon">📭</div><p>Aucun professionnel pour le moment</p></div>';
+    document.getElementById('hScroll').innerHTML = '';
     return;
   }
 
-  label.textContent = items.length + ' réalisation(s)';
+  const featured = users[0];
+  const autres = users.slice(1);
 
-  grid.innerHTML = items.map((item, i) => {
-    const tall = i % 3 === 0 ? 'tall' : '';
-    const isVideo = item.type === 'video';
-    const hasMedia = !!item.url;
+  // CARTE FEATURED
+  renderFeatured(featured);
+
+  // SCROLL HORIZONTAL
+  renderScroll(autres);
+}
+
+function renderFeatured(u) {
+  const nom = getNom(u);
+  const metier = u.metier || u.specialite || 'Professionnel';
+  const emoji = getEmoji(metier);
+  const initiale = nom[0].toUpperCase();
+  const media = getMediaUrl(u);
+  const abonnes = (u.abonnes||[]).length;
+  const isSuivi = currentUser && (u.abonnes||[]).includes(currentUser.uid);
+
+  let mediaHTML = '';
+  if (media && media.url) {
+    if (media.type === 'video') {
+      mediaHTML = `<div class="vid-overlay">
+        <video class="featured-media" src="${media.url}" muted preload="metadata" onclick="jouerMedia('${u.id}','${media.url}','video')" style="cursor:pointer"></video>
+        <div class="vid-play-btn">▶</div>
+      </div>`;
+    } else {
+      mediaHTML = `<img class="featured-media" src="${media.url}" alt="${nom}" onclick="jouerMedia('${u.id}','${media.url}','photo')" onerror="this.outerHTML='<div class=featured-media-placeholder onclick=jouerMedia(\'${u.id}\',\'\',\'photo\')>${emoji}</div>'"  />`;
+    }
+  } else {
+    mediaHTML = `<div class="featured-media-placeholder" onclick="jouerMedia('${u.id}','','photo')">${emoji}</div>`;
+  }
+
+  document.getElementById('featuredWrap').innerHTML = `
+  <div class="card-featured">
+    ${mediaHTML}
+    <div class="featured-body">
+      <div class="featured-top">
+        <div class="featured-av" onclick="allerProfil('${u.id}')">
+          ${u.photoAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}
+        </div>
+        <div class="featured-info" onclick="allerProfil('${u.id}')">
+          <div class="featured-name">${nom}</div>
+          <div class="featured-metier">${emoji} ${metier}${u.ville ? ' · 📍 '+u.ville : ''}</div>
+        </div>
+        <span class="badge-v">✔ Vérifié</span>
+      </div>
+      <div class="featured-stats">
+        <div class="stat">⭐ <b>${u.note||4.8}</b></div>
+        <div class="stat">💬 <b>${u.avis||0}</b> avis</div>
+        <div class="stat">👥 <b>${abonnes}</b> abonnés</div>
+      </div>
+      <div class="featured-btns">
+        <button class="btn-contacter" onclick="allerContact('${u.id}','${u.telephone||u.whatsapp||''}','${nom}')">
+          💬 Contacter
+        </button>
+        <button class="btn-reserver" onclick="allerReserver('${u.id}')">
+          📅 Réserver
+        </button>
+        <button class="btn-suivre ${isSuivi?'suivi':''}" id="suivreBtn_${u.id}" onclick="suivre('${u.id}',this)">
+          ${isSuivi ? '✔ Suivi' : '➕ Suivre'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderScroll(users) {
+  const scroll = document.getElementById('hScroll');
+  if (users.length === 0) { scroll.innerHTML = '<div style="color:#aaa;font-size:13px;padding:20px">Aucun autre professionnel</div>'; return; }
+
+  scroll.innerHTML = users.map(u => {
+    const nom = getNom(u);
+    const metier = u.metier || u.specialite || 'Pro';
+    const emoji = getEmoji(metier);
+    const initiale = nom[0].toUpperCase();
+    const media = getMediaUrl(u);
+    const isSuivi = currentUser && (u.abonnes||[]).includes(currentUser.uid);
+
+    let mediaHTML = '';
+    if (media && media.url) {
+      if (media.type === 'video') {
+        mediaHTML = `<div class="mini-vid-wrap"><video class="mini-media" src="${media.url}" muted preload="metadata"></video><div class="mini-vid-play">▶</div></div>`;
+      } else {
+        mediaHTML = `<img class="mini-media" src="${media.url}" alt="${nom}" onerror="this.outerHTML='<div class=mini-media-ph>${emoji}</div>'"/>`;
+      }
+    } else {
+      mediaHTML = `<div class="mini-media-ph">${emoji}</div>`;
+    }
 
     return `
-    <div class="mosaic-item ${tall}" onclick="ouvrirMedia('${encodeURIComponent(item.uid)}','${encodeURIComponent(item.url||'')}','${item.type||'photo'}')">
-      <span class="mosaic-badge">✔</span>
-      ${hasMedia
-        ? (isVideo
-            ? `<video src="${item.url}" muted preload="metadata" style="width:100%;display:block;${tall?'aspect-ratio:3/4':'aspect-ratio:1'};object-fit:cover"></video>`
-            : `<img src="${item.url}" alt="${item.nomArtisan}" style="${tall?'aspect-ratio:3/4':'aspect-ratio:1'};width:100%" loading="lazy"/>`
-          )
-        : `<div class="mosaic-placeholder" style="${tall?'aspect-ratio:3/4':''}">${item.emoji}</div>`
-      }
-      ${isVideo ? '<div class="vid-play">▶</div>' : ''}
-      <div class="mosaic-info">
-        <div class="mosaic-name">${item.nomArtisan}</div>
-        <div class="mosaic-metier">${item.emoji} ${item.metier || 'Professionnel'}</div>
+    <div class="card-mini" onclick="jouerMedia('${u.id}','${media?.url||''}','${media?.type||'photo'}')">
+      ${mediaHTML}
+      <div class="mini-body">
+        <div class="mini-av-row">
+          <div class="mini-av">${u.photoAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}</div>
+          <div>
+            <div class="mini-name">${nom}</div>
+            <div class="mini-metier">${emoji} ${metier}</div>
+          </div>
+        </div>
+        <div class="mini-bottom">
+          <span class="mini-note">⭐ ${u.note||4.8}</span>
+          <span class="mini-badge">✔ Vérifié</span>
+        </div>
+        <button class="btn-suivre ${isSuivi?'suivi':''}" style="width:100%;margin-top:8px;justify-content:center" onclick="event.stopPropagation();suivre('${u.id}',this)">
+          ${isSuivi ? '✔ Suivi' : '➕ Suivre'}
+        </button>
       </div>
     </div>`;
   }).join('');
 }
 
+// ── FILTRER ──
 window.filtrer = function(el) {
   document.querySelectorAll('.metier-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  const metier = el.dataset.metier;
-  const label = document.getElementById('sectionLabel');
-
-  const filtres = metier
-    ? tousItems.filter(i => (i.metier||'').toLowerCase().includes(metier.slice(0,4)))
-    : tousItems;
-
-  label.textContent = metier
-    ? el.textContent + ' — ' + filtres.length + ' réalisation(s)'
-    : filtres.length + ' réalisation(s)';
-
+  metierActif = el.dataset.metier;
+  const filtres = metierActif
+    ? tousUsers.filter(u => (u.metier||u.specialite||'').toLowerCase().includes(metierActif.slice(0,4)))
+    : tousUsers;
   afficher(filtres);
 };
 
-window.ouvrirMedia = function(uid, url, type) {
-  // Ouvre l'ancien accueil en mode lecture vidéo/photo
-  if (type === 'video' && url) {
-    sessionStorage.setItem('playUrl', decodeURIComponent(url));
-    sessionStorage.setItem('playType', 'video');
-  }
-  window.location.href = 'accueil.html?uid=' + decodeURIComponent(uid);
+// ── ACTIONS ──
+window.jouerMedia = function(uid, url, type) {
+  sessionStorage.setItem('vitrineUid', uid);
+  if (url) { sessionStorage.setItem('vitrineUrl', url); sessionStorage.setItem('vitrineType', type); }
+  window.location.href = 'accueil.html?uid=' + uid;
+};
+
+window.allerProfil = function(uid) {
+  window.location.href = 'accueil.html?uid=' + uid + '&goto=profil';
+};
+
+window.allerContact = function(uid, tel, nom) {
+  window.location.href = 'accueil.html?uid=' + uid + '&action=contact';
+};
+
+window.allerReserver = function(uid) {
+  window.location.href = 'accueil.html?uid=' + uid + '&action=reserver';
+};
+
+window.suivre = async function(uid, btn) {
+  if (!currentUser) { showToast('🔐 Connectez-vous', 'r'); return; }
+  const suivi = btn.classList.contains('suivi');
+  try {
+    if (suivi) {
+      await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayRemove(currentUser.uid) });
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayRemove(uid) });
+      btn.classList.remove('suivi'); btn.textContent = '➕ Suivre';
+      showToast('Vous ne suivez plus ce professionnel', '');
+    } else {
+      await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayUnion(currentUser.uid) });
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayUnion(uid) });
+      btn.classList.add('suivi'); btn.textContent = '✔ Suivi';
+      showToast('✅ Vous suivez ce professionnel !', 'g');
+    }
+  } catch(e) { showToast('⚠ Erreur', 'r'); }
 };
 
 function showToast(msg, type) {
@@ -376,8 +587,6 @@ function showToast(msg, type) {
   setTimeout(() => el.className = 'toast', 2500);
 }
 window.showToast = showToast;
-
-charger();
 </script>
 </body>
 </html>
