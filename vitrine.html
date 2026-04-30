@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>ArtiRoyce – Vitrine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --red: #e63224; --green: #27a945; --dark: #111; --bg: #f5f6f8; --border: #e8e8e8; --muted: #888; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { font-family: 'Outfit', sans-serif; background: var(--bg); max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+
+    /* ── HEADER ── */
+    .header {
+      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; z-index: 200;
+      background: #fff; border-bottom: 1px solid var(--border);
+    }
+    .h-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px 6px;
+    }
+    .h-logo { display: flex; align-items: center; gap: 7px; }
+    .h-logo-text { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+    .h-logo-text .arti { color: var(--red); }
+    .h-logo-text .royce { color: var(--green); }
+    .h-nav { display: flex; gap: 6px; }
+    .h-nav-btn {
+      padding: 6px 16px; border-radius: 20px; font-size: 13px;
+      font-weight: 700; cursor: pointer; border: 2px solid var(--green);
+      background: none; color: var(--green); font-family: 'Outfit', sans-serif;
+      transition: all .2s;
+    }
+    .h-nav-btn.active { background: var(--green); color: #fff; }
+
+    /* ── FILTRES MÉTIERS ── */
+    .metiers-bar {
+      display: flex; overflow-x: auto; gap: 6px;
+      padding: 6px 14px 10px; scrollbar-width: none;
+    }
+    .metiers-bar::-webkit-scrollbar { display: none; }
+    .metier-chip {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; white-space: nowrap;
+      cursor: pointer; border: 1.5px solid var(--border);
+      background: #fff; color: var(--muted); transition: all .2s; flex-shrink: 0;
+    }
+    .metier-chip.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+    /* ── SCROLL ── */
+    .scroll-area { padding: 110px 10px 80px; }
+
+    /* ── GRILLE MOSAIQUE ── */
+    .mosaic {
+      columns: 2; column-gap: 8px;
+    }
+    .mosaic-item {
+      break-inside: avoid; margin-bottom: 8px;
+      border-radius: 14px; overflow: hidden;
+      position: relative; cursor: pointer;
+      background: #ddd;
+      animation: fadeUp .3s ease both;
+    }
+    .mosaic-item:nth-child(odd) { animation-delay: .05s; }
+    .mosaic-item:nth-child(even) { animation-delay: .1s; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    .mosaic-item img {
+      width: 100%; display: block;
+      object-fit: cover; transition: transform .3s;
+    }
+    .mosaic-item:active img { transform: scale(1.03); }
+
+    /* Placeholder si pas d'image */
+    .mosaic-placeholder {
+      width: 100%; aspect-ratio: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      background: linear-gradient(135deg, #1a2035 0%, #27a945 100%);
+    }
+    .mosaic-item.tall .mosaic-placeholder { aspect-ratio: 3/4; }
+
+    /* Badge video */
+    .vid-play {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(0,0,0,0.55); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 16px; pointer-events: none;
+    }
+
+    /* Overlay info */
+    .mosaic-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+      padding: 24px 8px 8px;
+    }
+    .mosaic-name { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .mosaic-metier { font-size: 10px; color: rgba(255,255,255,0.75); }
+    .mosaic-badge {
+      position: absolute; top: 6px; left: 6px;
+      background: var(--green); color: #fff;
+      font-size: 9px; font-weight: 800; padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    /* ── SKELETON ── */
+    .skel {
+      background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+      background-size: 200% 100%; animation: shimmer 1.4s infinite;
+      border-radius: 14px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ── EMPTY ── */
+    .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty .e-icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ── BOTTOM NAV ── */
+    .bot-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; background: #fff;
+      border-top: 1px solid var(--border); display: flex; z-index: 200;
+      box-shadow: 0 -2px 20px rgba(0,0,0,0.08);
+    }
+    .nav-i {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 8px 4px 10px; cursor: pointer; gap: 3px; text-decoration: none;
+    }
+    .nav-lb { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .nav-i.active .nav-lb { color: var(--green); }
+    .nav-ico { font-size: 20px; }
+    .nav-plus-wrap {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end; padding-bottom: 10px;
+    }
+    .nav-plus {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--red); display: flex; align-items: center;
+      justify-content: center; font-size: 26px; color: #fff;
+      box-shadow: 0 4px 16px rgba(230,50,36,0.5); margin-top: -18px;
+      cursor: pointer;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.82); color: #fff; padding: 9px 20px;
+      border-radius: 22px; font-size: 13px; font-weight: 600;
+      z-index: 999; opacity: 0; transition: opacity .3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+    .toast.g { background: var(--green); }
+    .toast.r { background: var(--red); }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 12px; font-weight: 800; color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 10px; padding: 0 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="h-top">
+    <div class="h-logo">
+      <svg width="24" height="17" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="h-nav">
+      <button class="h-nav-btn active" onclick="window.location.href='vitrine.html'">Accueil</button>
+      <button class="h-nav-btn" onclick="window.location.href='profil.html'">Profil</button>
+    </div>
+  </div>
+  <!-- FILTRES -->
+  <div class="metiers-bar" id="metiersBar">
+    <div class="metier-chip active" data-metier="" onclick="filtrer(this)">⭐ Tous</div>
+    <div class="metier-chip" data-metier="maconnerie" onclick="filtrer(this)">🧱 Maçon</div>
+    <div class="metier-chip" data-metier="electricite" onclick="filtrer(this)">⚡ Électricien</div>
+    <div class="metier-chip" data-metier="plomberie" onclick="filtrer(this)">🚿 Plombier</div>
+    <div class="metier-chip" data-metier="peinture" onclick="filtrer(this)">🎨 Peintre</div>
+    <div class="metier-chip" data-metier="menuiserie" onclick="filtrer(this)">🪵 Menuisier</div>
+    <div class="metier-chip" data-metier="coiffure" onclick="filtrer(this)">✂️ Coiffeur</div>
+    <div class="metier-chip" data-metier="couture" onclick="filtrer(this)">🧵 Couturier</div>
+    <div class="metier-chip" data-metier="cuisine" onclick="filtrer(this)">👨‍🍳 Cuisinier</div>
+    <div class="metier-chip" data-metier="mecanique" onclick="filtrer(this)">🔧 Mécanicien</div>
+  </div>
+</header>
+
+<!-- CONTENU -->
+<main class="scroll-area">
+  <div class="section-label" id="sectionLabel">Toutes les réalisations</div>
+  <div class="mosaic" id="mosaicGrid">
+    <!-- Skeletons -->
+    <div class="skel" style="height:180px;margin-bottom:8px"></div>
+    <div class="skel" style="height:120px;margin-bottom:8px"></div>
+    <div class="skel" style="height:140px;margin-bottom:8px"></div>
+    <div class="skel" style="height:200px;margin-bottom:8px"></div>
+    <div class="skel" style="height:160px;margin-bottom:8px"></div>
+    <div class="skel" style="height:130px;margin-bottom:8px"></div>
+  </div>
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bot-nav">
+  <a href="vitrine.html" class="nav-i active">
+    <span class="nav-ico">🏠</span>
+    <span class="nav-lb">Accueil</span>
+  </a>
+  <a href="messages.html" class="nav-i">
+    <span class="nav-ico">📩</span>
+    <span class="nav-lb">Messages</span>
+  </a>
+  <div class="nav-plus-wrap">
+    <div class="nav-plus" onclick="window.location.href='publication_v1.html'">+</div>
+  </div>
+  <a href="accueil.html" class="nav-i">
+    <span class="nav-ico">▶️</span>
+    <span class="nav-lb">Feed</span>
+  </a>
+  <a href="profil.html" class="nav-i">
+    <span class="nav-ico">👤</span>
+    <span class="nav-lb">Profil</span>
+  </a>
+</nav>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Vérifier connexion
+onAuthStateChanged(auth, user => {
+  if (!user) { window.location.href = 'connexion.html'; }
+});
+
+const emojiMetier = {
+  maconnerie:'🧱', electricite:'⚡', plomberie:'🚿', peinture:'🎨',
+  menuiserie:'🪵', coiffure:'✂️', couture:'🧵', cuisine:'👨‍🍳',
+  mecanique:'🔧', jardinage:'🌿', informatique:'💻', soudure:'🔩'
+};
+
+function getEmoji(metier) {
+  if (!metier) return '🔨';
+  const k = metier.toLowerCase();
+  for (const [key, e] of Object.entries(emojiMetier)) {
+    if (k.includes(key.slice(0,4))) return e;
+  }
+  return '🔨';
+}
+
+// Charger toutes les réalisations depuis portfolio des utilisateurs
+let tousItems = [];
+
+async function charger() {
+  try {
+    const snap = await getDocs(query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie')));
+    tousItems = [];
+    snap.forEach(d => {
+      const data = d.data();
+      const portfolio = data.portfolio || [];
+      portfolio.forEach(item => {
+        tousItems.push({
+          ...item,
+          uid: d.id,
+          nomArtisan: ((data.prenom||'') + ' ' + (data.nom||'')).trim() || 'Artisan',
+          metier: data.metier || data.specialite || '',
+          emoji: getEmoji(data.metier || data.specialite || '')
+        });
+      });
+    });
+
+    // Mélanger
+    tousItems = tousItems.sort(() => Math.random() - 0.5);
+    afficher(tousItems);
+  } catch(e) {
+    console.error(e);
+    showToast('⚠ Erreur chargement', 'r');
+  }
+}
+
+function afficher(items) {
+  const grid = document.getElementById('mosaicGrid');
+  const label = document.getElementById('sectionLabel');
+
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="empty" style="column-span:all"><div class="e-icon">📭</div><p>Aucune réalisation pour le moment</p></div>';
+    return;
+  }
+
+  label.textContent = items.length + ' réalisation(s)';
+
+  grid.innerHTML = items.map((item, i) => {
+    const tall = i % 3 === 0 ? 'tall' : '';
+    const isVideo = item.type === 'video';
+    const hasMedia = !!item.url;
+
+    return `
+    <div class="mosaic-item ${tall}" onclick="ouvrirMedia('${encodeURIComponent(item.uid)}','${encodeURIComponent(item.url||'')}','${item.type||'photo'}')">
+      <span class="mosaic-badge">✔</span>
+      ${hasMedia
+        ? (isVideo
+            ? `<video src="${item.url}" muted preload="metadata" style="width:100%;display:block;${tall?'aspect-ratio:3/4':'aspect-ratio:1'};object-fit:cover"></video>`
+            : `<img src="${item.url}" alt="${item.nomArtisan}" style="${tall?'aspect-ratio:3/4':'aspect-ratio:1'};width:100%" loading="lazy"/>`
+          )
+        : `<div class="mosaic-placeholder" style="${tall?'aspect-ratio:3/4':''}">${item.emoji}</div>`
+      }
+      ${isVideo ? '<div class="vid-play">▶</div>' : ''}
+      <div class="mosaic-info">
+        <div class="mosaic-name">${item.nomArtisan}</div>
+        <div class="mosaic-metier">${item.emoji} ${item.metier || 'Professionnel'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.filtrer = function(el) {
+  document.querySelectorAll('.metier-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const metier = el.dataset.metier;
+  const label = document.getElementById('sectionLabel');
+
+  const filtres = metier
+    ? tousItems.filter(i => (i.metier||'').toLowerCase().includes(metier.slice(0,4)))
+    : tousItems;
+
+  label.textContent = metier
+    ? el.textContent + ' — ' + filtres.length + ' réalisation(s)'
+    : filtres.length + ' réalisation(s)';
+
+  afficher(filtres);
+};
+
+window.ouvrirMedia = function(uid, url, type) {
+  // Ouvre l'ancien accueil en mode lecture vidéo/photo
+  if (type === 'video' && url) {
+    sessionStorage.setItem('playUrl', decodeURIComponent(url));
+    sessionStorage.setItem('playType', 'video');
+  }
+  window.location.href = 'accueil.html?uid=' + decodeURIComponent(uid);
+};
+
+function showToast(msg, type) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => el.className = 'toast', 2500);
+}
+window.showToast = showToast;
+
+charger();
+</script>
+</body>
+</html>
