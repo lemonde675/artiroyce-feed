@@ -462,4 +462,184 @@ const emojiMetier = {
   maconnerie:'🧱', electricite:'⚡', plomberie:'🚿', peinture:'🎨',
   menuiserie:'🪵', carrelage:'🏠', toiture:'🏗️', climatisation:'❄️',
   jardinage:'🌿', couture:'🧵', coiffure:'✂️', mecanique:'🔧',
-  informatique:'💻', cuisine:'👨‍🍳', soudure
+  informatique:'💻', cuisine:'👨‍🍳', soudure:'🔩', forge:'⚒️'
+};
+
+function getEmoji(metier) {
+  if (!metier) return '🔨';
+  const k = metier.toLowerCase().trim();
+  for (const [key, emoji] of Object.entries(emojiMetier)) {
+    if (k.includes(key.slice(0,4))) return emoji;
+  }
+  return '🔨';
+}
+
+// ── CHARGEMENT ──
+async function chargerFeed() {
+  try {
+    const snap = await getDocs(query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie')));
+    allUsers = [];
+    snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+    afficherFeed(allUsers);
+  } catch(e) {
+    showToast('⚠ Erreur chargement', 'r');
+    document.getElementById('feedContainer').innerHTML = '<div class="empty"><div class="e-icon">😕</div><p>Impossible de charger le feed</p></div>';
+  }
+}
+
+function afficherFeed(users) {
+  const container = document.getElementById('feedContainer');
+  document.getElementById('countLabel').textContent = users.length + ' artisan(s)';
+
+  if (users.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="e-icon">🔍</div><p>Aucun artisan trouvé</p></div>';
+    return;
+  }
+
+  let html = '';
+  users.forEach((u, i) => {
+    const nom = ((u.prenom||'') + ' ' + (u.nom||'')).trim() || 'Artisan';
+    const metier = u.metier || u.specialite || 'Professionnel';
+    const ville = u.ville || '';
+    const note = u.note || 4.8;
+    const avis = u.avis || 0;
+    const emoji = getEmoji(metier);
+    const initiale = nom[0].toUpperCase();
+    const hasAvatar = !!u.photoAvatar;
+    const hasCover = !!u.photoCover;
+    const abonnes = (u.abonnes || []).length;
+
+    if (i % 3 === 0) {
+      // Grande carte
+      html += `
+      <div class="card-featured" onclick="voirProfil('${u.id}')">
+        ${hasCover
+          ? `<img class="card-cover" src="${u.photoCover}" alt="${nom}" onerror="this.style.display='none'">`
+          : `<div class="card-cover-placeholder">${emoji}</div>`
+        }
+        <div class="card-body">
+          <div class="card-top-row">
+            <div class="card-avatar">
+              ${hasAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}
+            </div>
+            <div class="card-info">
+              <div class="card-name">${nom}</div>
+              <div class="card-metier">${emoji} ${metier}</div>
+              ${ville ? `<div class="ville-chip">📍 ${ville}</div>` : ''}
+            </div>
+            <span class="badge-verifie">✔ Vérifié</span>
+          </div>
+          <div class="card-stats">
+            <div class="stat"><span>⭐</span><span class="s-val">${note}</span></div>
+            <div class="stat"><span>💬</span><span class="s-val">${avis} avis</span></div>
+            <div class="stat"><span>👥</span><span class="s-val">${abonnes} abonnés</span></div>
+          </div>
+          <div class="card-btns">
+            <button class="btn-contact" onclick="event.stopPropagation();contacter('${u.telephone||u.whatsapp||''}','${nom}')">
+              💬 Contacter
+            </button>
+            <button class="btn-reserver" onclick="event.stopPropagation();showToast('📅 Réservation bientôt disponible','g')">
+              📅 Réserver
+            </button>
+            <button class="btn-suivre" onclick="event.stopPropagation();suivre('${u.id}')">
+              ➕
+            </button>
+          </div>
+        </div>
+      </div>`;
+    } else if (i % 3 === 1 && i + 1 < users.length) {
+      // Grille 2 colonnes
+      const u2 = users[i + 1];
+      html += `<div class="grid-2">`;
+      [u, u2].forEach(ux => {
+        const nx = ((ux.prenom||'') + ' ' + (ux.nom||'')).trim() || 'Artisan';
+        const mx = ux.metier || ux.specialite || 'Pro';
+        const ex = getEmoji(mx);
+        const ix = nx[0].toUpperCase();
+        html += `
+        <div class="card-mini" onclick="voirProfil('${ux.id}')">
+          ${ux.photoCover
+            ? `<img class="mini-cover" src="${ux.photoCover}" style="object-fit:cover" onerror="this.outerHTML='<div class=mini-cover>${ex}</div>'">`
+            : `<div class="mini-cover">${ex}</div>`
+          }
+          <div class="mini-body">
+            <div class="mini-av-row">
+              <div class="mini-av">
+                ${ux.photoAvatar ? `<img src="${ux.photoAvatar}" alt="${nx}">` : ix}
+              </div>
+              <div>
+                <div class="mini-name">${nx}</div>
+                <div class="mini-metier">${ex} ${mx}</div>
+              </div>
+            </div>
+            <div class="mini-bottom">
+              <span class="mini-note">⭐ ${ux.note||4.8}</span>
+              <span class="mini-badge">✔ Vérifié</span>
+            </div>
+            ${ux.ville ? `<div class="ville-chip" style="margin-top:6px">📍 ${ux.ville}</div>` : ''}
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// ── FILTRER ──
+window.filtrerMetier = function(el) {
+  document.querySelectorAll('.metier-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  metierActif = el.dataset.metier;
+  const filtres = metierActif
+    ? allUsers.filter(u => (u.metier||'').toLowerCase().includes(metierActif.slice(0,4)))
+    : allUsers;
+  afficherFeed(filtres);
+};
+
+// ── RECHERCHE ──
+window.rechercherLive = function(q) {
+  const t = q.toLowerCase().trim();
+  const filtres = t
+    ? allUsers.filter(u =>
+        ((u.prenom||'') + ' ' + (u.nom||'')).toLowerCase().includes(t) ||
+        (u.metier||'').toLowerCase().includes(t) ||
+        (u.ville||'').toLowerCase().includes(t)
+      )
+    : allUsers;
+  afficherFeed(filtres);
+};
+
+// ── ACTIONS ──
+window.voirProfil = function(uid) {
+  window.location.href = 'profil.html?uid=' + uid;
+};
+
+window.contacter = function(tel, nom) {
+  if (!tel) { showToast('📵 Contact non disponible', 'r'); return; }
+  const num = tel.replace(/\D/g, '');
+  window.open('https://wa.me/' + num + '?text=Bonjour ' + encodeURIComponent(nom) + ', je vous contacte via ArtiRoyce.', '_blank');
+};
+
+window.suivre = async function(uid) {
+  if (!currentUser) { showToast('🔐 Connectez-vous pour suivre', 'r'); return; }
+  try {
+    await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayUnion(currentUser.uid) });
+    await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayUnion(uid) });
+    showToast('✅ Vous suivez cet artisan !', 'g');
+  } catch(e) { showToast('⚠ Erreur', 'r'); }
+};
+
+function showToast(msg, type) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => el.className = 'toast', 2500);
+}
+window.showToast = showToast;
+
+chargerFeed();
+</script>
+</body>
+</html>
