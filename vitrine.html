@@ -6,7 +6,7 @@
   <title>ArtiRoyce – Vitrine</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
-    :root { --red: #e63224; --green: #27a945; --navy: #0a0e2e; --navy2: #0d1340; --border: #e8e8e8; --muted: #888; }
+    :root { --red: #e63224; --green: #27a945; --navy: #0a0e2e; --border: #ebebeb; --muted: #888; }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { font-family: 'Outfit', sans-serif; background: #f5f6f8; max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
 
@@ -23,7 +23,7 @@
     .h-logo-text .arti { color: var(--red); }
     .h-logo-text .royce { color: var(--green); }
 
-    /* ── FILTRES MÉTIERS ── */
+    /* ── FILTRES ── */
     .metiers-wrap {
       position: fixed; top: 54px; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px; z-index: 190;
@@ -41,93 +41,77 @@
       cursor: pointer; border: 1.5px solid var(--border);
       background: #fff; color: var(--muted); transition: all .2s; flex-shrink: 0;
     }
-    .metier-chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .metier-chip.active { background: var(--red); color: #fff; border-color: var(--red); }
 
     /* ── SCROLL ── */
     .scroll-area { padding: 118px 14px 80px; }
 
-    /* ── HERO BANNER ── */
+    /* ── HERO BANNER — FOND BLANC ── */
     .hero-banner {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #1a2a6c 100%);
-      border-radius: 20px; padding: 22px 18px 20px;
-      margin-bottom: 20px; position: relative; overflow: hidden;
-    }
-    .hero-banner::before {
-      content: ''; position: absolute; top: -30px; right: -30px;
-      width: 140px; height: 140px; border-radius: 50%;
-      background: rgba(39,169,69,0.15);
-    }
-    .hero-banner::after {
-      content: ''; position: absolute; bottom: -40px; right: 50px;
-      width: 100px; height: 100px; border-radius: 50%;
-      background: rgba(230,50,36,0.1);
+      background: #fff;
+      border-radius: 24px; padding: 22px 20px 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
     }
     .hero-tag {
       display: inline-block; background: var(--green); color: #fff;
       font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px;
-      margin-bottom: 10px; letter-spacing: 0.5px; position: relative; z-index: 1;
+      margin-bottom: 10px; letter-spacing: 0.5px;
     }
     .hero-title {
       font-family: 'DM Serif Display', serif;
-      font-size: 24px; color: #fff; line-height: 1.2; margin-bottom: 6px;
-      position: relative; z-index: 1;
+      font-size: 24px; color: #111; line-height: 1.2; margin-bottom: 6px;
     }
-    .hero-sub {
-      font-size: 12px; color: rgba(255,255,255,0.6);
-      margin-bottom: 16px; position: relative; z-index: 1;
-    }
+    .hero-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
     .hero-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      background: var(--red); color: #fff; border: none; border-radius: 12px;
-      padding: 10px 18px; font-size: 13px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; cursor: pointer;
-      position: relative; z-index: 1; transition: all .2s;
+      background: #fff; color: #111; border: 2px solid #111; border-radius: 50px;
+      padding: 10px 20px; font-size: 13px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer; transition: all .2s;
     }
-    .hero-btn:active { transform: scale(0.97); }
+    .hero-btn:active { background: #111; color: #fff; }
 
     /* ── SECTION LABEL ── */
-    .section-label {
-      font-size: 16px; font-weight: 800; color: #111;
-      margin-bottom: 14px;
-    }
+    .section-label { font-size: 16px; font-weight: 800; color: #111; margin-bottom: 14px; }
 
-    /* ── CARTE FEATURED (grande, ronde) ── */
+    /* ── CARTE FEATURED ── */
     .card-featured {
-      background: #fff; border-radius: 24px;
+      background: #fff; border-radius: 28px;
       overflow: hidden; margin-bottom: 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       animation: fadeUp .4s ease both;
     }
     @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 
-    .featured-media {
-      width: 100%; height: 200px; object-fit: cover;
-      display: block; background: var(--navy);
-      cursor: pointer;
-    }
-    .featured-media-placeholder {
-      width: 100%; height: 200px;
-      background: linear-gradient(135deg, var(--navy), #27a945);
+    /* MEDIA BLEU MARINE */
+    .featured-media-wrap {
+      width: 100%; height: 200px; position: relative; cursor: pointer;
+      background: var(--navy);
       display: flex; align-items: center; justify-content: center;
-      font-size: 56px; cursor: pointer;
+      overflow: hidden;
     }
-    .vid-overlay {
-      position: relative;
+    .featured-media-wrap img,
+    .featured-media-wrap video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
     }
+    .featured-media-emoji { font-size: 60px; }
     .vid-play-btn {
       position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%,-50%);
       width: 52px; height: 52px; border-radius: 50%;
       background: rgba(255,255,255,0.9);
       display: flex; align-items: center; justify-content: center;
-      font-size: 20px; pointer-events: none;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      font-size: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      pointer-events: none;
     }
 
-    .featured-body { padding: 14px 16px 16px; }
+    .featured-body { padding: 16px; }
     .featured-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+    /* AVATAR BLEU MARINE */
     .featured-av {
-      width: 46px; height: 46px; border-radius: 50%;
+      width: 48px; height: 48px; border-radius: 50%;
       background: var(--navy); flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 18px; font-weight: 800; color: #fff;
@@ -135,111 +119,114 @@
       overflow: hidden; cursor: pointer;
     }
     .featured-av img { width: 100%; height: 100%; object-fit: cover; }
+
     .featured-info { flex: 1; cursor: pointer; }
     .featured-name { font-size: 15px; font-weight: 800; color: #111; }
-    .featured-metier { font-size: 12px; color: var(--muted); }
+    .featured-metier { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .badge-v {
       background: var(--green); color: #fff;
       font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 10px;
+      flex-shrink: 0;
     }
-    .featured-stats { display: flex; gap: 12px; margin-bottom: 12px; }
+    .featured-stats { display: flex; gap: 12px; margin-bottom: 14px; }
     .stat { font-size: 12px; color: var(--muted); font-weight: 600; }
     .stat b { color: #111; }
-    .featured-btns { display: flex; gap: 8px; }
-    .btn-contacter {
-      flex: 1; padding: 10px; border: none; border-radius: 50px;
-      background: var(--red); color: #fff; font-size: 13px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      transition: all .2s;
-    }
-    .btn-reserver {
-      flex: 1; padding: 10px; border: 2px solid var(--green); border-radius: 50px;
-      background: #fff; color: var(--green); font-size: 13px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      transition: all .2s;
-    }
-    .btn-suivre {
-      padding: 10px 14px; border: 2px solid #ddd; border-radius: 50px;
-      background: #fff; color: #555; font-size: 12px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      white-space: nowrap; transition: all .2s; flex-shrink: 0;
-    }
-    .btn-suivre.suivi { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-    /* ── SCROLL HORIZONTAL CARTES ── */
-    .h-scroll-wrap { margin-bottom: 20px; }
-    .h-scroll-label {
-      font-size: 13px; font-weight: 800; color: #111;
-      margin-bottom: 10px; padding: 0 2px;
+    /* BOUTONS RONDS BLANCS SIMPLES */
+    .featured-btns { display: flex; gap: 8px; }
+    .btn-simple {
+      flex: 1; padding: 10px 8px; border: 1.5px solid var(--border); border-radius: 50px;
+      background: #fff; color: #111; font-size: 12px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all .2s; white-space: nowrap;
     }
+    .btn-simple:active { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-simple.suivi { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ── SCROLL HORIZONTAL ── */
+    .h-scroll-wrap { margin-bottom: 20px; }
+    .h-scroll-label { font-size: 13px; font-weight: 800; color: #111; margin-bottom: 10px; padding: 0 2px; }
     .h-scroll {
       display: flex; gap: 12px; overflow-x: auto;
       padding-bottom: 6px; scroll-snap-type: x mandatory;
     }
     .h-scroll::-webkit-scrollbar { height: 3px; }
-    .h-scroll::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+    .h-scroll::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
 
     /* CARTE MINI RONDE */
     .card-mini {
-      flex-shrink: 0; width: 160px;
-      background: #fff; border-radius: 20px;
+      flex-shrink: 0; width: 162px;
+      background: #fff; border-radius: 24px;
       overflow: hidden; scroll-snap-align: start;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      cursor: pointer; transition: transform .2s;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
       animation: fadeUp .4s ease both;
     }
-    .card-mini:active { transform: scale(0.97); }
-    .mini-media {
-      width: 100%; height: 120px; object-fit: cover;
-      display: block; background: var(--navy);
-    }
-    .mini-media-ph {
-      width: 100%; height: 120px;
-      background: linear-gradient(135deg, var(--navy), #27a945);
-      display: flex; align-items: center; justify-content: center; font-size: 32px;
-    }
-    .mini-body { padding: 10px; }
-    .mini-av-row { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
-    .mini-av {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--navy); flex-shrink: 0;
+
+    /* MEDIA MINI BLEU MARINE */
+    .mini-media-wrap {
+      width: 100%; height: 120px; position: relative; cursor: pointer;
+      background: var(--navy);
       display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 800; color: #fff; overflow: hidden;
+      overflow: hidden;
     }
-    .mini-av img { width: 100%; height: 100%; object-fit: cover; }
-    .mini-name { font-size: 11px; font-weight: 800; color: #111; line-height: 1.2; }
-    .mini-metier { font-size: 10px; color: var(--muted); }
-    .mini-bottom { display: flex; align-items: center; justify-content: space-between; }
-    .mini-note { font-size: 11px; font-weight: 700; }
-    .mini-badge {
-      background: rgba(39,169,69,0.12); color: var(--green);
-      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+    .mini-media-wrap img,
+    .mini-media-wrap video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
     }
-    .mini-vid-wrap { position: relative; }
+    .mini-media-emoji { font-size: 36px; }
     .mini-vid-play {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       width: 30px; height: 30px; border-radius: 50%;
       background: rgba(255,255,255,0.85);
       display: flex; align-items: center; justify-content: center; font-size: 12px;
+      pointer-events: none;
     }
+
+    .mini-body { padding: 10px; }
+    .mini-av-row { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+
+    /* AVATAR MINI BLEU MARINE */
+    .mini-av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--navy); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; overflow: hidden;
+    }
+    .mini-av img { width: 100%; height: 100%; object-fit: cover; }
+
+    .mini-name { font-size: 11px; font-weight: 800; color: #111; line-height: 1.2; }
+    .mini-metier { font-size: 10px; color: var(--muted); }
+    .mini-bottom { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .mini-note { font-size: 11px; font-weight: 700; }
+    .mini-badge {
+      background: rgba(39,169,69,0.12); color: var(--green);
+      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+    }
+    .btn-mini-suivre {
+      width: 100%; padding: 8px; border: 1.5px solid var(--border); border-radius: 50px;
+      background: #fff; color: #111; font-size: 11px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: all .2s;
+    }
+    .btn-mini-suivre:active { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-mini-suivre.suivi { background: var(--navy); color: #fff; border-color: var(--navy); }
 
     /* ── SKELETON ── */
     .skel {
       background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
-      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 20px;
+      background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 24px;
     }
     @keyframes shimmer { to { background-position: -200% 0; } }
 
-    /* ── BOTTOM NAV (simplifié) ── */
+    /* ── BOTTOM NAV SIMPLE ── */
     .bot-nav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
       width: 100%; max-width: 480px; background: #fff;
       border-top: 1px solid var(--border); display: flex; z-index: 200;
-      box-shadow: 0 -2px 20px rgba(0,0,0,0.08); padding: 6px 0 12px;
+      box-shadow: 0 -2px 20px rgba(0,0,0,0.06); padding: 6px 0 12px;
     }
     .nav-btn {
       flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -248,10 +235,8 @@
     }
     .nav-btn-ico { font-size: 22px; }
     .nav-btn-lb { font-size: 11px; font-weight: 700; color: var(--muted); }
-    .nav-btn.green .nav-btn-lb { color: var(--green); }
-    .nav-divider {
-      width: 1px; background: var(--border); margin: 8px 0; flex-shrink: 0;
-    }
+    .nav-btn.active .nav-btn-lb { color: var(--green); }
+    .nav-divider { width: 1px; background: var(--border); margin: 8px 0; flex-shrink: 0; }
 
     /* ── TOAST ── */
     .toast {
@@ -288,7 +273,7 @@
 
 <!-- FILTRES -->
 <div class="metiers-wrap">
-  <div class="metiers-bar" id="metiersBar">
+  <div class="metiers-bar">
     <div class="metier-chip active" data-metier="" onclick="filtrer(this)">⭐ Tous</div>
     <div class="metier-chip" data-metier="maconnerie" onclick="filtrer(this)">🧱 Maçon</div>
     <div class="metier-chip" data-metier="electricite" onclick="filtrer(this)">⚡ Électricien</div>
@@ -305,20 +290,17 @@
 <!-- CONTENU -->
 <main class="scroll-area">
 
-  <!-- HERO BANNER -->
+  <!-- HERO FOND BLANC -->
   <div class="hero-banner">
     <div class="hero-tag">✨ Professionnels vérifiés</div>
     <div class="hero-title">Trouvez le professionnel<br><em>qu'il vous faut</em></div>
     <div class="hero-sub">Des centaines de professionnels vérifiés prêts à vous servir</div>
-    <button class="hero-btn" onclick="window.location.href='accueil.html'">
-      🔍 Découvrir sur le feed
-    </button>
+    <button class="hero-btn" onclick="goAccueil()">🔍 Découvrir sur le feed</button>
   </div>
 
-  <!-- SECTION PRINCIPALE -->
   <div class="section-label">Professionnels vérifiés</div>
 
-  <!-- CARTE FEATURED -->
+  <!-- FEATURED -->
   <div id="featuredWrap">
     <div class="skel" style="height:340px;margin-bottom:20px"></div>
   </div>
@@ -327,35 +309,33 @@
   <div class="h-scroll-wrap">
     <div class="h-scroll-label">Autres professionnels</div>
     <div class="h-scroll" id="hScroll">
-      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
-      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
-      <div class="skel" style="width:160px;height:220px;flex-shrink:0"></div>
+      <div class="skel" style="width:162px;height:240px;flex-shrink:0"></div>
+      <div class="skel" style="width:162px;height:240px;flex-shrink:0"></div>
+      <div class="skel" style="width:162px;height:240px;flex-shrink:0"></div>
     </div>
   </div>
 
 </main>
 
-<!-- TOAST -->
 <div class="toast" id="toastEl"></div>
 
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAV SIMPLIFIÉ -->
 <nav class="bot-nav">
-  <button class="nav-btn green" onclick="window.location.href='accueil.html'">
+  <button class="nav-btn active" onclick="goAccueil()">
     <span class="nav-btn-ico">🏠</span>
     <span class="nav-btn-lb" style="color:var(--green)">Accueil</span>
   </button>
   <div class="nav-divider"></div>
-  <button class="nav-btn" onclick="window.location.href='accueil.html?goto=profil'">
+  <button class="nav-btn" onclick="goProfil()">
     <span class="nav-btn-ico">👤</span>
     <span class="nav-btn-lb">Profil</span>
   </button>
 </nav>
 
-<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -372,9 +352,8 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let tousUsers = [];
-let metierActif = '';
 
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, user => {
   if (!user) { window.location.href = 'connexion.html'; return; }
   currentUser = user;
   charger();
@@ -393,23 +372,21 @@ function getEmoji(m) {
   return '🔨';
 }
 
+function getNom(u) { return ((u.prenom||'') + ' ' + (u.nom||'')).trim() || 'Professionnel'; }
+
+function getMedia(u) {
+  const p = u.portfolio || [];
+  if (p.length === 0) return null;
+  return p[Math.floor(Math.random() * p.length)];
+}
+
 async function charger() {
   try {
     const snap = await getDocs(query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie')));
     tousUsers = [];
     snap.forEach(d => tousUsers.push({ id: d.id, ...d.data() }));
     afficher(tousUsers);
-  } catch(e) {
-    showToast('⚠ Erreur chargement', 'r');
-  }
-}
-
-function getNom(u) { return ((u.prenom||'') + ' ' + (u.nom||'')).trim() || 'Professionnel'; }
-
-function getMediaUrl(u) {
-  const p = u.portfolio || [];
-  const item = p[Math.floor(Math.random() * Math.max(p.length,1))];
-  return item ? { url: item.url, type: item.type||'photo' } : null;
+  } catch(e) { showToast('⚠ Erreur chargement', 'r'); }
 }
 
 function afficher(users) {
@@ -418,15 +395,42 @@ function afficher(users) {
     document.getElementById('hScroll').innerHTML = '';
     return;
   }
+  renderFeatured(users[0]);
+  renderScroll(users.slice(1));
+}
 
-  const featured = users[0];
-  const autres = users.slice(1);
+function mediaHTML_featured(u) {
+  const media = getMedia(u);
+  const emoji = getEmoji(u.metier || u.specialite || '');
+  if (!media || !media.url) {
+    return `<div class="featured-media-wrap"><span class="featured-media-emoji">${emoji}</span></div>`;
+  }
+  if (media.type === 'video') {
+    return `<div class="featured-media-wrap" onclick="goMedia('${u.id}')">
+      <video src="${media.url}" muted preload="metadata"></video>
+      <div class="vid-play-btn">▶</div>
+    </div>`;
+  }
+  return `<div class="featured-media-wrap" onclick="goMedia('${u.id}')">
+    <img src="${media.url}" alt="" onerror="this.parentNode.innerHTML='<span class=featured-media-emoji>${emoji}</span>'"/>
+  </div>`;
+}
 
-  // CARTE FEATURED
-  renderFeatured(featured);
-
-  // SCROLL HORIZONTAL
-  renderScroll(autres);
+function mediaHTML_mini(u) {
+  const media = getMedia(u);
+  const emoji = getEmoji(u.metier || u.specialite || '');
+  if (!media || !media.url) {
+    return `<div class="mini-media-wrap" onclick="goMedia('${u.id}')"><span class="mini-media-emoji">${emoji}</span></div>`;
+  }
+  if (media.type === 'video') {
+    return `<div class="mini-media-wrap" onclick="goMedia('${u.id}')">
+      <video src="${media.url}" muted preload="metadata"></video>
+      <div class="mini-vid-play">▶</div>
+    </div>`;
+  }
+  return `<div class="mini-media-wrap" onclick="goMedia('${u.id}')">
+    <img src="${media.url}" alt="" onerror="this.parentNode.innerHTML='<span class=mini-media-emoji>${emoji}</span>'"/>
+  </div>`;
 }
 
 function renderFeatured(u) {
@@ -434,33 +438,18 @@ function renderFeatured(u) {
   const metier = u.metier || u.specialite || 'Professionnel';
   const emoji = getEmoji(metier);
   const initiale = nom[0].toUpperCase();
-  const media = getMediaUrl(u);
   const abonnes = (u.abonnes||[]).length;
   const isSuivi = currentUser && (u.abonnes||[]).includes(currentUser.uid);
 
-  let mediaHTML = '';
-  if (media && media.url) {
-    if (media.type === 'video') {
-      mediaHTML = `<div class="vid-overlay">
-        <video class="featured-media" src="${media.url}" muted preload="metadata" onclick="jouerMedia('${u.id}','${media.url}','video')" style="cursor:pointer"></video>
-        <div class="vid-play-btn">▶</div>
-      </div>`;
-    } else {
-      mediaHTML = `<img class="featured-media" src="${media.url}" alt="${nom}" onclick="jouerMedia('${u.id}','${media.url}','photo')" onerror="this.outerHTML='<div class=featured-media-placeholder onclick=jouerMedia(\'${u.id}\',\'\',\'photo\')>${emoji}</div>'"  />`;
-    }
-  } else {
-    mediaHTML = `<div class="featured-media-placeholder" onclick="jouerMedia('${u.id}','','photo')">${emoji}</div>`;
-  }
-
   document.getElementById('featuredWrap').innerHTML = `
   <div class="card-featured">
-    ${mediaHTML}
+    ${mediaHTML_featured(u)}
     <div class="featured-body">
       <div class="featured-top">
-        <div class="featured-av" onclick="allerProfil('${u.id}')">
+        <div class="featured-av" onclick="goProfil('${u.id}')">
           ${u.photoAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}
         </div>
-        <div class="featured-info" onclick="allerProfil('${u.id}')">
+        <div class="featured-info" onclick="goProfil('${u.id}')">
           <div class="featured-name">${nom}</div>
           <div class="featured-metier">${emoji} ${metier}${u.ville ? ' · 📍 '+u.ville : ''}</div>
         </div>
@@ -472,13 +461,9 @@ function renderFeatured(u) {
         <div class="stat">👥 <b>${abonnes}</b> abonnés</div>
       </div>
       <div class="featured-btns">
-        <button class="btn-contacter" onclick="allerContact('${u.id}','${u.telephone||u.whatsapp||''}','${nom}')">
-          💬 Contacter
-        </button>
-        <button class="btn-reserver" onclick="allerReserver('${u.id}')">
-          📅 Réserver
-        </button>
-        <button class="btn-suivre ${isSuivi?'suivi':''}" id="suivreBtn_${u.id}" onclick="suivre('${u.id}',this)">
+        <button class="btn-simple" onclick="goContact('${u.id}')">💬 Contacter</button>
+        <button class="btn-simple" onclick="goReserver('${u.id}')">📅 Réserver</button>
+        <button class="btn-simple ${isSuivi?'suivi':''}" id="fs_${u.id}" onclick="suivre('${u.id}',this)">
           ${isSuivi ? '✔ Suivi' : '➕ Suivre'}
         </button>
       </div>
@@ -488,30 +473,19 @@ function renderFeatured(u) {
 
 function renderScroll(users) {
   const scroll = document.getElementById('hScroll');
-  if (users.length === 0) { scroll.innerHTML = '<div style="color:#aaa;font-size:13px;padding:20px">Aucun autre professionnel</div>'; return; }
-
+  if (users.length === 0) {
+    scroll.innerHTML = '<div style="color:#aaa;font-size:13px;padding:20px 0">Aucun autre professionnel</div>';
+    return;
+  }
   scroll.innerHTML = users.map(u => {
     const nom = getNom(u);
     const metier = u.metier || u.specialite || 'Pro';
     const emoji = getEmoji(metier);
     const initiale = nom[0].toUpperCase();
-    const media = getMediaUrl(u);
     const isSuivi = currentUser && (u.abonnes||[]).includes(currentUser.uid);
-
-    let mediaHTML = '';
-    if (media && media.url) {
-      if (media.type === 'video') {
-        mediaHTML = `<div class="mini-vid-wrap"><video class="mini-media" src="${media.url}" muted preload="metadata"></video><div class="mini-vid-play">▶</div></div>`;
-      } else {
-        mediaHTML = `<img class="mini-media" src="${media.url}" alt="${nom}" onerror="this.outerHTML='<div class=mini-media-ph>${emoji}</div>'"/>`;
-      }
-    } else {
-      mediaHTML = `<div class="mini-media-ph">${emoji}</div>`;
-    }
-
     return `
-    <div class="card-mini" onclick="jouerMedia('${u.id}','${media?.url||''}','${media?.type||'photo'}')">
-      ${mediaHTML}
+    <div class="card-mini">
+      ${mediaHTML_mini(u)}
       <div class="mini-body">
         <div class="mini-av-row">
           <div class="mini-av">${u.photoAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}</div>
@@ -524,7 +498,7 @@ function renderScroll(users) {
           <span class="mini-note">⭐ ${u.note||4.8}</span>
           <span class="mini-badge">✔ Vérifié</span>
         </div>
-        <button class="btn-suivre ${isSuivi?'suivi':''}" style="width:100%;margin-top:8px;justify-content:center" onclick="event.stopPropagation();suivre('${u.id}',this)">
+        <button class="btn-mini-suivre ${isSuivi?'suivi':''}" onclick="event.stopPropagation();suivre('${u.id}',this)">
           ${isSuivi ? '✔ Suivi' : '➕ Suivre'}
         </button>
       </div>
@@ -532,35 +506,19 @@ function renderScroll(users) {
   }).join('');
 }
 
-// ── FILTRER ──
 window.filtrer = function(el) {
   document.querySelectorAll('.metier-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  metierActif = el.dataset.metier;
-  const filtres = metierActif
-    ? tousUsers.filter(u => (u.metier||u.specialite||'').toLowerCase().includes(metierActif.slice(0,4)))
-    : tousUsers;
-  afficher(filtres);
+  const m = el.dataset.metier;
+  const f = m ? tousUsers.filter(u => (u.metier||u.specialite||'').toLowerCase().includes(m.slice(0,4))) : tousUsers;
+  afficher(f);
 };
 
-// ── ACTIONS ──
-window.jouerMedia = function(uid, url, type) {
-  sessionStorage.setItem('vitrineUid', uid);
-  if (url) { sessionStorage.setItem('vitrineUrl', url); sessionStorage.setItem('vitrineType', type); }
-  window.location.href = 'accueil.html?uid=' + uid;
-};
-
-window.allerProfil = function(uid) {
-  window.location.href = 'accueil.html?uid=' + uid + '&goto=profil';
-};
-
-window.allerContact = function(uid, tel, nom) {
-  window.location.href = 'accueil.html?uid=' + uid + '&action=contact';
-};
-
-window.allerReserver = function(uid) {
-  window.location.href = 'accueil.html?uid=' + uid + '&action=reserver';
-};
+window.goAccueil = () => { window.location.href = 'accueil.html'; };
+window.goProfil = (uid) => { window.location.href = uid ? 'accueil.html?uid='+uid+'&goto=profil' : 'accueil.html?goto=profil'; };
+window.goMedia = (uid) => { window.location.href = 'accueil.html?uid='+uid; };
+window.goContact = (uid) => { window.location.href = 'accueil.html?uid='+uid+'&action=contact'; };
+window.goReserver = (uid) => { window.location.href = 'accueil.html?uid='+uid+'&action=reserver'; };
 
 window.suivre = async function(uid, btn) {
   if (!currentUser) { showToast('🔐 Connectez-vous', 'r'); return; }
@@ -570,7 +528,6 @@ window.suivre = async function(uid, btn) {
       await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayRemove(currentUser.uid) });
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayRemove(uid) });
       btn.classList.remove('suivi'); btn.textContent = '➕ Suivre';
-      showToast('Vous ne suivez plus ce professionnel', '');
     } else {
       await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayUnion(currentUser.uid) });
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayUnion(uid) });
@@ -583,7 +540,7 @@ window.suivre = async function(uid, btn) {
 function showToast(msg, type) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
-  el.className = 'toast show' + (type ? ' ' + type : '');
+  el.className = 'toast show' + (type ? ' '+type : '');
   setTimeout(() => el.className = 'toast', 2500);
 }
 window.showToast = showToast;
