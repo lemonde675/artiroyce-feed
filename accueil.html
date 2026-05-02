@@ -126,7 +126,7 @@
     <div class="h-tab" onclick="goProfile()">👤 Mon Profil</div>
     <div class="h-tab" onclick="setTab(this)">⭐ Élites</div>
     <div class="h-tab" onclick="setTab(this)">📂 Catégories</div>
-    <div class="h-tab" onclick="setTab(this)">💬 Répert-Discussion</div>
+    <div class="h-tab" onclick="window.location.href='discussion_v1.html'">💬 Répert-Discussion</div>
     <div class="h-tab" onclick="setTab(this)">📰 Actualités</div>
   </div>
 </header>
@@ -136,7 +136,7 @@
 </div>
 
 <nav class="bot-nav">
-  <div class="nav-i active">
+  <div class="nav-i active" onclick="window.location.href='discussion_v1.html'">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)">Discussion</span>
   </div>
@@ -292,7 +292,7 @@
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
         <div class="info-btns">
-          <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
+          <button class="btn-disc" onclick="window.location.href='discussion_v1.html'">💬 Discussion</button>
           <button class="btn-lv" onclick="toast('🔴 Live Pro','')">+ Live Pro</button>
           <span class="wm-inline">
             <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
