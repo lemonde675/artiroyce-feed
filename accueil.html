@@ -27,7 +27,7 @@
     .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
     .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
     .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
-    .feed-wrap { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
     .feed-wrap::-webkit-scrollbar { display: none; }
     .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
@@ -87,6 +87,14 @@
     .lname { font-size: 13px; font-weight: 700; }
     .lnat { font-size: 11px; color: #888; }
     .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
+    /* SWIPE HORIZONTAL */
+    .panels-container { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; display: flex; flex-direction: row; overflow-x: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; transition: none; }
+    .panels-container::-webkit-scrollbar { display: none; }
+    .panel-slide { width: 100%; max-width: 480px; height: 100vh; flex-shrink: 0; scroll-snap-align: start; overflow: hidden; position: relative; }
+    .panel-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    .panel-placeholder .ph-icon { font-size: 60px; opacity: 0.5; }
+    .panel-placeholder .ph-title { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
+    .panel-placeholder .ph-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
     .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
@@ -121,18 +129,79 @@
     </div>
   </div>
   <div class="h-tabs">
-    <div class="h-tab active" onclick="setTab(this)">Accueil</div>
-    <div class="h-tab" onclick="setTab(this)"><span class="tab-green-dot"></span> Statuts</div>
-    <div class="h-tab" onclick="goProfile()">👤 Mon Profil</div>
-    <div class="h-tab" onclick="setTab(this)">⭐ Élites</div>
-    <div class="h-tab" onclick="setTab(this)">📂 Catégories</div>
-    <div class="h-tab" onclick="window.location.href='discussion_v1.html'">💬 Répert-Discussion</div>
-    <div class="h-tab" onclick="setTab(this)">📰 Actualités</div>
+    <div class="h-tab active">Accueil</div>
+    <div class="h-tab"><span class="tab-green-dot"></span> Statuts</div>
+    <div class="h-tab">👤 Mon Profil</div>
+    <div class="h-tab">⭐ Élites</div>
+    <div class="h-tab">📂 Catégories</div>
+    <div class="h-tab">💬 Répert-Discussion</div>
+    <div class="h-tab">📰 Actualités</div>
   </div>
 </header>
 
-<div class="feed-wrap" id="feedW">
-  <div id="hSpacer"></div>
+<div class="panels-container" id="panelsContainer">
+
+  <!-- PANEL 0 : Accueil feed -->
+  <div class="panel-slide" id="panel-0">
+    <div class="feed-wrap" id="feedW">
+      <div id="hSpacer"></div>
+    </div>
+  </div>
+
+  <!-- PANEL 1 : Statuts -->
+  <div class="panel-slide" id="panel-1">
+    <div class="panel-placeholder">
+      <div class="ph-icon">🟢</div>
+      <div class="ph-title">Statuts</div>
+      <div class="ph-sub">Les statuts des artistes apparaîtront ici</div>
+    </div>
+  </div>
+
+  <!-- PANEL 2 : Mon Profil -->
+  <div class="panel-slide" id="panel-2">
+    <div class="panel-placeholder">
+      <div class="ph-icon">👤</div>
+      <div class="ph-title">Mon Profil</div>
+      <div class="ph-sub">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- PANEL 3 : Elites -->
+  <div class="panel-slide" id="panel-3">
+    <div class="panel-placeholder">
+      <div class="ph-icon">⭐</div>
+      <div class="ph-title">Élites</div>
+      <div class="ph-sub">Les meilleurs artistes vérifiés</div>
+    </div>
+  </div>
+
+  <!-- PANEL 4 : Categories -->
+  <div class="panel-slide" id="panel-4">
+    <div class="panel-placeholder">
+      <div class="ph-icon">📂</div>
+      <div class="ph-title">Catégories</div>
+      <div class="ph-sub">Parcourez par métier</div>
+    </div>
+  </div>
+
+  <!-- PANEL 5 : Discussion -->
+  <div class="panel-slide" id="panel-5">
+    <div class="panel-placeholder">
+      <div class="ph-icon">💬</div>
+      <div class="ph-title">Répert-Discussion</div>
+      <div class="ph-sub">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- PANEL 6 : Actualites -->
+  <div class="panel-slide" id="panel-6">
+    <div class="panel-placeholder">
+      <div class="ph-icon">📰</div>
+      <div class="ph-title">Actualités</div>
+      <div class="ph-sub">Les dernières nouvelles ArtiRoyce</div>
+    </div>
+  </div>
+
 </div>
 
 <nav class="bot-nav">
@@ -321,7 +390,12 @@
     });
   }
 
-  window.addEventListener('load', adjustLayout);
+  window.addEventListener('load', () => {
+    adjustLayout();
+    // Redimensionner le container panels
+    const pc = document.getElementById('panelsContainer');
+    if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
+  });
   window.addEventListener('resize', adjustLayout);
   setTimeout(adjustLayout, 100);
   setTimeout(adjustLayout, 400);
@@ -332,6 +406,63 @@
     el.className = 'toast show' + (type === 'g' ? ' g' : '');
     setTimeout(() => el.className = 'toast', 2200);
   }
+
+  // TABS + SWIPE
+  const tabs = document.querySelectorAll('.h-tab');
+  const container = document.getElementById('panelsContainer');
+
+  // Index des tabs
+  const tabActions = [
+    () => goToPanel(0),                              // Accueil
+    () => goToPanel(1),                              // Statuts
+    () => { window.location.href = 'profil.html'; }, // Mon Profil
+    () => goToPanel(3),                              // Élites
+    () => goToPanel(4),                              // Catégories
+    () => { window.location.href = 'discussion_v1.html'; }, // Discussion
+    () => goToPanel(6),                              // Actualités
+  ];
+
+  tabs.forEach((tab, i) => {
+    tab.onclick = () => tabActions[i] && tabActions[i]();
+  });
+
+  function goToPanel(index) {
+    // Activer le bon tab
+    tabs.forEach(t => t.classList.remove('active'));
+    if (tabs[index]) tabs[index].classList.add('active');
+    // Scroll au bon panel
+    const panel = document.getElementById('panel-' + index);
+    if (panel) {
+      container.scrollTo({ left: index * container.offsetWidth, behavior: 'smooth' });
+    }
+    // Scroll le header pour montrer le tab actif
+    if (tabs[index]) {
+      tabs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+
+  // Détecter le swipe et synchroniser les tabs
+  let isScrolling = false;
+  container.addEventListener('scroll', () => {
+    if (isScrolling) return;
+    clearTimeout(container._scrollTimer);
+    container._scrollTimer = setTimeout(() => {
+      const idx = Math.round(container.scrollLeft / container.offsetWidth);
+      tabs.forEach(t => t.classList.remove('active'));
+      if (tabs[idx]) {
+        tabs[idx].classList.add('active');
+        tabs[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+      // Si panel Discussion (5) → rediriger
+      if (idx === 5) {
+        window.location.href = 'discussion_v1.html';
+      }
+      // Si panel Mon Profil (2) → rediriger
+      if (idx === 2) {
+        window.location.href = 'profil.html';
+      }
+    }, 150);
+  });
 
   window.setTab = function(el) {
     document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
