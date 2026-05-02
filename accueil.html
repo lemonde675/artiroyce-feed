@@ -2,341 +2,109 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>ArtiRoyce – Accueil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --red: #e63224;
-      --green: #27a945;
-      --dark: #111318;
-      --card: #ffffff;
-      --bg: #f5f6f8;
-      --muted: #8a8f9e;
-      --border: #ebebeb;
-      --navy: #1a2035;
-    }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--dark); max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
-
-    /* ── HEADER ── */
-    .header {
-      position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px; z-index: 200;
-      background: #fff; border-bottom: 1px solid var(--border);
-    }
-    .h-top {
-      display: flex; align-items: center; padding: 10px 14px 8px; gap: 10px;
-    }
-    .h-house { font-size: 22px; flex-shrink: 0; }
-    .h-logo {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
-    }
-    .h-logo-text { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
+    :root { --red: #e63224; --green: #27a945; }
+    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a2e; overflow: hidden; max-width: 480px; margin: 0 auto; }
+    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
+    .h-house { font-size: 24px; flex-shrink: 0; }
+    .h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
     .h-logo-text .arti { color: var(--red); }
     .h-logo-text .royce { color: var(--green); }
     .h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    .h-icon-btn {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; position: relative; cursor: pointer;
-      background: #f5f5f5; border: none; transition: background .15s;
-    }
-    .h-icon-btn:hover { background: #eee; }
-    .badge {
-      position: absolute; top: -2px; right: -2px;
-      background: var(--red); color: #fff;
-      font-size: 9px; font-weight: 800;
-      width: 16px; height: 16px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      border: 1.5px solid #fff;
-    }
-
-    /* ── ONGLETS MÉTIERS ── */
-    .metiers-bar {
-      display: flex; overflow-x: auto; gap: 6px;
-      padding: 8px 14px 10px; scrollbar-width: none;
-    }
-    .metiers-bar::-webkit-scrollbar { display: none; }
-    .metier-chip {
-      display: flex; align-items: center; gap: 5px;
-      padding: 6px 12px; border-radius: 20px;
-      font-size: 12px; font-weight: 600; white-space: nowrap;
-      cursor: pointer; border: 1.5px solid var(--border);
-      background: #fff; color: var(--muted); transition: all .2s; flex-shrink: 0;
-    }
-    .metier-chip.active {
-      background: var(--dark); color: #fff; border-color: var(--dark);
-    }
-    .metier-chip .m-icon { font-size: 14px; }
-
-    /* ── SCROLL ── */
-    .scroll-area { padding: 130px 14px 90px; }
-
-    /* ── SECTION TITRE ── */
-    .section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px; padding: 0 2px;
-    }
-    .section-head h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 20px; color: var(--dark);
-    }
-    .section-head span { font-size: 12px; color: var(--green); font-weight: 700; cursor: pointer; }
-
-    /* ── CARTE ARTISAN FEATURED (grande) ── */
-    .card-featured {
-      background: var(--card); border-radius: 18px;
-      overflow: hidden; margin-bottom: 14px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
-      position: relative; cursor: pointer;
-      transition: transform .2s, box-shadow .2s;
-      animation: fadeUp .4s ease both;
-    }
-    .card-featured:active { transform: scale(0.98); }
-    .card-cover {
-      width: 100%; height: 200px; object-fit: cover; display: block;
-      background: linear-gradient(135deg, #1a2035, #27a945);
-    }
-    .card-cover-placeholder {
-      width: 100%; height: 200px;
-      background: linear-gradient(135deg, var(--navy) 0%, #27a945 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 56px;
-    }
-    .card-body { padding: 14px 16px 16px; }
-    .card-top-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-    .card-avatar {
-      width: 48px; height: 48px; border-radius: 50%;
-      border: 3px solid #fff; margin-top: -32px;
-      background: var(--navy); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; font-weight: 800; color: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2); overflow: hidden; position: relative; z-index: 2;
-    }
-    .card-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .card-info { flex: 1; padding-top: 4px; }
-    .card-name { font-size: 16px; font-weight: 800; color: var(--dark); line-height: 1.2; }
-    .card-metier { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
-    .badge-verifie {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: var(--green); color: #fff;
-      font-size: 10px; font-weight: 700; padding: 3px 8px;
-      border-radius: 20px; flex-shrink: 0; margin-top: 4px;
-    }
-    .card-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 12px; }
-    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .card-tag {
-      background: #f0f0f2; color: #555;
-      font-size: 11px; font-weight: 600; padding: 4px 10px;
-      border-radius: 20px;
-    }
-    .card-stats {
-      display: flex; gap: 14px; margin-bottom: 14px;
-    }
-    .stat { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
-    .stat .s-val { color: var(--dark); font-weight: 800; }
-    .card-btns { display: flex; gap: 8px; }
-    .btn-contact {
-      flex: 1; padding: 11px; border: none; border-radius: 12px;
-      background: var(--red); color: #fff;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      font-family: 'Outfit', sans-serif; transition: all .2s;
-    }
-    .btn-contact:active { transform: scale(0.97); }
-    .btn-reserver {
-      flex: 1; padding: 11px; border: 1.5px solid var(--green); border-radius: 12px;
-      background: #fff; color: var(--green);
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      font-family: 'Outfit', sans-serif; transition: all .2s;
-    }
-    .btn-reserver:active { background: var(--green); color: #fff; }
-    .btn-suivre {
-      width: 42px; height: 42px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; cursor: pointer; flex-shrink: 0; transition: all .2s;
-    }
-
-    /* ── CARTE MINI (grille 2 colonnes) ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .card-mini {
-      background: #fff; border-radius: 16px; overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer;
-      transition: transform .2s; animation: fadeUp .4s ease both;
-    }
-    .card-mini:active { transform: scale(0.97); }
-    .mini-cover {
-      width: 100%; height: 110px; object-fit: cover;
-      background: linear-gradient(135deg, #1a2035, #27a945);
-      display: flex; align-items: center; justify-content: center; font-size: 36px;
-    }
-    .mini-body { padding: 10px 10px 12px; }
-    .mini-av-row { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
-    .mini-av {
-      width: 30px; height: 30px; border-radius: 50%;
-      background: var(--navy); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 800; color: #fff; overflow: hidden;
-    }
-    .mini-av img { width: 100%; height: 100%; object-fit: cover; }
-    .mini-name { font-size: 12px; font-weight: 800; color: var(--dark); line-height: 1.2; }
-    .mini-metier { font-size: 10px; color: var(--muted); margin-top: 1px; }
-    .mini-bottom { display: flex; align-items: center; justify-content: space-between; }
-    .mini-note { font-size: 11px; font-weight: 700; color: var(--dark); }
-    .mini-ville { font-size: 10px; color: var(--muted); }
-    .mini-badge {
-      display: inline-flex; align-items: center;
-      background: rgba(39,169,69,0.12); color: var(--green);
-      font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
-    }
-
-    /* ── BARRE RECHERCHE ── */
-    .search-bar {
-      display: flex; align-items: center; gap: 10px;
-      background: #fff; border: 1.5px solid var(--border);
-      border-radius: 14px; padding: 10px 14px;
-      margin-bottom: 16px;
-    }
-    .search-bar input {
-      flex: 1; border: none; outline: none; font-size: 14px;
-      font-family: 'Outfit', sans-serif; color: var(--dark); background: transparent;
-    }
-    .search-bar input::placeholder { color: var(--muted); }
-    .search-icon { font-size: 18px; flex-shrink: 0; }
-
-    /* ── BOTTOM NAV ── */
-    .bot-nav {
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px; background: #fff;
-      border-top: 1px solid var(--border); display: flex; z-index: 200;
-      box-shadow: 0 -2px 20px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom);
-    }
-    .nav-i {
-      flex: 1; display: flex; flex-direction: column; align-items: center;
-      padding: 8px 4px 10px; cursor: pointer; gap: 3px; text-decoration: none;
-    }
-    .nav-lb { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .h-ico { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
+    .h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
+    .h-ico.chat .bdot { background: var(--green); }
+    .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+    .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
+    .h-tabs::-webkit-scrollbar { display: none; }
+    .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
+    .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
+    .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
+    .feed-wrap { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .feed-wrap::-webkit-scrollbar { display: none; }
+    .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
+    .vcard-bg { position: absolute; inset: 0; }
+    .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
+    .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
+    .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
+    /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
+    .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
+    .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+    .act-circle:active { transform: scale(1.15); }
+    .act-circle.liked { background: rgba(230,50,36,0.85); }
+    .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
+    .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
+    .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; }
+    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .info-job-globe-big { font-size: 22px; }
+    .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+    .info-globe-small { font-size: 16px; margin-bottom: 8px; display: block; }
+    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
+    .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
+    .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
+    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
+    .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 40px; }
+    .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
+    .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 7.5px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
+    .wm-brand { font-size: 8px; font-weight: 900; white-space: nowrap; }
+    .wm-brand .a { color: var(--red); }
+    .wm-brand .r { color: var(--green); }
+    .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
+    .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
+    .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
+    .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
     .nav-i.active .nav-lb { color: var(--green); }
-    .nav-ico { font-size: 22px; }
-    .nav-plus-wrap {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-end; padding-bottom: 10px;
-    }
-    .nav-plus {
-      width: 50px; height: 50px; border-radius: 50%;
-      background: var(--red); display: flex; align-items: center;
-      justify-content: center; font-size: 26px; color: #fff;
-      box-shadow: 0 4px 16px rgba(230,50,36,0.5); margin-top: -18px;
-      cursor: pointer; transition: transform .2s;
-    }
-    .nav-plus:active { transform: scale(0.93); }
-
-    /* ── TOAST ── */
-    .toast {
-      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.82); color: #fff; padding: 9px 20px;
-      border-radius: 22px; font-size: 13px; font-weight: 600;
-      z-index: 999; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap;
-    }
+    .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; cursor: pointer; }
+    .nav-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.55); margin-top: -16px; }
+    .nav-ico { width: 24px; height: 24px; }
+    .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.g { background: var(--green); }
-    .toast.r { background: var(--red); }
-
-    /* ── EMPTY ── */
-    .empty {
-      text-align: center; padding: 40px 20px; color: var(--muted);
-    }
-    .empty .e-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty p { font-size: 14px; font-weight: 500; }
-
-    /* ── SKELETON ── */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite; border-radius: 12px;
-    }
-    @keyframes shimmer { to { background-position: -200% 0; } }
-    .skel-card {
-      background: #fff; border-radius: 18px; overflow: hidden;
-      margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-    .skel-cover { height: 180px; }
-    .skel-body { padding: 14px 16px; }
-    .skel-line { height: 14px; margin-bottom: 10px; border-radius: 7px; }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── LOADER ── */
-    .loader {
-      display: flex; align-items: center; justify-content: center;
-      padding: 30px;
-    }
-    .loader-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green); margin: 0 4px;
-      animation: bounce 0.8s infinite alternate;
-    }
-    .loader-dot:nth-child(2) { animation-delay: .2s; background: var(--red); }
-    .loader-dot:nth-child(3) { animation-delay: .4s; }
-    @keyframes bounce { to { transform: translateY(-10px); } }
-
-    /* ── HERO BANNER ── */
-    .hero-banner {
-      background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
-      border-radius: 18px; padding: 20px 18px; margin-bottom: 16px;
-      position: relative; overflow: hidden;
-    }
-    .hero-banner::before {
-      content: ''; position: absolute; top: -20px; right: -20px;
-      width: 120px; height: 120px; border-radius: 50%;
-      background: rgba(39,169,69,0.2);
-    }
-    .hero-banner::after {
-      content: ''; position: absolute; bottom: -30px; right: 40px;
-      width: 80px; height: 80px; border-radius: 50%;
-      background: rgba(230,50,36,0.15);
-    }
-    .hero-tag {
-      display: inline-block; background: var(--green); color: #fff;
-      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
-      margin-bottom: 8px; letter-spacing: 0.5px;
-    }
-    .hero-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 22px; color: #fff; line-height: 1.25; margin-bottom: 6px;
-    }
-    .hero-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 14px; }
-    .hero-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--red); color: #fff; border: none; border-radius: 10px;
-      padding: 10px 18px; font-size: 13px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; cursor: pointer; transition: all .2s;
-    }
-
-    /* VILLE CHIP */
-    .ville-chip {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 11px; color: var(--muted); font-weight: 500;
-      background: #f5f5f5; padding: 3px 8px; border-radius: 10px;
-      margin-top: 4px;
-    }
+    .moverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .moverlay.open { display: flex; }
+    .lsheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 26px; animation: su 0.22s ease; }
+    @keyframes su { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .lhandle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto; }
+    .ltitle { font-size: 14px; font-weight: 800; text-align: center; padding: 0 20px 12px; border-bottom: 1px solid #eee; }
+    .lopt { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .lopt:hover { background: #f9f9f9; }
+    .lopt.active { background: #e8f5e9; }
+    .lflag { font-size: 22px; }
+    .lname { font-size: 13px; font-weight: 700; }
+    .lnat { font-size: 11px; color: #888; }
+    .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
+    .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
+    .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
+    .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
+    .bg3 { background: linear-gradient(160deg,#001030,#002060,#000820); }
+    .bg4 { background: linear-gradient(160deg,#001a2e,#003d5e,#000d1a); }
+    .bg5 { background: linear-gradient(160deg,#1a1a00,#3d3d00,#0d0d00); }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="h-top">
+<header class="top-header" id="topH">
+  <div class="h-row1">
     <span class="h-house">🏠</span>
     <div class="h-logo">
-      <svg width="24" height="17" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
         <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
         <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
         <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
@@ -347,299 +115,269 @@
       <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
     <div class="h-icons">
-      <button class="h-icon-btn">🔔<span class="badge">3</span></button>
-      <button class="h-icon-btn">💬<span class="badge">1</span></button>
-      <button class="h-icon-btn">🔍</button>
+      <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
+      <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')">💬<div class="bdot">1</div></div>
+      <span class="h-dots" onclick="toast('⚙️ Paramètres','')">⋮</span>
     </div>
   </div>
-  <!-- FILTRES MÉTIERS -->
-  <div class="metiers-bar" id="metiersBar">
-    <div class="metier-chip active" data-metier="" onclick="filtrerMetier(this)"><span class="m-icon">⭐</span> Tous</div>
-    <div class="metier-chip" data-metier="maconnerie" onclick="filtrerMetier(this)"><span class="m-icon">🧱</span> Maçon</div>
-    <div class="metier-chip" data-metier="electricite" onclick="filtrerMetier(this)"><span class="m-icon">⚡</span> Électricien</div>
-    <div class="metier-chip" data-metier="plomberie" onclick="filtrerMetier(this)"><span class="m-icon">🚿</span> Plombier</div>
-    <div class="metier-chip" data-metier="peinture" onclick="filtrerMetier(this)"><span class="m-icon">🎨</span> Peintre</div>
-    <div class="metier-chip" data-metier="menuiserie" onclick="filtrerMetier(this)"><span class="m-icon">🪵</span> Menuisier</div>
-    <div class="metier-chip" data-metier="coiffure" onclick="filtrerMetier(this)"><span class="m-icon">✂️</span> Coiffeur</div>
-    <div class="metier-chip" data-metier="couture" onclick="filtrerMetier(this)"><span class="m-icon">🧵</span> Couturier</div>
-    <div class="metier-chip" data-metier="cuisine" onclick="filtrerMetier(this)"><span class="m-icon">👨‍🍳</span> Cuisinier</div>
-    <div class="metier-chip" data-metier="mecanique" onclick="filtrerMetier(this)"><span class="m-icon">🔧</span> Mécanicien</div>
+  <div class="h-tabs">
+    <div class="h-tab active" onclick="setTab(this)">Accueil</div>
+    <div class="h-tab" onclick="setTab(this)"><span class="tab-green-dot"></span> Statuts</div>
+    <div class="h-tab" onclick="goProfile()">👤 Mon Profil</div>
+    <div class="h-tab" onclick="setTab(this)">⭐ Élites</div>
+    <div class="h-tab" onclick="setTab(this)">📂 Catégories</div>
+    <div class="h-tab" onclick="setTab(this)">💬 Répert-Discussion</div>
+    <div class="h-tab" onclick="setTab(this)">📰 Actualités</div>
   </div>
 </header>
 
-<main class="scroll-area" id="mainFeed">
-  <!-- HERO -->
-  <div class="hero-banner">
-    <div class="hero-tag">✨ Professionnels vérifiés</div>
-    <div class="hero-title">Trouvez l'artisan<br><em>qu'il vous faut</em></div>
-    <div class="hero-sub">Des centaines de professionnels vérifiés près de chez vous</div>
-    <button class="hero-btn" onclick="document.getElementById('searchInput').focus()">
-      🔍 Rechercher un artisan
-    </button>
-  </div>
+<div class="feed-wrap" id="feedW">
+  <div id="hSpacer"></div>
+</div>
 
-  <!-- RECHERCHE -->
-  <div class="search-bar">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Métier, nom, ville…" oninput="rechercherLive(this.value)"/>
-  </div>
-
-  <!-- FEED -->
-  <div class="section-head">
-    <h2>Artisans vérifiés</h2>
-    <span id="countLabel">Chargement…</span>
-  </div>
-
-  <div id="feedContainer">
-    <!-- SKELETONS -->
-    <div class="skel-card">
-      <div class="skeleton skel-cover"></div>
-      <div class="skel-body">
-        <div class="skeleton skel-line" style="width:60%"></div>
-        <div class="skeleton skel-line" style="width:40%"></div>
-        <div class="skeleton skel-line" style="width:80%"></div>
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="skel-card"><div class="skeleton" style="height:110px"></div><div class="skel-body"><div class="skeleton skel-line" style="width:70%"></div></div></div>
-      <div class="skel-card"><div class="skeleton" style="height:110px"></div><div class="skel-body"><div class="skeleton skel-line" style="width:70%"></div></div></div>
-    </div>
-  </div>
-</main>
-
-<!-- TOAST -->
-<div class="toast" id="toastEl"></div>
-
-<!-- BOTTOM NAV -->
 <nav class="bot-nav">
-  <a href="discussion.html" class="nav-i">
-    <span class="nav-ico">💬</span>
-    <span class="nav-lb">Discussion</span>
-  </a>
-  <a href="messages.html" class="nav-i">
-    <span class="nav-ico">📩</span>
-    <span class="nav-lb">Messages</span>
-  </a>
-  <div class="nav-plus-wrap">
-    <div class="nav-plus" onclick="window.location.href='publication_v1.html'">+</div>
+  <div class="nav-i active">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="nav-lb" style="color:var(--green)">Discussion</span>
   </div>
-  <a href="live.html" class="nav-i">
-    <span class="nav-ico">▶️</span>
+  <div class="nav-i" onclick="toast('📩 Messages','')">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
+      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
+      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
+      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
+    </svg>
+    <span class="nav-lb">Messages</span>
+  </div>
+  <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
+    <div class="nav-plus">+</div>
+  </div>
+  <div class="nav-i" onclick="toast('▶ Live','')">
+    <svg class="nav-ico" viewBox="0 0 24 24">
+      <rect x="2" y="3" width="20" height="18" rx="3" fill="var(--red)"/>
+      <polygon points="10,8 10,16 17,12" fill="#fff"/>
+    </svg>
     <span class="nav-lb">Live</span>
-  </a>
-  <a href="profil.html" class="nav-i">
-    <span class="nav-ico">👤</span>
-    <span class="nav-lb">Profil</span>
-  </a>
+  </div>
+  <div class="nav-i" onclick="toast('📖 FAQ','')">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="2" width="18" height="20" rx="2" stroke="#888"/>
+      <line x1="7" y1="7" x2="17" y2="7" stroke="#888"/>
+      <line x1="7" y1="11" x2="17" y2="11" stroke="#888"/>
+      <line x1="7" y1="15" x2="13" y2="15" stroke="#888"/>
+    </svg>
+    <span class="nav-lb">FAQ</span>
+  </div>
 </nav>
 
+<div class="toast" id="toastEl"></div>
+
+<div class="moverlay" id="langOverlay" onclick="closeLang(event)">
+  <div class="lsheet">
+    <div class="lhandle"></div>
+    <div class="ltitle">🌐 Choisir la langue</div>
+    <div class="lopt active" onclick="setLang('fr')"><span class="lflag">🇫🇷</span><div><div class="lname">Français</div><div class="lnat">France</div></div><span class="lchk" id="chk-fr">✔</span></div>
+    <div class="lopt" onclick="setLang('en')"><span class="lflag">🇬🇧</span><div><div class="lname">English</div><div class="lnat">United Kingdom</div></div><span class="lchk" id="chk-en" style="display:none">✔</span></div>
+    <div class="lopt" onclick="setLang('pt')"><span class="lflag">🇧🇷</span><div><div class="lname">Português</div><div class="lnat">Brasil</div></div><span class="lchk" id="chk-pt" style="display:none">✔</span></div>
+  </div>
+</div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, query, where, orderBy, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-  authDomain: "artiroyce-f42e4.firebaseapp.com",
-  projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.firebasestorage.app",
-  messagingSenderId: "588140774605",
-  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-let currentUser = null;
-let allUsers = [];
-let metierActif = '';
+  const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
 
-onAuthStateChanged(auth, user => { currentUser = user; });
+  const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
 
-// ── EMOJIS MÉTIERS ──
-const emojiMetier = {
-  maconnerie:'🧱', electricite:'⚡', plomberie:'🚿', peinture:'🎨',
-  menuiserie:'🪵', carrelage:'🏠', toiture:'🏗️', climatisation:'❄️',
-  jardinage:'🌿', couture:'🧵', coiffure:'✂️', mecanique:'🔧',
-  informatique:'💻', cuisine:'👨‍🍳', soudure:'🔩', forge:'⚒️'
-};
-
-function getEmoji(metier) {
-  if (!metier) return '🔨';
-  const k = metier.toLowerCase().trim();
-  for (const [key, emoji] of Object.entries(emojiMetier)) {
-    if (k.includes(key.slice(0,4))) return emoji;
-  }
-  return '🔨';
-}
-
-// ── CHARGEMENT ──
-async function chargerFeed() {
-  try {
-    const snap = await getDocs(query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie')));
-    allUsers = [];
-    snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
-    afficherFeed(allUsers);
-  } catch(e) {
-    showToast('⚠ Erreur chargement', 'r');
-    document.getElementById('feedContainer').innerHTML = '<div class="empty"><div class="e-icon">😕</div><p>Impossible de charger le feed</p></div>';
-  }
-}
-
-function afficherFeed(users) {
-  const container = document.getElementById('feedContainer');
-  document.getElementById('countLabel').textContent = users.length + ' artisan(s)';
-
-  if (users.length === 0) {
-    container.innerHTML = '<div class="empty"><div class="e-icon">🔍</div><p>Aucun artisan trouvé</p></div>';
-    return;
-  }
-
-  let html = '';
-  users.forEach((u, i) => {
-    const nom = ((u.prenom||'') + ' ' + (u.nom||'')).trim() || 'Artisan';
-    const metier = u.metier || u.specialite || 'Professionnel';
-    const ville = u.ville || '';
-    const note = u.note || 4.8;
-    const avis = u.avis || 0;
-    const emoji = getEmoji(metier);
-    const initiale = nom[0].toUpperCase();
-    const hasAvatar = !!u.photoAvatar;
-    const hasCover = !!u.photoCover;
-    const abonnes = (u.abonnes || []).length;
-
-    if (i % 3 === 0) {
-      // Grande carte
-      html += `
-      <div class="card-featured" onclick="voirProfil('${u.id}')">
-        ${hasCover
-          ? `<img class="card-cover" src="${u.photoCover}" alt="${nom}" onerror="this.style.display='none'">`
-          : `<div class="card-cover-placeholder">${emoji}</div>`
-        }
-        <div class="card-body">
-          <div class="card-top-row">
-            <div class="card-avatar">
-              ${hasAvatar ? `<img src="${u.photoAvatar}" alt="${nom}">` : initiale}
-            </div>
-            <div class="card-info">
-              <div class="card-name">${nom}</div>
-              <div class="card-metier">${emoji} ${metier}</div>
-              ${ville ? `<div class="ville-chip">📍 ${ville}</div>` : ''}
-            </div>
-            <span class="badge-verifie">✔ Vérifié</span>
-          </div>
-          <div class="card-stats">
-            <div class="stat"><span>⭐</span><span class="s-val">${note}</span></div>
-            <div class="stat"><span>💬</span><span class="s-val">${avis} avis</span></div>
-            <div class="stat"><span>👥</span><span class="s-val">${abonnes} abonnés</span></div>
-          </div>
-          <div class="card-btns">
-            <button class="btn-contact" onclick="event.stopPropagation();contacter('${u.telephone||u.whatsapp||''}','${nom}')">
-              💬 Contacter
-            </button>
-            <button class="btn-reserver" onclick="event.stopPropagation();showToast('📅 Réservation bientôt disponible','g')">
-              📅 Réserver
-            </button>
-            <button class="btn-suivre" onclick="event.stopPropagation();suivre('${u.id}')">
-              ➕
-            </button>
-          </div>
-        </div>
-      </div>`;
-    } else if (i % 3 === 1 && i + 1 < users.length) {
-      // Grille 2 colonnes
-      const u2 = users[i + 1];
-      html += `<div class="grid-2">`;
-      [u, u2].forEach(ux => {
-        const nx = ((ux.prenom||'') + ' ' + (ux.nom||'')).trim() || 'Artisan';
-        const mx = ux.metier || ux.specialite || 'Pro';
-        const ex = getEmoji(mx);
-        const ix = nx[0].toUpperCase();
-        html += `
-        <div class="card-mini" onclick="voirProfil('${ux.id}')">
-          ${ux.photoCover
-            ? `<img class="mini-cover" src="${ux.photoCover}" style="object-fit:cover" onerror="this.outerHTML='<div class=mini-cover>${ex}</div>'">`
-            : `<div class="mini-cover">${ex}</div>`
-          }
-          <div class="mini-body">
-            <div class="mini-av-row">
-              <div class="mini-av">
-                ${ux.photoAvatar ? `<img src="${ux.photoAvatar}" alt="${nx}">` : ix}
-              </div>
-              <div>
-                <div class="mini-name">${nx}</div>
-                <div class="mini-metier">${ex} ${mx}</div>
-              </div>
-            </div>
-            <div class="mini-bottom">
-              <span class="mini-note">⭐ ${ux.note||4.8}</span>
-              <span class="mini-badge">✔ Vérifié</span>
-            </div>
-            ${ux.ville ? `<div class="ville-chip" style="margin-top:6px">📍 ${ux.ville}</div>` : ''}
-          </div>
-        </div>`;
-      });
-      html += `</div>`;
+  function creerCard(uid, data, index) {
+    const metier  = data.metier  || 'Professionnel';
+    const ville   = data.ville || data.adresse || '';
+    function getEmoji(m) {
+      const ml = m.toLowerCase();
+      if (ml.includes('coutur') || ml.includes('tailleur') || ml.includes('mode')) return '🧵';
+      if (ml.includes('mecanic') || ml.includes('mécan') || ml.includes('auto')) return '🔧';
+      if (ml.includes('menuisier') || ml.includes('menuiserie') || ml.includes('charpent')) return '🪚';
+      if (ml.includes('peint') || ml.includes('peintre')) return '🎨';
+      if (ml.includes('électric') || ml.includes('electric')) return '⚡';
+      if (ml.includes('plombier') || ml.includes('plomberie')) return '🚿';
+      if (ml.includes('coiffeur') || ml.includes('coiffure') || ml.includes('salon')) return '✂️';
+      if (ml.includes('cuisine') || ml.includes('cuisinier') || ml.includes('restaurant') || ml.includes('traiteur')) return '👨‍🍳';
+      if (ml.includes('maçon') || ml.includes('macon') || ml.includes('construct')) return '🧱';
+      if (ml.includes('soudeur') || ml.includes('soudure')) return '🔩';
+      if (ml.includes('informatique') || ml.includes('tech') || ml.includes('développ')) return '💻';
+      if (ml.includes('médecin') || ml.includes('medecin') || ml.includes('infirmier') || ml.includes('santé')) return '🏥';
+      if (ml.includes('vendeur') || ml.includes('commerce') || ml.includes('boutique') || ml.includes('marchand')) return '🛒';
+      if (ml.includes('transport') || ml.includes('chauffeur') || ml.includes('taxi')) return '🚗';
+      if (ml.includes('agricult') || ml.includes('ferme') || ml.includes('élevage')) return '🌾';
+      if (ml.includes('photographe') || ml.includes('photo') || ml.includes('vidéo')) return '📸';
+      if (ml.includes('music') || ml.includes('musique') || ml.includes('artiste')) return '🎵';
+      if (ml.includes('forgeron') || ml.includes('forge')) return '⚒️';
+      if (ml.includes('bijou') || ml.includes('orfévre')) return '💍';
+      if (ml.includes('jardin') || ml.includes('paysag')) return '🌿';
+      return '🔨';
     }
+    const adresse = data.adresse || '';
+    const prenom  = data.prenom  || '';
+    const initiale = (prenom || '?')[0].toUpperCase();
+    const pseudo  = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
+    const bg      = bgClasses[index % bgClasses.length];
+    const avatarInner = data.photoAvatar ? `<img src="${data.photoAvatar}" alt="${prenom}"/>` : initiale;
+    const bgStyle = '';
+    const bgClass = bg;
+    const adresseEsc = adresse.replace(/'/g, "\\'");
+
+    return `<div class="vcard">
+      <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
+      <div class="vcard-overlay"></div>
+      <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+      <div class="btn-suivre-wrap">
+        <button class="btn-suivre" onclick="toast('✅ Suivi !','g')">+ Suivre</button>
+        <button class="btn-contacter" onclick="toast('💬 Contacter','g')">Contacter</button>
+      </div>
+      <div class="actions-r">
+        <div class="act-btn" onclick="toast('🖼️ Réalisations','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <span class="act-lbl">Réalisation</span>
+        </div>
+        <div class="act-btn" onclick="likeC(this,${index})">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💬 ${pseudo}','')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <span class="act-lbl">Sauver</span>
+        </div>
+        <div class="act-btn" onclick="toast('📆 Réservation ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <span class="act-lbl">Réserver</span>
+        </div>
+        <div class="act-btn" onclick="toast('🔗 Partager ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <span class="act-lbl">Partager</span>
+        </div>
+      </div>
+      <div class="info-top">
+        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <span class="info-globe-small">🌍</span>
+        <div class="info-user">${pseudo}</div>
+        <div class="info-desc">Vérifié(e) sur ArtiRoyce.</div>
+        <div class="info-stars">⭐⭐ <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;">4.8 (10k avis)</span></div>
+      </div>
+      <div class="info-bot">
+        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
+        <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <div class="info-btns">
+          <button class="btn-disc" onclick="toast('💬 ${pseudo}','g')">💬 Discussion</button>
+          <button class="btn-lv" onclick="toast('🔴 Live Pro','')">+ Live Pro</button>
+          <span class="wm-inline">
+            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
+          </span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function adjustLayout() {
+    const hh = document.getElementById('topH').offsetHeight;
+    document.getElementById('hSpacer').style.height = hh + 'px';
+    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
+      el.style.top = (hh + 50) + 'px';
+    });
+    document.querySelectorAll('.badge-v').forEach(el => {
+      el.style.top = '230px';
+    });
+    document.querySelectorAll('.info-top').forEach(el => {
+      el.style.top = '370px';
+    });
+    document.querySelectorAll('.info-bot').forEach(el => {
+      el.style.bottom = '70px';
+    });
+  }
+
+  window.addEventListener('load', adjustLayout);
+  window.addEventListener('resize', adjustLayout);
+  setTimeout(adjustLayout, 100);
+  setTimeout(adjustLayout, 400);
+
+  window.toast = function(msg, type) {
+    const el = document.getElementById('toastEl');
+    el.textContent = msg;
+    el.className = 'toast show' + (type === 'g' ? ' g' : '');
+    setTimeout(() => el.className = 'toast', 2200);
+  }
+
+  window.setTab = function(el) {
+    document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  window.likeC = function(btn, idx) {
+    const circle = btn.querySelector('.act-circle');
+    const num = btn.querySelector('.act-n');
+    const liked = circle.classList.contains('liked');
+    circle.classList.toggle('liked', !liked);
+    num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
+  }
+
+  window.goProfile = function() { window.location.href = 'profil.html'; }
+  window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
+  window.ouvrirItineraire = function(adresse) {
+    if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
+    else toast('📍 Adresse non disponible', '');
+  }
+
+  function setLang(l) {
+    ['fr','en','pt'].forEach(x => document.getElementById('chk-'+x).style.display = x===l?'':'none');
+    document.querySelectorAll('.lopt').forEach(o => o.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    setTimeout(closeLangAll, 300);
+    toast(l==='fr'?'🇫🇷 Français':l==='en'?'🇬🇧 English':'🇧🇷 Português','g');
+  }
+  window.setLang = setLang;
+  function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
+  function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
+  window.closeLang = closeLang;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'connexion.html'; return; }
+    const feed = document.getElementById('feedW');
+    try {
+      const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
+      const snap = await getDocs(q);
+      let index = 0;
+      snap.forEach(doc => {
+        feed.innerHTML += creerCard(doc.id, doc.data(), index++);
+      });
+      adjustLayout();
+    } catch(e) { console.error(e); }
   });
-
-  container.innerHTML = html;
-}
-
-// ── FILTRER ──
-window.filtrerMetier = function(el) {
-  document.querySelectorAll('.metier-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  metierActif = el.dataset.metier;
-  const filtres = metierActif
-    ? allUsers.filter(u => (u.metier||'').toLowerCase().includes(metierActif.slice(0,4)))
-    : allUsers;
-  afficherFeed(filtres);
-};
-
-// ── RECHERCHE ──
-window.rechercherLive = function(q) {
-  const t = q.toLowerCase().trim();
-  const filtres = t
-    ? allUsers.filter(u =>
-        ((u.prenom||'') + ' ' + (u.nom||'')).toLowerCase().includes(t) ||
-        (u.metier||'').toLowerCase().includes(t) ||
-        (u.ville||'').toLowerCase().includes(t)
-      )
-    : allUsers;
-  afficherFeed(filtres);
-};
-
-// ── ACTIONS ──
-window.voirProfil = function(uid) {
-  window.location.href = 'profil.html?uid=' + uid;
-};
-
-window.contacter = function(tel, nom) {
-  if (!tel) { showToast('📵 Contact non disponible', 'r'); return; }
-  const num = tel.replace(/\D/g, '');
-  window.open('https://wa.me/' + num + '?text=Bonjour ' + encodeURIComponent(nom) + ', je vous contacte via ArtiRoyce.', '_blank');
-};
-
-window.suivre = async function(uid) {
-  if (!currentUser) { showToast('🔐 Connectez-vous pour suivre', 'r'); return; }
-  try {
-    await updateDoc(doc(db, 'utilisateurs', uid), { abonnes: arrayUnion(currentUser.uid) });
-    await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { abonnements: arrayUnion(uid) });
-    showToast('✅ Vous suivez cet artisan !', 'g');
-  } catch(e) { showToast('⚠ Erreur', 'r'); }
-};
-
-function showToast(msg, type) {
-  const el = document.getElementById('toastEl');
-  el.textContent = msg;
-  el.className = 'toast show' + (type ? ' ' + type : '');
-  setTimeout(() => el.className = 'toast', 2500);
-}
-window.showToast = showToast;
-
-chargerFeed();
 </script>
 </body>
 </html>
