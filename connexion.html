@@ -176,7 +176,7 @@
         if (!userDoc.exists()) {
           // Document absent → accueil par défaut
           showToast('✅ Connexion réussie !', 'success');
-          setTimeout(() => { window.location.href = 'vitrine.html'; }, 1200);
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
           return;
         }
 
@@ -187,12 +187,12 @@
         if (statut === 'verifie') {
           // Compte validé → accueil général
           showToast('✅ Connexion réussie ! Bienvenue.', 'success');
-          setTimeout(() => { window.location.href = 'vitrine.html'; }, 1200);
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
         } else {
           // en_attente ou rejeté → SON PROPRE profil personnel
           // profil.html détecte automatiquement l'utilisateur connecté via Firebase Auth
           showToast('⏳ Compte en attente — accès à votre profil.', 'warning');
-          setTimeout(() => { window.location.href = 'vitrine.html'; }, 1200);
+          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
         }
 
       } catch (err) {
