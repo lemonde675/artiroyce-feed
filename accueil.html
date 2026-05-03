@@ -152,12 +152,12 @@
     </div>
   </div>
   <div class="h-tabs">
-    <div class="h-tab active">Accueil</div>
-    <div class="h-tab">📰 Actualités</div>
+    <div class="h-tab active">🏠 Accueil</div>
     <div class="h-tab"><span class="tab-green-dot"></span> Statuts</div>
     <div class="h-tab">⭐ Élites</div>
     <div class="h-tab">📂 Catégories</div>
     <div class="h-tab">💬 Répert-Discussion</div>
+    <div class="h-tab">📰 Actualités</div>
     <div class="h-tab">📖 FAQ</div>
   </div>
 </header>
@@ -171,7 +171,7 @@
     </div>
   </div>
 
-  <!-- PANEL 1 : Statuts -->
+  <!-- PANEL 1 : Statuts (tab 1) -->
   <div class="panel-slide" id="panel-1">
     <div class="panel-placeholder">
       <div class="ph-icon">🟢</div>
@@ -180,17 +180,8 @@
     </div>
   </div>
 
-  <!-- PANEL 2 : Mon Profil -->
+  <!-- PANEL 2 : Elites (tab 2) -->
   <div class="panel-slide" id="panel-2">
-    <div class="panel-placeholder">
-      <div class="ph-icon">👤</div>
-      <div class="ph-title">Mon Profil</div>
-      <div class="ph-sub">Chargement...</div>
-    </div>
-  </div>
-
-  <!-- PANEL 3 : Elites -->
-  <div class="panel-slide" id="panel-3">
     <div class="panel-placeholder">
       <div class="ph-icon">⭐</div>
       <div class="ph-title">Élites</div>
@@ -198,8 +189,8 @@
     </div>
   </div>
 
-  <!-- PANEL 4 : Categories -->
-  <div class="panel-slide" id="panel-4">
+  <!-- PANEL 3 : Categories (tab 3) -->
+  <div class="panel-slide" id="panel-3">
     <div class="panel-placeholder">
       <div class="ph-icon">📂</div>
       <div class="ph-title">Catégories</div>
@@ -207,21 +198,28 @@
     </div>
   </div>
 
-  <!-- PANEL 5 : Discussion -->
-  <div class="panel-slide" id="panel-5" style="position:relative;">
+  <!-- PANEL 4 : Discussion (tab 4) -->
+  <div class="panel-slide" id="panel-4" style="position:relative;">
     <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
-    <!-- Bande gauche 22px : zone de swipe invisible -->
     <div id="swipeLeft" style="position:absolute;top:0;left:0;width:22px;height:100%;z-index:10;background:transparent;"></div>
-    <!-- Bande droite 22px : zone de swipe invisible -->
     <div id="swipeRight" style="position:absolute;top:0;right:0;width:22px;height:100%;z-index:10;background:transparent;"></div>
   </div>
 
-    <!-- PANEL 6 : Actualites -->
-  <div class="panel-slide" id="panel-6">
+  <!-- PANEL 5 : Actualites (tab 5) -->
+  <div class="panel-slide" id="panel-5">
     <div class="panel-placeholder">
       <div class="ph-icon">📰</div>
       <div class="ph-title">Actualités</div>
       <div class="ph-sub">Les dernières nouvelles ArtiRoyce</div>
+    </div>
+  </div>
+
+  <!-- PANEL 6 : FAQ (tab 6) -->
+  <div class="panel-slide" id="panel-6">
+    <div class="panel-placeholder">
+      <div class="ph-icon">📖</div>
+      <div class="ph-title">FAQ</div>
+      <div class="ph-sub">Questions fréquentes</div>
     </div>
   </div>
 
@@ -251,7 +249,7 @@
     <span class="nav-lb">Mon Profil</span>
   </div>
   <!-- Discussion -->
-  <div class="nav-i active" onclick="goToPanel(5)">
+  <div class="nav-i active" onclick="goToPanel(4)">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)">Discussion</span>
   </div>
@@ -456,9 +454,8 @@
   let dragStartX = 0;
 
   // Actions spéciales par panel
-  const specialPanels = {
-    2: () => window.location.href = 'profil.html',
-  };
+  // Panels: 0=Accueil, 1=Statuts, 2=Elites, 3=Categories, 4=Discussion(iframe), 5=Actualites, 6=FAQ
+  const specialPanels = {};
 
   function goToPanel(index, animate) {
     if (index < 0) index = 0;
