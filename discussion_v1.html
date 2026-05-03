@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>ArtiRoyce – Discussion</title>
+<title>ArtiRoyce - Discussion</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--red:#e63224;--green:#27a945;--bg:#f2f3f5;--card:#fff;--border:#ebebeb}
+:root{--red:#e63224;--green:#27a945;--bg:#f2f3f5;--card:#fff}
 html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
 .top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #e8e8e8}
 .h-row1{display:flex;align-items:center;padding:6px 12px 4px;gap:6px}
@@ -27,31 +27,29 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .h-tab.active{background:var(--red);color:#fff}
 .body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:var(--bg)}
 .spacer{flex-shrink:0}
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;background:var(--bg);flex-shrink:0}
-.top-bar-title{font-size:20px;font-weight:900;color:#111;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;flex-shrink:0}
+.top-bar-title{font-size:20px;font-weight:900;color:#111;letter-spacing:-0.5px}
 .top-bar-right{display:flex;gap:8px}
 .tbr-btn{width:36px;height:36px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;border:none;box-shadow:0 1px 6px rgba(0,0,0,0.07)}
-.tbr-btn.red{background:var(--red);box-shadow:0 2px 10px rgba(230,50,36,0.3)}
-.search-wrap{padding:0 14px 10px;background:var(--bg);flex-shrink:0}
+.tbr-btn.red{background:var(--red)}
+.search-wrap{padding:0 14px 10px;flex-shrink:0}
 .search-inner{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:10px 14px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
 .search-inner input{flex:1;background:none;border:none;outline:none;color:#111;font-size:14px;font-family:'Segoe UI',Arial,sans-serif}
 .search-inner input::placeholder{color:#ccc}
-.pill-row{display:flex;gap:8px;padding:0 14px 10px;background:var(--bg);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.pill-row{display:flex;gap:8px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
 .pill-row::-webkit-scrollbar{display:none}
 .pill{white-space:nowrap;padding:6px 16px;border-radius:22px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:var(--card);color:#aaa;box-shadow:0 1px 4px rgba(0,0,0,0.06);flex-shrink:0;transition:all 0.18s}
-.pill.active{background:var(--red);color:#fff;box-shadow:0 2px 10px rgba(230,50,36,0.25)}
-.pill .cnt{display:inline-block;background:rgba(230,50,36,0.15);color:var(--red);font-size:9px;padding:1px 5px;border-radius:99px;margin-left:3px}
+.pill.active{background:var(--red);color:#fff}
 .conv-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 0 70px}
 .conv-scroll::-webkit-scrollbar{display:none}
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px}
 .sec-lbl{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.8px}
 .sec-action{font-size:12px;font-weight:700;color:var(--red);cursor:pointer}
-.conv-card{background:var(--card);margin:0 12px 6px;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.05);overflow:hidden;cursor:pointer;transition:transform 0.12s}
+.conv-card{background:var(--card);margin:0 12px 6px;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.05);cursor:pointer;transition:transform 0.12s}
 .conv-card:active{transform:scale(0.98)}
 .cc-inner{display:flex;align-items:center;gap:12px;padding:12px 14px}
 .av-wrap{position:relative;flex-shrink:0}
-.av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;overflow:hidden}
-.av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
 .online-dot{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
 .v-icon{position:absolute;top:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
 .g-count{position:absolute;bottom:0;left:30px;width:18px;height:18px;border-radius:50%;background:#888;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:900}
@@ -62,7 +60,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .cc-preview{font-size:13px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
 .cc-status{font-size:11px;font-weight:700;margin-top:2px}
 .cc-status.on{color:var(--green)}.cc-status.off{color:#ccc}
-.cc-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:3px;background:#f5f5f5;color:#888}
+.cc-tag{display:inline-flex;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:3px;background:#f5f5f5;color:#888}
 .ubadge{min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0}
 .bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
 .nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
@@ -71,41 +69,27 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .nav-plus-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px;cursor:pointer}
 .nav-plus{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 4px 14px rgba(230,50,36,0.55);margin-top:-16px}
 .nav-ico{width:24px;height:24px}
-
-/* CHAT PANEL */
 .chat-panel{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:300;display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
 .chat-panel.open{transform:translateX(-50%)}
 .chat-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
 .back-btn{font-size:26px;cursor:pointer;color:#333;flex-shrink:0}
 .cha-av-wrap{position:relative;flex-shrink:0}
-.cha-av{width:42px;height:42px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+.cha-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
 .cha-online{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
 .cha-info{flex:1;min-width:0}
 .cha-name{font-size:15px;font-weight:800;color:#111;display:flex;align-items:center;gap:5px}
-.vb{background:var(--green);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:99px;flex-shrink:0}
+.vb{background:var(--green);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:99px}
 .cha-st{font-size:11px;font-weight:700;margin-top:1px}
 .cha-st.on{color:var(--green)}.cha-st.off{color:#bbb}
 .cha-btns{display:flex;gap:5px}
 .cha-btn{width:34px;height:34px;border-radius:10px;border:1.5px solid #f0f0f0;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
-.cha-btn:active{background:#f5f5f5}
-
-/* FOND CHAT ARTIROYCE UNIQUE */
-.msgs-area{
-  flex:1;overflow-y:auto;padding:12px;
-  display:flex;flex-direction:column;gap:8px;
-  scrollbar-width:none;
-  background-color:#f0ede4;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='540'%3E%3Cg opacity='0.06'%3E%3Cpolygon points='40,10 58,20 58,42 40,52 22,42 22,20' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='40,16 53,24 53,40 40,48 27,40 27,24' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='200,60 218,70 218,92 200,102 182,92 182,70' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='200,66 213,74 213,90 200,98 187,90 187,74' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='310,20 328,30 328,52 310,62 292,52 292,30' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='310,26 323,34 323,50 310,58 297,50 297,34' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='100,160 118,170 118,192 100,202 82,192 82,170' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='100,166 113,174 113,190 100,198 87,190 87,174' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='280,180 298,190 298,212 280,222 262,212 262,190' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='280,186 293,194 293,210 280,218 267,210 267,194' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='50,300 68,310 68,332 50,342 32,332 32,310' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='50,306 63,314 63,330 50,338 37,330 37,314' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='200,340 218,350 218,372 200,382 182,372 182,350' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='200,346 213,354 213,370 200,378 187,370 187,354' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='330,310 348,320 348,342 330,352 312,342 312,320' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='330,316 343,324 343,340 330,348 317,340 317,324' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='120,440 138,450 138,472 120,482 102,472 102,450' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='120,446 133,454 133,470 120,478 107,470 107,454' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='280,460 298,470 298,492 280,502 262,492 262,470' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='280,466 293,474 293,490 280,498 267,490 267,474' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Ctext x='155' y='45' font-size='20' fill='%23e63224' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='240' y='150' font-size='16' fill='%2327a945' font-family='Arial'>%E2%99%AB%3C/text%3E%3Ctext x='30' y='230' font-size='18' fill='%23e63224' font-family='Arial'>%E2%99%A9%3C/text%3E%3Ctext x='310' y='260' font-size='16' fill='%2327a945' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='160' y='290' font-size='20' fill='%23e63224' font-family='Arial'>%E2%99%AB%3C/text%3E%3Ctext x='60' y='400' font-size='16' fill='%2327a945' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='290' y='420' font-size='18' fill='%23e63224' font-family='Arial'>%E2%99%A9%3C/text%3E%3Ctext x='170' y='130' font-size='12' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='80' y='120' font-size='9' fill='%2327a945' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='330' y='140' font-size='11' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='140' y='380' font-size='13' fill='%2327a945' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='260' y='290' font-size='10' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Crect x='148' y='225' width='8' height='16' rx='4' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpath d='M144 242 Q148 250 152 242' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cline x1='148' y1='250' x2='148' y2='256' stroke='%23e63224' stroke-width='1.2'/%3E%3Crect x='58' y='350' width='24' height='16' rx='2' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='82,353 92,347 92,373 82,367' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Ccircle cx='320' cy='100' r='14' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Ccircle cx='314' cy='96' r='2.5' fill='%23e63224' opacity='0.5'/%3E%3Ccircle cx='320' cy='93' r='2.5' fill='%2327a945' opacity='0.5'/%3E%3Ccircle cx='326' cy='96' r='2.5' fill='%23e63224' opacity='0.5'/%3E%3Ccircle cx='323' cy='103' r='2.5' fill='%2327a945' opacity='0.5'/%3E%3Ccircle cx='317' cy='103' r='2.5' fill='%23e63224' opacity='0.5'/%3E%3Cline x1='90' y1='470' x2='115' y2='495' stroke='%2327a945' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='117' cy='497' r='3.5' fill='%2327a945' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat:repeat;background-size:360px 540px;
-}
+.msgs-area{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;scrollbar-width:none;background-color:#ede8db;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450'%3E%3Cg opacity='0.07'%3E%3Cpolygon points='35,8 52,18 52,38 35,48 18,38 18,18' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='35,14 48,22 48,36 35,44 22,36 22,22' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='190,55 207,65 207,85 190,95 173,85 173,65' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='190,61 203,69 203,83 190,91 177,83 177,69' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='260,15 277,25 277,45 260,55 243,45 243,25' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='260,21 273,29 273,43 260,51 247,43 247,29' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='80,155 97,165 97,185 80,195 63,185 63,165' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='80,161 93,169 93,183 80,191 67,183 67,169' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='240,170 257,180 257,200 240,210 223,200 223,180' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='240,176 253,184 253,198 240,206 227,198 227,184' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='40,290 57,300 57,320 40,330 23,320 23,300' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='40,296 53,304 53,318 40,326 27,318 27,304' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='170,330 187,340 187,360 170,370 153,360 153,340' fill='none' stroke='%2327a945' stroke-width='1.8'/%3E%3Cpolygon points='170,336 183,344 183,358 170,366 157,358 157,344' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpolygon points='270,300 287,310 287,330 270,340 253,330 253,310' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='270,306 283,314 283,328 270,336 257,328 257,314' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='100,420 117,430 117,450 100,460 83,450 83,430' fill='none' stroke='%23e63224' stroke-width='1.8'/%3E%3Cpolygon points='100,426 113,434 113,448 100,456 87,448 87,434' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Ctext x='130' y='38' font-size='18' fill='%23e63224' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='210' y='130' font-size='15' fill='%2327a945' font-family='Arial'>%E2%99%AB%3C/text%3E%3Ctext x='20' y='225' font-size='16' fill='%23e63224' font-family='Arial'>%E2%99%A9%3C/text%3E%3Ctext x='265' y='250' font-size='14' fill='%2327a945' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='135' y='275' font-size='18' fill='%23e63224' font-family='Arial'>%E2%99%AB%3C/text%3E%3Ctext x='50' y='385' font-size='15' fill='%2327a945' font-family='Arial'>%E2%99%AA%3C/text%3E%3Ctext x='240' y='405' font-size='16' fill='%23e63224' font-family='Arial'>%E2%99%A9%3C/text%3E%3Ctext x='150' y='115' font-size='11' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='65' y='110' font-size='8' fill='%2327a945' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='280' y='135' font-size='10' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='115' y='365' font-size='12' fill='%2327a945' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Ctext x='220' y='275' font-size='9' fill='%23e63224' font-family='Arial'>%E2%9C%A6%3C/text%3E%3Crect x='125' y='215' width='7' height='14' rx='3.5' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cpath d='M121 230 Q125 238 129 230' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Cline x1='125' y1='238' x2='125' y2='244' stroke='%23e63224' stroke-width='1.2'/%3E%3Crect x='45' y='340' width='22' height='14' rx='2' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Cpolygon points='67,343 76,338 76,358 67,353' fill='none' stroke='%2327a945' stroke-width='1.2'/%3E%3Ccircle cx='265' cy='90' r='13' fill='none' stroke='%23e63224' stroke-width='1.2'/%3E%3Ccircle cx='260' cy='86' r='2.2' fill='%23e63224' opacity='0.5'/%3E%3Ccircle cx='265' cy='83' r='2.2' fill='%2327a945' opacity='0.5'/%3E%3Ccircle cx='270' cy='86' r='2.2' fill='%23e63224' opacity='0.5'/%3E%3Ccircle cx='268' cy='93' r='2.2' fill='%2327a945' opacity='0.5'/%3E%3Ccircle cx='262' cy='93' r='2.2' fill='%23e63224' opacity='0.5'/%3E%3Cline x1='70' y1='455' x2='92' y2='477' stroke='%2327a945' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='93' cy='479' r='3' fill='%2327a945' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat;background-size:300px 450px}
 .msgs-area::-webkit-scrollbar{display:none}
-
 .day-sep{display:flex;align-items:center;justify-content:center;margin:4px 0}
-.day-sep span{font-size:11px;color:#888;background:rgba(255,255,255,0.8);padding:3px 12px;border-radius:99px;font-weight:600}
-
+.day-sep span{font-size:11px;color:#888;background:rgba(255,255,255,0.82);padding:3px 12px;border-radius:99px;font-weight:600}
 .mrow{display:flex;gap:8px;align-items:flex-end}
 .mrow.out{flex-direction:row-reverse}
-.m-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.m-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
 .bbl{max-width:72%;padding:10px 13px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
 .mrow.in .bbl{background:#fff;color:#111;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 .mrow.out .bbl{background:var(--red);color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(230,50,36,0.25)}
@@ -114,13 +98,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.out .bbl-t{color:rgba(255,255,255,0.6)}
 .tick{font-size:10px;color:rgba(255,255,255,0.55)}
 .tick.rd{color:#a8f0c0}
-
-/* CALL BUBBLE */
-.call-bbl{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;max-width:220px;cursor:pointer}
+.call-bbl{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;max-width:210px;cursor:pointer}
 .mrow.in .call-bbl{background:#fff;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 .mrow.out .call-bbl{background:var(--red);border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(230,50,36,0.25)}
-.call-bbl.missed{background:rgba(230,50,36,0.06)!important;border:1px solid rgba(230,50,36,0.15)}
-.call-ico-w{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+.call-bbl.missed{background:rgba(230,50,36,0.07)!important;border:1px solid rgba(230,50,36,0.15)}
+.call-ico-w{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
 .mrow.in .call-ico-w{background:rgba(0,0,0,0.06)}
 .call-det{flex:1}
 .call-type{font-size:13px;font-weight:800;color:#fff}
@@ -128,23 +110,19 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .call-bbl.missed .call-type{color:var(--red)!important}
 .call-sub2{font-size:11px;color:rgba(255,255,255,0.65);margin-top:1px}
 .mrow.in .call-sub2{color:#aaa}
-.call-bbl.missed .call-sub2{color:var(--red)!important;opacity:0.7}
+.call-bbl.missed .call-sub2{color:rgba(230,50,36,0.7)!important}
 .call-ft{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px}
 .call-t{font-size:10px;color:rgba(255,255,255,0.55)}
 .mrow.in .call-t{color:#bbb}
-
-/* INPUT */
 .ibar{display:flex;align-items:flex-end;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #eee;flex-shrink:0}
 .iwrap{flex:1;display:flex;align-items:flex-end;gap:6px;background:#f5f5f5;border-radius:22px;padding:9px 12px}
-.ib{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0;padding:1px}
+.ib{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0}
 .ib:active{color:var(--red)}
 #mTa{flex:1;background:none;border:none;outline:none;color:#111;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;resize:none;max-height:100px;line-height:1.4}
 #mTa::placeholder{color:#ccc}
 .sb{width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(230,50,36,0.35)}
 .sb:active{transform:scale(0.92)}
 .sb:disabled{background:#e0e0e0;box-shadow:none;cursor:not-allowed}
-
-/* CONF PANEL */
 .conf-panel{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:400;display:flex;flex-direction:column;background:#fff;transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
 .conf-panel.open{transform:translateX(-50%)}
 .conf-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
@@ -154,17 +132,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .conf-link-box{background:#f7f7f7;border-radius:14px;padding:14px;margin-bottom:14px}
 .conf-link-label{font-size:11px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
 .conf-link-val{font-size:13px;color:var(--red);font-weight:700;word-break:break-all}
-.conf-btns{display:flex;gap:10px;flex-wrap:wrap}
-.conf-btn{flex:1;min-width:120px;padding:12px;border-radius:14px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.conf-btn.green{background:var(--green);color:#fff;box-shadow:0 3px 10px rgba(39,169,69,0.3)}
-.conf-btn.red{background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(230,50,36,0.3)}
+.conf-btns{display:flex;gap:10px}
+.conf-btn{flex:1;padding:12px;border-radius:14px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.conf-btn.green{background:var(--green);color:#fff}
+.conf-btn.red{background:var(--red);color:#fff}
 .conf-btn.out{background:#fff;color:#555;border:1.5px solid #eee}
 .conf-part-title{font-size:13px;font-weight:800;color:#333;margin:18px 0 8px}
 .conf-part-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
 .conf-part-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
 .conf-part-name{font-size:13px;font-weight:700;color:#111;flex:1}
 .conf-part-role{font-size:11px;font-weight:700}
-
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 .toast.g{background:var(--green)}.toast.r{background:var(--red)}
@@ -176,8 +153,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
     <div class="h-logo">
       <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <g transform="translate(0,55)"><polygon points="27,-16 54,0 54,32 27,48 0,32 0,0" fill="#e63224"/><polygon points="27,-8 46,3 46,25 27,36 8,25 8,3" fill="#27a945"/></g>
-        <g transform="translate(38,55)"><polygon points="27,-16 54,0 54,32 27,48 0,32 0,0" fill="#e63224"/><polygon points="27,-8 46,3 46,25 27,36 8,25 8,3" fill="#27a945"/></g>
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
       </svg>
       <span class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></span>
     </div>
@@ -193,7 +174,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <button class="h-tab">📰 Actualités</button>
   </div>
 </header>
-
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
   <div class="top-bar">
@@ -211,14 +191,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
   <div class="pill-row">
     <button class="pill active" onclick="setMode('all',this)">Toutes</button>
-    <button class="pill" onclick="setMode('unread',this)">Non lus <span class="cnt">3</span></button>
+    <button class="pill" onclick="setMode('unread',this)">Non lus</button>
     <button class="pill" onclick="setMode('groups',this)">Groupes</button>
     <button class="pill" onclick="setMode('conf',this)">Conférences</button>
     <button class="pill" onclick="setMode('online',this)">En ligne</button>
   </div>
   <div class="conv-scroll" id="convList">
     <div class="sec-hdr"><span class="sec-lbl">Récentes</span></div>
-
     <div class="conv-card" data-mode="conv" data-unread="1" data-online="1" onclick="openChat('Mariama Kouyaté','Coiffeuse','MK','linear-gradient(135deg,#0d2b0f,#27a945)',true,'')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="online-dot"></div><div class="v-icon">✔</div></div>
@@ -230,7 +209,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="ubadge">2</div>
       </div>
     </div>
-
     <div class="conv-card" data-mode="conv" data-online="0" onclick="openChat('Jean-Paul Mensah','Photographe','JP','linear-gradient(135deg,#0a0a2e,#1a1a6e)',false,'Il y a 2h')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div><div class="v-icon">✔</div></div>
@@ -241,7 +219,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         </div>
       </div>
     </div>
-
     <div class="conv-card" data-mode="conv" data-unread="1" data-online="1" onclick="openChat('Aminata Traoré','Maquilleuse','AT','linear-gradient(135deg,#4a1a00,#c0392b)',true,'')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div><div class="online-dot"></div></div>
@@ -253,7 +230,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="ubadge">1</div>
       </div>
     </div>
-
     <div class="conv-card" data-mode="conv" data-online="0" onclick="openChat('David Koffi','DJ','DK','linear-gradient(135deg,#001030,#002060)',false,'Il y a 1 jour')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#001030,#002060)">DK</div><div class="v-icon">✔</div></div>
@@ -264,9 +240,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         </div>
       </div>
     </div>
-
-    <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="toast('👥 Créer un groupe bientôt !','g')">+ Créer</span></div>
-
+    <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="toast('👥 Créer bientôt !','g')">+ Créer</span></div>
     <div class="conv-card" data-mode="group" onclick="openChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#2c0060,#6a0dad);font-size:22px">👥</div><div class="g-count">12</div></div>
@@ -278,33 +252,29 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="ubadge">5</div>
       </div>
     </div>
-
     <div class="sec-hdr" id="secC"><span class="sec-lbl">Conférences</span><span class="sec-action" onclick="openConf()">+ Lancer</span></div>
-
     <div class="conv-card" data-mode="conf" onclick="openConf()">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#003d00,#007a00);font-size:22px">🎙️</div></div>
         <div class="cc-info">
           <div class="cc-top"><span class="cc-name">Conf. Pros du Son</span><span class="cc-time">Dim</span></div>
-          <div class="cc-preview">Appel terminé · 45 min · 8 participants</div>
+          <div class="cc-preview">Terminé · 45 min · 8 participants</div>
           <span class="cc-tag">🎙️ Audio · Lien généré</span>
         </div>
       </div>
     </div>
-
     <div class="conv-card" data-mode="conf" onclick="openConf()">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#00304a,#005a8a);font-size:22px">📹</div></div>
         <div class="cc-info">
           <div class="cc-top"><span class="cc-name">Réunion Créatifs</span><span class="cc-time">Jeu</span></div>
-          <div class="cc-preview">Visio terminée · 1h12 · 5 participants</div>
+          <div class="cc-preview">Terminé · 1h12 · 5 participants</div>
           <span class="cc-tag">📹 Vidéo · Lien généré</span>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <nav class="bot-nav">
   <div class="nav-i active">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -315,8 +285,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="nav-lb">Messages</span>
   </div>
   <div class="nav-plus-w"><div class="nav-plus">+</div></div>
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+  <div class="nav-i" onclick="window.location.href='live_v1.html'">
+    <svg class="nav-ico" viewBox="0 0 24 24">
+      <rect x="2" y="3" width="20" height="18" rx="3" fill="#e63224"/>
+      <polygon points="10,8 10,16 17,12" fill="#fff"/>
+    </svg>
     <span class="nav-lb">Live</span>
   </div>
   <div class="nav-i">
@@ -324,77 +297,34 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="nav-lb">FAQ</span>
   </div>
 </nav>
-
-<!-- CHAT -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-hdr">
-    <span class="back-btn" onclick="closeChat()">‹</span>
+    <span class="back-btn" onclick="closeChat()">&#8249;</span>
     <div class="cha-av-wrap">
       <div class="cha-av" id="chaAv">?</div>
       <div class="cha-online" id="chaOnline" style="display:none"></div>
     </div>
     <div class="cha-info">
-      <div class="cha-name" id="chaNm">— <span class="vb">✔</span></div>
-      <div class="cha-st on" id="chaSt">● En ligne</div>
+      <div class="cha-name" id="chaNm">&#8212; <span class="vb">&#10004;</span></div>
+      <div class="cha-st on" id="chaSt">&#9679; En ligne</div>
     </div>
     <div class="cha-btns">
-      <button class="cha-btn" onclick="addCall('audio')">📞</button>
-      <button class="cha-btn" onclick="addCall('video')">📹</button>
-      <button class="cha-btn" onclick="toast('📱 WhatsApp','g')">📱</button>
-      <button class="cha-btn" onclick="toast('⋮ Options','')">⋮</button>
+      <button class="cha-btn" onclick="addCall('audio')">&#128222;</button>
+      <button class="cha-btn" onclick="addCall('video')">&#128249;</button>
+      <button class="cha-btn" onclick="toast('WhatsApp','g')">&#128241;</button>
+      <button class="cha-btn" onclick="toast('Options','')">&#8942;</button>
     </div>
   </div>
   <div class="msgs-area" id="msgsArea">
     <div class="day-sep"><span>Aujourd'hui</span></div>
-    <div class="mrow in">
-      <div class="m-av" id="mAv1">?</div>
-      <div class="bbl">Bonjour ! Je voudrais réserver pour un shooting 📸<div class="bbl-ft"><span class="bbl-t">14:20</span></div></div>
-    </div>
-    <div class="mrow out">
-      <div class="bbl">Bonjour 😊 Avec plaisir ! Quel jour ?<div class="bbl-ft"><span class="bbl-t">14:22</span><span class="tick rd">✓✓</span></div></div>
-    </div>
-    <div class="mrow in">
-      <div class="m-av" id="mAv2">?</div>
-      <div class="call-bbl missed">
-        <div class="call-ico-w">📲</div>
-        <div class="call-det">
-          <div class="call-type">Appel vocal</div>
-          <div class="call-sub2">Sans réponse</div>
-          <div class="call-ft"><span class="call-t" style="color:#bbb">14:30</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="mrow out">
-      <div class="call-bbl">
-        <div class="call-ico-w">📞</div>
-        <div class="call-det">
-          <div class="call-type">Appel vocal</div>
-          <div class="call-sub2">11 s</div>
-          <div class="call-ft"><span class="call-t">14:31</span><span class="tick rd">✓✓</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="mrow in">
-      <div class="m-av" id="mAv3">?</div>
-      <div class="bbl">Samedi prochain si possible 🙏<div class="bbl-ft"><span class="bbl-t">14:35</span></div></div>
-    </div>
-    <div class="mrow out">
-      <div class="call-bbl">
-        <div class="call-ico-w">📹</div>
-        <div class="call-det">
-          <div class="call-type">Appel vidéo</div>
-          <div class="call-sub2">8 min</div>
-          <div class="call-ft"><span class="call-t">14:40</span><span class="tick rd">✓✓</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="mrow out">
-      <div class="bbl">Parfait ! Je vous envoie le devis 👍<div class="bbl-ft"><span class="bbl-t">14:42</span><span class="tick rd">✓✓</span></div></div>
-    </div>
-    <div class="mrow in">
-      <div class="m-av" id="mAv4">?</div>
-      <div class="bbl">Merci beaucoup ! 🙏🙏<div class="bbl-ft"><span class="bbl-t">14:43</span></div></div>
-    </div>
+    <div class="mrow in"><div class="m-av" id="mAv1">?</div><div class="bbl">Bonjour ! Je voudrais réserver pour un shooting 📸<div class="bbl-ft"><span class="bbl-t">14:20</span></div></div></div>
+    <div class="mrow out"><div class="bbl">Bonjour 😊 Avec plaisir ! Quel jour ?<div class="bbl-ft"><span class="bbl-t">14:22</span><span class="tick rd">✓✓</span></div></div></div>
+    <div class="mrow in"><div class="m-av" id="mAv2">?</div><div class="call-bbl missed"><div class="call-ico-w">📲</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">Sans réponse</div><div class="call-ft"><span class="call-t" style="color:#bbb">14:30</span></div></div></div></div>
+    <div class="mrow out"><div class="call-bbl"><div class="call-ico-w">📞</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">11 s</div><div class="call-ft"><span class="call-t">14:31</span><span class="tick rd">✓✓</span></div></div></div></div>
+    <div class="mrow in"><div class="m-av" id="mAv3">?</div><div class="bbl">Samedi prochain si possible 🙏<div class="bbl-ft"><span class="bbl-t">14:35</span></div></div></div>
+    <div class="mrow out"><div class="call-bbl"><div class="call-ico-w">📹</div><div class="call-det"><div class="call-type">Appel vidéo</div><div class="call-sub2">8 min</div><div class="call-ft"><span class="call-t">14:40</span><span class="tick rd">✓✓</span></div></div></div></div>
+    <div class="mrow out"><div class="bbl">Parfait ! Je vous envoie le devis 👍<div class="bbl-ft"><span class="bbl-t">14:42</span><span class="tick rd">✓✓</span></div></div></div>
+    <div class="mrow in"><div class="m-av" id="mAv4">?</div><div class="bbl">Merci beaucoup ! 🙏🙏<div class="bbl-ft"><span class="bbl-t">14:43</span></div></div></div>
   </div>
   <div class="ibar">
     <div class="iwrap">
@@ -408,49 +338,69 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </button>
   </div>
 </div>
-
-<!-- CONF PANEL -->
 <div class="conf-panel" id="confPanel">
   <div class="conf-hdr">
-    <span class="back-btn" onclick="closeConf()">‹</span>
+    <span class="back-btn" onclick="closeConf()">&#8249;</span>
     <span style="font-size:16px;font-weight:800;color:#111">Conférence</span>
   </div>
   <div class="conf-body">
     <div class="conf-title">🎙️ Nouvelle Conférence</div>
-    <div class="conf-sub">Générez un lien et invitez des participants à rejoindre</div>
+    <div class="conf-sub">Générez un lien et invitez des participants</div>
     <div class="conf-link-box">
       <div class="conf-link-label">Lien de la conférence</div>
-      <div class="conf-link-val" id="confLink">Appuyez sur "Générer" pour créer un lien</div>
+      <div class="conf-link-val" id="confLink">Appuyez sur Générer pour créer un lien</div>
     </div>
     <div class="conf-btns">
-      <button class="conf-btn green" onclick="genLink()">🔗 Générer le lien</button>
+      <button class="conf-btn green" onclick="genLink()">🔗 Générer</button>
       <button class="conf-btn out" onclick="copyLink()">📋 Copier</button>
     </div>
     <div style="height:14px"></div>
     <div class="conf-btns">
-      <button class="conf-btn red" onclick="toast('🎙️ Conférence audio lancée !','r')">🎙️ Lancer Audio</button>
-      <button class="conf-btn green" onclick="toast('📹 Conférence vidéo lancée !','g')">📹 Lancer Vidéo</button>
+      <button class="conf-btn red" onclick="toast('🎙️ Audio lancé !','r')">🎙️ Lancer Audio</button>
+      <button class="conf-btn green" onclick="toast('📹 Vidéo lancé !','g')">📹 Lancer Vidéo</button>
     </div>
     <div class="conf-part-title">Participants (3)</div>
-    <div class="conf-part-item">
-      <div class="conf-part-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div>
-      <div class="conf-part-name">Mariama Kouyaté</div>
-      <div class="conf-part-role" style="color:var(--green)">Hôte</div>
-    </div>
-    <div class="conf-part-item">
-      <div class="conf-part-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div>
-      <div class="conf-part-name">Jean-Paul Mensah</div>
-      <div class="conf-part-role" style="color:#aaa">Invité</div>
-    </div>
-    <div class="conf-part-item">
-      <div class="conf-part-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div>
-      <div class="conf-part-name">Aminata Traoré</div>
-      <div class="conf-part-role" style="color:#aaa">Invité</div>
-    </div>
+    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="conf-part-name">Mariama Kouyaté</div><div class="conf-part-role" style="color:var(--green)">Hôte</div></div>
+    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div><div class="conf-part-name">Jean-Paul Mensah</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
+    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div><div class="conf-part-name">Aminata Traoré</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
   </div>
 </div>
-
 <div class="toast" id="toastEl"></div>
+<script>
+// ══ SWIPE HORIZONTAL → signal vers accueil.html ══
+(function(){
+  let startX=0, startY=0, swiping=false;
+
+  document.addEventListener('touchstart', (e)=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    swiping = false;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', (e)=>{
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if(!swiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6){
+      swiping = true;
+      if(window.parent !== window){
+        window.parent.postMessage({type:'swipeMove', dx:dx}, '*');
+      }
+    }
+    if(swiping && window.parent !== window){
+      window.parent.postMessage({type:'swipeMove', dx:dx}, '*');
+    }
+  }, {passive:true});
+
+  document.addEventListener('touchend', (e)=>{
+    if(!swiping) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if(window.parent !== window){
+      window.parent.postMessage({type:'swipeEnd', dx:dx}, '*');
+    }
+    swiping = false;
+  }, {passive:true});
+})();
+</script>
 
 <script>
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
@@ -471,7 +421,7 @@ window.setMode=function(mode,el){
   document.getElementById('secC').style.display=(mode==='all'||mode==='conf')?'':'none';
 }
 window.openChat=function(name,sub,ini,bg,online,lastSeen){
-  document.getElementById('chaNm').innerHTML=name+' <span class="vb">✔</span>';
+  document.getElementById('chaNm').innerHTML=name+' <span class="vb">&#10004;</span>';
   const st=document.getElementById('chaSt');
   if(online){st.textContent='● En ligne';st.className='cha-st on'}else{st.textContent='⊙ '+lastSeen;st.className='cha-st off'}
   document.getElementById('chaOnline').style.display=online?'':'none';
@@ -485,7 +435,7 @@ window.addCall=function(type){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const ic=type==='audio'?'📞':'📹';const lb=type==='audio'?'Appel vocal':'Appel vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  d.innerHTML=`<div class="call-bbl"><div class="call-ico-w">${ic}</div><div class="call-det"><div class="call-type">${lb}</div><div class="call-sub2">En cours…</div><div class="call-ft"><span class="call-t">${t}</span><span class="tick">✓</span></div></div></div>`;
+  d.innerHTML='<div class="call-bbl"><div class="call-ico-w">'+ic+'</div><div class="call-det"><div class="call-type">'+lb+'</div><div class="call-sub2">En cours…</div><div class="call-ft"><span class="call-t">'+t+'</span><span class="tick">✓</span></div></div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast(type==='audio'?'📞 Appel vocal lancé…':'📹 Appel vidéo lancé…','g');
 }
@@ -495,14 +445,14 @@ window.doSend=function(){
   const ta=document.getElementById('mTa');const txt=ta.value.trim();if(!txt)return;
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  d.innerHTML=`<div class="bbl">${txt}<div class="bbl-ft"><span class="bbl-t">${t}</span><span class="tick">✓</span></div></div>`;
+  d.innerHTML='<div class="bbl">'+txt+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span><span class="tick">✓</span></div></div>';
   area.appendChild(d);ta.value='';ta.style.height='auto';document.getElementById('sb').disabled=true;area.scrollTop=area.scrollHeight;
 }
 window.openConf=function(){document.getElementById('confPanel').classList.add('open')}
 window.closeConf=function(){document.getElementById('confPanel').classList.remove('open')}
 let confGen=false;
 window.genLink=function(){const c=Math.random().toString(36).substr(2,8).toUpperCase();document.getElementById('confLink').textContent='artiroyce.app/conf/'+c;confGen=true;toast('🔗 Lien généré !','g')}
-window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Lien copié !','g')).catch(()=>toast('📋 Copié !','g'))}
+window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Copié !','g')).catch(()=>toast('📋 Copié !','g'))}
 </script>
 </body>
 </html>
