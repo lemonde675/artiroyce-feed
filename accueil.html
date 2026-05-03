@@ -156,7 +156,7 @@
     <div class="h-tab">📰 Actualités</div>
     <div class="h-tab"><span class="tab-green-dot"></span> Statuts</div>
     <div class="h-tab">⭐ Élites</div>
-    <div class="h-tab">📂 Catégories</div>
+    <div class="h-tab">💼 Offres</div>
     <div class="h-tab">💬 Répert-Discussion</div>
     <div class="h-tab">📖 FAQ</div>
   </div>
@@ -194,13 +194,11 @@
     </div>
   </div>
 
-  <!-- PANEL 4 : Categories (tab 4) -->
-  <div class="panel-slide" id="panel-4">
-    <div class="panel-placeholder">
-      <div class="ph-icon">📂</div>
-      <div class="ph-title">Catégories</div>
-      <div class="ph-sub">Parcourez par métier</div>
-    </div>
+  <!-- PANEL 4 : Offres (tab 4) -->
+  <div class="panel-slide" id="panel-4" style="position:relative;">
+    <iframe src="offre_v1.html" style="width:100%;height:100%;border:none;display:block;" id="offreFrame"></iframe>
+    <div id="swipeLeftOf" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightOf" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 5 : Discussion (tab 5) -->
@@ -615,6 +613,8 @@
   addSwipeBand(document.getElementById('swipeRightSt'));
   addSwipeBand(document.getElementById('swipeLeftAc'));
   addSwipeBand(document.getElementById('swipeRightAc'));
+  addSwipeBand(document.getElementById('swipeLeftOf'));
+  addSwipeBand(document.getElementById('swipeRightOf'));
 
   window.likeC = function(btn, idx) {
     const circle = btn.querySelector('.act-circle');
