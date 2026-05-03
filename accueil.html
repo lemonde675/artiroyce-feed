@@ -105,6 +105,25 @@
     .bg4 { background: linear-gradient(160deg,#001a2e,#003d5e,#000d1a); }
     .bg5 { background: linear-gradient(160deg,#1a1a00,#3d3d00,#0d0d00); }
 
+    /* PANEL RECHERCHE MÉTIERS */
+    .search-panel { position:fixed; inset:0; left:50%; transform:translateX(-50%) translateY(-100%); width:100%; max-width:480px; z-index:500; background:#fff; display:flex; flex-direction:column; transition:transform 0.3s cubic-bezier(.4,0,.2,1); }
+    .search-panel.open { transform:translateX(-50%) translateY(0); }
+    .sp-header { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid #eee; flex-shrink:0; }
+    .sp-title { font-size:16px; font-weight:800; color:#111; flex:1; }
+    .sp-close { width:32px; height:32px; border-radius:50%; background:#f5f5f5; border:none; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .sp-search-box { padding:12px 14px; flex-shrink:0; }
+    .sp-input-wrap { display:flex; align-items:center; gap:8px; background:#f5f5f5; border-radius:14px; padding:10px 14px; }
+    .sp-input-wrap input { flex:1; background:none; border:none; outline:none; color:#111; font-size:14px; font-family:'Segoe UI',Arial,sans-serif; }
+    .sp-input-wrap input::placeholder { color:#bbb; }
+    .sp-subtitle { font-size:11px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:0.8px; padding:0 14px 8px; flex-shrink:0; }
+    .sp-list { flex:1; overflow-y:auto; scrollbar-width:none; padding:0 12px 20px; }
+    .sp-list::-webkit-scrollbar { display:none; }
+    .sp-metier-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; cursor:pointer; transition:background 0.15s; margin-bottom:4px; }
+    .sp-metier-item:active { background:#f5f5f5; }
+    .sp-metier-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+    .sp-metier-name { font-size:14px; font-weight:700; color:#111; }
+    .sp-metier-count { font-size:11px; color:#aaa; margin-top:2px; }
+    .sp-metier-arrow { color:#ccc; font-size:16px; margin-left:auto; }
   </style>
 </head>
 <body>
@@ -123,20 +142,23 @@
       </svg>
       <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
-    <div class="h-icons">
+    <div class="h-icons" style="gap:8px;">
       <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
-      <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')">💬<div class="bdot">1</div></div>
-      <span class="h-dots" onclick="toast('⚙️ Paramètres','')">⋮</span>
+      <div style="display:flex;align-items:center;gap:3px">
+        <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
+        <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
+        <span class="h-dots" onclick="toast('⚙️ Paramètres','')" style="padding:2px 0">⋮</span>
+      </div>
     </div>
   </div>
   <div class="h-tabs">
     <div class="h-tab active">Accueil</div>
+    <div class="h-tab">📰 Actualités</div>
     <div class="h-tab"><span class="tab-green-dot"></span> Statuts</div>
-    <div class="h-tab">👤 Mon Profil</div>
     <div class="h-tab">⭐ Élites</div>
     <div class="h-tab">📂 Catégories</div>
     <div class="h-tab">💬 Répert-Discussion</div>
-    <div class="h-tab">📰 Actualités</div>
+    <div class="h-tab">📖 FAQ</div>
   </div>
 </header>
 
@@ -205,19 +227,33 @@
 
 </div></div>
 
+<!-- PANEL RECHERCHE MÉTIERS -->
+<div class="search-panel" id="searchPanel">
+  <div class="sp-header">
+    <span style="font-size:20px">🔍</span>
+    <span class="sp-title">Rechercher un métier</span>
+    <button class="sp-close" onclick="closeSearch()">✕</button>
+  </div>
+  <div class="sp-search-box">
+    <div class="sp-input-wrap">
+      <span style="color:#bbb">🔍</span>
+      <input type="text" id="spInput" placeholder="Ex: Coiffeur, DJ, Photographe…" oninput="filterMetiers()"/>
+    </div>
+  </div>
+  <div class="sp-subtitle" id="spSubtitle">Tous les métiers</div>
+  <div class="sp-list" id="spList"></div>
+</div>
+
 <nav class="bot-nav">
-  <div class="nav-i active" onclick="window.location.href='discussion_v1.html'">
+  <!-- Mon Profil à gauche -->
+  <div class="nav-i" onclick="window.location.href='profil.html'">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="nav-lb">Mon Profil</span>
+  </div>
+  <!-- Discussion -->
+  <div class="nav-i active" onclick="goToPanel(5)">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)">Discussion</span>
-  </div>
-  <div class="nav-i" onclick="toast('📩 Messages','')">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
-      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
-      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
-      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
-    </svg>
-    <span class="nav-lb">Messages</span>
   </div>
   <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
     <div class="nav-plus">+</div>
@@ -229,14 +265,15 @@
     </svg>
     <span class="nav-lb">Live</span>
   </div>
-  <div class="nav-i" onclick="toast('📖 FAQ','')">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="2" width="18" height="20" rx="2" stroke="#888"/>
-      <line x1="7" y1="7" x2="17" y2="7" stroke="#888"/>
-      <line x1="7" y1="11" x2="17" y2="11" stroke="#888"/>
-      <line x1="7" y1="15" x2="13" y2="15" stroke="#888"/>
+  <!-- Messages à droite -->
+  <div class="nav-i" onclick="toast('📩 Messages','')">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
+      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
+      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
+      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
     </svg>
-    <span class="nav-lb">FAQ</span>
+    <span class="nav-lb">Messages</span>
   </div>
 </nav>
 
@@ -573,6 +610,100 @@
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
   window.closeLang = closeLang;
+
+  // ══ RECHERCHE MÉTIERS ══
+  const METIERS_BASE = [
+    { icon:'✂️', name:'Coiffeur / Coiffeuse', bg:'#e8f5e9' },
+    { icon:'💄', name:'Maquilleur / Maquilleuse', bg:'#fce4ec' },
+    { icon:'📷', name:'Photographe', bg:'#e3f2fd' },
+    { icon:'🎧', name:'DJ', bg:'#ede7f6' },
+    { icon:'🎬', name:'Vidéaste', bg:'#fff3e0' },
+    { icon:'🍽️', name:'Traiteur / Traiteure', bg:'#f3e5f5' },
+    { icon:'🎤', name:'Chanteur / Chanteuse', bg:'#e8f5e9' },
+    { icon:'🎹', name:'Musicien / Musicienne', bg:'#e3f2fd' },
+    { icon:'💃', name:'Danseur / Danseuse', bg:'#fce4ec' },
+    { icon:'🎨', name:'Artiste peintre', bg:'#fff3e0' },
+    { icon:'🏠', name:'Décorateur / Décoratrice', bg:'#e8f5e9' },
+    { icon:'👗', name:'Styliste / Couturier', bg:'#fce4ec' },
+    { icon:'🪄', name:'Animateur / Animatrice', bg:'#ede7f6' },
+    { icon:'🔨', name:'Artisan', bg:'#fff8e1' },
+    { icon:'🏗️', name:'Opérateur économique', bg:'#e3f2fd' },
+    { icon:'🎭', name:'Comédien / Comédienne', bg:'#fce4ec' },
+    { icon:'📱', name:'Influenceur / Influenceuse', bg:'#e8f5e9' },
+    { icon:'🎙️', name:'Podcasteur', bg:'#ede7f6' },
+  ];
+
+  let allMetiers = [...METIERS_BASE];
+
+  function renderMetiers(list) {
+    const el = document.getElementById('spList');
+    const sub = document.getElementById('spSubtitle');
+    sub.textContent = list.length + ' métier' + (list.length > 1 ? 's' : '') + ' disponible' + (list.length > 1 ? 's' : '');
+    if (!list.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb"><div style="font-size:40px;margin-bottom:10px">🔍</div><div style="font-size:14px;font-weight:700">Aucun résultat</div></div>';
+      return;
+    }
+    el.innerHTML = list.map(m => `
+      <div class="sp-metier-item" onclick="selectMetier('${m.name}')">
+        <div class="sp-metier-icon" style="background:${m.bg}">${m.icon}</div>
+        <div>
+          <div class="sp-metier-name">${m.name}</div>
+        </div>
+        <span class="sp-metier-arrow">›</span>
+      </div>
+    `).join('');
+  }
+
+  window.openSearch = function() {
+    document.getElementById('searchPanel').classList.add('open');
+    document.getElementById('spInput').value = '';
+    // Charger métiers depuis Firebase aussi
+    loadMetiersFromFirebase();
+    renderMetiers(allMetiers);
+    setTimeout(() => document.getElementById('spInput').focus(), 350);
+  }
+
+  window.closeSearch = function() {
+    document.getElementById('searchPanel').classList.remove('open');
+  }
+
+  window.filterMetiers = function() {
+    const q = document.getElementById('spInput').value.toLowerCase();
+    const filtered = allMetiers.filter(m => m.name.toLowerCase().includes(q));
+    renderMetiers(filtered);
+  }
+
+  window.selectMetier = function(metier) {
+    closeSearch();
+    toast('🔍 Filtrage : ' + metier, 'g');
+    // Filtrer le feed par métier
+    document.querySelectorAll('.vcard').forEach(card => {
+      const metierEl = card.querySelector('.info-job-name');
+      if (metierEl) {
+        const cardMetier = metierEl.textContent.toLowerCase();
+        card.style.display = cardMetier.includes(metier.toLowerCase().split('/')[0].trim()) ? '' : 'none';
+      }
+    });
+  }
+
+  async function loadMetiersFromFirebase() {
+    try {
+      const snap = await getDocs(collection(db, 'utilisateurs'));
+      const metiersSet = new Set(METIERS_BASE.map(m => m.name));
+      const extras = [];
+      snap.forEach(doc => {
+        const m = doc.data().metier;
+        if (m && !metiersSet.has(m)) {
+          metiersSet.add(m);
+          extras.push({ icon:'🎯', name:m, bg:'#f5f5f5' });
+        }
+      });
+      if (extras.length > 0) {
+        allMetiers = [...METIERS_BASE, ...extras];
+        renderMetiers(allMetiers);
+      }
+    } catch(e) { console.log('Firebase métiers:', e); }
+  }
 
 
   onAuthStateChanged(auth, async (user) => {
