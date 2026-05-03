@@ -207,12 +207,10 @@
   </div>
 
   <!-- PANEL 6 : FAQ (tab 6) -->
-  <div class="panel-slide" id="panel-6">
-    <div class="panel-placeholder">
-      <div class="ph-icon">📖</div>
-      <div class="ph-title">FAQ</div>
-      <div class="ph-sub">Questions fréquentes</div>
-    </div>
+  <div class="panel-slide" id="panel-6" style="position:relative;">
+    <iframe src="faq_v1.html" style="width:100%;height:100%;border:none;display:block;" id="faqFrame"></iframe>
+    <div id="swipeLeftFq" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightFq" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
 </div></div>
@@ -614,6 +612,8 @@
   addSwipeBand(document.getElementById('swipeRightOf'));
   addSwipeBand(document.getElementById('swipeLeftEl'));
   addSwipeBand(document.getElementById('swipeRightEl'));
+  addSwipeBand(document.getElementById('swipeLeftFq'));
+  addSwipeBand(document.getElementById('swipeRightFq'));
 
   window.likeC = function(btn, idx) {
     const circle = btn.querySelector('.act-circle');
