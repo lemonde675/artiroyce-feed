@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Élites ArtiRoyce</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--red:#e63224;--green:#27a945;--bg:#f5f5f5;--dark:#111;--muted:#888;
+  --diamond:#00cfff;--platine:#b8c5d6;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32}
+html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
+
+/* HEADER */
+.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #eee}
+.h-row1{display:flex;align-items:center;padding:6px 12px 4px;gap:6px}
+.h-house{font-size:24px;flex-shrink:0;cursor:pointer}
+.h-logo{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
+.h-logo-text{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.h-logo-text .arti{color:var(--red)}.h-logo-text .royce{color:var(--green)}
+.h-icons{display:flex;align-items:center;gap:3px;flex-shrink:0}
+.h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
+.h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
+.h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.h-ico.chat .bdot{background:var(--green)}
+
+.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column}
+.spacer{flex-shrink:0}
+
+/* PAGE HEAD */
+.pg-head{background:#fff;padding:14px 16px 0;flex-shrink:0;border-bottom:1px solid #eee}
+.pg-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pg-title{font-size:18px;font-weight:900;color:var(--dark)}
+.pg-btn{background:var(--dark);color:#fff;font-size:12px;font-weight:800;padding:7px 16px;border-radius:22px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px}
+.m-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
+.m-tabs::-webkit-scrollbar{display:none}
+.m-tab{white-space:nowrap;padding:5px 14px;border-radius:22px;font-size:12px;font-weight:700;border:1.5px solid #eee;cursor:pointer;flex-shrink:0;color:#888;background:#fff;transition:all 0.18s}
+.m-tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+
+/* FEED */
+.feed{flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 70px}
+.feed::-webkit-scrollbar{display:none}
+
+/* ══ ANNEAUX SIMPLES ══ */
+.rank-ring{position:absolute;inset:-4px;border-radius:50%;border:3px solid transparent}
+.rank-ring.diamond{border-color:var(--diamond)}
+.rank-ring.platine{border-color:var(--platine)}
+.rank-ring.gold{border-color:var(--gold)}
+.rank-ring.silver{border-color:var(--silver)}
+.rank-ring.bronze{border-color:var(--bronze)}
+
+/* RANG BADGE */
+.rang-badge{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:900;padding:2px 7px;border-radius:99px;white-space:nowrap;border:1.5px solid #fff;z-index:2}
+.rang-badge.diamond{background:var(--diamond);color:#003a4a}
+.rang-badge.platine{background:var(--platine);color:#2a3a4a}
+.rang-badge.gold{background:var(--gold);color:#5a3e00}
+.rang-badge.silver{background:var(--silver);color:#333}
+.rang-badge.bronze{background:var(--bronze);color:#fff}
+
+/* MONETISATION BANNER */
+.money-banner{background:#fff;border-radius:18px;margin-bottom:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1.5px solid #f0f0f0}
+.mb-top{padding:16px;display:flex;align-items:center;gap:12px}
+.mb-icon{width:48px;height:48px;border-radius:14px;background:#f9f6ee;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mb-info h3{font-size:15px;font-weight:900;color:var(--dark);margin-bottom:3px}
+.mb-info p{font-size:12px;color:var(--muted);line-height:1.4}
+.mb-rangs{display:flex;gap:0;border-top:1px solid #f5f5f5;overflow-x:auto;scrollbar-width:none}
+.mb-rangs::-webkit-scrollbar{display:none}
+.mb-rang{flex:1;min-width:80px;padding:10px 6px;text-align:center;border-right:1px solid #f5f5f5}
+.mb-rang:last-child{border-right:none}
+.mb-rang-ico{font-size:18px;margin-bottom:3px}
+.mb-rang-name{font-size:10px;font-weight:800;margin-bottom:2px}
+.mb-rang-name.diamond{color:var(--diamond)}
+.mb-rang-name.platine{color:var(--platine)}
+.mb-rang-name.gold{color:#b8860b}
+.mb-rang-name.silver{color:#888}
+.mb-rang-name.bronze{color:var(--bronze)}
+.mb-rang-val{font-size:9px;color:var(--muted);line-height:1.3}
+.mb-steps{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #f5f5f5}
+.mb-step{padding:12px 6px;text-align:center;border-right:1px solid #f5f5f5}
+.mb-step:last-child{border-right:none}
+.mb-step-n{font-size:16px;font-weight:900;color:var(--dark);margin-bottom:3px}
+.mb-step-l{font-size:10px;color:var(--muted);line-height:1.4}
+.mb-cta{margin:0 16px 16px;background:var(--dark);color:#fff;font-size:13px;font-weight:800;padding:11px;border-radius:14px;border:none;cursor:pointer;width:calc(100% - 0px);display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* PODIUM */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:16px;padding:8px 0 0}
+.pod-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.pod-av-wrap{position:relative;margin-bottom:4px}
+.pod-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;position:relative}
+.pod-av.first{width:84px;height:84px;font-size:30px}
+.pod-av.second,.pod-av.third{width:66px;height:66px;font-size:22px}
+.pod-crown{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:22px}
+.pod-vb{position:absolute;bottom:2px;right:2px;width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:900}
+.pod-name{font-size:11px;font-weight:800;color:var(--dark);text-align:center;max-width:90px}
+.pod-job{font-size:10px;color:var(--muted);text-align:center}
+.pod-score{font-size:12px;font-weight:900;color:#b8860b}
+.pod-base{border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;width:100%}
+.pod-base.gold{background:linear-gradient(180deg,#fff8cc,#ffe87a);height:65px;min-width:120px}
+.pod-base.silver{background:linear-gradient(180deg,#f0f0f0,#e0e0e0);height:48px;min-width:100px}
+.pod-base.bronze{background:linear-gradient(180deg,#fae8d8,#f5d0b0);height:36px;min-width:100px}
+.pod-num{font-size:18px;font-weight:900;color:rgba(0,0,0,0.15)}
+.pod-btn{background:none;color:var(--dark);font-size:10px;font-weight:700;padding:5px 12px;border-radius:22px;border:1.5px solid #ddd;cursor:pointer;margin-top:4px}
+
+/* LISTE ELITES */
+.sec-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.sec-lbl span{font-size:12px;color:var(--red);text-transform:none;letter-spacing:0;font-weight:700;cursor:pointer}
+
+.ec{background:#fff;border-radius:16px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 5px rgba(0,0,0,0.05);cursor:pointer;transition:transform 0.1s;border:1.5px solid #f0f0f0}
+.ec:active{transform:scale(0.98)}
+.ec.diamond{border-color:rgba(0,207,255,0.3);background:linear-gradient(135deg,#f0fdff,#fff)}
+.ec.gold-card{border-color:rgba(255,215,0,0.3);background:linear-gradient(135deg,#fffdf0,#fff)}
+.ec-rank{font-size:14px;font-weight:900;color:#ddd;width:22px;text-align:center;flex-shrink:0}
+.ec-av-wrap{position:relative;flex-shrink:0}
+.ec-av{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.ec-vb{position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
+.ec-body{flex:1;min-width:0}
+.ec-name{font-size:14px;font-weight:800;color:var(--dark);margin-bottom:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ec-rang-tag{font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px}
+.ec-rang-tag.diamond{background:rgba(0,207,255,0.15);color:#007a99}
+.ec-rang-tag.platine{background:rgba(184,197,214,0.2);color:#5a6a7a}
+.ec-rang-tag.gold{background:rgba(255,215,0,0.2);color:#8a6200}
+.ec-rang-tag.silver{background:rgba(192,192,192,0.2);color:#666}
+.ec-rang-tag.bronze{background:rgba(205,127,50,0.15);color:#7a4a10}
+.ec-job{font-size:12px;color:var(--muted);margin-bottom:4px}
+.ec-stars{font-size:11px;color:#ffc107;letter-spacing:1px}
+.ec-avis{font-size:11px;color:var(--muted)}
+.ec-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.ec-btn{background:none;color:var(--dark);font-size:11px;font-weight:700;padding:7px 14px;border-radius:22px;border:1.5px solid #ddd;cursor:pointer}
+
+/* BOT NAV */
+.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
+.nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
+.nav-lb{font-size:10px;font-weight:700;color:#aaa}
+.nav-i.active .nav-lb{color:var(--green)}
+.nav-plus-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px}
+.nav-plus{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(230,50,36,0.55);margin-top:-16px}
+.nav-ico{width:24px;height:24px}
+.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}.toast.g{background:var(--green)}
+</style>
+</head>
+<body>
+
+<header class="top-header" id="topH">
+  <div class="h-row1">
+    <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
+    <div class="h-logo">
+      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="h-icons">
+      <div class="h-ico bell">🔔<div class="bdot">3</div></div>
+      <div class="h-ico chat">💬<div class="bdot">1</div></div>
+      <span style="font-size:20px;cursor:pointer;padding:2px 3px">🔍</span>
+      <span style="font-size:22px;color:#333;cursor:pointer;padding:2px;font-weight:700">⋮</span>
+    </div>
+  </div>
+</header>
+
+<div class="body-wrap">
+  <div class="spacer" id="spacer"></div>
+
+  <div class="pg-head">
+    <div class="pg-row">
+      <span class="pg-title">⭐ Élites</span>
+      <button class="pg-btn" onclick="toast('💎 Devenir Élite bientôt !','g')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/></svg>
+        Devenir Élite
+      </button>
+    </div>
+    <div class="m-tabs">
+      <div class="m-tab active" onclick="setT(this)">Tout</div>
+      <div class="m-tab" onclick="setT(this)">✂️ Coiffure</div>
+      <div class="m-tab" onclick="setT(this)">📷 Photo</div>
+      <div class="m-tab" onclick="setT(this)">🎧 DJ</div>
+      <div class="m-tab" onclick="setT(this)">💄 Maquillage</div>
+      <div class="m-tab" onclick="setT(this)">🍽️ Traiteur</div>
+      <div class="m-tab" onclick="setT(this)">🔧 Artisan</div>
+    </div>
+  </div>
+
+  <div class="feed">
+
+    <!-- BANNER MONÉTISATION -->
+    <div class="money-banner">
+      <div class="mb-top">
+        <div class="mb-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="12" stroke="#c9a227" stroke-width="2"/>
+            <text x="14" y="19" text-anchor="middle" font-size="14" font-weight="900" fill="#c9a227">$</text>
+          </svg>
+        </div>
+        <div class="mb-info">
+          <h3>Gagnez des milliers de dollars</h3>
+          <p>Plus de vues et j'aime = plus de revenus. Montez de rang et monétisez votre talent !</p>
+        </div>
+      </div>
+      <div class="mb-steps">
+        <div class="mb-step">
+          <div class="mb-step-n">5 000</div>
+          <div class="mb-step-l">vues → premiers gains</div>
+        </div>
+        <div class="mb-step">
+          <div class="mb-step-n">10 000</div>
+          <div class="mb-step-l">j'aime → Élite</div>
+        </div>
+        <div class="mb-step">
+          <div class="mb-step-n">💰</div>
+          <div class="mb-step-l">Paiements directs</div>
+        </div>
+      </div>
+      <button class="mb-cta" onclick="toast('💰 Programme de monétisation bientôt !','g')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/></svg>
+        En savoir plus sur la monétisation
+      </button>
+    </div>
+
+    <!-- PODIUM -->
+    <div class="podium">
+      <!-- 2ème - Or -->
+      <div class="pod-item" onclick="toast('📱 Contacter Jean-Paul','g')">
+        <div class="pod-av-wrap">
+          <div class="pod-av second" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
+            <div class="rank-ring silver"></div>
+            <div class="pod-vb">✔</div>
+          </div>
+        </div>
+        <div class="pod-name">Jean-Paul M.</div>
+        <div class="pod-job">📷 Photo</div>
+        <div class="pod-score">4.9★</div>
+        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
+        <div class="pod-base silver"><div class="pod-num">2</div></div>
+      </div>
+
+      <!-- 1er - Diamant -->
+      <div class="pod-item" onclick="toast('📱 Contacter Mariama','g')">
+        <div class="pod-av-wrap">
+          <div class="pod-crown">👑</div>
+          <div class="pod-av first" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
+            <div class="rank-ring gold"></div>
+            <div class="pod-vb">✔</div>
+          </div>
+        </div>
+        <div class="pod-name">Mariama K.</div>
+        <div class="pod-job">✂️ Coiffure</div>
+        <div class="pod-score">5.0★</div>
+        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
+        <div class="pod-base gold"><div class="pod-num">1</div></div>
+      </div>
+
+      <!-- 3ème - Or -->
+      <div class="pod-item" onclick="toast('📱 Contacter David','g')">
+        <div class="pod-av-wrap">
+          <div class="pod-av third" style="background:linear-gradient(135deg,#001030,#002060)">DK
+            <div class="rank-ring bronze"></div>
+            <div class="pod-vb">✔</div>
+          </div>
+        </div>
+        <div class="pod-name">David K.</div>
+        <div class="pod-job">🎧 DJ</div>
+        <div class="pod-score">4.8★</div>
+        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
+        <div class="pod-base bronze"><div class="pod-num">3</div></div>
+      </div>
+    </div>
+
+    <!-- LISTE ÉLITES -->
+    <div class="sec-lbl">Classement complet <span>Voir tout ›</span></div>
+
+    <!-- 1 - DIAMANT -->
+    <div class="ec">
+      <div class="ec-rank">1</div>
+      <div class="ec-av-wrap">
+        <div class="ec-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
+          <div class="rank-ring diamond"></div>
+          <div class="ec-vb">✔</div>
+        </div>
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">Mariama Kouyaté <span class="ec-rang-tag diamond">💎 Diamant</span></div>
+        <div class="ec-job">✂️ Coiffeuse · Cotonou</div>
+        <div class="ec-stars">★★★★★ <span class="ec-avis">5.0 · 10k avis</span></div>
+      </div>
+      <div class="ec-right">
+        <button class="ec-btn" onclick="toast('📱 Contacter Mariama','g')">Contacter</button>
+      </div>
+    </div>
+
+    <!-- 2 - PLATINE -->
+    <div class="ec">
+      <div class="ec-rank">2</div>
+      <div class="ec-av-wrap">
+        <div class="ec-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
+          <div class="rank-ring platine"></div>
+          <div class="ec-vb">✔</div>
+        </div>
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">Jean-Paul Mensah <span class="ec-rang-tag platine">🏆 Platine</span></div>
+        <div class="ec-job">📷 Photographe · Cotonou</div>
+        <div class="ec-stars">★★★★★ <span class="ec-avis">4.9 · 8.2k avis</span></div>
+      </div>
+      <div class="ec-right">
+        <button class="ec-btn" onclick="toast('📱 Contacter Jean-Paul','g')">Contacter</button>
+      </div>
+    </div>
+
+    <!-- 3 - OR -->
+    <div class="ec">
+      <div class="ec-rank">3</div>
+      <div class="ec-av-wrap">
+        <div class="ec-av" style="background:linear-gradient(135deg,#001030,#002060)">DK
+          <div class="rank-ring gold"></div>
+          <div class="ec-vb">✔</div>
+        </div>
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">David Koffi <span class="ec-rang-tag gold">⭐ Or</span></div>
+        <div class="ec-job">🎧 DJ · Cotonou</div>
+        <div class="ec-stars">★★★★★ <span class="ec-avis">4.8 · 6.5k avis</span></div>
+      </div>
+      <div class="ec-right">
+        <button class="ec-btn" onclick="toast('📱 Contacter David','g')">Contacter</button>
+      </div>
+    </div>
+
+    <!-- 4 - ARGENT -->
+    <div class="ec">
+      <div class="ec-rank">4</div>
+      <div class="ec-av-wrap">
+        <div class="ec-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT
+          <div class="rank-ring silver"></div>
+          <div class="ec-vb">✔</div>
+        </div>
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">Aminata Traoré <span class="ec-rang-tag silver">🥈 Argent</span></div>
+        <div class="ec-job">💄 Maquilleuse · Porto-Novo</div>
+        <div class="ec-stars">★★★★½ <span class="ec-avis">4.7 · 4.1k avis</span></div>
+      </div>
+      <div class="ec-right">
+        <button class="ec-btn" onclick="toast('📱 Contacter Aminata','g')">Contacter</button>
+      </div>
+    </div>
+
+    <!-- 5 - BRONZE -->
+    <div class="ec">
+      <div class="ec-rank">5</div>
+      <div class="ec-av-wrap">
+        <div class="ec-av" style="background:linear-gradient(135deg,#2c0060,#6a0dad)">FD
+          <div class="rank-ring bronze"></div>
+          <div class="ec-vb">✔</div>
+        </div>
+      </div>
+      <div class="ec-body">
+        <div class="ec-name">Fatou Diop <span class="ec-rang-tag bronze">🥉 Bronze</span></div>
+        <div class="ec-job">🍽️ Traiteure · Abomey-Calavi</div>
+        <div class="ec-stars">★★★★½ <span class="ec-avis">4.6 · 3.8k avis</span></div>
+      </div>
+      <div class="ec-right">
+        <button class="ec-btn" onclick="toast('📱 Contacter Fatou','g')">Contacter</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOT NAV -->
+<nav class="bot-nav">
+  <div class="nav-i" onclick="window.location.href='profil.html'">
+    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="5" stroke="#aaa" stroke-width="2"/><path d="M6 27c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#aaa" stroke-width="2" stroke-linecap="round"/></svg>
+    <span class="nav-lb">Mon Profil</span>
+  </div>
+  <div class="nav-i active">
+    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="3" y="4" width="22" height="16" rx="4" stroke="#27a945" stroke-width="2"/><path d="M3 20l4 5v-5" stroke="#27a945" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="10" x2="20" y2="10" stroke="#27a945" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="14" x2="16" y2="14" stroke="#27a945" stroke-width="2" stroke-linecap="round"/></svg>
+    <span class="nav-lb" style="color:var(--green)">Discussion</span>
+  </div>
+  <div class="nav-plus-w">
+    <div class="nav-plus">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div class="nav-i">
+    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="2" y="6" width="20" height="14" rx="3" stroke="#aaa" stroke-width="2"/><path d="M22 11l7-4v14l-7-4V11z" stroke="#aaa" stroke-width="2" stroke-linejoin="round"/></svg>
+    <span class="nav-lb">Live</span>
+  </div>
+  <div class="nav-i">
+    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="3" y="6" width="26" height="18" rx="3" stroke="#aaa" stroke-width="2"/><path d="M3 9l13 9 13-9" stroke="#aaa" stroke-width="2" stroke-linecap="round"/></svg>
+    <span class="nav-lb">Messages</span>
+  </div>
+</nav>
+
+<div class="toast" id="toastEl"></div>
+<script>
+function adj(){const h=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=h+'px'}
+window.addEventListener('load',adj);setTimeout(adj,100);
+window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':'');setTimeout(()=>el.className='toast',2400)}
+window.setT=function(el){document.querySelectorAll('.m-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
+(function(){let sx=0,sy=0,sw=false;document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});document.addEventListener('touchmove',(e)=>{const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(!sw&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>6){sw=true;}if(sw&&window.parent!==window){window.parent.postMessage({type:'swipeMove',dx:dx},'*');}},{passive:true});document.addEventListener('touchend',(e)=>{if(!sw)return;const dx=e.changedTouches[0].clientX-sx;if(window.parent!==window){window.parent.postMessage({type:'swipeEnd',dx:dx},'*');}sw=false;},{passive:true});})();
+</script>
+</body>
+</html>
