@@ -181,12 +181,10 @@
   </div>
 
   <!-- PANEL 2 : Statuts (tab 2) -->
-  <div class="panel-slide" id="panel-2">
-    <div class="panel-placeholder">
-      <div class="ph-icon">🟢</div>
-      <div class="ph-title">Statuts</div>
-      <div class="ph-sub">Les statuts des artistes apparaîtront ici</div>
-    </div>
+  <div class="panel-slide" id="panel-2" style="position:relative;">
+    <iframe src="statut_v1.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
+    <div id="swipeLeftSt" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightSt" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 3 : Elites (tab 3) -->
@@ -615,6 +613,8 @@
 
   addSwipeBand(document.getElementById('swipeLeft'));
   addSwipeBand(document.getElementById('swipeRight'));
+  addSwipeBand(document.getElementById('swipeLeftSt'));
+  addSwipeBand(document.getElementById('swipeRightSt'));
 
   window.likeC = function(btn, idx) {
     const circle = btn.querySelector('.act-circle');
