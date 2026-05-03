@@ -186,8 +186,10 @@
   </div>
 
   <!-- PANEL 5 : Discussion -->
-  <div class="panel-slide" id="panel-5">
-    <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <div class="panel-slide" id="panel-5" style="position:relative;">
+    <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
+    <!-- Overlay transparent pour capter le swipe horizontal -->
+    <div id="iframeOverlay" style="position:absolute;inset:0;z-index:10;background:transparent;touch-action:pan-y;"></div>
   </div>
 
     <!-- PANEL 6 : Actualites -->
@@ -497,6 +499,55 @@
   window.setTab = function(el) {
     document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+  }
+
+  // ══ OVERLAY IFRAME — swipe horizontal passe, tap vertical passe à l'iframe ══
+  const overlay = document.getElementById('iframeOverlay');
+  const frame = document.getElementById('discFrame');
+
+  if (overlay && frame) {
+    let ovStartX = 0, ovStartY = 0, ovDragging = false, ovPassed = false;
+
+    overlay.addEventListener('touchstart', (e) => {
+      ovStartX = e.touches[0].clientX;
+      ovStartY = e.touches[0].clientY;
+      ovDragging = false;
+      ovPassed = false;
+    }, { passive: true });
+
+    overlay.addEventListener('touchmove', (e) => {
+      const dx = Math.abs(e.touches[0].clientX - ovStartX);
+      const dy = Math.abs(e.touches[0].clientY - ovStartY);
+
+      if (!ovDragging && (dx > 8 || dy > 8)) {
+        ovDragging = true;
+        if (dx > dy) {
+          // Mouvement horizontal → swipe panels, bloquer iframe
+          ovPassed = false;
+        } else {
+          // Mouvement vertical → laisser passer à l'iframe
+          ovPassed = true;
+          overlay.style.pointerEvents = 'none';
+        }
+      }
+    }, { passive: true });
+
+    overlay.addEventListener('touchend', (e) => {
+      if (ovPassed) {
+        // Réactiver l'overlay après scroll vertical
+        setTimeout(() => { overlay.style.pointerEvents = ''; }, 300);
+      }
+      ovDragging = false;
+      ovPassed = false;
+    }, { passive: true });
+
+    // Tap simple → passer le clic à l'iframe
+    overlay.addEventListener('click', (e) => {
+      overlay.style.pointerEvents = 'none';
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el) el.click();
+      setTimeout(() => { overlay.style.pointerEvents = ''; }, 100);
+    });
   }
 
   window.likeC = function(btn, idx) {
