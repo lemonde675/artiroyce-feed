@@ -95,6 +95,8 @@
     .panel-placeholder .ph-icon { font-size: 60px; opacity: 0.5; }
     .panel-placeholder .ph-title { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
     .panel-placeholder .ph-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
+    .disc-chat-slide { position:absolute; inset:0; display:flex; flex-direction:column; background:#fff; transform:translateX(100%); transition:transform 0.28s cubic-bezier(.4,0,.2,1); z-index:50; }
+    .disc-chat-slide.open { transform:translateX(0); }
     .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
@@ -104,6 +106,41 @@
     .bg3 { background: linear-gradient(160deg,#001030,#002060,#000820); }
     .bg4 { background: linear-gradient(160deg,#001a2e,#003d5e,#000d1a); }
     .bg5 { background: linear-gradient(160deg,#1a1a00,#3d3d00,#0d0d00); }
+
+    /* PANEL DISCUSSION INTÉGRÉ */
+    .disc-panel { width:100%; height:100%; display:flex; flex-direction:column; background:#f2f3f5; overflow:hidden; }
+    .disc-topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 8px; background:#f2f3f5; flex-shrink:0; padding-top:0; }
+    .disc-topbar-title { font-size:18px; font-weight:900; color:#111; }
+    .disc-topbar-right { display:flex; gap:8px; }
+    .disc-tbr { width:34px; height:34px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; border:none; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+    .disc-tbr.red { background:var(--red); }
+    .disc-search { padding:0 14px 8px; flex-shrink:0; }
+    .disc-search-inner { display:flex; align-items:center; gap:8px; background:#fff; border-radius:14px; padding:9px 13px; box-shadow:0 1px 5px rgba(0,0,0,0.06); }
+    .disc-search-inner input { flex:1; background:none; border:none; outline:none; color:#111; font-size:13px; font-family:'Segoe UI',Arial,sans-serif; }
+    .disc-search-inner input::placeholder { color:#ccc; }
+    .disc-pills { display:flex; gap:7px; padding:0 14px 8px; overflow-x:auto; scrollbar-width:none; flex-shrink:0; }
+    .disc-pills::-webkit-scrollbar { display:none; }
+    .disc-pill { white-space:nowrap; padding:5px 14px; border-radius:22px; font-size:11px; font-weight:700; cursor:pointer; border:none; background:#fff; color:#aaa; box-shadow:0 1px 4px rgba(0,0,0,0.06); flex-shrink:0; }
+    .disc-pill.active { background:var(--red); color:#fff; }
+    .disc-list { flex:1; overflow-y:auto; scrollbar-width:none; padding:0 0 65px; }
+    .disc-list::-webkit-scrollbar { display:none; }
+    .disc-sec { font-size:10px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:0.8px; padding:8px 16px 4px; }
+    .disc-card { background:#fff; margin:0 12px 5px; border-radius:14px; box-shadow:0 1px 4px rgba(0,0,0,0.05); cursor:pointer; transition:transform 0.1s; }
+    .disc-card:active { transform:scale(0.98); }
+    .disc-card-inner { display:flex; align-items:center; gap:11px; padding:11px 13px; }
+    .disc-av { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; position:relative; }
+    .disc-online { position:absolute; bottom:1px; right:1px; width:11px; height:11px; border-radius:50%; background:var(--green); border:2px solid #fff; }
+    .disc-vcheck { position:absolute; top:-1px; right:-1px; width:15px; height:15px; border-radius:50%; background:var(--green); border:2px solid #fff; display:flex; align-items:center; justify-content:center; font-size:7px; color:#fff; font-weight:900; }
+    .disc-info { flex:1; min-width:0; }
+    .disc-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+    .disc-name { font-size:13px; font-weight:800; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:190px; }
+    .disc-time { font-size:10px; color:#ccc; }
+    .disc-prev { font-size:12px; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .disc-status { font-size:10px; font-weight:700; margin-top:2px; }
+    .disc-status.on { color:var(--green); }
+    .disc-status.off { color:#ccc; }
+    .disc-badge { min-width:18px; height:18px; border-radius:9px; background:var(--red); color:#fff; font-size:9px; font-weight:900; display:flex; align-items:center; justify-content:center; padding:0 4px; flex-shrink:0; }
+    .disc-tag { display:inline-flex; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; background:#f5f5f5; color:#888; margin-top:2px; }
   </style>
 </head>
 <body>
@@ -184,13 +221,170 @@
     </div>
   </div>
 
-  <!-- PANEL 5 : Discussion -->
+  <!-- PANEL 5 : Discussion intégrée -->
   <div class="panel-slide" id="panel-5">
-    <div class="panel-placeholder">
-      <div class="ph-icon">💬</div>
-      <div class="ph-title">Répert-Discussion</div>
-      <div class="ph-sub">Chargement...</div>
+    <div class="disc-panel" id="discPanel">
+
+      <div class="disc-topbar">
+        <span class="disc-topbar-title">💬 Discussions</span>
+        <div class="disc-topbar-right">
+          <button class="disc-tbr" onclick="toggleDiscSearch()">🔍</button>
+          <button class="disc-tbr red" onclick="toast('✏️ Nouveau message bientôt !','g')">✏️</button>
+        </div>
+      </div>
+
+      <div class="disc-search" id="discSearchWrap" style="display:none">
+        <div class="disc-search-inner">
+          <span style="color:#ccc;font-size:14px">🔍</span>
+          <input type="text" placeholder="Rechercher…" id="discSq" oninput="filterDisc()"/>
+        </div>
+      </div>
+
+      <div class="disc-pills">
+        <button class="disc-pill active" onclick="setDiscMode('all',this)">Toutes</button>
+        <button class="disc-pill" onclick="setDiscMode('unread',this)">Non lus</button>
+        <button class="disc-pill" onclick="setDiscMode('groups',this)">Groupes</button>
+        <button class="disc-pill" onclick="setDiscMode('conf',this)">Conférences</button>
+        <button class="disc-pill" onclick="setDiscMode('online',this)">En ligne</button>
+      </div>
+
+      <div class="disc-list" id="discList">
+
+        <div class="disc-sec">Récentes</div>
+
+        <div class="disc-card" data-dmode="conv" data-dunread="1" data-donline="1"
+          onclick="openDiscChat('Mariama Kouyaté','Coiffeuse','MK','linear-gradient(135deg,#0d2b0f,#27a945)',true,'')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
+              <div class="disc-online"></div><div class="disc-vcheck">✔</div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">Mariama Kouyaté</span><span class="disc-time">17:34</span></div>
+              <div class="disc-prev">Bonjour ! Je suis disponible demain 🙏</div>
+              <div class="disc-status on">● En ligne · ✂️ Coiffeuse</div>
+            </div>
+            <div class="disc-badge">2</div>
+          </div>
+        </div>
+
+        <div class="disc-card" data-dmode="conv" data-donline="0"
+          onclick="openDiscChat('Jean-Paul Mensah','Photographe','JP','linear-gradient(135deg,#0a0a2e,#1a1a6e)',false,'Il y a 2h')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
+              <div class="disc-vcheck">✔</div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">Jean-Paul Mensah</span><span class="disc-time">16:12</span></div>
+              <div class="disc-prev">✓✓ Ok parfait, à demain !</div>
+              <div class="disc-status off">⊙ Il y a 2h · 📷 Photographe</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disc-card" data-dmode="conv" data-dunread="1" data-donline="1"
+          onclick="openDiscChat('Aminata Traoré','Maquilleuse','AT','linear-gradient(135deg,#4a1a00,#c0392b)',true,'')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT
+              <div class="disc-online"></div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">Aminata Traoré</span><span class="disc-time">14:50</span></div>
+              <div class="disc-prev">Le devis est prêt 📩</div>
+              <div class="disc-status on">● En ligne · 💄 Maquilleuse</div>
+            </div>
+            <div class="disc-badge">1</div>
+          </div>
+        </div>
+
+        <div class="disc-card" data-dmode="conv" data-donline="0"
+          onclick="openDiscChat('David Koffi','DJ','DK','linear-gradient(135deg,#001030,#002060)',false,'Il y a 1 jour')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#001030,#002060)">DK
+              <div class="disc-vcheck">✔</div>
+            </div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">David Koffi</span><span class="disc-time">Hier</span></div>
+              <div class="disc-prev">Merci pour la confiance 🎶</div>
+              <div class="disc-status off">⊙ Il y a 1 jour · 🎧 DJ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disc-sec" id="discSecG">Groupes <span style="color:var(--red);float:right;cursor:pointer;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0" onclick="toast('👥 Créer bientôt !','g')">+ Créer</span></div>
+
+        <div class="disc-card" data-dmode="group"
+          onclick="openDiscChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#2c0060,#6a0dad);font-size:20px">👥</div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">Artistes Cotonou</span><span class="disc-time">Lun</span></div>
+              <div class="disc-prev">Fatou : Event samedi ! Qui vient ? 🎉</div>
+              <span class="disc-tag">👥 Groupe · 12 membres</span>
+            </div>
+            <div class="disc-badge">5</div>
+          </div>
+        </div>
+
+        <div class="disc-sec" id="discSecC">Conférences <span style="color:var(--red);float:right;cursor:pointer;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0" onclick="toast('🎙️ Lancer bientôt !','g')">+ Lancer</span></div>
+
+        <div class="disc-card" data-dmode="conf" onclick="toast('🎙️ Conférence bientôt !','g')">
+          <div class="disc-card-inner">
+            <div class="disc-av" style="background:linear-gradient(135deg,#003d00,#007a00);font-size:20px">🎙️</div>
+            <div class="disc-info">
+              <div class="disc-row1"><span class="disc-name">Conf. Pros du Son</span><span class="disc-time">Dim</span></div>
+              <div class="disc-prev">Terminé · 45 min · 8 participants</div>
+              <span class="disc-tag">🎙️ Audio · Lien généré</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+    <!-- CHAT SLIDE (s'ouvre par-dessus le panel 5) -->
+    <div class="disc-chat-slide" id="discChatSlide">
+      <div style="display:flex;align-items:center;gap:9px;padding:10px 13px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0">
+        <span style="font-size:24px;cursor:pointer;color:#333" onclick="closeDiscChat()">‹</span>
+        <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;position:relative" id="dcAv">?
+          <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #fff" id="dcOnline"></div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:800;color:#111" id="dcName">—</div>
+          <div style="font-size:11px;font-weight:700;color:var(--green)" id="dcSt">● En ligne</div>
+        </div>
+        <button style="width:32px;height:32px;border-radius:9px;border:1px solid #eee;background:#fff;font-size:15px;cursor:pointer" onclick="toast('📞','g')">📞</button>
+        <button style="width:32px;height:32px;border-radius:9px;border:1px solid #eee;background:#fff;font-size:15px;cursor:pointer" onclick="toast('📹','g')">📹</button>
+        <button style="width:32px;height:32px;border-radius:9px;border:1px solid #eee;background:#fff;font-size:15px;cursor:pointer" onclick="toast('📱','g')">📱</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background-color:#ede8db;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22300%22%3E%3Cg opacity=%220.07%22%3E%3Cpolygon points=%2230,8 45,17 45,35 30,44 15,35 15,17%22 fill=%22none%22 stroke=%22%23e63224%22 stroke-width=%221.5%22/%3E%3Cpolygon points=%22140,50 155,59 155,77 140,86 125,77 125,59%22 fill=%22none%22 stroke=%22%2327a945%22 stroke-width=%221.5%22/%3E%3Cpolygon points=%2270,130 85,139 85,157 70,166 55,157 55,139%22 fill=%22none%22 stroke=%22%23e63224%22 stroke-width=%221.5%22/%3E%3Cpolygon points=%22160,180 175,189 175,207 160,216 145,207 145,189%22 fill=%22none%22 stroke=%22%2327a945%22 stroke-width=%221.5%22/%3E%3Cpolygon points=%2230,240 45,249 45,267 30,276 15,267 15,249%22 fill=%22none%22 stroke=%22%23e63224%22 stroke-width=%221.5%22/%3E%3Ctext x=%2290%22 y=%2230%22 font-size=%2216%22 fill=%22%23e63224%22%3E%E2%99%AA%3C/text%3E%3Ctext x=%22160%22 y=%22120%22 font-size=%2214%22 fill=%22%2327a945%22%3E%E2%99%AB%3C/text%3E%3Ctext x=%2220%22 y=%22190%22 font-size=%2215%22 fill=%22%23e63224%22%3E%E2%9C%A6%3C/text%3E%3Ctext x=%22120%22 y=%22260%22 font-size=%2213%22 fill=%22%2327a945%22%3E%E2%99%AA%3C/text%3E%3C/g%3E%3C/svg%3E');background-repeat:repeat;background-size:200px 300px" id="dcMsgs">
+        <div style="display:flex;align-items:center;justify-content:center;margin:4px 0"><span style="font-size:10px;color:#888;background:rgba(255,255,255,0.8);padding:3px 10px;border-radius:99px;font-weight:600">Aujourd'hui</span></div>
+        <div style="display:flex;gap:7px;align-items:flex-end">
+          <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0" id="dcAvMsg">?</div>
+          <div style="max-width:72%;padding:9px 12px;border-radius:18px;border-bottom-left-radius:4px;background:#fff;color:#111;font-size:13px;line-height:1.5;box-shadow:0 1px 4px rgba(0,0,0,0.1)">Bonjour ! Je voudrais réserver 📸<div style="font-size:10px;color:rgba(0,0,0,0.3);text-align:right;margin-top:3px">14:20</div></div>
+        </div>
+        <div style="display:flex;flex-direction:row-reverse;gap:7px;align-items:flex-end">
+          <div style="max-width:72%;padding:9px 12px;border-radius:18px;border-bottom-right-radius:4px;background:var(--red);color:#fff;font-size:13px;line-height:1.5;box-shadow:0 2px 8px rgba(230,50,36,0.25)">Bonjour 😊 Quel jour ?<div style="font-size:10px;color:rgba(255,255,255,0.6);text-align:right;margin-top:3px">14:22 <span style="font-size:10px">✓✓</span></div></div>
+        </div>
+        <div style="display:flex;gap:7px;align-items:flex-end">
+          <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0" id="dcAvMsg2">?</div>
+          <div style="max-width:72%;padding:9px 12px;border-radius:18px;border-bottom-left-radius:4px;background:#fff;color:#111;font-size:13px;line-height:1.5;box-shadow:0 1px 4px rgba(0,0,0,0.1)">Samedi prochain 🙏<div style="font-size:10px;color:rgba(0,0,0,0.3);text-align:right;margin-top:3px">14:23</div></div>
+        </div>
+        <div style="display:flex;flex-direction:row-reverse">
+          <div style="max-width:72%;padding:9px 12px;border-radius:18px;border-bottom-right-radius:4px;background:var(--red);color:#fff;font-size:13px;line-height:1.5;box-shadow:0 2px 8px rgba(230,50,36,0.25)">Parfait ! Je vous envoie le devis 👍<div style="font-size:10px;color:rgba(255,255,255,0.6);text-align:right;margin-top:3px">14:25 <span>✓✓</span></div></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:7px;padding:9px 11px;background:#fff;border-top:1px solid #eee;flex-shrink:0">
+        <div style="flex:1;display:flex;align-items:flex-end;gap:5px;background:#f5f5f5;border-radius:22px;padding:8px 11px">
+          <button style="background:none;border:none;color:#ccc;font-size:17px;cursor:pointer" onclick="toast('📎','')">📎</button>
+          <textarea id="dcInput" rows="1" placeholder="Écrivez un message…" style="flex:1;background:none;border:none;outline:none;color:#111;font-size:13px;font-family:Segoe UI,Arial,sans-serif;resize:none;max-height:90px;line-height:1.4" oninput="dcResize(this)" onkeydown="dcKey(event)"></textarea>
+          <button style="background:none;border:none;color:#ccc;font-size:17px;cursor:pointer" onclick="toast('😊','')">😊</button>
+        </div>
+        <button id="dcSend" style="width:40px;height:40px;border-radius:50%;background:var(--red);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(230,50,36,0.35)" onclick="dcSendMsg()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- PANEL 6 : Actualites -->
@@ -420,7 +614,6 @@
   // Actions spéciales par panel
   const specialPanels = {
     2: () => window.location.href = 'profil.html',
-    5: () => window.location.href = 'discussion_v1.html',
   };
 
   function goToPanel(index, animate) {
@@ -529,6 +722,91 @@
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
   window.closeLang = closeLang;
+
+  // ══ DISCUSSION INTÉGRÉE ══
+  window.toggleDiscSearch = function() {
+    const w = document.getElementById('discSearchWrap');
+    w.style.display = w.style.display === 'none' ? '' : 'none';
+    if (w.style.display !== 'none') document.getElementById('discSq').focus();
+  }
+
+  window.filterDisc = function() {
+    const q = document.getElementById('discSq').value.toLowerCase();
+    document.querySelectorAll('.disc-card').forEach(c => {
+      c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  window.setDiscMode = function(mode, el) {
+    document.querySelectorAll('.disc-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.disc-card').forEach(c => {
+      if (mode === 'all') c.style.display = '';
+      else if (mode === 'unread') c.style.display = c.dataset.dunread === '1' ? '' : 'none';
+      else if (mode === 'groups') c.style.display = c.dataset.dmode === 'group' ? '' : 'none';
+      else if (mode === 'conf') c.style.display = c.dataset.dmode === 'conf' ? '' : 'none';
+      else if (mode === 'online') c.style.display = c.dataset.donline === '1' ? '' : 'none';
+    });
+    const sg = document.getElementById('discSecG');
+    const sc = document.getElementById('discSecC');
+    if (sg) sg.style.display = (mode === 'all' || mode === 'groups') ? '' : 'none';
+    if (sc) sc.style.display = (mode === 'all' || mode === 'conf') ? '' : 'none';
+  }
+
+  window.openDiscChat = function(name, metier, ini, bg, online, lastSeen) {
+    const slide = document.getElementById('discChatSlide');
+    const av = document.getElementById('dcAv');
+    const avMsg = document.getElementById('dcAvMsg');
+    const avMsg2 = document.getElementById('dcAvMsg2');
+    const onlineDot = document.getElementById('dcOnline');
+    const nm = document.getElementById('dcName');
+    const st = document.getElementById('dcSt');
+
+    av.style.background = bg; av.childNodes[0].nodeValue = ini;
+    if (avMsg) { avMsg.style.background = bg; avMsg.textContent = ini; }
+    if (avMsg2) { avMsg2.style.background = bg; avMsg2.textContent = ini; }
+    nm.textContent = name;
+    if (online) {
+      st.textContent = '● En ligne · ' + metier;
+      st.style.color = 'var(--green)';
+      onlineDot.style.display = '';
+    } else {
+      st.textContent = '⊙ ' + lastSeen + ' · ' + metier;
+      st.style.color = '#bbb';
+      onlineDot.style.display = 'none';
+    }
+    slide.classList.add('open');
+    const msgs = document.getElementById('dcMsgs');
+    if (msgs) setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 100);
+  }
+
+  window.closeDiscChat = function() {
+    document.getElementById('discChatSlide').classList.remove('open');
+  }
+
+  window.dcResize = function(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 90) + 'px';
+    document.getElementById('dcSend').disabled = !ta.value.trim();
+  }
+
+  window.dcKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); dcSendMsg(); }
+  }
+
+  window.dcSendMsg = function() {
+    const ta = document.getElementById('dcInput');
+    const txt = ta.value.trim(); if (!txt) return;
+    const msgs = document.getElementById('dcMsgs');
+    const t = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;flex-direction:row-reverse';
+    d.innerHTML = '<div style="max-width:72%;padding:9px 12px;border-radius:18px;border-bottom-right-radius:4px;background:var(--red);color:#fff;font-size:13px;line-height:1.5;box-shadow:0 2px 8px rgba(230,50,36,0.25)">' + txt + '<div style="font-size:10px;color:rgba(255,255,255,0.6);text-align:right;margin-top:3px">' + t + ' ✓</div></div>';
+    msgs.appendChild(d);
+    ta.value = ''; ta.style.height = 'auto';
+    document.getElementById('dcSend').disabled = true;
+    msgs.scrollTop = msgs.scrollHeight;
+  }
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = 'connexion.html'; return; }
