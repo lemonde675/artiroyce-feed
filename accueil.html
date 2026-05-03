@@ -188,8 +188,10 @@
   <!-- PANEL 5 : Discussion -->
   <div class="panel-slide" id="panel-5" style="position:relative;">
     <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
-    <!-- Overlay transparent pour capter le swipe horizontal -->
-    <div id="iframeOverlay" style="position:absolute;inset:0;z-index:10;background:transparent;touch-action:pan-y;"></div>
+    <!-- Bande gauche 22px : zone de swipe invisible -->
+    <div id="swipeLeft" style="position:absolute;top:0;left:0;width:22px;height:100%;z-index:10;background:transparent;"></div>
+    <!-- Bande droite 22px : zone de swipe invisible -->
+    <div id="swipeRight" style="position:absolute;top:0;right:0;width:22px;height:100%;z-index:10;background:transparent;"></div>
   </div>
 
     <!-- PANEL 6 : Actualites -->
@@ -501,54 +503,49 @@
     el.classList.add('active');
   }
 
-  // ══ OVERLAY IFRAME — swipe horizontal passe, tap vertical passe à l'iframe ══
-  const overlay = document.getElementById('iframeOverlay');
-  const frame = document.getElementById('discFrame');
+  // ══ BANDES LATÉRALES — swipe depuis bord gauche/droit ══
+  const swipeLeft = document.getElementById('swipeLeft');
+  const swipeRight = document.getElementById('swipeRight');
 
-  if (overlay && frame) {
-    let ovStartX = 0, ovStartY = 0, ovDragging = false, ovPassed = false;
+  function addSwipeBand(band) {
+    if (!band) return;
+    let bStartX = 0, bStartY = 0;
 
-    overlay.addEventListener('touchstart', (e) => {
-      ovStartX = e.touches[0].clientX;
-      ovStartY = e.touches[0].clientY;
-      ovDragging = false;
-      ovPassed = false;
+    band.addEventListener('touchstart', (e) => {
+      bStartX = e.touches[0].clientX;
+      bStartY = e.touches[0].clientY;
+      // Simuler touchstart sur le swipeZone global
+      touchStartX = bStartX;
+      touchStartY = bStartY;
+      dragStartX = bStartX;
+      isDragging = false;
     }, { passive: true });
 
-    overlay.addEventListener('touchmove', (e) => {
-      const dx = Math.abs(e.touches[0].clientX - ovStartX);
-      const dy = Math.abs(e.touches[0].clientY - ovStartY);
-
-      if (!ovDragging && (dx > 8 || dy > 8)) {
-        ovDragging = true;
-        if (dx > dy) {
-          // Mouvement horizontal → swipe panels, bloquer iframe
-          ovPassed = false;
-        } else {
-          // Mouvement vertical → laisser passer à l'iframe
-          ovPassed = true;
-          overlay.style.pointerEvents = 'none';
-        }
+    band.addEventListener('touchmove', (e) => {
+      const dx = e.touches[0].clientX - bStartX;
+      const dy = e.touches[0].clientY - bStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+        isDragging = true;
+        const totalOffset = -currentPanel * 100;
+        const dragPercent = (dx / swipeZone.offsetWidth) * 100;
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(' + (totalOffset + dragPercent) + '%)';
       }
     }, { passive: true });
 
-    overlay.addEventListener('touchend', (e) => {
-      if (ovPassed) {
-        // Réactiver l'overlay après scroll vertical
-        setTimeout(() => { overlay.style.pointerEvents = ''; }, 300);
-      }
-      ovDragging = false;
-      ovPassed = false;
+    band.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const dx = e.changedTouches[0].clientX - dragStartX;
+      const threshold = swipeZone.offsetWidth * 0.22;
+      if (dx < -threshold) goToPanel(currentPanel + 1);
+      else if (dx > threshold) goToPanel(currentPanel - 1);
+      else goToPanel(currentPanel);
     }, { passive: true });
-
-    // Tap simple → passer le clic à l'iframe
-    overlay.addEventListener('click', (e) => {
-      overlay.style.pointerEvents = 'none';
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      if (el) el.click();
-      setTimeout(() => { overlay.style.pointerEvents = ''; }, 100);
-    });
   }
+
+  addSwipeBand(swipeLeft);
+  addSwipeBand(swipeRight);
 
   window.likeC = function(btn, idx) {
     const circle = btn.querySelector('.act-circle');
