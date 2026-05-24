@@ -8,6 +8,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--red:#e63224;--green:#27a945;--bg:#f7f7f7;--dark:#111;--muted:#888}
 html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
+
+/* HEADER */
 .top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #eee}
 .h-row1{display:flex;align-items:center;padding:6px 12px 4px;gap:6px}
 .h-house{font-size:24px;flex-shrink:0;cursor:pointer}
@@ -20,38 +22,49 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
 .h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 .h-ico.chat .bdot{background:var(--green)}
+
 .body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:var(--bg)}
 .spacer{flex-shrink:0}
+
+/* PAGE TITLE */
 .pg-title{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;flex-shrink:0;background:#fff;border-bottom:1px solid #f0f0f0}
 .pg-name{font-size:17px;font-weight:900;color:var(--dark)}
-.pg-add{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:6px 14px;border-radius:22px;cursor:pointer;border:none}
+.pg-add{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:6px 14px;border-radius:22px;cursor:pointer;border:none;box-shadow:0 2px 8px rgba(230,50,36,0.3)}
 
-/* GRILLE STYLE GOOGLE MAPS */
+/* GRILLE GOOGLE MAPS STYLE */
 .grid-section{padding:12px 12px 8px;flex-shrink:0;background:#fff;border-bottom:1px solid #f0f0f0}
 .grid-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .grid-label span{font-size:12px;color:var(--red);text-transform:none;letter-spacing:0;font-weight:700;cursor:pointer}
-.grid-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.grid-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
 .grid-row::-webkit-scrollbar{display:none}
+
+/* MON STATUT - carte add */
 .my-card{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
-.my-av{width:80px;height:90px;border-radius:16px;background:#f5f5f5;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;position:relative;transition:transform 0.15s}
+.my-av{width:72px;height:72px;border-radius:50%;background:#f5f5f5;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;position:relative;transition:transform 0.15s}
 .my-av:active{transform:scale(0.95)}
-.my-plus{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--red);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:900}
-.my-label{font-size:10px;font-weight:700;color:var(--muted);text-align:center}
+.my-plus{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--red);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:900;line-height:1}
+.my-label{font-size:10px;font-weight:700;color:var(--muted);text-align:center;max-width:72px}
+
+/* STATUT CARD style Google Maps */
 .st-card{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
-.st-av-wrap{position:relative;width:80px;height:90px}
-.st-av{width:80px;height:90px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;transition:transform 0.15s;box-shadow:0 3px 12px rgba(0,0,0,0.18)}
+.st-av-wrap{position:relative;width:72px;height:72px}
+.st-av{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;overflow:hidden;transition:transform 0.15s;box-shadow:0 3px 10px rgba(0,0,0,0.15)}
 .st-av:active{transform:scale(0.95)}
-.st-ring{position:absolute;inset:-3px;border-radius:18px;border:3px solid var(--red)}
+.st-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+/* Anneau coloré style Google Maps */
+.st-ring{position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--red)}
 .st-ring.seen{border-color:#ddd}
-.st-dot{position:absolute;top:5px;right:5px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid #fff}
-.st-emoji-badge{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:10px;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-.st-name{font-size:10px;font-weight:700;color:var(--dark);text-align:center;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:8px}
+.st-dot{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid #fff}
+.st-emoji-badge{position:absolute;bottom:-2px;right:-2px;width:24px;height:24px;border-radius:8px;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+.st-name{font-size:10px;font-weight:700;color:var(--dark);text-align:center;max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-time{font-size:10px;color:var(--muted);text-align:center}
 
-/* LISTE */
+/* LISTE RECENTS */
 .list-section{flex:1;overflow-y:auto;scrollbar-width:none;padding:8px 12px 70px}
 .list-section::-webkit-scrollbar{display:none}
 .list-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;padding:0 2px}
+
 .st-row{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,0.05);transition:transform 0.1s}
 .st-row:active{transform:scale(0.98)}
 .str-left{position:relative;flex-shrink:0;width:54px;height:54px}
@@ -67,7 +80,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .str-dot{width:9px;height:9px;border-radius:50%;background:var(--red)}
 .str-cnt{font-size:11px;font-weight:800;color:var(--red)}
 
-/* BOT NAV */
+/* BOT NAV PROPRE AUX STATUTS */
 .bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
 .nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
 .nav-lb{font-size:10px;font-weight:700;color:#aaa}
@@ -76,7 +89,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .nav-plus{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(230,50,36,0.55);margin-top:-16px}
 .nav-ico{width:24px;height:24px}
 
-/* VIEWER */
+/* VIEWER PLEIN ECRAN */
 .viewer{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);max-width:480px;left:50%;margin-left:-240px}
 @media(max-width:480px){.viewer{left:0;margin-left:0}}
 .viewer.open{transform:translateY(0)}
@@ -87,7 +100,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .v-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width 5s linear}
 .v-fill.active{width:100%}
 .v-hdr{position:absolute;top:28px;left:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:10}
-.v-back{color:#fff;font-size:26px;cursor:pointer;padding:4px;flex-shrink:0;font-weight:300}
+.v-back{color:#fff;font-size:22px;cursor:pointer;padding:4px;flex-shrink:0}
 .v-av{width:42px;height:42px;border-radius:50%;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 .v-info{flex:1;min-width:0}
 .v-nm{font-size:14px;font-weight:800;color:#fff}
@@ -101,10 +114,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .v-inp::placeholder{color:rgba(255,255,255,0.55)}
 .v-snd{width:42px;height:42px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0}
 
-/* MODAL AJOUTER */
-.add-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+/* MODAL AJOUTER STATUT */
+.add-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;max-width:480px;left:50%;transform:translateX(-50%)}
 .add-modal.open{opacity:1;pointer-events:all}
-.add-body{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:0 0 30px;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
+.add-body{background:#fff;border-radius:24px 24px 0 0;width:100%;padding:0 0 30px;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
 .add-modal.open .add-body{transform:translateY(0)}
 .add-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
 .add-header{padding:14px 16px;border-bottom:1px solid #f5f5f5;font-size:16px;font-weight:900;color:var(--dark);text-align:center}
@@ -115,11 +128,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .add-opt-info strong{font-size:14px;font-weight:800;color:var(--dark);display:block;margin-bottom:2px}
 .add-opt-info span{font-size:12px;color:var(--muted)}
 
+/* TOAST */
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}.toast.g{background:var(--green)}
 </style>
 </head>
 <body>
+
 <header class="top-header" id="topH">
   <div class="h-row1">
     <span class="h-house" onclick="goAccueil()">🏠</span>
@@ -146,14 +161,18 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
 
+  <!-- TITRE PAGE -->
   <div class="pg-title">
     <span class="pg-name">🟢 Statuts</span>
     <button class="pg-add" onclick="openAddModal()">+ Ajouter</button>
   </div>
 
+  <!-- GRILLE STYLE GOOGLE MAPS -->
   <div class="grid-section">
     <div class="grid-label">Récents <span onclick="toast('Voir tout bientôt','g')">Voir tout ›</span></div>
     <div class="grid-row">
+
+      <!-- MON STATUT -->
       <div class="my-card" onclick="openAddModal()">
         <div class="my-av">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -161,51 +180,72 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         </div>
         <div class="my-label">Mon statut</div>
       </div>
+
+      <!-- MK -->
       <div class="st-card" onclick="openViewer(0)">
         <div class="st-av-wrap">
           <div class="st-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div>
-          <div class="st-ring"></div><div class="st-dot"></div>
+          <div class="st-ring"></div>
+          <div class="st-dot"></div>
           <div class="st-emoji-badge" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">✂️</div>
         </div>
-        <div class="st-name">Mariama K.</div><div class="st-time">12 min</div>
+        <div class="st-name">Mariama K.</div>
+        <div class="st-time">12 min</div>
       </div>
+
+      <!-- JP -->
       <div class="st-card" onclick="openViewer(1)">
         <div class="st-av-wrap">
           <div class="st-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div>
-          <div class="st-ring"></div><div class="st-dot"></div>
+          <div class="st-ring"></div>
+          <div class="st-dot"></div>
           <div class="st-emoji-badge" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">📷</div>
         </div>
-        <div class="st-name">Jean-Paul M.</div><div class="st-time">34 min</div>
+        <div class="st-name">Jean-Paul M.</div>
+        <div class="st-time">34 min</div>
       </div>
+
+      <!-- AT -->
       <div class="st-card" onclick="openViewer(2)">
         <div class="st-av-wrap">
           <div class="st-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div>
           <div class="st-ring seen"></div>
           <div class="st-emoji-badge" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">💄</div>
         </div>
-        <div class="st-name">Aminata T.</div><div class="st-time">1h · Vu</div>
+        <div class="st-name">Aminata T.</div>
+        <div class="st-time">1h · Vu</div>
       </div>
+
+      <!-- DK -->
       <div class="st-card" onclick="openViewer(3)">
         <div class="st-av-wrap">
           <div class="st-av" style="background:linear-gradient(135deg,#001030,#002060)">DK</div>
-          <div class="st-ring"></div><div class="st-dot"></div>
+          <div class="st-ring"></div>
+          <div class="st-dot"></div>
           <div class="st-emoji-badge" style="background:linear-gradient(135deg,#001030,#002060)">🎧</div>
         </div>
-        <div class="st-name">David K.</div><div class="st-time">2h</div>
+        <div class="st-name">David K.</div>
+        <div class="st-time">2h</div>
       </div>
+
+      <!-- FD -->
       <div class="st-card" onclick="openViewer(4)">
         <div class="st-av-wrap">
           <div class="st-av" style="background:linear-gradient(135deg,#2c0060,#6a0dad)">FD</div>
           <div class="st-ring seen"></div>
           <div class="st-emoji-badge" style="background:linear-gradient(135deg,#2c0060,#6a0dad)">🍽️</div>
         </div>
-        <div class="st-name">Fatou D.</div><div class="st-time">3h · Vu</div>
+        <div class="st-name">Fatou D.</div>
+        <div class="st-time">3h · Vu</div>
       </div>
+
     </div>
   </div>
 
+  <!-- LISTE RECENTS -->
   <div class="list-section">
     <div class="list-label">Récents</div>
+
     <div class="st-row" onclick="openViewer(0)">
       <div class="str-left">
         <div class="str-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div>
@@ -219,6 +259,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       </div>
       <div class="str-right"><div class="str-dot"></div><div class="str-cnt">3</div></div>
     </div>
+
     <div class="st-row" onclick="openViewer(1)">
       <div class="str-left">
         <div class="str-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div>
@@ -232,6 +273,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       </div>
       <div class="str-right"><div class="str-dot"></div></div>
     </div>
+
     <div class="st-row" onclick="openViewer(2)">
       <div class="str-left">
         <div class="str-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div>
@@ -244,6 +286,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="str-time">Il y a 1h · Vu</div>
       </div>
     </div>
+
     <div class="st-row" onclick="openViewer(3)">
       <div class="str-left">
         <div class="str-av" style="background:linear-gradient(135deg,#001030,#002060)">DK</div>
@@ -257,6 +300,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       </div>
       <div class="str-right"><div class="str-dot"></div><div class="str-cnt">2</div></div>
     </div>
+
     <div class="st-row" onclick="openViewer(4)">
       <div class="str-left">
         <div class="str-av" style="background:linear-gradient(135deg,#2c0060,#6a0dad)">FD</div>
@@ -269,9 +313,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="str-time">Il y a 3h · Vu</div>
       </div>
     </div>
+
   </div>
 </div>
 
+<!-- BOT NAV PROPRE AUX STATUTS -->
 <nav class="bot-nav">
   <div class="nav-i" onclick="goAccueil()">
     <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="5" stroke="#aaa" stroke-width="2"/><path d="M6 27c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#aaa" stroke-width="2" stroke-linecap="round"/></svg>
@@ -296,6 +342,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </nav>
 
+<!-- VIEWER PLEIN ECRAN -->
 <div class="viewer" id="viewer">
   <div class="v-bg" id="vBg"></div>
   <div class="v-ov"></div>
@@ -319,6 +366,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </div>
 
+<!-- MODAL AJOUTER STATUT -->
 <div class="add-modal" id="addModal" onclick="closeAddModal(event)">
   <div class="add-body" onclick="event.stopPropagation()">
     <div class="add-handle"></div>
@@ -345,11 +393,15 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <script>
 function adj(){const h=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=h+'px'}
 window.addEventListener('load',adj);setTimeout(adj,100);
+
 window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':'');setTimeout(()=>el.className='toast',2400)}
+
 window.goAccueil=function(){
-  if(window.parent!==window)window.parent.postMessage({type:'goPanel',panel:0},'*');
+  if(window.parent!==window) window.parent.postMessage({type:'goPanel',panel:0},'*');
   else window.location.href='accueil.html';
 }
+
+// DONNÉES STATUTS
 const S=[
   {n:'Mariama Kouyaté',vb:true,i:'MK',bg:'linear-gradient(160deg,#0d2b0f,#27a945)',e:'✂️',m:'Nouvelle coiffure disponible ! RDV 🙏',t:'Il y a 12 min · ✂️ Coiffeuse'},
   {n:'Jean-Paul Mensah',vb:true,i:'JP',bg:'linear-gradient(160deg,#0a0a2e,#1a1a6e)',e:'📷',m:'Portfolio mis à jour ! Shootings pro 🎨',t:'Il y a 34 min · 📷 Photographe'},
@@ -357,9 +409,11 @@ const S=[
   {n:'David Koffi',vb:true,i:'DK',bg:'linear-gradient(160deg,#001030,#002060)',e:'🎧',m:'Event samedi 22h — DJ Set 🔥🔥',t:'Il y a 2h · 🎧 DJ'},
   {n:'Fatou Diop',vb:false,i:'FD',bg:'linear-gradient(160deg,#2c0060,#6a0dad)',e:'🍽️',m:'Menu spécial 50 personnes disponible !',t:'Il y a 3h · 🍽️ Traiteure'},
 ];
-let T=null;
+
+let T=null, curIdx=0;
+
 window.openViewer=function(i){
-  const s=S[i];
+  curIdx=i;const s=S[i];
   document.getElementById('vBg').style.background=s.bg;
   document.getElementById('vAv').textContent=s.i;
   document.getElementById('vAv').style.background=s.bg;
@@ -367,22 +421,30 @@ window.openViewer=function(i){
   document.getElementById('vT').textContent=s.t;
   document.getElementById('vEmoji').textContent=s.e;
   document.getElementById('vTxt').textContent=s.m;
-  document.getElementById('vProg').innerHTML='<div class="v-bar"><div class="v-fill active"></div></div>';
+  // Barres de progression
+  const prog=document.getElementById('vProg');
+  prog.innerHTML='<div class="v-bar"><div class="v-fill active" id="vF0"></div></div>';
   document.getElementById('viewer').classList.add('open');
-  if(T)clearTimeout(T);
+  if(T) clearTimeout(T);
   T=setTimeout(()=>closeViewer(),5100);
 }
+
 window.closeViewer=function(){
   document.getElementById('viewer').classList.remove('open');
   if(T){clearTimeout(T);T=null;}
 }
+
 window.sendReply=function(){
   const v=document.getElementById('vInp').value.trim();
   if(v){toast('✅ Réponse envoyée !','g');document.getElementById('vInp').value='';}
 }
+
+// MODAL AJOUTER
 window.openAddModal=function(){document.getElementById('addModal').classList.add('open')}
 window.closeAddModal=function(e){if(e.target===document.getElementById('addModal'))document.getElementById('addModal').classList.remove('open')}
 window.closeAddModalDirect=function(){document.getElementById('addModal').classList.remove('open')}
+
+// SWIPE POSTMESSAGE
 (function(){
   let sx=0,sy=0,sw=false;
   document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});
