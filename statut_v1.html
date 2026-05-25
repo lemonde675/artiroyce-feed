@@ -25,7 +25,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
 /* ══ BODY ══ */
 .body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:var(--bg)}
-.spacer{flex-shrink:0}
+.spacer{flex-shrink:0;min-height:58px}
 
 /* ══ TITRE PAGE ══ */
 .pg-title{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;flex-shrink:0}
@@ -239,12 +239,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="strip">
     <!-- MON STATUT -->
     <div class="strip-item" id="myStatusItem">
-      <div class="my-card" onclick="openAddStatut()">
+      <div class="my-card" id="myStatutCard" onclick="openAddStatut()" style="position:relative;overflow:hidden;">
         <div class="my-card-ring"></div>
         <div class="my-card-plus">+</div>
         <div class="my-card-label">Mon statut</div>
       </div>
-      <span class="s-card-time" style="color:var(--red);font-weight:800;">+ Ajouter</span>
+      <span class="s-card-time" style="color:var(--red);font-weight:800;" id="myStatutLabel">+ Ajouter</span>
     </div>
 
     <div class="strip-item" onclick="openViewer(0)">
@@ -864,6 +864,50 @@ window.attachMusic=attachMusic;
     sw=false;
   },{passive:true});
 })();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const _app = initializeApp({
+  apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain:"artiroyce-f42e4.firebaseapp.com",
+  projectId:"artiroyce-f42e4",
+  storageBucket:"artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId:"588140774605",
+  appId:"1:588140774605:web:b69cf8740c2fe5f1d59584"
+});
+const _auth = getAuth(_app);
+const _db = getFirestore(_app);
+onAuthStateChanged(_auth, async (user) => {
+  if (!user) return;
+  try {
+    const snap = await getDoc(doc(_db, 'utilisateurs', user.uid));
+    const d = snap.exists() ? snap.data() : {};
+    const prenom = d.prenom || d.nom || user.displayName || 'Moi';
+    const photo = d.photoAvatar || user.photoURL || null;
+    const initiale = prenom[0].toUpperCase();
+    // Update "Mon statut" card
+    var card = document.getElementById('myStatutCard');
+    if (!card) return;
+    if (photo) {
+      card.style.border = '2.5px solid var(--green)';
+      card.style.background = '#000';
+      card.innerHTML = '<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:16px" onerror="this.style.display=\'none\'">'
+        +'<div style="position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff">+</div>'
+        +'<div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.8)">'+prenom+'</div>';
+    } else {
+      card.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px">'
+        +'<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--red),#ff6b5b);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff">'+initiale+'</div>'
+        +'<div style="font-size:9px;font-weight:700;color:#aaa">'+prenom+'</div>'
+        +'</div>';
+    }
+    // Update "Mon statut" label under card
+    var lbl = document.getElementById('myStatutLabel');
+    if (lbl) lbl.textContent = prenom;
+  } catch(e) { console.log('profil err:', e); }
+});
 </script>
 </body>
 </html>
