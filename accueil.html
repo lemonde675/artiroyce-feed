@@ -64,7 +64,7 @@
     .wm-brand .r { color: var(--green); }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
-    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); overflow: visible; }
+    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); overflow: visible; transition: transform 0.3s ease, opacity 0.3s ease; }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
     .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
     .nav-i.active .nav-lb { color: var(--green); }
@@ -481,6 +481,20 @@
     // Panels spéciaux
     if (specialPanels[index]) {
       setTimeout(() => specialPanels[index](), 320);
+    }
+
+    // Cacher la nav sur les autres panels, afficher seulement sur accueil (panel 0)
+    const botNav = document.querySelector('.bot-nav');
+    if (botNav) {
+      if (index === 0) {
+        botNav.style.transform = 'translateX(-50%) translateY(0)';
+        botNav.style.opacity = '1';
+        botNav.style.pointerEvents = 'auto';
+      } else {
+        botNav.style.transform = 'translateX(-50%) translateY(100%)';
+        botNav.style.opacity = '0';
+        botNav.style.pointerEvents = 'none';
+      }
     }
   }
 
