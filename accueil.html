@@ -27,7 +27,7 @@
     .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
     .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
     .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
-    .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 64px; }
     .feed-wrap::-webkit-scrollbar { display: none; }
     .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
@@ -64,12 +64,12 @@
     .wm-brand .r { color: var(--green); }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
-    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); }
+    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); overflow: visible; }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
     .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
     .nav-i.active .nav-lb { color: var(--green); }
-    .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; cursor: pointer; }
-    .nav-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.55); margin-top: -16px; }
+    .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: visible; padding-bottom: 4px; }
+    .nav-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.55); margin-top: -18px; position: relative; z-index: 201; }
     .nav-ico { width: 24px; height: 24px; }
     .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
@@ -181,7 +181,7 @@
 
   <!-- PANEL 2 : Statuts (tab 2) -->
   <div class="panel-slide" id="panel-2" style="position:relative;">
-    <iframe src="statut_v1.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
+    <iframe src="statut_v4.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
     <div id="swipeLeftSt" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightSt" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
