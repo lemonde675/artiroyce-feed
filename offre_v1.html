@@ -358,7 +358,9 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 
 /* ── CROP OVERLAY ── */
 .crop-overlay {
-  display: none; position: fixed; inset: 0; z-index: 500;
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
   background: #000; flex-direction: column;
 }
 .crop-overlay.open { display: flex; }
@@ -553,7 +555,12 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
   <span class="filtre">🧱 Maçonnerie</span>
 </div>
 
-<div id="feedOffres"></div>
+<div id="feedOffres">
+  <div id="feed-loading" style="text-align:center;padding:40px 20px;color:#aaa;">
+    <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+    <div style="font-size:14px;font-weight:600;">Chargement des offres…</div>
+  </div>
+</div>
 
 <!-- ═══ MODAL ═══ -->
 <div class="overlay" id="overlay" onclick="closeSiDehors(event)">
@@ -702,14 +709,16 @@ onAuthStateChanged(auth, async user => {
         const d = snap.data();
         currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
         currentUser.photoURL = d.photoURL || null;
+        currentUser.verifie = d.statut === 'verifie';
       }
     } catch(e){}
     // Mettre à jour avatar dans zone commentaire
     document.querySelectorAll('.user-ava').forEach(el => {
       el.textContent = (currentUser.displayName||'?')[0].toUpperCase();
     });
+    // Charger offres maintenant que l'utilisateur est prêt
+    chargerOffres();
   } else {
-    // Pas connecté → rediriger
     window.location.href = 'connexion.html';
   }
 });
@@ -724,6 +733,9 @@ function chargerOffres() {
     feedEl.innerHTML = '';
     const now = Date.now();
     let actives = [], expirees = [];
+    // Supprimer spinner
+    const loading = document.getElementById('feed-loading');
+    if (loading) loading.remove();
 
     snap.forEach(d => {
       const o = { id: d.id, ...d.data() };
@@ -835,9 +847,36 @@ function buildCard(o, expiree) {
       <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
     </div>`;
 
-  // Avatar initiales auteur
+  // Avatar auteur — photo si disponible, sinon initiales colorées
   const initiales = (o.auteurNom||'A').split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
   const isAuteur = currentUser && currentUser.uid === o.auteurUid;
+
+  // Palette couleurs avatar (comme statuts ArtiRoyce)
+  const palettes = [
+    'linear-gradient(135deg,#1a5276,#2e86c1)',   // bleu foncé
+    'linear-gradient(135deg,#145a32,#27ae60)',   // vert foncé
+    'linear-gradient(135deg,#7b241c,#c0392b)',   // rouge foncé
+    'linear-gradient(135deg,#6e2f8e,#9b59b6)',   // violet
+    'linear-gradient(135deg,#784212,#d35400)',   // orange foncé
+    'linear-gradient(135deg,#1a2a6c,#b21f1f)',   // indigo
+    'linear-gradient(135deg,#0b3d0b,#1e8449)',   // vert sapin
+    'linear-gradient(135deg,#2c3e50,#4ca1af)',   // slate bleu
+  ];
+  const avatarColor = palettes[initiales.charCodeAt(0) % palettes.length];
+
+  // Photo de profil si disponible
+  const photoUrl = o.auteurPhoto || '';
+  const avatarHtml = photoUrl
+    ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextSibling.style.display='flex'"/>
+       <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;">${initiales}</span>`
+    : `<span style="font-size:15px;font-weight:800;color:#fff;">${initiales}</span>`;
+
+  // Badge vérifié
+  const badgeVerif = o.auteurVerifie
+    ? `<div style="position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:#27a945;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;">
+         <span style="font-size:8px;color:#fff;font-weight:900;">✓</span>
+       </div>`
+    : '';
   const menuSuppr = isAuteur ? `
     <div style="position:relative;display:inline-block;">
       <button onclick="toggleMenuSuppr('${o.id}')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#65676b;padding:4px 8px;">⋯</button>
@@ -852,7 +891,12 @@ function buildCard(o, expiree) {
     <div class="card-body">
       <!-- Ligne auteur : avatar + nom + temps + menu -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e63224,#ff7a6e);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initiales}</div>
+        <div style="position:relative;width:46px;height:46px;flex-shrink:0;">
+          <div style="width:46px;height:46px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            ${avatarHtml}
+          </div>
+          ${badgeVerif}
+        </div>
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
           <div style="font-size:11px;color:#65676b;">${o.ville||''} · ${tempsAgo}</div>
@@ -1099,6 +1143,8 @@ window.publierOffre = async () => {
   let data = {
     auteurUid: currentUser.uid,
     auteurNom: currentUser.displayName || 'Anonyme',
+    auteurPhoto: currentUser.photoURL || '',
+    auteurVerifie: currentUser.verifie || false,
     createdAt: serverTimestamp(),
     likes: 0,
     candidatures: 0
@@ -1544,8 +1590,6 @@ function tempsDepuis(ms) {
 }
 
 /* ── DÉMARRAGE ── */
-chargerOffres();
-
 // Bouton publier connecté
 document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
 
