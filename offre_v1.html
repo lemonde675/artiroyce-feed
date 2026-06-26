@@ -340,9 +340,47 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 }
 .reply-meta .likes { margin-left: auto; display: flex; align-items: center; gap: 3px; }
 
+/* ── CROP OVERLAY ── */
+.crop-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: #000; flex-direction: column;
+}
+.crop-overlay.open { display: flex; }
+.crop-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: #000; color: #fff; flex-shrink: 0;
+}
+.crop-topbar button {
+  background: none; border: none; color: #fff; font-size: 15px;
+  font-weight: 700; cursor: pointer; padding: 6px 10px;
+}
+.crop-topbar .crop-title { font-size: 15px; font-weight: 700; }
+.crop-topbar .crop-rotate { font-size: 22px; background: none; border: none; color: #fff; cursor: pointer; }
+.crop-canvas-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative; touch-action: none;
+}
+#cropCanvas { max-width: 100%; max-height: 100%; display: block; }
+.crop-frame {
+  position: absolute; border: 2px solid #fff;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  touch-action: none; cursor: move;
+}
+.crop-handle {
+  position: absolute; width: 22px; height: 22px;
+  background: #fff; border-radius: 3px;
+}
+.crop-handle.tl { top:-11px; left:-11px; cursor: nw-resize; }
+.crop-handle.tr { top:-11px; right:-11px; cursor: ne-resize; }
+.crop-handle.bl { bottom:-11px; left:-11px; cursor: sw-resize; }
+.crop-handle.br { bottom:-11px; right:-11px; cursor: se-resize; }
+.crop-bottombar {
+  padding: 16px 20px; background: #000; text-align: center; color: rgba(255,255,255,0.6);
+  font-size: 12px; flex-shrink: 0;
+}
+
 /* ── MODAL ── */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-end; justify-content: center; }
-.overlay.open { display: flex; }
 .overlay.open { display: flex; }
 .modal {
   background: #fff; border-radius: 20px 20px 0 0;
@@ -767,16 +805,35 @@ function buildCard(o, expiree) {
       <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
     </div>`;
 
+  // Avatar initiales auteur
+  const initiales = (o.auteurNom||'A').split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2);
+  const isAuteur = currentUser && currentUser.uid === o.auteurUid;
+  const menuSuppr = isAuteur ? `
+    <div style="position:relative;display:inline-block;">
+      <button onclick="toggleMenuSuppr('${o.id}')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#65676b;padding:4px 8px;">⋯</button>
+      <div id="menu-suppr-${o.id}" style="display:none;position:absolute;right:0;top:28px;background:#fff;border:1px solid #e4e6eb;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;min-width:200px;">
+        <div onclick="supprimerOffre('${o.id}','definitif')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e63224;border-bottom:1px solid #f0f0f0;">🗑️ Supprimer définitivement</div>
+        <div onclick="supprimerOffre('${o.id}','15j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;">⏳ Expirer dans 15 jours</div>
+        <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">⏳ Expirer dans 30 jours</div>
+      </div>
+    </div>` : '';
+
   div.innerHTML = `
     <div class="card-body">
-      <div class="card-head">
-        <div class="ava">${o.categEmoji||'💼'}</div>
-        <div class="card-info">
-          <h3>${o.titre||o.texte?.substring(0,60)||'Sans titre'}</h3>
-          <div class="meta">${o.auteurNom||'Anonyme'} · ${o.ville||''} · ${tempsAgo}</div>
+      <!-- Ligne auteur : avatar + nom + temps + menu -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e63224,#ff7a6e);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initiales}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
+          <div style="font-size:11px;color:#65676b;">${o.ville||''} · ${tempsAgo}</div>
         </div>
-        <div class="bdg-type ${typeCls}">${typeLabel}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="bdg-type ${typeCls}">${o.categEmoji||'💼'} ${typeLabel}</div>
+          ${menuSuppr}
+        </div>
       </div>
+      <!-- Titre offre -->
+      <h3 style="font-size:15px;font-weight:800;color:#1c1e21;margin-bottom:10px;line-height:1.35;">${o.titre||o.texte?.substring(0,60)||'Sans titre'}</h3>
     </div>
     ${imgHtml}
     <div class="card-body" style="padding-top:${imgHtml?'10px':'0'}">
@@ -788,7 +845,9 @@ function buildCard(o, expiree) {
     ${actionsHtml}
     <div class="comm-section" id="comms-${o.id}">
       <div class="comm-reactions">
-        <span>👍 ${o.likes||0}</span>
+        <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-liked="false" onclick="toggleLike(this)">
+          👍 <span id="like-count-${o.id}">${o.likes||0}</span>
+        </button>
         <span id="comm-count-${o.id}">0 commentaire</span>
       </div>
       <div class="comm-title">Commentaires</div>
@@ -1042,12 +1101,7 @@ window.selModele = (el, type) => {
 window.previewImg = e => {
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
-  r.onload = ev => {
-    imgBase64 = ev.target.result;
-    const i = document.getElementById('imgPrev');
-    i.src = imgBase64; i.style.display='block';
-    document.getElementById('m2preview').style.display='none';
-  };
+  r.onload = ev => { ouvrirCrop(ev.target.result, 'main'); };
   r.readAsDataURL(f);
 };
 
@@ -1066,13 +1120,208 @@ window.toggleImgTexte = () => {
 window.previewImgTexte = e => {
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
-  r.onload = ev => {
-    imgBase64Txt = ev.target.result;
-    const i = document.getElementById('imgPrevTexte');
-    i.src = imgBase64Txt; i.style.display='block';
-  };
+  r.onload = ev => { ouvrirCrop(ev.target.result, 'texte'); };
   r.readAsDataURL(f);
 };
+
+/* ── SUPPRIMER OFFRE ── */
+window.toggleMenuSuppr = (id) => {
+  const menu = document.getElementById('menu-suppr-'+id);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  // Fermer si clic ailleurs
+  setTimeout(() => {
+    document.addEventListener('click', function closeMenu(e) {
+      if (!e.target.closest('#menu-suppr-'+id)) {
+        if (menu) menu.style.display = 'none';
+        document.removeEventListener('click', closeMenu);
+      }
+    });
+  }, 100);
+};
+
+window.supprimerOffre = async (offreId, mode) => {
+  const { deleteDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  if (mode === 'definitif') {
+    if (!confirm('Supprimer définitivement cette offre ?')) return;
+    try {
+      await deleteDoc(doc(db,'offres',offreId));
+      showToast('Offre supprimée.');
+    } catch(e){ console.error(e); }
+  } else {
+    const jours = mode === '15j' ? 15 : 30;
+    const expireAt = new Date(Date.now() + jours*24*3600*1000);
+    try {
+      await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
+      showToast('Offre expirera dans '+jours+' jours.');
+    } catch(e){ console.error(e); }
+  }
+  document.getElementById('menu-suppr-'+offreId)?.remove();
+};
+
+/* ── CROP ENGINE ── */
+let _cropSrc = '';
+let _cropTarget = 'main';
+let _cropImg = new Image();
+let _cropRotation = 0;
+let _cropFrame = { x:0, y:0, w:0, h:0 };
+let _dragging = false;
+let _resizing = null;
+let _dragStart = { x:0, y:0 };
+let _frameStart = { x:0, y:0, w:0, h:0 };
+let _canvasRect = null;
+
+function ouvrirCrop(src, target) {
+  _cropSrc = src; _cropTarget = target; _cropRotation = 0;
+  const overlay = document.getElementById('cropOverlay');
+  overlay.classList.add('open');
+  _cropImg = new Image();
+  _cropImg.onload = () => dessinerCrop();
+  _cropImg.src = src;
+}
+
+function dessinerCrop() {
+  const canvas = document.getElementById('cropCanvas');
+  const wrap = document.getElementById('cropWrap');
+  const ww = wrap.clientWidth || window.innerWidth;
+  const wh = wrap.clientHeight || (window.innerHeight - 120);
+
+  // Dimensions avec rotation
+  const rot = _cropRotation % 180 !== 0;
+  const srcW = rot ? _cropImg.height : _cropImg.width;
+  const srcH = rot ? _cropImg.width  : _cropImg.height;
+  const scale = Math.min(ww / srcW, wh / srcH, 1);
+  canvas.width  = Math.round(srcW * scale);
+  canvas.height = Math.round(srcH * scale);
+
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.rotate(_cropRotation * Math.PI / 180);
+  if (_cropRotation % 180 !== 0) {
+    ctx.drawImage(_cropImg, -canvas.height/2, -canvas.width/2, canvas.height, canvas.width);
+  } else {
+    ctx.drawImage(_cropImg, -canvas.width/2, -canvas.height/2, canvas.width, canvas.height);
+  }
+  ctx.restore();
+
+  // Init frame si première fois
+  const pad = 20;
+  if (_cropFrame.w === 0) {
+    _cropFrame = { x: pad, y: pad, w: canvas.width - pad*2, h: canvas.height - pad*2 };
+  }
+  positionnerFrame();
+  _canvasRect = canvas.getBoundingClientRect();
+}
+
+function positionnerFrame() {
+  const canvas = document.getElementById('cropCanvas');
+  const frame  = document.getElementById('cropFrame');
+  const wrap   = document.getElementById('cropWrap');
+  const cr = canvas.getBoundingClientRect();
+  const wr = wrap.getBoundingClientRect();
+  const ox = cr.left - wr.left;
+  const oy = cr.top  - wr.top;
+  frame.style.left   = (ox + _cropFrame.x) + 'px';
+  frame.style.top    = (oy + _cropFrame.y) + 'px';
+  frame.style.width  = _cropFrame.w + 'px';
+  frame.style.height = _cropFrame.h + 'px';
+}
+
+window.rotateCrop = function rotateCrop() {
+  _cropRotation = (_cropRotation + 90) % 360;
+  _cropFrame = { x:0, y:0, w:0, h:0 };
+  dessinerCrop();
+}
+
+window.annulerCrop = function annulerCrop() {
+  document.getElementById('cropOverlay').classList.remove('open');
+  _cropFrame = { x:0, y:0, w:0, h:0 };
+}
+
+window.validerCrop = function validerCrop() {
+  const canvas = document.getElementById('cropCanvas');
+  const out = document.createElement('canvas');
+  const f = _cropFrame;
+  out.width  = Math.max(1, f.w);
+  out.height = Math.max(1, f.h);
+  const ctx = out.getContext('2d');
+  ctx.drawImage(canvas, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
+  const cropped = out.toDataURL('image/jpeg', 0.85);
+
+  if (_cropTarget === 'texte') {
+    imgBase64Txt = cropped;
+    const i = document.getElementById('imgPrevTexte');
+    if (i) { i.src = cropped; i.style.display='block'; i.style.width='100%'; i.style.borderRadius='10px'; i.style.maxHeight='280px'; i.style.objectFit='contain'; }
+  } else {
+    imgBase64 = cropped;
+    const i = document.getElementById('imgPrev');
+    if (i) { i.src = cropped; i.style.display='block'; i.style.width='100%'; i.style.borderRadius='10px'; i.style.maxHeight='300px'; i.style.objectFit='contain'; }
+    document.getElementById('m2preview').style.display = 'none';
+  }
+  document.getElementById('cropOverlay').classList.remove('open');
+  _cropFrame = { x:0, y:0, w:0, h:0 };
+}
+
+// ── DRAG & RESIZE frame ──
+const cropWrap = document.getElementById('cropWrap');
+if (cropWrap) {
+  // Touch events
+  cropWrap.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    const frame = document.getElementById('cropFrame');
+    const fr = frame.getBoundingClientRect();
+    const handle = e.target.dataset.corner;
+    if (handle) {
+      _resizing = handle;
+      _frameStart = {..._cropFrame};
+      _dragStart = { x: t.clientX, y: t.clientY };
+      e.preventDefault();
+    } else if (e.target === frame) {
+      _dragging = true;
+      _frameStart = {..._cropFrame};
+      _dragStart = { x: t.clientX, y: t.clientY };
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  cropWrap.addEventListener('touchmove', e => {
+    if (!_dragging && !_resizing) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - _dragStart.x;
+    const dy = t.clientY - _dragStart.y;
+    const canvas = document.getElementById('cropCanvas');
+    const cw = canvas.width, ch = canvas.height;
+    if (_dragging) {
+      _cropFrame.x = Math.max(0, Math.min(cw - _cropFrame.w, _frameStart.x + dx));
+      _cropFrame.y = Math.max(0, Math.min(ch - _cropFrame.h, _frameStart.y + dy));
+    } else if (_resizing) {
+      const minS = 40;
+      let {x,y,w,h} = _frameStart;
+      if (_resizing === 'br') {
+        w = Math.max(minS, Math.min(cw - x, w + dx));
+        h = Math.max(minS, Math.min(ch - y, h + dy));
+      } else if (_resizing === 'bl') {
+        const nx = Math.max(0, Math.min(x + w - minS, x + dx));
+        w = x + w - nx; x = nx;
+        h = Math.max(minS, Math.min(ch - y, h + dy));
+      } else if (_resizing === 'tr') {
+        w = Math.max(minS, Math.min(cw - x, w + dx));
+        const ny = Math.max(0, Math.min(y + h - minS, y + dy));
+        h = y + h - ny; y = ny;
+      } else if (_resizing === 'tl') {
+        const nx = Math.max(0, Math.min(x + w - minS, x + dx));
+        const ny = Math.max(0, Math.min(y + h - minS, y + dy));
+        w = x + w - nx; h = y + h - ny; x = nx; y = ny;
+      }
+      _cropFrame = {x,y,w,h};
+    }
+    positionnerFrame();
+  }, {passive:false});
+
+  cropWrap.addEventListener('touchend', () => { _dragging = false; _resizing = null; });
+}
 
 /* ── TOAST ── */
 function showToast(msg) {
@@ -1110,6 +1359,28 @@ chargerOffres();
 document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
 
 </script>
+<!-- CROP OVERLAY -->
+<div class="crop-overlay" id="cropOverlay">
+  <div class="crop-topbar">
+    <button onclick="annulerCrop()">Annuler</button>
+    <span class="crop-title">Recadrer</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="crop-rotate" onclick="rotateCrop()" title="Rotation">↻</button>
+      <button onclick="validerCrop()" style="color:#27a945;font-weight:800;">Terminé</button>
+    </div>
+  </div>
+  <div class="crop-canvas-wrap" id="cropWrap">
+    <canvas id="cropCanvas"></canvas>
+    <div class="crop-frame" id="cropFrame">
+      <div class="crop-handle tl" data-corner="tl"></div>
+      <div class="crop-handle tr" data-corner="tr"></div>
+      <div class="crop-handle bl" data-corner="bl"></div>
+      <div class="crop-handle br" data-corner="br"></div>
+    </div>
+  </div>
+  <div class="crop-bottombar">Déplacez et redimensionnez le cadre pour recadrer</div>
+</div>
+
 <!-- SHEET POSTULER -->
 <div class="postuler-overlay" id="postulerOverlay">
   <div class="postuler-sheet">
@@ -1154,6 +1425,11 @@ function contacterOffre(btn){ if(window.contacterOffre) window.contacterOffre(bt
 function postulerOffre(btn){ if(window.postulerOffre) window.postulerOffre(btn); }
 function choisirPostuler(choix){ if(window.choisirPostuler) window.choisirPostuler(choix); }
 function toggleLike(btn){ if(window.toggleLike) window.toggleLike(btn); }
+function toggleMenuSuppr(id){ if(window.toggleMenuSuppr) window.toggleMenuSuppr(id); }
+function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffre(id,mode); }
+function annulerCrop(){ if(typeof annulerCrop==='function') window._annulerCrop?.(); else document.getElementById('cropOverlay').classList.remove('open'); }
+function rotateCrop(){ if(typeof rotateCrop!=='undefined') window._rotateCrop?.(); }
+function validerCrop(){ if(typeof validerCrop!=='undefined') window._validerCrop?.(); }
 </script>
 </body>
 </html>
