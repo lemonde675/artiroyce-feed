@@ -572,11 +572,8 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment,
-         onSnapshot, orderBy, query, serverTimestamp, where, getDoc }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getStorage, ref, uploadString, getDownloadURL }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, onSnapshot, orderBy, query, serverTimestamp, where, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -673,7 +670,21 @@ function chargerOffres() {
     }
 
     if (filtrer(actives).length === 0 && filtrer(expirees).length === 0) {
-      feedEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#aaa;font-size:14px;">Aucune offre pour l'instant.<br>Soyez le premier à publier !</div>';
+      // Afficher offres exemples si vide
+      const lbl = document.createElement('div');
+      lbl.className = 'sec-label';
+      lbl.textContent = 'Exemples';
+      feedEl.appendChild(lbl);
+      const exemples = [
+        { id:'ex1', type:'demande', titre:'Recherche 10 maçons qualifiés', auteurNom:'Kofi Adjovi', ville:'Cotonou', categorie:'🧱 Maçonnerie', budget:'50 000 FCFA/j', urgent:true, dispo:'Dès lundi', candidatures:23, likes:12, dureeDays:14, categEmoji:'🧱', createdAt:{toMillis:()=>Date.now()-7200000} },
+        { id:'ex2', type:'offre', titre:'Couturière disponible — robes & costumes', auteurNom:'Fatoumata Bah', ville:'Porto-Novo', categorie:'✂️ Couture', budget:'Négociable', urgent:false, dureeDays:21, categEmoji:'✂️', likes:18, candidatures:8, createdAt:{toMillis:()=>Date.now()-18000000} },
+        { id:'ex3', type:'offre', titre:'DJ disponible pour événements & soirées', auteurNom:'David Koffi', ville:'Cotonou', categorie:'🎧 DJ', budget:'150 000 FCFA/soirée', urgent:true, dureeDays:28, categEmoji:'🎧', likes:28, candidatures:32, createdAt:{toMillis:()=>Date.now()-10800000} }
+      ];
+      exemples.forEach(o => feedEl.appendChild(buildCard(o, false)));
+      const note = document.createElement('div');
+      note.style.cssText='text-align:center;padding:16px;font-size:12px;color:#aaa;';
+      note.textContent='Publiez la première vraie offre !';
+      feedEl.appendChild(note);
     }
   });
 }
@@ -683,6 +694,8 @@ function buildCard(o, expiree) {
   const div = document.createElement('div');
   div.className = 'card' + (expiree ? ' expiree' : '');
   div.id = 'card-' + o.id;
+  div.dataset.whatsapp = o.whatsapp||'';
+  div.dataset.auteur = o.auteurNom||'';
 
   const now = Date.now();
   const createdMs = o.createdAt?.toMillis ? o.createdAt.toMillis() : now;
@@ -715,8 +728,8 @@ function buildCard(o, expiree) {
   // Actions
   const actionsHtml = expiree ? '' : `
     <div class="card-actions">
-      <button class="btn-c" onclick="contacter('${o.whatsapp||''}','${o.auteurNom||''}'))">📞 Contacter</button>
-      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" onclick="postuler('${o.id}')">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
+      <button class="btn-c" onclick="contacterOffre(this)">📞 Contacter</button>
+      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
     </div>`;
 
   div.innerHTML = `
@@ -747,7 +760,7 @@ function buildCard(o, expiree) {
       <div class="comm-input-row">
         <div class="user-ava">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
         <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
-        <div class="comm-input-icons" style="cursor:pointer;font-size:18px;" onclick="envoyerComm('${o.id}')">➤</div>
+        <div class="comm-input-icons" style="cursor:pointer;font-size:18px;" data-id="${o.id}" onclick="envoyerComm(this.dataset.id)">➤</div>
       </div>
       <div id="comm-list-${o.id}"></div>
     </div>`;
@@ -776,7 +789,7 @@ function buildCard(o, expiree) {
             <div class="comm-text">${c.texte}</div>
             <div class="comm-meta">
               <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
-              <span class="rep" onclick="repondreComm('${o.id}','${c.nom||''}')">Répondre</span>
+              <span class="rep" data-id="${o.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.nom)">Répondre</span>
               <span class="likes">❤️ ${c.likes||0}</span>
             </div>
           </div>
@@ -821,16 +834,26 @@ window.repondreComm = (offreId, nom) => {
 };
 
 /* ── CONTACTER ── */
+window.contacterOffre = (btn) => {
+  const card = btn.closest('.card');
+  const whatsapp = card?.dataset?.whatsapp || '';
+  const nom = card?.dataset?.auteur || '';
+  window.contacter(whatsapp, nom);
+};
 window.contacter = (whatsapp, nom) => {
   if (whatsapp) {
     const msg = encodeURIComponent('Bonjour '+nom+', je vous contacte via ArtiRoyce.');
-    window.open('https://wa.me/'+whatsapp.replace(/\D/g,'')+'?text='+msg,'_blank');
+    window.open('https://wa.me/'+whatsapp.replace(/[^0-9]/g,'')+'?text='+msg,'_blank');
   } else {
     alert('Contact WhatsApp non disponible.');
   }
 };
 
 /* ── POSTULER ── */
+window.postulerOffre = (btn) => {
+  const id = btn.dataset.id;
+  if (id) window.postuler(id);
+};
 window.postuler = async (offreId) => {
   if (!currentUser) { alert('Connectez-vous pour postuler.'); return; }
   try {
@@ -1013,7 +1036,7 @@ function showToast(msg) {
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
   const m = Math.floor(diff/60000);
-  if (m < 1)  return "à l'instant";
+  if (m < 1)  return 'il y a peu';
   if (m < 60) return 'il y a '+m+'min';
   const h = Math.floor(m/60);
   if (h < 24) return 'il y a '+h+'h';
@@ -1030,6 +1053,20 @@ chargerOffres();
 // Bouton publier connecté
 document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
 
+</script>
+<script>
+// Pont entre onclick HTML et fonctions module Firebase
+function openModal(){ if(window.openModal) window.openModal(); else document.getElementById('overlay').classList.add('open'); }
+function closeSiDehors(e){ if(window.closeSiDehors) window.closeSiDehors(e); }
+function selModele(el,t){ if(window.selModele) window.selModele(el,t); }
+function toggleImg(){ if(window.toggleImg) window.toggleImg(); }
+function toggleImgTexte(){ if(window.toggleImgTexte) window.toggleImgTexte(); }
+function previewImg(e){ if(window.previewImg) window.previewImg(e); }
+function previewImgTexte(e){ if(window.previewImgTexte) window.previewImgTexte(e); }
+function envoyerComm(id){ if(window.envoyerComm) window.envoyerComm(id); }
+function repondreComm(id,nom){ if(window.repondreComm) window.repondreComm(id,nom); }
+function contacterOffre(btn){ if(window.contacterOffre) window.contacterOffre(btn); }
+function postulerOffre(btn){ if(window.postulerOffre) window.postulerOffre(btn); }
 </script>
 </body>
 </html>
