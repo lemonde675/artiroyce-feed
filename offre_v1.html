@@ -536,9 +536,9 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 
 <!-- Stats — simples, noir -->
 <div class="stats">
-  <div class="stat"><div class="sv">48</div><div class="sl">Demandes</div></div>
-  <div class="stat"><div class="sv">124</div><div class="sl">Offres</div></div>
-  <div class="stat"><div class="sv">12</div><div class="sl">Urgentes</div></div>
+  <div class="stat"><div class="sv" id="stat-demandes">—</div><div class="sl">Demandes</div></div>
+  <div class="stat"><div class="sv" id="stat-offres">—</div><div class="sl">Offres</div></div>
+  <div class="stat"><div class="sv" id="stat-urgentes">—</div><div class="sl">Urgentes</div></div>
 </div>
 
 <!-- Filtres -->
@@ -559,7 +559,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 <div class="overlay" id="overlay" onclick="closeSiDehors(event)">
   <div class="modal" id="modal">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;">
-      <button onclick="document.getElementById('overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      <button onclick="fermerModal()" style="width:34px;height:34px;border-radius:50%;border:none;background:#f0f2f5;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">✕</button>
       <div style="width:36px;height:4px;background:#ddd;border-radius:4px;"></div>
       <div style="width:32px;"></div>
     </div>
@@ -727,13 +727,23 @@ function chargerOffres() {
 
     snap.forEach(d => {
       const o = { id: d.id, ...d.data() };
-      // Vérifier expiration
       const expireMs = o.createdAt?.toMillis
         ? o.createdAt.toMillis() + (o.dureeDays||30)*24*3600*1000
         : now + 1;
       if (expireMs > now) actives.push(o);
       else expirees.push(o);
     });
+
+    // Mettre à jour stats réelles
+    const totalDemandes = actives.filter(o => o.type === 'demande').length;
+    const totalOffres   = actives.filter(o => o.type === 'offre' || o.type === 'texte').length;
+    const totalUrgentes = actives.filter(o => o.urgent).length;
+    const elD = document.getElementById('stat-demandes');
+    const elO = document.getElementById('stat-offres');
+    const elU = document.getElementById('stat-urgentes');
+    if (elD) elD.textContent = totalDemandes;
+    if (elO) elO.textContent = totalOffres;
+    if (elU) elU.textContent = totalUrgentes;
 
     // Filtrer
     const filtrer = arr => {
@@ -892,6 +902,21 @@ function buildCard(o, expiree) {
       <div id="comm-list-${o.id}"></div>
     </div>`;
 
+  // Charger reaction existante de l'utilisateur
+  if (currentUser) {
+    getDoc(doc(db,'offres',o.id,'reactions',currentUser.uid)).then(rs => {
+      if (rs.exists()) {
+        const emoji = rs.data().emoji;
+        if (emoji) {
+          const btn    = document.getElementById('like-btn-'+o.id);
+          const emojiEl= document.getElementById('like-emoji-'+o.id);
+          if (btn)    { btn.dataset.reaction = emoji; btn.classList.add('liked'); }
+          if (emojiEl)  emojiEl.textContent = emoji;
+        }
+      }
+    }).catch(()=>{});
+  }
+
   // Écouter commentaires temps réel
   const qc = query(collection(db,'offres',o.id,'commentaires'), orderBy('createdAt','asc'));
   onSnapshot(qc, snap2 => {
@@ -1019,43 +1044,45 @@ window.endLikeHold = (id) => {
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
-  if (!currentUser) { alert('Connectez-vous pour réagir.'); return; }
-  // Fermer panoplie
+  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
   document.getElementById('reactions-'+offreId)?.classList.remove('open');
-  const btn = document.getElementById('like-btn-'+offreId);
-  const emojiEl = document.getElementById('like-emoji-'+offreId);
-  const countEl = document.getElementById('like-count-'+offreId);
-  const current = parseInt(countEl?.textContent || '0');
-  const prevReaction = btn?.dataset?.reaction || '';
+  const btn    = document.getElementById('like-btn-'+offreId);
+  const emojiEl= document.getElementById('like-emoji-'+offreId);
+  const countEl= document.getElementById('like-count-'+offreId);
+  const prev   = btn ? btn.dataset.reaction : '';
+  const current= parseInt(countEl ? countEl.textContent : '0') || 0;
 
   try {
-    // Sauvegarder réaction utilisateur dans sous-collection
-    const reacRef = doc(db,'offres',offreId,'reactions',currentUser.uid);
-    if (prevReaction === emoji) {
-      // Désactiver
+    const reacRef = doc(db, 'offres', offreId, 'reactions', currentUser.uid);
+    if (prev === emoji) {
+      // Enlever reaction
       await updateDoc(doc(db,'offres',offreId), { likes: increment(-1) });
-      // Note: deleteDoc serait idéal mais simplifions
-      await updateDoc(reacRef, { emoji:'', uid: currentUser.uid }).catch(()=>{});
-      if (btn) { btn.dataset.reaction=''; btn.classList.remove('liked'); }
-      if (emojiEl) emojiEl.textContent = '👍';
-      if (countEl) countEl.textContent = Math.max(0, current-1);
+      try { await updateDoc(reacRef, { emoji: '', uid: currentUser.uid }); } catch(e){}
+      if (btn)    { btn.dataset.reaction = ''; btn.classList.remove('liked'); }
+      if (emojiEl)  emojiEl.textContent = '👍';
+      if (countEl)  countEl.textContent = Math.max(0, current - 1);
     } else {
-      const delta = prevReaction ? 0 : 1;
-      await updateDoc(doc(db,'offres',offreId), { likes: increment(delta) });
-      try { await updateDoc(reacRef, { emoji, uid: currentUser.uid }); }
-      catch(e) { await addDoc(collection(db,'offres',offreId,'reactions'), { emoji, uid: currentUser.uid }); }
-      if (btn) { btn.dataset.reaction=emoji; btn.classList.add('liked'); }
-      if (emojiEl) emojiEl.textContent = emoji;
-      if (countEl && delta===1) countEl.textContent = current+1;
+      // Nouvelle reaction — increment seulement si pas de reaction avant
+      const delta = prev && prev !== '' ? 0 : 1;
+      if (delta) await updateDoc(doc(db,'offres',offreId), { likes: increment(1) });
+      // Sauvegarder dans Firestore (setDoc = create or overwrite)
+      try {
+        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+        await setDoc(reacRef, { emoji, uid: currentUser.uid });
+      } catch(e) { console.error('setDoc:', e); }
+      if (btn)    { btn.dataset.reaction = emoji; btn.classList.add('liked'); }
+      if (emojiEl)  emojiEl.textContent = emoji;
+      if (countEl && delta) countEl.textContent = current + 1;
     }
-  } catch(e){ console.error(e); }
+  } catch(e) { console.error('reaction:', e); }
 };
 
 // Tap simple = J'aime rapide
 window.toggleLike = async (btn) => {
-  const id = btn.dataset.id;
-  const current = btn.dataset.reaction;
-  await window.choisirReaction(id, '👍', 'J\'aime');
+  const id = btn ? btn.dataset.id : '';
+  if (!id) return;
+  const prevEmoji = btn.dataset.reaction || '';
+  await window.choisirReaction(id, '👍', 'Jaime');
 };
 
 // Fermer panoplie si clic ailleurs
@@ -1525,13 +1552,12 @@ document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre)
 </script>
 <!-- CROP OVERLAY -->
 <div class="crop-overlay" id="cropOverlay">
-  <div class="crop-topbar">
-    <button onclick="annulerCrop()">Annuler</button>
-    <span class="crop-title">Recadrer</span>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button class="crop-rotate" onclick="rotateCrop()" title="Rotation">↻</button>
-      <button onclick="validerCrop()" style="background:#27a945;color:#fff;border-radius:20px;padding:7px 18px;font-weight:800;border:none;font-size:14px;cursor:pointer;">✓ OK</button>
+  <div class="crop-topbar" style="background:#000;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;flex-shrink:0;">
+    <button onclick="annulerCrop()" style="background:none;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:10px;">✕ Annuler</button>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button onclick="rotateCrop()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px 12px;border-radius:10px;">↻</button>
     </div>
+    <button onclick="validerCrop()" style="background:#27a945;color:#fff;border-radius:20px;padding:9px 20px;font-weight:800;border:none;font-size:15px;cursor:pointer;">✓ Terminé</button>
   </div>
   <div class="crop-canvas-wrap" id="cropWrap">
     <canvas id="cropCanvas"></canvas>
@@ -1592,6 +1618,7 @@ function toggleLike(btn){ if(window.toggleLike) window.toggleLike(btn); }
 function toggleMenuSuppr(id){ if(window.toggleMenuSuppr) window.toggleMenuSuppr(id); }
 function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffre(id,mode); }
 function toggleUrgent(){ if(window.toggleUrgent) window.toggleUrgent(); }
+function fermerModal(){ document.getElementById('overlay').classList.remove('open'); }
 function startLikeHold(id){ if(window.startLikeHold) window.startLikeHold(id); }
 function endLikeHold(id){ if(window.endLikeHold) window.endLikeHold(id); }
 function choisirReaction(id,emoji,label){ if(window.choisirReaction) window.choisirReaction(id,emoji,label); }
