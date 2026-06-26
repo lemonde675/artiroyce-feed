@@ -213,9 +213,25 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
   display: inline-flex; align-items: center; gap: 5px;
   padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e4e6eb;
   background: #fff; font-size: 13px; cursor: pointer; font-weight: 600;
-  color: #65676b; transition: all .15s;
+  color: #65676b; transition: all .15s; position: relative;
 }
 .like-btn.liked { background: #fff8f7; border-color: var(--red); color: var(--red); }
+/* Panoplie réactions */
+.reactions-panel {
+  display: none; position: absolute; bottom: 40px; left: 0;
+  background: #fff; border-radius: 40px; padding: 8px 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e4e6eb;
+  z-index: 50; white-space: nowrap;
+}
+.reactions-panel.open { display: flex; gap: 8px; align-items: center; }
+.reaction-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer; padding: 4px 6px; border-radius: 12px; transition: background .15s;
+}
+.reaction-item:hover { background: #f0f2f5; }
+.reaction-item .r-emoji { font-size: 28px; transition: transform .15s; }
+.reaction-item:hover .r-emoji { transform: scale(1.25); }
+.reaction-item .r-label { font-size: 10px; color: #65676b; font-weight: 600; }
 /* Modal postuler */
 .postuler-overlay {
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
@@ -620,9 +636,13 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
     <div class="fg">
       <label>⏳ Durée de validité</label>
       <div class="duree">
-        <input type="number" placeholder="30" min="1"/>
-        <select><option>jours</option><option>semaines</option><option>mois</option></select>
+        <input type="number" placeholder="30" min="1" id="inp-duree"/>
+        <select id="inp-duree-unit"><option>jours</option><option>semaines</option><option>mois</option></select>
       </div>
+    </div>
+    <div id="togRow2" class="tog-row" onclick="toggleUrgent()" style="margin-bottom:10px;">
+      <div class="tog" id="togUrgent"></div>
+      ⚡ Marquer comme urgent
     </div>
     <div id="togRow" class="tog-row" onclick="toggleImg()">
       <div class="tog" id="togImg"></div>
@@ -845,9 +865,22 @@ function buildCard(o, expiree) {
     ${actionsHtml}
     <div class="comm-section" id="comms-${o.id}">
       <div class="comm-reactions">
-        <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-liked="false" onclick="toggleLike(this)">
-          👍 <span id="like-count-${o.id}">${o.likes||0}</span>
-        </button>
+        <div style="position:relative;display:inline-block;">
+          <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-reaction=""
+            onpointerdown="startLikeHold('${o.id}')" onpointerup="endLikeHold('${o.id}')" onpointerleave="endLikeHold('${o.id}')">
+            <span id="like-emoji-${o.id}">👍</span>
+            <span id="like-count-${o.id}">${o.likes||0}</span>
+          </button>
+          <div class="reactions-panel" id="reactions-${o.id}">
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','J\'aime')"><span class="r-emoji">👍</span><span class="r-label">J\'aime</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','J\'adore')"><span class="r-emoji">❤️</span><span class="r-label">J\'adore</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">Solidaire</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">Haha</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">Wouah</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">Triste</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colère')"><span class="r-emoji">😡</span><span class="r-label">Colère</span></div>
+          </div>
+        </div>
         <span id="comm-count-${o.id}">0 commentaire</span>
       </div>
       <div class="comm-title">Commentaires</div>
@@ -970,19 +1003,67 @@ window.choisirPostuler = async (choix) => {
   } catch(e){ console.error(e); }
 };
 
-window.toggleLike = async (btn) => {
-  if (!currentUser) { alert('Connectez-vous pour liker.'); return; }
-  const offreId = btn.dataset.id;
-  const liked = btn.dataset.liked === 'true';
-  const countEl = document.getElementById('like-count-' + offreId);
+// Réactions — hold pour panoplie, tap simple pour toggle
+let _holdTimer = {};
+
+window.startLikeHold = (id) => {
+  _holdTimer[id] = setTimeout(() => {
+    // Afficher panoplie après 400ms
+    const panel = document.getElementById('reactions-'+id);
+    if (panel) panel.classList.add('open');
+  }, 400);
+};
+
+window.endLikeHold = (id) => {
+  clearTimeout(_holdTimer[id]);
+};
+
+window.choisirReaction = async (offreId, emoji, label) => {
+  if (!currentUser) { alert('Connectez-vous pour réagir.'); return; }
+  // Fermer panoplie
+  document.getElementById('reactions-'+offreId)?.classList.remove('open');
+  const btn = document.getElementById('like-btn-'+offreId);
+  const emojiEl = document.getElementById('like-emoji-'+offreId);
+  const countEl = document.getElementById('like-count-'+offreId);
   const current = parseInt(countEl?.textContent || '0');
+  const prevReaction = btn?.dataset?.reaction || '';
+
   try {
-    await updateDoc(doc(db,'offres',offreId), { likes: increment(liked ? -1 : 1) });
-    btn.dataset.liked = liked ? 'false' : 'true';
-    btn.classList.toggle('liked', !liked);
-    if (countEl) countEl.textContent = liked ? current - 1 : current + 1;
+    // Sauvegarder réaction utilisateur dans sous-collection
+    const reacRef = doc(db,'offres',offreId,'reactions',currentUser.uid);
+    if (prevReaction === emoji) {
+      // Désactiver
+      await updateDoc(doc(db,'offres',offreId), { likes: increment(-1) });
+      // Note: deleteDoc serait idéal mais simplifions
+      await updateDoc(reacRef, { emoji:'', uid: currentUser.uid }).catch(()=>{});
+      if (btn) { btn.dataset.reaction=''; btn.classList.remove('liked'); }
+      if (emojiEl) emojiEl.textContent = '👍';
+      if (countEl) countEl.textContent = Math.max(0, current-1);
+    } else {
+      const delta = prevReaction ? 0 : 1;
+      await updateDoc(doc(db,'offres',offreId), { likes: increment(delta) });
+      try { await updateDoc(reacRef, { emoji, uid: currentUser.uid }); }
+      catch(e) { await addDoc(collection(db,'offres',offreId,'reactions'), { emoji, uid: currentUser.uid }); }
+      if (btn) { btn.dataset.reaction=emoji; btn.classList.add('liked'); }
+      if (emojiEl) emojiEl.textContent = emoji;
+      if (countEl && delta===1) countEl.textContent = current+1;
+    }
   } catch(e){ console.error(e); }
 };
+
+// Tap simple = J'aime rapide
+window.toggleLike = async (btn) => {
+  const id = btn.dataset.id;
+  const current = btn.dataset.reaction;
+  await window.choisirReaction(id, '👍', 'J\'aime');
+};
+
+// Fermer panoplie si clic ailleurs
+document.addEventListener('click', e => {
+  document.querySelectorAll('.reactions-panel.open').forEach(p => {
+    if (!p.parentNode.contains(e.target)) p.classList.remove('open');
+  });
+});
 
 /* ── PUBLIER UNE OFFRE ── */
 window.publierOffre = async () => {
@@ -1031,7 +1112,7 @@ window.publierOffre = async () => {
     data.ville     = inputs[1]?.value?.trim() || '';
     data.budget    = inputs[2]?.value?.trim() || '';
     data.dispo     = inputs[3]?.value?.trim() || '';
-    data.urgent    = categ.toLowerCase().includes('urgent') || false;
+    data.urgent    = urgentOn || false;
     data.dureeDays = dureeDays;
     data.whatsapp  = currentUser.phoneNumber || '';
     if (imgBase64) data.imageUrl = imgBase64;
@@ -1101,7 +1182,24 @@ window.selModele = (el, type) => {
 window.previewImg = e => {
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
-  r.onload = ev => { ouvrirCrop(ev.target.result, 'main'); };
+  r.onload = ev => {
+    imgBase64 = ev.target.result;
+    const imgPrev = document.getElementById('imgPrev');
+    imgPrev.src = ev.target.result;
+    imgPrev.style.cssText = 'display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-top:8px;';
+    document.getElementById('m2preview').style.display = 'none';
+    // Bouton recadrer
+    let cropBtn = document.getElementById('btn-crop-main');
+    if (!cropBtn) {
+      cropBtn = document.createElement('button');
+      cropBtn.id = 'btn-crop-main';
+      cropBtn.textContent = '✂️ Recadrer cette image';
+      cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
+      cropBtn.onclick = () => ouvrirCrop(imgBase64, 'main');
+      imgPrev.parentNode.insertBefore(cropBtn, imgPrev.nextSibling);
+    }
+    cropBtn.style.display = 'block';
+  };
   r.readAsDataURL(f);
 };
 
@@ -1109,6 +1207,12 @@ window.toggleImg = () => {
   imgOn = !imgOn;
   document.getElementById('togImg').classList.toggle('on', imgOn);
   document.getElementById('uploadZone').style.display = imgOn ? 'block' : 'none';
+};
+
+let urgentOn = false;
+window.toggleUrgent = () => {
+  urgentOn = !urgentOn;
+  document.getElementById('togUrgent').classList.toggle('on', urgentOn);
 };
 
 window.toggleImgTexte = () => {
@@ -1120,7 +1224,22 @@ window.toggleImgTexte = () => {
 window.previewImgTexte = e => {
   const f = e.target.files[0]; if(!f) return;
   const r = new FileReader();
-  r.onload = ev => { ouvrirCrop(ev.target.result, 'texte'); };
+  r.onload = ev => {
+    imgBase64Txt = ev.target.result;
+    const i = document.getElementById('imgPrevTexte');
+    i.src = ev.target.result;
+    i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;';
+    let cropBtn = document.getElementById('btn-crop-texte');
+    if (!cropBtn) {
+      cropBtn = document.createElement('button');
+      cropBtn.id = 'btn-crop-texte';
+      cropBtn.textContent = '✂️ Recadrer cette image';
+      cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
+      cropBtn.onclick = () => ouvrirCrop(imgBase64Txt, 'texte');
+      i.parentNode.insertBefore(cropBtn, i.nextSibling);
+    }
+    cropBtn.style.display = 'block';
+  };
   r.readAsDataURL(f);
 };
 
@@ -1139,23 +1258,68 @@ window.toggleMenuSuppr = (id) => {
   }, 100);
 };
 
-window.supprimerOffre = async (offreId, mode) => {
-  const { deleteDoc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  if (mode === 'definitif') {
-    if (!confirm('Supprimer définitivement cette offre ?')) return;
+window.supprimerOffre = (offreId, mode) => {
+  // Fermer menu
+  const menu = document.getElementById('menu-suppr-'+offreId);
+  if (menu) menu.style.display = 'none';
+
+  // Afficher dialog confirmation
+  const messages = {
+    definitif: 'Supprimer definitivement cette offre ? Action irreversible.',
+    '15j': 'Faire expirer cette offre dans 15 jours.',
+    '30j': 'Faire expirer cette offre dans 30 jours.'
+  };
+
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
+  const icon = mode === 'definitif' ? '🗑️' : '⏳';
+  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
+  const desc = mode === 'definitif'
+    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
+    : 'Cette offre expirera dans ' + (mode === '15j' ? '15' : '30') + ' jours.';
+
+  const iconDiv = document.createElement('div');
+  iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
+  iconDiv.textContent = icon;
+  const titreDiv = document.createElement('div');
+  titreDiv.style.cssText = 'font-size:16px;font-weight:800;color:#1c1e21;margin-bottom:8px;text-align:center;';
+  titreDiv.textContent = titre;
+  const descDiv = document.createElement('div');
+  descDiv.style.cssText = 'font-size:13px;color:#65676b;text-align:center;margin-bottom:20px;line-height:1.5;';
+  descDiv.textContent = desc;
+  const btnsDiv = document.createElement('div');
+  btnsDiv.style.cssText = 'display:flex;gap:10px;';
+  const btnNon = document.createElement('button');
+  btnNon.id = 'btn-non';
+  btnNon.textContent = 'Non, annuler';
+  btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
+  const btnOui = document.createElement('button');
+  btnOui.id = 'btn-oui';
+  btnOui.textContent = 'Oui, confirmer';
+  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
+  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
+  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
+
+  dialog.appendChild(box);
+  document.body.appendChild(dialog);
+
+  dialog.querySelector('#btn-non').onclick = () => dialog.remove();
+  dialog.querySelector('#btn-oui').onclick = async () => {
+    dialog.remove();
     try {
-      await deleteDoc(doc(db,'offres',offreId));
-      showToast('Offre supprimée.');
-    } catch(e){ console.error(e); }
-  } else {
-    const jours = mode === '15j' ? 15 : 30;
-    const expireAt = new Date(Date.now() + jours*24*3600*1000);
-    try {
-      await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
-      showToast('Offre expirera dans '+jours+' jours.');
-    } catch(e){ console.error(e); }
-  }
-  document.getElementById('menu-suppr-'+offreId)?.remove();
+      if (mode === 'definitif') {
+        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+        await dd(doc(db,'offres',offreId));
+        showToast('Offre supprimée définitivement.');
+      } else {
+        const jours = mode === '15j' ? 15 : 30;
+        await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
+        showToast('Offre expirera dans '+jours+' jours.');
+      }
+    } catch(e){ console.error(e); showToast('Erreur : '+e.message); }
+  };
 };
 
 /* ── CROP ENGINE ── */
@@ -1366,7 +1530,7 @@ document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre)
     <span class="crop-title">Recadrer</span>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="crop-rotate" onclick="rotateCrop()" title="Rotation">↻</button>
-      <button onclick="validerCrop()" style="color:#27a945;font-weight:800;">Terminé</button>
+      <button onclick="validerCrop()" style="background:#27a945;color:#fff;border-radius:20px;padding:7px 18px;font-weight:800;border:none;font-size:14px;cursor:pointer;">✓ OK</button>
     </div>
   </div>
   <div class="crop-canvas-wrap" id="cropWrap">
@@ -1427,6 +1591,10 @@ function choisirPostuler(choix){ if(window.choisirPostuler) window.choisirPostul
 function toggleLike(btn){ if(window.toggleLike) window.toggleLike(btn); }
 function toggleMenuSuppr(id){ if(window.toggleMenuSuppr) window.toggleMenuSuppr(id); }
 function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffre(id,mode); }
+function toggleUrgent(){ if(window.toggleUrgent) window.toggleUrgent(); }
+function startLikeHold(id){ if(window.startLikeHold) window.startLikeHold(id); }
+function endLikeHold(id){ if(window.endLikeHold) window.endLikeHold(id); }
+function choisirReaction(id,emoji,label){ if(window.choisirReaction) window.choisirReaction(id,emoji,label); }
 function annulerCrop(){ if(typeof annulerCrop==='function') window._annulerCrop?.(); else document.getElementById('cropOverlay').classList.remove('open'); }
 function rotateCrop(){ if(typeof rotateCrop!=='undefined') window._rotateCrop?.(); }
 function validerCrop(){ if(typeof validerCrop!=='undefined') window._validerCrop?.(); }
