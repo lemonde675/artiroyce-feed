@@ -3,110 +3,399 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Offres - Modèle 1</title>
+<title>Offres – ArtiRoyce</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--red:#e63224;--green:#27a945;--bg:#f7f7f7;--card:#fff;--dark:#111;--muted:#888}
-html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:#fff;overflow:hidden;max-width:480px;margin:0 auto}
-.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #eee}
-.h-row1{display:flex;align-items:center;padding:6px 12px 4px;gap:6px}
-.h-house{font-size:24px;flex-shrink:0;cursor:pointer}
-.h-logo{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
-.h-logo-text{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
-.h-logo-text .arti{color:var(--red)}.h-logo-text .royce{color:var(--green)}
-.h-icons{display:flex;align-items:center;gap:3px;flex-shrink:0}
-.h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
-.h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
-.h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.h-ico.chat .bdot{background:var(--green)}
-.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column;background:var(--bg)}
-.spacer{flex-shrink:0}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root { --red: #e63224; --green: #27a945; --blue: #1877f2; }
+html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; color: #1c1e21; max-width: 480px; margin: 0 auto; }
 
-/* FILTERS */
-.filters{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;background:#fff;border-bottom:1px solid #eee}
-.filters::-webkit-scrollbar{display:none}
-.fp{white-space:nowrap;padding:6px 14px;border-radius:22px;font-size:12px;font-weight:700;border:1.5px solid #eee;cursor:pointer;flex-shrink:0;background:#fff;color:#888;transition:all 0.18s}
-.fp.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+/* ── HEADER — copie exacte accueil.html ── */
+.top-header {
+  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px; z-index: 200;
+  background: #fff; border-bottom: 1px solid #e8e8e8;
+}
+.h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
+.h-house { font-size: 24px; flex-shrink: 0; }
+.h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
+.h-logo-text .arti  { color: var(--red); }
+.h-logo-text .royce { color: var(--green); }
+.h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.h-ico {
+  position: relative; width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; flex-shrink: 0;
+}
+.h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
+.h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
+.h-ico .bdot {
+  position: absolute; top: -3px; right: -3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--red); color: #fff;
+  font-size: 9px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+}
+.h-ico.chat .bdot { background: var(--green); }
+.h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+.h-tabs {
+  display: flex; align-items: center; overflow-x: auto; scrollbar-width: none;
+  padding: 0 10px 7px; gap: 6px;
+}
+.h-tabs::-webkit-scrollbar { display: none; }
+.h-tab {
+  white-space: nowrap; padding: 5px 14px; border-radius: 22px;
+  font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+  color: #555; background: transparent; border: none;
+  display: flex; align-items: center; gap: 5px;
+}
+.h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
 
-/* FEED */
-.feed{flex:1;overflow-y:auto;scrollbar-width:none;padding:10px 12px 70px}
-.feed::-webkit-scrollbar{display:none}
+/* ── CONTENU ── */
+.content { padding-top: 108px; padding-bottom: 28px; background: #F2F4F7; }
 
-/* HERO */
-.hero{background:#fff;border-radius:18px;padding:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #eee;box-shadow:0 2px 10px rgba(0,0,0,0.05)}
-.hero-left h2{font-size:18px;font-weight:900;color:var(--dark);margin-bottom:4px}
-.hero-left p{font-size:12px;color:var(--muted);margin-bottom:14px}
-.hero-btn{background:var(--red);color:#fff;font-size:13px;font-weight:800;padding:9px 18px;border-radius:22px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(230,50,36,0.4)}
-.hero-icon{font-size:60px;opacity:0.9}
+/* Hero */
+.hero {
+  margin: 14px 12px 0;
+  background: #FFFFFF; border-radius: 24px;
+  border: 1px solid #E8ECF0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.07);
+  padding: 24px 22px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hero-left h2 { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
+.hero-left p  { font-size: 13px; color: #65676b; margin-bottom: 14px; }
+.btn-pub {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #F05545; color: #fff; border: none; border-radius: 22px;
+  padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+}
 
-/* STATS */
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-card{background:#fff;border-radius:14px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-.stat-n{font-size:20px;font-weight:900;color:var(--dark)}
-.stat-n.red{color:var(--red)}
-.stat-n.green{color:var(--green)}
-.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+/* Panneau — OFFRE D'EMPLOI seulement */
+.panneau-outer { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 72px; }
+.ficelle { width: 50px; height: 16px; position: relative; }
+.ficelle::before, .ficelle::after {
+  content: ''; position: absolute; bottom: 0;
+  width: 23px; height: 1.5px; background: #bbb;
+}
+.ficelle::before { left: 0; transform-origin: 100% 100%; transform: rotate(-20deg); }
+.ficelle::after  { right: 0; transform-origin: 0 100%; transform: rotate(20deg); }
+.ficelle .crochet {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 7px; height: 7px; border: 1.5px solid #aaa; border-radius: 50%;
+}
+.panneau-box {
+  background: #fff; border: 1.5px solid #e4e6eb;
+  border-radius: 8px; padding: 7px 8px; text-align: center;
+  box-shadow: 2px 3px 8px rgba(0,0,0,.10); transform: rotate(-1.5deg);
+}
+.panneau-box .pt { font-size: 10px; font-weight: 900; color: #1c1e21; }
+.panneau-box .ps { font-size: 10px; font-weight: 900; color: var(--red); }
 
-/* OFFRE CARD */
-.offre{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);cursor:pointer;transition:transform 0.12s}
-.offre:active{transform:scale(0.98)}
-.offre-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.offre-av{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.offre-info{flex:1;min-width:0}
-.offre-title{font-size:14px;font-weight:900;color:var(--dark);margin-bottom:3px}
-.offre-meta{font-size:12px;color:var(--muted)}
-.offre-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:3px 9px;border-radius:99px;flex-shrink:0}
-.offre-badge.demande{background:#fff0f0;color:var(--red)}
-.offre-badge.offre-b{background:#f0fff4;color:var(--green)}
-.offre-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:#f5f5f5;color:#555}
-.tag.budget{background:#fff8e1;color:#b8860b}
-.tag.urgent{background:#fff0f0;color:var(--red)}
-.tag.place{background:#e8f5e9;color:var(--green)}
-.offre-footer{display:flex;align-items:center;justify-content:space-between}
-.offre-time{font-size:11px;color:var(--muted)}
-.offre-actions{display:flex;gap:8px}
-.btn-postuler{background:var(--red);color:#fff;font-size:12px;font-weight:800;padding:7px 16px;border-radius:22px;border:none;cursor:pointer;box-shadow:0 3px 8px rgba(230,50,36,0.3)}
-.btn-contact{background:#f5f5f5;color:var(--dark);font-size:12px;font-weight:800;padding:7px 14px;border-radius:22px;border:none;cursor:pointer}
+/* Stats — simples, chiffres en noir */
+.stats { display: flex; gap: 8px; margin: 8px 10px 0; }
+.stat {
+  flex: 1; background: #fff; border-radius: 12px;
+  padding: 10px 6px 8px; text-align: center;
+  border: 1px solid #e4e6eb;
+}
+.stat .sv { font-size: 20px; font-weight: 900; color: #1c1e21; }
+.stat .sl { font-size: 11px; color: #65676b; margin-top: 1px; }
 
-/* BOT NAV */
-.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
-.nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
-.nav-lb{font-size:10px;font-weight:700;color:#aaa}
-.nav-i.active .nav-lb{color:var(--green)}
-.nav-plus-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px}
-.nav-plus{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;box-shadow:0 4px 14px rgba(230,50,36,0.55);margin-top:-16px}
-.nav-ico{width:24px;height:24px}
-.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}.toast.g{background:var(--green)}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* Filtres */
+.filtres {
+  display: flex; gap: 7px; overflow-x: auto; padding: 8px 10px 2px;
+  scrollbar-width: none;
+}
+.filtres::-webkit-scrollbar { display: none; }
+.filtre {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; border: 1px solid #e4e6eb;
+  background: #fff; cursor: pointer; color: #444; white-space: nowrap;
+}
+.filtre.on { background: var(--red); color: #fff; border-color: var(--red); }
 
-/* MODAL PUBLICATION */
-.pub-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
-.pub-modal.open{opacity:1;pointer-events:all}
-.pub-body{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:0 0 30px;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
-.pub-modal.open .pub-body{transform:translateY(0)}
-.pub-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
-.pub-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f5f5f5}
-.pub-title{font-size:16px;font-weight:900;color:var(--dark)}
-.pub-close{color:#aaa;font-size:22px;cursor:pointer;padding:4px}
-.pub-publier{background:var(--red);color:#fff;font-size:13px;font-weight:800;padding:8px 20px;border-radius:22px;border:none;cursor:pointer}
-.pub-section{padding:14px 16px 0}
-.pub-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.pub-input{width:100%;border:1.5px solid #eee;border-radius:12px;padding:11px 14px;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;color:var(--dark);outline:none;background:#fff}
-.pub-input:focus{border-color:var(--red)}
-.pub-toggle{display:flex;background:#f5f5f5;border-radius:12px;padding:4px;margin-bottom:0}
-.pt-btn{flex:1;padding:9px;border-radius:9px;border:none;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.2s;background:none;color:var(--muted)}
-.pt-btn.active-d{background:#fff;color:var(--red);box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-.pt-btn.active-o{background:#fff;color:var(--green);box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-.pub-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Label section */
+.sec-label {
+  font-size: 11.5px; font-weight: 700; color: #65676b;
+  padding: 10px 12px 3px; text-transform: uppercase; letter-spacing: .3px;
+}
+
+/* ── CARD ── */
+.card {
+  background: #FFFFFF; border-radius: 20px;
+  margin: 0 12px 12px 12px; overflow: hidden;
+  border: 1px solid #E8ECF0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+}
+.card-body { padding: 18px 18px 0; }
+
+/* En-tête */
+.card-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.ava {
+  width: 44px; height: 44px; border-radius: 14px;
+  font-size: 21px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; background: #F2F4F7;
+}
+.card-info { flex: 1; }
+.card-info h3 { font-size: 14px; font-weight: 700; line-height: 1.35; margin-bottom: 2px; color: #1c1e21; }
+.card-info .meta { font-size: 11.5px; color: #65676b; }
+.bdg-type {
+  flex-shrink: 0; padding: 2px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; gap: 3px;
+}
+.bdg-type.demande { background: #ffeeed; color: var(--red); }
+.bdg-type.offre   { background: #edfff2; color: var(--green); }
+
+/* Image pleine largeur */
+.card-hero-img {
+  width: 100%; aspect-ratio: 16/9; object-fit: cover;
+  display: block; margin-bottom: 0;
+}
+
+/* Tags */
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.tag { padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; color: #444; background: #f0f2f5; }
+.tag.urgent { background: #fff3e0; color: #e65100; }
+.tag.prix   { background: #e8f5e9; color: #1b5e20; }
+.tag.lieu   { background: #e8f0ff; color: #1a237e; }
+.tag.date   { background: #f3e5f5; color: #4a148c; }
+
+/* Validité */
+.valid-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; margin-bottom: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot.on  { background: var(--green); }
+.dot.off { background: #bbb; }
+.vs { font-weight: 700; }
+.vs.active { color: var(--green); }
+.vs.expire { color: #999; }
+.vt { color: #65676b; margin-left: auto; font-size: 11px; }
+
+.cand { font-size: 12px; color: #65676b; margin-bottom: 10px; }
+
+/* Actions — style Facebook */
+.card-actions {
+  display: flex; gap: 0;
+  border-top: 1px solid #e4e6eb;
+  border-bottom: 1px solid #e4e6eb;
+}
+.btn-c, .btn-a {
+  flex: 1; padding: 10px 4px; border: none; background: #fff;
+  font-size: 13px; font-weight: 700; cursor: pointer; color: #65676b;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  border-right: 1px solid #e4e6eb;
+}
+.btn-c:last-child, .btn-a:last-child { border-right: none; }
+.btn-a.rouge { color: var(--red); }
+.btn-a.vert  { color: var(--green); }
+
+/* Expirée */
+.card.expiree { opacity: .6; }
+.expired-banner {
+  background: #f5f5f5; border-radius: 8px; padding: 7px 12px;
+  font-size: 12px; color: #999; text-align: center; margin-bottom: 10px;
+  border: 1px dashed #ddd;
+}
+
+/* ════════════════════════════════════
+   COMMENTAIRES — style TikTok propre
+════════════════════════════════════ */
+.comm-section { padding: 12px 14px 14px; }
+
+.comm-reactions {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: #65676b; margin-bottom: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid #f0f0f0;
+}
+
+.comm-title {
+  font-size: 13px; font-weight: 700; color: #1c1e21; margin-bottom: 10px;
+}
+
+/* Saisie */
+.comm-input-row {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
+}
+.user-ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #ccc; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden;
+}
+.user-ava img { width: 100%; height: 100%; object-fit: cover; }
+.comm-input-box {
+  flex: 1; background: #f0f2f5; border-radius: 22px;
+  padding: 8px 14px; font-size: 13px; color: #65676b;
+  cursor: text; border: none; outline: none;
+  font-family: inherit;
+}
+.comm-input-icons { display: flex; gap: 8px; align-items: center; font-size: 18px; }
+
+/* UN COMMENTAIRE — style TikTok */
+.comm-item { display: flex; gap: 10px; margin-bottom: 14px; }
+
+.comm-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #e4e6eb; flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #555;
+}
+.comm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.comm-right { flex: 1; }
+
+/* Nom + badge Créateur */
+.comm-name-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;
+}
+.comm-name {
+  font-size: 13px; font-weight: 700; color: #757575;
+}
+/* Badge Créateur — style TikTok : bleu inline */
+.badge-createur {
+  font-size: 11px; font-weight: 700; color: var(--blue);
+  background: none; padding: 0;
+}
+
+/* Texte commentaire */
+.comm-text {
+  font-size: 14px; color: #1c1e21; line-height: 1.45; margin-bottom: 5px;
+}
+
+/* Méta : date · Répondre · ❤️ */
+.comm-meta {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: #8e8e8e;
+}
+.comm-meta .date { color: #8e8e8e; }
+.comm-meta .rep  { font-weight: 700; color: #8e8e8e; cursor: pointer; }
+.comm-meta .likes {
+  display: flex; align-items: center; gap: 3px;
+  margin-left: auto; font-size: 12px; color: #8e8e8e;
+}
+
+/* Ligne verticale réponses imbriquées */
+.replies-toggle {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #8e8e8e; font-weight: 600;
+  cursor: pointer; margin-top: 6px; margin-left: 0;
+}
+.replies-toggle::before {
+  content: ''; display: inline-block;
+  width: 20px; height: 1px; background: #c0c0c0;
+}
+
+/* Réponses imbriquées */
+.replies-list { margin-top: 10px; padding-left: 0; }
+.reply-item { display: flex; gap: 10px; margin-bottom: 12px; }
+.reply-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e4e6eb; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #555;
+}
+.reply-right { flex: 1; }
+.reply-name-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+}
+.reply-name { font-size: 12px; font-weight: 700; color: #757575; }
+.reply-text { font-size: 13px; color: #1c1e21; line-height: 1.4; margin-bottom: 4px; }
+.reply-meta {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: #8e8e8e;
+}
+.reply-meta .likes { margin-left: auto; display: flex; align-items: center; gap: 3px; }
+
+/* ── MODAL ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
+  padding: 6px 16px 40px; animation: up .3s ease;
+}
+@keyframes up { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.m-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto 14px; }
+.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: #65676b; margin-bottom: 14px; }
+
+/* 4 modèles — simples */
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.m-card {
+  border: 2px solid #e4e6eb; border-radius: 12px;
+  padding: 14px 6px 10px; text-align: center; cursor: pointer;
+  background: #fff; transition: border-color .15s;
+}
+.m-card.sel { border-color: var(--red); }
+.m-icon { font-size: 26px; margin-bottom: 6px; }
+.m-name { font-size: 12px; font-weight: 700; color: #1c1e21; }
+.m-desc { font-size: 10px; color: #65676b; margin-top: 2px; }
+
+/* Zone image carré */
+.m2-preview {
+  display: none; width: 100%; aspect-ratio: 1/1;
+  border: 2px dashed #e4e6eb; border-radius: 10px;
+  background: #f0f2f5; align-items: center; justify-content: center;
+  flex-direction: column; color: #bbb; margin-bottom: 12px; cursor: pointer; font-size: 30px;
+}
+.m2-preview.show { display: flex; }
+.m2-preview span { font-size: 12px; margin-top: 6px; color: #bbb; font-weight: 600; }
+
+/* Formulaire */
+.fg { margin-bottom: 12px; }
+.fg label { display: block; font-size: 12px; font-weight: 700; color: #65676b; margin-bottom: 4px; }
+.fg input, .fg textarea, .fg select {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e4e6eb;
+  border-radius: 10px; font-size: 14px; font-family: inherit;
+  outline: none; background: #fff; color: #1c1e21; transition: border .2s;
+}
+.fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--red); }
+.fg textarea { resize: vertical; min-height: 70px; }
+.row2 { display: flex; gap: 8px; }
+.row2 .fg { flex: 1; }
+
+.tog-row {
+  display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700;
+  color: #1c1e21; cursor: pointer; margin-bottom: 10px; padding: 10px 12px;
+  border: 1px solid #e4e6eb; border-radius: 10px;
+}
+.tog {
+  width: 38px; height: 21px; border-radius: 20px; background: #e4e6eb;
+  position: relative; transition: background .2s; flex-shrink: 0;
+}
+.tog.on { background: var(--green); }
+.tog::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: left .2s;
+}
+.tog.on::after { left: 20px; }
+
+.upload-zone {
+  border: 2px dashed #e4e6eb; border-radius: 10px;
+  padding: 20px; text-align: center; cursor: pointer; margin-bottom: 12px;
+  color: #bbb; background: #f9f9f9;
+}
+.uz-icon { font-size: 30px; margin-bottom: 5px; }
+.uz-txt  { font-size: 13px; font-weight: 600; }
+.uz-sub  { font-size: 11px; margin-top: 2px; opacity: .7; }
+
+.duree { display: flex; gap: 8px; }
+.duree input, .duree select { flex: 1; }
+
+.btn-modal-pub {
+  width: 100%; padding: 13px; border-radius: 12px;
+  background: var(--red); color: #fff; border: none;
+  font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 6px;
+}
 </style>
 </head>
 <body>
-<header class="top-header" id="topH">
+
+<!-- ═══ HEADER ═══ -->
+<header class="top-header">
   <div class="h-row1">
-    <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
+    <span class="h-house">🏠</span>
     <div class="h-logo">
       <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
         <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -120,378 +409,627 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <div class="h-icons">
       <div class="h-ico bell">🔔<div class="bdot">3</div></div>
-      <div class="h-ico chat">💬<div class="bdot">1</div></div>
-      <span style="font-size:20px;cursor:pointer;padding:2px 3px">🔍</span>
-      <span style="font-size:22px;color:#333;cursor:pointer;padding:2px;font-weight:700">⋮</span>
+      <div style="display:flex;align-items:center;gap:3px">
+        <div class="h-ico chat" style="margin:0">💬<div class="bdot">1</div></div>
+        <span style="font-size:20px;cursor:pointer;padding:2px 0">🔍</span>
+        <span class="h-dots">⋮</span>
+      </div>
     </div>
+  </div>
+  <div class="h-tabs">
+    <div class="h-tab">🏠 Accueil</div>
+    <div class="h-tab">📰 Actualités</div>
+    <div class="h-tab">● Statuts</div>
+    <div class="h-tab">⭐ Élites</div>
+    <div class="h-tab active">💼 Offres</div>
+    <div class="h-tab">📄 CV Pro</div>
+    <div class="h-tab">💬 Répert-Discussion</div>
+    <div class="h-tab">📖 FAQ</div>
   </div>
 </header>
 
-<div class="body-wrap">
-  <div class="spacer" id="spacer"></div>
+<div class="content">
 
-  <div class="filters">
-    <div class="fp active" onclick="setF(this)">Tout</div>
-    <div class="fp" onclick="setF(this)">🔴 Demandes</div>
-    <div class="fp" onclick="setF(this)">🟢 Offres</div>
-    <div class="fp" onclick="setF(this)">⚡ Urgent</div>
-    <div class="fp" onclick="setF(this)">📍 Ma ville</div>
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-left" style="text-align:center;">
+    <p>Trouvez ou proposez vos services</p>
+    <button class="btn-pub" onclick="openModal()">＋ Publier une offre</button>
   </div>
-
-  <div class="feed">
-
-    <!-- HERO -->
-    <div class="hero">
-      <div class="hero-left">
-        <h2>Offres ArtiRoyce</h2>
-        <p>Trouvez ou proposez vos services</p>
-        <button class="hero-btn" onclick="openPubModal()">+ Publier une offre</button>
-      </div>
-      <div class="hero-icon">
-  <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="8" y="26" width="56" height="38" rx="8" stroke="#aaa" stroke-width="2" fill="none"/>
-    <path d="M24 26 C24 14 48 14 48 26" stroke="#aaa" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <line x1="8" y1="42" x2="64" y2="42" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/>
-    <rect x="30" y="38" width="12" height="8" rx="3" stroke="#aaa" stroke-width="1.8" fill="none"/>
-    <circle cx="36" cy="42" r="1.5" fill="#aaa"/>
-    <line x1="18" y1="30" x2="18" y2="60" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-dasharray="3 3"/>
-    <line x1="54" y1="30" x2="54" y2="60" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-dasharray="3 3"/>
-  </svg>
-</div>
-    </div>
-
-    <!-- STATS -->
-    <div class="stats">
-      <div class="stat-card"><div class="stat-n red">48</div><div class="stat-l">Demandes</div></div>
-      <div class="stat-card"><div class="stat-n green">124</div><div class="stat-l">Offres</div></div>
-      <div class="stat-card"><div class="stat-n">12</div><div class="stat-l">Urgentes</div></div>
-    </div>
-
-    <!-- OFFRE 1 -->
-    <div class="offre">
-      <div class="offre-top">
-        <div class="offre-av" style="background:#fff0f0">🧱</div>
-        <div class="offre-info">
-          <div class="offre-title">Recherche 10 maçons qualifiés</div>
-          <div class="offre-meta">Kofi Adjovi · Cotonou · Il y a 2h</div>
-        </div>
-        <span class="offre-badge demande">🔴 Demande</span>
-      </div>
-      <div class="offre-tags">
-        <span class="tag">🧱 Maçonnerie</span>
-        <span class="tag budget">💰 50 000 FCFA/j</span>
-        <span class="tag urgent">⚡ Urgent</span>
-        <span class="tag place">📍 Cotonou</span>
-        <span class="tag">📅 Dès lundi</span>
-      </div>
-      <div class="offre-footer">
-        <span class="offre-time">23 candidatures</span>
-        <div class="offre-actions">
-          <button class="btn-contact" onclick="toast('💬 Contacter Kofi','g')">Contacter</button>
-          <button class="btn-postuler" onclick="toast('✅ Candidature envoyée !','g')">Postuler</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- OFFRE 2 -->
-    <div class="offre">
-      <div class="offre-top">
-        <div class="offre-av" style="background:#f0f0ff">✂️</div>
-        <div class="offre-info">
-          <div class="offre-title">Couturière disponible — robes & costumes</div>
-          <div class="offre-meta">Fatoumata Bah · Porto-Novo · Il y a 5h</div>
-        </div>
-        <span class="offre-badge offre-b">🟢 Offre</span>
-      </div>
-      <div class="offre-tags">
-        <span class="tag">✂️ Couture</span>
-        <span class="tag budget">💰 Négociable</span>
-        <span class="tag place">📍 Porto-Novo</span>
-        <span class="tag">⭐ Vérifiée</span>
-      </div>
-      <div class="offre-footer">
-        <span class="offre-time">8 contacts</span>
-        <div class="offre-actions">
-          <button class="btn-contact" onclick="toast('💬 Contacter Fatoumata','g')">Contacter</button>
-          <button class="btn-postuler" onclick="toast('✅ Intérêt envoyé !','g')">Je veux</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- OFFRE 3 -->
-    <div class="offre">
-      <div class="offre-top">
-        <div class="offre-av" style="background:#f0fff4">🔧</div>
-        <div class="offre-info">
-          <div class="offre-title">Besoin de 3 plombiers — chantier résidentiel</div>
-          <div class="offre-meta">Société BATIM · Abomey-Calavi · Il y a 1j</div>
-        </div>
-        <span class="offre-badge demande">🔴 Demande</span>
-      </div>
-      <div class="offre-tags">
-        <span class="tag">🔧 Plomberie</span>
-        <span class="tag budget">💰 80 000 FCFA/sem</span>
-        <span class="tag place">📍 Abomey-Calavi</span>
-        <span class="tag">📅 2 semaines</span>
-      </div>
-      <div class="offre-footer">
-        <span class="offre-time">15 candidatures</span>
-        <div class="offre-actions">
-          <button class="btn-contact" onclick="toast('💬 Contacter BATIM','g')">Contacter</button>
-          <button class="btn-postuler" onclick="toast('✅ Candidature envoyée !','g')">Postuler</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- OFFRE 4 -->
-    <div class="offre">
-      <div class="offre-top">
-        <div class="offre-av" style="background:#fffbe6">🎧</div>
-        <div class="offre-info">
-          <div class="offre-title">DJ disponible pour événements & soirées</div>
-          <div class="offre-meta">David Koffi ✔ · Cotonou · Il y a 3h</div>
-        </div>
-        <span class="offre-badge offre-b">🟢 Offre</span>
-      </div>
-      <div class="offre-tags">
-        <span class="tag">🎧 DJ</span>
-        <span class="tag budget">💰 150 000 FCFA/soirée</span>
-        <span class="tag place">📍 Tout le Bénin</span>
-        <span class="tag urgent">⚡ Dispo ce week</span>
-      </div>
-      <div class="offre-footer">
-        <span class="offre-time">32 contacts</span>
-        <div class="offre-actions">
-          <button class="btn-contact" onclick="toast('💬 Contacter David','g')">Contacter</button>
-          <button class="btn-postuler" onclick="toast('✅ Intérêt envoyé !','g')">Réserver</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<nav class="bot-nav">
-  <!-- Mon Profil -->
-  <div class="nav-i" onclick="window.location.href='profil.html'">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="11" r="5" stroke="#aaa" stroke-width="2" fill="none"/>
-      <path d="M6 27c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#aaa" stroke-width="2" stroke-linecap="round" fill="none"/>
-    </svg>
-    <span class="nav-lb">Mon Profil</span>
-  </div>
-  <!-- Discussion -->
-  <div class="nav-i" onclick="window.location.href='discussion_v1.html'">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none">
-      <rect x="3" y="4" width="22" height="16" rx="4" stroke="#27a945" stroke-width="2" fill="none"/>
-      <path d="M3 20l4 5v-5" stroke="#27a945" stroke-width="2" stroke-linejoin="round" fill="none"/>
-      <line x1="8" y1="10" x2="20" y2="10" stroke="#27a945" stroke-width="2" stroke-linecap="round"/>
-      <line x1="8" y1="14" x2="16" y2="14" stroke="#27a945" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    <span class="nav-lb" style="color:var(--green)">Discussion</span>
-  </div>
-  <!-- Plus -->
-  <div class="nav-plus-w">
-    <div class="nav-plus">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-    </div>
-  </div>
-  <!-- Live -->
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none">
-      <rect x="2" y="6" width="20" height="14" rx="3" stroke="#aaa" stroke-width="2" fill="none"/>
-      <path d="M22 11l7-4v14l-7-4V11z" stroke="#aaa" stroke-width="2" stroke-linejoin="round" fill="none"/>
-    </svg>
-    <span class="nav-lb">Live</span>
-  </div>
-  <!-- Messages -->
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none">
-      <rect x="3" y="6" width="26" height="18" rx="3" stroke="#aaa" stroke-width="2" fill="none"/>
-      <path d="M3 9l13 9 13-9" stroke="#aaa" stroke-width="2" stroke-linecap="round" fill="none"/>
-    </svg>
-    <span class="nav-lb">Messages</span>
-  </div>
-</nav>
-
-<!-- MODAL PUBLICATION -->
-<div class="pub-modal" id="pubModal" onclick="closePub(event)">
-  <div class="pub-body" onclick="event.stopPropagation()">
-    <div class="pub-handle"></div>
-    <div class="pub-header">
-      <span class="pub-close" onclick="closePubModal()">✕</span>
-      <span class="pub-title">Publier une offre</span>
-      <button class="pub-publier" onclick="publierOffre()">Publier</button>
-    </div>
-
-    <!-- TYPE -->
-    <div class="pub-section">
-      <div class="pub-label">Type</div>
-      <div class="pub-toggle">
-        <button class="pt-btn active-d" id="ptD" onclick="setType('D')">🔴 Demande</button>
-        <button class="pt-btn" id="ptO" onclick="setType('O')">🟢 Offre</button>
-      </div>
-    </div>
-
-    <!-- TITRE -->
-    <div class="pub-section" style="margin-top:12px">
-      <div class="pub-label">Titre de l'offre</div>
-      <input class="pub-input" id="pubTitre" placeholder="Ex: Recherche 10 maçons qualifiés"/>
-    </div>
-
-    <!-- MÉTIER -->
-    <div class="pub-section" style="margin-top:12px">
-      <div class="pub-label">Métier</div>
-      <input class="pub-input" id="pubMetier" placeholder="Ex: Maçon, Couturier, DJ…"/>
-    </div>
-
-    <!-- BUDGET + LIEU -->
-    <div class="pub-section" style="margin-top:12px">
-      <div class="pub-row">
-        <div>
-          <div class="pub-label">Budget</div>
-          <input class="pub-input" id="pubBudget" placeholder="Ex: 50 000 FCFA/j"/>
-        </div>
-        <div>
-          <div class="pub-label">Lieu</div>
-          <input class="pub-input" id="pubLieu" placeholder="Ex: Cotonou"/>
-        </div>
-      </div>
-    </div>
-
-    <!-- DÉLAI -->
-    <div class="pub-section" style="margin-top:12px">
-      <div class="pub-label">Délai / Date</div>
-      <input class="pub-input" id="pubDelai" placeholder="Ex: Dès lundi, 2 semaines…"/>
-    </div>
-
-    <!-- DESCRIPTION -->
-    <div class="pub-section" style="margin-top:12px;padding-bottom:10px">
-      <div class="pub-label">Description (optionnel)</div>
-      <textarea class="pub-input" id="pubDesc" rows="3" placeholder="Plus de détails sur votre offre…" style="resize:none;line-height:1.5"></textarea>
+  <div class="panneau-outer">
+    <div class="ficelle"><div class="crochet"></div></div>
+    <div class="panneau-box">
+      <div class="pt">OFFRE</div>
+      <div class="ps">D'EMPLOI</div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toastEl"></div>
-<script>
-function adj(){const h=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=h+'px'}
-window.addEventListener('load',adj);setTimeout(adj,100);
-window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':'');setTimeout(()=>el.className='toast',2400)}
-window.setF=function(el){document.querySelectorAll('.fp').forEach(f=>f.classList.remove('active'));el.classList.add('active')}
+<!-- Stats — simples, noir -->
+<div class="stats">
+  <div class="stat"><div class="sv">48</div><div class="sl">Demandes</div></div>
+  <div class="stat"><div class="sv">124</div><div class="sl">Offres</div></div>
+  <div class="stat"><div class="sv">12</div><div class="sl">Urgentes</div></div>
+</div>
 
-// ══ PUBLICATION ══
-let pubType = 'D'; // D=Demande O=Offre
+<!-- Filtres -->
+<div class="filtres">
+  <span class="filtre on">Tout</span>
+  <span class="filtre">⚡ Urgent</span>
+  <span class="filtre">🟢 Offres</span>
+  <span class="filtre">🔴 Demandes</span>
+  <span class="filtre">📣 Annonces</span>
+  <span class="filtre">🏙️ Cotonou</span>
+  <span class="filtre">✂️ Couture</span>
+  <span class="filtre">🧱 Maçonnerie</span>
+</div>
 
-window.openPubModal = function() {
-  document.getElementById('pubModal').classList.add('open');
-}
+<div id="feedOffres"></div>
 
-window.closePubModal = function() {
-  document.getElementById('pubModal').classList.remove('open');
-}
-
-window.closePub = function(e) {
-  if(e.target === document.getElementById('pubModal')) closePubModal();
-}
-
-window.setType = function(t) {
-  pubType = t;
-  const dBtn = document.getElementById('ptD');
-  const oBtn = document.getElementById('ptO');
-  dBtn.className = 'pt-btn' + (t==='D' ? ' active-d' : '');
-  oBtn.className = 'pt-btn' + (t==='O' ? ' active-o' : '');
-}
-
-window.publierOffre = function() {
-  const titre = document.getElementById('pubTitre').value.trim();
-  const metier = document.getElementById('pubMetier').value.trim();
-  const budget = document.getElementById('pubBudget').value.trim();
-  const lieu = document.getElementById('pubLieu').value.trim();
-  const delai = document.getElementById('pubDelai').value.trim();
-
-  if(!titre) { toast('⚠️ Ajoutez un titre !',''); return; }
-  if(!metier) { toast('⚠️ Ajoutez un métier !',''); return; }
-
-  // Créer la card de l'offre
-  const isD = pubType === 'D';
-  const badgeClass = isD ? 'demande' : 'offre-b';
-  const badgeText = isD ? '🔴 Demande' : '🟢 Offre';
-  const btnText = isD ? 'Postuler' : 'Je veux';
-  const metierEmoji = getEmoji(metier);
-
-  const card = document.createElement('div');
-  card.className = 'offre';
-  card.style.animation = 'fadeInUp 0.4s ease';
-  card.innerHTML = `
-    <div class="offre-top">
-      <div class="offre-av" style="background:#f5f5f5;font-size:26px">${metierEmoji}</div>
-      <div class="offre-info">
-        <div class="offre-title">${titre}</div>
-        <div class="offre-meta">Vous · ${lieu||'—'} · À l'instant</div>
-      </div>
-      <span class="offre-badge ${badgeClass}">${badgeText}</span>
+<!-- ═══ MODAL ═══ -->
+<div class="overlay" id="overlay" onclick="closeSiDehors(event)">
+  <div class="modal" id="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;">
+      <button onclick="document.getElementById('overlay').classList.remove('open')" style="width:32px;height:32px;border-radius:50%;border:none;background:#f0f2f5;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      <div style="width:36px;height:4px;background:#ddd;border-radius:4px;"></div>
+      <div style="width:32px;"></div>
     </div>
-    <div class="offre-tags">
-      <span class="tag">${metierEmoji} ${metier}</span>
-      ${budget ? `<span class="tag budget">💰 ${budget}</span>` : ''}
-      ${delai ? `<span class="tag">📅 ${delai}</span>` : ''}
-      ${lieu ? `<span class="tag place">📍 ${lieu}</span>` : ''}
-    </div>
-    <div class="offre-footer">
-      <span class="offre-time">0 candidature</span>
-      <div class="offre-actions">
-        <button class="btn-contact" onclick="toast('💬 Modifier bientôt','g')">Modifier</button>
-        <button class="btn-postuler" onclick="toast('✅ ${btnText} !','g')">${btnText}</button>
+    <h3>📢 Publier une offre</h3>
+    <p class="modal-sub">Choisissez un modèle</p>
+    <div class="m-grid">
+      <div class="m-card sel" onclick="selModele(this,'demande')">
+        <div class="m-icon">🔍</div>
+        <div class="m-name">Demande</div>
+        <div class="m-desc">Je cherche un artisan</div>
       </div>
+      <div class="m-card" onclick="selModele(this,'photo')">
+        <div class="m-icon">🖼️</div>
+        <div class="m-name">Avec photo</div>
+        <div class="m-desc">Image au centre</div>
+      </div>
+      <div class="m-card" onclick="selModele(this,'offre')">
+        <div class="m-icon">💼</div>
+        <div class="m-name">Mes services</div>
+        <div class="m-desc">Je propose un service</div>
+      </div>
+      <div class="m-card" onclick="selModele(this,'texte')">
+        <div class="m-icon">✏️</div>
+        <div class="m-name">Publication simple</div>
+        <div class="m-desc">Texte + image optionnelle</div>
+      </div>
+    </div>
+
+    <!-- Zone texte simple visible si modèle texte -->
+    <div id="zoneTexte" style="display:none;margin-bottom:12px;">
+      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" style="width:100%;min-height:120px;border:1.5px solid #e4e6eb;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      <div style="margin-top:8px;">
+        <div class="tog-row" onclick="toggleImgTexte()" style="margin-bottom:8px;">
+          <div class="tog" id="togImgTexte"></div>
+          Ajouter une image (optionnel)
+        </div>
+        <div id="uploadZoneTexte" style="display:none">
+          <div class="upload-zone" onclick="document.getElementById('fi3').click()">
+            <div class="uz-icon">🖼️</div>
+            <div class="uz-txt">Choisir une image</div>
+            <div class="uz-sub">JPG · PNG · max 3 Mo</div>
+          </div>
+          <input type="file" id="fi3" accept="image/*" style="display:none" onchange="previewImgTexte(event)"/>
+          <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:200px;object-fit:cover;"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="m2-preview" id="m2preview" onclick="document.getElementById('fi').click()">
+      🖼️<span>Appuyer pour ajouter une photo</span>
+    </div>
+    <input type="file" id="fi" accept="image/*" style="display:none" onchange="previewImg(event)"/>
+    <img id="imgPrev" style="display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:12px;"/>
+
+    <div id="formZone">
+    <div class="fg"><label>Titre *</label><input type="text" placeholder="Ex : Recherche 5 peintres qualifiés"/></div>
+    <div class="fg"><label>Description</label><textarea placeholder="Décrivez votre offre…"></textarea></div>
+    <div class="row2">
+      <div class="fg">
+        <label>Catégorie *</label>
+        <select>
+          <option>🧱 Maçonnerie</option><option>✂️ Couture</option>
+          <option>⚡ Électricité</option><option>🔧 Plomberie</option>
+          <option>🎧 DJ / Musique</option><option>🍳 Cuisine</option>
+          <option>📱 Informatique</option><option>Autre…</option>
+        </select>
+      </div>
+      <div class="fg"><label>Ville *</label><input type="text" placeholder="Cotonou"/></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Budget / Tarif</label><input type="text" placeholder="50 000 FCFA/j"/></div>
+      <div class="fg"><label>Disponibilité</label><input type="text" placeholder="Dès lundi"/></div>
+    </div>
+    <div class="fg">
+      <label>⏳ Durée de validité</label>
+      <div class="duree">
+        <input type="number" placeholder="30" min="1"/>
+        <select><option>jours</option><option>semaines</option><option>mois</option></select>
+      </div>
+    </div>
+    <div id="togRow" class="tog-row" onclick="toggleImg()">
+      <div class="tog" id="togImg"></div>
+      Ajouter une image (optionnel)
+    </div>
+    <div id="uploadZone" style="display:none">
+      <div class="upload-zone" onclick="document.getElementById('fi2').click()">
+        <div class="uz-icon">🖼️</div>
+        <div class="uz-txt">Choisir une image</div>
+        <div class="uz-sub">JPG · PNG · max 3 Mo</div>
+      </div>
+      <input type="file" id="fi2" accept="image/*" style="display:none"/>
+    </div>
+    </div><!-- /formZone -->
+    <button class="btn-modal-pub">📢 Publier maintenant</button>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment,
+         onSnapshot, orderBy, query, serverTimestamp, where, getDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadString, getDownloadURL }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const stor = getStorage(app);
+
+/* ── ÉTAT GLOBAL ── */
+let currentUser  = null;
+let currentModele = 'demande';
+let imgBase64    = '';
+let imgBase64Txt = '';
+let imgOn        = false;
+let imgOnTexte   = false;
+let filtreActif  = 'tout';
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    currentUser = user;
+    // Charger infos profil depuis Firestore
+    try {
+      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (snap.exists()) {
+        const d = snap.data();
+        currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
+        currentUser.photoURL = d.photoURL || null;
+      }
+    } catch(e){}
+    // Mettre à jour avatar dans zone commentaire
+    document.querySelectorAll('.user-ava').forEach(el => {
+      el.textContent = (currentUser.displayName||'?')[0].toUpperCase();
+    });
+  } else {
+    // Pas connecté → rediriger
+    window.location.href = 'connexion.html';
+  }
+});
+
+/* ── CHARGER OFFRES ── */
+function chargerOffres() {
+  const feedEl = document.getElementById('feedOffres');
+  if (!feedEl) return;
+
+  let q = query(collection(db, 'offres'), orderBy('createdAt', 'desc'));
+  onSnapshot(q, snap => {
+    feedEl.innerHTML = '';
+    const now = Date.now();
+    let actives = [], expirees = [];
+
+    snap.forEach(d => {
+      const o = { id: d.id, ...d.data() };
+      // Vérifier expiration
+      const expireMs = o.createdAt?.toMillis
+        ? o.createdAt.toMillis() + (o.dureeDays||30)*24*3600*1000
+        : now + 1;
+      if (expireMs > now) actives.push(o);
+      else expirees.push(o);
+    });
+
+    // Filtrer
+    const filtrer = arr => {
+      if (filtreActif === 'tout') return arr;
+      if (filtreActif === 'urgent') return arr.filter(o => o.urgent);
+      if (filtreActif === 'offres') return arr.filter(o => o.type === 'offre' || o.type === 'texte');
+      if (filtreActif === 'demandes') return arr.filter(o => o.type === 'demande');
+      return arr;
+    };
+
+    // Afficher actives
+    if (filtrer(actives).length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sec-label';
+      lbl.textContent = 'Nouvelles offres';
+      feedEl.appendChild(lbl);
+      filtrer(actives).forEach(o => feedEl.appendChild(buildCard(o, false)));
+    }
+
+    // Afficher expirées
+    if (filtrer(expirees).length > 0) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sec-label';
+      lbl.textContent = 'Offres expirées';
+      feedEl.appendChild(lbl);
+      filtrer(expirees).forEach(o => feedEl.appendChild(buildCard(o, true)));
+    }
+
+    if (filtrer(actives).length === 0 && filtrer(expirees).length === 0) {
+      feedEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#aaa;font-size:14px;">Aucune offre pour l'instant.<br>Soyez le premier à publier !</div>';
+    }
+  });
+}
+
+/* ── CONSTRUIRE CARD ── */
+function buildCard(o, expiree) {
+  const div = document.createElement('div');
+  div.className = 'card' + (expiree ? ' expiree' : '');
+  div.id = 'card-' + o.id;
+
+  const now = Date.now();
+  const createdMs = o.createdAt?.toMillis ? o.createdAt.toMillis() : now;
+  const expireMs  = createdMs + (o.dureeDays||30)*24*3600*1000;
+  const joursRest = Math.ceil((expireMs - now) / (1000*3600*24));
+  const tempsAgo  = tempsDepuis(createdMs);
+
+  // Type badge
+  const typeLabel = o.type === 'demande' ? '🔴 Demande' : o.type === 'texte' ? '📣 Annonce' : '🟢 Offre';
+  const typeCls   = o.type === 'demande' ? 'demande' : 'offre';
+
+  // Image
+  const imgHtml = o.imageUrl
+    ? `<img src="${o.imageUrl}" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-bottom:0;"/>`
+    : '';
+
+  // Tags
+  let tagsHtml = `<span class="tag">${o.categorie||'Général'}</span>`;
+  if (o.budget) tagsHtml += `<span class="tag prix">💰 ${o.budget}</span>`;
+  if (o.urgent) tagsHtml += `<span class="tag urgent">⚡ Urgent</span>`;
+  if (o.ville)  tagsHtml += `<span class="tag lieu">📍 ${o.ville}</span>`;
+  if (o.dispo)  tagsHtml += `<span class="tag date">📅 ${o.dispo}</span>`;
+
+  // Expiration
+  const validHtml = expiree
+    ? `<div class="valid-row"><div class="dot off"></div><span class="vs expire">Expirée</span><span style="color:#ccc">· Offre clôturée</span><span class="vt">${tempsAgo}</span></div>
+       <div class="expired-banner">🔒 Offre expirée — candidature impossible</div>`
+    : `<div class="valid-row"><div class="dot on"></div><span class="vs active">Active</span><span style="color:#65676b">· ${joursRest} jour${joursRest>1?'s':''} restant${joursRest>1?'s':''}</span><span class="vt">${tempsAgo}</span></div>`;
+
+  // Actions
+  const actionsHtml = expiree ? '' : `
+    <div class="card-actions">
+      <button class="btn-c" onclick="contacter('${o.whatsapp||''}','${o.auteurNom||''}'))">📞 Contacter</button>
+      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" onclick="postuler('${o.id}')">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
     </div>`;
 
-  // Insérer après le hero et les stats
-  const feed = document.getElementById('feed');
-  const firstOffre = feed.querySelector('.offre');
-  if(firstOffre) feed.insertBefore(card, firstOffre);
-  else feed.appendChild(card);
+  div.innerHTML = `
+    <div class="card-body">
+      <div class="card-head">
+        <div class="ava">${o.categEmoji||'💼'}</div>
+        <div class="card-info">
+          <h3>${o.titre||o.texte?.substring(0,60)||'Sans titre'}</h3>
+          <div class="meta">${o.auteurNom||'Anonyme'} · ${o.ville||''} · ${tempsAgo}</div>
+        </div>
+        <div class="bdg-type ${typeCls}">${typeLabel}</div>
+      </div>
+    </div>
+    ${imgHtml}
+    <div class="card-body" style="padding-top:${imgHtml?'10px':'0'}">
+      ${o.description ? `<div style="font-size:14px;color:#1c1e21;line-height:1.5;margin-bottom:10px;">${o.description}</div>` : ''}
+      <div class="tags">${tagsHtml}</div>
+      ${validHtml}
+      ${!expiree ? `<div class="cand">👥 ${o.candidatures||0} candidature${(o.candidatures||0)>1?'s':''}</div>` : ''}
+    </div>
+    ${actionsHtml}
+    <div class="comm-section" id="comms-${o.id}">
+      <div class="comm-reactions">
+        <span>👍 ${o.likes||0}</span>
+        <span id="comm-count-${o.id}">0 commentaire</span>
+      </div>
+      <div class="comm-title">Commentaires</div>
+      <div class="comm-input-row">
+        <div class="user-ava">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
+        <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
+        <div class="comm-input-icons" style="cursor:pointer;font-size:18px;" onclick="envoyerComm('${o.id}')">➤</div>
+      </div>
+      <div id="comm-list-${o.id}"></div>
+    </div>`;
 
-  // Mettre à jour les stats
-  const statEl = isD ? document.querySelector('.stat-n.red') : document.querySelector('.stat-n.green');
-  if(statEl) statEl.textContent = parseInt(statEl.textContent) + 1;
+  // Écouter commentaires temps réel
+  const qc = query(collection(db,'offres',o.id,'commentaires'), orderBy('createdAt','asc'));
+  onSnapshot(qc, snap2 => {
+    const listEl = document.getElementById('comm-list-'+o.id);
+    const countEl = document.getElementById('comm-count-'+o.id);
+    if (!listEl) return;
+    const total = snap2.size;
+    if (countEl) countEl.textContent = total + ' commentaire' + (total>1?'s':'');
+    listEl.innerHTML = '';
+    snap2.forEach(cd => {
+      const c = cd.data();
+      const isAuteur = c.uid === o.auteurUid;
+      const commEl = document.createElement('div');
+      commEl.innerHTML = `
+        <div class="comm-item">
+          <div class="comm-avatar">${(c.nom||'?')[0].toUpperCase()}</div>
+          <div class="comm-right">
+            <div class="comm-name-row">
+              <span class="comm-name">${c.nom||'Anonyme'}</span>
+              ${isAuteur ? '<span class="badge-createur">· Créateur</span>' : ''}
+            </div>
+            <div class="comm-text">${c.texte}</div>
+            <div class="comm-meta">
+              <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
+              <span class="rep" onclick="repondreComm('${o.id}','${c.nom||''}')">Répondre</span>
+              <span class="likes">❤️ ${c.likes||0}</span>
+            </div>
+          </div>
+        </div>`;
+      listEl.appendChild(commEl);
+    });
+  });
 
-  // Fermer modal et reset
-  closePubModal();
-  toast('✅ Offre publiée !','g');
-  document.getElementById('pubTitre').value='';
-  document.getElementById('pubMetier').value='';
-  document.getElementById('pubBudget').value='';
-  document.getElementById('pubLieu').value='';
-  document.getElementById('pubDelai').value='';
-  document.getElementById('pubDesc').value='';
-
-  // Scroll vers la nouvelle offre
-  setTimeout(()=>card.scrollIntoView({behavior:'smooth',block:'center'}),300);
+  return div;
 }
 
-function getEmoji(metier) {
-  const m = metier.toLowerCase();
-  if(m.includes('maç') || m.includes('macon')) return '🧱';
-  if(m.includes('coutur') || m.includes('tailleur')) return '✂️';
-  if(m.includes('plomb')) return '🔧';
-  if(m.includes('dj') || m.includes('musiq')) return '🎧';
-  if(m.includes('photo')) return '📷';
-  if(m.includes('maquil')) return '💄';
-  if(m.includes('coiff')) return '✂️';
-  if(m.includes('cuisinier') || m.includes('traiteur')) return '🍽️';
-  if(m.includes('électri')) return '⚡';
-  if(m.includes('carpent') || m.includes('menuis')) return '🪚';
-  if(m.includes('peintr')) return '🖌️';
-  if(m.includes('chauffeur')) return '🚗';
-  return '💼';
+/* ── ENVOYER COMMENTAIRE ── */
+window.envoyerComm = async (offreId) => {
+  if (!currentUser) { alert('Connectez-vous pour commenter.'); return; }
+  const inp = document.getElementById('cinput-'+offreId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  try {
+    await addDoc(collection(db,'offres',offreId,'commentaires'), {
+      texte,
+      nom: currentUser.displayName || 'Anonyme',
+      uid: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    // Permettre envoi sur Enter
+  } catch(e){ console.error(e); }
+};
+
+/* ── ENTER pour commenter ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id?.startsWith('cinput-')) {
+    const offreId = e.target.id.replace('cinput-','');
+    envoyerComm(offreId);
+  }
+});
+
+/* ── RÉPONDRE ── */
+window.repondreComm = (offreId, nom) => {
+  const inp = document.getElementById('cinput-'+offreId);
+  if (inp) { inp.value = '@'+nom+' '; inp.focus(); }
+};
+
+/* ── CONTACTER ── */
+window.contacter = (whatsapp, nom) => {
+  if (whatsapp) {
+    const msg = encodeURIComponent('Bonjour '+nom+', je vous contacte via ArtiRoyce.');
+    window.open('https://wa.me/'+whatsapp.replace(/\D/g,'')+'?text='+msg,'_blank');
+  } else {
+    alert('Contact WhatsApp non disponible.');
+  }
+};
+
+/* ── POSTULER ── */
+window.postuler = async (offreId) => {
+  if (!currentUser) { alert('Connectez-vous pour postuler.'); return; }
+  try {
+    await updateDoc(doc(db,'offres',offreId), { candidatures: increment(1) });
+    // Ajouter commentaire automatique
+    await addDoc(collection(db,'offres',offreId,'commentaires'), {
+      texte: '✅ A postulé à cette offre',
+      nom: currentUser.displayName || 'Anonyme',
+      uid: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    showToast('Candidature envoyée !');
+  } catch(e){ console.error(e); }
+};
+
+/* ── PUBLIER UNE OFFRE ── */
+window.publierOffre = async () => {
+  if (!currentUser) { alert('Connectez-vous pour publier.'); return; }
+
+  let data = {
+    auteurUid: currentUser.uid,
+    auteurNom: currentUser.displayName || 'Anonyme',
+    createdAt: serverTimestamp(),
+    likes: 0,
+    candidatures: 0
+  };
+
+  if (currentModele === 'texte') {
+    const texte = document.getElementById('texteSimple')?.value?.trim();
+    if (!texte) { alert('Écrivez votre annonce.'); return; }
+    data.type = 'texte';
+    data.texte = texte;
+    data.titre = texte.substring(0,60);
+    data.dureeDays = 30;
+    // Image texte
+    if (imgBase64Txt) data.imageUrl = imgBase64Txt;
+  } else {
+    const titre = document.querySelector('#formZone input[type=text]')?.value?.trim();
+    if (!titre) { alert('Le titre est obligatoire.'); return; }
+    const selects = document.querySelectorAll('#formZone select');
+    const inputs  = document.querySelectorAll('#formZone input[type=text]');
+    const dureeVal = document.querySelector('#formZone input[type=number]')?.value || 30;
+    const dureeUnit = document.querySelectorAll('#formZone select')[1]?.value || 'jours';
+    let dureeDays = parseInt(dureeVal) || 30;
+    if (dureeUnit === 'semaines') dureeDays *= 7;
+    if (dureeUnit === 'mois') dureeDays *= 30;
+
+    const emojisMap = {
+      'Maçonnerie':'🧱','Couture':'✂️','Électricité':'⚡','Plomberie':'🔧',
+      'DJ / Musique':'🎧','Cuisine':'🍳','Informatique':'📱'
+    };
+    const categ = selects[0]?.value || 'Général';
+    const categClean = categ.replace(/[^a-zA-ZÀ-ÿ\s\/]/g,'').trim();
+
+    data.type      = currentModele;
+    data.titre     = titre;
+    data.description = document.querySelector('#formZone textarea')?.value?.trim() || '';
+    data.categorie = categ;
+    data.categEmoji = emojisMap[categClean] || '💼';
+    data.ville     = inputs[1]?.value?.trim() || '';
+    data.budget    = inputs[2]?.value?.trim() || '';
+    data.dispo     = inputs[3]?.value?.trim() || '';
+    data.urgent    = categ.toLowerCase().includes('urgent') || false;
+    data.dureeDays = dureeDays;
+    data.whatsapp  = currentUser.phoneNumber || '';
+    if (imgBase64) data.imageUrl = imgBase64;
+  }
+
+  try {
+    document.querySelector('.btn-modal-pub').textContent = '⏳ Publication…';
+    await addDoc(collection(db,'offres'), data);
+    document.getElementById('overlay').classList.remove('open');
+    showToast('✅ Offre publiée !');
+    // Reset
+    imgBase64=''; imgBase64Txt='';
+  } catch(e){
+    console.error(e);
+    alert('Erreur : '+e.message);
+  } finally {
+    document.querySelector('.btn-modal-pub').textContent = '📢 Publier maintenant';
+  }
+};
+
+/* ── FILTRES ── */
+document.querySelectorAll('.filtre').forEach(f => {
+  f.addEventListener('click', () => {
+    document.querySelectorAll('.filtre').forEach(x => x.classList.remove('on'));
+    f.classList.add('on');
+    const txt = f.textContent.toLowerCase();
+    if (txt.includes('urgent')) filtreActif = 'urgent';
+    else if (txt.includes('offres')) filtreActif = 'offres';
+    else if (txt.includes('demandes')) filtreActif = 'demandes';
+    else filtreActif = 'tout';
+    chargerOffres();
+  });
+});
+
+/* ── MODAL ── */
+window.openModal = () => document.getElementById('overlay').classList.add('open');
+window.closeSiDehors = e => {
+  if (e.target === document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+};
+
+window.selModele = (el, type) => {
+  document.querySelectorAll('.m-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  currentModele = type;
+  const m2       = document.getElementById('m2preview');
+  const togRow   = document.getElementById('togRow');
+  const zoneTexte= document.getElementById('zoneTexte');
+  const formZone = document.getElementById('formZone');
+  m2.classList.remove('show');
+  document.getElementById('imgPrev').style.display='none';
+  zoneTexte.style.display='none';
+  formZone.style.display='block';
+  togRow.style.display='flex';
+  if (type==='photo'){
+    m2.classList.add('show');
+    togRow.style.display='none';
+    document.getElementById('uploadZone').style.display='none';
+  } else if (type==='texte'){
+    formZone.style.display='none';
+    togRow.style.display='none';
+    zoneTexte.style.display='block';
+  }
+};
+
+/* ── PREVIEW IMAGE ── */
+window.previewImg = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64 = ev.target.result;
+    const i = document.getElementById('imgPrev');
+    i.src = imgBase64; i.style.display='block';
+    document.getElementById('m2preview').style.display='none';
+  };
+  r.readAsDataURL(f);
+};
+
+window.toggleImg = () => {
+  imgOn = !imgOn;
+  document.getElementById('togImg').classList.toggle('on', imgOn);
+  document.getElementById('uploadZone').style.display = imgOn ? 'block' : 'none';
+};
+
+window.toggleImgTexte = () => {
+  imgOnTexte = !imgOnTexte;
+  document.getElementById('togImgTexte').classList.toggle('on', imgOnTexte);
+  document.getElementById('uploadZoneTexte').style.display = imgOnTexte ? 'block' : 'none';
+};
+
+window.previewImgTexte = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64Txt = ev.target.result;
+    const i = document.getElementById('imgPrevTexte');
+    i.src = imgBase64Txt; i.style.display='block';
+  };
+  r.readAsDataURL(f);
+};
+
+/* ── TOAST ── */
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity='1';
+  setTimeout(() => t.style.opacity='0', 2500);
 }
 
-// Swipe
-(function(){let sx=0,sy=0,sw=false;document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});document.addEventListener('touchmove',(e)=>{const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(!sw&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>6){sw=true;}if(sw&&window.parent!==window){window.parent.postMessage({type:'swipeMove',dx:dx},'*');}},{passive:true});document.addEventListener('touchend',(e)=>{if(!sw)return;const dx=e.changedTouches[0].clientX-sx;if(window.parent!==window){window.parent.postMessage({type:'swipeEnd',dx:dx},'*');}sw=false;},{passive:true});})();
+/* ── TEMPS DEPUIS ── */
+function tempsDepuis(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff/60000);
+  if (m < 1)  return "à l'instant";
+  if (m < 60) return 'il y a '+m+'min';
+  const h = Math.floor(m/60);
+  if (h < 24) return 'il y a '+h+'h';
+  const j = Math.floor(h/24);
+  if (j < 7)  return 'il y a '+j+'j';
+  const s = Math.floor(j/7);
+  if (s < 4)  return 'il y a '+s+' sem.';
+  return 'il y a '+Math.floor(j/30)+' mois';
+}
+
+/* ── DÉMARRAGE ── */
+chargerOffres();
+
+// Bouton publier connecté
+document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
+
 </script>
 </body>
 </html>
