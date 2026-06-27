@@ -4,9 +4,17 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArtiRoyce</title>
-<script src="translations.js" defer></script>
+<!-- Performance : préconnexion aux domaines externes -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://images.pexels.com"/>
+<link rel="dns-prefetch" href="https://images.pexels.com"/>
+<!-- Chargement police optimisé -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap"/>
+<!-- Multilingue chargé avant le DOM -->
+<script src="translations.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Syne:wght@700;800&display=swap');
+  /* Fonts chargées via <link> dans le head */
 
   :root {
     --rouge: #e63224;
@@ -233,7 +241,16 @@
   @keyframes ticker { from{transform:translateX(0);}to{transform:translateX(-50%);} }
 
   /* ── SECTIONS ── */
-  .section { position:relative; z-index:1; padding:72px 24px; }
+  .section { position:relative; z-index:1; padding:40px 16px; }
+  .mono-section {
+    position:relative; z-index:1;
+    padding:40px 16px;
+    background:#fafafa;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  }
+  .how-section { position:relative; z-index:1; padding:40px 16px; }
+  .cta-section { position:relative; z-index:1; padding:40px 16px; text-align:center; }
 
   .section-label {
     display:inline-flex; align-items:center; gap:8px;
@@ -275,13 +292,17 @@
     position:absolute; inset:0; z-index:5;
     display:block; border-radius:16px;
   }
-    position:relative; width:100%; height:100px; overflow:hidden;
+
+  /* Photo */
+  .pro-img-wrap {
+    position:relative; width:100%; height:90px; overflow:hidden;
   }
   .pro-img-wrap img {
     width:100%; height:100%; object-fit:cover;
-    display:block; transition:transform .4s ease;
+    display:block;
+    /* Chargement optimisé */
+    loading:lazy;
   }
-  .pro-card:hover .pro-img-wrap img { transform:scale(1.07); }
 
   /* Badge Vérifié sur photo */
   .pro-badge-img {
@@ -323,7 +344,7 @@
   ══════════════════════════════════ */
   .mono-section {
     position:relative; z-index:1;
-    padding:72px 24px;
+    padding:40px 16px;
     background:#fafafa;
     border-top:1px solid var(--border);
     border-bottom:1px solid var(--border);
@@ -391,7 +412,7 @@
   .g-amount{ font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--vert); margin-top:8px; display:block; }
 
   /* ── COMMENT ÇA MARCHE ── */
-  .how-section { position:relative; z-index:1; padding:72px 24px; }
+  .how-section { position:relative; z-index:1; padding:40px 16px; }
   .steps-list { margin-top:32px; display:flex; flex-direction:column; gap:18px; max-width:480px; margin-left:auto; margin-right:auto; }
   .step-item  { display:flex; gap:16px; align-items:flex-start; }
   .step-icon  {
@@ -405,7 +426,7 @@
   .step-content p  { font-size:13px; color:var(--muted); line-height:1.5; }
 
   /* ── CTA FINAL ── */
-  .cta-section { position:relative; z-index:1; padding:72px 24px; text-align:center; }
+  .cta-section { position:relative; z-index:1; padding:40px 16px; text-align:center; }
   .cta-card {
     background:#ffffff;
     border:1.5px solid #E8ECF0;
@@ -646,7 +667,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg" alt="Mécanicien auto">
+          <img src="https://images.pexels.com/photos/4488640/pexels-photo-4488640.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Mécanicien auto">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -661,7 +682,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg" alt="Couturière">
+          <img src="https://images.pexels.com/photos/3738088/pexels-photo-3738088.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Couturière">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -676,7 +697,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg" alt="Maçon">
+          <img src="https://images.pexels.com/photos/585419/pexels-photo-585419.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Maçon">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -691,7 +712,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg" alt="Menuisier">
+          <img src="https://images.pexels.com/photos/5974042/pexels-photo-5974042.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Menuisier">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -706,7 +727,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg" alt="Électricien">
+          <img src="https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Électricien">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -721,7 +742,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg" alt="Peintre">
+          <img src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Peintre">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -736,7 +757,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg" alt="Soudeur">
+          <img src="https://images.pexels.com/photos/209251/pexels-photo-209251.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Soudeur">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
@@ -751,7 +772,7 @@
       <div class="pro-card">
         <a href="connexion.html" class="card-link"></a>
         <div class="pro-img-wrap">
-          <img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg" alt="Vendeuse de fruits">
+          <img src="https://images.pexels.com/photos/20252737/pexels-photo-20252737.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Vendeuse de fruits">
           <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
           <div class="pro-play">▶</div>
         </div>
