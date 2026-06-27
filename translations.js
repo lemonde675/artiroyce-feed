@@ -642,4 +642,9 @@ document.addEventListener('click', e => {
   if (sel && !sel.contains(e.target)) sel.classList.remove('open');
 });
 
-document.addEventListener('DOMContentLoaded', initLang);
+/* Initialiser immédiatement car le script est chargé après le DOM */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLang);
+} else {
+  initLang();
+}
