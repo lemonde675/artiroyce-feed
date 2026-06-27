@@ -11,8 +11,7 @@
 <link rel="dns-prefetch" href="https://images.pexels.com"/>
 <!-- Chargement police optimisé -->
 <!-- Polices système - pas besoin de Google Fonts -->
-<!-- Multilingue chargé avant le DOM -->
-<script src="translations.js"></script>
+<!-- Multilingue chargé en fin de body -->
 <style>
   /* Fonts chargées via <link> dans le head */
 
@@ -31,7 +30,10 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
+  /* Cacher scrollbar */
+  html { scroll-behavior:smooth; scrollbar-width:none; }
+  html::-webkit-scrollbar { display:none; }
+  body::-webkit-scrollbar { display:none; }
   body {
     background:#ffffff;
     color:var(--text);
@@ -612,11 +614,11 @@
   </p>
   <div class="hero-ctas">
     <a href="enregistrer.html" class="btn-hero-main" data-i18n="btn_start">Commencer gratuitement →</a>
-    <a href="accueil.html" class="btn-hero-sec" data-i18n="btn_explore">▶ Explorer le feed</a>
+    <a href="connexion.html" class="btn-hero-sec" data-i18n="btn_explore">▶ Explorer le feed</a>
   </div>
   <div class="stats-band">
     <div class="stat-item">
-      <span class="stat-num"><span class="acc" id="cnt1">0</span>+</span>
+      <span class="stat-num"><span class="acc" id="cnt1">0</span>M+</span>
       <div class="stat-label" data-i18n="stat_pros">Professionnels</div>
     </div>
     <div class="stat-item">
@@ -785,10 +787,25 @@
         </div>
       </div>
 
+      <!-- 9. Forgeron — Ghana -->
+      <div class="pro-card">
+        <a href="connexion.html" class="card-link"></a>
+        <div class="pro-img-wrap">
+          <img src="https://images.pexels.com/photos/5845906/pexels-photo-5845906.jpeg?auto=compress&cs=tinysrgb&w=400" loading="lazy" referrerpolicy="no-referrer" alt="Forgeron artisanal">
+          <div class="pro-badge-img"><span class="medal"><span class="chk">✔</span></span>Vérifié</div>
+          <div class="pro-play">▶</div>
+        </div>
+        <div class="pro-body">
+          <div class="pro-metier">Forgeron artisanal</div>
+          <div class="pro-loc">🇬🇭 Ghana — Kumasi</div>
+          <div class="pro-stars">★★★★★</div>
+        </div>
+      </div>
+
     </div><!-- /pros-grid -->
 
     <div style="text-align:center;margin-top:24px;">
-      <a href="accueil.html" class="btn-ghost" style="font-size:14px;padding:12px 28px;" data-i18n="btn_see_all">
+      <a href="connexion.html" class="btn-ghost" style="font-size:14px;padding:12px 28px;" data-i18n="btn_see_all">
         Voir tous les professionnels →
       </a>
     </div>
@@ -1081,7 +1098,7 @@ function animCount(el,target,dur=1800){
 }
 new IntersectionObserver(entries=>{
   if(entries[0].isIntersecting){
-    animCount(document.getElementById('cnt1'),1200);
+    animCount(document.getElementById('cnt1'),5);
     animCount(document.getElementById('cnt2'),47);
     animCount(document.getElementById('cnt3'),100);
   }
@@ -1095,5 +1112,8 @@ document.querySelectorAll('.reveal').forEach(el=>{
 });
 
 </script>
+
+<!-- Multilingue chargé après le DOM -->
+<script src="translations.js"></script>
 </body>
 </html>
