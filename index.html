@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ArtiRoyce</title>
 <!-- Performance : préconnexion aux domaines externes -->
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://images.pexels.com"/>
 <link rel="dns-prefetch" href="https://images.pexels.com"/>
 <!-- Chargement police optimisé -->
@@ -524,6 +522,34 @@
     .nav-logo svg  { width:22px; height:16px; }
     .pros-grid  { grid-template-columns:repeat(3,1fr); }
     .gains-grid { grid-template-columns:1fr 1fr; }
+  }
+
+  /* ══════════════════════════════════
+     VERSION ORDINATEUR / PC
+  ══════════════════════════════════ */
+  @media (min-width:768px) {
+    body { background:#fafafa; }
+    .nav-inner { max-width:1100px; margin:0 auto; padding:12px 24px; }
+    .hero { padding:120px 20px 60px; }
+    .hero-title { font-size:clamp(36px,5vw,56px); }
+    .hero-sub { max-width:600px; }
+    .stats-band { max-width:460px; }
+
+    .section, .mono-section, .how-section, .cta-section { padding:64px 24px; }
+    .section > div, .mono-section > div, .how-section > div { max-width:960px !important; }
+
+    .pros-grid { grid-template-columns:repeat(6,1fr); max-width:960px; }
+    .gains-grid { grid-template-columns:repeat(4,1fr); max-width:960px; }
+    .mono-hero-card { max-width:640px; }
+
+    .cta-card { max-width:640px; }
+
+    .pro-card:hover { transform:translateY(-8px); }
+    .btn-hero-main:hover, .btn-cta-white:hover { transform:translateY(-3px); }
+  }
+
+  @media (min-width:1200px) {
+    .pros-grid { grid-template-columns:repeat(9,1fr); max-width:1100px; }
   }
 </style>
 </head>
