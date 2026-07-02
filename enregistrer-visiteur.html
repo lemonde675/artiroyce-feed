@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <title>ArtiRoyce – Inscription Visiteur</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; height: 100%; }
+    body { min-height: 100vh; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; padding: 40px 16px; }
+    .back-home { position: fixed; top: 18px; left: 18px; display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; z-index: 100; }
+    .back-home:hover { background: #e63224; color: #fff; }
+    .back-home svg { transition: transform 0.18s; }
+    .back-home:hover svg { transform: translateX(-3px); }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; width: 100%; max-width: 420px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
+    .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
+    .card-body { padding: 32px 28px 28px; }
+    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
+    .logo-text { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .logo-text .arti { color: #e63224; }
+    .logo-text .royce { color: #27a945; }
+    h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #888; margin-bottom: 22px; }
+    label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 5px; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; color: #333; outline: none; background: #fafafa; transition: border-color 0.2s; margin-bottom: 2px; }
+    input:focus { border-color: #e63224; background: #fff; }
+    input.error { border-color: #e63224 !important; background: #fff5f5; }
+    input.valid { border-color: #27a945 !important; background: #f5fff7; }
+    input::placeholder { color: #bbb; }
+    .error-msg { font-size: 11px; color: #e63224; min-height: 16px; display: block; margin-bottom: 10px; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 44px; }
+    .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; display: flex; align-items: center; }
+    .strength-bar { height: 4px; border-radius: 4px; background: #eee; margin-bottom: 4px; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 4px; width: 0; transition: width 0.3s, background 0.3s; }
+    .strength-label { font-size: 10px; color: #888; margin-bottom: 10px; }
+    .btn-register { width: 100%; padding: 14px; background: #27a945; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.2px; cursor: pointer; transition: background 0.2s; margin-top: 6px; }
+    .btn-register:hover { background: #1e8c38; }
+    .btn-register:disabled { background: #ccc; cursor: not-allowed; }
+    .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
+    .login-link a { color: #e63224; text-decoration: none; font-weight: 600; }
+    .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+    .toast.success { background: #27a945; }
+    .toast.error-toast { background: #e63224; }
+
+    /* ===== SÉLECTEUR PROFESSIONNEL / VISITEURS (identique à enregistrer.html) ===== */
+    .mode-switcher-wrap { margin-bottom: 22px; }
+    .mode-switcher {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 10px;
+      padding: 5px;
+      background: #eef0f3;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .mode-pill {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1.5px solid transparent;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+      text-decoration: none;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-sizing: border-box;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    .mode-pill.active {
+      background: #fff;
+      color: #1a1a1a;
+      border-color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      cursor: default;
+    }
+    .mode-pill.inactive {
+      background: transparent;
+      color: #0d1b3e;
+      border-color: #0d1b3e;
+    }
+    .mode-pill.inactive:hover {
+      background: #0d1b3e;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(13,27,62,0.25);
+    }
+    .mode-hint {
+      text-align: center;
+      font-size: 11.5px;
+      color: #0d1b3e;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .mode-hint svg { flex-shrink: 0; animation: arrowPulse 1.8s ease-in-out infinite; }
+    .mode-hint .draw-path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: drawArrow 0.6s ease forwards 0.3s; }
+    @keyframes drawArrow { to { stroke-dashoffset: 0; } }
+    @keyframes arrowPulse { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+
+    /* ===== BLOC DROITS VISITEUR — sobre, sans badge ===== */
+    .visitor-info {
+      background: #f4f8fc;
+      border: 1px solid #d8e6f5;
+      border-left: 3px solid #0d1b3e;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #33465f;
+      margin-bottom: 18px;
+    }
+    .visitor-info strong { color: #0d1b3e; }
+
+    /* ===== SÉLECTEUR DE LANGUE 🌍 ===== */
+    .lang-selector { position: fixed; top: 18px; right: 18px; z-index: 200; font-size: 13px; }
+    .lang-current { background: #fff; border: 1.5px solid #ddd; border-radius: 50px; padding: 8px 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.10); color: #333; }
+    .lang-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 6px; min-width: 175px; max-height: 280px; overflow-y: auto; }
+    #langSel.open .lang-dropdown { display: block; }
+    .lang-option { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; color: #333; }
+    .lang-option:hover { background: #f4f5f7; }
+    .lang-option.active { background: #f0fff4; color: #27a945; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+  <a href="index.html" class="back-home">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    <span data-i18n="reg_back_home">Accueil</span>
+  </a>
+  <div class="lang-selector" id="langSel">
+    <button type="button" class="lang-current" onclick="toggleLang()">
+      🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span>
+    </button>
+    <div class="lang-dropdown">
+      <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
+      <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
+      <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
+      <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
+      <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
+      <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
+      <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
+      <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
+      <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
+      <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="top-bar"></div>
+    <div class="card-body">
+      <div class="logo-wrap">
+        <svg width="70" height="50" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+          <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        </svg>
+        <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+      </div>
+      <h1 data-i18n="reg_visitor_title">Inscription Visiteur</h1>
+      <p class="subtitle" data-i18n="reg_visitor_subtitle">Créez votre compte visiteur pour contacter, échanger et suivre les professionnels ArtiRoyce</p>
+
+      <!-- ===== SÉLECTEUR VISITEURS / PROFESSIONNEL ===== -->
+      <div class="mode-switcher-wrap">
+        <div class="mode-switcher">
+          <span class="mode-pill active" data-i18n="pill_visitor">👤 Page visiteurs</span>
+          <a href="enregistrer.html" class="mode-pill inactive" data-i18n="pill_professional">👔 Page professionnel</a>
+        </div>
+        <div class="mode-hint">
+          <span data-i18n="hint_to_pro">Professionnel ? Créez un compte vérifié</span>
+          <svg width="26" height="18" viewBox="0 0 26 18" fill="none">
+            <path class="draw-path" d="M2 9 C 10 9, 16 9, 21 9" stroke="#0d1b3e" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M16 4 L21 9 L16 14" stroke="#0d1b3e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="visitor-info" data-i18n="visitor_info_html">
+        <strong>Visiteur :</strong> vous pouvez contacter et appeler les professionnels, commenter (identifié comme <strong>Visiteur</strong>), discuter et poster des statuts. Vous ne pouvez pas publier de vidéos ni publier dans le fil d'actualité, hormis la modification de votre <strong>photo de profil</strong> et de votre <strong>bio</strong> (limitée en caractères).
+      </div>
+
+      <form id="registerForm" novalidate>
+        <label for="nom" data-i18n="label_nom">NOM</label>
+        <input type="text" id="nom" placeholder="DULER" autocomplete="family-name"/>
+        <span class="error-msg" id="nomError"></span>
+        <label for="prenom" data-i18n="label_prenom">PRÉNOM(S)</label>
+        <input type="text" id="prenom" placeholder="Jean Philippe" autocomplete="given-name"/>
+        <span class="error-msg" id="prenomError"></span>
+        <label for="email" data-i18n="label_email">EMAIL</label>
+        <input type="email" id="email" placeholder="name@exemple.com" autocomplete="email"/>
+        <span class="error-msg" id="emailError"></span>
+        <label for="tel" data-i18n="label_tel">NUMÉRO DE TÉLÉPHONE</label>
+        <input type="tel" id="tel" placeholder="+33 6 12 34 56 78" autocomplete="tel"/>
+        <span class="error-msg" id="telError"></span>
+        <label for="password" data-i18n="label_password">MOT DE PASSE</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="Minimum 8 caractères" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+          <button type="button" class="eye-btn" onclick="togglePass('password')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
+          </button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-label" id="strengthLabel"></div>
+        <span class="error-msg" id="passwordError"></span>
+        <label for="password2" data-i18n="label_password2">CONFIRMER LE MOT DE PASSE</label>
+        <div class="password-wrap">
+          <input type="password" id="password2" placeholder="Répétez le mot de passe" autocomplete="new-password"/>
+          <button type="button" class="eye-btn" onclick="togglePass('password2')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5"/></svg>
+          </button>
+        </div>
+        <span class="error-msg" id="password2Error"></span>
+        <button type="submit" class="btn-register" id="btnRegister" data-i18n="btn_create_account">CRÉER MON COMPTE &nbsp;→</button>
+      </form>
+      <div class="login-link"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
+    </div>
+    <div class="bottom-bar"></div>
+  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
+    window.togglePass = id => { const p = document.getElementById(id); p.type = p.type==='password'?'text':'password'; };
+    window.checkStrength = val => {
+      const fill = document.getElementById('strengthFill'), label = document.getElementById('strengthLabel');
+      let s = 0;
+      if (val.length>=8) s++; if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
+      const t = T();
+      const l = [{pct:'0%',c:'#eee',t:''},{pct:'25%',c:'#e63224',t:t.js_strength_weak||'⚠ Très faible'},{pct:'50%',c:'#ff9800',t:t.js_strength_medium||'😐 Moyen'},{pct:'75%',c:'#4caf50',t:t.js_strength_good||'👍 Bon'},{pct:'100%',c:'#27a945',t:t.js_strength_strong||'🔒 Très fort'}];
+      fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
+    };
+    function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+    const vEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
+    const vPhone = p => /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim());
+    const vName  = n => /^[a-zA-ZÀ-ÿ\s\-\']{2,50}$/.test(n.trim());
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); let valid = true;
+      const t = T();
+      const f = {
+        nom:{el:document.getElementById('nom'),err:document.getElementById('nomError')},
+        prenom:{el:document.getElementById('prenom'),err:document.getElementById('prenomError')},
+        email:{el:document.getElementById('email'),err:document.getElementById('emailError')},
+        tel:{el:document.getElementById('tel'),err:document.getElementById('telError')},
+        password:{el:document.getElementById('password'),err:document.getElementById('passwordError')},
+        password2:{el:document.getElementById('password2'),err:document.getElementById('password2Error')},
+      };
+      Object.values(f).forEach(x=>{x.el.className='';x.err.textContent='';});
+      if (!f.nom.el.value.trim()||!vName(f.nom.el.value)){f.nom.err.textContent=t.js_err_nom||'⚠ Nom invalide.';f.nom.el.className='error';valid=false;}else{f.nom.el.className='valid';}
+      if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent=t.js_err_prenom||'⚠ Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
+      if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent=t.js_err_email||'⚠ Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
+      if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent=t.js_err_tel||'⚠ Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
+      if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'⚠ Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
+      if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
+      if (!valid){showToast(t.js_err_fix||'⚠ Corrigez les erreurs.','error-toast');return;}
+      const btn=document.getElementById('btnRegister');
+      btn.disabled=true;btn.textContent=t.js_creating||'Création du compte…';
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, f.email.el.value.trim(), f.password.el.value);
+        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+          nom: f.nom.el.value.trim(), prenom: f.prenom.el.value.trim(),
+          email: f.email.el.value.trim(), telephone: f.tel.el.value.trim(),
+          statut:'actif', kycStatut:'non_applicable', role:'visiteur',
+          verifie:false, dateInscription:serverTimestamp(),
+        });
+        showToast(t.js_toast_success_visitor||'✅ Compte visiteur créé ! Connectez-vous maintenant.','success');
+        setTimeout(()=>{ window.location.href='connexion.html'; },1500);
+      } catch(err) {
+        btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
+        const errMap = {
+          'auth/email-already-in-use': t.js_toast_email_used,
+          'auth/weak-password': t.js_err_weak_password,
+          'auth/network-request-failed': t.js_err_network,
+          'auth/too-many-requests': t.js_err_too_many,
+          'auth/invalid-email': t.js_err_invalid_email,
+          'auth/user-disabled': t.js_err_user_disabled,
+        };
+        if (err.code==='auth/email-already-in-use') { f.email.el.className='error'; }
+        const mapped = errMap[err.code];
+        if (mapped) { showToast(mapped, 'error-toast'); }
+        else { showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast'); }
+      }
+    });
+  </script>
+  <script src="translations.js"></script>
+</body>
+</html>
