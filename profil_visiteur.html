@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <title>ArtiRoyce – Mon Profil Visiteur</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root { --red: #e63224; --green: #27a945; --navy: #0d1b3e; --gray: #f5f5f5; --dark: #1a1a1a; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+
+    .top-header { background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 2px solid #eee; position: sticky; top: 0; z-index: 100; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: var(--red); font-size: 13px; font-weight: 700; text-decoration: none; }
+    .logo-wrap { display: flex; align-items: center; gap: 6px; }
+    .logo-text { font-size: 18px; font-weight: 800; }
+    .logo-text .arti { color: var(--red); } .logo-text .royce { color: var(--green); }
+    .header-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border-radius: 50%; background: #e8f5e9; border: 1.5px solid var(--green); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .icon-btn.logout { background: #fff0ee; border-color: var(--red); }
+
+    .cover { width: 100%; height: 130px; background: linear-gradient(135deg, var(--navy) 0%, #1a2c5c 50%, #27a945 100%); }
+    .profile-info { background: #fff; padding: 14px 16px 6px; }
+    .avatar-section { margin-top: -42px; margin-bottom: 8px; display: flex; align-items: flex-end; justify-content: space-between; }
+    .avatar-wrap { position: relative; }
+    .avatar { width: 84px; height: 84px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--navy), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-initiale { font-size: 30px; font-weight: 800; color: #fff; }
+    .avatar-edit { position: absolute; bottom: 2px; right: 2px; width: 24px; height: 24px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .profile-name { font-size: 19px; font-weight: 800; color: var(--dark); margin-top: 4px; }
+    .visitor-badge { display: inline-flex; align-items: center; gap: 5px; background: #eef0f6; color: var(--navy); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 6px; }
+
+    .profile-bio { font-size: 13px; color: #666; margin-top: 12px; line-height: 1.6; padding: 10px 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid var(--green); min-height: 44px; }
+    .bio-empty { color: #aaa; font-style: italic; }
+
+    .btn-modifier { width: 100%; margin-top: 12px; margin-bottom: 4px; padding: 11px; background: var(--gray); color: var(--dark); border: 1.5px solid #ddd; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    .section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .section-title { font-size: 14px; font-weight: 800; color: var(--dark); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .coords-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .coord-item { display: flex; align-items: center; gap: 10px; background: var(--gray); border-radius: 12px; padding: 10px 12px; }
+    .coord-circle { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; background: #eef0f6; }
+    .coord-text { flex: 1; min-width: 0; }
+    .coord-label { font-size: 9px; color: #888; font-weight: 700; letter-spacing: 0.5px; }
+    .coord-value { font-size: 11px; color: var(--dark); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .cta-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .cta-card { background: linear-gradient(135deg, #fff5f2, #f0fff4); border: 1px solid #ffd6ce; border-radius: 12px; padding: 16px; text-align: center; }
+    .cta-icon { font-size: 30px; margin-bottom: 6px; }
+    .cta-title { font-size: 14px; font-weight: 800; color: #333; margin-bottom: 4px; }
+    .cta-sub { font-size: 12px; color: #888; margin-bottom: 12px; }
+    .cta-btn { display: inline-block; padding: 11px 22px; background: linear-gradient(135deg, var(--red), var(--green)); color: #fff; border-radius: 10px; font-size: 13px; font-weight: 800; text-decoration: none; }
+
+    .statuts-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .statuts-empty { text-align: center; padding: 24px 10px; color: #aaa; font-size: 13px; }
+    .statuts-empty .e-icon { font-size: 34px; margin-bottom: 8px; display: block; }
+
+    .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .bottom-space { height: 30px; }
+
+    /* MODALE ÉDITION */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+    .modal-title { font-size: 15px; font-weight: 800; }
+    .modal-close { background: none; border: none; font-size: 22px; color: #888; cursor: pointer; }
+    .modal-body { padding: 20px; }
+    .field-label { font-size: 11px; font-weight: 700; color: #555; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .field-input { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; }
+    .field-input:focus { border-color: var(--green); outline: none; }
+    .btn-save { width: 100%; padding: 13px; background: var(--green); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 14px; }
+
+    .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error-toast { background: var(--red); }
+
+    /* ===== SÉLECTEUR DE LANGUE 🌍 ===== */
+    .lang-selector { position: relative; font-size: 12px; }
+    .lang-current { background: #f5f5f5; border: none; border-radius: 50px; padding: 7px 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #333; }
+    .lang-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 6px; min-width: 170px; max-height: 260px; overflow-y: auto; z-index: 300; }
+    #langSel.open .lang-dropdown { display: block; }
+    .lang-option { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; color: #333; }
+    .lang-option:hover { background: #f4f5f7; }
+    .lang-option.active { background: #f0fff4; color: var(--green); font-weight: 700; }
+
+    /* ===== VERSION ORDINATEUR / PC ===== */
+    @media (min-width: 768px) {
+      body { max-width: 600px; box-shadow: 0 0 40px rgba(0,0,0,0.08); }
+      .cta-btn:hover, .icon-btn:hover { opacity: 0.85; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div class="top-header">
+    <a href="accueil.html" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span data-i18n="pv_back">Accueil</span>
+    </a>
+    <div class="logo-wrap">
+      <svg width="30" height="21" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-selector" id="langSel">
+        <button type="button" class="lang-current" onclick="toggleLang()">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
+        <div class="lang-dropdown">
+          <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
+          <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
+          <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
+          <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
+          <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
+          <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
+          <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
+          <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
+          <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
+          <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
+        </div>
+      </div>
+      <button class="icon-btn logout" onclick="deconnexion()" title="Déconnexion">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="cover"></div>
+
+  <div class="profile-info">
+    <div class="avatar-section">
+      <div class="avatar-wrap">
+        <div class="avatar" id="avatarWrap" onclick="document.getElementById('inputAvatar').click()">
+          <span class="avatar-initiale" id="avatarInitiale">?</span>
+        </div>
+        <button class="avatar-edit" onclick="document.getElementById('inputAvatar').click()">📷</button>
+        <input type="file" id="inputAvatar" accept="image/*" style="display:none;"/>
+      </div>
+    </div>
+    <div class="profile-name" id="profileName">…</div>
+    <div class="visitor-badge">👤 <span data-i18n="pv_visitor_tag">Visiteur</span></div>
+    <div class="profile-bio" id="profileBio"><span class="bio-empty" data-i18n="pv_bio_empty">Aucune bio pour le moment…</span></div>
+    <button class="btn-modifier" onclick="openModal()">✏️ <span data-i18n="pv_edit_btn">Modifier mon profil</span></button>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span>📋</span> <span data-i18n="pv_coords_title">Coordonnées</span></div>
+    <div class="coords-grid">
+      <div class="coord-item"><div class="coord-circle">📧</div><div class="coord-text"><div class="coord-label" data-i18n="label_email">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
+      <div class="coord-item"><div class="coord-circle">📞</div><div class="coord-text"><div class="coord-label" data-i18n="label_tel">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div></div>
+    </div>
+  </div>
+
+  <div class="statuts-section">
+    <div class="section-title"><span>📝</span> <span data-i18n="pv_statuts_title">Mes statuts</span></div>
+    <div class="statuts-empty">
+      <span class="e-icon">📭</span>
+      <span data-i18n="pv_statuts_empty">Vous n'avez encore posté aucun statut.</span>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <div class="cta-card">
+      <div class="cta-icon">🚀</div>
+      <div class="cta-title" data-i18n="pv_cta_title">Passez professionnel</div>
+      <div class="cta-sub" data-i18n="pv_cta_sub">Publiez, gagnez en visibilité et monétisez votre savoir-faire.</div>
+      <a href="enregistrer.html" class="cta-btn" data-i18n="pv_cta_pro">Devenir professionnel</a>
+    </div>
+  </div>
+
+  <div class="logout-section">
+    <button class="btn-logout" onclick="deconnexion()" data-i18n="pv_logout">Se déconnecter</button>
+  </div>
+  <div class="bottom-space"></div>
+
+  <!-- MODALE ÉDITION -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title" data-i18n="pv_modal_title">Modifier mon profil</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field-label"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/90</span></div>
+        <textarea class="field-input" id="bioInput" rows="3" maxlength="90" oninput="updateBioCount()" placeholder="Parlez un peu de vous…"></textarea>
+        <button class="btn-save" onclick="saveProfile()" data-i18n="pv_save_btn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
+
+    let currentUser = null;
+    let userData = null;
+
+    function showToast(msg, type='') { const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show '+type; setTimeout(()=>t.className='toast',2800); }
+
+    window.deconnexion = async () => { try { await signOut(auth); } catch(e){} window.location.href = 'connexion.html'; };
+
+    window.openModal = () => {
+      document.getElementById('bioInput').value = (userData && userData.bio) || '';
+      updateBioCount();
+      document.getElementById('modalOverlay').classList.add('open');
+    };
+    window.closeModal = () => document.getElementById('modalOverlay').classList.remove('open');
+    window.updateBioCount = () => {
+      const len = document.getElementById('bioInput').value.length;
+      document.getElementById('bioCount').textContent = len + '/90';
+    };
+
+    function compresserImage(file, taille, qualite) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > taille) { h *= taille/w; w = taille; } }
+            else { if (h > taille) { w *= taille/h; h = taille; } }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', qualite));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('inputAvatar').addEventListener('change', async function() {
+      if (!currentUser) return;
+      const file = this.files[0];
+      if (!file) return;
+      try {
+        const b64 = await compresserImage(file, 250, 0.5);
+        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64 });
+        document.getElementById('avatarWrap').innerHTML = `<img src="${b64}" alt="avatar"/>`;
+        showToast(T().pv_toast_photo || '✅ Photo mise à jour !', 'success');
+      } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
+      this.value = '';
+    });
+
+    window.saveProfile = async () => {
+      if (!currentUser) return;
+      const bio = document.getElementById('bioInput').value.trim();
+      try {
+        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { bio });
+        userData.bio = bio;
+        renderBio();
+        closeModal();
+        showToast(T().pv_toast_saved || '✅ Profil mis à jour !', 'success');
+      } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
+    };
+
+    function renderBio() {
+      const el = document.getElementById('profileBio');
+      if (userData.bio && userData.bio.trim()) {
+        el.textContent = userData.bio;
+      } else {
+        el.innerHTML = `<span class="bio-empty">${T().pv_bio_empty || 'Aucune bio pour le moment…'}</span>`;
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'connexion.html'; return; }
+      currentUser = user;
+      try {
+        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+        if (!snap.exists()) return;
+        userData = snap.data();
+        const nom = ((userData.prenom||'') + ' ' + (userData.nom||'')).trim() || '—';
+        const initiale = (userData.prenom || userData.nom || '?')[0].toUpperCase();
+        document.getElementById('profileName').textContent = nom;
+        document.getElementById('avatarInitiale').textContent = initiale;
+        document.getElementById('coordEmail').textContent = userData.email || user.email || '—';
+        document.getElementById('coordTel').textContent = userData.telephone || '—';
+        renderBio();
+        if (userData.photoAvatar) {
+          document.getElementById('avatarWrap').innerHTML = `<img src="${userData.photoAvatar}" alt="avatar"/>`;
+        }
+      } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
+    });
+  </script>
+  <script src="translations.js"></script>
+</body>
+</html>
