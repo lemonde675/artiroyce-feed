@@ -156,7 +156,7 @@
     </div>
     <div class="header-actions">
       <div class="lang-selector" id="langSel">
-        <button type="button" class="lang-current" onclick="toggleLang()">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
+        <button type="button" class="lang-current" onclick="document.getElementById('langSel').classList.toggle('open')">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
         <div class="lang-dropdown">
           <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
           <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
@@ -558,6 +558,16 @@
         const snap = await getDoc(doc(db, 'utilisateurs', profileUid));
         if (!snap.exists()) { showToast(T().pv_profile_not_found || '⚠ Profil introuvable.', 'error-toast'); return; }
         userData = snap.data();
+
+        // ✅ GARDE-FOU CRITIQUE : cette page est réservée aux visiteurs.
+        // Si la personne consultée est un professionnel, on redirige vers
+        // son vrai profil — jamais de mélange entre les deux gabarits.
+        if (userData.role && userData.role !== 'visiteur') {
+          const suffixe = uidParam ? ('?uid=' + encodeURIComponent(uidParam)) : '';
+          window.location.href = 'profil.html' + suffixe;
+          return;
+        }
+
         const nom = ((userData.prenom||'') + ' ' + (userData.nom||'')).trim() || '—';
         const initiale = (userData.prenom || userData.nom || '?')[0].toUpperCase();
         document.getElementById('profileName').textContent = nom;
