@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
   <title>ArtiRoyce – Accueil</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root { --red: #e63224; --green: #27a945; }
+    html { scroll-behavior: smooth; }
     html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a2e; overflow: hidden; max-width: 480px; margin: 0 auto; }
     .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
     .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
@@ -86,7 +89,8 @@
     .lflag { font-size: 22px; }
     .lname { font-size: 13px; font-weight: 700; }
     .lnat { font-size: 11px; color: #888; }
-    .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; }
+    .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; opacity: 0; }
+    .lopt.active .lchk { opacity: 1; }
     /* SWIPE HORIZONTAL */
     .panels-container { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow: hidden; }
     .panels-track { display: flex; flex-direction: row; height: 100vh; width: 100%; transition: transform 0.32s cubic-bezier(.4,0,.2,1); will-change: transform; }
@@ -124,6 +128,16 @@
     .sp-metier-name { font-size:14px; font-weight:700; color:#111; }
     .sp-metier-count { font-size:11px; color:#aaa; margin-top:2px; }
     .sp-metier-arrow { color:#ccc; font-size:16px; margin-left:auto; }
+    /* ══════════════════════════════════
+       VERSION ORDINATEUR / PC
+    ══════════════════════════════════ */
+    @media (min-width: 768px) {
+      html, body { max-width: 600px; }
+      .top-header, .bot-nav, .panels-container { max-width: 600px; }
+      body { box-shadow: 0 0 40px rgba(0,0,0,0.15); }
+      .btn-suivre:hover, .btn-contacter:hover, .h-tab:hover, .nav-i:hover .nav-lb { opacity: 0.85; cursor: pointer; }
+      .act-circle:hover { transform: scale(1.08); }
+    }
   </style>
 </head>
 <body>
@@ -147,19 +161,19 @@
       <div style="display:flex;align-items:center;gap:3px">
         <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
-        <span class="h-dots" onclick="toast('⚙️ Paramètres','')" style="padding:2px 0">⋮</span>
+        <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
       </div>
     </div>
   </div>
   <div class="h-tabs">
-    <div class="h-tab active">🏠 Accueil</div>
-    <div class="h-tab">📰 Actualités</div>
-    <div class="h-tab"><span class="tab-green-dot"></span> Statuts</div>
-    <div class="h-tab">⭐ Élites</div>
-    <div class="h-tab">💼 Offres</div>
-    <div class="h-tab">📄 CV Pro</div>
-    <div class="h-tab">💬 Répert-Discussion</div>
-    <div class="h-tab">📖 FAQ</div>
+    <div class="h-tab active" data-i18n="acc_tab_home">🏠 Accueil</div>
+    <div class="h-tab" data-i18n="acc_tab_news">📰 Actualités</div>
+    <div class="h-tab"><span class="tab-green-dot"></span> <span data-i18n="acc_tab_status">Statuts</span></div>
+    <div class="h-tab" data-i18n="acc_tab_elite">⭐ Élites</div>
+    <div class="h-tab" data-i18n="acc_tab_offers">💼 Offres</div>
+    <div class="h-tab" data-i18n="acc_tab_cv">📄 CV Pro</div>
+    <div class="h-tab" data-i18n="acc_tab_discussion">💬 Répert-Discussion</div>
+    <div class="h-tab" data-i18n="acc_tab_faq">📖 FAQ</div>
   </div>
 </header>
 
@@ -229,7 +243,7 @@
 <div class="search-panel" id="searchPanel">
   <div class="sp-header">
     <span style="font-size:20px">🔍</span>
-    <span class="sp-title">Rechercher un métier</span>
+    <span class="sp-title" data-i18n="acc_search_title">Rechercher un métier</span>
     <button class="sp-close" onclick="closeSearch()">✕</button>
   </div>
   <div class="sp-search-box">
@@ -238,20 +252,20 @@
       <input type="text" id="spInput" placeholder="Ex: Coiffeur, DJ, Photographe…" oninput="filterMetiers()"/>
     </div>
   </div>
-  <div class="sp-subtitle" id="spSubtitle">Tous les métiers</div>
+  <div class="sp-subtitle" id="spSubtitle" data-i18n="acc_all_jobs">Tous les métiers</div>
   <div class="sp-list" id="spList"></div>
 </div>
 
 <nav class="bot-nav">
   <!-- Mon Profil à gauche -->
-  <div class="nav-i" onclick="window.location.href='profil.html'">
+  <div class="nav-i" onclick="goProfile()">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="nav-lb">Mon Profil</span>
+    <span class="nav-lb" data-i18n="acc_nav_profile">Mon Profil</span>
   </div>
   <!-- Discussion -->
   <div class="nav-i active" onclick="goToPanel(6)">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <span class="nav-lb" style="color:var(--green)">Discussion</span>
+    <span class="nav-lb" style="color:var(--green)" data-i18n="acc_nav_discussion">Discussion</span>
   </div>
   <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
     <div class="nav-plus">+</div>
@@ -261,7 +275,7 @@
       <rect x="2" y="3" width="20" height="18" rx="3" fill="var(--red)"/>
       <polygon points="10,8 10,16 17,12" fill="#fff"/>
     </svg>
-    <span class="nav-lb">Live</span>
+    <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
   </div>
   <!-- Messages à droite -->
   <div class="nav-i" onclick="toast('📩 Messages','')">
@@ -271,7 +285,7 @@
       <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
       <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
     </svg>
-    <span class="nav-lb">Messages</span>
+    <span class="nav-lb" data-i18n="acc_nav_messages">Messages</span>
   </div>
 </nav>
 
@@ -280,17 +294,24 @@
 <div class="moverlay" id="langOverlay" onclick="closeLang(event)">
   <div class="lsheet">
     <div class="lhandle"></div>
-    <div class="ltitle">🌐 Choisir la langue</div>
-    <div class="lopt active" onclick="setLang('fr')"><span class="lflag">🇫🇷</span><div><div class="lname">Français</div><div class="lnat">France</div></div><span class="lchk" id="chk-fr">✔</span></div>
-    <div class="lopt" onclick="setLang('en')"><span class="lflag">🇬🇧</span><div><div class="lname">English</div><div class="lnat">United Kingdom</div></div><span class="lchk" id="chk-en" style="display:none">✔</span></div>
-    <div class="lopt" onclick="setLang('pt')"><span class="lflag">🇧🇷</span><div><div class="lname">Português</div><div class="lnat">Brasil</div></div><span class="lchk" id="chk-pt" style="display:none">✔</span></div>
+    <div class="ltitle">🌐 <span data-i18n="acc_choose_lang">Choisir la langue</span></div>
+    <div class="lopt active" data-lang="FR" onclick="selectLangue('FR',this)"><span class="lflag">🇫🇷</span><div><div class="lname">Français</div><div class="lnat">France</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="EN" onclick="selectLangue('EN',this)"><span class="lflag">🇬🇧</span><div><div class="lname">English</div><div class="lnat">United Kingdom</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="ES" onclick="selectLangue('ES',this)"><span class="lflag">🇪🇸</span><div><div class="lname">Español</div><div class="lnat">España</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="PT" onclick="selectLangue('PT',this)"><span class="lflag">🇧🇷</span><div><div class="lname">Português</div><div class="lnat">Brasil</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="AR" onclick="selectLangue('AR',this)"><span class="lflag">🇸🇦</span><div><div class="lname">العربية</div><div class="lnat">السعودية</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="ZH" onclick="selectLangue('ZH',this)"><span class="lflag">🇨🇳</span><div><div class="lname">中文</div><div class="lnat">中国</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="RU" onclick="selectLangue('RU',this)"><span class="lflag">🇷🇺</span><div><div class="lname">Русский</div><div class="lnat">Россия</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="DE" onclick="selectLangue('DE',this)"><span class="lflag">🇩🇪</span><div><div class="lname">Deutsch</div><div class="lnat">Deutschland</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="JA" onclick="selectLangue('JA',this)"><span class="lflag">🇯🇵</span><div><div class="lname">日本語</div><div class="lnat">日本</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="HI" onclick="selectLangue('HI',this)"><span class="lflag">🇮🇳</span><div><div class="lname">हिन्दी</div><div class="lnat">भारत</div></div><span class="lchk">✔</span></div>
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -647,23 +668,53 @@
     num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
   }
 
-  window.goProfile = function() { window.location.href = 'profil.html'; }
+  let currentUserRole = 'artisan';
+  window.goProfile = function() { window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html'; }
   window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
   window.ouvrirItineraire = function(adresse) {
     if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
     else toast('📍 Adresse non disponible', '');
   }
 
-  function setLang(l) {
-    ['fr','en','pt'].forEach(x => document.getElementById('chk-'+x).style.display = x===l?'':'none');
-    document.querySelectorAll('.lopt').forEach(o => o.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    setTimeout(closeLangAll, 300);
-    toast(l==='fr'?'🇫🇷 Français':l==='en'?'🇬🇧 English':'🇧🇷 Português','g');
-  }
-  window.setLang = setLang;
+  /* ══════════════════════════════════════════════════════════
+     SÉLECTEUR DE LANGUE — variante locale à cette page
+     Cette page utilise un tiroir remontant du bas (design différent
+     du menu déroulant classique des autres pages), donc les noms de
+     fonctions sont différents : openLangAll()/selectLangue() au lieu
+     de toggleLang()/setLang() utilisés ailleurs.
+     ⚠️ Le moteur de traduction reste le MÊME partout : applyTranslations(),
+     TRANSLATIONS et currentLang viennent tous de translations.js, chargé
+     en fin de body sur cette page comme sur toutes les autres.
+  ══════════════════════════════════════════════════════════ */
+  window.openLangAll = function() { document.getElementById('langOverlay').classList.add('open'); }
   function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
   function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
+  window.closeLangAll = closeLangAll;
+  window.closeLang = closeLang;
+
+  const FLAG_MAP = { FR:'🇫🇷', EN:'🇬🇧', ES:'🇪🇸', PT:'🇧🇷', AR:'🇸🇦', ZH:'🇨🇳', RU:'🇷🇺', DE:'🇩🇪', JA:'🇯🇵', HI:'🇮🇳' };
+  const SEARCH_PLACEHOLDER_MAP = {
+    FR: 'Ex: Coiffeur, DJ, Photographe…', EN: 'Ex: Hairdresser, DJ, Photographer…',
+    ES: 'Ej: Peluquero, DJ, Fotógrafo…', PT: 'Ex: Cabeleireiro, DJ, Fotógrafo…',
+    AR: 'مثال: حلاق، دي جي، مصور…', ZH: '例如：理发师、DJ、摄影师…',
+    RU: 'Напр.: Парикмахер, DJ, Фотограф…', DE: 'Z.B.: Friseur, DJ, Fotograf…',
+    JA: '例：美容師、DJ、写真家…', HI: 'उदा: हेयरड्रेसर, DJ, फोटोग्राफर…',
+  };
+  function syncLangUI(code) {
+    const iconEl = document.getElementById('langIconEl');
+    if (iconEl) iconEl.textContent = FLAG_MAP[code] || '🇫🇷';
+    document.querySelectorAll('.lopt').forEach(o => o.classList.toggle('active', o.getAttribute('data-lang') === code));
+    const spInput = document.getElementById('spInput');
+    if (spInput) spInput.placeholder = SEARCH_PLACEHOLDER_MAP[code] || SEARCH_PLACEHOLDER_MAP.FR;
+  }
+  window.selectLangue = function(code) {
+    if (typeof applyTranslations === 'function') applyTranslations(code);
+    syncLangUI(code);
+    try { localStorage.setItem('ar_lang', code); } catch(e){}
+    setTimeout(closeLangAll, 250);
+  }
+  // Synchronise l'icône avec la langue déjà active (choisie par translations.js au chargement)
+  setTimeout(() => { if (typeof currentLang !== 'undefined') syncLangUI(currentLang); }, 50);
   window.closeLang = closeLang;
 
   // ══ RECHERCHE MÉTIERS ══
@@ -770,6 +821,10 @@
       return;
     }
     authChecked = true;
+    try {
+      const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
+    } catch(e) { console.error('rôle utilisateur:', e); }
     const feed = document.getElementById('feedW');
     try {
       const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
@@ -782,5 +837,6 @@
     } catch(e) { console.error(e); }
   });
 </script>
+<script src="translations.js"></script>
 </body>
 </html>
