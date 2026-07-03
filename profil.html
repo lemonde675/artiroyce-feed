@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
   <title>ArtiRoyce – Mon Profil</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -18,12 +20,12 @@
     .logo-text .royce { color: var(--green); }
     .header-actions { display: flex; gap: 8px; }
     /* Boutons header colorés */
-    .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: #e8f5e9; border: 1.5px solid var(--green); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
-    .icon-btn:hover { background: var(--green); }
-    .btn-signaler-header { width: 36px; height: 36px; border-radius: 50%; background: #fff0ee; border: 1.5px solid var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-    .btn-signaler-header:hover { background: var(--red); }
-    .btn-deconnexion { width: 36px; height: 36px; border-radius: 50%; background: #fff0ee; border: 1.5px solid var(--red); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-    .btn-deconnexion:hover { background: var(--red); }
+    .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: 1.5px solid #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
+    .icon-btn:hover { background: #eee; }
+    .btn-signaler-header { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: 1.5px solid #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .btn-signaler-header:hover { background: #eee; }
+    .btn-deconnexion { width: 36px; height: 36px; border-radius: 50%; background: var(--gray); border: 1.5px solid #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .btn-deconnexion:hover { background: #eee; }
 
     /* ── BADGES KYC ── */
     .kyc-banner { display: none; }
@@ -57,17 +59,16 @@
     .kyc-verified-text p { font-size: 12px; color: #2d6a4f; }
 
     /* ── COVER & AVATAR ── */
-    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
     .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
     .profile-info { background: #fff; padding: 14px 16px 0; }
     .avatar-section { padding: 0; margin-top: -45px; margin-bottom: 10px; display: flex; align-items: flex-end; justify-content: space-between; }
     .avatar-wrap { position: relative; }
-    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--red), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
+    .avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #fff; background: #1a1a6e; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
     .avatar-initiale { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-edit { position: absolute; bottom: 4px; right: 4px; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     /* Cover avec photo */
-    .cover-photo { width: 100%; height: 180px; background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%); position: relative; overflow: hidden; }
+    .cover-photo { width: 100%; height: 180px; background: linear-gradient(160deg, #0a0a2e, #1a1a6e, #0d0d40); position: relative; overflow: hidden; }
     .cover-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
     .cover-edit-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; z-index: 2; }
     .profile-actions { display: flex; gap: 8px; padding-bottom: 8px; }
@@ -219,6 +220,13 @@
     .signal-option-text { font-size: 14px; font-weight: 600; color: var(--dark); }
     .signal-option-sub { font-size: 12px; color: #888; margin-top: 2px; }
     .signal-cancel { width: calc(100% - 32px); margin: 12px 16px 0; padding: 13px; background: #f5f5f5; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: #555; cursor: pointer; }
+    .signal-option.selected { background: #fff5f5; border-radius: 8px; }
+    .signal-confirm-zone { display: none; background: #f9fafb; border: 1.5px solid #ddd; border-radius: 10px; padding: 12px; margin: 10px 16px 0; }
+    .signal-confirm-zone.show { display: block; }
+    .signal-confirm-text { font-size: 13px; color: var(--dark); margin-bottom: 10px; }
+    .signal-confirm-btns { display: flex; gap: 8px; }
+    .btn-confirm-signal { flex: 1; padding: 11px; background: var(--red); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+    .btn-cancel-signal-selection { flex: 1; padding: 11px; background: #f5f5f5; color: var(--dark); border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
 
     /* Toast */
     .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
@@ -262,6 +270,19 @@
     .photo-viewer img { max-width: 95vw; max-height: 90vh; border-radius: 12px; object-fit: contain; }
     .photo-viewer-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
+    /* ── HISTORIQUE DES PHOTOS DE PROFIL ── */
+    .history-empty { text-align: center; padding: 20px 10px; color: #aaa; font-size: 13px; }
+    .history-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .history-item { width: 84px; text-align: center; }
+    .history-thumb { width: 84px; height: 84px; border-radius: 12px; overflow: hidden; border: 1px solid #eee; background: #f5f5f5; }
+    .history-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .history-item.deleted .history-thumb img { opacity: 0.35; filter: grayscale(1); }
+    .history-date { font-size: 9.5px; color: #999; margin-top: 5px; line-height: 1.3; }
+    .history-actions { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
+    .history-btn { border: none; background: var(--gray); border-radius: 6px; font-size: 12px; padding: 3px 5px; cursor: pointer; line-height: 1; }
+    .history-btn.perm { background: #ffe5e0; }
+    .history-deleted-note { font-size: 8.5px; color: #c0392b; margin-top: 3px; line-height: 1.3; }
+
     /* ── SUPPRIMER PHOTOS ── */
     .btn-suppr-avatar { position: absolute; top: 0; right: 0; width: 22px; height: 22px; border-radius: 50%; background: #e63224; color: #fff; border: 2px solid #fff; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 10; font-weight: 800; line-height: 1; }
     .btn-suppr-avatar.visible { display: flex; }
@@ -269,6 +290,22 @@
     .btn-suppr-cover.visible { display: block; }
     .bottom-space { height: 30px; }
     @media (max-width: 360px) { .coords-grid { grid-template-columns: 1fr; } }
+    /* ══════════════════════════════════
+       VERSION ORDINATEUR / PC (règle n°13)
+    ══════════════════════════════════ */
+    @media (min-width: 768px) {
+      .btn-contact:hover, .btn-follow:hover, .media-tab:hover, .media-item:hover,
+      .btn-modifier-profil:hover, .icon-btn:hover, .signal-option:hover { opacity: 0.9; }
+      .avatar:hover, .cover-photo:hover { filter: brightness(0.97); }
+    }
+    /* ===== SÉLECTEUR DE LANGUE 🌍 ===== */
+    .lang-selector { position: relative; font-size: 12px; }
+    .lang-current { background: var(--gray); border: 1.5px solid #ddd; border-radius: 50px; padding: 7px 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #333; }
+    .lang-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 6px; min-width: 170px; max-height: 260px; overflow-y: auto; z-index: 300; }
+    #langSel.open .lang-dropdown { display: block; }
+    .lang-option { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; color: #333; }
+    .lang-option:hover { background: #f4f5f7; }
+    .lang-option.active { background: #f0fff4; color: var(--green); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -355,30 +392,37 @@
 <div class="signal-overlay" id="signalOverlay" onclick="closeSignal()">
   <div class="signal-sheet" onclick="event.stopPropagation()">
     <div class="signal-header">
-      <span class="signal-title">⚑ Signaler ce profil</span>
+      <span class="signal-title">⚑ <span data-i18n="pv_report_title">Signaler ce profil</span></span>
       <button class="modal-close" onclick="closeSignal()">✕</button>
     </div>
-    <div class="signal-option" onclick="submitSignalement('Faux profil ou usurpation d\'identité')">
+    <div class="signal-option" onclick="selectionnerRaisonPro('Faux profil ou usurpation d\'identité', this)">
       <div class="signal-option-icon">🎭</div>
-      <div><div class="signal-option-text">Faux profil</div><div class="signal-option-sub">Usurpation d'identité ou fausse identité</div></div>
+      <div><div class="signal-option-text" data-i18n="pv_report_fake">Faux profil</div><div class="signal-option-sub" data-i18n="pv_report_fake_sub">Usurpation d'identité ou fausse identité</div></div>
     </div>
-    <div class="signal-option" onclick="submitSignalement('Arnaque ou escroquerie')">
+    <div class="signal-option" onclick="selectionnerRaisonPro('Arnaque ou escroquerie', this)">
       <div class="signal-option-icon">⚠️</div>
-      <div><div class="signal-option-text">Arnaque ou escroquerie</div><div class="signal-option-sub">Tentative de fraude ou vol d'argent</div></div>
+      <div><div class="signal-option-text" data-i18n="pv_report_scam">Arnaque ou escroquerie</div><div class="signal-option-sub" data-i18n="pv_report_scam_sub">Tentative de fraude ou vol d'argent</div></div>
     </div>
-    <div class="signal-option" onclick="submitSignalement('Contenu inapproprié ou offensant')">
+    <div class="signal-option" onclick="selectionnerRaisonPro('Contenu inapproprié ou offensant', this)">
       <div class="signal-option-icon">🚫</div>
-      <div><div class="signal-option-text">Contenu inapproprié</div><div class="signal-option-sub">Photos ou textes choquants ou offensants</div></div>
+      <div><div class="signal-option-text" data-i18n="pv_report_content">Contenu inapproprié</div><div class="signal-option-sub" data-i18n="pv_report_content_sub">Photos ou textes choquants ou offensants</div></div>
     </div>
-    <div class="signal-option" onclick="submitSignalement('Comportement abusif ou harcèlement')">
+    <div class="signal-option" onclick="selectionnerRaisonPro('Comportement abusif ou harcèlement', this)">
       <div class="signal-option-icon">😡</div>
-      <div><div class="signal-option-text">Harcèlement</div><div class="signal-option-sub">Comportement abusif envers des clients</div></div>
+      <div><div class="signal-option-text" data-i18n="pv_report_harass">Harcèlement</div><div class="signal-option-sub" data-i18n="pv_report_harass_sub">Comportement abusif envers des clients</div></div>
     </div>
-    <div class="signal-option" onclick="submitSignalement('Autre raison')">
+    <div class="signal-option" onclick="selectionnerRaisonPro('Autre raison', this)">
       <div class="signal-option-icon">📋</div>
-      <div><div class="signal-option-text">Autre raison</div><div class="signal-option-sub">Signalement général</div></div>
+      <div><div class="signal-option-text" data-i18n="pv_report_other">Autre raison</div><div class="signal-option-sub" data-i18n="pv_report_other_sub">Signalement général</div></div>
     </div>
-    <button class="signal-cancel" onclick="closeSignal()">Annuler</button>
+    <div class="signal-confirm-zone" id="signalConfirmZone">
+      <div class="signal-confirm-text"><span data-i18n="pv_report_confirm_text">Confirmer le signalement pour :</span> <strong id="signalConfirmRaison"></strong> ?</div>
+      <div class="signal-confirm-btns">
+        <button class="btn-confirm-signal" onclick="envoyerSignalementPro()">✓ <span data-i18n="pv_report_confirm_btn">Confirmer</span></button>
+        <button class="btn-cancel-signal-selection" onclick="annulerSelectionRaisonPro()" data-i18n="pv_report_cancel_selection">Changer</button>
+      </div>
+    </div>
+    <button class="signal-cancel" onclick="closeSignal()" data-i18n="pv_report_cancel">Annuler</button>
   </div>
 </div>
 
@@ -386,7 +430,7 @@
 <div class="top-header">
   <a href="accueil.html" class="back-btn">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour
+    <span data-i18n="pro_back">Retour</span>
   </a>
   <div class="logo-wrap">
     <svg width="32" height="23" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
@@ -400,17 +444,32 @@
     <div class="logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
   </div>
   <div class="header-actions">
+    <div class="lang-selector" id="langSel">
+      <button type="button" class="lang-current" onclick="toggleLang()">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
+      <div class="lang-dropdown">
+        <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
+        <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
+        <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
+        <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
+        <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
+        <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
+        <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
+        <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
+        <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
+        <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
+      </div>
+    </div>
     <!-- Partager - vert -->
     <button class="icon-btn" onclick="shareProfile()" title="Partager ce profil">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
     </button>
     <!-- Signaler - rouge -->
     <button class="btn-signaler-header" onclick="openSignal()" title="Signaler ce profil">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
     </button>
     <!-- Déconnexion - rouge avec SVG power -->
     <button class="btn-deconnexion" onclick="deconnexion()" title="Se déconnecter">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     </button>
   </div>
 </div>
@@ -504,8 +563,8 @@
       </div>
     </div>
     <div class="profile-actions">
-      <button class="btn-contact" onclick="showToast('💬 Bientôt disponible','')">💬 Contacter</button>
-      <button class="btn-follow" id="followBtn" onclick="toggleFollow()">+ Suivre</button>
+      <button class="btn-contact" onclick="showToast('💬 Bientôt disponible','')">💬 <span data-i18n="pro_btn_contact">Contacter</span></button>
+      <button class="btn-follow" id="followBtn" onclick="toggleFollow()">+ <span data-i18n="pro_btn_follow">Suivre</span></button>
     </div>
   </div>
 
@@ -515,45 +574,45 @@
 
   <!-- Bouton modifier profil -->
   <button class="btn-modifier-profil" id="btnModifier" onclick="openModal()" style="display:none;">
-    ✏️ Modifier mon profil
+    ✏️ <span data-i18n="pro_btn_modifier">Modifier mon profil</span>
   </button>
 
   <div class="stats-row">
-    <div class="stat-item"><div class="stat-num red">0</div><div class="stat-label">❤️ J'aime</div></div>
-    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">👥 Abonnés</div></div>
-    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">📸 Posts</div></div>
-    <div class="stat-item"><div class="stat-num">—</div><div class="stat-label">💬 Avis</div></div>
+    <div class="stat-item"><div class="stat-num red">0</div><div class="stat-label">❤️ <span data-i18n="pro_stat_likes">J'aime</span></div></div>
+    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">👥 <span data-i18n="pro_stat_followers">Abonnés</span></div></div>
+    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">📸 <span data-i18n="pro_stat_posts">Posts</span></div></div>
+    <div class="stat-item"><div class="stat-num">—</div><div class="stat-label">💬 <span data-i18n="pro_stat_reviews">Avis</span></div></div>
   </div>
 </div>
 
 <!-- ── COORDONNÉES ── -->
 <div class="section">
-  <div class="section-title"><span>📋</span> Coordonnées</div>
+  <div class="section-title"><span>📋</span> <span data-i18n="pro_coords_title">Coordonnées</span></div>
   <div class="coords-grid">
-    <div class="coord-item"><div class="coord-circle phone">📞</div><div class="coord-text"><div class="coord-label">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div></div>
-    <div class="coord-item"><div class="coord-circle whatsapp">💬</div><div class="coord-text"><div class="coord-label">WHATSAPP</div><div class="coord-value" id="coordWa">—</div></div></div>
-    <div class="coord-item"><div class="coord-circle email">📧</div><div class="coord-text"><div class="coord-label">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
-    <div class="coord-item"><div class="coord-circle web">🌐</div><div class="coord-text"><div class="coord-label">SITE WEB</div><div class="coord-value" id="coordWeb">—</div></div></div>
-    <div class="coord-item"><div class="coord-circle location">📍</div><div class="coord-text"><div class="coord-label">ADRESSE</div><div class="coord-value" id="coordAdresse">—</div></div></div>
-    <div class="coord-item"><div class="coord-circle hours">🕐</div><div class="coord-text"><div class="coord-label">HORAIRES</div><div class="coord-value" id="coordHoraires">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle phone">📞</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_phone">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle whatsapp">💬</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_whatsapp">WHATSAPP</div><div class="coord-value" id="coordWa">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle email">📧</div><div class="coord-text"><div class="coord-label" data-i18n="label_email">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle web">🌐</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_web">SITE WEB</div><div class="coord-value" id="coordWeb">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle location">📍</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_address">ADRESSE</div><div class="coord-value" id="coordAdresse">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle hours">🕐</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_hours">HORAIRES</div><div class="coord-value" id="coordHoraires">—</div></div></div>
   </div>
 </div>
 
 <!-- ── MAP ── -->
 <div class="map-section">
-  <div class="section-title"><span>🗺️</span> Localisation</div>
-  <div class="map-box"><div class="map-icon">📍</div><div class="map-text">Voir sur la carte</div><div class="map-subtext">Cliquez pour ouvrir Google Maps</div></div>
-  <button class="btn-directions" id="btnDirections" onclick="ouvrirItineraire()">🧭 Obtenir l'itinéraire</button>
+  <div class="section-title"><span>🗺️</span> <span data-i18n="pro_location_title">Localisation</span></div>
+  <div class="map-box"><div class="map-icon">📍</div><div class="map-text" data-i18n="pro_map_view">Voir sur la carte</div><div class="map-subtext" data-i18n="pro_map_sub">Cliquez pour ouvrir Google Maps</div></div>
+  <button class="btn-directions" id="btnDirections" onclick="ouvrirItineraire()">🧭 <span data-i18n="pro_directions">Obtenir l'itinéraire</span></button>
 </div>
 
 <!-- ── MONÉTISATION ── -->
 <div class="monetize-section">
-  <div class="section-title"><span>💰</span> Monétisation</div>
+  <div class="section-title"><span>💰</span> <span data-i18n="pro_monetize_title">Monétisation</span></div>
   <div class="monetize-card">
     <div class="monetize-icon">💎</div>
     <div class="monetize-text">
-      <h3>Compte Professionnel</h3>
-      <p>Recevez des paiements directs via ArtiRoyce.</p>
+      <h3 data-i18n="pro_monetize_account">Compte Professionnel</h3>
+      <p data-i18n="pro_monetize_desc">Recevez des paiements directs via ArtiRoyce.</p>
       <span class="monetize-badge" id="monetizeBadge">⏳ En attente de validation</span>
     </div>
   </div>
@@ -561,11 +620,11 @@
 
 <!-- ── PORTFOLIO ── -->
 <div class="media-section">
-  <div class="section-title"><span>🎬</span> Portfolio</div>
+  <div class="section-title"><span>🎬</span> <span data-i18n="pro_portfolio_title">Portfolio</span></div>
   <div class="media-tabs">
-    <div class="media-tab active" id="tabPhotos" onclick="showTab('photos')">📸 Photos</div>
-    <div class="media-tab" id="tabVideos" onclick="showTab('videos')">🎬 Vidéos</div>
-    <div class="media-tab" id="tabAvis" onclick="showTab('avis')">⭐ Avis</div>
+    <div class="media-tab active" id="tabPhotos" onclick="showTab('photos')">📸 <span data-i18n="pro_tab_photos">Photos</span></div>
+    <div class="media-tab" id="tabVideos" onclick="showTab('videos')">🎬 <span data-i18n="pro_tab_videos">Vidéos</span></div>
+    <div class="media-tab" id="tabAvis" onclick="showTab('avis')">⭐ <span data-i18n="pro_tab_reviews">Avis</span></div>
   </div>
 
   <!-- Photos -->
@@ -584,7 +643,15 @@
 
   <!-- Avis -->
   <div id="gridAvis" style="display:none;padding:20px 16px 16px;text-align:center;color:#bbb;font-size:13px;font-weight:600;">
-    ⭐ Aucun avis pour le moment
+    ⭐ <span data-i18n="pro_no_reviews">Aucun avis pour le moment</span>
+  </div>
+</div>
+
+<!-- ── HISTORIQUE DES PHOTOS DE PROFIL — visible par tous, modifiable par le propriétaire uniquement ── -->
+<div class="section">
+  <div class="section-title"><span>🖼️</span> <span data-i18n="pv_history_title">Historique des photos de profil</span></div>
+  <div id="historyContent">
+    <div class="history-empty" data-i18n="pv_history_empty">Aucun changement de photo pour le moment.</div>
   </div>
 </div>
 
@@ -648,6 +715,7 @@
   let userData     = null;
   let profileUid   = null;
   let isOwnProfile = true;
+  const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
 
   window.showToast = function(msg, type = '') {
     const t = document.getElementById('toast');
@@ -705,6 +773,7 @@
       document.getElementById('coordAdresse').textContent   = userData.adresse   || '—';
       document.getElementById('coordHoraires').textContent  = userData.horaires  || '—';
       document.getElementById('profileBio').textContent     = userData.bio || 'Professionnel vérifié sur ArtiRoyce.';
+      renderHistoryPro();
 
       // ── Charger photos existantes ──
       if (userData.photoAvatar) {
@@ -877,18 +946,37 @@
 
   // ── SIGNALEMENT ──
   window.openSignal  = () => document.getElementById('signalOverlay').classList.add('open');
-  window.closeSignal = () => document.getElementById('signalOverlay').classList.remove('open');
+  window.closeSignal = () => {
+    document.getElementById('signalOverlay').classList.remove('open');
+    annulerSelectionRaisonPro();
+  };
 
-  window.submitSignalement = async function(raison) {
+  let raisonSelectionneePro = null;
+
+  window.selectionnerRaisonPro = (raison, el) => {
+    raisonSelectionneePro = raison;
+    document.querySelectorAll('.signal-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('signalConfirmRaison').textContent = raison;
+    document.getElementById('signalConfirmZone').classList.add('show');
+  };
+
+  window.annulerSelectionRaisonPro = () => {
+    raisonSelectionneePro = null;
+    document.querySelectorAll('.signal-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('signalConfirmZone').classList.remove('show');
+  };
+
+  window.envoyerSignalementPro = async function() {
     if (!currentUser) { showToast('⚠ Connectez-vous pour signaler.', 'error-t'); return; }
-    // Bloquer seulement si c'est son propre profil
     if (isOwnProfile) { showToast('⚠ Vous ne pouvez pas vous signaler vous-même.', 'error-t'); closeSignal(); return; }
+    if (!raisonSelectionneePro) return;
 
     try {
       await updateDoc(doc(db, 'utilisateurs', profileUid), {
         signalements: increment(1),
         signalementsDetails: arrayUnion({
-          raison,
+          raison: raisonSelectionneePro,
           signalePar: currentUser.uid,
           date: new Date().toISOString()
         })
@@ -937,6 +1025,104 @@
   // ══════════════════════════════════════
   // PHOTO AVATAR — listener direct
   // ══════════════════════════════════════
+  // ══════════════════════════════════════
+  // HISTORIQUE DES PHOTOS DE PROFIL
+  // Visible par tout le monde, modifiable/supprimable par le propriétaire uniquement
+  // ══════════════════════════════════════
+  const DELAI_SUPPRESSION_JOURS_PRO = 15;
+
+  function formatHistoryDatePro(iso) {
+    try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); }
+    catch(e) { return ''; }
+  }
+
+  function purgerHistoriqueExpirePro() {
+    if (!Array.isArray(userData.photoHistory)) return false;
+    const maintenant = Date.now();
+    const avant = userData.photoHistory.length;
+    userData.photoHistory = userData.photoHistory.filter(h => {
+      if (!h.deletedAt) return true;
+      const joursEcoules = (maintenant - new Date(h.deletedAt).getTime()) / (1000*60*60*24);
+      return joursEcoules < DELAI_SUPPRESSION_JOURS_PRO;
+    });
+    return userData.photoHistory.length !== avant;
+  }
+
+  async function sauvegarderHistoriquePro() {
+    if (!isOwnProfile) return;
+    await updateDoc(doc(db, 'utilisateurs', profileUid), { photoHistory: userData.photoHistory });
+  }
+
+  window.supprimerPhotoDefinitivementPro = async (index) => {
+    if (!isOwnProfile) return;
+    if (!confirm('Supprimer cette photo définitivement ? Cette action est irréversible.')) return;
+    userData.photoHistory.splice(index, 1);
+    await sauvegarderHistoriquePro();
+    renderHistoryPro();
+    showToast('🗑️ Photo supprimée définitivement.', 'success');
+  };
+
+  window.supprimerPhotoTemporairementPro = async (index) => {
+    if (!isOwnProfile) return;
+    userData.photoHistory[index].deletedAt = new Date().toISOString();
+    await sauvegarderHistoriquePro();
+    renderHistoryPro();
+    showToast('🗑️ Photo supprimée (restaurable 15 jours).', 'success');
+  };
+
+  window.restaurerPhotoPro = async (index) => {
+    if (!isOwnProfile) return;
+    delete userData.photoHistory[index].deletedAt;
+    await sauvegarderHistoriquePro();
+    renderHistoryPro();
+    showToast('↩️ Photo restaurée.', 'success');
+  };
+
+  function renderHistoryPro() {
+    const el = document.getElementById('historyContent');
+    if (!el || !userData) return;
+    const purged = purgerHistoriqueExpirePro();
+    if (purged) sauvegarderHistoriquePro();
+    const history = Array.isArray(userData.photoHistory) ? userData.photoHistory : [];
+    const t = T();
+    if (history.length === 0) {
+      el.innerHTML = `<div class="history-empty">${t.pv_history_empty || 'Aucun changement de photo pour le moment.'}</div>`;
+      return;
+    }
+    const changedLabel = t.pv_history_changed || 'Photo changée le';
+    const permLabel = t.pv_history_delete_perm || '✕ Définitif';
+    const tempLabel = t.pv_history_delete_temp || '🗑️ 15j';
+    const restoreLabel = t.pv_history_restore || '↩️ Restaurer';
+    const untilLabel = t.pv_history_deleted_until || 'Suppression définitive le';
+    el.innerHTML = `<div class="history-grid">` + history.map((h, i) => {
+      const estSupprimee = !!h.deletedAt;
+      let actionsHtml = '';
+      let noteHtml = '';
+      if (isOwnProfile) {
+        if (estSupprimee) {
+          const dateLimite = new Date(new Date(h.deletedAt).getTime() + DELAI_SUPPRESSION_JOURS_PRO*24*60*60*1000);
+          noteHtml = `<div class="history-deleted-note">${untilLabel} ${formatHistoryDatePro(dateLimite.toISOString())}</div>`;
+          actionsHtml = `
+            <button class="history-btn" onclick="restaurerPhotoPro(${i})">${restoreLabel}</button>
+            <button class="history-btn perm" onclick="supprimerPhotoDefinitivementPro(${i})">${permLabel}</button>`;
+        } else {
+          actionsHtml = `
+            <button class="history-btn" onclick="supprimerPhotoTemporairementPro(${i})">${tempLabel}</button>
+            <button class="history-btn perm" onclick="supprimerPhotoDefinitivementPro(${i})">${permLabel}</button>`;
+        }
+      } else if (estSupprimee) {
+        return ''; // les visiteurs ne voient jamais les photos supprimées d'un autre
+      }
+      return `
+      <div class="history-item ${estSupprimee ? 'deleted' : ''}">
+        <div class="history-thumb"><img src="${h.url}" alt="ancienne photo"/></div>
+        <div class="history-date">${changedLabel}<br>${formatHistoryDatePro(h.date)}</div>
+        ${noteHtml}
+        <div class="history-actions">${actionsHtml}</div>
+      </div>`;
+    }).join('') + `</div>`;
+  }
+
   document.getElementById('inputAvatar').addEventListener('change', async function() {
     if (!currentUser || !isOwnProfile) return;
     const file = this.files[0];
@@ -944,10 +1130,19 @@
     showToast('⏳ Compression…', 'warning');
     try {
       const b64 = await compresserImage(file, 250, 0.5);
-      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64 });
+      const history = Array.isArray(userData.photoHistory) ? userData.photoHistory.slice() : [];
+      // L'ancienne photo (si elle existe) part dans l'historique, jamais supprimée automatiquement
+      if (userData.photoAvatar) {
+        history.unshift({ url: userData.photoAvatar, date: new Date().toISOString() });
+      }
+      const trimmedHistory = history.slice(0, 8); // 8 dernières, pour ne pas alourdir le document
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64, photoHistory: trimmedHistory });
+      userData.photoAvatar = b64;
+      userData.photoHistory = trimmedHistory;
       document.getElementById('avatarWrap').innerHTML =
         `<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`;
       if (isOwnProfile) document.getElementById('btnSupprAvatar').classList.add('visible');
+      renderHistoryPro();
       showToast('✅ Photo de profil mise à jour !', 'success');
     } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); }
     this.value = '';
@@ -1207,5 +1402,6 @@
   <button class="photo-viewer-close" onclick="document.getElementById('photoViewer').classList.remove('open')">✕</button>
   <img id="photoViewerImg" src="" alt="Photo"/>
 </div>
+<script src="translations.js"></script>
 </body>
 </html>
