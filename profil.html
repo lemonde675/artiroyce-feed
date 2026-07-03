@@ -184,7 +184,8 @@
     .fv-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-logout { width: 100%; padding: 13px; background: #f5f5f5; color: var(--dark); border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-logout:hover { background: #eee; }
 
     /* ══════════════════════════════════
        ── MODALE MODIFIER PROFIL ──
@@ -445,7 +446,7 @@
   </div>
   <div class="header-actions">
     <div class="lang-selector" id="langSel">
-      <button type="button" class="lang-current" onclick="toggleLang()">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
+      <button type="button" class="lang-current" onclick="document.getElementById('langSel').classList.toggle('open')">🌍 <span id="activFlag">🇫🇷</span> <span id="activCode">FR</span></button>
       <div class="lang-dropdown">
         <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
         <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
@@ -655,6 +656,22 @@
   </div>
 </div>
 
+<!-- ── HISTORIQUE DES PUBLICATIONS D'ACTUALITÉS ──
+     ⚠️ EMPLACEMENT VIDE POUR L'INSTANT : actualite_v1.html n'enregistre
+     encore aucune publication dans Firebase (maquette visuelle uniquement).
+     À connecter plus tard : remplacer le contenu de #newsHistoryContent
+     par une vraie liste des publications de ce profil, une fois que
+     actualite_v1.html sauvegardera réellement les posts (ex: collection
+     'publications' avec un champ auteurUid). Ne pas oublier alors
+     d'appliquer la même règle de visibilité que l'historique des photos :
+     visible par tous, modifiable/supprimable par le propriétaire uniquement. ── -->
+<div class="section">
+  <div class="section-title"><span>📰</span> <span data-i18n="pro_news_history_title">Historique des publications</span></div>
+  <div id="newsHistoryContent">
+    <div class="history-empty" data-i18n="pro_news_history_empty">Aucune publication pour le moment.</div>
+  </div>
+</div>
+
 <!-- ── MENU CONTEXTUEL MEDIA ── -->
 <div class="media-menu-overlay" id="mediaMenuOverlay" onclick="closeMediaMenu()">
   <div class="media-menu-sheet" onclick="event.stopPropagation()">
@@ -756,6 +773,17 @@
       if (!snap.exists()) { hideLoading(); return; }
 
       userData = snap.data();
+
+      // ✅ GARDE-FOU CRITIQUE : cette page est réservée aux professionnels.
+      // Si la personne consultée (soi-même ou via ?uid=) est un visiteur,
+      // on redirige immédiatement — jamais un visiteur ne doit apparaître
+      // avec le gabarit "Professionnel vérifié" (risque de confiance/arnaque).
+      if (userData.role === 'visiteur') {
+        const suffixe = uidFromUrl ? ('?uid=' + encodeURIComponent(uidFromUrl)) : '';
+        window.location.href = 'profil_visiteur.html' + suffixe;
+        return;
+      }
+
       const statut    = userData.statut    || 'en_attente';
       const kycStatut = userData.kycStatut || 'non_soumis';
       const prenom    = userData.prenom    || '';
