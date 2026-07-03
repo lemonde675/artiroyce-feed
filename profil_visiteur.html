@@ -186,17 +186,17 @@
   <div class="profile-info">
     <div class="avatar-section">
       <div class="avatar-wrap">
-        <div class="avatar" id="avatarWrap" onclick="document.getElementById('inputAvatar').click()">
+        <div class="avatar" id="avatarWrap" onclick="ouvrirSelecteurPhoto()">
           <span class="avatar-initiale" id="avatarInitiale">?</span>
         </div>
-        <button class="avatar-edit" onclick="document.getElementById('inputAvatar').click()">📷</button>
+        <button class="avatar-edit" id="inputAvatarBtn" onclick="ouvrirSelecteurPhoto()">📷</button>
         <input type="file" id="inputAvatar" accept="image/*" style="display:none;"/>
       </div>
     </div>
     <div class="profile-name" id="profileName">…</div>
     <div class="visitor-badge">👤 <span data-i18n="pv_visitor_tag">Visiteur</span></div>
     <div class="profile-bio" id="profileBio"><span class="bio-empty" data-i18n="pv_bio_empty">Aucune bio pour le moment…</span></div>
-    <button class="btn-modifier" onclick="openModal()">✏️ <span data-i18n="pv_edit_btn">Modifier mon profil</span></button>
+    <button class="btn-modifier" id="btnModifierProfil" onclick="openModal()">✏️ <span data-i18n="pv_edit_btn">Modifier mon profil</span></button>
   </div>
 
   <div class="section">
@@ -215,7 +215,7 @@
     </div>
   </div>
 
-  <div class="cta-section">
+  <div class="cta-section" id="ctaSection">
     <div class="cta-card">
       <div class="cta-icon">🚀</div>
       <div class="cta-title" data-i18n="pv_cta_title">Passez professionnel</div>
@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <div class="logout-section">
+  <div class="logout-section" id="logoutSection">
     <button class="btn-logout" onclick="deconnexion()" data-i18n="pv_logout">Se déconnecter</button>
   </div>
   <div class="bottom-space"></div>
@@ -306,10 +306,17 @@
 
     let currentUser = null;
     let userData = null;
+    let profileUid = null;
+    let isOwnProfile = true;
 
     function showToast(msg, type='') { const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show '+type; setTimeout(()=>t.className='toast',2800); }
 
     window.deconnexion = async () => { try { await signOut(auth); } catch(e){} window.location.href = 'connexion.html'; };
+
+    window.ouvrirSelecteurPhoto = () => {
+      if (!isOwnProfile) return; // sécurité : on ne peut jamais changer la photo de quelqu'un d'autre
+      document.getElementById('inputAvatar').click();
+    };
 
     window.partagerProfil = async () => {
       const url = window.location.href;
@@ -360,7 +367,7 @@
       if (!currentUser || !raisonSelectionnee) return;
       try {
         await addDoc(collection(db, 'signalements'), {
-          uidCible: currentUser.uid,
+          uidCible: profileUid,
           uidSignalant: currentUser.uid,
           raison: raisonSelectionnee,
           date: serverTimestamp(),
@@ -371,6 +378,7 @@
     };
 
     window.openModal = () => {
+      if (!isOwnProfile) return; // sécurité : jamais modifier le profil de quelqu'un d'autre
       document.getElementById('bioInput').value = (userData && userData.bio) || '';
       updateBioCount();
       document.getElementById('modalOverlay').classList.add('open');
@@ -403,7 +411,7 @@
     }
 
     document.getElementById('inputAvatar').addEventListener('change', async function() {
-      if (!currentUser) return;
+      if (!currentUser || !isOwnProfile) return;
       const file = this.files[0];
       if (!file) return;
       try {
@@ -448,10 +456,11 @@
     }
 
     async function sauvegarderHistorique() {
-      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoHistory: userData.photoHistory });
+      await updateDoc(doc(db, 'utilisateurs', profileUid), { photoHistory: userData.photoHistory });
     }
 
     window.supprimerPhotoDefinitivement = async (index) => {
+      if (!isOwnProfile) return; // sécurité : jamais toucher à l'historique de quelqu'un d'autre
       if (!confirm(T().pv_confirm_delete_perm || 'Supprimer cette photo définitivement ? Cette action est irréversible.')) return;
       userData.photoHistory.splice(index, 1);
       await sauvegarderHistorique();
@@ -460,6 +469,7 @@
     };
 
     window.supprimerPhotoTemporairement = async (index) => {
+      if (!isOwnProfile) return;
       userData.photoHistory[index].deletedAt = new Date().toISOString();
       await sauvegarderHistorique();
       renderHistory();
@@ -467,6 +477,7 @@
     };
 
     window.restaurerPhoto = async (index) => {
+      if (!isOwnProfile) return;
       delete userData.photoHistory[index].deletedAt;
       await sauvegarderHistorique();
       renderHistory();
@@ -515,7 +526,7 @@
     }
 
     window.saveProfile = async () => {
-      if (!currentUser) return;
+      if (!currentUser || !isOwnProfile) return;
       const bio = document.getElementById('bioInput').value.trim();
       try {
         await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { bio });
@@ -538,23 +549,38 @@
     onAuthStateChanged(auth, async (user) => {
       if (!user) { window.location.href = 'connexion.html'; return; }
       currentUser = user;
+      const params = new URLSearchParams(window.location.search);
+      const uidParam = params.get('uid');
+      profileUid = uidParam || user.uid;
+      isOwnProfile = (profileUid === user.uid);
       try {
-        const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
-        if (!snap.exists()) return;
+        const snap = await getDoc(doc(db, 'utilisateurs', profileUid));
+        if (!snap.exists()) { showToast(T().pv_profile_not_found || '⚠ Profil introuvable.', 'error-toast'); return; }
         userData = snap.data();
         const nom = ((userData.prenom||'') + ' ' + (userData.nom||'')).trim() || '—';
         const initiale = (userData.prenom || userData.nom || '?')[0].toUpperCase();
         document.getElementById('profileName').textContent = nom;
         document.getElementById('avatarInitiale').textContent = initiale;
-        document.getElementById('coordEmail').textContent = userData.email || user.email || '—';
+        document.getElementById('coordEmail').textContent = userData.email || (isOwnProfile ? user.email : '') || '—';
         document.getElementById('coordTel').textContent = userData.telephone || '—';
         renderBio();
         renderHistory();
         if (userData.photoAvatar) {
           document.getElementById('avatarWrap').innerHTML = `<img src="${userData.photoAvatar}" alt="avatar"/>`;
         }
+        appliquerModeConsultation();
       } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
     });
+
+    // Cache tout ce qui permet de modifier/supprimer quand on consulte le profil de quelqu'un d'autre
+    function appliquerModeConsultation() {
+      if (isOwnProfile) return;
+      const aCacher = [
+        'inputAvatarBtn', 'btnModifierProfil', 'ctaSection', 'logoutSection',
+      ];
+      aCacher.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      document.querySelectorAll('.history-actions').forEach(el => el.style.display = 'none');
+    }
   </script>
   <script src="translations.js"></script>
 </body>
