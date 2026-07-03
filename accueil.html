@@ -140,6 +140,7 @@
       .feed-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
       .btn-suivre:hover, .btn-contacter:hover, .h-tab:hover, .nav-i:hover .nav-lb { opacity: 0.85; cursor: pointer; }
       .act-circle:hover { transform: scale(1.08); }
+      .h-tabs { justify-content: center; overflow-x: visible; }
     }
   </style>
 </head>
@@ -672,7 +673,15 @@
   }
 
   let currentUserRole = 'artisan';
-  window.goProfile = function() { window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html'; }
+  window.goProfile = async function() {
+    try {
+      if (auth.currentUser) {
+        const ownSnap = await getDoc(doc(db, 'utilisateurs', auth.currentUser.uid));
+        if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
+      }
+    } catch(e) { console.error('vérification rôle avant redirection:', e); }
+    window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html';
+  }
   window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
   window.ouvrirItineraire = function(adresse) {
     if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
