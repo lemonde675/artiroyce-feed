@@ -171,6 +171,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Enregistrer',
     pv_toast_photo:  '✅ Photo mise à jour !',
     pv_toast_saved:  '✅ Profil mis à jour !',
+    dp_login_title:    'Ravi de vous revoir',
+    dp_login_sub:      'Reconnectez-vous pour continuer à échanger avec les meilleurs professionnels et développer votre activité, où que vous soyez dans le monde.',
+    dp_register_title: 'Rejoignez l\'élite des professionnels',
+    dp_register_sub:   'Créez votre profil vérifié, montrez votre talent au monde entier et commencez à générer des revenus dès aujourd\'hui.',
+    dp_visitor_title:  'Rejoignez la communauté',
+    dp_visitor_sub:    'Contactez les meilleurs professionnels, échangez et suivez leur travail — en quelques secondes, sans engagement.',
   },
 
   EN: {
@@ -332,6 +338,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Save',
     pv_toast_photo:  '✅ Photo updated!',
     pv_toast_saved:  '✅ Profile updated!',
+    dp_login_title:    'Welcome back',
+    dp_login_sub:      'Log back in to keep connecting with the best professionals and growing your business, wherever you are in the world.',
+    dp_register_title: 'Join the elite of professionals',
+    dp_register_sub:   'Create your verified profile, show your talent to the world, and start earning income today.',
+    dp_visitor_title:  'Join the community',
+    dp_visitor_sub:    'Contact top professionals, chat with them and follow their work — in seconds, no commitment.',
   },
 
   ES: {
@@ -493,6 +505,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Guardar',
     pv_toast_photo:  '✅ ¡Foto actualizada!',
     pv_toast_saved:  '✅ ¡Perfil actualizado!',
+    dp_login_title:    'Bienvenido de nuevo',
+    dp_login_sub:      'Vuelve a conectarte para seguir en contacto con los mejores profesionales y hacer crecer tu actividad, estés donde estés.',
+    dp_register_title: 'Únete a la élite de profesionales',
+    dp_register_sub:   'Crea tu perfil verificado, muestra tu talento al mundo y empieza a generar ingresos desde hoy.',
+    dp_visitor_title:  'Únete a la comunidad',
+    dp_visitor_sub:    'Contacta a los mejores profesionales, conversa y sigue su trabajo — en segundos, sin compromiso.',
   },
 
   PT: {
@@ -654,6 +672,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Salvar',
     pv_toast_photo:  '✅ Foto atualizada!',
     pv_toast_saved:  '✅ Perfil atualizado!',
+    dp_login_title:    'Bem-vindo de volta',
+    dp_login_sub:      'Reconecte-se para continuar em contato com os melhores profissionais e desenvolver sua atividade, onde quer que você esteja.',
+    dp_register_title: 'Junte-se à elite dos profissionais',
+    dp_register_sub:   'Crie seu perfil verificado, mostre seu talento ao mundo e comece a gerar renda hoje mesmo.',
+    dp_visitor_title:  'Junte-se à comunidade',
+    dp_visitor_sub:    'Contate os melhores profissionais, converse e acompanhe seu trabalho — em segundos, sem compromisso.',
   },
 
   AR: {
@@ -815,6 +839,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'حفظ',
     pv_toast_photo:  '✅ تم تحديث الصورة!',
     pv_toast_saved:  '✅ تم تحديث الملف الشخصي!',
+    dp_login_title:    'سعداء بعودتك',
+    dp_login_sub:      'أعد تسجيل الدخول لمواصلة التواصل مع أفضل المحترفين وتطوير نشاطك، أينما كنت في العالم.',
+    dp_register_title: 'انضم إلى نخبة المحترفين',
+    dp_register_sub:   'أنشئ ملفك الموثق، أظهر موهبتك للعالم وابدأ في تحقيق دخل من اليوم.',
+    dp_visitor_title:  'انضم إلى المجتمع',
+    dp_visitor_sub:    'تواصل مع أفضل المحترفين، تحدث وتابع أعمالهم — في ثوانٍ، دون أي التزام.',
   },
 
   ZH: {
@@ -976,6 +1006,12 @@ const TRANSLATIONS = {
     pv_save_btn:     '保存',
     pv_toast_photo:  '✅ 照片已更新！',
     pv_toast_saved:  '✅ 资料已更新！',
+    dp_login_title:    '欢迎回来',
+    dp_login_sub:      '重新登录，继续与顶尖专业人士联系，无论您身在世界何处都能发展您的业务。',
+    dp_register_title: '加入精英专业人士行列',
+    dp_register_sub:   '创建您的认证档案，向全世界展示您的才华，从今天起开始获得收入。',
+    dp_visitor_title:  '加入社区',
+    dp_visitor_sub:    '联系顶尖专业人士，交流并关注他们的工作 — 只需几秒，无需承诺。',
   },
 
   RU: {
@@ -1137,6 +1173,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Сохранить',
     pv_toast_photo:  '✅ Фото обновлено!',
     pv_toast_saved:  '✅ Профиль обновлён!',
+    dp_login_title:    'С возвращением',
+    dp_login_sub:      'Войдите снова, чтобы продолжить общение с лучшими профессионалами и развивать свою деятельность, где бы вы ни находились.',
+    dp_register_title: 'Присоединяйтесь к элите профессионалов',
+    dp_register_sub:   'Создайте проверенный профиль, покажите свой талант всему миру и начните получать доход уже сегодня.',
+    dp_visitor_title:  'Присоединяйтесь к сообществу',
+    dp_visitor_sub:    'Свяжитесь с лучшими профессионалами, общайтесь и следите за их работой — за считанные секунды, без обязательств.',
   },
 
   DE: {
@@ -1298,6 +1340,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'Speichern',
     pv_toast_photo:  '✅ Foto aktualisiert!',
     pv_toast_saved:  '✅ Profil aktualisiert!',
+    dp_login_title:    'Willkommen zurück',
+    dp_login_sub:      'Melden Sie sich erneut an, um weiterhin mit den besten Fachleuten in Kontakt zu bleiben und Ihr Geschäft auszubauen, egal wo Sie sich befinden.',
+    dp_register_title: 'Werden Sie Teil der Elite der Fachleute',
+    dp_register_sub:   'Erstellen Sie Ihr verifiziertes Profil, zeigen Sie der Welt Ihr Talent und beginnen Sie noch heute, Einkommen zu erzielen.',
+    dp_visitor_title:  'Werden Sie Teil der Community',
+    dp_visitor_sub:    'Kontaktieren Sie Top-Fachleute, tauschen Sie sich aus und verfolgen Sie ihre Arbeit — in Sekunden, unverbindlich.',
   },
 
   JA: {
@@ -1459,6 +1507,12 @@ const TRANSLATIONS = {
     pv_save_btn:     '保存',
     pv_toast_photo:  '✅ 写真を更新しました！',
     pv_toast_saved:  '✅ プロフィールを更新しました！',
+    dp_login_title:    'おかえりなさい',
+    dp_login_sub:      '再度ログインして、世界のどこにいても最高のプロフェッショナルとつながり、ビジネスを成長させ続けましょう。',
+    dp_register_title: 'プロフェッショナルのエリートに参加しよう',
+    dp_register_sub:   '認証済みプロフィールを作成し、あなたの才能を世界に示し、今日から収入を得始めましょう。',
+    dp_visitor_title:  'コミュニティに参加しよう',
+    dp_visitor_sub:    'トッププロと連絡を取り、交流し、彼らの仕事をフォローしましょう — 数秒で、義務なしに。',
   },
 
   HI: {
@@ -1620,6 +1674,12 @@ const TRANSLATIONS = {
     pv_save_btn:     'सेव करें',
     pv_toast_photo:  '✅ फ़ोटो अपडेट हो गई!',
     pv_toast_saved:  '✅ प्रोफ़ाइल अपडेट हो गई!',
+    dp_login_title:    'वापसी पर स्वागत है',
+    dp_login_sub:      'दुनिया में कहीं भी हों, सर्वश्रेष्ठ पेशेवरों से जुड़े रहने और अपने काम को आगे बढ़ाने के लिए फिर से लॉगिन करें।',
+    dp_register_title: 'पेशेवरों के अभिजात वर्ग में शामिल हों',
+    dp_register_sub:   'अपनी सत्यापित प्रोफ़ाइल बनाएं, दुनिया को अपनी प्रतिभा दिखाएं और आज ही से कमाई शुरू करें।',
+    dp_visitor_title:  'समुदाय में शामिल हों',
+    dp_visitor_sub:    'शीर्ष पेशेवरों से संपर्क करें, बातचीत करें और उनके काम को फॉलो करें — कुछ ही सेकंड में, बिना किसी प्रतिबद्धता के।',
   },
 
 };
