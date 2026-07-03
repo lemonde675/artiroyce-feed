@@ -17,15 +17,15 @@
     .logo-wrap { display: flex; align-items: center; gap: 6px; }
     .logo-text { font-size: 18px; font-weight: 800; }
     .logo-text .arti { color: var(--red); } .logo-text .royce { color: var(--green); }
-    .header-actions { display: flex; gap: 8px; }
+    .header-actions { display: flex; gap: 6px; align-items: center; }
     .icon-btn { width: 34px; height: 34px; border-radius: 50%; background: #e8f5e9; border: 1.5px solid var(--green); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-    .icon-btn.logout { background: #fff0ee; border-color: var(--red); }
+    .icon-btn.logout { background: var(--gray); border-color: #ddd; }
 
-    .cover { width: 100%; height: 130px; background: linear-gradient(135deg, var(--navy) 0%, #1a2c5c 50%, #27a945 100%); }
+    .cover { width: 100%; height: 130px; background: linear-gradient(160deg, #0a0a2e, #1a1a6e, #0d0d40); }
     .profile-info { background: #fff; padding: 14px 16px 6px; }
     .avatar-section { margin-top: -42px; margin-bottom: 8px; display: flex; align-items: flex-end; justify-content: space-between; }
     .avatar-wrap { position: relative; }
-    .avatar { width: 84px; height: 84px; border-radius: 50%; border: 4px solid #fff; background: linear-gradient(135deg, var(--navy), var(--green)); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .avatar { width: 84px; height: 84px; border-radius: 50%; border: 4px solid #fff; background: #1a1a6e; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-initiale { font-size: 30px; font-weight: 800; color: #fff; }
     .avatar-edit { position: absolute; bottom: 2px; right: 2px; width: 24px; height: 24px; border-radius: 50%; background: var(--red); color: #fff; border: 2px solid #fff; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -52,14 +52,27 @@
     .cta-icon { font-size: 30px; margin-bottom: 6px; }
     .cta-title { font-size: 14px; font-weight: 800; color: #333; margin-bottom: 4px; }
     .cta-sub { font-size: 12px; color: #888; margin-bottom: 12px; }
-    .cta-btn { display: inline-block; padding: 11px 22px; background: linear-gradient(135deg, var(--red), var(--green)); color: #fff; border-radius: 10px; font-size: 13px; font-weight: 800; text-decoration: none; }
+    .cta-btn { display: inline-block; padding: 11px 22px; background: #1a1a6e; color: #fff; border-radius: 10px; font-size: 13px; font-weight: 800; text-decoration: none; }
 
     .statuts-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
     .statuts-empty { text-align: center; padding: 24px 10px; color: #aaa; font-size: 13px; }
     .statuts-empty .e-icon { font-size: 34px; margin-bottom: 8px; display: block; }
 
     .logout-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
-    .btn-logout { width: 100%; padding: 13px; background: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+    .history-section { background: #fff; margin-top: 10px; padding: 14px 12px; }
+    .history-empty { text-align: center; padding: 20px 10px; color: #aaa; font-size: 13px; }
+    .history-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .history-item { width: 84px; text-align: center; }
+    .history-thumb { width: 84px; height: 84px; border-radius: 12px; overflow: hidden; border: 1px solid #eee; background: #f5f5f5; position: relative; }
+    .history-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .history-item.deleted .history-thumb img { opacity: 0.35; filter: grayscale(1); }
+    .history-date { font-size: 9.5px; color: #999; margin-top: 5px; line-height: 1.3; }
+    .history-actions { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
+    .history-btn { border: none; background: var(--gray); border-radius: 6px; font-size: 12px; padding: 3px 5px; cursor: pointer; line-height: 1; }
+    .history-btn.perm { background: #ffe5e0; }
+    .history-deleted-note { font-size: 8.5px; color: #c0392b; margin-top: 3px; line-height: 1.3; }
+    .btn-logout { width: 100%; padding: 13px; background: var(--gray); color: var(--dark); border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
     .bottom-space { height: 30px; }
 
     /* MODALE ÉDITION */
@@ -75,6 +88,15 @@
     .field-input { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: none; }
     .field-input:focus { border-color: var(--green); outline: none; }
     .btn-save { width: 100%; padding: 13px; background: var(--green); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 14px; }
+
+    .icon-btn.share { background: var(--gray); border-color: #ddd; }
+    .icon-btn.report { background: var(--gray); border-color: #ddd; }
+    .report-option { display: flex; align-items: center; gap: 12px; padding: 12px 6px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+    .report-option:hover { background: #f9f9f9; }
+    .report-emoji { font-size: 22px; flex-shrink: 0; }
+    .report-title { font-size: 14px; font-weight: 700; color: var(--dark); }
+    .report-sub { font-size: 11.5px; color: #888; margin-top: 1px; }
+    .btn-cancel-report { width: 100%; padding: 13px; background: var(--gray); color: var(--dark); border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 14px; }
 
     .toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
@@ -132,8 +154,14 @@
           <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
         </div>
       </div>
+      <button class="icon-btn share" onclick="partagerProfil()" title="Partager">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+      </button>
+      <button class="icon-btn report" onclick="openReportModal()" title="Signaler">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="22" x2="4" y2="2"/><path d="M4 4h14l-3 5 3 5H4"/></svg>
+      </button>
       <button class="icon-btn logout" onclick="deconnexion()" title="Déconnexion">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e63224" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </div>
@@ -181,6 +209,13 @@
     </div>
   </div>
 
+  <div class="history-section">
+    <div class="section-title"><span>🖼️</span> <span data-i18n="pv_history_title">Historique des photos de profil</span></div>
+    <div id="historyContent">
+      <div class="history-empty" data-i18n="pv_history_empty">Aucun changement de photo pour le moment.</div>
+    </div>
+  </div>
+
   <div class="logout-section">
     <button class="btn-logout" onclick="deconnexion()" data-i18n="pv_logout">Se déconnecter</button>
   </div>
@@ -194,9 +229,42 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="field-label"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/90</span></div>
-        <textarea class="field-input" id="bioInput" rows="3" maxlength="90" oninput="updateBioCount()" placeholder="Parlez un peu de vous…"></textarea>
+        <div class="field-label"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/300</span></div>
+        <textarea class="field-input" id="bioInput" rows="3" maxlength="300" oninput="updateBioCount()" placeholder="Parlez un peu de vous…"></textarea>
         <button class="btn-save" onclick="saveProfile()" data-i18n="pv_save_btn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE SIGNALEMENT -->
+  <div class="modal-overlay" id="reportModalOverlay">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">🚩 <span data-i18n="pv_report_title">Signaler ce profil</span></span>
+        <button class="modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="report-option" onclick="signalerProfil('faux_profil')">
+          <span class="report-emoji">🎭</span>
+          <div><div class="report-title" data-i18n="pv_report_fake">Faux profil</div><div class="report-sub" data-i18n="pv_report_fake_sub">Usurpation d'identité ou fausse identité</div></div>
+        </div>
+        <div class="report-option" onclick="signalerProfil('arnaque')">
+          <span class="report-emoji">⚠️</span>
+          <div><div class="report-title" data-i18n="pv_report_scam">Arnaque ou escroquerie</div><div class="report-sub" data-i18n="pv_report_scam_sub">Tentative de fraude ou vol d'argent</div></div>
+        </div>
+        <div class="report-option" onclick="signalerProfil('contenu')">
+          <span class="report-emoji">🚫</span>
+          <div><div class="report-title" data-i18n="pv_report_content">Contenu inapproprié</div><div class="report-sub" data-i18n="pv_report_content_sub">Photos ou textes choquants ou offensants</div></div>
+        </div>
+        <div class="report-option" onclick="signalerProfil('harcelement')">
+          <span class="report-emoji">😠</span>
+          <div><div class="report-title" data-i18n="pv_report_harass">Harcèlement</div><div class="report-sub" data-i18n="pv_report_harass_sub">Comportement abusif envers des clients</div></div>
+        </div>
+        <div class="report-option" onclick="signalerProfil('autre')">
+          <span class="report-emoji">📋</span>
+          <div><div class="report-title" data-i18n="pv_report_other">Autre raison</div><div class="report-sub" data-i18n="pv_report_other_sub">Signalement général</div></div>
+        </div>
+        <button class="btn-cancel-report" onclick="closeReportModal()" data-i18n="pv_report_cancel">Annuler</button>
       </div>
     </div>
   </div>
@@ -204,7 +272,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
     const app = initializeApp(firebaseConfig);
@@ -219,6 +287,38 @@
 
     window.deconnexion = async () => { try { await signOut(auth); } catch(e){} window.location.href = 'connexion.html'; };
 
+    window.partagerProfil = async () => {
+      const url = window.location.href;
+      const titre = 'ArtiRoyce';
+      if (navigator.share) {
+        try { await navigator.share({ title: titre, url }); } catch(e) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(url);
+          showToast(T().pv_share_copied || '🔗 Lien copié !', 'success');
+        } catch(e) {
+          showToast(url, '');
+        }
+      }
+    };
+
+    window.openReportModal = () => document.getElementById('reportModalOverlay').classList.add('open');
+    window.closeReportModal = () => document.getElementById('reportModalOverlay').classList.remove('open');
+
+    window.signalerProfil = async (raison) => {
+      if (!currentUser) return;
+      try {
+        await addDoc(collection(db, 'signalements'), {
+          uidCible: currentUser.uid,
+          uidSignalant: currentUser.uid,
+          raison,
+          date: serverTimestamp(),
+        });
+        closeReportModal();
+        showToast(T().pv_report_sent || '✅ Signalement envoyé, merci.', 'success');
+      } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
+    };
+
     window.openModal = () => {
       document.getElementById('bioInput').value = (userData && userData.bio) || '';
       updateBioCount();
@@ -227,7 +327,7 @@
     window.closeModal = () => document.getElementById('modalOverlay').classList.remove('open');
     window.updateBioCount = () => {
       const len = document.getElementById('bioInput').value.length;
-      document.getElementById('bioCount').textContent = len + '/90';
+      document.getElementById('bioCount').textContent = len + '/300';
     };
 
     function compresserImage(file, taille, qualite) {
@@ -257,12 +357,111 @@
       if (!file) return;
       try {
         const b64 = await compresserImage(file, 250, 0.5);
-        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64 });
+        const history = Array.isArray(userData.photoHistory) ? userData.photoHistory.slice() : [];
+        // L'ancienne photo (si elle existe) part dans l'historique, jamais supprimée
+        if (userData.photoAvatar) {
+          history.unshift({ url: userData.photoAvatar, date: new Date().toISOString() });
+        }
+        // On garde les 8 dernières pour ne pas alourdir le document
+        const trimmedHistory = history.slice(0, 8);
+        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64, photoHistory: trimmedHistory });
+        userData.photoAvatar = b64;
+        userData.photoHistory = trimmedHistory;
         document.getElementById('avatarWrap').innerHTML = `<img src="${b64}" alt="avatar"/>`;
+        renderHistory();
         showToast(T().pv_toast_photo || '✅ Photo mise à jour !', 'success');
       } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
       this.value = '';
     });
+
+    function formatHistoryDate(iso) {
+      try {
+        const d = new Date(iso);
+        return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch(e) { return ''; }
+    }
+
+    const DELAI_SUPPRESSION_JOURS = 15;
+
+    // Purge : retire définitivement les photos supprimées depuis plus de 15 jours
+    function purgerHistoriqueExpire() {
+      if (!Array.isArray(userData.photoHistory)) return false;
+      const maintenant = Date.now();
+      const avant = userData.photoHistory.length;
+      userData.photoHistory = userData.photoHistory.filter(h => {
+        if (!h.deletedAt) return true;
+        const joursEcoules = (maintenant - new Date(h.deletedAt).getTime()) / (1000*60*60*24);
+        return joursEcoules < DELAI_SUPPRESSION_JOURS;
+      });
+      return userData.photoHistory.length !== avant;
+    }
+
+    async function sauvegarderHistorique() {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoHistory: userData.photoHistory });
+    }
+
+    window.supprimerPhotoDefinitivement = async (index) => {
+      if (!confirm(T().pv_confirm_delete_perm || 'Supprimer cette photo définitivement ? Cette action est irréversible.')) return;
+      userData.photoHistory.splice(index, 1);
+      await sauvegarderHistorique();
+      renderHistory();
+      showToast(T().pv_toast_deleted || '🗑️ Photo supprimée définitivement.', 'success');
+    };
+
+    window.supprimerPhotoTemporairement = async (index) => {
+      userData.photoHistory[index].deletedAt = new Date().toISOString();
+      await sauvegarderHistorique();
+      renderHistory();
+      showToast(T().pv_toast_deleted_temp || '🗑️ Photo supprimée (restaurable 15 jours).', 'success');
+    };
+
+    window.restaurerPhoto = async (index) => {
+      delete userData.photoHistory[index].deletedAt;
+      await sauvegarderHistorique();
+      renderHistory();
+      showToast(T().pv_toast_restored || '↩️ Photo restaurée.', 'success');
+    };
+
+    function renderHistory() {
+      const el = document.getElementById('historyContent');
+      const purged = purgerHistoriqueExpire();
+      if (purged) sauvegarderHistorique();
+      const history = Array.isArray(userData.photoHistory) ? userData.photoHistory : [];
+      if (history.length === 0) {
+        el.innerHTML = `<div class="history-empty">${T().pv_history_empty || 'Aucun changement de photo pour le moment.'}</div>`;
+        return;
+      }
+      const t = T();
+      const changedLabel = t.pv_history_changed || 'Photo changée le';
+      const permLabel = t.pv_history_delete_perm || '✕ Définitif';
+      const tempLabel = t.pv_history_delete_temp || '🗑️ 15j';
+      const restoreLabel = t.pv_history_restore || '↩️ Restaurer';
+      const untilLabel = t.pv_history_deleted_until || 'Suppression définitive le';
+
+      el.innerHTML = `<div class="history-grid">` + history.map((h, i) => {
+        const estSupprimee = !!h.deletedAt;
+        let actionsHtml;
+        let noteHtml = '';
+        if (estSupprimee) {
+          const dateLimite = new Date(new Date(h.deletedAt).getTime() + DELAI_SUPPRESSION_JOURS*24*60*60*1000);
+          noteHtml = `<div class="history-deleted-note">${untilLabel} ${formatHistoryDate(dateLimite.toISOString())}</div>`;
+          actionsHtml = `
+            <button class="history-btn" onclick="restaurerPhoto(${i})">${restoreLabel}</button>
+            <button class="history-btn perm" onclick="supprimerPhotoDefinitivement(${i})">${permLabel}</button>`;
+        } else {
+          actionsHtml = `
+            <button class="history-btn" onclick="supprimerPhotoTemporairement(${i})">${tempLabel}</button>
+            <button class="history-btn perm" onclick="supprimerPhotoDefinitivement(${i})">${permLabel}</button>`;
+        }
+        return `
+        <div class="history-item ${estSupprimee ? 'deleted' : ''}">
+          <div class="history-thumb"><img src="${h.url}" alt="ancienne photo"/></div>
+          <div class="history-date">${changedLabel}<br>${formatHistoryDate(h.date)}</div>
+          ${noteHtml}
+          <div class="history-actions">${actionsHtml}</div>
+        </div>`;
+      }).join('') + `</div>`;
+    }
 
     window.saveProfile = async () => {
       if (!currentUser) return;
@@ -299,6 +498,7 @@
         document.getElementById('coordEmail').textContent = userData.email || user.email || '—';
         document.getElementById('coordTel').textContent = userData.telephone || '—';
         renderBio();
+        renderHistory();
         if (userData.photoAvatar) {
           document.getElementById('avatarWrap').innerHTML = `<img src="${userData.photoAvatar}" alt="avatar"/>`;
         }
