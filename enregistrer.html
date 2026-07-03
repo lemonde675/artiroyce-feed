@@ -9,8 +9,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; height: 100%; }
-    body { min-height: 100vh; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; padding: 40px 16px; }
-    .back-home { position: fixed; top: 18px; left: 18px; display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; z-index: 100; }
+    body { min-height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; background: #f0f0f0; font-family: 'Segoe UI', Arial, sans-serif; }
+    .back-home { display: flex; align-items: center; gap: 7px; background: #fff; color: #e63224; border: 1.5px solid #e63224; border-radius: 50px; padding: 8px 16px 8px 10px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); transition: background 0.18s, color 0.18s; }
     .back-home:hover { background: #e63224; color: #fff; }
     .back-home svg { transition: transform 0.18s; }
     .back-home:hover svg { transform: translateX(-3px); }
@@ -129,17 +129,53 @@
     }
 
     /* ===== SÉLECTEUR DE LANGUE 🌍 ===== */
-    .lang-selector { position: fixed; top: 18px; right: 18px; z-index: 200; font-size: 13px; }
+    .lang-selector { position: relative; font-size: 13px; }
     .lang-current { background: #fff; border: 1.5px solid #ddd; border-radius: 50px; padding: 8px 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.10); color: #333; }
     .lang-dropdown { display: none; position: absolute; right: 0; top: 115%; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 6px; min-width: 175px; max-height: 280px; overflow-y: auto; }
     #langSel.open .lang-dropdown { display: block; }
     .lang-option { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; color: #333; }
     .lang-option:hover { background: #f4f5f7; }
     .lang-option.active { background: #f0fff4; color: #27a945; font-weight: 700; }
+    /* ══════════════════════════════════
+       VERSION ORDINATEUR — ÉCRAN PARTAGÉ
+    ══════════════════════════════════ */
+    .desktop-panel { display: none; }
+    @media (min-width:768px) {
+      .page-wrap { flex-direction: row; align-items: stretch; justify-content: center; padding: 0; min-height: calc(100vh - 58px); }
+      .desktop-panel {
+        display: flex; flex-direction: column; justify-content: center;
+        width: 42%; min-width: 380px; max-width: 560px;
+        background: linear-gradient(135deg, #e63224 0%, #7a3e15 50%, #27a945 100%);
+        color: #fff; padding: 60px 50px; position: relative; overflow: hidden;
+      }
+      .desktop-panel::before, .desktop-panel::after {
+        content: ''; position: absolute; border-radius: 50%; opacity: 0.12; background: #fff;
+      }
+      .desktop-panel::before { width: 280px; height: 280px; top: -80px; right: -80px; }
+      .desktop-panel::after { width: 200px; height: 200px; bottom: -60px; left: -60px; }
+      .dp-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 44px; position: relative; z-index: 1; }
+      .dp-logo-text { font-size: 24px; font-weight: 800; color: #fff; }
+      .desktop-panel h2 { font-size: 32px; font-weight: 800; line-height: 1.25; margin-bottom: 16px; position: relative; z-index: 1; }
+      .desktop-panel p { font-size: 15px; opacity: 0.92; line-height: 1.65; max-width: 400px; position: relative; z-index: 1; }
+      .form-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
+      .card { margin: 0; }
+    }
+    .top-bar-fixed {
+      position: sticky; top: 0; z-index: 150;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid #eee;
+    }
+    .page-wrap {
+      display: flex; align-items: center; justify-content: center;
+      padding: 28px 16px 40px; min-height: calc(100vh - 58px);
+    }
   </style>
 </head>
 <body>
   <div class="toast" id="toast"></div>
+  <header class="top-bar-fixed">
   <a href="index.html" class="back-home">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     <span data-i18n="reg_back_home">Accueil</span>
@@ -161,6 +197,21 @@
       <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
     </div>
   </div>
+  </header>
+  <div class="page-wrap">
+  <div class="desktop-panel">
+    <div class="dp-logo">
+      <svg width="34" height="24" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#fff" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z" opacity="0.95"/>
+        <path fill="#fff" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z" opacity="0.7"/>
+      </svg>
+      <span class="dp-logo-text">ArtiRoyce</span>
+    </div>
+    <h2 data-i18n="dp_register_title">Rejoignez l'élite des professionnels</h2>
+    <p data-i18n="dp_register_sub">Créez votre profil vérifié, montrez votre talent au monde entier et commencez à générer des revenus dès aujourd'hui.</p>
+  </div>
+
+  <div class="form-panel">
   <div class="card">
     <div class="top-bar"></div>
     <div class="card-body">
@@ -233,6 +284,8 @@
       <div class="login-link"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
     </div>
     <div class="bottom-bar"></div>
+  </div>
+  </div>
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
