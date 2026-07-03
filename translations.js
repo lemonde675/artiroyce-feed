@@ -1,1981 +1,848 @@
-/* ══════════════════════════════════════════════
-   ArtiRoyce — translations.js
-   10 langues : FR, EN, ES, PT, AR, ZH, RU, DE, JA, HI
-══════════════════════════════════════════════ */
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <title>ArtiRoyce – Accueil</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root { --red: #e63224; --green: #27a945; }
+    html { scroll-behavior: smooth; }
+    html, body { height: 100%; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a2e; overflow: hidden; max-width: 480px; margin: 0 auto; }
+    .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
+    .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
+    .h-house { font-size: 24px; flex-shrink: 0; }
+    .h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
+    .h-logo-text .arti { color: var(--red); }
+    .h-logo-text .royce { color: var(--green); }
+    .h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .h-ico { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
+    .h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
+    .h-ico.chat .bdot { background: var(--green); }
+    .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+    .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+    .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
+    .h-tabs::-webkit-scrollbar { display: none; }
+    .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
+    .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
+    .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
+    .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 64px; }
+    .feed-wrap::-webkit-scrollbar { display: none; }
+    .vcard { width: 100%; height: 100vh; scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
+    .vcard-bg { position: absolute; inset: 0; }
+    .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
+    .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
+    .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
+    /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
+    .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
+    .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+    .act-circle:active { transform: scale(1.15); }
+    .act-circle.liked { background: rgba(230,50,36,0.85); }
+    .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
+    .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
+    .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; }
+    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .info-job-globe-big { font-size: 22px; }
+    .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+    .info-globe-small { font-size: 16px; margin-bottom: 8px; display: block; }
+    .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
+    .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
+    .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
+    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
+    .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 40px; }
+    .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; }
+    .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .btn-lv { display: flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+    .wm-inline { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 7.5px; color: rgba(255,255,255,0.75); flex-shrink: 1; margin-left: 4px; min-width: 0; overflow: hidden; align-self: center; }
+    .wm-brand { font-size: 8px; font-weight: 900; white-space: nowrap; }
+    .wm-brand .a { color: var(--red); }
+    .wm-brand .r { color: var(--green); }
+    .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
+    .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+    .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); overflow: visible; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
+    .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
+    .nav-i.active .nav-lb { color: var(--green); }
+    .nav-plus-w { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: visible; padding-bottom: 4px; }
+    .nav-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; box-shadow: 0 4px 14px rgba(230,50,36,0.55); margin-top: -18px; position: relative; z-index: 201; }
+    .nav-ico { width: 24px; height: 24px; }
+    .toast { position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 8px 18px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+    .toast.g { background: var(--green); }
+    .moverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .moverlay.open { display: flex; }
+    .lsheet { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding-bottom: 26px; animation: su 0.22s ease; }
+    @keyframes su { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .lhandle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto; }
+    .ltitle { font-size: 14px; font-weight: 800; text-align: center; padding: 0 20px 12px; border-bottom: 1px solid #eee; }
+    .lopt { display: flex; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .lopt:hover { background: #f9f9f9; }
+    .lopt.active { background: #e8f5e9; }
+    .lflag { font-size: 22px; }
+    .lname { font-size: 13px; font-weight: 700; }
+    .lnat { font-size: 11px; color: #888; }
+    .lchk { color: var(--green); font-size: 16px; font-weight: 800; margin-left: auto; opacity: 0; }
+    .lopt.active .lchk { opacity: 1; }
+    /* SWIPE HORIZONTAL */
+    .panels-container { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; height: 100vh; overflow: hidden; }
+    .panels-track { display: flex; flex-direction: row; height: 100vh; width: 100%; transition: transform 0.32s cubic-bezier(.4,0,.2,1); will-change: transform; }
+    .panel-slide { width: 100%; max-width: 480px; min-width: 100%; height: 100vh; flex-shrink: 0; overflow: hidden; position: relative; }
+    .panel-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+    .panel-placeholder .ph-icon { font-size: 60px; opacity: 0.5; }
+    .panel-placeholder .ph-title { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
+    .panel-placeholder .ph-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
+    .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
+    .bg1 { background: linear-gradient(160deg,#0a0a2e,#1a1a6e,#0d0d40); }
+    .bg2 { background: linear-gradient(160deg,#1a0a00,#4a1a00,#2d0e00); }
+    .bg3 { background: linear-gradient(160deg,#001030,#002060,#000820); }
+    .bg4 { background: linear-gradient(160deg,#001a2e,#003d5e,#000d1a); }
+    .bg5 { background: linear-gradient(160deg,#1a1a00,#3d3d00,#0d0d00); }
 
-const TRANSLATIONS = {
+    /* PANEL RECHERCHE MÉTIERS */
+    .search-panel { position:fixed; inset:0; left:50%; transform:translateX(-50%) translateY(-100%); width:100%; max-width:480px; z-index:500; background:#fff; display:flex; flex-direction:column; transition:transform 0.3s cubic-bezier(.4,0,.2,1); }
+    .search-panel.open { transform:translateX(-50%) translateY(0); }
+    .sp-header { display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid #eee; flex-shrink:0; }
+    .sp-title { font-size:16px; font-weight:800; color:#111; flex:1; }
+    .sp-close { width:32px; height:32px; border-radius:50%; background:#f5f5f5; border:none; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .sp-search-box { padding:12px 14px; flex-shrink:0; }
+    .sp-input-wrap { display:flex; align-items:center; gap:8px; background:#f5f5f5; border-radius:14px; padding:10px 14px; }
+    .sp-input-wrap input { flex:1; background:none; border:none; outline:none; color:#111; font-size:14px; font-family:'Segoe UI',Arial,sans-serif; }
+    .sp-input-wrap input::placeholder { color:#bbb; }
+    .sp-subtitle { font-size:11px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:0.8px; padding:0 14px 8px; flex-shrink:0; }
+    .sp-list { flex:1; overflow-y:auto; scrollbar-width:none; padding:0 12px 20px; }
+    .sp-list::-webkit-scrollbar { display:none; }
+    .sp-metier-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; cursor:pointer; transition:background 0.15s; margin-bottom:4px; }
+    .sp-metier-item:active { background:#f5f5f5; }
+    .sp-metier-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+    .sp-metier-name { font-size:14px; font-weight:700; color:#111; }
+    .sp-metier-count { font-size:11px; color:#aaa; margin-top:2px; }
+    .sp-metier-arrow { color:#ccc; font-size:16px; margin-left:auto; }
+    /* ══════════════════════════════════
+       VERSION ORDINATEUR / PC
+    ══════════════════════════════════ */
+    @media (min-width: 768px) {
+      html {
+        max-width: none; width: 100%;
+        background:
+          radial-gradient(circle at 15% 15%, rgba(230,50,36,0.16), transparent 42%),
+          radial-gradient(circle at 85% 85%, rgba(39,169,69,0.16), transparent 42%),
+          linear-gradient(160deg, #0a0a2e, #1a1a6e, #0d0d40);
+      }
+      body { max-width: 600px; margin: 0 auto; box-shadow: 0 0 60px rgba(0,0,0,0.45); }
+      .top-header, .bot-nav, .panels-container { max-width: 600px; }
+      .btn-suivre:hover, .btn-contacter:hover, .h-tab:hover, .nav-i:hover .nav-lb { opacity: 0.85; cursor: pointer; }
+      .act-circle:hover { transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body>
 
-  FR: {
-    /* NAVBAR */
-    nav_login:       'Connexion',
-    nav_join:        'Rejoindre',
-    /* HERO */
-    badge:           'Professionnels vérifiés · 47+ pays',
-    hero_line1:      'Les meilleurs professionnels',
-    hero_line2:      'du monde, ici.',
-    hero_sub:        'Juristes, électriciens, couturiers, consultants, développeurs — chaque profil vérifié, chaque talent certifié. Trouvez, contactez, collaborez.',
-    btn_start:       'Commencer gratuitement →',
-    btn_explore:     '▶ Explorer le feed',
-    stat_pros:       'Professionnels',
-    stat_countries:  'Pays',
-    stat_verified:   'Vérifiés',
-    scroll_hint:     'Défiler',
-    /* SECTION PROS */
-    sec_label_pros:  'Talents d\'élite',
-    sec_title_pros:  'Des professionnels<br>qui font la différence',
-    sec_sub_pros:    'Chaque profil validé par notre équipe. Diplôme, expérience, portfolio — zéro compromis.',
-    btn_see_all:     'Voir tous les professionnels →',
-    verified:        'Vérifié',
-    /* MONÉTISATION */
-    sec_label_mono:  '💰 Monétisation',
-    sec_title_mono:  'Votre expertise<br>génère des revenus',
-    sec_sub_mono:    'ArtiRoyce rémunère les professionnels qui partagent leur savoir-faire. Chaque vue, chaque interaction compte — et se transforme en argent réel dans votre poche.',
-    mono_title:      'Gagnez avec votre <span>contenu</span> sur ArtiRoyce',
-    mono_desc:       'Publiez vos vidéos, partagez vos réalisations, montrez votre talent. Dès que vos vues et j\'aime atteignent les seuils ArtiRoyce, vous commencez à percevoir vos gains — automatiquement, sans démarche compliquée.',
-    tp_views:        'vues',
-    tp_likes:        'j\'aime',
-    tp_badge:        'badge',
-    tp_withdraw:     'dès 5 $',
-    tp_elite:        'Élite',
-    tp_withdraw_lbl: 'Retrait',
-    gain1_title:     'Par vidéo populaire',
-    gain1_desc:      'Une vidéo virale peut rapporter jusqu\'à',
-    gain2_title:     'Revenus mensuels',
-    gain2_desc:      'Un profil actif peut générer chaque mois',
-    gain3_title:     'Badge Élite',
-    gain3_desc:      'Les profils Élite bénéficient d\'un bonus de visibilité de',
-    gain4_title:     'Retrait mondial',
-    gain4_desc:      'Retirez dans votre pays avec les moyens locaux disponibles',
-    gain4_amount:    'Partout',
-    /* STEPS */
-    sec_label_how:   'Simple & rapide',
-    sec_title_how:   'En 3 étapes,<br>c\'est réglé',
-    step1_title:     'Parcourez le feed',
-    step1_desc:      'Vidéos de présentation, portfolios, avis — jugez par vous-même avant tout contact.',
-    step2_title:     'Contactez le professionnel',
-    step2_desc:      'Message direct, appel, ou commentaire — sans intermédiaire, immédiatement.',
-    step3_title:     'Mission accomplie',
-    step3_desc:      'Évaluez, recommandez, et bâtissez une relation professionnelle durable.',
-    /* CTA */
-    cta_title:       'Prêt à rejoindre ArtiRoyce ?',
-    cta_sub:         'Professionnel ou client — votre place est ici.<br>Inscription gratuite · Monétisation réelle · Retrait partout dans le monde.',
-    btn_register:    'Je m\'inscris →',
-    btn_member:      'Déjà membre',
-    /* FOOTER */
-    footer_rights:   '© 2024 ArtiRoyce — Tous droits réservés',
-    footer_privacy:  'Confidentialité',
-    footer_terms:    'CGU',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Accueil',
-    reg_pro_title:   'Inscription',
-    reg_pro_subtitle: 'Créez votre compte professionnel et commencez à gagner de l\'argent dès aujourd\'hui',
-    reg_visitor_title: 'Inscription Visiteur',
-    reg_visitor_subtitle: 'Créez votre compte visiteur pour contacter, échanger et suivre les professionnels ArtiRoyce',
-    pill_professional: '👔 Page professionnel',
-    pill_visitor:    '👤 Page visiteurs',
-    hint_to_visitor: 'Visiteur ? Créez un compte simplifié',
-    hint_to_pro:     'Professionnel ? Créez un compte vérifié',
-    kyc_info_html:   '<strong>Professionnels :</strong> votre profil sera <strong>vérifié par notre équipe</strong> avant d\'être visible. Vous soumettrez votre KYC après connexion.',
-    visitor_info_html: '<strong>Visiteur :</strong> vous pouvez contacter et appeler les professionnels, commenter (identifié comme <strong>Visiteur</strong>), discuter et poster des statuts. Vous ne pouvez pas publier de vidéos ni publier dans le fil d\'actualité, hormis la modification de votre <strong>photo de profil</strong> et de votre <strong>bio</strong> (limitée en caractères).',
-    label_nom:       'NOM',
-    label_prenom:    'PRÉNOM(S)',
-    label_email:     'EMAIL',
-    label_tel:       'NUMÉRO DE TÉLÉPHONE',
-    label_password:  'MOT DE PASSE',
-    label_password2: 'CONFIRMER LE MOT DE PASSE',
-    btn_create_account: 'CRÉER MON COMPTE &nbsp;→',
-    reg_have_account: 'Déjà un compte ?',
-    reg_login_link:  'Se connecter',
-    js_err_nom:      '⚠ Nom invalide.',
-    js_err_prenom:   '⚠ Prénom invalide.',
-    js_err_email:    '⚠ Email invalide.',
-    js_err_tel:      '⚠ Numéro invalide.',
-    js_err_password: '⚠ Minimum 8 caractères.',
-    js_err_password2: '⚠ Mots de passe différents.',
-    js_err_fix:      '⚠ Corrigez les erreurs.',
-    js_creating:     'Création du compte…',
-    js_toast_success_pro: '✅ Compte créé ! Connectez-vous maintenant.',
-    js_toast_success_visitor: '✅ Compte visiteur créé ! Connectez-vous maintenant.',
-    js_toast_email_used: '⚠ Cet email est déjà utilisé.',
-    js_toast_error_prefix: '⚠ Erreur : ',
-    js_strength_weak: '⚠ Très faible',
-    js_strength_medium: '😐 Moyen',
-    js_strength_good: '👍 Bon',
-    js_strength_strong: '🔒 Très fort',
-    js_err_weak_password: 'Mot de passe trop faible.',
-    js_err_network:  'Problème de connexion internet.',
-    js_err_too_many: 'Trop de tentatives, réessayez plus tard.',
-    js_err_invalid_email: 'Adresse email invalide.',
-    js_err_user_disabled: 'Ce compte a été désactivé.',
-    login_title:     'Connexion',
-    login_subtitle:  'Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong> — vos prochains clients et fans vous attendent.',
-    login_label_email: 'EMAIL / TÉLÉPHONE',
-    login_forgot:    'Mot de passe oublié ?',
-    login_btn:       'CONNEXION &nbsp;→',
-    login_no_account: 'Vous n\'avez pas encore de compte ?',
-    login_signup_link: 'Inscrivez-vous',
-    login_err_email_required: '⚠ Veuillez entrer votre email.',
-    login_err_email_format: '⚠ Format email invalide.',
-    login_err_password_required: '⚠ Veuillez entrer votre mot de passe.',
-    login_err_password_length: '⚠ Le mot de passe doit faire au moins 6 caractères.',
-    login_connecting: 'Connexion en cours…',
-    login_toast_success: '✅ Connexion réussie ! Bienvenue.',
-    login_toast_pending: '⏳ Compte en attente — accès à votre profil.',
-    login_err_credentials: '⚠ Email ou mot de passe incorrect.',
-    vit_chip_all:    '⭐ Tous',
-    vit_chip_macon:  '🧱 Maçon',
-    vit_chip_elec:   '⚡ Électricien',
-    vit_chip_plomb:  '🚿 Plombier',
-    vit_chip_peintre: '🎨 Peintre',
-    vit_chip_menuisier: '🪵 Menuisier',
-    vit_chip_coiffeur: '✂️ Coiffeur',
-    vit_chip_couturier: '🧵 Couturier',
-    vit_chip_cuisinier: '👨‍🍳 Cuisinier',
-    vit_chip_mecanicien: '🔧 Mécanicien',
-    vit_hero_tag:    '✨ Professionnels vérifiés',
-    vit_hero_title:  'Trouvez le professionnel<br><em>qu\'il vous faut</em>',
-    vit_hero_sub:    'Des centaines de professionnels vérifiés prêts à vous servir',
-    vit_hero_btn:    '🔍 Découvrir sur le feed',
-    vit_section_label: 'Professionnels vérifiés',
-    vit_hscroll_label: 'Autres professionnels',
-    vit_nav_accueil: 'Accueil',
-    vit_nav_profil:  'Profil',
-    vit_verified:    '✔ Vérifié',
-    vit_btn_contact: '💬 Contacter',
-    vit_btn_reserver: '📅 Réserver',
-    vit_btn_suivre:  '➕ Suivre',
-    vit_btn_suivi:   '✔ Suivi',
-    vit_avis:        'avis',
-    vit_abonnes:     'abonnés',
-    vit_empty_title: 'Aucun professionnel pour le moment',
-    vit_empty_other: 'Aucun autre professionnel',
-    vit_toast_error_load: '⚠ Erreur chargement',
-    vit_toast_login_required: '🔐 Connectez-vous',
-    vit_toast_follow_success: '✅ Vous suivez ce professionnel !',
-    vit_toast_error: '⚠ Erreur',
-    vit_pro_default: 'Professionnel',
-    vit_pro_short:   'Pro',
-    pv_back:         'Accueil',
-    pv_visitor_tag:  'Visiteur',
-    pv_bio_empty:    'Aucune bio pour le moment…',
-    pv_edit_btn:     'Modifier mon profil',
-    pv_coords_title: 'Coordonnées',
-    pv_statuts_title: 'Mes statuts',
-    pv_statuts_empty: 'Vous n\'avez encore posté aucun statut.',
-    pv_cta_title:    'Passez professionnel',
-    pv_cta_sub:      'Publiez, gagnez en visibilité et monétisez votre savoir-faire.',
-    pv_cta_pro:      'Devenir professionnel',
-    pv_logout:       'Se déconnecter',
-    pv_modal_title:  'Modifier mon profil',
-    pv_bio_label:    'BIO',
-    pv_save_btn:     'Enregistrer',
-    pv_toast_photo:  '✅ Photo mise à jour !',
-    pv_toast_saved:  '✅ Profil mis à jour !',
-    dp_login_title:    'Ravi de vous revoir',
-    dp_login_sub:      'Reconnectez-vous pour continuer à échanger avec les meilleurs professionnels et développer votre activité, où que vous soyez dans le monde.',
-    dp_register_title: 'Rejoignez l\'élite des professionnels',
-    dp_register_sub:   'Créez votre profil vérifié, montrez votre talent au monde entier et commencez à générer des revenus dès aujourd\'hui.',
-    dp_visitor_title:  'Rejoignez la communauté',
-    dp_visitor_sub:    'Contactez les meilleurs professionnels, échangez et suivez leur travail — en quelques secondes, sans engagement.',
-    pv_history_title:   'Historique des photos de profil',
-    pv_history_empty:   'Aucun changement de photo pour le moment.',
-    pv_history_changed: 'Photo changée le',
-    pv_history_delete_perm: '✕ Définitif',
-    pv_history_delete_temp: '🗑️ 15j',
-    pv_history_restore:     '↩️ Restaurer',
-    pv_history_deleted_until: 'Suppression définitive le',
-    pv_confirm_delete_perm: 'Supprimer cette photo définitivement ? Cette action est irréversible.',
-    pv_toast_deleted:       '🗑️ Photo supprimée définitivement.',
-    pv_toast_deleted_temp:  '🗑️ Photo supprimée (restaurable 15 jours).',
-    pv_toast_restored:      '↩️ Photo restaurée.',
-    pv_report_title:      'Signaler ce profil',
-    pv_report_fake:        'Faux profil',
-    pv_report_fake_sub:    "Usurpation d'identité ou fausse identité",
-    pv_report_scam:        'Arnaque ou escroquerie',
-    pv_report_scam_sub:    "Tentative de fraude ou vol d'argent",
-    pv_report_content:     'Contenu inapproprié',
-    pv_report_content_sub: 'Photos ou textes choquants ou offensants',
-    pv_report_harass:      'Harcèlement',
-    pv_report_harass_sub:  'Comportement abusif envers des clients',
-    pv_report_other:       'Autre raison',
-    pv_report_other_sub:   'Signalement général',
-    pv_report_cancel:      'Annuler',
-    pv_report_sent:        '✅ Signalement envoyé, merci.',
-    pv_share_copied:       '🔗 Lien copié !',
-  },
+<header class="top-header" id="topH">
+  <div class="h-row1">
+    <span class="h-house">🏠</span>
+    <div class="h-logo">
+      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="h-icons" style="gap:8px;">
+      <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
+      <div style="display:flex;align-items:center;gap:3px">
+        <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
+        <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
+        <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
+      </div>
+    </div>
+  </div>
+  <div class="h-tabs">
+    <div class="h-tab active" data-i18n="acc_tab_home">🏠 Accueil</div>
+    <div class="h-tab" data-i18n="acc_tab_news">📰 Actualités</div>
+    <div class="h-tab"><span class="tab-green-dot"></span> <span data-i18n="acc_tab_status">Statuts</span></div>
+    <div class="h-tab" data-i18n="acc_tab_elite">⭐ Élites</div>
+    <div class="h-tab" data-i18n="acc_tab_offers">💼 Offres</div>
+    <div class="h-tab" data-i18n="acc_tab_cv">📄 CV Pro</div>
+    <div class="h-tab" data-i18n="acc_tab_discussion">💬 Répert-Discussion</div>
+    <div class="h-tab" data-i18n="acc_tab_faq">📖 FAQ</div>
+  </div>
+</header>
 
-  EN: {
-    nav_login:       'Login',
-    nav_join:        'Join',
-    badge:           'Verified Professionals · 47+ Countries',
-    hero_line1:      'The world\'s best professionals',
-    hero_line2:      'right here.',
-    hero_sub:        'Lawyers, electricians, tailors, consultants, developers — every profile verified, every talent certified. Find, contact, collaborate.',
-    btn_start:       'Get started for free →',
-    btn_explore:     '▶ Explore the feed',
-    stat_pros:       'Professionals',
-    stat_countries:  'Countries',
-    stat_verified:   'Verified',
-    scroll_hint:     'Scroll',
-    sec_label_pros:  'Elite Talents',
-    sec_title_pros:  'Professionals who<br>make the difference',
-    sec_sub_pros:    'Every profile validated by our team. Degree, experience, portfolio — zero compromise.',
-    btn_see_all:     'See all professionals →',
-    verified:        'Verified',
-    sec_label_mono:  '💰 Monetization',
-    sec_title_mono:  'Your expertise<br>generates income',
-    sec_sub_mono:    'ArtiRoyce rewards professionals who share their know-how. Every view, every interaction counts — and turns into real money in your pocket.',
-    mono_title:      'Earn with your <span>content</span> on ArtiRoyce',
-    mono_desc:       'Post your videos, share your work, show your talent. Once your views and likes reach ArtiRoyce thresholds, you start earning — automatically, no hassle.',
-    tp_views:        'views',
-    tp_likes:        'likes',
-    tp_badge:        'badge',
-    tp_withdraw:     'from $5',
-    tp_elite:        'Elite',
-    tp_withdraw_lbl: 'Withdraw',
-    gain1_title:     'Per popular video',
-    gain1_desc:      'A viral video can earn up to',
-    gain2_title:     'Monthly income',
-    gain2_desc:      'An active profile can generate each month',
-    gain3_title:     'Elite Badge',
-    gain3_desc:      'Elite profiles get a visibility bonus of',
-    gain4_title:     'Global withdrawal',
-    gain4_desc:      'Withdraw in your country with available local methods',
-    gain4_amount:    'Anywhere',
-    sec_label_how:   'Simple & fast',
-    sec_title_how:   'In 3 steps,<br>it\'s done',
-    step1_title:     'Browse the feed',
-    step1_desc:      'Presentation videos, portfolios, reviews — judge for yourself before any contact.',
-    step2_title:     'Contact the professional',
-    step2_desc:      'Direct message, call, or comment — no middleman, immediately.',
-    step3_title:     'Mission accomplished',
-    step3_desc:      'Rate, recommend, and build a lasting professional relationship.',
-    cta_title:       'Ready to join ArtiRoyce?',
-    cta_sub:         'Professional or client — your place is here.<br>Free registration · Real monetization · Withdraw worldwide.',
-    btn_register:    'Sign up →',
-    btn_member:      'Already a member',
-    footer_rights:   '© 2024 ArtiRoyce — All rights reserved',
-    footer_privacy:  'Privacy',
-    footer_terms:    'Terms',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Home',
-    reg_pro_title:   'Registration',
-    reg_pro_subtitle: 'Create your professional account and start earning money today',
-    reg_visitor_title: 'Visitor Registration',
-    reg_visitor_subtitle: 'Create your visitor account to contact, chat with, and follow ArtiRoyce professionals',
-    pill_professional: '👔 Professional Page',
-    pill_visitor:    '👤 Visitor Page',
-    hint_to_visitor: 'Visitor? Create a simplified account',
-    hint_to_pro:     'Professional? Create a verified account',
-    kyc_info_html:   '<strong>Professionals:</strong> your profile will be <strong>verified by our team</strong> before becoming visible. You will submit your KYC after logging in.',
-    visitor_info_html: '<strong>Visitor:</strong> you can contact and call professionals, comment (identified as <strong>Visitor</strong>), chat, and post statuses. You cannot post videos or publish in the news feed, except for updating your <strong>profile photo</strong> and your <strong>bio</strong> (character-limited).',
-    label_nom:       'LAST NAME',
-    label_prenom:    'FIRST NAME(S)',
-    label_email:     'EMAIL',
-    label_tel:       'PHONE NUMBER',
-    label_password:  'PASSWORD',
-    label_password2: 'CONFIRM PASSWORD',
-    btn_create_account: 'CREATE MY ACCOUNT &nbsp;→',
-    reg_have_account: 'Already have an account?',
-    reg_login_link:  'Log in',
-    js_err_nom:      '⚠ Invalid last name.',
-    js_err_prenom:   '⚠ Invalid first name.',
-    js_err_email:    '⚠ Invalid email.',
-    js_err_tel:      '⚠ Invalid phone number.',
-    js_err_password: '⚠ Minimum 8 characters.',
-    js_err_password2: '⚠ Passwords do not match.',
-    js_err_fix:      '⚠ Please fix the errors.',
-    js_creating:     'Creating account…',
-    js_toast_success_pro: '✅ Account created! Please log in now.',
-    js_toast_success_visitor: '✅ Visitor account created! Please log in now.',
-    js_toast_email_used: '⚠ This email is already in use.',
-    js_toast_error_prefix: '⚠ Error: ',
-    js_strength_weak: '⚠ Very weak',
-    js_strength_medium: '😐 Medium',
-    js_strength_good: '👍 Good',
-    js_strength_strong: '🔒 Very strong',
-    js_err_weak_password: 'Password is too weak.',
-    js_err_network:  'Network connection problem.',
-    js_err_too_many: 'Too many attempts, please try again later.',
-    js_err_invalid_email: 'Invalid email address.',
-    js_err_user_disabled: 'This account has been disabled.',
-    login_title:     'Login',
-    login_subtitle:  'Log back in and keep <strong style="color:#27a945">growing your business</strong> — your next clients and fans are waiting.',
-    login_label_email: 'EMAIL / PHONE',
-    login_forgot:    'Forgot password?',
-    login_btn:       'LOG IN &nbsp;→',
-    login_no_account: 'Don\'t have an account yet?',
-    login_signup_link: 'Sign up',
-    login_err_email_required: '⚠ Please enter your email.',
-    login_err_email_format: '⚠ Invalid email format.',
-    login_err_password_required: '⚠ Please enter your password.',
-    login_err_password_length: '⚠ Password must be at least 6 characters.',
-    login_connecting: 'Logging in…',
-    login_toast_success: '✅ Login successful! Welcome.',
-    login_toast_pending: '⏳ Account pending — accessing your profile.',
-    login_err_credentials: '⚠ Incorrect email or password.',
-    vit_chip_all:    '⭐ All',
-    vit_chip_macon:  '🧱 Mason',
-    vit_chip_elec:   '⚡ Electrician',
-    vit_chip_plomb:  '🚿 Plumber',
-    vit_chip_peintre: '🎨 Painter',
-    vit_chip_menuisier: '🪵 Carpenter',
-    vit_chip_coiffeur: '✂️ Hairdresser',
-    vit_chip_couturier: '🧵 Tailor',
-    vit_chip_cuisinier: '👨‍🍳 Cook',
-    vit_chip_mecanicien: '🔧 Mechanic',
-    vit_hero_tag:    '✨ Verified professionals',
-    vit_hero_title:  'Find the professional<br><em>you need</em>',
-    vit_hero_sub:    'Hundreds of verified professionals ready to serve you',
-    vit_hero_btn:    '🔍 Discover on the feed',
-    vit_section_label: 'Verified professionals',
-    vit_hscroll_label: 'Other professionals',
-    vit_nav_accueil: 'Home',
-    vit_nav_profil:  'Profile',
-    vit_verified:    '✔ Verified',
-    vit_btn_contact: '💬 Contact',
-    vit_btn_reserver: '📅 Book',
-    vit_btn_suivre:  '➕ Follow',
-    vit_btn_suivi:   '✔ Following',
-    vit_avis:        'reviews',
-    vit_abonnes:     'followers',
-    vit_empty_title: 'No professionals yet',
-    vit_empty_other: 'No other professionals',
-    vit_toast_error_load: '⚠ Loading error',
-    vit_toast_login_required: '🔐 Please log in',
-    vit_toast_follow_success: '✅ You are now following this professional!',
-    vit_toast_error: '⚠ Error',
-    vit_pro_default: 'Professional',
-    vit_pro_short:   'Pro',
-    pv_back:         'Home',
-    pv_visitor_tag:  'Visitor',
-    pv_bio_empty:    'No bio yet…',
-    pv_edit_btn:     'Edit my profile',
-    pv_coords_title: 'Contact details',
-    pv_statuts_title: 'My statuses',
-    pv_statuts_empty: 'You haven\'t posted any status yet.',
-    pv_cta_title:    'Go professional',
-    pv_cta_sub:      'Post content, gain visibility and monetize your skills.',
-    pv_cta_pro:      'Become a professional',
-    pv_logout:       'Log out',
-    pv_modal_title:  'Edit my profile',
-    pv_bio_label:    'BIO',
-    pv_save_btn:     'Save',
-    pv_toast_photo:  '✅ Photo updated!',
-    pv_toast_saved:  '✅ Profile updated!',
-    dp_login_title:    'Welcome back',
-    dp_login_sub:      'Log back in to keep connecting with the best professionals and growing your business, wherever you are in the world.',
-    dp_register_title: 'Join the elite of professionals',
-    dp_register_sub:   'Create your verified profile, show your talent to the world, and start earning income today.',
-    dp_visitor_title:  'Join the community',
-    dp_visitor_sub:    'Contact top professionals, chat with them and follow their work — in seconds, no commitment.',
-    pv_history_title:   'Profile photo history',
-    pv_history_empty:   'No photo changes yet.',
-    pv_history_changed: 'Photo changed on',
-    pv_history_delete_perm: '✕ Permanent',
-    pv_history_delete_temp: '🗑️ 15d',
-    pv_history_restore:     '↩️ Restore',
-    pv_history_deleted_until: 'Permanently deleted on',
-    pv_confirm_delete_perm: 'Delete this photo permanently? This action cannot be undone.',
-    pv_toast_deleted:       '🗑️ Photo permanently deleted.',
-    pv_toast_deleted_temp:  '🗑️ Photo deleted (restorable for 15 days).',
-    pv_toast_restored:      '↩️ Photo restored.',
-    pv_report_title:      'Report this profile',
-    pv_report_fake:        'Fake profile',
-    pv_report_fake_sub:    'Impersonation or fake identity',
-    pv_report_scam:        'Scam or fraud',
-    pv_report_scam_sub:    'Attempted fraud or theft',
-    pv_report_content:     'Inappropriate content',
-    pv_report_content_sub: 'Shocking or offensive photos or text',
-    pv_report_harass:      'Harassment',
-    pv_report_harass_sub:  'Abusive behavior toward clients',
-    pv_report_other:       'Other reason',
-    pv_report_other_sub:   'General report',
-    pv_report_cancel:      'Cancel',
-    pv_report_sent:        '✅ Report sent, thank you.',
-    pv_share_copied:       '🔗 Link copied!',
-  },
+<div class="panels-container" id="panelsContainer"><div class="panels-track" id="panelsTrack">
 
-  ES: {
-    nav_login:       'Iniciar sesión',
-    nav_join:        'Unirse',
-    badge:           'Profesionales verificados · 47+ países',
-    hero_line1:      'Los mejores profesionales',
-    hero_line2:      'del mundo, aquí.',
-    hero_sub:        'Abogados, electricistas, costureras, consultores, desarrolladores — cada perfil verificado, cada talento certificado. Encuentra, contacta, colabora.',
-    btn_start:       'Comenzar gratis →',
-    btn_explore:     '▶ Explorar el feed',
-    stat_pros:       'Profesionales',
-    stat_countries:  'Países',
-    stat_verified:   'Verificados',
-    scroll_hint:     'Desplazar',
-    sec_label_pros:  'Talentos de élite',
-    sec_title_pros:  'Profesionales que<br>marcan la diferencia',
-    sec_sub_pros:    'Cada perfil validado por nuestro equipo. Título, experiencia, portafolio — cero compromisos.',
-    btn_see_all:     'Ver todos los profesionales →',
-    verified:        'Verificado',
-    sec_label_mono:  '💰 Monetización',
-    sec_title_mono:  'Tu experiencia<br>genera ingresos',
-    sec_sub_mono:    'ArtiRoyce remunera a los profesionales que comparten su experiencia. Cada vista, cada interacción cuenta — y se convierte en dinero real en tu bolsillo.',
-    mono_title:      'Gana con tu <span>contenido</span> en ArtiRoyce',
-    mono_desc:       'Publica tus videos, comparte tus trabajos, muestra tu talento. Una vez que tus vistas y me gusta alcancen los umbrales de ArtiRoyce, comenzarás a ganar — automáticamente, sin complicaciones.',
-    tp_views:        'vistas',
-    tp_likes:        'me gusta',
-    tp_badge:        'insignia',
-    tp_withdraw:     'desde $5',
-    tp_elite:        'Élite',
-    tp_withdraw_lbl: 'Retiro',
-    gain1_title:     'Por video popular',
-    gain1_desc:      'Un video viral puede generar hasta',
-    gain2_title:     'Ingresos mensuales',
-    gain2_desc:      'Un perfil activo puede generar cada mes',
-    gain3_title:     'Insignia Élite',
-    gain3_desc:      'Los perfiles Élite obtienen un bono de visibilidad de',
-    gain4_title:     'Retiro mundial',
-    gain4_desc:      'Retira en tu país con los métodos locales disponibles',
-    gain4_amount:    'En cualquier lugar',
-    sec_label_how:   'Simple y rápido',
-    sec_title_how:   'En 3 pasos,<br>listo',
-    step1_title:     'Explora el feed',
-    step1_desc:      'Videos de presentación, portafolios, reseñas — juzga por ti mismo antes de cualquier contacto.',
-    step2_title:     'Contacta al profesional',
-    step2_desc:      'Mensaje directo, llamada o comentario — sin intermediarios, inmediatamente.',
-    step3_title:     'Misión cumplida',
-    step3_desc:      'Evalúa, recomienda y construye una relación profesional duradera.',
-    cta_title:       '¿Listo para unirte a ArtiRoyce?',
-    cta_sub:         'Profesional o cliente — tu lugar está aquí.<br>Registro gratuito · Monetización real · Retiro en todo el mundo.',
-    btn_register:    'Me registro →',
-    btn_member:      'Ya soy miembro',
-    footer_rights:   '© 2024 ArtiRoyce — Todos los derechos reservados',
-    footer_privacy:  'Privacidad',
-    footer_terms:    'Términos',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Inicio',
-    reg_pro_title:   'Registro',
-    reg_pro_subtitle: 'Crea tu cuenta profesional y comienza a ganar dinero hoy mismo',
-    reg_visitor_title: 'Registro de Visitante',
-    reg_visitor_subtitle: 'Crea tu cuenta de visitante para contactar, conversar y seguir a los profesionales de ArtiRoyce',
-    pill_professional: '👔 Página profesional',
-    pill_visitor:    '👤 Página de visitantes',
-    hint_to_visitor: '¿Visitante? Crea una cuenta simplificada',
-    hint_to_pro:     '¿Profesional? Crea una cuenta verificada',
-    kyc_info_html:   '<strong>Profesionales:</strong> tu perfil será <strong>verificado por nuestro equipo</strong> antes de ser visible. Enviarás tu KYC después de iniciar sesión.',
-    visitor_info_html: '<strong>Visitante:</strong> puedes contactar y llamar a los profesionales, comentar (identificado como <strong>Visitante</strong>), chatear y publicar estados. No puedes publicar videos ni publicar en el feed de noticias, salvo modificar tu <strong>foto de perfil</strong> y tu <strong>biografía</strong> (limitada en caracteres).',
-    label_nom:       'APELLIDO',
-    label_prenom:    'NOMBRE(S)',
-    label_email:     'CORREO ELECTRÓNICO',
-    label_tel:       'NÚMERO DE TELÉFONO',
-    label_password:  'CONTRASEÑA',
-    label_password2: 'CONFIRMAR CONTRASEÑA',
-    btn_create_account: 'CREAR MI CUENTA &nbsp;→',
-    reg_have_account: '¿Ya tienes una cuenta?',
-    reg_login_link:  'Iniciar sesión',
-    js_err_nom:      '⚠ Apellido inválido.',
-    js_err_prenom:   '⚠ Nombre inválido.',
-    js_err_email:    '⚠ Correo inválido.',
-    js_err_tel:      '⚠ Número inválido.',
-    js_err_password: '⚠ Mínimo 8 caracteres.',
-    js_err_password2: '⚠ Las contraseñas no coinciden.',
-    js_err_fix:      '⚠ Corrige los errores.',
-    js_creating:     'Creando cuenta…',
-    js_toast_success_pro: '✅ ¡Cuenta creada! Inicia sesión ahora.',
-    js_toast_success_visitor: '✅ ¡Cuenta de visitante creada! Inicia sesión ahora.',
-    js_toast_email_used: '⚠ Este correo ya está en uso.',
-    js_toast_error_prefix: '⚠ Error: ',
-    js_strength_weak: '⚠ Muy débil',
-    js_strength_medium: '😐 Medio',
-    js_strength_good: '👍 Bueno',
-    js_strength_strong: '🔒 Muy fuerte',
-    js_err_weak_password: 'Contraseña demasiado débil.',
-    js_err_network:  'Problema de conexión a internet.',
-    js_err_too_many: 'Demasiados intentos, inténtalo más tarde.',
-    js_err_invalid_email: 'Dirección de correo inválida.',
-    js_err_user_disabled: 'Esta cuenta ha sido deshabilitada.',
-    login_title:     'Iniciar sesión',
-    login_subtitle:  'Vuelve a conectarte y sigue <strong style="color:#27a945">haciendo crecer tu actividad</strong> — tus próximos clientes y fans te esperan.',
-    login_label_email: 'CORREO / TELÉFONO',
-    login_forgot:    '¿Olvidaste tu contraseña?',
-    login_btn:       'INICIAR SESIÓN &nbsp;→',
-    login_no_account: '¿Aún no tienes una cuenta?',
-    login_signup_link: 'Regístrate',
-    login_err_email_required: '⚠ Ingresa tu correo electrónico.',
-    login_err_email_format: '⚠ Formato de correo inválido.',
-    login_err_password_required: '⚠ Ingresa tu contraseña.',
-    login_err_password_length: '⚠ La contraseña debe tener al menos 6 caracteres.',
-    login_connecting: 'Iniciando sesión…',
-    login_toast_success: '✅ ¡Inicio de sesión exitoso! Bienvenido.',
-    login_toast_pending: '⏳ Cuenta pendiente — accediendo a tu perfil.',
-    login_err_credentials: '⚠ Correo o contraseña incorrectos.',
-    vit_chip_all:    '⭐ Todos',
-    vit_chip_macon:  '🧱 Albañil',
-    vit_chip_elec:   '⚡ Electricista',
-    vit_chip_plomb:  '🚿 Fontanero',
-    vit_chip_peintre: '🎨 Pintor',
-    vit_chip_menuisier: '🪵 Carpintero',
-    vit_chip_coiffeur: '✂️ Peluquero',
-    vit_chip_couturier: '🧵 Costurero',
-    vit_chip_cuisinier: '👨‍🍳 Cocinero',
-    vit_chip_mecanicien: '🔧 Mecánico',
-    vit_hero_tag:    '✨ Profesionales verificados',
-    vit_hero_title:  'Encuentra al profesional<br><em>que necesitas</em>',
-    vit_hero_sub:    'Cientos de profesionales verificados listos para atenderte',
-    vit_hero_btn:    '🔍 Descubrir en el feed',
-    vit_section_label: 'Profesionales verificados',
-    vit_hscroll_label: 'Otros profesionales',
-    vit_nav_accueil: 'Inicio',
-    vit_nav_profil:  'Perfil',
-    vit_verified:    '✔ Verificado',
-    vit_btn_contact: '💬 Contactar',
-    vit_btn_reserver: '📅 Reservar',
-    vit_btn_suivre:  '➕ Seguir',
-    vit_btn_suivi:   '✔ Siguiendo',
-    vit_avis:        'reseñas',
-    vit_abonnes:     'seguidores',
-    vit_empty_title: 'Aún no hay profesionales',
-    vit_empty_other: 'No hay otros profesionales',
-    vit_toast_error_load: '⚠ Error de carga',
-    vit_toast_login_required: '🔐 Inicia sesión',
-    vit_toast_follow_success: '✅ ¡Ahora sigues a este profesional!',
-    vit_toast_error: '⚠ Error',
-    vit_pro_default: 'Profesional',
-    vit_pro_short:   'Pro',
-    pv_back:         'Inicio',
-    pv_visitor_tag:  'Visitante',
-    pv_bio_empty:    'Sin biografía por el momento…',
-    pv_edit_btn:     'Editar mi perfil',
-    pv_coords_title: 'Datos de contacto',
-    pv_statuts_title: 'Mis estados',
-    pv_statuts_empty: 'Aún no has publicado ningún estado.',
-    pv_cta_title:    'Hazte profesional',
-    pv_cta_sub:      'Publica contenido, gana visibilidad y monetiza tu experiencia.',
-    pv_cta_pro:      'Convertirme en profesional',
-    pv_logout:       'Cerrar sesión',
-    pv_modal_title:  'Editar mi perfil',
-    pv_bio_label:    'BIO',
-    pv_save_btn:     'Guardar',
-    pv_toast_photo:  '✅ ¡Foto actualizada!',
-    pv_toast_saved:  '✅ ¡Perfil actualizado!',
-    dp_login_title:    'Bienvenido de nuevo',
-    dp_login_sub:      'Vuelve a conectarte para seguir en contacto con los mejores profesionales y hacer crecer tu actividad, estés donde estés.',
-    dp_register_title: 'Únete a la élite de profesionales',
-    dp_register_sub:   'Crea tu perfil verificado, muestra tu talento al mundo y empieza a generar ingresos desde hoy.',
-    dp_visitor_title:  'Únete a la comunidad',
-    dp_visitor_sub:    'Contacta a los mejores profesionales, conversa y sigue su trabajo — en segundos, sin compromiso.',
-    pv_history_title:   'Historial de fotos de perfil',
-    pv_history_empty:   'Sin cambios de foto por el momento.',
-    pv_history_changed: 'Foto cambiada el',
-    pv_history_delete_perm: '✕ Definitivo',
-    pv_history_delete_temp: '🗑️ 15d',
-    pv_history_restore:     '↩️ Restaurar',
-    pv_history_deleted_until: 'Eliminación definitiva el',
-    pv_confirm_delete_perm: '¿Eliminar esta foto definitivamente? Esta acción no se puede deshacer.',
-    pv_toast_deleted:       '🗑️ Foto eliminada definitivamente.',
-    pv_toast_deleted_temp:  '🗑️ Foto eliminada (restaurable por 15 días).',
-    pv_toast_restored:      '↩️ Foto restaurada.',
-    pv_report_title:      'Denunciar este perfil',
-    pv_report_fake:        'Perfil falso',
-    pv_report_fake_sub:    'Suplantación o identidad falsa',
-    pv_report_scam:        'Estafa o fraude',
-    pv_report_scam_sub:    'Intento de fraude o robo de dinero',
-    pv_report_content:     'Contenido inapropiado',
-    pv_report_content_sub: 'Fotos o textos impactantes u ofensivos',
-    pv_report_harass:      'Acoso',
-    pv_report_harass_sub:  'Comportamiento abusivo hacia clientes',
-    pv_report_other:       'Otro motivo',
-    pv_report_other_sub:   'Denuncia general',
-    pv_report_cancel:      'Cancelar',
-    pv_report_sent:        '✅ Denuncia enviada, gracias.',
-    pv_share_copied:       '🔗 ¡Enlace copiado!',
-  },
+  <!-- PANEL 0 : Accueil feed -->
+  <div class="panel-slide" id="panel-0">
+    <div class="feed-wrap" id="feedW">
+      <div id="hSpacer"></div>
+    </div>
+  </div>
 
-  PT: {
-    nav_login:       'Entrar',
-    nav_join:        'Juntar-se',
-    badge:           'Profissionais verificados · 47+ países',
-    hero_line1:      'Os melhores profissionais',
-    hero_line2:      'do mundo, aqui.',
-    hero_sub:        'Advogados, eletricistas, costureiras, consultores, desenvolvedores — cada perfil verificado, cada talento certificado. Encontre, contacte, colabore.',
-    btn_start:       'Começar gratuitamente →',
-    btn_explore:     '▶ Explorar o feed',
-    stat_pros:       'Profissionais',
-    stat_countries:  'Países',
-    stat_verified:   'Verificados',
-    scroll_hint:     'Rolar',
-    sec_label_pros:  'Talentos de elite',
-    sec_title_pros:  'Profissionais que<br>fazem a diferença',
-    sec_sub_pros:    'Cada perfil validado pela nossa equipe. Diploma, experiência, portfólio — zero compromissos.',
-    btn_see_all:     'Ver todos os profissionais →',
-    verified:        'Verificado',
-    sec_label_mono:  '💰 Monetização',
-    sec_title_mono:  'Sua expertise<br>gera receita',
-    sec_sub_mono:    'ArtiRoyce remunera os profissionais que compartilham seu know-how. Cada visualização, cada interação conta — e se transforma em dinheiro real no seu bolso.',
-    mono_title:      'Ganhe com seu <span>conteúdo</span> no ArtiRoyce',
-    mono_desc:       'Publique seus vídeos, compartilhe seus trabalhos, mostre seu talento. Assim que suas visualizações e curtidas atingirem os limites do ArtiRoyce, você começa a receber seus ganhos — automaticamente, sem complicações.',
-    tp_views:        'visualizações',
-    tp_likes:        'curtidas',
-    tp_badge:        'emblema',
-    tp_withdraw:     'a partir de $5',
-    tp_elite:        'Elite',
-    tp_withdraw_lbl: 'Saque',
-    gain1_title:     'Por vídeo popular',
-    gain1_desc:      'Um vídeo viral pode render até',
-    gain2_title:     'Renda mensal',
-    gain2_desc:      'Um perfil ativo pode gerar por mês',
-    gain3_title:     'Emblema Elite',
-    gain3_desc:      'Perfis Elite têm bônus de visibilidade de',
-    gain4_title:     'Saque mundial',
-    gain4_desc:      'Saque no seu país com os meios locais disponíveis',
-    gain4_amount:    'Em qualquer lugar',
-    sec_label_how:   'Simples e rápido',
-    sec_title_how:   'Em 3 etapas,<br>está feito',
-    step1_title:     'Navegue pelo feed',
-    step1_desc:      'Vídeos de apresentação, portfólios, avaliações — julgue por si mesmo antes de qualquer contato.',
-    step2_title:     'Contacte o profissional',
-    step2_desc:      'Mensagem direta, ligação ou comentário — sem intermediários, imediatamente.',
-    step3_title:     'Missão cumprida',
-    step3_desc:      'Avalie, recomende e construa um relacionamento profissional duradouro.',
-    cta_title:       'Pronto para se juntar ao ArtiRoyce?',
-    cta_sub:         'Profissional ou cliente — seu lugar está aqui.<br>Cadastro gratuito · Monetização real · Saque em todo o mundo.',
-    btn_register:    'Cadastrar-me →',
-    btn_member:      'Já sou membro',
-    footer_rights:   '© 2024 ArtiRoyce — Todos os direitos reservados',
-    footer_privacy:  'Privacidade',
-    footer_terms:    'Termos',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Início',
-    reg_pro_title:   'Inscrição',
-    reg_pro_subtitle: 'Crie sua conta profissional e comece a ganhar dinheiro hoje mesmo',
-    reg_visitor_title: 'Inscrição de Visitante',
-    reg_visitor_subtitle: 'Crie sua conta de visitante para contatar, conversar e seguir os profissionais da ArtiRoyce',
-    pill_professional: '👔 Página profissional',
-    pill_visitor:    '👤 Página de visitantes',
-    hint_to_visitor: 'Visitante? Crie uma conta simplificada',
-    hint_to_pro:     'Profissional? Crie uma conta verificada',
-    kyc_info_html:   '<strong>Profissionais:</strong> seu perfil será <strong>verificado pela nossa equipe</strong> antes de ficar visível. Você enviará seu KYC após o login.',
-    visitor_info_html: '<strong>Visitante:</strong> você pode contatar e ligar para profissionais, comentar (identificado como <strong>Visitante</strong>), conversar e publicar status. Você não pode publicar vídeos nem publicar no feed de notícias, exceto para atualizar sua <strong>foto de perfil</strong> e sua <strong>bio</strong> (limitada em caracteres).',
-    label_nom:       'SOBRENOME',
-    label_prenom:    'NOME(S)',
-    label_email:     'E-MAIL',
-    label_tel:       'NÚMERO DE TELEFONE',
-    label_password:  'SENHA',
-    label_password2: 'CONFIRMAR SENHA',
-    btn_create_account: 'CRIAR MINHA CONTA &nbsp;→',
-    reg_have_account: 'Já tem uma conta?',
-    reg_login_link:  'Entrar',
-    js_err_nom:      '⚠ Sobrenome inválido.',
-    js_err_prenom:   '⚠ Nome inválido.',
-    js_err_email:    '⚠ E-mail inválido.',
-    js_err_tel:      '⚠ Número inválido.',
-    js_err_password: '⚠ Mínimo 8 caracteres.',
-    js_err_password2: '⚠ As senhas não coincidem.',
-    js_err_fix:      '⚠ Corrija os erros.',
-    js_creating:     'Criando conta…',
-    js_toast_success_pro: '✅ Conta criada! Faça login agora.',
-    js_toast_success_visitor: '✅ Conta de visitante criada! Faça login agora.',
-    js_toast_email_used: '⚠ Este e-mail já está em uso.',
-    js_toast_error_prefix: '⚠ Erro: ',
-    js_strength_weak: '⚠ Muito fraca',
-    js_strength_medium: '😐 Média',
-    js_strength_good: '👍 Boa',
-    js_strength_strong: '🔒 Muito forte',
-    js_err_weak_password: 'Senha muito fraca.',
-    js_err_network:  'Problema de conexão com a internet.',
-    js_err_too_many: 'Muitas tentativas, tente novamente mais tarde.',
-    js_err_invalid_email: 'Endereço de e-mail inválido.',
-    js_err_user_disabled: 'Esta conta foi desativada.',
-    login_title:     'Entrar',
-    login_subtitle:  'Reconecte-se e continue <strong style="color:#27a945">desenvolvendo sua atividade</strong> — seus próximos clientes e fãs estão esperando.',
-    login_label_email: 'E-MAIL / TELEFONE',
-    login_forgot:    'Esqueceu a senha?',
-    login_btn:       'ENTRAR &nbsp;→',
-    login_no_account: 'Ainda não tem uma conta?',
-    login_signup_link: 'Cadastre-se',
-    login_err_email_required: '⚠ Digite seu e-mail.',
-    login_err_email_format: '⚠ Formato de e-mail inválido.',
-    login_err_password_required: '⚠ Digite sua senha.',
-    login_err_password_length: '⚠ A senha deve ter pelo menos 6 caracteres.',
-    login_connecting: 'Entrando…',
-    login_toast_success: '✅ Login realizado! Bem-vindo.',
-    login_toast_pending: '⏳ Conta pendente — acessando seu perfil.',
-    login_err_credentials: '⚠ E-mail ou senha incorretos.',
-    vit_chip_all:    '⭐ Todos',
-    vit_chip_macon:  '🧱 Pedreiro',
-    vit_chip_elec:   '⚡ Eletricista',
-    vit_chip_plomb:  '🚿 Encanador',
-    vit_chip_peintre: '🎨 Pintor',
-    vit_chip_menuisier: '🪵 Marceneiro',
-    vit_chip_coiffeur: '✂️ Cabeleireiro',
-    vit_chip_couturier: '🧵 Costureiro',
-    vit_chip_cuisinier: '👨‍🍳 Cozinheiro',
-    vit_chip_mecanicien: '🔧 Mecânico',
-    vit_hero_tag:    '✨ Profissionais verificados',
-    vit_hero_title:  'Encontre o profissional<br><em>que você precisa</em>',
-    vit_hero_sub:    'Centenas de profissionais verificados prontos para atendê-lo',
-    vit_hero_btn:    '🔍 Descobrir no feed',
-    vit_section_label: 'Profissionais verificados',
-    vit_hscroll_label: 'Outros profissionais',
-    vit_nav_accueil: 'Início',
-    vit_nav_profil:  'Perfil',
-    vit_verified:    '✔ Verificado',
-    vit_btn_contact: '💬 Contatar',
-    vit_btn_reserver: '📅 Reservar',
-    vit_btn_suivre:  '➕ Seguir',
-    vit_btn_suivi:   '✔ Seguindo',
-    vit_avis:        'avaliações',
-    vit_abonnes:     'seguidores',
-    vit_empty_title: 'Nenhum profissional no momento',
-    vit_empty_other: 'Nenhum outro profissional',
-    vit_toast_error_load: '⚠ Erro ao carregar',
-    vit_toast_login_required: '🔐 Faça login',
-    vit_toast_follow_success: '✅ Você está seguindo este profissional!',
-    vit_toast_error: '⚠ Erro',
-    vit_pro_default: 'Profissional',
-    vit_pro_short:   'Pro',
-    pv_back:         'Início',
-    pv_visitor_tag:  'Visitante',
-    pv_bio_empty:    'Nenhuma bio no momento…',
-    pv_edit_btn:     'Editar meu perfil',
-    pv_coords_title: 'Contatos',
-    pv_statuts_title: 'Meus status',
-    pv_statuts_empty: 'Você ainda não publicou nenhum status.',
-    pv_cta_title:    'Torne-se profissional',
-    pv_cta_sub:      'Publique conteúdo, ganhe visibilidade e monetize seu talento.',
-    pv_cta_pro:      'Tornar-me profissional',
-    pv_logout:       'Sair',
-    pv_modal_title:  'Editar meu perfil',
-    pv_bio_label:    'BIO',
-    pv_save_btn:     'Salvar',
-    pv_toast_photo:  '✅ Foto atualizada!',
-    pv_toast_saved:  '✅ Perfil atualizado!',
-    dp_login_title:    'Bem-vindo de volta',
-    dp_login_sub:      'Reconecte-se para continuar em contato com os melhores profissionais e desenvolver sua atividade, onde quer que você esteja.',
-    dp_register_title: 'Junte-se à elite dos profissionais',
-    dp_register_sub:   'Crie seu perfil verificado, mostre seu talento ao mundo e comece a gerar renda hoje mesmo.',
-    dp_visitor_title:  'Junte-se à comunidade',
-    dp_visitor_sub:    'Contate os melhores profissionais, converse e acompanhe seu trabalho — em segundos, sem compromisso.',
-    pv_history_title:   'Histórico de fotos de perfil',
-    pv_history_empty:   'Nenhuma alteração de foto ainda.',
-    pv_history_changed: 'Foto alterada em',
-    pv_history_delete_perm: '✕ Definitivo',
-    pv_history_delete_temp: '🗑️ 15d',
-    pv_history_restore:     '↩️ Restaurar',
-    pv_history_deleted_until: 'Exclusão definitiva em',
-    pv_confirm_delete_perm: 'Excluir esta foto definitivamente? Esta ação não pode ser desfeita.',
-    pv_toast_deleted:       '🗑️ Foto excluída definitivamente.',
-    pv_toast_deleted_temp:  '🗑️ Foto excluída (restaurável por 15 dias).',
-    pv_toast_restored:      '↩️ Foto restaurada.',
-    pv_report_title:      'Denunciar este perfil',
-    pv_report_fake:        'Perfil falso',
-    pv_report_fake_sub:    'Personificação ou identidade falsa',
-    pv_report_scam:        'Golpe ou fraude',
-    pv_report_scam_sub:    'Tentativa de fraude ou roubo de dinheiro',
-    pv_report_content:     'Conteúdo inadequado',
-    pv_report_content_sub: 'Fotos ou textos chocantes ou ofensivos',
-    pv_report_harass:      'Assédio',
-    pv_report_harass_sub:  'Comportamento abusivo com clientes',
-    pv_report_other:       'Outro motivo',
-    pv_report_other_sub:   'Denúncia geral',
-    pv_report_cancel:      'Cancelar',
-    pv_report_sent:        '✅ Denúncia enviada, obrigado.',
-    pv_share_copied:       '🔗 Link copiado!',
-  },
+  <!-- PANEL 1 : Actualités (tab 1) -->
+  <div class="panel-slide" id="panel-1" style="position:relative;">
+    <iframe src="actualite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="actuFrame"></iframe>
+    <div id="swipeLeftAc" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightAc" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-  AR: {
-    nav_login:       'تسجيل الدخول',
-    nav_join:        'انضم',
-    badge:           'محترفون موثقون · أكثر من 47 دولة',
-    hero_line1:      'أفضل المحترفين',
-    hero_line2:      'في العالم، هنا.',
-    hero_sub:        'محامون، كهربائيون، خياطون، مستشارون، مطورون — كل ملف موثق، كل موهبة معتمدة. ابحث، تواصل، تعاون.',
-    btn_start:       'ابدأ مجاناً ←',
-    btn_explore:     '▶ استكشف الخلاصة',
-    stat_pros:       'محترفون',
-    stat_countries:  'دول',
-    stat_verified:   'موثقون',
-    scroll_hint:     'تمرير',
-    sec_label_pros:  'مواهب النخبة',
-    sec_title_pros:  'محترفون يصنعون<br>الفارق',
-    sec_sub_pros:    'كل ملف تم التحقق منه من قِبل فريقنا. شهادة، خبرة، معرض أعمال — لا تنازلات.',
-    btn_see_all:     'عرض جميع المحترفين ←',
-    verified:        'موثق',
-    sec_label_mono:  '💰 تحقيق الدخل',
-    sec_title_mono:  'خبرتك<br>تولّد دخلاً',
-    sec_sub_mono:    'تكافئ ArtiRoyce المحترفين الذين يشاركون معارفهم. كل مشاهدة، كل تفاعل يُحتسب — ويتحول إلى أموال حقيقية في جيبك.',
-    mono_title:      'اكسب من <span>محتواك</span> على ArtiRoyce',
-    mono_desc:       'انشر مقاطع الفيديو، شارك أعمالك، أظهر موهبتك. بمجرد وصول مشاهداتك وإعجاباتك إلى عتبات ArtiRoyce، ستبدأ في تلقي أرباحك — تلقائياً، بدون تعقيد.',
-    tp_views:        'مشاهدة',
-    tp_likes:        'إعجاب',
-    tp_badge:        'شارة',
-    tp_withdraw:     'من 5$',
-    tp_elite:        'نخبة',
-    tp_withdraw_lbl: 'سحب',
-    gain1_title:     'لكل فيديو شائع',
-    gain1_desc:      'يمكن أن يجلب فيديو فيروسي ما يصل إلى',
-    gain2_title:     'الدخل الشهري',
-    gain2_desc:      'يمكن أن يحقق ملف نشط شهرياً',
-    gain3_title:     'شارة النخبة',
-    gain3_desc:      'تحصل ملفات النخبة على مكافأة رؤية بنسبة',
-    gain4_title:     'سحب عالمي',
-    gain4_desc:      'اسحب في بلدك بالوسائل المحلية المتاحة',
-    gain4_amount:    'في كل مكان',
-    sec_label_how:   'بسيط وسريع',
-    sec_title_how:   'في 3 خطوات،<br>تم الأمر',
-    step1_title:     'تصفح الخلاصة',
-    step1_desc:      'مقاطع فيديو تعريفية، معارض أعمال، تقييمات — احكم بنفسك قبل أي تواصل.',
-    step2_title:     'تواصل مع المحترف',
-    step2_desc:      'رسالة مباشرة، مكالمة، أو تعليق — بدون وسيط، فوراً.',
-    step3_title:     'المهمة مكتملة',
-    step3_desc:      'قيّم، أوصِ، وابنِ علاقة مهنية دائمة.',
-    cta_title:       'هل أنت مستعد للانضمام إلى ArtiRoyce؟',
-    cta_sub:         'محترف أو عميل — مكانك هنا.<br>تسجيل مجاني · تحقيق دخل حقيقي · سحب في كل مكان.',
-    btn_register:    'أسجّل ←',
-    btn_member:      'أنا عضو بالفعل',
-    footer_rights:   '© 2024 ArtiRoyce — جميع الحقوق محفوظة',
-    footer_privacy:  'الخصوصية',
-    footer_terms:    'الشروط',
-    footer_faq:      'FAQ',
-    reg_back_home:   'الرئيسية',
-    reg_pro_title:   'التسجيل',
-    reg_pro_subtitle: 'أنشئ حسابك المهني وابدأ في كسب المال اليوم',
-    reg_visitor_title: 'تسجيل الزائر',
-    reg_visitor_subtitle: 'أنشئ حساب زائر للتواصل والدردشة ومتابعة محترفي ArtiRoyce',
-    pill_professional: '👔 صفحة المحترفين',
-    pill_visitor:    '👤 صفحة الزوار',
-    hint_to_visitor: 'زائر؟ أنشئ حساباً مبسطاً',
-    hint_to_pro:     'محترف؟ أنشئ حساباً موثقاً',
-    kyc_info_html:   '<strong>المحترفون:</strong> سيتم <strong>التحقق من ملفك الشخصي من قبل فريقنا</strong> قبل أن يصبح مرئياً. ستقوم بإرسال KYC بعد تسجيل الدخول.',
-    visitor_info_html: '<strong>الزائر:</strong> يمكنك التواصل والاتصال بالمحترفين، والتعليق (بصفتك <strong>زائر</strong>)، والدردشة، ونشر الحالات. لا يمكنك نشر مقاطع فيديو أو النشر في آخر الأخبار، باستثناء تعديل <strong>صورة ملفك الشخصي</strong> و<strong>سيرتك الذاتية</strong> (محدودة الأحرف).',
-    label_nom:       'الاسم العائلي',
-    label_prenom:    'الاسم (الأسماء)',
-    label_email:     'البريد الإلكتروني',
-    label_tel:       'رقم الهاتف',
-    label_password:  'كلمة المرور',
-    label_password2: 'تأكيد كلمة المرور',
-    btn_create_account: 'إنشاء حسابي &nbsp;←',
-    reg_have_account: 'لديك حساب بالفعل؟',
-    reg_login_link:  'تسجيل الدخول',
-    js_err_nom:      '⚠ اسم عائلة غير صالح.',
-    js_err_prenom:   '⚠ اسم غير صالح.',
-    js_err_email:    '⚠ بريد إلكتروني غير صالح.',
-    js_err_tel:      '⚠ رقم هاتف غير صالح.',
-    js_err_password: '⚠ 8 أحرف كحد أدنى.',
-    js_err_password2: '⚠ كلمتا المرور غير متطابقتين.',
-    js_err_fix:      '⚠ صحّح الأخطاء.',
-    js_creating:     'جارٍ إنشاء الحساب…',
-    js_toast_success_pro: '✅ تم إنشاء الحساب! سجّل الدخول الآن.',
-    js_toast_success_visitor: '✅ تم إنشاء حساب الزائر! سجّل الدخول الآن.',
-    js_toast_email_used: '⚠ هذا البريد الإلكتروني مستخدم بالفعل.',
-    js_toast_error_prefix: '⚠ خطأ: ',
-    js_strength_weak: '⚠ ضعيف جداً',
-    js_strength_medium: '😐 متوسط',
-    js_strength_good: '👍 جيد',
-    js_strength_strong: '🔒 قوي جداً',
-    js_err_weak_password: 'كلمة المرور ضعيفة جداً.',
-    js_err_network:  'مشكلة في الاتصال بالإنترنت.',
-    js_err_too_many: 'محاولات كثيرة جداً، حاول لاحقاً.',
-    js_err_invalid_email: 'عنوان بريد إلكتروني غير صالح.',
-    js_err_user_disabled: 'تم تعطيل هذا الحساب.',
-    login_title:     'تسجيل الدخول',
-    login_subtitle:  'أعد الاتصال واستمر في <strong style="color:#27a945">تطوير نشاطك</strong> — عملاؤك ومعجبوك القادمون في انتظارك.',
-    login_label_email: 'البريد الإلكتروني / الهاتف',
-    login_forgot:    'نسيت كلمة المرور؟',
-    login_btn:       'تسجيل الدخول &nbsp;←',
-    login_no_account: 'ليس لديك حساب بعد؟',
-    login_signup_link: 'سجّل الآن',
-    login_err_email_required: '⚠ يرجى إدخال بريدك الإلكتروني.',
-    login_err_email_format: '⚠ صيغة بريد إلكتروني غير صالحة.',
-    login_err_password_required: '⚠ يرجى إدخال كلمة المرور.',
-    login_err_password_length: '⚠ يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.',
-    login_connecting: 'جارٍ تسجيل الدخول…',
-    login_toast_success: '✅ تم تسجيل الدخول بنجاح! مرحباً بك.',
-    login_toast_pending: '⏳ الحساب قيد الانتظار — جارٍ الوصول إلى ملفك الشخصي.',
-    login_err_credentials: '⚠ البريد الإلكتروني أو كلمة المرور غير صحيحة.',
-    vit_chip_all:    '⭐ الكل',
-    vit_chip_macon:  '🧱 بنّاء',
-    vit_chip_elec:   '⚡ كهربائي',
-    vit_chip_plomb:  '🚿 سبّاك',
-    vit_chip_peintre: '🎨 دهّان',
-    vit_chip_menuisier: '🪵 نجّار',
-    vit_chip_coiffeur: '✂️ حلّاق',
-    vit_chip_couturier: '🧵 خيّاط',
-    vit_chip_cuisinier: '👨‍🍳 طبّاخ',
-    vit_chip_mecanicien: '🔧 ميكانيكي',
-    vit_hero_tag:    '✨ محترفون موثّقون',
-    vit_hero_title:  'اعثر على المحترف<br><em>الذي تحتاجه</em>',
-    vit_hero_sub:    'مئات المحترفين الموثّقين جاهزون لخدمتك',
-    vit_hero_btn:    '🔍 اكتشف على الخلاصة',
-    vit_section_label: 'محترفون موثّقون',
-    vit_hscroll_label: 'محترفون آخرون',
-    vit_nav_accueil: 'الرئيسية',
-    vit_nav_profil:  'الملف الشخصي',
-    vit_verified:    '✔ موثّق',
-    vit_btn_contact: '💬 تواصل',
-    vit_btn_reserver: '📅 احجز',
-    vit_btn_suivre:  '➕ متابعة',
-    vit_btn_suivi:   '✔ متابَع',
-    vit_avis:        'تقييمات',
-    vit_abonnes:     'متابعين',
-    vit_empty_title: 'لا يوجد محترفون حالياً',
-    vit_empty_other: 'لا يوجد محترفون آخرون',
-    vit_toast_error_load: '⚠ خطأ في التحميل',
-    vit_toast_login_required: '🔐 يرجى تسجيل الدخول',
-    vit_toast_follow_success: '✅ أنت الآن تتابع هذا المحترف!',
-    vit_toast_error: '⚠ خطأ',
-    vit_pro_default: 'محترف',
-    vit_pro_short:   'محترف',
-    pv_back:         'الرئيسية',
-    pv_visitor_tag:  'زائر',
-    pv_bio_empty:    'لا توجد سيرة ذاتية حالياً…',
-    pv_edit_btn:     'تعديل ملفي الشخصي',
-    pv_coords_title: 'معلومات الاتصال',
-    pv_statuts_title: 'حالاتي',
-    pv_statuts_empty: 'لم تنشر أي حالة بعد.',
-    pv_cta_title:    'كن محترفاً',
-    pv_cta_sub:      'انشر المحتوى، اكتسب ظهوراً واحصل على دخل من مهاراتك.',
-    pv_cta_pro:      'أصبح محترفاً',
-    pv_logout:       'تسجيل الخروج',
-    pv_modal_title:  'تعديل ملفي الشخصي',
-    pv_bio_label:    'السيرة الذاتية',
-    pv_save_btn:     'حفظ',
-    pv_toast_photo:  '✅ تم تحديث الصورة!',
-    pv_toast_saved:  '✅ تم تحديث الملف الشخصي!',
-    dp_login_title:    'سعداء بعودتك',
-    dp_login_sub:      'أعد تسجيل الدخول لمواصلة التواصل مع أفضل المحترفين وتطوير نشاطك، أينما كنت في العالم.',
-    dp_register_title: 'انضم إلى نخبة المحترفين',
-    dp_register_sub:   'أنشئ ملفك الموثق، أظهر موهبتك للعالم وابدأ في تحقيق دخل من اليوم.',
-    dp_visitor_title:  'انضم إلى المجتمع',
-    dp_visitor_sub:    'تواصل مع أفضل المحترفين، تحدث وتابع أعمالهم — في ثوانٍ، دون أي التزام.',
-    pv_history_title:   'سجل صور الملف الشخصي',
-    pv_history_empty:   'لا يوجد تغيير في الصورة حتى الآن.',
-    pv_history_changed: 'تم تغيير الصورة في',
-    pv_history_delete_perm: '✕ نهائي',
-    pv_history_delete_temp: '🗑️ 15 يوم',
-    pv_history_restore:     '↩️ استعادة',
-    pv_history_deleted_until: 'الحذف النهائي في',
-    pv_confirm_delete_perm: 'حذف هذه الصورة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.',
-    pv_toast_deleted:       '🗑️ تم حذف الصورة نهائياً.',
-    pv_toast_deleted_temp:  '🗑️ تم حذف الصورة (قابلة للاستعادة لمدة 15 يوماً).',
-    pv_toast_restored:      '↩️ تم استعادة الصورة.',
-    pv_report_title:      'الإبلاغ عن هذا الملف الشخصي',
-    pv_report_fake:        'ملف شخصي مزيف',
-    pv_report_fake_sub:    'انتحال الشخصية أو هوية مزيفة',
-    pv_report_scam:        'احتيال أو نصب',
-    pv_report_scam_sub:    'محاولة احتيال أو سرقة أموال',
-    pv_report_content:     'محتوى غير لائق',
-    pv_report_content_sub: 'صور أو نصوص صادمة أو مسيئة',
-    pv_report_harass:      'مضايقة',
-    pv_report_harass_sub:  'سلوك مسيء تجاه العملاء',
-    pv_report_other:       'سبب آخر',
-    pv_report_other_sub:   'بلاغ عام',
-    pv_report_cancel:      'إلغاء',
-    pv_report_sent:        '✅ تم إرسال البلاغ، شكراً لك.',
-    pv_share_copied:       '🔗 تم نسخ الرابط!',
-  },
+  <!-- PANEL 2 : Statuts (tab 2) -->
+  <div class="panel-slide" id="panel-2" style="position:relative;">
+    <iframe src="statut_v1.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
+    <div id="swipeLeftSt" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightSt" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-  ZH: {
-    nav_login:       '登录',
-    nav_join:        '加入',
-    badge:           '认证专业人员 · 47+个国家',
-    hero_line1:      '全球最优秀的专业人士',
-    hero_line2:      '就在这里。',
-    hero_sub:        '律师、电工、裁缝、顾问、开发者 — 每个档案均经过验证，每项才能均获认证。寻找、联系、合作。',
-    btn_start:       '免费开始 →',
-    btn_explore:     '▶ 浏览内容',
-    stat_pros:       '专业人士',
-    stat_countries:  '国家',
-    stat_verified:   '已认证',
-    scroll_hint:     '滚动',
-    sec_label_pros:  '精英人才',
-    sec_title_pros:  '让世界不同的<br>专业人士',
-    sec_sub_pros:    '每个档案均由我们的团队验证。学历、经验、作品集 — 零妥协。',
-    btn_see_all:     '查看所有专业人士 →',
-    verified:        '已认证',
-    sec_label_mono:  '💰 变现',
-    sec_title_mono:  '您的专业知识<br>创造收入',
-    sec_sub_mono:    'ArtiRoyce奖励分享专业知识的专业人士。每次观看、每次互动都很重要 — 都会转化为您口袋里的真实收益。',
-    mono_title:      '在ArtiRoyce上通过您的<span>内容</span>赚钱',
-    mono_desc:       '发布您的视频，分享您的作品，展示您的才华。一旦您的观看量和点赞数达到ArtiRoyce的门槛，您就开始获得收益 — 自动完成，无需繁琐手续。',
-    tp_views:        '次观看',
-    tp_likes:        '个点赞',
-    tp_badge:        '徽章',
-    tp_withdraw:     '起提现',
-    tp_elite:        '精英',
-    tp_withdraw_lbl: '提现',
-    gain1_title:     '每个热门视频',
-    gain1_desc:      '一个病毒视频可以赚取高达',
-    gain2_title:     '月收入',
-    gain2_desc:      '活跃账号每月可产生',
-    gain3_title:     '精英徽章',
-    gain3_desc:      '精英档案享受额外可见度奖励',
-    gain4_title:     '全球提现',
-    gain4_desc:      '通过当地可用方式在您的国家提现',
-    gain4_amount:    '全球任意地点',
-    sec_label_how:   '简单快速',
-    sec_title_how:   '3个步骤，<br>搞定',
-    step1_title:     '浏览内容',
-    step1_desc:      '介绍视频、作品集、评论 — 在联系之前自行判断。',
-    step2_title:     '联系专业人士',
-    step2_desc:      '直接消息、电话或评论 — 无中间人，立即响应。',
-    step3_title:     '任务完成',
-    step3_desc:      '评价、推荐，建立持久的专业关系。',
-    cta_title:       '准备好加入ArtiRoyce了吗？',
-    cta_sub:         '专业人士或客户 — 您的位置在这里。<br>免费注册 · 真实变现 · 全球提现。',
-    btn_register:    '立即注册 →',
-    btn_member:      '已是会员',
-    footer_rights:   '© 2024 ArtiRoyce — 版权所有',
-    footer_privacy:  '隐私政策',
-    footer_terms:    '条款',
-    footer_faq:      'FAQ',
-    reg_back_home:   '首页',
-    reg_pro_title:   '注册',
-    reg_pro_subtitle: '创建您的专业账户，今天就开始赚钱',
-    reg_visitor_title: '访客注册',
-    reg_visitor_subtitle: '创建访客账户以联系、交流并关注ArtiRoyce专业人士',
-    pill_professional: '👔 专业人士页面',
-    pill_visitor:    '👤 访客页面',
-    hint_to_visitor: '访客？创建简化账户',
-    hint_to_pro:     '专业人士？创建认证账户',
-    kyc_info_html:   '<strong>专业人士：</strong>您的档案在公开显示前将由<strong>我们的团队进行验证</strong>。登录后您需要提交KYC认证。',
-    visitor_info_html: '<strong>访客：</strong>您可以联系并致电专业人士、发表评论（标识为<strong>访客</strong>）、聊天并发布状态。除更新您的<strong>头像</strong>和<strong>简介</strong>（字数受限）外，您不能发布视频或在动态中发布内容。',
-    label_nom:       '姓氏',
-    label_prenom:    '名字',
-    label_email:     '电子邮箱',
-    label_tel:       '电话号码',
-    label_password:  '密码',
-    label_password2: '确认密码',
-    btn_create_account: '创建我的账户 &nbsp;→',
-    reg_have_account: '已有账户？',
-    reg_login_link:  '登录',
-    js_err_nom:      '⚠ 姓氏无效。',
-    js_err_prenom:   '⚠ 名字无效。',
-    js_err_email:    '⚠ 邮箱无效。',
-    js_err_tel:      '⚠ 电话号码无效。',
-    js_err_password: '⚠ 最少8个字符。',
-    js_err_password2: '⚠ 两次密码不一致。',
-    js_err_fix:      '⚠ 请更正错误。',
-    js_creating:     '正在创建账户…',
-    js_toast_success_pro: '✅ 账户已创建！请立即登录。',
-    js_toast_success_visitor: '✅ 访客账户已创建！请立即登录。',
-    js_toast_email_used: '⚠ 该邮箱已被使用。',
-    js_toast_error_prefix: '⚠ 错误：',
-    js_strength_weak: '⚠ 非常弱',
-    js_strength_medium: '😐 中等',
-    js_strength_good: '👍 良好',
-    js_strength_strong: '🔒 非常强',
-    js_err_weak_password: '密码强度太弱。',
-    js_err_network:  '网络连接问题。',
-    js_err_too_many: '尝试次数过多，请稍后重试。',
-    js_err_invalid_email: '邮箱地址无效。',
-    js_err_user_disabled: '此账户已被禁用。',
-    login_title:     '登录',
-    login_subtitle:  '重新登录，继续<strong style="color:#27a945">发展您的业务</strong> — 您的下一批客户和粉丝正在等待。',
-    login_label_email: '邮箱 / 电话',
-    login_forgot:    '忘记密码？',
-    login_btn:       '登录 &nbsp;→',
-    login_no_account: '还没有账户？',
-    login_signup_link: '立即注册',
-    login_err_email_required: '⚠ 请输入您的邮箱。',
-    login_err_email_format: '⚠ 邮箱格式无效。',
-    login_err_password_required: '⚠ 请输入您的密码。',
-    login_err_password_length: '⚠ 密码至少需要6个字符。',
-    login_connecting: '正在登录…',
-    login_toast_success: '✅ 登录成功！欢迎。',
-    login_toast_pending: '⏳ 账户待审核 — 正在进入您的资料。',
-    login_err_credentials: '⚠ 邮箱或密码不正确。',
-    vit_chip_all:    '⭐ 全部',
-    vit_chip_macon:  '🧱 泥瓦工',
-    vit_chip_elec:   '⚡ 电工',
-    vit_chip_plomb:  '🚿 水管工',
-    vit_chip_peintre: '🎨 油漆工',
-    vit_chip_menuisier: '🪵 木匠',
-    vit_chip_coiffeur: '✂️ 理发师',
-    vit_chip_couturier: '🧵 裁缝',
-    vit_chip_cuisinier: '👨‍🍳 厨师',
-    vit_chip_mecanicien: '🔧 机械师',
-    vit_hero_tag:    '✨ 认证专业人士',
-    vit_hero_title:  '找到您需要的<br><em>专业人士</em>',
-    vit_hero_sub:    '数百位认证专业人士随时为您服务',
-    vit_hero_btn:    '🔍 在动态中探索',
-    vit_section_label: '认证专业人士',
-    vit_hscroll_label: '其他专业人士',
-    vit_nav_accueil: '首页',
-    vit_nav_profil:  '个人资料',
-    vit_verified:    '✔ 已认证',
-    vit_btn_contact: '💬 联系',
-    vit_btn_reserver: '📅 预约',
-    vit_btn_suivre:  '➕ 关注',
-    vit_btn_suivi:   '✔ 已关注',
-    vit_avis:        '评价',
-    vit_abonnes:     '关注者',
-    vit_empty_title: '暂无专业人士',
-    vit_empty_other: '没有其他专业人士',
-    vit_toast_error_load: '⚠ 加载错误',
-    vit_toast_login_required: '🔐 请登录',
-    vit_toast_follow_success: '✅ 您现在关注了该专业人士！',
-    vit_toast_error: '⚠ 错误',
-    vit_pro_default: '专业人士',
-    vit_pro_short:   '专业',
-    pv_back:         '首页',
-    pv_visitor_tag:  '访客',
-    pv_bio_empty:    '暂无简介…',
-    pv_edit_btn:     '编辑我的资料',
-    pv_coords_title: '联系方式',
-    pv_statuts_title: '我的动态',
-    pv_statuts_empty: '您还没有发布任何动态。',
-    pv_cta_title:    '成为专业人士',
-    pv_cta_sub:      '发布内容，提升曝光度，将您的技能变现。',
-    pv_cta_pro:      '成为专业人士',
-    pv_logout:       '退出登录',
-    pv_modal_title:  '编辑我的资料',
-    pv_bio_label:    '简介',
-    pv_save_btn:     '保存',
-    pv_toast_photo:  '✅ 照片已更新！',
-    pv_toast_saved:  '✅ 资料已更新！',
-    dp_login_title:    '欢迎回来',
-    dp_login_sub:      '重新登录，继续与顶尖专业人士联系，无论您身在世界何处都能发展您的业务。',
-    dp_register_title: '加入精英专业人士行列',
-    dp_register_sub:   '创建您的认证档案，向全世界展示您的才华，从今天起开始获得收入。',
-    dp_visitor_title:  '加入社区',
-    dp_visitor_sub:    '联系顶尖专业人士，交流并关注他们的工作 — 只需几秒，无需承诺。',
-    pv_history_title:   '头像更换记录',
-    pv_history_empty:   '暂无头像更换记录。',
-    pv_history_changed: '更换于',
-    pv_history_delete_perm: '✕ 永久删除',
-    pv_history_delete_temp: '🗑️ 15天',
-    pv_history_restore:     '↩️ 恢复',
-    pv_history_deleted_until: '将于以下日期永久删除：',
-    pv_confirm_delete_perm: '永久删除此照片？此操作无法撤销。',
-    pv_toast_deleted:       '🗑️ 照片已永久删除。',
-    pv_toast_deleted_temp:  '🗑️ 照片已删除（15天内可恢复）。',
-    pv_toast_restored:      '↩️ 照片已恢复。',
-    pv_report_title:      '举报此资料',
-    pv_report_fake:        '虚假资料',
-    pv_report_fake_sub:    '冒充他人或虚假身份',
-    pv_report_scam:        '诈骗',
-    pv_report_scam_sub:    '欺诈或盗窃钱财企图',
-    pv_report_content:     '不当内容',
-    pv_report_content_sub: '令人震惊或冒犯的照片或文字',
-    pv_report_harass:      '骚扰',
-    pv_report_harass_sub:  '对客户的辱骂行为',
-    pv_report_other:       '其他原因',
-    pv_report_other_sub:   '一般举报',
-    pv_report_cancel:      '取消',
-    pv_report_sent:        '✅ 举报已发送，谢谢。',
-    pv_share_copied:       '🔗 链接已复制！',
-  },
+  <!-- PANEL 3 : Élites (tab 3) -->
+  <div class="panel-slide" id="panel-3" style="position:relative;">
+    <iframe src="elite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="eliteFrame"></iframe>
+    <div id="swipeLeftEl" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightEl" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-  RU: {
-    nav_login:       'Войти',
-    nav_join:        'Присоединиться',
-    badge:           'Проверенные специалисты · 47+ стран',
-    hero_line1:      'Лучшие профессионалы',
-    hero_line2:      'мира — здесь.',
-    hero_sub:        'Юристы, электрики, портные, консультанты, разработчики — каждый профиль проверен, каждый талант сертифицирован. Найдите, свяжитесь, сотрудничайте.',
-    btn_start:       'Начать бесплатно →',
-    btn_explore:     '▶ Смотреть ленту',
-    stat_pros:       'Специалистов',
-    stat_countries:  'Стран',
-    stat_verified:   'Проверены',
-    scroll_hint:     'Прокрутить',
-    sec_label_pros:  'Элитные таланты',
-    sec_title_pros:  'Профессионалы,<br>меняющие мир',
-    sec_sub_pros:    'Каждый профиль проверен нашей командой. Диплом, опыт, портфолио — никаких компромиссов.',
-    btn_see_all:     'Смотреть всех специалистов →',
-    verified:        'Проверен',
-    sec_label_mono:  '💰 Монетизация',
-    sec_title_mono:  'Ваши знания<br>приносят доход',
-    sec_sub_mono:    'ArtiRoyce вознаграждает профессионалов, делящихся своими знаниями. Каждый просмотр, каждое взаимодействие имеет значение — и превращается в реальные деньги в вашем кармане.',
-    mono_title:      'Зарабатывайте на своём <span>контенте</span> в ArtiRoyce',
-    mono_desc:       'Публикуйте видео, делитесь работами, демонстрируйте талант. Как только ваши просмотры и лайки достигнут порогов ArtiRoyce, вы начнёте получать доход — автоматически, без лишних хлопот.',
-    tp_views:        'просмотров',
-    tp_likes:        'лайков',
-    tp_badge:        'значок',
-    tp_withdraw:     'от 5$',
-    tp_elite:        'Элита',
-    tp_withdraw_lbl: 'Вывод',
-    gain1_title:     'За популярное видео',
-    gain1_desc:      'Вирусное видео может принести до',
-    gain2_title:     'Ежемесячный доход',
-    gain2_desc:      'Активный профиль может приносить каждый месяц',
-    gain3_title:     'Значок Элита',
-    gain3_desc:      'Профили Элита получают бонус видимости',
-    gain4_title:     'Вывод по всему миру',
-    gain4_desc:      'Выводите деньги в своей стране доступными местными способами',
-    gain4_amount:    'Везде',
-    sec_label_how:   'Просто и быстро',
-    sec_title_how:   'За 3 шага —<br>готово',
-    step1_title:     'Просматривайте ленту',
-    step1_desc:      'Видео-презентации, портфолио, отзывы — оцените сами перед любым контактом.',
-    step2_title:     'Свяжитесь с профессионалом',
-    step2_desc:      'Прямое сообщение, звонок или комментарий — без посредников, мгновенно.',
-    step3_title:     'Миссия выполнена',
-    step3_desc:      'Оценивайте, рекомендуйте и стройте долгосрочные профессиональные отношения.',
-    cta_title:       'Готовы присоединиться к ArtiRoyce?',
-    cta_sub:         'Специалист или клиент — ваше место здесь.<br>Бесплатная регистрация · Реальная монетизация · Вывод по всему миру.',
-    btn_register:    'Зарегистрироваться →',
-    btn_member:      'Уже участник',
-    footer_rights:   '© 2024 ArtiRoyce — Все права защищены',
-    footer_privacy:  'Конфиденциальность',
-    footer_terms:    'Условия',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Главная',
-    reg_pro_title:   'Регистрация',
-    reg_pro_subtitle: 'Создайте профессиональный аккаунт и начните зарабатывать уже сегодня',
-    reg_visitor_title: 'Регистрация посетителя',
-    reg_visitor_subtitle: 'Создайте аккаунт посетителя, чтобы связываться, общаться и следить за профессионалами ArtiRoyce',
-    pill_professional: '👔 Страница профессионала',
-    pill_visitor:    '👤 Страница посетителя',
-    hint_to_visitor: 'Посетитель? Создайте упрощённый аккаунт',
-    hint_to_pro:     'Профессионал? Создайте проверенный аккаунт',
-    kyc_info_html:   '<strong>Профессионалы:</strong> ваш профиль будет <strong>проверен нашей командой</strong> перед публикацией. Вы отправите KYC после входа в систему.',
-    visitor_info_html: '<strong>Посетитель:</strong> вы можете связываться и звонить профессионалам, комментировать (с пометкой <strong>Посетитель</strong>), общаться в чате и публиковать статусы. Вы не можете публиковать видео или посты в ленте новостей, за исключением изменения <strong>фото профиля</strong> и <strong>биографии</strong> (ограничено по символам).',
-    label_nom:       'ФАМИЛИЯ',
-    label_prenom:    'ИМЯ',
-    label_email:     'ЭЛЕКТРОННАЯ ПОЧТА',
-    label_tel:       'НОМЕР ТЕЛЕФОНА',
-    label_password:  'ПАРОЛЬ',
-    label_password2: 'ПОДТВЕРДИТЕ ПАРОЛЬ',
-    btn_create_account: 'СОЗДАТЬ АККАУНТ &nbsp;→',
-    reg_have_account: 'Уже есть аккаунт?',
-    reg_login_link:  'Войти',
-    js_err_nom:      '⚠ Неверная фамилия.',
-    js_err_prenom:   '⚠ Неверное имя.',
-    js_err_email:    '⚠ Неверный email.',
-    js_err_tel:      '⚠ Неверный номер телефона.',
-    js_err_password: '⚠ Минимум 8 символов.',
-    js_err_password2: '⚠ Пароли не совпадают.',
-    js_err_fix:      '⚠ Исправьте ошибки.',
-    js_creating:     'Создание аккаунта…',
-    js_toast_success_pro: '✅ Аккаунт создан! Войдите сейчас.',
-    js_toast_success_visitor: '✅ Аккаунт посетителя создан! Войдите сейчас.',
-    js_toast_email_used: '⚠ Этот email уже используется.',
-    js_toast_error_prefix: '⚠ Ошибка: ',
-    js_strength_weak: '⚠ Очень слабый',
-    js_strength_medium: '😐 Средний',
-    js_strength_good: '👍 Хороший',
-    js_strength_strong: '🔒 Очень надёжный',
-    js_err_weak_password: 'Слишком слабый пароль.',
-    js_err_network:  'Проблема с подключением к интернету.',
-    js_err_too_many: 'Слишком много попыток, повторите позже.',
-    js_err_invalid_email: 'Неверный адрес электронной почты.',
-    js_err_user_disabled: 'Этот аккаунт отключён.',
-    login_title:     'Вход',
-    login_subtitle:  'Войдите снова и продолжайте <strong style="color:#27a945">развивать свою деятельность</strong> — ваши будущие клиенты и поклонники ждут.',
-    login_label_email: 'EMAIL / ТЕЛЕФОН',
-    login_forgot:    'Забыли пароль?',
-    login_btn:       'ВОЙТИ &nbsp;→',
-    login_no_account: 'Ещё нет аккаунта?',
-    login_signup_link: 'Зарегистрироваться',
-    login_err_email_required: '⚠ Введите ваш email.',
-    login_err_email_format: '⚠ Неверный формат email.',
-    login_err_password_required: '⚠ Введите ваш пароль.',
-    login_err_password_length: '⚠ Пароль должен содержать не менее 6 символов.',
-    login_connecting: 'Выполняется вход…',
-    login_toast_success: '✅ Вход выполнен! Добро пожаловать.',
-    login_toast_pending: '⏳ Аккаунт на рассмотрении — переход в ваш профиль.',
-    login_err_credentials: '⚠ Неверный email или пароль.',
-    vit_chip_all:    '⭐ Все',
-    vit_chip_macon:  '🧱 Каменщик',
-    vit_chip_elec:   '⚡ Электрик',
-    vit_chip_plomb:  '🚿 Сантехник',
-    vit_chip_peintre: '🎨 Маляр',
-    vit_chip_menuisier: '🪵 Столяр',
-    vit_chip_coiffeur: '✂️ Парикмахер',
-    vit_chip_couturier: '🧵 Портной',
-    vit_chip_cuisinier: '👨‍🍳 Повар',
-    vit_chip_mecanicien: '🔧 Механик',
-    vit_hero_tag:    '✨ Проверенные специалисты',
-    vit_hero_title:  'Найдите специалиста,<br><em>который вам нужен</em>',
-    vit_hero_sub:    'Сотни проверенных специалистов готовы вам помочь',
-    vit_hero_btn:    '🔍 Смотреть ленту',
-    vit_section_label: 'Проверенные специалисты',
-    vit_hscroll_label: 'Другие специалисты',
-    vit_nav_accueil: 'Главная',
-    vit_nav_profil:  'Профиль',
-    vit_verified:    '✔ Проверен',
-    vit_btn_contact: '💬 Связаться',
-    vit_btn_reserver: '📅 Забронировать',
-    vit_btn_suivre:  '➕ Подписаться',
-    vit_btn_suivi:   '✔ Подписан',
-    vit_avis:        'отзывов',
-    vit_abonnes:     'подписчиков',
-    vit_empty_title: 'Пока нет специалистов',
-    vit_empty_other: 'Нет других специалистов',
-    vit_toast_error_load: '⚠ Ошибка загрузки',
-    vit_toast_login_required: '🔐 Войдите в аккаунт',
-    vit_toast_follow_success: '✅ Вы подписались на этого специалиста!',
-    vit_toast_error: '⚠ Ошибка',
-    vit_pro_default: 'Специалист',
-    vit_pro_short:   'Специалист',
-    pv_back:         'Главная',
-    pv_visitor_tag:  'Посетитель',
-    pv_bio_empty:    'Пока нет биографии…',
-    pv_edit_btn:     'Редактировать профиль',
-    pv_coords_title: 'Контактные данные',
-    pv_statuts_title: 'Мои статусы',
-    pv_statuts_empty: 'Вы ещё не опубликовали ни одного статуса.',
-    pv_cta_title:    'Станьте профессионалом',
-    pv_cta_sub:      'Публикуйте контент, повышайте видимость и монетизируйте свои навыки.',
-    pv_cta_pro:      'Стать профессионалом',
-    pv_logout:       'Выйти',
-    pv_modal_title:  'Редактировать профиль',
-    pv_bio_label:    'БИО',
-    pv_save_btn:     'Сохранить',
-    pv_toast_photo:  '✅ Фото обновлено!',
-    pv_toast_saved:  '✅ Профиль обновлён!',
-    dp_login_title:    'С возвращением',
-    dp_login_sub:      'Войдите снова, чтобы продолжить общение с лучшими профессионалами и развивать свою деятельность, где бы вы ни находились.',
-    dp_register_title: 'Присоединяйтесь к элите профессионалов',
-    dp_register_sub:   'Создайте проверенный профиль, покажите свой талант всему миру и начните получать доход уже сегодня.',
-    dp_visitor_title:  'Присоединяйтесь к сообществу',
-    dp_visitor_sub:    'Свяжитесь с лучшими профессионалами, общайтесь и следите за их работой — за считанные секунды, без обязательств.',
-    pv_history_title:   'История фото профиля',
-    pv_history_empty:   'Пока нет изменений фото.',
-    pv_history_changed: 'Фото изменено',
-    pv_history_delete_perm: '✕ Навсегда',
-    pv_history_delete_temp: '🗑️ 15 дн.',
-    pv_history_restore:     '↩️ Восстановить',
-    pv_history_deleted_until: 'Окончательное удаление',
-    pv_confirm_delete_perm: 'Удалить это фото навсегда? Это действие нельзя отменить.',
-    pv_toast_deleted:       '🗑️ Фото удалено навсегда.',
-    pv_toast_deleted_temp:  '🗑️ Фото удалено (можно восстановить в течение 15 дней).',
-    pv_toast_restored:      '↩️ Фото восстановлено.',
-    pv_report_title:      'Пожаловаться на этот профиль',
-    pv_report_fake:        'Фальшивый профиль',
-    pv_report_fake_sub:    'Выдача себя за другого или фальшивая личность',
-    pv_report_scam:        'Мошенничество',
-    pv_report_scam_sub:    'Попытка мошенничества или кражи денег',
-    pv_report_content:     'Неприемлемый контент',
-    pv_report_content_sub: 'Шокирующие или оскорбительные фото или текст',
-    pv_report_harass:      'Домогательство',
-    pv_report_harass_sub:  'Оскорбительное поведение по отношению к клиентам',
-    pv_report_other:       'Другая причина',
-    pv_report_other_sub:   'Общая жалоба',
-    pv_report_cancel:      'Отмена',
-    pv_report_sent:        '✅ Жалоба отправлена, спасибо.',
-    pv_share_copied:       '🔗 Ссылка скопирована!',
-  },
+  <!-- PANEL 4 : Offres (tab 4) -->
+  <div class="panel-slide" id="panel-4" style="position:relative;">
+    <iframe src="offre_v1.html" style="width:100%;height:100%;border:none;display:block;" id="offreFrame"></iframe>
+    <div id="swipeLeftOf" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightOf" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-  DE: {
-    nav_login:       'Anmelden',
-    nav_join:        'Beitreten',
-    badge:           'Verifizierte Fachleute · 47+ Länder',
-    hero_line1:      'Die besten Fachleute der Welt',
-    hero_line2:      'hier bei uns.',
-    hero_sub:        'Rechtsanwälte, Elektriker, Schneider, Berater, Entwickler — jedes Profil verifiziert, jedes Talent zertifiziert. Finden, kontaktieren, zusammenarbeiten.',
-    btn_start:       'Kostenlos starten →',
-    btn_explore:     '▶ Feed erkunden',
-    stat_pros:       'Fachleute',
-    stat_countries:  'Länder',
-    stat_verified:   'Verifiziert',
-    scroll_hint:     'Scrollen',
-    sec_label_pros:  'Elite-Talente',
-    sec_title_pros:  'Fachleute, die<br>den Unterschied machen',
-    sec_sub_pros:    'Jedes Profil von unserem Team validiert. Abschluss, Erfahrung, Portfolio — null Kompromisse.',
-    btn_see_all:     'Alle Fachleute anzeigen →',
-    verified:        'Verifiziert',
-    sec_label_mono:  '💰 Monetarisierung',
-    sec_title_mono:  'Ihr Fachwissen<br>generiert Einnahmen',
-    sec_sub_mono:    'ArtiRoyce belohnt Fachleute, die ihr Know-how teilen. Jeder Aufruf, jede Interaktion zählt — und verwandelt sich in echtes Geld in Ihrer Tasche.',
-    mono_title:      'Verdienen Sie mit Ihrem <span>Inhalt</span> auf ArtiRoyce',
-    mono_desc:       'Veröffentlichen Sie Videos, teilen Sie Ihre Arbeiten, zeigen Sie Ihr Talent. Sobald Ihre Aufrufe und Likes die ArtiRoyce-Schwellenwerte erreichen, beginnen Sie zu verdienen — automatisch, ohne Aufwand.',
-    tp_views:        'Aufrufe',
-    tp_likes:        'Likes',
-    tp_badge:        'Abzeichen',
-    tp_withdraw:     'ab 5$',
-    tp_elite:        'Elite',
-    tp_withdraw_lbl: 'Auszahlung',
-    gain1_title:     'Pro populärem Video',
-    gain1_desc:      'Ein virales Video kann bis zu',
-    gain2_title:     'Monatliche Einnahmen',
-    gain2_desc:      'Ein aktives Profil kann monatlich generieren',
-    gain3_title:     'Elite-Abzeichen',
-    gain3_desc:      'Elite-Profile erhalten einen Sichtbarkeitsbonus von',
-    gain4_title:     'Weltweite Auszahlung',
-    gain4_desc:      'Zahlen Sie in Ihrem Land mit verfügbaren lokalen Methoden aus',
-    gain4_amount:    'Überall',
-    sec_label_how:   'Einfach & schnell',
-    sec_title_how:   'In 3 Schritten<br>erledigt',
-    step1_title:     'Feed durchsuchen',
-    step1_desc:      'Präsentationsvideos, Portfolios, Bewertungen — beurteilen Sie selbst vor jedem Kontakt.',
-    step2_title:     'Fachmann kontaktieren',
-    step2_desc:      'Direktnachricht, Anruf oder Kommentar — ohne Mittelsmänner, sofort.',
-    step3_title:     'Mission erfüllt',
-    step3_desc:      'Bewerten, empfehlen und eine dauerhafte professionelle Beziehung aufbauen.',
-    cta_title:       'Bereit, ArtiRoyce beizutreten?',
-    cta_sub:         'Fachmann oder Kunde — Ihr Platz ist hier.<br>Kostenlose Registrierung · Echte Monetarisierung · Weltweite Auszahlung.',
-    btn_register:    'Jetzt registrieren →',
-    btn_member:      'Bereits Mitglied',
-    footer_rights:   '© 2024 ArtiRoyce — Alle Rechte vorbehalten',
-    footer_privacy:  'Datenschutz',
-    footer_terms:    'AGB',
-    footer_faq:      'FAQ',
-    reg_back_home:   'Startseite',
-    reg_pro_title:   'Registrierung',
-    reg_pro_subtitle: 'Erstellen Sie Ihr professionelles Konto und verdienen Sie noch heute Geld',
-    reg_visitor_title: 'Besucherregistrierung',
-    reg_visitor_subtitle: 'Erstellen Sie Ihr Besucherkonto, um ArtiRoyce-Fachleute zu kontaktieren, zu chatten und ihnen zu folgen',
-    pill_professional: '👔 Fachleute-Seite',
-    pill_visitor:    '👤 Besucher-Seite',
-    hint_to_visitor: 'Besucher? Erstellen Sie ein vereinfachtes Konto',
-    hint_to_pro:     'Fachmann? Erstellen Sie ein verifiziertes Konto',
-    kyc_info_html:   '<strong>Fachleute:</strong> Ihr Profil wird <strong>von unserem Team überprüft</strong>, bevor es sichtbar wird. Sie reichen Ihr KYC nach der Anmeldung ein.',
-    visitor_info_html: '<strong>Besucher:</strong> Sie können Fachleute kontaktieren und anrufen, kommentieren (gekennzeichnet als <strong>Besucher</strong>), chatten und Status veröffentlichen. Sie können keine Videos oder Beiträge im Newsfeed veröffentlichen, außer der Aktualisierung Ihres <strong>Profilfotos</strong> und Ihrer <strong>Bio</strong> (zeichenbegrenzt).',
-    label_nom:       'NACHNAME',
-    label_prenom:    'VORNAME(N)',
-    label_email:     'E-MAIL',
-    label_tel:       'TELEFONNUMMER',
-    label_password:  'PASSWORT',
-    label_password2: 'PASSWORT BESTÄTIGEN',
-    btn_create_account: 'KONTO ERSTELLEN &nbsp;→',
-    reg_have_account: 'Bereits ein Konto?',
-    reg_login_link:  'Anmelden',
-    js_err_nom:      '⚠ Ungültiger Nachname.',
-    js_err_prenom:   '⚠ Ungültiger Vorname.',
-    js_err_email:    '⚠ Ungültige E-Mail.',
-    js_err_tel:      '⚠ Ungültige Telefonnummer.',
-    js_err_password: '⚠ Mindestens 8 Zeichen.',
-    js_err_password2: '⚠ Passwörter stimmen nicht überein.',
-    js_err_fix:      '⚠ Bitte Fehler korrigieren.',
-    js_creating:     'Konto wird erstellt…',
-    js_toast_success_pro: '✅ Konto erstellt! Jetzt anmelden.',
-    js_toast_success_visitor: '✅ Besucherkonto erstellt! Jetzt anmelden.',
-    js_toast_email_used: '⚠ Diese E-Mail wird bereits verwendet.',
-    js_toast_error_prefix: '⚠ Fehler: ',
-    js_strength_weak: '⚠ Sehr schwach',
-    js_strength_medium: '😐 Mittel',
-    js_strength_good: '👍 Gut',
-    js_strength_strong: '🔒 Sehr stark',
-    js_err_weak_password: 'Passwort ist zu schwach.',
-    js_err_network:  'Problem mit der Internetverbindung.',
-    js_err_too_many: 'Zu viele Versuche, bitte später erneut versuchen.',
-    js_err_invalid_email: 'Ungültige E-Mail-Adresse.',
-    js_err_user_disabled: 'Dieses Konto wurde deaktiviert.',
-    login_title:     'Anmelden',
-    login_subtitle:  'Melden Sie sich erneut an und bauen Sie weiter <strong style="color:#27a945">Ihr Geschäft aus</strong> — Ihre nächsten Kunden und Fans warten.',
-    login_label_email: 'E-MAIL / TELEFON',
-    login_forgot:    'Passwort vergessen?',
-    login_btn:       'ANMELDEN &nbsp;→',
-    login_no_account: 'Noch kein Konto?',
-    login_signup_link: 'Registrieren',
-    login_err_email_required: '⚠ Bitte geben Sie Ihre E-Mail ein.',
-    login_err_email_format: '⚠ Ungültiges E-Mail-Format.',
-    login_err_password_required: '⚠ Bitte geben Sie Ihr Passwort ein.',
-    login_err_password_length: '⚠ Das Passwort muss mindestens 6 Zeichen lang sein.',
-    login_connecting: 'Anmeldung läuft…',
-    login_toast_success: '✅ Anmeldung erfolgreich! Willkommen.',
-    login_toast_pending: '⏳ Konto ausstehend — Zugriff auf Ihr Profil.',
-    login_err_credentials: '⚠ E-Mail oder Passwort falsch.',
-    vit_chip_all:    '⭐ Alle',
-    vit_chip_macon:  '🧱 Maurer',
-    vit_chip_elec:   '⚡ Elektriker',
-    vit_chip_plomb:  '🚿 Klempner',
-    vit_chip_peintre: '🎨 Maler',
-    vit_chip_menuisier: '🪵 Schreiner',
-    vit_chip_coiffeur: '✂️ Friseur',
-    vit_chip_couturier: '🧵 Schneider',
-    vit_chip_cuisinier: '👨‍🍳 Koch',
-    vit_chip_mecanicien: '🔧 Mechaniker',
-    vit_hero_tag:    '✨ Verifizierte Fachleute',
-    vit_hero_title:  'Finden Sie den Fachmann,<br><em>den Sie brauchen</em>',
-    vit_hero_sub:    'Hunderte verifizierte Fachleute stehen bereit',
-    vit_hero_btn:    '🔍 Im Feed entdecken',
-    vit_section_label: 'Verifizierte Fachleute',
-    vit_hscroll_label: 'Weitere Fachleute',
-    vit_nav_accueil: 'Startseite',
-    vit_nav_profil:  'Profil',
-    vit_verified:    '✔ Verifiziert',
-    vit_btn_contact: '💬 Kontaktieren',
-    vit_btn_reserver: '📅 Buchen',
-    vit_btn_suivre:  '➕ Folgen',
-    vit_btn_suivi:   '✔ Gefolgt',
-    vit_avis:        'Bewertungen',
-    vit_abonnes:     'Follower',
-    vit_empty_title: 'Noch keine Fachleute',
-    vit_empty_other: 'Keine weiteren Fachleute',
-    vit_toast_error_load: '⚠ Ladefehler',
-    vit_toast_login_required: '🔐 Bitte anmelden',
-    vit_toast_follow_success: '✅ Sie folgen diesem Fachmann jetzt!',
-    vit_toast_error: '⚠ Fehler',
-    vit_pro_default: 'Fachmann',
-    vit_pro_short:   'Profi',
-    pv_back:         'Startseite',
-    pv_visitor_tag:  'Besucher',
-    pv_bio_empty:    'Noch keine Bio…',
-    pv_edit_btn:     'Profil bearbeiten',
-    pv_coords_title: 'Kontaktdaten',
-    pv_statuts_title: 'Meine Status',
-    pv_statuts_empty: 'Sie haben noch keinen Status veröffentlicht.',
-    pv_cta_title:    'Werden Sie Profi',
-    pv_cta_sub:      'Veröffentlichen Sie Inhalte, gewinnen Sie Sichtbarkeit und monetarisieren Sie Ihr Können.',
-    pv_cta_pro:      'Profi werden',
-    pv_logout:       'Abmelden',
-    pv_modal_title:  'Profil bearbeiten',
-    pv_bio_label:    'BIO',
-    pv_save_btn:     'Speichern',
-    pv_toast_photo:  '✅ Foto aktualisiert!',
-    pv_toast_saved:  '✅ Profil aktualisiert!',
-    dp_login_title:    'Willkommen zurück',
-    dp_login_sub:      'Melden Sie sich erneut an, um weiterhin mit den besten Fachleuten in Kontakt zu bleiben und Ihr Geschäft auszubauen, egal wo Sie sich befinden.',
-    dp_register_title: 'Werden Sie Teil der Elite der Fachleute',
-    dp_register_sub:   'Erstellen Sie Ihr verifiziertes Profil, zeigen Sie der Welt Ihr Talent und beginnen Sie noch heute, Einkommen zu erzielen.',
-    dp_visitor_title:  'Werden Sie Teil der Community',
-    dp_visitor_sub:    'Kontaktieren Sie Top-Fachleute, tauschen Sie sich aus und verfolgen Sie ihre Arbeit — in Sekunden, unverbindlich.',
-    pv_history_title:   'Verlauf der Profilfotos',
-    pv_history_empty:   'Noch keine Fotoänderungen.',
-    pv_history_changed: 'Foto geändert am',
-    pv_history_delete_perm: '✕ Endgültig',
-    pv_history_delete_temp: '🗑️ 15 Tage',
-    pv_history_restore:     '↩️ Wiederherstellen',
-    pv_history_deleted_until: 'Endgültige Löschung am',
-    pv_confirm_delete_perm: 'Dieses Foto endgültig löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
-    pv_toast_deleted:       '🗑️ Foto endgültig gelöscht.',
-    pv_toast_deleted_temp:  '🗑️ Foto gelöscht (15 Tage wiederherstellbar).',
-    pv_toast_restored:      '↩️ Foto wiederhergestellt.',
-    pv_report_title:      'Dieses Profil melden',
-    pv_report_fake:        'Gefälschtes Profil',
-    pv_report_fake_sub:    'Identitätsdiebstahl oder falsche Identität',
-    pv_report_scam:        'Betrug oder Abzocke',
-    pv_report_scam_sub:    'Betrugs- oder Diebstahlversuch',
-    pv_report_content:     'Unangemessener Inhalt',
-    pv_report_content_sub: 'Schockierende oder anstößige Fotos oder Texte',
-    pv_report_harass:      'Belästigung',
-    pv_report_harass_sub:  'Missbräuchliches Verhalten gegenüber Kunden',
-    pv_report_other:       'Anderer Grund',
-    pv_report_other_sub:   'Allgemeine Meldung',
-    pv_report_cancel:      'Abbrechen',
-    pv_report_sent:        '✅ Meldung gesendet, danke.',
-    pv_share_copied:       '🔗 Link kopiert!',
-  },
+  <!-- PANEL 5 : CV Pro (tab 5) -->
+  <div class="panel-slide" id="panel-5" style="position:relative;">
+    <div class="panel-placeholder" style="background:#f5f5f5">
+      <div class="ph-icon" style="color:#333">📄</div>
+      <div class="ph-title" style="color:#333">CV Pro</div>
+      <div class="ph-sub" style="color:#888">Bientôt disponible</div>
+    </div>
+  </div>
 
-  JA: {
-    nav_login:       'ログイン',
-    nav_join:        '参加する',
-    badge:           '認定プロフェッショナル · 47カ国以上',
-    hero_line1:      '世界最高の',
-    hero_line2:      'プロフェッショナルがここに。',
-    hero_sub:        '弁護士、電気技師、仕立て師、コンサルタント、開発者 — すべてのプロフィールが認定済み、すべての才能が証明済み。探して、連絡して、協力しましょう。',
-    btn_start:       '無料で始める →',
-    btn_explore:     '▶ フィードを見る',
-    stat_pros:       'プロフェッショナル',
-    stat_countries:  '国',
-    stat_verified:   '認定済み',
-    scroll_hint:     'スクロール',
-    sec_label_pros:  'エリート人材',
-    sec_title_pros:  '違いを生み出す<br>プロフェッショナル',
-    sec_sub_pros:    '各プロフィールはチームによって検証済み。学歴、経験、ポートフォリオ — 妥協なし。',
-    btn_see_all:     'すべてのプロを見る →',
-    verified:        '認定済み',
-    sec_label_mono:  '💰 収益化',
-    sec_title_mono:  'あなたの専門知識が<br>収入を生む',
-    sec_sub_mono:    'ArtiRoyceはノウハウを共有するプロフェッショナルに報酬を支払います。すべての視聴、すべてのインタラクションがカウントされ、あなたのポケットの実際のお金に変わります。',
-    mono_title:      'ArtiRoyceで<span>コンテンツ</span>から稼ぐ',
-    mono_desc:       '動画を投稿し、作品を共有し、才能を見せましょう。視聴回数といいねがArtiRoyceの基準に達すると、自動的に収益を受け取り始めます — 手続き不要。',
-    tp_views:        '回視聴',
-    tp_likes:        'いいね',
-    tp_badge:        'バッジ',
-    tp_withdraw:     '$5から',
-    tp_elite:        'エリート',
-    tp_withdraw_lbl: '引き出し',
-    gain1_title:     '人気動画1本あたり',
-    gain1_desc:      'バイラル動画は最大で',
-    gain2_title:     '月収',
-    gain2_desc:      'アクティブなプロフィールは毎月',
-    gain3_title:     'エリートバッジ',
-    gain3_desc:      'エリートプロフィールは視認性ボーナスを獲得',
-    gain4_title:     'グローバル引き出し',
-    gain4_desc:      '利用可能な現地の方法でお住まいの国で引き出し',
-    gain4_amount:    'どこでも',
-    sec_label_how:   'シンプル＆スピーディー',
-    sec_title_how:   '3ステップで<br>完了',
-    step1_title:     'フィードを見る',
-    step1_desc:      '紹介動画、ポートフォリオ、レビュー — 連絡前に自分で判断。',
-    step2_title:     'プロに連絡する',
-    step2_desc:      'ダイレクトメッセージ、電話、またはコメント — 仲介者なし、即時対応。',
-    step3_title:     'ミッション完了',
-    step3_desc:      '評価し、推薦し、長期的なプロの関係を築きましょう。',
-    cta_title:       'ArtiRoyceに参加する準備はできましたか？',
-    cta_sub:         'プロフェッショナルまたはクライアント — あなたの場所はここです。<br>無料登録 · 本物の収益化 · 世界中で引き出し可能。',
-    btn_register:    '登録する →',
-    btn_member:      'すでにメンバー',
-    footer_rights:   '© 2024 ArtiRoyce — 全著作権所有',
-    footer_privacy:  'プライバシー',
-    footer_terms:    '利用規約',
-    footer_faq:      'FAQ',
-    reg_back_home:   'ホーム',
-    reg_pro_title:   '登録',
-    reg_pro_subtitle: 'プロフェッショナルアカウントを作成して、今日からお金を稼ぎ始めましょう',
-    reg_visitor_title: 'ビジター登録',
-    reg_visitor_subtitle: 'ArtiRoyceのプロに連絡・チャット・フォローするためのビジターアカウントを作成しましょう',
-    pill_professional: '👔 プロフェッショナルページ',
-    pill_visitor:    '👤 ビジターページ',
-    hint_to_visitor: 'ビジターですか？簡易アカウントを作成',
-    hint_to_pro:     'プロフェッショナルですか？認証アカウントを作成',
-    kyc_info_html:   '<strong>プロフェッショナル：</strong>公開される前に、<strong>私たちのチームによってプロフィールが確認されます</strong>。ログイン後にKYCを提出してください。',
-    visitor_info_html: '<strong>ビジター：</strong>プロに連絡・電話したり、コメント（<strong>ビジター</strong>として表示）したり、チャットやステータス投稿ができます。<strong>プロフィール写真</strong>や<strong>自己紹介</strong>（文字数制限あり）の変更を除き、動画やニュースフィードへの投稿はできません。',
-    label_nom:       '姓',
-    label_prenom:    '名',
-    label_email:     'メールアドレス',
-    label_tel:       '電話番号',
-    label_password:  'パスワード',
-    label_password2: 'パスワード確認',
-    btn_create_account: 'アカウントを作成 &nbsp;→',
-    reg_have_account: 'すでにアカウントをお持ちですか？',
-    reg_login_link:  'ログイン',
-    js_err_nom:      '⚠ 姓が無効です。',
-    js_err_prenom:   '⚠ 名が無効です。',
-    js_err_email:    '⚠ メールアドレスが無効です。',
-    js_err_tel:      '⚠ 電話番号が無効です。',
-    js_err_password: '⚠ 最低8文字必要です。',
-    js_err_password2: '⚠ パスワードが一致しません。',
-    js_err_fix:      '⚠ エラーを修正してください。',
-    js_creating:     'アカウント作成中…',
-    js_toast_success_pro: '✅ アカウントが作成されました！今すぐログインしてください。',
-    js_toast_success_visitor: '✅ ビジターアカウントが作成されました！今すぐログインしてください。',
-    js_toast_email_used: '⚠ このメールアドレスは既に使用されています。',
-    js_toast_error_prefix: '⚠ エラー：',
-    js_strength_weak: '⚠ 非常に弱い',
-    js_strength_medium: '😐 普通',
-    js_strength_good: '👍 良い',
-    js_strength_strong: '🔒 非常に強い',
-    js_err_weak_password: 'パスワードが弱すぎます。',
-    js_err_network:  'インターネット接続に問題があります。',
-    js_err_too_many: '試行回数が多すぎます。しばらくしてから再試行してください。',
-    js_err_invalid_email: 'メールアドレスが無効です。',
-    js_err_user_disabled: 'このアカウントは無効化されています。',
-    login_title:     'ログイン',
-    login_subtitle:  '再度ログインして<strong style="color:#27a945">ビジネスの成長</strong>を続けましょう — 次のお客様やファンがあなたを待っています。',
-    login_label_email: 'メール / 電話番号',
-    login_forgot:    'パスワードをお忘れですか？',
-    login_btn:       'ログイン &nbsp;→',
-    login_no_account: 'アカウントをお持ちでないですか？',
-    login_signup_link: '登録する',
-    login_err_email_required: '⚠ メールアドレスを入力してください。',
-    login_err_email_format: '⚠ メール形式が無効です。',
-    login_err_password_required: '⚠ パスワードを入力してください。',
-    login_err_password_length: '⚠ パスワードは6文字以上必要です。',
-    login_connecting: 'ログイン中…',
-    login_toast_success: '✅ ログインに成功しました！ようこそ。',
-    login_toast_pending: '⏳ アカウントは審査中です — プロフィールにアクセスしています。',
-    login_err_credentials: '⚠ メールアドレスまたはパスワードが正しくありません。',
-    vit_chip_all:    '⭐ すべて',
-    vit_chip_macon:  '🧱 石工',
-    vit_chip_elec:   '⚡ 電気技師',
-    vit_chip_plomb:  '🚿 配管工',
-    vit_chip_peintre: '🎨 塗装工',
-    vit_chip_menuisier: '🪵 大工',
-    vit_chip_coiffeur: '✂️ 美容師',
-    vit_chip_couturier: '🧵 仕立て屋',
-    vit_chip_cuisinier: '👨‍🍳 料理人',
-    vit_chip_mecanicien: '🔧 整備士',
-    vit_hero_tag:    '✨ 認定プロフェッショナル',
-    vit_hero_title:  '必要な<br><em>プロを見つけよう</em>',
-    vit_hero_sub:    '何百人もの認定プロがあなたをサポートします',
-    vit_hero_btn:    '🔍 フィードで見る',
-    vit_section_label: '認定プロフェッショナル',
-    vit_hscroll_label: '他のプロフェッショナル',
-    vit_nav_accueil: 'ホーム',
-    vit_nav_profil:  'プロフィール',
-    vit_verified:    '✔ 認定済み',
-    vit_btn_contact: '💬 連絡する',
-    vit_btn_reserver: '📅 予約する',
-    vit_btn_suivre:  '➕ フォロー',
-    vit_btn_suivi:   '✔ フォロー中',
-    vit_avis:        '件のレビュー',
-    vit_abonnes:     'フォロワー',
-    vit_empty_title: '現在プロフェッショナルはいません',
-    vit_empty_other: '他のプロフェッショナルはいません',
-    vit_toast_error_load: '⚠ 読み込みエラー',
-    vit_toast_login_required: '🔐 ログインしてください',
-    vit_toast_follow_success: '✅ このプロをフォローしました！',
-    vit_toast_error: '⚠ エラー',
-    vit_pro_default: 'プロフェッショナル',
-    vit_pro_short:   'プロ',
-    pv_back:         'ホーム',
-    pv_visitor_tag:  'ビジター',
-    pv_bio_empty:    'まだ自己紹介がありません…',
-    pv_edit_btn:     'プロフィールを編集',
-    pv_coords_title: '連絡先',
-    pv_statuts_title: '自分のステータス',
-    pv_statuts_empty: 'まだステータスを投稿していません。',
-    pv_cta_title:    'プロフェッショナルになる',
-    pv_cta_sub:      'コンテンツを投稿し、認知度を高め、スキルを収益化しましょう。',
-    pv_cta_pro:      'プロフェッショナルになる',
-    pv_logout:       'ログアウト',
-    pv_modal_title:  'プロフィールを編集',
-    pv_bio_label:    '自己紹介',
-    pv_save_btn:     '保存',
-    pv_toast_photo:  '✅ 写真を更新しました！',
-    pv_toast_saved:  '✅ プロフィールを更新しました！',
-    dp_login_title:    'おかえりなさい',
-    dp_login_sub:      '再度ログインして、世界のどこにいても最高のプロフェッショナルとつながり、ビジネスを成長させ続けましょう。',
-    dp_register_title: 'プロフェッショナルのエリートに参加しよう',
-    dp_register_sub:   '認証済みプロフィールを作成し、あなたの才能を世界に示し、今日から収入を得始めましょう。',
-    dp_visitor_title:  'コミュニティに参加しよう',
-    dp_visitor_sub:    'トッププロと連絡を取り、交流し、彼らの仕事をフォローしましょう — 数秒で、義務なしに。',
-    pv_history_title:   'プロフィール写真の履歴',
-    pv_history_empty:   'まだ写真の変更はありません。',
-    pv_history_changed: '変更日',
-    pv_history_delete_perm: '✕ 完全削除',
-    pv_history_delete_temp: '🗑️ 15日間',
-    pv_history_restore:     '↩️ 復元',
-    pv_history_deleted_until: '完全削除予定日：',
-    pv_confirm_delete_perm: 'この写真を完全に削除しますか？この操作は元に戻せません。',
-    pv_toast_deleted:       '🗑️ 写真を完全に削除しました。',
-    pv_toast_deleted_temp:  '🗑️ 写真を削除しました（15日間復元可能）。',
-    pv_toast_restored:      '↩️ 写真を復元しました。',
-    pv_report_title:      'このプロフィールを報告',
-    pv_report_fake:        '偽のプロフィール',
-    pv_report_fake_sub:    'なりすましまたは偽の身元',
-    pv_report_scam:        '詐欺',
-    pv_report_scam_sub:    '詐欺や金銭窃盗の試み',
-    pv_report_content:     '不適切なコンテンツ',
-    pv_report_content_sub: '衝撃的または不快な写真やテキスト',
-    pv_report_harass:      'ハラスメント',
-    pv_report_harass_sub:  '顧客への迷惑行為',
-    pv_report_other:       'その他の理由',
-    pv_report_other_sub:   '一般的な報告',
-    pv_report_cancel:      'キャンセル',
-    pv_report_sent:        '✅ 報告を送信しました。ありがとうございます。',
-    pv_share_copied:       '🔗 リンクをコピーしました！',
-  },
+  <!-- PANEL 6 : Discussion (tab 6) -->
+  <div class="panel-slide" id="panel-6" style="position:relative;">
+    <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
+    <div id="swipeLeft" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRight" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-  HI: {
-    nav_login:       'लॉगिन',
-    nav_join:        'जुड़ें',
-    badge:           'सत्यापित पेशेवर · 47+ देश',
-    hero_line1:      'दुनिया के सर्वश्रेष्ठ पेशेवर',
-    hero_line2:      'यहाँ मिलते हैं।',
-    hero_sub:        'वकील, इलेक्ट्रीशियन, दर्जी, सलाहकार, डेवलपर — हर प्रोफाइल सत्यापित, हर प्रतिभा प्रमाणित। खोजें, संपर्क करें, सहयोग करें।',
-    btn_start:       'मुफ़्त शुरू करें →',
-    btn_explore:     '▶ फ़ीड देखें',
-    stat_pros:       'पेशेवर',
-    stat_countries:  'देश',
-    stat_verified:   'सत्यापित',
-    scroll_hint:     'स्क्रॉल करें',
-    sec_label_pros:  'शीर्ष प्रतिभाएं',
-    sec_title_pros:  'पेशेवर जो<br>फर्क लाते हैं',
-    sec_sub_pros:    'हर प्रोफाइल हमारी टीम द्वारा सत्यापित। डिग्री, अनुभव, पोर्टफोलियो — कोई समझौता नहीं।',
-    btn_see_all:     'सभी पेशेवर देखें →',
-    verified:        'सत्यापित',
-    sec_label_mono:  '💰 मुद्रीकरण',
-    sec_title_mono:  'आपकी विशेषज्ञता<br>से आय',
-    sec_sub_mono:    'ArtiRoyce उन पेशेवरों को पुरस्कृत करता है जो अपना ज्ञान साझा करते हैं। हर व्यू, हर इंटरैक्शन मायने रखता है — और आपकी जेब में असली पैसे बन जाता है।',
-    mono_title:      'ArtiRoyce पर अपने <span>कंटेंट</span> से कमाएं',
-    mono_desc:       'अपने वीडियो पोस्ट करें, काम साझा करें, अपनी प्रतिभा दिखाएं। जैसे ही आपके व्यू और लाइक ArtiRoyce की सीमा तक पहुंचें, आप कमाई शुरू करते हैं — स्वचालित रूप से, बिना किसी परेशानी के।',
-    tp_views:        'व्यू',
-    tp_likes:        'लाइक',
-    tp_badge:        'बैज',
-    tp_withdraw:     '$5 से',
-    tp_elite:        'एलीट',
-    tp_withdraw_lbl: 'निकासी',
-    gain1_title:     'प्रति लोकप्रिय वीडियो',
-    gain1_desc:      'एक वायरल वीडियो कमा सकता है',
-    gain2_title:     'मासिक आय',
-    gain2_desc:      'एक सक्रिय प्रोफाइल हर महीने कमा सकती है',
-    gain3_title:     'एलीट बैज',
-    gain3_desc:      'एलीट प्रोफाइल को दृश्यता बोनस मिलता है',
-    gain4_title:     'वैश्विक निकासी',
-    gain4_desc:      'अपने देश में उपलब्ध स्थानीय तरीकों से निकालें',
-    gain4_amount:    'कहीं भी',
-    sec_label_how:   'सरल और तेज़',
-    sec_title_how:   '3 चरणों में<br>हो गया',
-    step1_title:     'फ़ीड देखें',
-    step1_desc:      'परिचय वीडियो, पोर्टफोलियो, समीक्षाएं — किसी भी संपर्क से पहले खुद निर्णय करें।',
-    step2_title:     'पेशेवर से संपर्क करें',
-    step2_desc:      'सीधा संदेश, कॉल या टिप्पणी — बिना बिचौलिए, तुरंत।',
-    step3_title:     'मिशन पूरा',
-    step3_desc:      'रेटिंग दें, सिफारिश करें और एक स्थायी पेशेवर रिश्ता बनाएं।',
-    cta_title:       'ArtiRoyce में शामिल होने के लिए तैयार हैं?',
-    cta_sub:         'पेशेवर या ग्राहक — आपकी जगह यहाँ है।<br>मुफ़्त पंजीकरण · वास्तविक मुद्रीकरण · दुनिया भर में निकासी।',
-    btn_register:    'पंजीकरण करें →',
-    btn_member:      'पहले से सदस्य',
-    footer_rights:   '© 2024 ArtiRoyce — सर्वाधिकार सुरक्षित',
-    footer_privacy:  'गोपनीयता',
-    footer_terms:    'शर्तें',
-    footer_faq:      'FAQ',
-    reg_back_home:   'होम',
-    reg_pro_title:   'पंजीकरण',
-    reg_pro_subtitle: 'अपना पेशेवर खाता बनाएं और आज ही पैसे कमाना शुरू करें',
-    reg_visitor_title: 'विज़िटर पंजीकरण',
-    reg_visitor_subtitle: 'ArtiRoyce पेशेवरों से संपर्क करने, चैट करने और फॉलो करने के लिए अपना विज़िटर खाता बनाएं',
-    pill_professional: '👔 पेशेवर पेज',
-    pill_visitor:    '👤 विज़िटर पेज',
-    hint_to_visitor: 'विज़िटर हैं? एक सरल खाता बनाएं',
-    hint_to_pro:     'पेशेवर हैं? एक सत्यापित खाता बनाएं',
-    kyc_info_html:   '<strong>पेशेवर:</strong> दिखाई देने से पहले आपकी प्रोफ़ाइल <strong>हमारी टीम द्वारा सत्यापित</strong> की जाएगी। लॉगिन के बाद आप अपना KYC जमा करेंगे।',
-    visitor_info_html: '<strong>विज़िटर:</strong> आप पेशेवरों से संपर्क और कॉल कर सकते हैं, टिप्पणी कर सकते हैं (<strong>विज़िटर</strong> के रूप में पहचाना गया), चैट कर सकते हैं और स्टेटस पोस्ट कर सकते हैं। आप वीडियो पोस्ट नहीं कर सकते या न्यूज़ फ़ीड में पोस्ट नहीं कर सकते, सिवाय अपनी <strong>प्रोफ़ाइल फ़ोटो</strong> और <strong>बायो</strong> (सीमित अक्षर) को अपडेट करने के।',
-    label_nom:       'उपनाम',
-    label_prenom:    'नाम',
-    label_email:     'ईमेल',
-    label_tel:       'फ़ोन नंबर',
-    label_password:  'पासवर्ड',
-    label_password2: 'पासवर्ड की पुष्टि करें',
-    btn_create_account: 'मेरा खाता बनाएं &nbsp;→',
-    reg_have_account: 'पहले से खाता है?',
-    reg_login_link:  'लॉगिन करें',
-    js_err_nom:      '⚠ अमान्य उपनाम।',
-    js_err_prenom:   '⚠ अमान्य नाम।',
-    js_err_email:    '⚠ अमान्य ईमेल।',
-    js_err_tel:      '⚠ अमान्य फ़ोन नंबर।',
-    js_err_password: '⚠ न्यूनतम 8 अक्षर।',
-    js_err_password2: '⚠ पासवर्ड मेल नहीं खाते।',
-    js_err_fix:      '⚠ त्रुटियाँ सुधारें।',
-    js_creating:     'खाता बनाया जा रहा है…',
-    js_toast_success_pro: '✅ खाता बन गया! अभी लॉगिन करें।',
-    js_toast_success_visitor: '✅ विज़िटर खाता बन गया! अभी लॉगिन करें।',
-    js_toast_email_used: '⚠ यह ईमेल पहले से उपयोग में है।',
-    js_toast_error_prefix: '⚠ त्रुटि: ',
-    js_strength_weak: '⚠ बहुत कमज़ोर',
-    js_strength_medium: '😐 मध्यम',
-    js_strength_good: '👍 अच्छा',
-    js_strength_strong: '🔒 बहुत मज़बूत',
-    js_err_weak_password: 'पासवर्ड बहुत कमज़ोर है।',
-    js_err_network:  'इंटरनेट कनेक्शन में समस्या है।',
-    js_err_too_many: 'बहुत अधिक प्रयास, बाद में पुनः प्रयास करें।',
-    js_err_invalid_email: 'अमान्य ईमेल पता।',
-    js_err_user_disabled: 'यह खाता निष्क्रिय कर दिया गया है।',
-    login_title:     'लॉगिन',
-    login_subtitle:  'फिर से लॉगिन करें और <strong style="color:#27a945">अपने काम को आगे बढ़ाना</strong> जारी रखें — आपके अगले ग्राहक और फैंस आपका इंतज़ार कर रहे हैं।',
-    login_label_email: 'ईमेल / फ़ोन',
-    login_forgot:    'पासवर्ड भूल गए?',
-    login_btn:       'लॉगिन करें &nbsp;→',
-    login_no_account: 'अभी तक खाता नहीं है?',
-    login_signup_link: 'पंजीकरण करें',
-    login_err_email_required: '⚠ कृपया अपना ईमेल दर्ज करें।',
-    login_err_email_format: '⚠ अमान्य ईमेल प्रारूप।',
-    login_err_password_required: '⚠ कृपया अपना पासवर्ड दर्ज करें।',
-    login_err_password_length: '⚠ पासवर्ड कम से कम 6 अक्षर का होना चाहिए।',
-    login_connecting: 'लॉगिन हो रहा है…',
-    login_toast_success: '✅ लॉगिन सफल! स्वागत है।',
-    login_toast_pending: '⏳ खाता लंबित — आपकी प्रोफ़ाइल तक पहुँच रहा है।',
-    login_err_credentials: '⚠ ईमेल या पासवर्ड गलत है।',
-    vit_chip_all:    '⭐ सभी',
-    vit_chip_macon:  '🧱 राजमिस्त्री',
-    vit_chip_elec:   '⚡ इलेक्ट्रीशियन',
-    vit_chip_plomb:  '🚿 प्लंबर',
-    vit_chip_peintre: '🎨 पेंटर',
-    vit_chip_menuisier: '🪵 बढ़ई',
-    vit_chip_coiffeur: '✂️ नाई',
-    vit_chip_couturier: '🧵 दर्जी',
-    vit_chip_cuisinier: '👨‍🍳 रसोइया',
-    vit_chip_mecanicien: '🔧 मैकेनिक',
-    vit_hero_tag:    '✨ सत्यापित पेशेवर',
-    vit_hero_title:  'वह पेशेवर खोजें<br><em>जिसकी आपको ज़रूरत है</em>',
-    vit_hero_sub:    'सैकड़ों सत्यापित पेशेवर आपकी सेवा के लिए तैयार हैं',
-    vit_hero_btn:    '🔍 फ़ीड पर खोजें',
-    vit_section_label: 'सत्यापित पेशेवर',
-    vit_hscroll_label: 'अन्य पेशेवर',
-    vit_nav_accueil: 'होम',
-    vit_nav_profil:  'प्रोफ़ाइल',
-    vit_verified:    '✔ सत्यापित',
-    vit_btn_contact: '💬 संपर्क करें',
-    vit_btn_reserver: '📅 बुक करें',
-    vit_btn_suivre:  '➕ फॉलो करें',
-    vit_btn_suivi:   '✔ फॉलो किया',
-    vit_avis:        'समीक्षाएं',
-    vit_abonnes:     'फॉलोअर्स',
-    vit_empty_title: 'अभी कोई पेशेवर नहीं',
-    vit_empty_other: 'कोई अन्य पेशेवर नहीं',
-    vit_toast_error_load: '⚠ लोड करने में त्रुटि',
-    vit_toast_login_required: '🔐 कृपया लॉगिन करें',
-    vit_toast_follow_success: '✅ अब आप इस पेशेवर को फॉलो कर रहे हैं!',
-    vit_toast_error: '⚠ त्रुटि',
-    vit_pro_default: 'पेशेवर',
-    vit_pro_short:   'पेशेवर',
-    pv_back:         'होम',
-    pv_visitor_tag:  'विज़िटर',
-    pv_bio_empty:    'अभी तक कोई बायो नहीं…',
-    pv_edit_btn:     'मेरी प्रोफ़ाइल संपादित करें',
-    pv_coords_title: 'संपर्क जानकारी',
-    pv_statuts_title: 'मेरे स्टेटस',
-    pv_statuts_empty: 'आपने अभी तक कोई स्टेटस पोस्ट नहीं किया है।',
-    pv_cta_title:    'पेशेवर बनें',
-    pv_cta_sub:      'सामग्री पोस्ट करें, दृश्यता बढ़ाएं और अपने कौशल से कमाएं।',
-    pv_cta_pro:      'पेशेवर बनें',
-    pv_logout:       'लॉगआउट करें',
-    pv_modal_title:  'मेरी प्रोफ़ाइल संपादित करें',
-    pv_bio_label:    'बायो',
-    pv_save_btn:     'सेव करें',
-    pv_toast_photo:  '✅ फ़ोटो अपडेट हो गई!',
-    pv_toast_saved:  '✅ प्रोफ़ाइल अपडेट हो गई!',
-    dp_login_title:    'वापसी पर स्वागत है',
-    dp_login_sub:      'दुनिया में कहीं भी हों, सर्वश्रेष्ठ पेशेवरों से जुड़े रहने और अपने काम को आगे बढ़ाने के लिए फिर से लॉगिन करें।',
-    dp_register_title: 'पेशेवरों के अभिजात वर्ग में शामिल हों',
-    dp_register_sub:   'अपनी सत्यापित प्रोफ़ाइल बनाएं, दुनिया को अपनी प्रतिभा दिखाएं और आज ही से कमाई शुरू करें।',
-    dp_visitor_title:  'समुदाय में शामिल हों',
-    dp_visitor_sub:    'शीर्ष पेशेवरों से संपर्क करें, बातचीत करें और उनके काम को फॉलो करें — कुछ ही सेकंड में, बिना किसी प्रतिबद्धता के।',
-    pv_history_title:   'प्रोफ़ाइल फ़ोटो इतिहास',
-    pv_history_empty:   'अभी तक कोई फ़ोटो परिवर्तन नहीं।',
-    pv_history_changed: 'फ़ोटो बदली गई',
-    pv_history_delete_perm: '✕ स्थायी',
-    pv_history_delete_temp: '🗑️ 15 दिन',
-    pv_history_restore:     '↩️ पुनर्स्थापित करें',
-    pv_history_deleted_until: 'स्थायी रूप से हटाया जाएगा:',
-    pv_confirm_delete_perm: 'क्या इस फ़ोटो को स्थायी रूप से हटाना है? यह क्रिया पूर्ववत नहीं की जा सकती।',
-    pv_toast_deleted:       '🗑️ फ़ोटो स्थायी रूप से हटा दी गई।',
-    pv_toast_deleted_temp:  '🗑️ फ़ोटो हटा दी गई (15 दिनों तक पुनर्स्थापित की जा सकती है)।',
-    pv_toast_restored:      '↩️ फ़ोटो पुनर्स्थापित की गई।',
-    pv_report_title:      'इस प्रोफ़ाइल की रिपोर्ट करें',
-    pv_report_fake:        'नकली प्रोफ़ाइल',
-    pv_report_fake_sub:    'पहचान की चोरी या नकली पहचान',
-    pv_report_scam:        'धोखाधड़ी या स्कैम',
-    pv_report_scam_sub:    'धोखाधड़ी या पैसे चुराने का प्रयास',
-    pv_report_content:     'अनुचित सामग्री',
-    pv_report_content_sub: 'चौंकाने वाली या आपत्तिजनक तस्वीरें या टेक्स्ट',
-    pv_report_harass:      'उत्पीड़न',
-    pv_report_harass_sub:  'ग्राहकों के प्रति अपमानजनक व्यवहार',
-    pv_report_other:       'अन्य कारण',
-    pv_report_other_sub:   'सामान्य रिपोर्ट',
-    pv_report_cancel:      'रद्द करें',
-    pv_report_sent:        '✅ रिपोर्ट भेज दी गई, धन्यवाद।',
-    pv_share_copied:       '🔗 लिंक कॉपी हो गया!',
-  },
+  <!-- PANEL 7 : FAQ (tab 7) -->
+  <div class="panel-slide" id="panel-7" style="position:relative;">
+    <iframe src="faq_v1.html" style="width:100%;height:100%;border:none;display:block;" id="faqFrame"></iframe>
+    <div id="swipeLeftFq" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <div id="swipeRightFq" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+  </div>
 
-};
+</div></div>
 
-/* ══════════════════════════════════════
-   MOTEUR DE TRADUCTION
-══════════════════════════════════════ */
-let currentLang = 'FR';
+<!-- PANEL RECHERCHE MÉTIERS -->
+<div class="search-panel" id="searchPanel">
+  <div class="sp-header">
+    <span style="font-size:20px">🔍</span>
+    <span class="sp-title" data-i18n="acc_search_title">Rechercher un métier</span>
+    <button class="sp-close" onclick="closeSearch()">✕</button>
+  </div>
+  <div class="sp-search-box">
+    <div class="sp-input-wrap">
+      <span style="color:#bbb">🔍</span>
+      <input type="text" id="spInput" placeholder="Ex: Coiffeur, DJ, Photographe…" oninput="filterMetiers()"/>
+    </div>
+  </div>
+  <div class="sp-subtitle" id="spSubtitle" data-i18n="acc_all_jobs">Tous les métiers</div>
+  <div class="sp-list" id="spList"></div>
+</div>
 
-function applyTranslations(lang) {
-  const t = TRANSLATIONS[lang];
-  if (!t) return;
-  currentLang = lang;
+<nav class="bot-nav">
+  <!-- Mon Profil à gauche -->
+  <div class="nav-i" onclick="goProfile()">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="nav-lb" data-i18n="acc_nav_profile">Mon Profil</span>
+  </div>
+  <!-- Discussion -->
+  <div class="nav-i active" onclick="goToPanel(6)">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="nav-lb" style="color:var(--green)" data-i18n="acc_nav_discussion">Discussion</span>
+  </div>
+  <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
+    <div class="nav-plus">+</div>
+  </div>
+  <div class="nav-i" onclick="toast('▶ Live','')">
+    <svg class="nav-ico" viewBox="0 0 24 24">
+      <rect x="2" y="3" width="20" height="18" rx="3" fill="var(--red)"/>
+      <polygon points="10,8 10,16 17,12" fill="#fff"/>
+    </svg>
+    <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
+  </div>
+  <!-- Messages à droite -->
+  <div class="nav-i" onclick="toast('📩 Messages','')">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
+      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
+      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
+      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
+    </svg>
+    <span class="nav-lb" data-i18n="acc_nav_messages">Messages</span>
+  </div>
+</nav>
 
-  /* Direction RTL pour l'arabe */
-  document.documentElement.setAttribute('dir', lang === 'AR' ? 'rtl' : 'ltr');
-  document.documentElement.setAttribute('lang', lang.toLowerCase());
+<div class="toast" id="toastEl"></div>
 
-  /* Appliquer chaque clé */
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (t[key] !== undefined) {
-      el.innerHTML = t[key];
+<div class="moverlay" id="langOverlay" onclick="closeLang(event)">
+  <div class="lsheet">
+    <div class="lhandle"></div>
+    <div class="ltitle">🌐 <span data-i18n="acc_choose_lang">Choisir la langue</span></div>
+    <div class="lopt active" data-lang="FR" onclick="selectLangue('FR',this)"><span class="lflag">🇫🇷</span><div><div class="lname">Français</div><div class="lnat">France</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="EN" onclick="selectLangue('EN',this)"><span class="lflag">🇬🇧</span><div><div class="lname">English</div><div class="lnat">United Kingdom</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="ES" onclick="selectLangue('ES',this)"><span class="lflag">🇪🇸</span><div><div class="lname">Español</div><div class="lnat">España</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="PT" onclick="selectLangue('PT',this)"><span class="lflag">🇧🇷</span><div><div class="lname">Português</div><div class="lnat">Brasil</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="AR" onclick="selectLangue('AR',this)"><span class="lflag">🇸🇦</span><div><div class="lname">العربية</div><div class="lnat">السعودية</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="ZH" onclick="selectLangue('ZH',this)"><span class="lflag">🇨🇳</span><div><div class="lname">中文</div><div class="lnat">中国</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="RU" onclick="selectLangue('RU',this)"><span class="lflag">🇷🇺</span><div><div class="lname">Русский</div><div class="lnat">Россия</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="DE" onclick="selectLangue('DE',this)"><span class="lflag">🇩🇪</span><div><div class="lname">Deutsch</div><div class="lnat">Deutschland</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="JA" onclick="selectLangue('JA',this)"><span class="lflag">🇯🇵</span><div><div class="lname">日本語</div><div class="lnat">日本</div></div><span class="lchk">✔</span></div>
+    <div class="lopt" data-lang="HI" onclick="selectLangue('HI',this)"><span class="lflag">🇮🇳</span><div><div class="lname">हिन्दी</div><div class="lnat">भारत</div></div><span class="lchk">✔</span></div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
+
+  const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
+
+  function creerCard(uid, data, index) {
+    const metier  = data.metier  || 'Professionnel';
+    const ville   = data.ville || data.adresse || '';
+    function getEmoji(m) {
+      const ml = m.toLowerCase();
+      if (ml.includes('coutur') || ml.includes('tailleur') || ml.includes('mode')) return '🧵';
+      if (ml.includes('mecanic') || ml.includes('mécan') || ml.includes('auto')) return '🔧';
+      if (ml.includes('menuisier') || ml.includes('menuiserie') || ml.includes('charpent')) return '🪚';
+      if (ml.includes('peint') || ml.includes('peintre')) return '🎨';
+      if (ml.includes('électric') || ml.includes('electric')) return '⚡';
+      if (ml.includes('plombier') || ml.includes('plomberie')) return '🚿';
+      if (ml.includes('coiffeur') || ml.includes('coiffure') || ml.includes('salon')) return '✂️';
+      if (ml.includes('cuisine') || ml.includes('cuisinier') || ml.includes('restaurant') || ml.includes('traiteur')) return '👨‍🍳';
+      if (ml.includes('maçon') || ml.includes('macon') || ml.includes('construct')) return '🧱';
+      if (ml.includes('soudeur') || ml.includes('soudure')) return '🔩';
+      if (ml.includes('informatique') || ml.includes('tech') || ml.includes('développ')) return '💻';
+      if (ml.includes('médecin') || ml.includes('medecin') || ml.includes('infirmier') || ml.includes('santé')) return '🏥';
+      if (ml.includes('vendeur') || ml.includes('commerce') || ml.includes('boutique') || ml.includes('marchand')) return '🛒';
+      if (ml.includes('transport') || ml.includes('chauffeur') || ml.includes('taxi')) return '🚗';
+      if (ml.includes('agricult') || ml.includes('ferme') || ml.includes('élevage')) return '🌾';
+      if (ml.includes('photographe') || ml.includes('photo') || ml.includes('vidéo')) return '📸';
+      if (ml.includes('music') || ml.includes('musique') || ml.includes('artiste')) return '🎵';
+      if (ml.includes('forgeron') || ml.includes('forge')) return '⚒️';
+      if (ml.includes('bijou') || ml.includes('orfévre')) return '💍';
+      if (ml.includes('jardin') || ml.includes('paysag')) return '🌿';
+      return '🔨';
+    }
+    const adresse = data.adresse || '';
+    const prenom  = data.prenom  || '';
+    const initiale = (prenom || '?')[0].toUpperCase();
+    const pseudo  = '@' + (prenom || 'pro').toLowerCase().split(' ')[0];
+    const bg      = bgClasses[index % bgClasses.length];
+    const avatarInner = data.photoAvatar ? `<img src="${data.photoAvatar}" alt="${prenom}"/>` : initiale;
+    const bgStyle = '';
+    const bgClass = bg;
+    const adresseEsc = adresse.replace(/'/g, "\\'");
+
+    return `<div class="vcard">
+      <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
+      <div class="vcard-overlay"></div>
+      <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+      <div class="btn-suivre-wrap">
+        <button class="btn-suivre" onclick="toast('✅ Suivi !','g')">+ Suivre</button>
+        <button class="btn-contacter" onclick="toast('💬 Contacter','g')">Contacter</button>
+      </div>
+      <div class="actions-r">
+        <div class="act-btn" onclick="toast('🖼️ Réalisations','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <span class="act-lbl">Réalisation</span>
+        </div>
+        <div class="act-btn" onclick="likeC(this,${index})">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💬 ${pseudo}','')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <span class="act-n">0</span>
+        </div>
+        <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <span class="act-lbl">Sauver</span>
+        </div>
+        <div class="act-btn" onclick="toast('📆 Réservation ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <span class="act-lbl">Réserver</span>
+        </div>
+        <div class="act-btn" onclick="toast('🔗 Partager ${pseudo}','g')">
+          <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <span class="act-lbl">Partager</span>
+        </div>
+      </div>
+      <div class="info-top">
+        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <span class="info-globe-small">🌍</span>
+        <div class="info-user">${pseudo}</div>
+        <div class="info-desc">Vérifié(e) sur ArtiRoyce.</div>
+        <div class="info-stars">⭐⭐ <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;">4.8 (10k avis)</span></div>
+      </div>
+      <div class="info-bot">
+        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
+        <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <div class="info-btns">
+          <button class="btn-disc" onclick="window.location.href='discussion_v1.html'">💬 Discussion</button>
+          <button class="btn-lv" onclick="toast('🔴 Live Pro','')">+ Live Pro</button>
+          <span class="wm-inline">
+            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
+          </span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function adjustLayout() {
+    const hh = document.getElementById('topH').offsetHeight;
+    document.getElementById('hSpacer').style.height = hh + 'px';
+    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
+      el.style.top = (hh + 50) + 'px';
+    });
+    document.querySelectorAll('.badge-v').forEach(el => {
+      el.style.top = '230px';
+    });
+    document.querySelectorAll('.info-top').forEach(el => {
+      el.style.top = '370px';
+    });
+    document.querySelectorAll('.info-bot').forEach(el => {
+      el.style.bottom = '70px';
+    });
+  }
+
+  window.addEventListener('load', () => {
+    adjustLayout();
+    // Redimensionner le container panels
+    const pc = document.getElementById('panelsContainer');
+    if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
+  });
+  window.addEventListener('resize', adjustLayout);
+  setTimeout(adjustLayout, 100);
+  setTimeout(adjustLayout, 400);
+
+  window.toast = function(msg, type) {
+    const el = document.getElementById('toastEl');
+    el.textContent = msg;
+    el.className = 'toast show' + (type === 'g' ? ' g' : '');
+    setTimeout(() => el.className = 'toast', 2200);
+  }
+
+  // ══ SWIPE HORIZONTAL ══
+  const tabs = document.querySelectorAll('.h-tab');
+  const track = document.getElementById('panelsTrack');
+  const totalPanels = 7;
+  let currentPanel = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let isDragging = false;
+  let dragStartX = 0;
+
+  // Actions spéciales par panel
+  // Panels: 0=Accueil, 1=Statuts, 2=Elites, 3=Categories, 4=Discussion(iframe), 5=Actualites, 6=FAQ
+  const specialPanels = {};
+
+  window.goToPanel = function(index, animate) {
+    if (index < 0) index = 0;
+    if (index >= totalPanels) index = totalPanels - 1;
+    currentPanel = index;
+
+    // Activer tab
+    tabs.forEach(t => t.classList.remove('active'));
+    if (tabs[index]) {
+      tabs[index].classList.add('active');
+      tabs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    // Déplacer le track
+    const offset = -index * 100;
+    if (animate === false) {
+      track.style.transition = 'none';
+    } else {
+      track.style.transition = 'transform 0.32s cubic-bezier(.4,0,.2,1)';
+    }
+    track.style.transform = 'translateX(' + offset + '%)';
+
+    // Panels spéciaux
+    if (specialPanels[index]) {
+      setTimeout(() => specialPanels[index](), 320);
+    }
+
+    // Cacher la nav sur les autres panels, afficher seulement sur accueil (panel 0)
+    const botNav = document.querySelector('.bot-nav');
+    if (botNav) {
+      if (index === 0) {
+        botNav.style.transform = 'translateX(-50%) translateY(0)';
+        botNav.style.opacity = '1';
+        botNav.style.pointerEvents = 'auto';
+      } else {
+        botNav.style.transform = 'translateX(-50%) translateY(100%)';
+        botNav.style.opacity = '0';
+        botNav.style.pointerEvents = 'none';
+      }
+    }
+  }
+
+  // Clic sur tabs
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => goToPanel(i));
+  });
+
+  // TOUCH EVENTS sur le container global
+  const swipeZone = document.getElementById('panelsContainer');
+
+  swipeZone.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    dragStartX = touchStartX;
+    isDragging = false;
+  }, { passive: true });
+
+  swipeZone.addEventListener('touchmove', (e) => {
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+
+    if (!isDragging && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+      // Détecter direction dès 5px
+      if (Math.abs(dx) > Math.abs(dy)) {
+        isDragging = true;
+      }
+    }
+
+    if (isDragging) {
+      const totalOffset = -currentPanel * 100;
+      const dragPercent = (dx / swipeZone.offsetWidth) * 100;
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(' + (totalOffset + dragPercent) + '%)';
+    }
+  }, { passive: true });
+
+  swipeZone.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - dragStartX;
+    const threshold = swipeZone.offsetWidth * 0.08; // 15% suffit
+
+    if (dx < -threshold) {
+      goToPanel(currentPanel + 1);
+    } else if (dx > threshold) {
+      goToPanel(currentPanel - 1);
+    } else {
+      goToPanel(currentPanel);
+    }
+  }, { passive: true });
+
+  window.setTab = function(el) {
+    document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ══ RECEVOIR SWIPE DEPUIS IFRAME DISCUSSION ══
+  let iframeSwipeStart = null;
+  window.addEventListener('message', (e) => {
+    if (!e.data || !e.data.type) return;
+
+    if (e.data.type === 'swipeMove') {
+      const dx = e.data.dx;
+      if (iframeSwipeStart === null) iframeSwipeStart = dx;
+      const totalOffset = -currentPanel * 100;
+      const dragPercent = (dx / window.innerWidth) * 100;
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(' + (totalOffset + dragPercent) + '%)';
+    }
+
+    if (e.data.type === 'swipeEnd') {
+      const dx = e.data.dx;
+      iframeSwipeStart = null;
+      const threshold = window.innerWidth * 0.08;
+      if (dx < -threshold) {
+        window.goToPanel(currentPanel + 1);
+      } else if (dx > threshold) {
+        window.goToPanel(currentPanel - 1);
+      } else {
+        window.goToPanel(currentPanel);
+      }
     }
   });
 
-  /* Sauvegarder le choix */
-  try { localStorage.setItem('ar_lang', lang); } catch(e){}
-}
+  // ══ BANDES LATÉRALES — swipe depuis bord gauche/droit ══
+  const swipeLeft = document.getElementById('swipeLeft');
+  const swipeRight = document.getElementById('swipeRight');
 
-function initLang() {
-  let saved = 'FR';
-  try { saved = localStorage.getItem('ar_lang') || 'FR'; } catch(e){}
-  /* Détecter la langue du navigateur */
-  if (saved === 'FR') {
-    const bl = (navigator.language || 'fr').toUpperCase().slice(0,2);
-    const map = { FR:'FR', EN:'EN', ES:'ES', PT:'PT', AR:'AR', ZH:'ZH', RU:'RU', DE:'DE', JA:'JA', HI:'HI' };
-    if (map[bl]) saved = map[bl];
+  function addSwipeBand(band) {
+    if (!band) return;
+    let bStartX = 0, bStartY = 0, bDragging = false;
+
+    band.addEventListener('touchstart', (e) => {
+      bStartX = e.touches[0].clientX;
+      bStartY = e.touches[0].clientY;
+      dragStartX = bStartX;
+      touchStartX = bStartX;
+      touchStartY = bStartY;
+      bDragging = false;
+      isDragging = false;
+    }, { passive: true });
+
+    band.addEventListener('touchmove', (e) => {
+      const dx = e.touches[0].clientX - bStartX;
+      const dy = e.touches[0].clientY - bStartY;
+      // Seulement si horizontal dominant
+      if (!bDragging && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 1) {
+        bDragging = true;
+        isDragging = true;
+      }
+      if (bDragging) {
+        const totalOffset = -currentPanel * 100;
+        const dragPercent = (dx / swipeZone.offsetWidth) * 100;
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(' + (totalOffset + dragPercent) + '%)';
+      }
+    }, { passive: true });
+
+    band.addEventListener('touchend', (e) => {
+      if (!bDragging) return;
+      bDragging = false;
+      isDragging = false;
+      const dx = e.changedTouches[0].clientX - dragStartX;
+      const threshold = swipeZone.offsetWidth * 0.08;
+      if (dx < -threshold) window.goToPanel(currentPanel + 1);
+      else if (dx > threshold) window.goToPanel(currentPanel - 1);
+      else window.goToPanel(currentPanel);
+    }, { passive: true });
   }
-  applyTranslations(saved);
 
-  /* Mettre à jour le sélecteur visuel */
-  const flagMap = { FR:'🇫🇷', EN:'🇬🇧', ES:'🇪🇸', PT:'🇧🇷', AR:'🇸🇦', ZH:'🇨🇳', RU:'🇷🇺', DE:'🇩🇪', JA:'🇯🇵', HI:'🇮🇳' };
-  const activFlag = document.getElementById('activFlag');
-  const activCode = document.getElementById('activCode');
-  if (activFlag) activFlag.textContent = flagMap[saved] || '🇫🇷';
-  if (activCode) activCode.textContent = saved;
+  addSwipeBand(document.getElementById('swipeLeft'));
+  addSwipeBand(document.getElementById('swipeRight'));
+  addSwipeBand(document.getElementById('swipeLeftSt'));
+  addSwipeBand(document.getElementById('swipeRightSt'));
+  addSwipeBand(document.getElementById('swipeLeftAc'));
+  addSwipeBand(document.getElementById('swipeRightAc'));
+  addSwipeBand(document.getElementById('swipeLeftOf'));
+  addSwipeBand(document.getElementById('swipeRightOf'));
+  addSwipeBand(document.getElementById('swipeLeftEl'));
+  addSwipeBand(document.getElementById('swipeRightEl'));
+  addSwipeBand(document.getElementById('swipeLeftFq'));
+  addSwipeBand(document.getElementById('swipeRightFq'));
 
-  document.querySelectorAll('.lang-option').fo
+  window.likeC = function(btn, idx) {
+    const circle = btn.querySelector('.act-circle');
+    const num = btn.querySelector('.act-n');
+    const liked = circle.classList.contains('liked');
+    circle.classList.toggle('liked', !liked);
+    num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
+  }
+
+  let currentUserRole = 'artisan';
+  window.goProfile = function() { window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html'; }
+  window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
+  window.ouvrirItineraire = function(adresse) {
+    if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
+    else toast('📍 Adresse non disponible', '');
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     SÉLECTEUR DE LANGUE — variante locale à cette page
+     Cette page utilise un tiroir remontant du bas (design différent
+     du menu déroulant classique des autres pages), donc les noms de
+     fonctions sont différents : openLangAll()/selectLangue() au lieu
+     de toggleLang()/setLang() utilisés ailleurs.
+     ⚠️ Le moteur de traduction reste le MÊME partout : applyTranslations(),
+     TRANSLATIONS et currentLang viennent tous de translations.js, chargé
+     en fin de body sur cette page comme sur toutes les autres.
+  ══════════════════════════════════════════════════════════ */
+  window.openLangAll = function() { document.getElementById('langOverlay').classList.add('open'); }
+  function closeLang(e) { if(e.target===e.currentTarget) closeLangAll(); }
+  function closeLangAll() { document.getElementById('langOverlay').classList.remove('open'); }
+  window.closeLangAll = closeLangAll;
+  window.closeLang = closeLang;
+
+  const FLAG_MAP = { FR:'🇫🇷', EN:'🇬🇧', ES:'🇪🇸', PT:'🇧🇷', AR:'🇸🇦', ZH:'🇨🇳', RU:'🇷🇺', DE:'🇩🇪', JA:'🇯🇵', HI:'🇮🇳' };
+  const SEARCH_PLACEHOLDER_MAP = {
+    FR: 'Ex: Coiffeur, DJ, Photographe…', EN: 'Ex: Hairdresser, DJ, Photographer…',
+    ES: 'Ej: Peluquero, DJ, Fotógrafo…', PT: 'Ex: Cabeleireiro, DJ, Fotógrafo…',
+    AR: 'مثال: حلاق، دي جي، مصور…', ZH: '例如：理发师、DJ、摄影师…',
+    RU: 'Напр.: Парикмахер, DJ, Фотограф…', DE: 'Z.B.: Friseur, DJ, Fotograf…',
+    JA: '例：美容師、DJ、写真家…', HI: 'उदा: हेयरड्रेसर, DJ, फोटोग्राफर…',
+  };
+  function syncLangUI(code) {
+    const iconEl = document.getElementById('langIconEl');
+    if (iconEl) iconEl.textContent = FLAG_MAP[code] || '🇫🇷';
+    document.querySelectorAll('.lopt').forEach(o => o.classList.toggle('active', o.getAttribute('data-lang') === code));
+    const spInput = document.getElementById('spInput');
+    if (spInput) spInput.placeholder = SEARCH_PLACEHOLDER_MAP[code] || SEARCH_PLACEHOLDER_MAP.FR;
+  }
+  window.selectLangue = function(code) {
+    if (typeof applyTranslations === 'function') applyTranslations(code);
+    syncLangUI(code);
+    try { localStorage.setItem('ar_lang', code); } catch(e){}
+    setTimeout(closeLangAll, 250);
+  }
+  // Synchronise l'icône avec la langue déjà active (choisie par translations.js au chargement)
+  setTimeout(() => { if (typeof currentLang !== 'undefined') syncLangUI(currentLang); }, 50);
+  window.closeLang = closeLang;
+
+  // ══ RECHERCHE MÉTIERS ══
+  const METIERS_BASE = [
+    { icon:'✂️', name:'Coiffeur / Coiffeuse', bg:'#e8f5e9' },
+    { icon:'💄', name:'Maquilleur / Maquilleuse', bg:'#fce4ec' },
+    { icon:'📷', name:'Photographe', bg:'#e3f2fd' },
+    { icon:'🎧', name:'DJ', bg:'#ede7f6' },
+    { icon:'🎬', name:'Vidéaste', bg:'#fff3e0' },
+    { icon:'🍽️', name:'Traiteur / Traiteure', bg:'#f3e5f5' },
+    { icon:'🎤', name:'Chanteur / Chanteuse', bg:'#e8f5e9' },
+    { icon:'🎹', name:'Musicien / Musicienne', bg:'#e3f2fd' },
+    { icon:'💃', name:'Danseur / Danseuse', bg:'#fce4ec' },
+    { icon:'🎨', name:'Artiste peintre', bg:'#fff3e0' },
+    { icon:'🏠', name:'Décorateur / Décoratrice', bg:'#e8f5e9' },
+    { icon:'👗', name:'Styliste / Couturier', bg:'#fce4ec' },
+    { icon:'🪄', name:'Animateur / Animatrice', bg:'#ede7f6' },
+    { icon:'🔨', name:'Artisan', bg:'#fff8e1' },
+    { icon:'🏗️', name:'Opérateur économique', bg:'#e3f2fd' },
+    { icon:'🎭', name:'Comédien / Comédienne', bg:'#fce4ec' },
+    { icon:'📱', name:'Influenceur / Influenceuse', bg:'#e8f5e9' },
+    { icon:'🎙️', name:'Podcasteur', bg:'#ede7f6' },
+  ];
+
+  let allMetiers = [...METIERS_BASE];
+
+  function renderMetiers(list) {
+    const el = document.getElementById('spList');
+    const sub = document.getElementById('spSubtitle');
+    sub.textContent = list.length + ' métier' + (list.length > 1 ? 's' : '') + ' disponible' + (list.length > 1 ? 's' : '');
+    if (!list.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb"><div style="font-size:40px;margin-bottom:10px">🔍</div><div style="font-size:14px;font-weight:700">Aucun résultat</div></div>';
+      return;
+    }
+    el.innerHTML = list.map(m => `
+      <div class="sp-metier-item" onclick="selectMetier('${m.name}')">
+        <div class="sp-metier-icon" style="background:${m.bg}">${m.icon}</div>
+        <div>
+          <div class="sp-metier-name">${m.name}</div>
+        </div>
+        <span class="sp-metier-arrow">›</span>
+      </div>
+    `).join('');
+  }
+
+  window.openSearch = function() {
+    document.getElementById('searchPanel').classList.add('open');
+    document.getElementById('spInput').value = '';
+    // Charger métiers depuis Firebase aussi
+    loadMetiersFromFirebase();
+    renderMetiers(allMetiers);
+    setTimeout(() => document.getElementById('spInput').focus(), 350);
+  }
+
+  window.closeSearch = function() {
+    document.getElementById('searchPanel').classList.remove('open');
+  }
+
+  window.filterMetiers = function() {
+    const q = document.getElementById('spInput').value.toLowerCase();
+    const filtered = allMetiers.filter(m => m.name.toLowerCase().includes(q));
+    renderMetiers(filtered);
+  }
+
+  window.selectMetier = function(metier) {
+    closeSearch();
+    toast('🔍 Filtrage : ' + metier, 'g');
+    // Filtrer le feed par métier
+    document.querySelectorAll('.vcard').forEach(card => {
+      const metierEl = card.querySelector('.info-job-name');
+      if (metierEl) {
+        const cardMetier = metierEl.textContent.toLowerCase();
+        card.style.display = cardMetier.includes(metier.toLowerCase().split('/')[0].trim()) ? '' : 'none';
+      }
+    });
+  }
+
+  async function loadMetiersFromFirebase() {
+    try {
+      const snap = await getDocs(collection(db, 'utilisateurs'));
+      const metiersSet = new Set(METIERS_BASE.map(m => m.name));
+      const extras = [];
+      snap.forEach(doc => {
+        const m = doc.data().metier;
+        if (m && !metiersSet.has(m)) {
+          metiersSet.add(m);
+          extras.push({ icon:'🎯', name:m, bg:'#f5f5f5' });
+        }
+      });
+      if (extras.length > 0) {
+        allMetiers = [...METIERS_BASE, ...extras];
+        renderMetiers(allMetiers);
+      }
+    } catch(e) { console.log('Firebase métiers:', e); }
+  }
+
+
+  let authChecked = false;
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      if (authChecked) { window.location.href = 'connexion.html'; }
+      else { setTimeout(() => { if (!auth.currentUser) window.location.href = 'connexion.html'; }, 3000); }
+      authChecked = true;
+      return;
+    }
+    authChecked = true;
+    try {
+      const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
+    } catch(e) { console.error('rôle utilisateur:', e); }
+    const feed = document.getElementById('feedW');
+    try {
+      const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
+      const snap = await getDocs(q);
+      let index = 0;
+      snap.forEach(doc => {
+        feed.innerHTML += creerCard(doc.id, doc.data(), index++);
+      });
+      adjustLayout();
+    } catch(e) { console.error(e); }
+  });
+</script>
+<script src="translations.js"></script>
+</body>
+</html>
