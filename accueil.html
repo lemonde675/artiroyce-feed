@@ -132,15 +132,12 @@
        VERSION ORDINATEUR / PC
     ══════════════════════════════════ */
     @media (min-width: 768px) {
-      html {
-        max-width: none; width: 100%;
-        background:
-          radial-gradient(circle at 15% 15%, rgba(230,50,36,0.16), transparent 42%),
-          radial-gradient(circle at 85% 85%, rgba(39,169,69,0.16), transparent 42%),
-          linear-gradient(160deg, #0a0a2e, #1a1a6e, #0d0d40);
-      }
-      body { max-width: 600px; margin: 0 auto; box-shadow: 0 0 60px rgba(0,0,0,0.45); }
-      .top-header, .bot-nav, .panels-container { max-width: 600px; }
+      html { max-width: none; width: 100%; background: #0a0a2e; }
+      body { max-width: none !important; width: 100% !important; margin: 0 !important; box-shadow: none; }
+      .top-header, .bot-nav, .panels-container { max-width: none !important; width: 100% !important; }
+      .feed-wrap, .panel-slide { scrollbar-width: thin; }
+      .feed-wrap::-webkit-scrollbar { display: block; width: 6px; }
+      .feed-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
       .btn-suivre:hover, .btn-contacter:hover, .h-tab:hover, .nav-i:hover .nav-lb { opacity: 0.85; cursor: pointer; }
       .act-circle:hover { transform: scale(1.08); }
     }
