@@ -247,6 +247,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Vidéos',
     pro_tab_reviews:     'Avis',
     pro_no_reviews:      'Aucun avis pour le moment',
+    pro_news_history_title: 'Historique des publications',
+    pro_news_history_empty: 'Aucune publication pour le moment.',
   },
 
   EN: {
@@ -484,6 +486,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Videos',
     pro_tab_reviews:     'Reviews',
     pro_no_reviews:      'No reviews yet',
+    pro_news_history_title: 'Publication history',
+    pro_news_history_empty: 'No publications yet.',
   },
 
   ES: {
@@ -721,6 +725,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Videos',
     pro_tab_reviews:     'Reseñas',
     pro_no_reviews:      'Aún no hay reseñas',
+    pro_news_history_title: 'Historial de publicaciones',
+    pro_news_history_empty: 'Aún no hay publicaciones.',
   },
 
   PT: {
@@ -958,6 +964,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Vídeos',
     pro_tab_reviews:     'Avaliações',
     pro_no_reviews:      'Nenhuma avaliação ainda',
+    pro_news_history_title: 'Histórico de publicações',
+    pro_news_history_empty: 'Nenhuma publicação ainda.',
   },
 
   AR: {
@@ -1195,6 +1203,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'الفيديوهات',
     pro_tab_reviews:     'التقييمات',
     pro_no_reviews:      'لا توجد تقييمات حتى الآن',
+    pro_news_history_title: 'سجل المنشورات',
+    pro_news_history_empty: 'لا توجد منشورات حتى الآن.',
   },
 
   ZH: {
@@ -1432,6 +1442,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      '视频',
     pro_tab_reviews:     '评价',
     pro_no_reviews:      '暂无评价',
+    pro_news_history_title: '发布记录',
+    pro_news_history_empty: '暂无发布内容。',
   },
 
   RU: {
@@ -1669,6 +1681,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Видео',
     pro_tab_reviews:     'Отзывы',
     pro_no_reviews:      'Пока нет отзывов',
+    pro_news_history_title: 'История публикаций',
+    pro_news_history_empty: 'Пока нет публикаций.',
   },
 
   DE: {
@@ -1906,6 +1920,8 @@ const TRANSLATIONS = {
     pro_tab_videos:      'Videos',
     pro_tab_reviews:     'Bewertungen',
     pro_no_reviews:      'Noch keine Bewertungen',
+    pro_news_history_title: 'Veröffentlichungsverlauf',
+    pro_news_history_empty: 'Noch keine Veröffentlichungen.',
   },
 
   JA: {
@@ -2015,27 +2031,4 @@ const TRANSLATIONS = {
     login_err_password_required: '⚠ パスワードを入力してください。',
     login_err_password_length: '⚠ パスワードは6文字以上必要です。',
     login_connecting: 'ログイン中…',
-    login_toast_success: '✅ ログインに成功しました！ようこそ。',
-    login_toast_pending: '⏳ アカウントは審査中です — プロフィールにアクセスしています。',
-    login_err_credentials: '⚠ メールアドレスまたはパスワードが正しくありません。',
-    vit_chip_all:    '⭐ すべて',
-    vit_chip_macon:  '🧱 石工',
-    vit_chip_elec:   '⚡ 電気技師',
-    vit_chip_plomb:  '🚿 配管工',
-    vit_chip_peintre: '🎨 塗装工',
-    vit_chip_menuisier: '🪵 大工',
-    vit_chip_coiffeur: '✂️ 美容師',
-    vit_chip_couturier: '🧵 仕立て屋',
-    vit_chip_cuisinier: '👨‍🍳 料理人',
-    vit_chip_mecanicien: '🔧 整備士',
-    vit_hero_tag:    '✨ 認定プロフェッショナル',
-    vit_hero_title:  '必要な<br><em>プロを見つけよう</em>',
-    vit_hero_sub:    '何百人もの認定プロがあなたをサポートします',
-    vit_hero_btn:    '🔍 フィードで見る',
-    vit_section_label: '認定プロフェッショナル',
-    vit_hscroll_label: '他のプロフェッショナル',
-    vit_nav_accueil: 'ホーム',
-    vit_nav_profil:  'プロフィール',
-    vit_verified:    '✔ 認定済み',
-    vit_btn_contact: '💬 連絡する',
-    vit_btn_
+    login_toast_succ
