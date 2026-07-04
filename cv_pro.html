@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>CV Pro – ArtiRoyce</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root { --red:#e63224; --green:#27a945; --navy:#0a0a2e; --navy2:#1a1a6e; --blue-ico:#2f6fed; --blue-light:#eaf1fb; --gold:#e8c574; --ribbon1:#1d3f7a; --ribbon2:#2e5aac; }
+html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; color: #1c1e21; max-width: 480px; margin: 0 auto; }
+
+/* ── HEADER — copie exacte accueil.html / offre_v1.html ── */
+.top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
+.h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
+.h-house { font-size: 24px; flex-shrink: 0; }
+.h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
+.h-logo-text .arti { color: var(--red); }
+.h-logo-text .royce { color: var(--green); }
+.h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.h-ico { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+.h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
+.h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
+.h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+.h-ico.chat .bdot { background: var(--green); }
+.h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+.h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
+.h-tabs::-webkit-scrollbar { display: none; }
+.h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
+.h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
+
+.content { padding-top: 108px; padding-bottom: 40px; background: #F2F4F7; }
+
+/* ── ÉTAT VIDE : hero + bouton "+Ajouter" en haut ── */
+.hero-card{
+  margin:14px 12px 0; background:#fff; border-radius:24px; border:1px solid #E8ECF0;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.07); padding:24px 22px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+}
+.hero-card h2{ font-size:16px; font-weight:900; color:var(--navy2); margin-bottom:10px; }
+.btn-ajouter{
+  display:inline-flex; align-items:center; gap:6px; background:var(--red); color:#fff; border:none;
+  border-radius:22px; padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
+}
+.hero-icon{ width:56px; height:56px; border-radius:14px; background:#eef1fb; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+
+.empty-block{ margin:12px 12px 0; background:#fff; border-radius:20px; padding:34px 20px; text-align:center; border:1px solid #E8ECF0; }
+.empty-block .ico{ font-size:48px; margin-bottom:12px; opacity:0.6; }
+.empty-block h3{ font-size:14.5px; font-weight:800; color:var(--navy2); margin-bottom:6px; }
+.empty-block p{ font-size:12.5px; color:#888; max-width:320px; margin:0 auto; line-height:1.5; }
+
+/* ── BARRE "CV publié" ── */
+.published-bar{
+  margin:12px 12px 0; display:flex; align-items:center; justify-content:space-between; background:#fff;
+  border-radius:16px; padding:12px 14px; border:1px solid #E8ECF0; flex-wrap:wrap; gap:8px;
+}
+.pub-status{ display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--green); }
+.pub-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); }
+.btn-changer-modele{
+  background:#eef1fb; border:1.5px solid var(--blue-ico); color:var(--blue-ico); border-radius:18px;
+  padding:7px 13px; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.import-preview{ margin:12px 12px 0; background:#fff; border-radius:20px; padding:18px; text-align:center; border:1px solid #E8ECF0; }
+.import-preview img{ max-width:100%; border-radius:12px; }
+.import-preview .filelink{ display:inline-flex; align-items:center; gap:8px; background:#eef1fb; color:var(--blue-ico); padding:10px 18px; border-radius:14px; font-weight:700; font-size:13px; }
+
+.loading{ text-align:center; padding:60px 20px; color:#999; font-size:13px; }
+
+/* ═══════════ MODÈLE CV PREMIUM (ruban + colonnes) ═══════════ */
+#cvWrap{ margin-top:6px; }
+.cv-topbar{ display:flex; align-items:center; gap:10px; padding:10px 12px; background:#fff; margin:0 12px; border-radius:16px 16px 0 0; border:1px solid #E8ECF0; border-bottom:none; }
+.cv-topbar .cv-title{ font-weight:800; font-size:13.5px; flex:1; color:var(--navy2); }
+.btn-cv-edit{ background:#f5f5f5; border:1.5px solid #ddd; color:#1a1a1a; border-radius:18px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-cv-save{ background:var(--red); color:#fff; border:none; border-radius:18px; padding:7px 14px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px; }
+.btn-cv-save:disabled{ opacity:.55; }
+
+.sheet{ margin:0 12px; background:#fff; border-radius:0 0 20px 20px; overflow:hidden; border:1px solid #E8ECF0; border-top:none; }
+
+.ribbon{ background:linear-gradient(120deg,var(--ribbon1),var(--ribbon2)); padding:28px 20px 56px; position:relative; }
+.ribbon::after{ content:""; position:absolute; top:-40px; right:-40px; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle,rgba(232,197,116,0.18),transparent 70%); }
+.ribbon-gold{ width:44px; height:3px; background:var(--gold); border-radius:2px; margin-bottom:10px; }
+.ribbon-text{ padding-left:116px; }
+.r-nom{ font-size:22px; font-weight:900; color:#fff; text-transform:uppercase; line-height:1.1; }
+.r-nom[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.5); }
+.r-prenom{ font-size:17px; font-weight:700; color:var(--gold); margin-top:2px; }
+.r-prenom[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.5); }
+.r-metier{ font-size:11.5px; font-weight:700; color:rgba(255,255,255,0.85); text-transform:uppercase; letter-spacing:0.6px; margin-top:8px; }
+.r-metier[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.5); }
+.r-nom:empty::before{ content: attr(data-placeholder); color:rgba(255,255,255,0.45); }
+.r-prenom:empty::before{ content: attr(data-placeholder); color:rgba(232,197,116,0.55); }
+.r-metier:empty::before{ content: attr(data-placeholder); color:rgba(255,255,255,0.4); font-style:italic; }
+
+.photo-box{ position:absolute; left:20px; bottom:-46px; width:96px; height:106px; border-radius:10px; border:3px solid #fff; overflow:hidden; background:#eef1f8; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(20,30,60,0.3); cursor:pointer; z-index:3; }
+.photo-box img{ width:100%; height:100%; object-fit:cover; }
+.photo-box .init{ font-size:32px; font-weight:800; color:#b7c2da; }
+.photo-edit-dot{ position:absolute; left:12px; bottom:-58px; width:30px; height:30px; border-radius:50%; background:var(--red); border:3px solid #fff; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; cursor:pointer; z-index:4; }
+input[type=file]{ display:none; }
+
+.body-grid{ display:flex; flex-direction:row; gap:0; padding-top:56px; align-items:stretch; }
+
+.col-right{ order:2; flex:0 0 34%; background:var(--blue-light); padding:12px 8px; display:flex; flex-direction:column; gap:10px; }
+.info-block{ display:flex; flex-direction:column; gap:3px; align-items:flex-start; }
+.info-ico{ width:20px; height:20px; border-radius:50%; background:#fff; border:1.5px solid var(--blue-ico); color:var(--blue-ico); display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+.info-label-row{ display:flex; align-items:center; gap:6px; }
+.info-label{ font-size:9px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:0.3px; }
+.info-value{ font-size:10.5px; color:#444; line-height:1.35; word-break:break-word; min-height:14px; }
+.info-value[contenteditable="true"]{ outline:none; border-bottom:1px dashed #99a; background:#fff; }
+.info-value[contenteditable="true"]:focus{ border-bottom:1px solid var(--blue-ico); }
+.info-value:empty::before{ content: attr(data-placeholder); color:#a6adc4; font-style:italic; }
+
+.contact-row{ display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.cbtn{ padding:8px; border-radius:10px; border:none; font-size:11px; font-weight:700; cursor:pointer; }
+.cbtn.appel{ background:var(--green); color:#fff; }
+.cbtn.msg{ background:var(--ribbon2); color:#fff; }
+
+.col-left{ order:1; flex:1; min-width:0; padding:16px 10px; }
+
+.sec{ margin-bottom:16px; }
+.sec:last-child{ margin-bottom:0; }
+.sec-title{ display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.sec-ico{ font-size:13px; }
+.sec-label{ font-size:11.5px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:0.3px; }
+.sec-line{ flex:1; height:2px; min-width:20px; background:linear-gradient(90deg,var(--blue-ico),transparent); }
+
+.txt-edit{ width:100%; border:1.5px dashed #ccc; border-radius:10px; padding:8px 10px; font-size:12px; font-family:inherit; resize:vertical; margin-bottom:6px; }
+.txt-edit:focus{ outline:none; border-color:var(--blue-ico); }
+.profil-txt{ font-size:12px; color:#444; line-height:1.5; }
+
+ul.bullets{ list-style:none; padding-left:0; }
+ul.bullets li{ font-size:12px; color:#444; padding-left:16px; position:relative; margin-bottom:5px; line-height:1.4; }
+ul.bullets li::before{ content:"▸"; position:absolute; left:0; color:var(--blue-ico); font-weight:900; }
+ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weight:900; }
+
+.add-mini-row{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.add-mini-row input{ flex:1; min-width:120px; border:1.5px solid #ddd; border-radius:10px; padding:7px 9px; font-size:12px; font-family:inherit; }
+.add-mini-row input:focus{ outline:none; border-color:var(--blue-ico); }
+.btn-add-mini{ background:var(--blue-light); color:var(--blue-ico); border:1.5px solid var(--blue-ico); border-radius:10px; padding:7px 12px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+
+.form-item, .exp-item{ margin-bottom:12px; position:relative; padding-left:10px; border-left:2px solid var(--blue-light); }
+.form-item:last-child, .exp-item:last-child{ margin-bottom:0; }
+.item-titre{ font-size:12.5px; font-weight:800; color:var(--navy); }
+.item-sub{ font-size:11px; color:var(--blue-ico); font-weight:700; }
+.item-periode{ font-size:10px; color:#888; font-weight:700; float:right; }
+.item-rm{ position:absolute; right:0; top:0; color:var(--red); cursor:pointer; font-weight:900; }
+
+.tl-add{ border:1.5px dashed #cfd4e6; border-radius:12px; padding:10px; margin-top:10px; }
+.tl-add-grid{ display:grid; grid-template-columns:1fr; gap:8px; }
+.tl-add-grid textarea{ grid-column:1 / -1; }
+.tl-add input, .tl-add textarea{ border:1.5px solid #ddd; border-radius:10px; padding:8px 10px; font-size:12px; font-family:inherit; }
+.tl-add input:focus, .tl-add textarea:focus{ outline:none; border-color:var(--blue-ico); }
+
+.empty-hint{ font-size:11px; color:#999; font-style:italic; }
+.example-hint{ font-size:11.5px; color:#a6adc4; font-style:italic; }
+
+/* ═══════════ MODAL — choix du modèle (identique à offre_v1.html) ═══════════ */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; padding: 0 16px env(safe-area-inset-bottom, 20px); animation: up .3s ease; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+@keyframes up { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.m-topbar{ display:flex; align-items:center; justify-content:space-between; padding:4px 0 10px; }
+.m-close{ width:34px; height:34px; border-radius:50%; border:none; background:#f0f2f5; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.m-handle{ width:36px; height:4px; background:#ddd; border-radius:4px; }
+.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: #65676b; margin-bottom: 14px; }
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.m-card { border: 2px solid #e4e6eb; border-radius: 12px; padding: 14px 6px 10px; text-align: center; cursor: pointer; background: #fff; transition: border-color .15s; }
+.m-card.sel { border-color: var(--red); }
+.m-card.disabled{ opacity:0.5; cursor:not-allowed; }
+.m-icon { font-size: 26px; margin-bottom: 6px; }
+.m-name { font-size: 12px; font-weight: 700; color: #1c1e21; }
+.m-desc { font-size: 10px; color: #65676b; margin-top: 2px; }
+.m-preview-box{ background:#f7f8fc; border:1.5px dashed #d8dcec; border-radius:12px; padding:16px; text-align:center; margin-bottom:14px; font-size:12.5px; color:#555; line-height:1.5; }
+.m-preview-box b{ color:var(--navy2); }
+.btn-continuer{ width:100%; padding:13px; border-radius:12px; background:var(--red); color:#fff; border:none; font-size:15px; font-weight:800; cursor:pointer; margin-top:6px; }
+.btn-continuer:disabled{ opacity:0.5; cursor:not-allowed; }
+.upload-zone { border: 2px dashed #e4e6eb; border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; margin-bottom: 12px; color: #bbb; background: #f9f9f9; }
+.uz-icon { font-size: 30px; margin-bottom: 5px; }
+.uz-txt { font-size: 13px; font-weight: 600; color:#555; }
+.uz-sub { font-size: 11px; margin-top: 2px; opacity: .7; }
+.import-apercu{ display:none; margin-bottom:12px; }
+.import-apercu img{ width:100%; max-height:220px; object-fit:cover; border-radius:10px; }
+.import-apercu .filechip{ display:flex; align-items:center; gap:8px; background:#eef1fb; color:var(--blue-ico); padding:12px; border-radius:10px; font-weight:700; font-size:13px; }
+
+/* ─────────── PC PLEIN ÉCRAN ─────────── */
+@media (min-width:768px){
+  html, body{ max-width:100%; }
+  .top-header{ max-width:100%; }
+  .content{ max-width:1100px; margin:0 auto; }
+  .hero-card, .empty-block, .published-bar, .import-preview{ margin-left:0; margin-right:0; }
+  .modal{ max-width:600px; border-radius:20px; margin-bottom:5vh; }
+  #cvWrap{ max-width:1100px; margin:6px auto 0; }
+  .cv-topbar, .sheet{ margin:0; }
+  .ribbon{ padding:40px 40px 70px; }
+  .ribbon-text{ padding-left:150px; }
+  .photo-box{ left:40px; bottom:-56px; width:130px; height:142px; }
+  .photo-edit-dot{ left:26px; bottom:-70px; }
+  .col-right{ flex:0 0 270px; padding:24px 20px; gap:18px; }
+  .info-ico{ width:26px; height:26px; font-size:12px; }
+  .info-label{ font-size:11px; } .info-value{ font-size:13px; }
+  .contact-row{ flex-direction:row; } .cbtn{ padding:10px; font-size:12.5px; }
+  .col-left{ padding:32px 36px; }
+  .sec{ margin-bottom:22px; } .sec-label{ font-size:13.5px; } .sec-ico{ font-size:15px; }
+  .profil-txt, ul.bullets li, .add-mini-row input, .btn-add-mini, .tl-add input, .tl-add textarea{ font-size:13px; }
+  .item-titre{ font-size:14px; } .item-sub{ font-size:12.5px; }
+  .tl-add-grid{ grid-template-columns:1fr 1fr; }
+  .btn-ajouter, .btn-changer-modele, .btn-cv-edit, .btn-cv-save, .m-card, .btn-continuer, .upload-zone, .m-close, .photo-box, .photo-edit-dot, .item-rm, .cbtn{ cursor:pointer; }
+  .btn-cv-save:hover, .btn-ajouter:hover{ transform:translateY(-1px); }
+  .photo-box:hover{ box-shadow:0 10px 26px rgba(20,30,60,0.4); }
+  * { scrollbar-width: thin; }
+  ::-webkit-scrollbar{ width:10px; }
+  ::-webkit-scrollbar-thumb{ background:#c8cbe0; border-radius:10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER — identique à toutes les pages ArtiRoyce ═══ -->
+<header class="top-header">
+  <div class="h-row1">
+    <span class="h-house">🏠</span>
+    <div class="h-logo">
+      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="h-icons">
+      <div class="h-ico bell">🔔<div class="bdot">3</div></div>
+      <div style="display:flex;align-items:center;gap:3px">
+        <div class="h-ico chat" style="margin:0">💬<div class="bdot">1</div></div>
+        <span style="font-size:20px;cursor:pointer;padding:2px 0">🔍</span>
+        <span class="h-dots">⋮</span>
+      </div>
+    </div>
+  </div>
+  <div class="h-tabs">
+    <div class="h-tab">🏠 Accueil</div>
+    <div class="h-tab">📰 Actualités</div>
+    <div class="h-tab">● Statuts</div>
+    <div class="h-tab">⭐ Élites</div>
+    <div class="h-tab">💼 Offres</div>
+    <div class="h-tab active">📄 CV Pro</div>
+    <div class="h-tab">💬 Répert-Discussion</div>
+    <div class="h-tab">📖 FAQ</div>
+  </div>
+</header>
+
+<div class="content">
+
+  <div class="loading" id="loading">Chargement de votre CV Pro…</div>
+
+  <!-- ÉTAT VIDE -->
+  <div id="landingEmpty" style="display:none">
+    <div class="hero-card">
+      <div>
+        <h2>Créez votre carte de visite professionnelle</h2>
+        <button class="btn-ajouter" onclick="ouvrirModal()">➕ Ajouter mon CV</button>
+      </div>
+      <div class="hero-icon">📄</div>
+    </div>
+    <div class="empty-block">
+      <div class="ico">🗂️</div>
+      <h3>Aucun CV publié pour l'instant</h3>
+      <p>Créez votre CV professionnel pour vous faire remarquer par les visiteurs et clients ArtiRoyce.</p>
+    </div>
+  </div>
+
+  <!-- CV IMPORTÉ -->
+  <div id="importWrap" style="display:none">
+    <div class="published-bar">
+      <div class="pub-status"><span class="pub-dot"></span> CV publié — visible publiquement</div>
+      <button class="btn-changer-modele" onclick="ouvrirModal()">🔁 Changer de modèle</button>
+    </div>
+    <div class="import-preview" id="importPreviewContent"></div>
+  </div>
+
+  <!-- MODÈLE CV PREMIUM -->
+  <div id="cvWrap" style="display:none">
+    <div class="cv-topbar">
+      <div class="cv-title" id="cvTopbarTitle">Mon CV Professionnel</div>
+      <button class="btn-changer-modele" id="btnChangerModele" style="display:none">🔁 Modèle</button>
+      <button class="btn-cv-edit" id="btnToggleEdit" style="display:none">✏️ Modifier</button>
+      <button class="btn-cv-save" id="btnSave" style="display:none">✅ Confirmer</button>
+    </div>
+
+    <div class="sheet">
+      <div class="ribbon">
+        <div class="ribbon-text">
+          <div class="ribbon-gold"></div>
+          <div class="r-nom" id="hNom" data-key="nomFamille" data-placeholder="Ex : DUPONT" contenteditable="false"></div>
+          <div class="r-prenom" id="hPrenom" data-key="prenom" data-placeholder="Ex : Jean" contenteditable="false"></div>
+          <div class="r-metier" id="hMetier" data-key="metier" data-placeholder="Ex : Menuisier" contenteditable="false"></div>
+        </div>
+        <div class="photo-box" id="photoBox">
+          <div class="init" id="photoInit">?</div>
+          <img id="photoImg" style="display:none">
+          <input type="file" id="photoInput" accept="image/*">
+        </div>
+        <div class="photo-edit-dot" id="photoEditDot" style="display:none">📷</div>
+      </div>
+
+      <div class="body-grid">
+
+        <div class="col-right">
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">🌍</div><div class="info-label">Pays</div></div>
+            <div class="info-value" id="fPays" data-key="pays" data-placeholder="Ex : France"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">📍</div><div class="info-label">Ville</div></div>
+            <div class="info-value" id="fVille" data-key="ville" data-placeholder="Ex : Paris"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">🎓</div><div class="info-label">Diplôme</div></div>
+            <div class="info-value" id="fDiplome" data-key="diplome" data-placeholder="Ex : CAP Électricité"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">💼</div><div class="info-label">Expérience</div></div>
+            <div class="info-value" id="fExperience" data-key="experienceResume" data-placeholder="Ex : 5 ans d'expérience"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">🏠</div><div class="info-label">Adresse</div></div>
+            <div class="info-value" id="fAdresse" data-key="adresse" data-placeholder="Ex : Quartier, Ville, Pays"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">📞</div><div class="info-label">Téléphone</div></div>
+            <div class="info-value" id="fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div>
+          </div>
+          <div class="info-block">
+            <div class="info-label-row"><div class="info-ico">✉️</div><div class="info-label">Email</div></div>
+            <div class="info-value" id="fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div>
+          </div>
+          <div class="contact-row" id="contactRow" style="display:none">
+            <button class="cbtn appel" onclick="alert('Fonction Appel déjà gérée par ArtiRoyce.')">📞 Appeler</button>
+            <button class="cbtn msg" onclick="alert('Fonction Discussion déjà gérée par ArtiRoyce.')">💬 Discuter</button>
+          </div>
+        </div>
+
+        <div class="col-left">
+
+          <div class="sec">
+            <div class="sec-title"><span class="sec-ico">👤</span><div class="sec-label">Profil</div><div class="sec-line"></div></div>
+            <div class="profil-txt" id="profilView"></div>
+            <textarea class="txt-edit" id="profilEdit" rows="4" maxlength="400" placeholder="Ex : Menuisier passionné avec 5 ans d'expérience dans la fabrication de meubles sur mesure. Rigoureux, ponctuel et à l'écoute des besoins du client."></textarea>
+          </div>
+
+          <div class="sec">
+            <div class="sec-title"><span class="sec-ico">⭐</span><div class="sec-label">Qualités</div><div class="sec-line"></div></div>
+            <ul class="bullets" id="qualitesList"></ul>
+            <div class="add-mini-row" id="qualitesAdd">
+              <input id="qualiteInput" placeholder="Ex : Rigueur et ponctualité">
+              <button class="btn-add-mini" onclick="ajouterQualite()">+ Ajouter</button>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-title"><span class="sec-ico">🎓</span><div class="sec-label">Formation</div><div class="sec-line"></div></div>
+            <div id="formList"></div>
+            <div class="tl-add" id="formAdd">
+              <div class="tl-add-grid">
+                <input id="formDiplome2" placeholder="Ex : CAP Menuiserie">
+                <input id="formEtab" placeholder="Ex : Lycée Technique de Cotonou">
+                <input id="formPeriode" placeholder="Ex : 2019 - 2022">
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterFormation()">+ Ajouter cette formation</button>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-title"><span class="sec-ico">💼</span><div class="sec-label">Expérience professionnelle</div><div class="sec-line"></div></div>
+            <div id="expList"></div>
+            <div class="tl-add" id="expAdd">
+              <div class="tl-add-grid">
+                <input id="expPoste" placeholder="Ex : Menuisier">
+                <input id="expEntreprise" placeholder="Ex : Atelier Bois d'Or">
+                <input id="expPeriode" placeholder="Ex : 2021 - Aujourd'hui">
+                <div></div>
+                <textarea id="expDesc" rows="2" placeholder="Ex : Fabrication de meubles sur mesure. Pose et finition. Réparation de mobilier ancien."></textarea>
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterExperience()">+ Ajouter cette expérience</button>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-title"><span class="sec-ico">🛠️</span><div class="sec-label">Compétences</div><div class="sec-line"></div></div>
+            <ul class="bullets" id="compList"></ul>
+            <div class="add-mini-row" id="compAdd">
+              <input id="compInput" placeholder="Ex : Pose de carrelage">
+              <button class="btn-add-mini" onclick="ajouterCompetence()">+ Ajouter</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ MODAL : Choix du modèle ═══ -->
+<div class="overlay" id="overlay" onclick="if(event.target===this) fermerModal()">
+  <div class="modal" id="modal">
+    <div class="m-topbar">
+      <button class="m-close" onclick="fermerModal()">✕</button>
+      <div class="m-handle"></div>
+      <div style="width:34px"></div>
+    </div>
+    <h3>📇 Publier mon CV</h3>
+    <p class="modal-sub">Choisissez un modèle</p>
+
+    <div class="m-grid">
+      <div class="m-card sel" id="carte-premium" onclick="selectionnerModele('premium')">
+        <div class="m-icon">📇</div>
+        <div class="m-name">Premium</div>
+        <div class="m-desc">Ruban bleu + photo</div>
+      </div>
+      <div class="m-card disabled" id="carte-modele2" onclick="selectionnerModele('modele2')">
+        <div class="m-icon">🗂️</div>
+        <div class="m-name">Modèle 2</div>
+        <div class="m-desc">Bientôt disponible</div>
+      </div>
+      <div class="m-card disabled" id="carte-modele3" onclick="selectionnerModele('modele3')">
+        <div class="m-icon">📋</div>
+        <div class="m-name">Modèle 3</div>
+        <div class="m-desc">Bientôt disponible</div>
+      </div>
+      <div class="m-card" id="carte-import" onclick="selectionnerModele('import')">
+        <div class="m-icon">📎</div>
+        <div class="m-name">Mon CV</div>
+        <div class="m-desc">Photo ou fichier</div>
+      </div>
+    </div>
+
+    <div id="zoneModeleTexte">
+      <div class="m-preview-box" id="modelePreviewTxt">
+        <b>Modèle Premium</b><br>Ruban bleu nuit, photo, Profil, Qualités, Formation, Expérience, Compétences et coordonnées.
+      </div>
+      <button class="btn-continuer" onclick="continuerVersModele()">Continuer avec ce modèle →</button>
+    </div>
+
+    <div id="zoneImport" style="display:none">
+      <div class="upload-zone" onclick="document.getElementById('fiImport').click()">
+        <div class="uz-icon">📎</div>
+        <div class="uz-txt">Choisir une photo ou un fichier</div>
+        <div class="uz-sub">JPG · PNG · PDF · max 5 Mo</div>
+      </div>
+      <input type="file" id="fiImport" accept="image/*,.pdf">
+      <div class="import-apercu" id="importApercu"></div>
+      <button class="btn-continuer" id="btnPublierImport" disabled onclick="publierImport()">📢 Publier maintenant</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(location.search);
+const uidParam = params.get('uid');
+
+let currentUser = null;
+let viewedUid = null;
+let isOwner = false;
+let editMode = false;
+let docPublie = false;
+
+let cvData = {
+  nomFamille:'', prenom:'', metier:'', profil:'',
+  pays:'', ville:'', diplome:'', experienceResume:'', adresse:'', telephone:'', email:'',
+  qualites:[], formations:[], experiences:[], competences:[], photoURL:''
+};
+
+const els = {
+  hNom: document.getElementById('hNom'),
+  hPrenom: document.getElementById('hPrenom'),
+  hMetier: document.getElementById('hMetier'),
+  photoImg: document.getElementById('photoImg'),
+  photoInit: document.getElementById('photoInit'),
+  photoEditDot: document.getElementById('photoEditDot'),
+  photoInput: document.getElementById('photoInput'),
+  profilView: document.getElementById('profilView'),
+  profilEdit: document.getElementById('profilEdit'),
+  qualitesList: document.getElementById('qualitesList'),
+  qualitesAdd: document.getElementById('qualitesAdd'),
+  formList: document.getElementById('formList'),
+  formAdd: document.getElementById('formAdd'),
+  expList: document.getElementById('expList'),
+  expAdd: document.getElementById('expAdd'),
+  compList: document.getElementById('compList'),
+  compAdd: document.getElementById('compAdd'),
+  contactRow: document.getElementById('contactRow'),
+  btnToggleEdit: document.getElementById('btnToggleEdit'),
+  btnSave: document.getElementById('btnSave'),
+  btnChangerModele: document.getElementById('btnChangerModele'),
+};
+const sideFields = ['fPays','fVille','fDiplome','fExperience','fAdresse','fTelephone','fEmail'];
+
+const loading = document.getElementById('loading');
+const landingEmpty = document.getElementById('landingEmpty');
+const importWrap = document.getElementById('importWrap');
+const cvWrap = document.getElementById('cvWrap');
+
+function afficherEtat(etat){
+  loading.style.display = etat === 'loading' ? 'block' : 'none';
+  landingEmpty.style.display = etat === 'empty' ? 'block' : 'none';
+  importWrap.style.display = etat === 'import' ? 'block' : 'none';
+  cvWrap.style.display = etat === 'cv' ? 'block' : 'none';
+}
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  viewedUid = uidParam || (user ? user.uid : null);
+
+  if (!viewedUid) {
+    // Aperçu hors connexion : état vide testable + CV premium remplissable directement
+    isOwner = true;
+    afficherEtat('empty');
+    return;
+  }
+
+  isOwner = !!(user && user.uid === viewedUid);
+  let data = null;
+  try {
+    const snap = await getDoc(doc(db, 'cv_professionnels', viewedUid));
+    if (snap.exists()) data = snap.data();
+  } catch (err) { console.error(err); }
+
+  docPublie = !!(data && data.publie);
+
+  if (!docPublie) {
+    if (isOwner) afficherEtat('empty'); else afficherEtat('empty');
+    return;
+  }
+
+  if (data.modeleChoisi === 'import') {
+    afficherImport(data);
+  } else {
+    cvData = Object.assign(cvData, data);
+    editMode = false;
+    if (isOwner) {
+      els.btnToggleEdit.style.display = 'inline-flex';
+      els.btnChangerModele.style.display = 'inline-flex';
+    } else {
+      els.contactRow.style.display = 'flex';
+    }
+    afficherEtat('cv');
+    render();
+  }
+});
+
+function afficherImport(data){
+  const isImage = (data.importURL || '').startsWith('data:image');
+  document.getElementById('importPreviewContent').innerHTML = isImage
+    ? `<img src="${data.importURL}" alt="CV importé">`
+    : `<a class="filelink" href="${data.importURL}" target="_blank">📎 Ouvrir mon fichier CV</a>`;
+  afficherEtat('import');
+}
+
+/* ── MODAL ── */
+window.ouvrirModal = () => document.getElementById('overlay').classList.add('open');
+window.fermerModal = () => document.getElementById('overlay').classList.remove('open');
+
+let modeleSelectionne = 'premium';
+const DESCRIPTIONS_MODELES = {
+  premium: '<b>Modèle Premium</b><br>Ruban bleu nuit, photo, Profil, Qualités, Formation, Expérience, Compétences et coordonnées.'
+};
+
+window.selectionnerModele = (type) => {
+  if (type === 'modele2' || type === 'modele3') return;
+  document.querySelectorAll('.m-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('carte-' + type).classList.add('sel');
+  modeleSelectionne = type;
+  document.getElementById('zoneModeleTexte').style.display = type === 'import' ? 'none' : 'block';
+  document.getElementById('zoneImport').style.display = type === 'import' ? 'block' : 'none';
+  if (type !== 'import') {
+    document.getElementById('modelePreviewTxt').innerHTML = DESCRIPTIONS_MODELES[type];
+  }
+};
+
+window.continuerVersModele = () => {
+  fermerModal();
+  if (modeleSelectionne === 'premium') {
+    editMode = true;
+    els.btnToggleEdit.style.display = 'none';
+    els.btnSave.style.display = 'inline-flex';
+    if (isOwner) els.btnChangerModele.style.display = 'inline-flex';
+    afficherEtat('cv');
+    render();
+  }
+};
+
+let importDataURL = '';
+let importEstImage = true;
+document.getElementById('fiImport').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    importDataURL = reader.result;
+    importEstImage = file.type.startsWith('image/');
+    const apercu = document.getElementById('importApercu');
+    apercu.style.display = 'block';
+    apercu.innerHTML = importEstImage ? `<img src="${importDataURL}">` : `<div class="filechip">📎 ${file.name}</div>`;
+    document.getElementById('btnPublierImport').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+window.publierImport = async () => {
+  if (!currentUser || !importDataURL) return;
+  const btn = document.getElementById('btnPublierImport');
+  btn.disabled = true;
+  btn.textContent = '⏳ Publication…';
+  try {
+    await setDoc(doc(db, 'cv_professionnels', currentUser.uid), {
+      modeleChoisi: 'import', importURL: importDataURL, publie: true,
+      auteurUid: currentUser.uid, majLe: new Date().toISOString()
+    }, { merge: true });
+    fermerModal();
+    afficherImport({ modeleChoisi:'import', importURL: importDataURL });
+  } catch (err) {
+    console.error(err);
+    btn.textContent = '❌ Erreur, réessayez';
+    btn.disabled = false;
+  }
+};
+
+/* ── RENDU DU CV PREMIUM ── */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+const exemplesListe = { qualites: 'Ex : Rigueur et ponctualité', competences: 'Ex : Pose de carrelage' };
+
+function render(){
+  els.hNom.textContent = cvData.nomFamille || '';
+  els.hPrenom.textContent = cvData.prenom || '';
+  els.hMetier.textContent = cvData.metier || '';
+  els.hNom.contentEditable = editMode;
+  els.hPrenom.contentEditable = editMode;
+  els.hMetier.contentEditable = editMode;
+
+  sideFields.forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = cvData[el.dataset.key] || '';
+    el.contentEditable = editMode;
+  });
+
+  els.profilView.textContent = cvData.profil || '';
+  els.profilView.style.display = editMode ? 'none' : 'block';
+  els.profilEdit.style.display = editMode ? 'block' : 'none';
+  els.profilEdit.value = cvData.profil || '';
+  if (!editMode && !cvData.profil) els.profilView.innerHTML = '<span class="empty-hint">Aucun profil renseigné.</span>';
+
+  if (cvData.photoURL) {
+    els.photoImg.src = cvData.photoURL; els.photoImg.style.display = 'block'; els.photoInit.style.display = 'none';
+  } else {
+    els.photoInit.textContent = (cvData.nomFamille || '?')[0]?.toUpperCase() || '?';
+    els.photoImg.style.display = 'none'; els.photoInit.style.display = 'block';
+  }
+  els.photoEditDot.style.display = (isOwner && editMode) ? 'flex' : 'none';
+
+  renderListe(cvData.qualites, els.qualitesList, 'qualites');
+  renderListe(cvData.competences, els.compList, 'competences');
+  renderFormations();
+  renderExperiences();
+
+  els.qualitesAdd.style.display = editMode ? 'flex' : 'none';
+  els.compAdd.style.display = editMode ? 'flex' : 'none';
+  els.formAdd.style.display = editMode ? 'block' : 'none';
+  els.expAdd.style.display = editMode ? 'block' : 'none';
+}
+
+function renderListe(arr, ul, key){
+  ul.innerHTML = '';
+  if (!arr.length) {
+    ul.innerHTML = editMode
+      ? `<li class="example-hint" style="list-style:none;padding-left:0">${exemplesListe[key] || 'Ex : ...'}</li>`
+      : '<li class="empty-hint" style="list-style:none;padding-left:0">Aucune information renseignée.</li>';
+    return;
+  }
+  arr.forEach((txt, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = escapeHtml(txt) + (editMode ? ` <span class="rm" data-i="${i}">✕</span>` : '');
+    ul.appendChild(li);
+  });
+  ul.querySelectorAll('.rm').forEach(el => { el.onclick = () => { cvData[key].splice(+el.dataset.i, 1); render(); }; });
+}
+
+function renderFormations(){
+  els.formList.innerHTML = '';
+  if (!cvData.formations.length) {
+    els.formList.innerHTML = editMode
+      ? '<div class="example-hint">Ex : CAP Menuiserie — Lycée Technique de Cotonou — 2018 - 2020</div>'
+      : '<div class="empty-hint">Aucune formation renseignée.</div>';
+    return;
+  }
+  cvData.formations.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'form-item';
+    div.innerHTML = `
+      ${editMode ? `<span class="item-rm" data-i="${i}">✕</span>` : ''}
+      <span class="item-periode">${escapeHtml(f.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(f.diplome||'')}</div>
+      <div class="item-sub">${escapeHtml(f.etablissement||'')}</div>
+    `;
+    els.formList.appendChild(div);
+  });
+  els.formList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.formations.splice(+el.dataset.i, 1); render(); }; });
+}
+
+function renderExperiences(){
+  els.expList.innerHTML = '';
+  if (!cvData.experiences.length) {
+    els.expList.innerHTML = editMode
+      ? "<div class=\"example-hint\">Ex : Menuisier — Atelier Bois d'Or, Cotonou — 2021 - Aujourd'hui</div>"
+      : '<div class="empty-hint">Aucune expérience renseignée.</div>';
+    return;
+  }
+  cvData.experiences.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'exp-item';
+    const puces = (e.description||'').split(/\.\s*|\n/).map(s=>s.trim()).filter(Boolean);
+    div.innerHTML = `
+      ${editMode ? `<span class="item-rm" data-i="${i}">✕</span>` : ''}
+      <span class="item-periode">${escapeHtml(e.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(e.poste||'')}</div>
+      <div class="item-sub">${escapeHtml(e.entreprise||'')}</div>
+      <ul class="bullets" style="margin-top:6px">${puces.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    `;
+    els.expList.appendChild(div);
+  });
+  els.expList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.experiences.splice(+el.dataset.i, 1); render(); }; });
+}
+
+window.ajouterQualite = function(){
+  const v = document.getElementById('qualiteInput').value.trim();
+  if (!v) return;
+  cvData.qualites.push(v); document.getElementById('qualiteInput').value = ''; render();
+};
+window.ajouterCompetence = function(){
+  const v = document.getElementById('compInput').value.trim();
+  if (!v) return;
+  cvData.competences.push(v); document.getElementById('compInput').value = ''; render();
+};
+window.ajouterFormation = function(){
+  const diplome = document.getElementById('formDiplome2').value.trim();
+  const etablissement = document.getElementById('formEtab').value.trim();
+  const periode = document.getElementById('formPeriode').value.trim();
+  if (!diplome) return;
+  cvData.formations.push({ diplome, etablissement, periode });
+  ['formDiplome2','formEtab','formPeriode'].forEach(id => document.getElementById(id).value = '');
+  render();
+};
+window.ajouterExperience = function(){
+  const poste = document.getElementById('expPoste').value.trim();
+  const entreprise = document.getElementById('expEntreprise').value.trim();
+  const periode = document.getElementById('expPeriode').value.trim();
+  const description = document.getElementById('expDesc').value.trim();
+  if (!poste) return;
+  cvData.experiences.unshift({ poste, entreprise, periode, description });
+  ['expPoste','expEntreprise','expPeriode','expDesc'].forEach(id => document.getElementById(id).value = '');
+  render();
+};
+
+els.photoEditDot.addEventListener('click', () => els.photoInput.click());
+els.photoInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { cvData.photoURL = reader.result; render(); };
+  reader.readAsDataURL(file);
+});
+els.profilEdit.addEventListener('input', () => { cvData.profil = els.profilEdit.value; });
+els.hNom.addEventListener('input', () => { cvData.nomFamille = els.hNom.textContent; });
+els.hPrenom.addEventListener('input', () => { cvData.prenom = els.hPrenom.textContent; });
+els.hMetier.addEventListener('input', () => { cvData.metier = els.hMetier.textContent; });
+sideFields.forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { cvData[el.dataset.key] = el.textContent; });
+});
+
+els.btnToggleEdit.addEventListener('click', () => {
+  editMode = true;
+  els.btnToggleEdit.style.display = 'none';
+  els.btnSave.style.display = 'inline-flex';
+  render();
+});
+
+els.btnChangerModele.addEventListener('click', () => { ouvrirModal(); });
+
+els.btnSave.addEventListener('click', async () => {
+  if (!currentUser) return;
+  els.btnSave.disabled = true;
+  els.btnSave.textContent = '⏳ Enregistrement…';
+  try {
+    await setDoc(doc(db, 'cv_professionnels', currentUser.uid), {
+      ...cvData, modeleChoisi: 'premium', publie: true,
+      auteurUid: currentUser.uid, majLe: new Date().toISOString()
+    }, { merge: true });
+    els.btnSave.textContent = '✅ Confirmé';
+    setTimeout(() => {
+      editMode = false;
+      els.btnSave.style.display = 'none';
+      els.btnSave.textContent = '✅ Confirmer';
+      els.btnSave.disabled = false;
+      els.btnToggleEdit.style.display = 'inline-flex';
+      els.btnChangerModele.style.display = 'inline-flex';
+      render();
+    }, 900);
+  } catch (err) {
+    console.error(err);
+    els.btnSave.textContent = '❌ Erreur';
+    setTimeout(() => { els.btnSave.textContent = '✅ Confirmer'; els.btnSave.disabled = false; }, 1600);
+  }
+});
+</script>
+</body>
+</html>
