@@ -24,6 +24,24 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
 .h-ico.chat .bdot { background: var(--green); }
 .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+
+/* ── SÉLECTEUR DE LANGUE — pilule standard ArtiRoyce ── */
+#langSel{ position:relative; }
+.lang-pill{
+  display:flex; align-items:center; gap:3px; background:#f5f5f5; border:1.5px solid #ddd;
+  border-radius:16px; padding:5px 8px; font-size:12px; cursor:pointer; white-space:nowrap;
+}
+.lang-dropdown{
+  display:none; position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e6eb;
+  border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.12); z-index:400; min-width:150px; max-height:280px;
+  overflow-y:auto; padding:6px;
+}
+#langSel.open .lang-dropdown{ display:block; }
+.lang-option{
+  padding:8px 10px; font-size:13px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+.lang-option:hover{ background:#f5f5f5; }
+.lang-option.active{ background:#eef1fb; font-weight:700; color:var(--blue-ico); }
 .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
 .h-tabs::-webkit-scrollbar { display: none; }
 .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
@@ -48,6 +66,31 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 .empty-block .ico{ font-size:48px; margin-bottom:12px; opacity:0.6; }
 .empty-block h3{ font-size:14.5px; font-weight:800; color:var(--navy2); margin-bottom:6px; }
 .empty-block p{ font-size:12.5px; color:#888; max-width:320px; margin:0 auto; line-height:1.5; }
+
+/* ── LISTE DE MES CV (plusieurs CV possibles) ── */
+.cv-cards{ display:flex; flex-direction:column; gap:10px; margin:12px 12px 0; }
+.cv-card{
+  background:#fff; border-radius:16px; padding:14px; display:flex; align-items:center; gap:12px;
+  border:1px solid #E8ECF0; box-shadow:0 2px 8px rgba(10,10,46,0.05);
+}
+.cv-card-ico{ width:44px; height:44px; border-radius:12px; background:#eef1fb; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.cv-card-info{ flex:1; min-width:0; }
+.cv-card-titre{ font-size:13.5px; font-weight:800; color:var(--navy2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cv-card-sub{ font-size:11.5px; color:#888; margin-top:2px; }
+.cv-card-badge{ font-size:10px; font-weight:700; color:var(--green); display:flex; align-items:center; gap:4px; margin-top:3px; }
+.cv-card-actions{ display:flex; gap:6px; flex-shrink:0; }
+.btn-cv-voir{ background:var(--blue-ico); color:#fff; border:none; border-radius:14px; padding:8px 12px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.btn-cv-suppr{ background:#fff0ef; color:var(--red); border:1.5px solid #f5c9c5; border-radius:14px; padding:8px 10px; font-size:12px; cursor:pointer; }
+
+.btn-retour-liste{ background:#f5f5f5; border:1.5px solid #ddd; color:#1a1a1a; border-radius:18px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; }
+
+/* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
+.acct-badge{ text-align:center; line-height:1.25; }
+.acct-role{ font-size:9.5px; font-weight:800; color:#8fb4ff; text-transform:uppercase; letter-spacing:0.5px; }
+.acct-nom{ font-size:12px; font-weight:700; color:#fff; }
+/* variante sur fond clair (aucune utilisée pour l'instant, prévu si besoin) */
+.acct-badge.on-light .acct-role{ color:var(--blue-ico); }
+.acct-badge.on-light .acct-nom{ color:var(--navy2); }
 
 /* ── BARRE "CV publié" ── */
 .published-bar{
@@ -181,6 +224,74 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 .import-apercu img{ width:100%; max-height:220px; object-fit:cover; border-radius:10px; }
 .import-apercu .filechip{ display:flex; align-items:center; gap:8px; background:#eef1fb; color:var(--blue-ico); padding:12px; border-radius:10px; font-weight:700; font-size:13px; }
 
+/* ═══════════ MODÈLE 2 — "Sobre Duo" (bandeau navy à gauche) ═══════════ */
+.m2-topbar{ display:flex; align-items:center; gap:10px; padding:10px 12px; background:#fff; margin:0 12px; border-radius:16px 16px 0 0; border:1px solid #E8ECF0; border-bottom:none; }
+.m2-topbar .m2-title{ font-weight:800; font-size:13.5px; flex:1; color:var(--navy2); }
+.m2-sheet{ margin:0 12px; background:#fff; border-radius:0 0 20px 20px; overflow:hidden; border:1px solid #E8ECF0; border-top:none; }
+.m2-header{ text-align:center; padding:20px 16px 14px; border-bottom:1px solid #eee; }
+.m2-nom{ font-size:20px; font-weight:900; color:var(--navy); text-transform:uppercase; }
+.m2-nom[contenteditable="true"]{ outline:none; border-bottom:1px dashed #99a; }
+.m2-prenom{ font-size:15px; font-weight:700; color:var(--navy2); }
+.m2-prenom[contenteditable="true"]{ outline:none; border-bottom:1px dashed #99a; }
+.m2-metier{ font-size:11px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+.m2-metier[contenteditable="true"]{ outline:none; border-bottom:1px dashed #99a; }
+.m2-nom:empty::before{ content:attr(data-placeholder); color:#bbb; }
+.m2-prenom:empty::before{ content:attr(data-placeholder); color:#bbb; }
+.m2-metier:empty::before{ content:attr(data-placeholder); color:#bbb; font-style:italic; }
+.m2-body{ display:flex; flex-direction:row; }
+.m2-side{ flex:0 0 36%; background:var(--navy); color:#fff; padding:18px 10px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.m2-photo{ width:78px; height:78px; border-radius:50%; border:3px solid #fff; overflow:hidden; background:#22265a; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; }
+.m2-photo img{ width:100%; height:100%; object-fit:cover; }
+.m2-photo .init{ font-size:26px; font-weight:800; color:#8f95c9; }
+.m2-photo-edit-dot{ width:26px; height:26px; border-radius:50%; background:var(--red); border:2px solid #fff; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; cursor:pointer; margin-top:-14px; }
+.m2-side-fields{ width:100%; display:flex; flex-direction:column; gap:10px; }
+.m2-info-block{ font-size:10px; }
+.m2-info-label{ display:flex; align-items:center; gap:5px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px; }
+.m2-info-value{ color:#dfe2f2; font-size:10.5px; line-height:1.3; word-break:break-word; }
+.m2-info-value[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.4); }
+.m2-info-value:empty::before{ content:attr(data-placeholder); color:#7c81ad; font-style:italic; }
+.m2-contact{ display:flex; flex-direction:column; gap:6px; width:100%; margin-top:4px; }
+.m2-main{ flex:1; padding:16px 12px; min-width:0; }
+.m2-sec{ margin-bottom:16px; }
+.m2-sec:last-child{ margin-bottom:0; }
+.m2-sec-title{ display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.m2-sec-title .ico{ color:var(--green); font-size:13px; }
+.m2-sec-title .lab{ font-size:11.5px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:0.3px; }
+.m2-sec-title .line{ flex:1; height:1px; background:#eee; }
+
+/* ═══════════ MODÈLE 3 — "Élégance Or" (sidebar navy + or) ═══════════ */
+.m3-topbar{ display:flex; align-items:center; gap:10px; padding:10px 12px; background:#fff; margin:0 12px; border-radius:16px 16px 0 0; border:1px solid #E8ECF0; border-bottom:none; }
+.m3-topbar .m3-title{ font-weight:800; font-size:13.5px; flex:1; color:var(--navy2); }
+.m3-sheet{ margin:0 12px; background:#fff; border-radius:0 0 20px 20px; overflow:hidden; border:1px solid #E8ECF0; border-top:none; }
+.m3-body{ display:flex; flex-direction:row; }
+.m3-side{ flex:0 0 38%; background:linear-gradient(160deg,var(--navy),#101248); color:#fff; padding:20px 10px; position:relative; }
+.m3-side::after{ content:""; position:absolute; inset:6px; border:1px solid rgba(232,197,116,0.35); border-radius:8px; pointer-events:none; }
+.m3-nameplate{ text-align:center; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid rgba(232,197,116,0.4); }
+.m3-nom{ font-size:15px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:1px; }
+.m3-nom[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(232,197,116,0.6); }
+.m3-prenom{ font-size:12.5px; color:#fff; margin-top:2px; }
+.m3-prenom[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.4); }
+.m3-metier{ font-size:9.5px; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.8px; margin-top:4px; font-style:italic; }
+.m3-metier[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.4); }
+.m3-nom:empty::before{ content:attr(data-placeholder); color:rgba(232,197,116,0.5); }
+.m3-prenom:empty::before{ content:attr(data-placeholder); color:rgba(255,255,255,0.4); }
+.m3-metier:empty::before{ content:attr(data-placeholder); color:rgba(255,255,255,0.35); }
+.m3-photo{ width:72px; height:72px; border-radius:50%; border:2px solid var(--gold); overflow:hidden; background:#1c2050; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; cursor:pointer; position:relative; }
+.m3-photo img{ width:100%; height:100%; object-fit:cover; }
+.m3-photo .init{ font-size:24px; font-weight:800; color:var(--gold); }
+.m3-photo-edit-dot{ width:24px; height:24px; border-radius:50%; background:var(--red); border:2px solid #fff; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; cursor:pointer; margin:-12px auto 10px; }
+.m3-info-block{ font-size:10px; margin-bottom:9px; }
+.m3-info-label{ display:flex; align-items:center; gap:5px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px; }
+.m3-info-value{ color:#dfe2f2; font-size:10.5px; line-height:1.3; word-break:break-word; }
+.m3-info-value[contenteditable="true"]{ outline:none; border-bottom:1px dashed rgba(255,255,255,0.4); }
+.m3-info-value:empty::before{ content:attr(data-placeholder); color:rgba(255,255,255,0.35); font-style:italic; }
+.m3-main{ flex:1; padding:18px 12px; min-width:0; }
+.m3-sec{ margin-bottom:16px; }
+.m3-sec:last-child{ margin-bottom:0; }
+.m3-sec-title{ display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+.m3-sec-title .lab{ font-size:11.5px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:1px; }
+.m3-sec-title .line{ flex:1; height:1px; background:linear-gradient(90deg,var(--gold),transparent); }
+
 /* ─────────── PC PLEIN ÉCRAN ─────────── */
 @media (min-width:768px){
   html, body{ max-width:100%; }
@@ -190,6 +301,16 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   .modal{ max-width:600px; border-radius:20px; margin-bottom:5vh; }
   #cvWrap{ max-width:1100px; margin:6px auto 0; }
   .cv-topbar, .sheet{ margin:0; }
+  #cvWrapM2, #cvWrapM3{ max-width:1100px; margin:6px auto 0; }
+  .m2-topbar, .m2-sheet, .m3-topbar, .m3-sheet{ margin:0; }
+  .m2-side{ flex:0 0 260px; padding:30px 20px; }
+  .m2-photo{ width:110px; height:110px; }
+  .m2-header{ padding:28px 20px 18px; }
+  .m2-nom{ font-size:26px; } .m2-prenom{ font-size:18px; } .m2-metier{ font-size:12px; }
+  .m2-main{ padding:26px 30px; }
+  .m3-side{ flex:0 0 280px; padding:34px 22px; }
+  .m3-photo{ width:100px; height:100px; }
+  .m3-main{ padding:28px 32px; }
   .ribbon{ padding:40px 40px 70px; }
   .ribbon-text{ padding-left:150px; }
   .photo-box{ left:40px; bottom:-56px; width:130px; height:142px; }
@@ -203,7 +324,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   .profil-txt, ul.bullets li, .add-mini-row input, .btn-add-mini, .tl-add input, .tl-add textarea{ font-size:13px; }
   .item-titre{ font-size:14px; } .item-sub{ font-size:12.5px; }
   .tl-add-grid{ grid-template-columns:1fr 1fr; }
-  .btn-ajouter, .btn-changer-modele, .btn-cv-edit, .btn-cv-save, .m-card, .btn-continuer, .upload-zone, .m-close, .photo-box, .photo-edit-dot, .item-rm, .cbtn{ cursor:pointer; }
+  .btn-ajouter, .btn-changer-modele, .btn-cv-edit, .btn-cv-save, .m-card, .btn-continuer, .upload-zone, .m-close, .photo-box, .photo-edit-dot, .item-rm, .cbtn, .m2-photo, .m2-photo-edit-dot, .m3-photo, .m3-photo-edit-dot{ cursor:pointer; }
   .btn-cv-save:hover, .btn-ajouter:hover{ transform:translateY(-1px); }
   .photo-box:hover{ box-shadow:0 10px 26px rgba(20,30,60,0.4); }
   * { scrollbar-width: thin; }
@@ -234,6 +355,23 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div style="display:flex;align-items:center;gap:3px">
         <div class="h-ico chat" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0">🔍</span>
+        <div id="langSel">
+          <div class="lang-pill" onclick="toggleLang()">
+            🌍 <span id="activFlag">🇫🇷</span><span id="activCode">FR</span>
+          </div>
+          <div class="lang-dropdown">
+            <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
+            <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
+            <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
+            <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
+            <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
+            <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
+            <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
+            <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
+            <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
+            <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
+          </div>
+        </div>
         <span class="h-dots">⋮</span>
       </div>
     </div>
@@ -252,29 +390,30 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
 <div class="content">
 
-  <div class="loading" id="loading">Chargement de votre CV Pro…</div>
+  <div class="loading" id="loading" data-i18n="cv_loading">Chargement de votre CV Pro…</div>
 
-  <!-- ÉTAT VIDE -->
-  <div id="landingEmpty" style="display:none">
+  <!-- LISTE DE MES CV — bouton "+Ajouter" toujours visible en haut -->
+  <div id="cvListeWrap" style="display:none">
     <div class="hero-card">
       <div>
-        <h2>Créez votre carte de visite professionnelle</h2>
-        <button class="btn-ajouter" onclick="ouvrirModal()">➕ Ajouter mon CV</button>
+        <h2 id="heroTitreListe" data-i18n="cv_hero_title">Créez votre carte de visite professionnelle</h2>
+        <button class="btn-ajouter" onclick="ouvrirModal()" data-i18n="cv_btn_ajouter">➕ Ajouter mon CV</button>
       </div>
       <div class="hero-icon">📄</div>
     </div>
-    <div class="empty-block">
+    <div class="empty-block" id="empty-block-liste" style="display:none">
       <div class="ico">🗂️</div>
-      <h3>Aucun CV publié pour l'instant</h3>
-      <p>Créez votre CV professionnel pour vous faire remarquer par les visiteurs et clients ArtiRoyce.</p>
+      <h3 data-i18n="cv_empty_title">Aucun CV publié pour l'instant</h3>
+      <p data-i18n="cv_empty_desc">Créez votre CV professionnel pour vous faire remarquer par les visiteurs et clients ArtiRoyce.</p>
     </div>
+    <div class="cv-cards" id="cvCardsListe"></div>
   </div>
 
   <!-- CV IMPORTÉ -->
   <div id="importWrap" style="display:none">
     <div class="published-bar">
-      <div class="pub-status"><span class="pub-dot"></span> CV publié — visible publiquement</div>
-      <button class="btn-changer-modele" onclick="ouvrirModal()">🔁 Changer de modèle</button>
+      <button class="btn-retour-liste" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <div class="pub-status"><span class="pub-dot"></span> <span data-i18n="cv_badge_publie">CV publié — visible publiquement</span></div>
     </div>
     <div class="import-preview" id="importPreviewContent"></div>
   </div>
@@ -282,14 +421,19 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   <!-- MODÈLE CV PREMIUM -->
   <div id="cvWrap" style="display:none">
     <div class="cv-topbar">
-      <div class="cv-title" id="cvTopbarTitle">Mon CV Professionnel</div>
-      <button class="btn-changer-modele" id="btnChangerModele" style="display:none">🔁 Modèle</button>
-      <button class="btn-cv-edit" id="btnToggleEdit" style="display:none">✏️ Modifier</button>
-      <button class="btn-cv-save" id="btnSave" style="display:none">✅ Confirmer</button>
+      <button class="btn-retour-liste" id="btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <div class="cv-title" id="cvTopbarTitle" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
+      <button class="btn-changer-modele" id="btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
+      <button class="btn-cv-edit" id="btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
+      <button class="btn-cv-save" id="btnSave" style="display:none" data-i18n="cv_btn_confirmer">✅ Confirmer</button>
     </div>
 
     <div class="sheet">
       <div class="ribbon">
+        <div class="acct-badge" id="acctBadge" style="position:absolute; top:14px; left:20px; z-index:2;">
+          <div class="acct-role" id="acctRole"></div>
+          <div class="acct-nom" id="acctNom"></div>
+        </div>
         <div class="ribbon-text">
           <div class="ribbon-gold"></div>
           <div class="r-nom" id="hNom" data-key="nomFamille" data-placeholder="Ex : DUPONT" contenteditable="false"></div>
@@ -308,49 +452,49 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
         <div class="col-right">
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">🌍</div><div class="info-label">Pays</div></div>
+            <div class="info-label-row"><div class="info-ico">🌍</div><div class="info-label" data-i18n="cv_lbl_pays">Pays</div></div>
             <div class="info-value" id="fPays" data-key="pays" data-placeholder="Ex : France"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">📍</div><div class="info-label">Ville</div></div>
+            <div class="info-label-row"><div class="info-ico">📍</div><div class="info-label" data-i18n="cv_lbl_ville">Ville</div></div>
             <div class="info-value" id="fVille" data-key="ville" data-placeholder="Ex : Paris"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">🎓</div><div class="info-label">Diplôme</div></div>
+            <div class="info-label-row"><div class="info-ico">🎓</div><div class="info-label" data-i18n="cv_lbl_diplome">Diplôme</div></div>
             <div class="info-value" id="fDiplome" data-key="diplome" data-placeholder="Ex : CAP Électricité"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">💼</div><div class="info-label">Expérience</div></div>
+            <div class="info-label-row"><div class="info-ico">💼</div><div class="info-label" data-i18n="cv_lbl_experience">Expérience</div></div>
             <div class="info-value" id="fExperience" data-key="experienceResume" data-placeholder="Ex : 5 ans d'expérience"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">🏠</div><div class="info-label">Adresse</div></div>
+            <div class="info-label-row"><div class="info-ico">🏠</div><div class="info-label" data-i18n="cv_lbl_adresse">Adresse</div></div>
             <div class="info-value" id="fAdresse" data-key="adresse" data-placeholder="Ex : Quartier, Ville, Pays"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">📞</div><div class="info-label">Téléphone</div></div>
+            <div class="info-label-row"><div class="info-ico">📞</div><div class="info-label" data-i18n="cv_lbl_telephone">Téléphone</div></div>
             <div class="info-value" id="fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div>
           </div>
           <div class="info-block">
-            <div class="info-label-row"><div class="info-ico">✉️</div><div class="info-label">Email</div></div>
+            <div class="info-label-row"><div class="info-ico">✉️</div><div class="info-label" data-i18n="cv_lbl_email">Email</div></div>
             <div class="info-value" id="fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div>
           </div>
           <div class="contact-row" id="contactRow" style="display:none">
-            <button class="cbtn appel" onclick="alert('Fonction Appel déjà gérée par ArtiRoyce.')">📞 Appeler</button>
-            <button class="cbtn msg" onclick="alert('Fonction Discussion déjà gérée par ArtiRoyce.')">💬 Discuter</button>
+            <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
+            <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
           </div>
         </div>
 
         <div class="col-left">
 
           <div class="sec">
-            <div class="sec-title"><span class="sec-ico">👤</span><div class="sec-label">Profil</div><div class="sec-line"></div></div>
+            <div class="sec-title"><span class="sec-ico">👤</span><div class="sec-label" data-i18n="cv_sec_profil">Profil</div><div class="sec-line"></div></div>
             <div class="profil-txt" id="profilView"></div>
             <textarea class="txt-edit" id="profilEdit" rows="4" maxlength="400" placeholder="Ex : Menuisier passionné avec 5 ans d'expérience dans la fabrication de meubles sur mesure. Rigoureux, ponctuel et à l'écoute des besoins du client."></textarea>
           </div>
 
           <div class="sec">
-            <div class="sec-title"><span class="sec-ico">⭐</span><div class="sec-label">Qualités</div><div class="sec-line"></div></div>
+            <div class="sec-title"><span class="sec-ico">⭐</span><div class="sec-label" data-i18n="cv_sec_qualites">Qualités</div><div class="sec-line"></div></div>
             <ul class="bullets" id="qualitesList"></ul>
             <div class="add-mini-row" id="qualitesAdd">
               <input id="qualiteInput" placeholder="Ex : Rigueur et ponctualité">
@@ -359,7 +503,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
 
           <div class="sec">
-            <div class="sec-title"><span class="sec-ico">🎓</span><div class="sec-label">Formation</div><div class="sec-line"></div></div>
+            <div class="sec-title"><span class="sec-ico">🎓</span><div class="sec-label" data-i18n="cv_sec_formation">Formation</div><div class="sec-line"></div></div>
             <div id="formList"></div>
             <div class="tl-add" id="formAdd">
               <div class="tl-add-grid">
@@ -372,7 +516,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
 
           <div class="sec">
-            <div class="sec-title"><span class="sec-ico">💼</span><div class="sec-label">Expérience professionnelle</div><div class="sec-line"></div></div>
+            <div class="sec-title"><span class="sec-ico">💼</span><div class="sec-label" data-i18n="cv_sec_experience">Expérience professionnelle</div><div class="sec-line"></div></div>
             <div id="expList"></div>
             <div class="tl-add" id="expAdd">
               <div class="tl-add-grid">
@@ -387,7 +531,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
 
           <div class="sec">
-            <div class="sec-title"><span class="sec-ico">🛠️</span><div class="sec-label">Compétences</div><div class="sec-line"></div></div>
+            <div class="sec-title"><span class="sec-ico">🛠️</span><div class="sec-label" data-i18n="cv_sec_competences">Compétences</div><div class="sec-line"></div></div>
             <ul class="bullets" id="compList"></ul>
             <div class="add-mini-row" id="compAdd">
               <input id="compInput" placeholder="Ex : Pose de carrelage">
@@ -395,6 +539,192 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODÈLE 2 : Sobre Duo ═══ -->
+  <div id="cvWrapM2" style="display:none">
+    <div class="m2-topbar">
+      <button class="btn-retour-liste" id="m2_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <div class="m2-title" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
+      <button class="btn-changer-modele" id="m2_btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
+      <button class="btn-cv-edit" id="m2_btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
+      <button class="btn-cv-save" id="m2_btnSave" style="display:none" data-i18n="cv_btn_confirmer">✅ Confirmer</button>
+    </div>
+    <div class="m2-sheet">
+      <div class="m2-header">
+        <div class="m2-nom" id="m2_hNom" data-key="nomFamille" data-placeholder="Ex : DUPONT" contenteditable="false"></div>
+        <div class="m2-prenom" id="m2_hPrenom" data-key="prenom" data-placeholder="Ex : Jean" contenteditable="false"></div>
+        <div class="m2-metier" id="m2_hMetier" data-key="metier" data-placeholder="Ex : Menuisier" contenteditable="false"></div>
+      </div>
+      <div class="m2-body">
+        <div class="m2-side">
+          <div class="acct-badge" id="m2_acctBadge" style="margin-bottom:8px;">
+            <div class="acct-role" id="m2_acctRole"></div>
+            <div class="acct-nom" id="m2_acctNom"></div>
+          </div>
+          <div class="m2-photo" id="m2_photoBox">
+            <div class="init" id="m2_photoInit">?</div>
+            <img id="m2_photoImg" style="display:none">
+            <input type="file" id="m2_photoInput" accept="image/*">
+          </div>
+          <div class="m2-photo-edit-dot" id="m2_photoEditDot" style="display:none">📷</div>
+          <div class="m2-side-fields">
+            <div class="m2-info-block"><div class="m2-info-label">🌍 <span data-i18n="cv_lbl_pays">Pays</span></div><div class="m2-info-value" id="m2_fPays" data-key="pays" data-placeholder="Ex : France"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">📍 <span data-i18n="cv_lbl_ville">Ville</span></div><div class="m2-info-value" id="m2_fVille" data-key="ville" data-placeholder="Ex : Paris"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">🎓 <span data-i18n="cv_lbl_diplome">Diplôme</span></div><div class="m2-info-value" id="m2_fDiplome" data-key="diplome" data-placeholder="Ex : CAP Électricité"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">💼 <span data-i18n="cv_lbl_experience">Expérience</span></div><div class="m2-info-value" id="m2_fExperience" data-key="experienceResume" data-placeholder="Ex : 5 ans d'expérience"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">🏠 <span data-i18n="cv_lbl_adresse">Adresse</span></div><div class="m2-info-value" id="m2_fAdresse" data-key="adresse" data-placeholder="Ex : Quartier, Ville"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">📞 <span data-i18n="cv_lbl_telephone">Téléphone</span></div><div class="m2-info-value" id="m2_fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div></div>
+            <div class="m2-info-block"><div class="m2-info-label">✉️ <span data-i18n="cv_lbl_email">Email</span></div><div class="m2-info-value" id="m2_fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div></div>
+          </div>
+          <div class="m2-contact" id="m2_contactRow" style="display:none">
+            <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
+            <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
+          </div>
+        </div>
+        <div class="m2-main">
+          <div class="m2-sec">
+            <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_profil">Profil</span><span class="line"></span></div>
+            <div class="profil-txt" id="m2_profilView"></div>
+            <textarea class="txt-edit" id="m2_profilEdit" rows="4" maxlength="400" placeholder="Ex : Menuisier passionné avec 5 ans d'expérience..."></textarea>
+          </div>
+          <div class="m2-sec">
+            <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_qualites">Qualités</span><span class="line"></span></div>
+            <ul class="bullets" id="m2_qualitesList"></ul>
+            <div class="add-mini-row" id="m2_qualitesAdd">
+              <input id="m2_qualiteInput" placeholder="Ex : Rigueur et ponctualité">
+              <button class="btn-add-mini" onclick="ajouterQualite('m2_')">+ Ajouter</button>
+            </div>
+          </div>
+          <div class="m2-sec">
+            <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_formation">Formation</span><span class="line"></span></div>
+            <div id="m2_formList"></div>
+            <div class="tl-add" id="m2_formAdd">
+              <div class="tl-add-grid">
+                <input id="m2_formDiplome2" placeholder="Ex : CAP Menuiserie">
+                <input id="m2_formEtab" placeholder="Ex : Lycée Technique de Cotonou">
+                <input id="m2_formPeriode" placeholder="Ex : 2019 - 2022">
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterFormation('m2_')">+ Ajouter cette formation</button>
+            </div>
+          </div>
+          <div class="m2-sec">
+            <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_experience">Expérience professionnelle</span><span class="line"></span></div>
+            <div id="m2_expList"></div>
+            <div class="tl-add" id="m2_expAdd">
+              <div class="tl-add-grid">
+                <input id="m2_expPoste" placeholder="Ex : Menuisier">
+                <input id="m2_expEntreprise" placeholder="Ex : Atelier Bois d'Or">
+                <input id="m2_expPeriode" placeholder="Ex : 2021 - Aujourd'hui">
+                <div></div>
+                <textarea id="m2_expDesc" rows="2" placeholder="Ex : Fabrication de meubles sur mesure."></textarea>
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterExperience('m2_')">+ Ajouter cette expérience</button>
+            </div>
+          </div>
+          <div class="m2-sec">
+            <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_competences">Compétences</span><span class="line"></span></div>
+            <ul class="bullets" id="m2_compList"></ul>
+            <div class="add-mini-row" id="m2_compAdd">
+              <input id="m2_compInput" placeholder="Ex : Pose de carrelage">
+              <button class="btn-add-mini" onclick="ajouterCompetence('m2_')">+ Ajouter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODÈLE 3 : Élégance Or ═══ -->
+  <div id="cvWrapM3" style="display:none">
+    <div class="m3-topbar">
+      <button class="btn-retour-liste" id="m3_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <div class="m3-title" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
+      <button class="btn-changer-modele" id="m3_btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
+      <button class="btn-cv-edit" id="m3_btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
+      <button class="btn-cv-save" id="m3_btnSave" style="display:none" data-i18n="cv_btn_confirmer">✅ Confirmer</button>
+    </div>
+    <div class="m3-sheet">
+      <div class="m3-body">
+        <div class="m3-side">
+          <div class="acct-badge" id="m3_acctBadge" style="margin-bottom:8px;">
+            <div class="acct-role" id="m3_acctRole"></div>
+            <div class="acct-nom" id="m3_acctNom"></div>
+          </div>
+          <div class="m3-photo" id="m3_photoBox">
+            <div class="init" id="m3_photoInit">?</div>
+            <img id="m3_photoImg" style="display:none">
+            <input type="file" id="m3_photoInput" accept="image/*">
+          </div>
+          <div class="m3-photo-edit-dot" id="m3_photoEditDot" style="display:none">📷</div>
+          <div class="m3-nameplate">
+            <div class="m3-nom" id="m3_hNom" data-key="nomFamille" data-placeholder="Ex : DUPONT" contenteditable="false"></div>
+            <div class="m3-prenom" id="m3_hPrenom" data-key="prenom" data-placeholder="Ex : Jean" contenteditable="false"></div>
+            <div class="m3-metier" id="m3_hMetier" data-key="metier" data-placeholder="Ex : Menuisier" contenteditable="false"></div>
+          </div>
+          <div class="m3-info-block"><div class="m3-info-label">🌍 <span data-i18n="cv_lbl_pays">Pays</span></div><div class="m3-info-value" id="m3_fPays" data-key="pays" data-placeholder="Ex : France"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">📍 <span data-i18n="cv_lbl_ville">Ville</span></div><div class="m3-info-value" id="m3_fVille" data-key="ville" data-placeholder="Ex : Paris"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">🎓 <span data-i18n="cv_lbl_diplome">Diplôme</span></div><div class="m3-info-value" id="m3_fDiplome" data-key="diplome" data-placeholder="Ex : CAP Électricité"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">💼 <span data-i18n="cv_lbl_experience">Expérience</span></div><div class="m3-info-value" id="m3_fExperience" data-key="experienceResume" data-placeholder="Ex : 5 ans d'expérience"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">🏠 <span data-i18n="cv_lbl_adresse">Adresse</span></div><div class="m3-info-value" id="m3_fAdresse" data-key="adresse" data-placeholder="Ex : Quartier, Ville"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">📞 <span data-i18n="cv_lbl_telephone">Téléphone</span></div><div class="m3-info-value" id="m3_fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div></div>
+          <div class="m3-info-block"><div class="m3-info-label">✉️ <span data-i18n="cv_lbl_email">Email</span></div><div class="m3-info-value" id="m3_fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div></div>
+          <div class="m2-contact" id="m3_contactRow" style="display:none">
+            <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
+            <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
+          </div>
+        </div>
+        <div class="m3-main">
+          <div class="m3-sec">
+            <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_profil">Profil</span><span class="line"></span></div>
+            <div class="profil-txt" id="m3_profilView"></div>
+            <textarea class="txt-edit" id="m3_profilEdit" rows="4" maxlength="400" placeholder="Ex : Menuisier passionné avec 5 ans d'expérience..."></textarea>
+          </div>
+          <div class="m3-sec">
+            <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_qualites">Qualités</span><span class="line"></span></div>
+            <ul class="bullets" id="m3_qualitesList"></ul>
+            <div class="add-mini-row" id="m3_qualitesAdd">
+              <input id="m3_qualiteInput" placeholder="Ex : Rigueur et ponctualité">
+              <button class="btn-add-mini" onclick="ajouterQualite('m3_')">+ Ajouter</button>
+            </div>
+          </div>
+          <div class="m3-sec">
+            <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_formation">Formation</span><span class="line"></span></div>
+            <div id="m3_formList"></div>
+            <div class="tl-add" id="m3_formAdd">
+              <div class="tl-add-grid">
+                <input id="m3_formDiplome2" placeholder="Ex : CAP Menuiserie">
+                <input id="m3_formEtab" placeholder="Ex : Lycée Technique de Cotonou">
+                <input id="m3_formPeriode" placeholder="Ex : 2019 - 2022">
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterFormation('m3_')">+ Ajouter cette formation</button>
+            </div>
+          </div>
+          <div class="m3-sec">
+            <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_experience">Expérience professionnelle</span><span class="line"></span></div>
+            <div id="m3_expList"></div>
+            <div class="tl-add" id="m3_expAdd">
+              <div class="tl-add-grid">
+                <input id="m3_expPoste" placeholder="Ex : Menuisier">
+                <input id="m3_expEntreprise" placeholder="Ex : Atelier Bois d'Or">
+                <input id="m3_expPeriode" placeholder="Ex : 2021 - Aujourd'hui">
+                <div></div>
+                <textarea id="m3_expDesc" rows="2" placeholder="Ex : Fabrication de meubles sur mesure."></textarea>
+              </div>
+              <button class="btn-add-mini" style="margin-top:8px" onclick="ajouterExperience('m3_')">+ Ajouter cette expérience</button>
+            </div>
+          </div>
+          <div class="m3-sec">
+            <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_competences">Compétences</span><span class="line"></span></div>
+            <ul class="bullets" id="m3_compList"></ul>
+            <div class="add-mini-row" id="m3_compAdd">
+              <input id="m3_compInput" placeholder="Ex : Pose de carrelage">
+              <button class="btn-add-mini" onclick="ajouterCompetence('m3_')">+ Ajouter</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -410,48 +740,53 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div class="m-handle"></div>
       <div style="width:34px"></div>
     </div>
-    <h3>📇 Publier mon CV</h3>
-    <p class="modal-sub">Choisissez un modèle</p>
+    <h3 data-i18n="cv_modal_titre">📇 Publier mon CV</h3>
+    <p class="modal-sub" data-i18n="cv_modal_sub">Choisissez un modèle</p>
 
     <div class="m-grid">
       <div class="m-card sel" id="carte-premium" onclick="selectionnerModele('premium')">
         <div class="m-icon">📇</div>
-        <div class="m-name">Premium</div>
-        <div class="m-desc">Ruban bleu + photo</div>
+        <div class="m-name" data-i18n="cv_card_premium">Premium</div>
+        <div class="m-desc" data-i18n="cv_card_premium_desc">Ruban bleu + photo</div>
       </div>
-      <div class="m-card disabled" id="carte-modele2" onclick="selectionnerModele('modele2')">
+      <div class="m-card" id="carte-modele2" onclick="selectionnerModele('modele2')">
         <div class="m-icon">🗂️</div>
-        <div class="m-name">Modèle 2</div>
-        <div class="m-desc">Bientôt disponible</div>
+        <div class="m-name" data-i18n="cv_card_modele2">Modèle 2</div>
+        <div class="m-desc" data-i18n="cv_card_modele2_desc">Sobre &amp; compact</div>
       </div>
-      <div class="m-card disabled" id="carte-modele3" onclick="selectionnerModele('modele3')">
+      <div class="m-card" id="carte-modele3" onclick="selectionnerModele('modele3')">
         <div class="m-icon">📋</div>
-        <div class="m-name">Modèle 3</div>
-        <div class="m-desc">Bientôt disponible</div>
+        <div class="m-name" data-i18n="cv_card_modele3">Modèle 3</div>
+        <div class="m-desc" data-i18n="cv_card_modele3_desc">Élégance or</div>
       </div>
       <div class="m-card" id="carte-import" onclick="selectionnerModele('import')">
         <div class="m-icon">📎</div>
-        <div class="m-name">Mon CV</div>
-        <div class="m-desc">Photo ou fichier</div>
+        <div class="m-name" data-i18n="cv_card_import">Mon CV</div>
+        <div class="m-desc" data-i18n="cv_card_import_desc">Photo ou fichier</div>
       </div>
     </div>
 
+    <div style="margin-bottom:14px;">
+      <label style="font-size:11.5px;font-weight:700;color:#555;display:block;margin-bottom:5px;" data-i18n="cv_label_titre_interne">Nom de ce CV (pour vous seulement)</label>
+      <input id="titreInterneInput" placeholder="Ex : CV Menuisier" style="width:100%;border:1.5px solid #ddd;border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;">
+    </div>
+
     <div id="zoneModeleTexte">
-      <div class="m-preview-box" id="modelePreviewTxt">
+      <div class="m-preview-box" id="modelePreviewTxt" data-i18n="cv_preview_premium">
         <b>Modèle Premium</b><br>Ruban bleu nuit, photo, Profil, Qualités, Formation, Expérience, Compétences et coordonnées.
       </div>
-      <button class="btn-continuer" onclick="continuerVersModele()">Continuer avec ce modèle →</button>
+      <button class="btn-continuer" onclick="continuerVersModele()" data-i18n="cv_btn_continuer">Continuer avec ce modèle →</button>
     </div>
 
     <div id="zoneImport" style="display:none">
       <div class="upload-zone" onclick="document.getElementById('fiImport').click()">
         <div class="uz-icon">📎</div>
-        <div class="uz-txt">Choisir une photo ou un fichier</div>
-        <div class="uz-sub">JPG · PNG · PDF · max 5 Mo</div>
+        <div class="uz-txt" data-i18n="cv_upload_txt">Choisir une photo ou un fichier</div>
+        <div class="uz-sub" data-i18n="cv_upload_sub">JPG · PNG · PDF · max 5 Mo</div>
       </div>
       <input type="file" id="fiImport" accept="image/*,.pdf">
       <div class="import-apercu" id="importApercu"></div>
-      <button class="btn-continuer" id="btnPublierImport" disabled onclick="publierImport()">📢 Publier maintenant</button>
+      <button class="btn-continuer" id="btnPublierImport" disabled onclick="publierImport()" data-i18n="cv_btn_publier">📢 Publier maintenant</button>
     </div>
   </div>
 </div>
@@ -459,7 +794,9 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -476,53 +813,179 @@ const db = getFirestore(app);
 const params = new URLSearchParams(location.search);
 const uidParam = params.get('uid');
 
+/* ── Traduction : fonction T() locale (placeholders et textes dynamiques JS) ──
+   TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
+function T(key){
+  const lang = (typeof currentLang !== 'undefined') ? currentLang : 'FR';
+  const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : null;
+  if (dict && dict[lang] && dict[lang][key] !== undefined) return dict[lang][key];
+  if (dict && dict.FR && dict.FR[key] !== undefined) return dict.FR[key];
+  return key;
+}
+
 let currentUser = null;
 let viewedUid = null;
 let isOwner = false;
 let editMode = false;
-let docPublie = false;
+let activePrefix = ''; // '' = Premium, 'm2_' = Modèle 2, 'm3_' = Modèle 3
+let currentCvId = null; // null = nouvelle création, sinon = édition d'un CV existant
+let listeCv = [];
 
-let cvData = {
-  nomFamille:'', prenom:'', metier:'', profil:'',
-  pays:'', ville:'', diplome:'', experienceResume:'', adresse:'', telephone:'', email:'',
-  qualites:[], formations:[], experiences:[], competences:[], photoURL:''
-};
+function blankCvData(){
+  return {
+    nomFamille:'', prenom:'', metier:'', profil:'',
+    pays:'', ville:'', diplome:'', experienceResume:'', adresse:'', telephone:'', email:'',
+    qualites:[], formations:[], experiences:[], competences:[], photoURL:'', titreInterne:''
+  };
+}
+let cvData = blankCvData();
 
-const els = {
-  hNom: document.getElementById('hNom'),
-  hPrenom: document.getElementById('hPrenom'),
-  hMetier: document.getElementById('hMetier'),
-  photoImg: document.getElementById('photoImg'),
-  photoInit: document.getElementById('photoInit'),
-  photoEditDot: document.getElementById('photoEditDot'),
-  photoInput: document.getElementById('photoInput'),
-  profilView: document.getElementById('profilView'),
-  profilEdit: document.getElementById('profilEdit'),
-  qualitesList: document.getElementById('qualitesList'),
-  qualitesAdd: document.getElementById('qualitesAdd'),
-  formList: document.getElementById('formList'),
-  formAdd: document.getElementById('formAdd'),
-  expList: document.getElementById('expList'),
-  expAdd: document.getElementById('expAdd'),
-  compList: document.getElementById('compList'),
-  compAdd: document.getElementById('compAdd'),
-  contactRow: document.getElementById('contactRow'),
-  btnToggleEdit: document.getElementById('btnToggleEdit'),
-  btnSave: document.getElementById('btnSave'),
-  btnChangerModele: document.getElementById('btnChangerModele'),
-};
-const sideFields = ['fPays','fVille','fDiplome','fExperience','fAdresse','fTelephone','fEmail'];
+const $p = (prefix, id) => document.getElementById(prefix + id);
+const sideFieldIds = ['fPays','fVille','fDiplome','fExperience','fAdresse','fTelephone','fEmail'];
+const PREFIXES = ['', 'm2_', 'm3_'];
+
+const PREFIX_TO_MODELE = { '': 'premium', 'm2_': 'modele2', 'm3_': 'modele3' };
+const MODELE_TO_PREFIX = { premium: '', modele2: 'm2_', modele3: 'm3_' };
+const MODELE_TO_ETAT = { premium: 'cv', modele2: 'cv-m2', modele3: 'cv-m3' };
+const MODELE_ICONE = { premium: '📇', modele2: '🗂️', modele3: '📋', import: '📎' };
 
 const loading = document.getElementById('loading');
-const landingEmpty = document.getElementById('landingEmpty');
+const cvListeWrap = document.getElementById('cvListeWrap');
 const importWrap = document.getElementById('importWrap');
 const cvWrap = document.getElementById('cvWrap');
+const cvWrapM2 = document.getElementById('cvWrapM2');
+const cvWrapM3 = document.getElementById('cvWrapM3');
 
 function afficherEtat(etat){
   loading.style.display = etat === 'loading' ? 'block' : 'none';
-  landingEmpty.style.display = etat === 'empty' ? 'block' : 'none';
+  cvListeWrap.style.display = etat === 'liste' ? 'block' : 'none';
   importWrap.style.display = etat === 'import' ? 'block' : 'none';
   cvWrap.style.display = etat === 'cv' ? 'block' : 'none';
+  cvWrapM2.style.display = etat === 'cv-m2' ? 'block' : 'none';
+  cvWrapM3.style.display = etat === 'cv-m3' ? 'block' : 'none';
+}
+
+/* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
+let acctPrenom = '';
+let acctRoleCode = 'artisan';
+async function chargerBadge(){
+  try {
+    const snap = await getDoc(doc(db, 'utilisateurs', viewedUid));
+    if (snap.exists()) {
+      acctPrenom = snap.data().prenom || '';
+      acctRoleCode = snap.data().role || 'artisan';
+    }
+  } catch (err) { console.error(err); }
+  updateAcctBadgeLabels();
+}
+
+function updateAcctBadgeLabels(){
+  const libelle = acctRoleCode === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
+  PREFIXES.forEach(prefix => {
+    const roleEl = $p(prefix, 'acctRole');
+    const nomEl = $p(prefix, 'acctNom');
+    if (roleEl) roleEl.textContent = libelle;
+    if (nomEl) nomEl.textContent = acctPrenom;
+  });
+}
+
+/* ── LISTE DE MES CV ── */
+async function chargerListe(){
+  try {
+    const snap = await getDocs(collection(db, 'cv_professionnels', viewedUid, 'mes_cv'));
+    listeCv = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.error(err);
+    listeCv = [];
+  }
+  if (!isOwner) listeCv = listeCv.filter(c => c.publie);
+  renderListeCards();
+}
+
+function renderListeCards(){
+  const cardsEl = document.getElementById('cvCardsListe');
+  const emptyEl = document.getElementById('empty-block-liste');
+  cardsEl.innerHTML = '';
+
+  emptyEl.style.display = listeCv.length ? 'none' : 'block';
+
+  listeCv.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'cv-card';
+    const icone = MODELE_ICONE[c.modeleChoisi] || '📇';
+    const titre = c.titreInterne || T('cv_titre_sans_titre');
+    const sous = c.modeleChoisi === 'import' ? T('cv_sub_fichier_importe') : (c.metier || T('cv_sub_metier_non_renseigne'));
+    card.innerHTML = `
+      <div class="cv-card-ico">${icone}</div>
+      <div class="cv-card-info">
+        <div class="cv-card-titre">${escapeHtml(titre)}</div>
+        <div class="cv-card-sub">${escapeHtml(sous)}</div>
+        ${c.publie ? `<div class="cv-card-badge">${T('cv_badge_publie')}</div>` : ''}
+      </div>
+      <div class="cv-card-actions">
+        <button class="btn-cv-voir" data-id="${c.id}">${T('cv_btn_voir')}</button>
+        ${isOwner ? `<button class="btn-cv-suppr" data-id="${c.id}">🗑️</button>` : ''}
+      </div>
+    `;
+    cardsEl.appendChild(card);
+  });
+
+  cardsEl.querySelectorAll('.btn-cv-voir').forEach(btn => {
+    btn.addEventListener('click', () => voirCV(btn.dataset.id));
+  });
+  cardsEl.querySelectorAll('.btn-cv-suppr').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); supprimerCV(btn.dataset.id); });
+  });
+}
+
+window.retourListe = () => {
+  afficherEtat('liste');
+  chargerListe();
+};
+
+window.supprimerCV = async (cvId) => {
+  if (!confirm(T('cv_confirm_suppr'))) return;
+  try {
+    await deleteDoc(doc(db, 'cv_professionnels', currentUser.uid, 'mes_cv', cvId));
+    chargerListe();
+  } catch (err) { console.error(err); }
+};
+
+function voirCV(cvId){
+  const c = listeCv.find(x => x.id === cvId);
+  if (!c) return;
+  currentCvId = cvId;
+
+  if (c.modeleChoisi === 'import') {
+    afficherImportDetail(c);
+    return;
+  }
+
+  const modele = MODELE_TO_PREFIX.hasOwnProperty(c.modeleChoisi) ? c.modeleChoisi : 'premium';
+  activePrefix = MODELE_TO_PREFIX[modele];
+  cvData = Object.assign(blankCvData(), c);
+  editMode = false;
+
+  PREFIXES.forEach(p => {
+    $p(p, 'btnToggleEdit').style.display = 'none';
+    $p(p, 'contactRow').style.display = 'none';
+  });
+  if (isOwner) {
+    $p(activePrefix, 'btnToggleEdit').style.display = 'inline-flex';
+  } else {
+    $p(activePrefix, 'contactRow').style.display = 'flex';
+  }
+
+  afficherEtat(MODELE_TO_ETAT[modele]);
+  render();
+}
+
+function afficherImportDetail(c){
+  const isImage = (c.importURL || '').startsWith('data:image');
+  document.getElementById('importPreviewContent').innerHTML = isImage
+    ? `<img src="${c.importURL}" alt="CV importé">`
+    : `<a class="filelink" href="${c.importURL}" target="_blank">${T('cv_import_ouvrir')}</a>`;
+  afficherEtat('import');
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -530,82 +993,66 @@ onAuthStateChanged(auth, async (user) => {
   viewedUid = uidParam || (user ? user.uid : null);
 
   if (!viewedUid) {
-    // Aperçu hors connexion : état vide testable + CV premium remplissable directement
+    // Aperçu hors connexion : liste vide testable, bouton +Ajouter fonctionnel
     isOwner = true;
-    afficherEtat('empty');
+    document.getElementById('empty-block-liste').style.display = 'block';
+    afficherEtat('liste');
     return;
   }
 
   isOwner = !!(user && user.uid === viewedUid);
-  let data = null;
-  try {
-    const snap = await getDoc(doc(db, 'cv_professionnels', viewedUid));
-    if (snap.exists()) data = snap.data();
-  } catch (err) { console.error(err); }
+  document.getElementById('heroTitreListe').textContent = isOwner
+    ? T('cv_hero_title')
+    : T('cv_hero_title_visitor');
 
-  docPublie = !!(data && data.publie);
-
-  if (!docPublie) {
-    if (isOwner) afficherEtat('empty'); else afficherEtat('empty');
-    return;
-  }
-
-  if (data.modeleChoisi === 'import') {
-    afficherImport(data);
-  } else {
-    cvData = Object.assign(cvData, data);
-    editMode = false;
-    if (isOwner) {
-      els.btnToggleEdit.style.display = 'inline-flex';
-      els.btnChangerModele.style.display = 'inline-flex';
-    } else {
-      els.contactRow.style.display = 'flex';
-    }
-    afficherEtat('cv');
-    render();
-  }
+  await chargerBadge();
+  await chargerListe();
+  refreshDynamicTexts();
+  afficherEtat('liste');
 });
 
-function afficherImport(data){
-  const isImage = (data.importURL || '').startsWith('data:image');
-  document.getElementById('importPreviewContent').innerHTML = isImage
-    ? `<img src="${data.importURL}" alt="CV importé">`
-    : `<a class="filelink" href="${data.importURL}" target="_blank">📎 Ouvrir mon fichier CV</a>`;
-  afficherEtat('import');
-}
-
 /* ── MODAL ── */
-window.ouvrirModal = () => document.getElementById('overlay').classList.add('open');
+window.ouvrirModal = () => {
+  document.getElementById('titreInterneInput').value = '';
+  document.getElementById('overlay').classList.add('open');
+};
 window.fermerModal = () => document.getElementById('overlay').classList.remove('open');
 
 let modeleSelectionne = 'premium';
-const DESCRIPTIONS_MODELES = {
-  premium: '<b>Modèle Premium</b><br>Ruban bleu nuit, photo, Profil, Qualités, Formation, Expérience, Compétences et coordonnées.'
+const DESCRIPTIONS_MODELES_KEYS = {
+  premium: 'cv_preview_premium',
+  modele2: 'cv_preview_modele2',
+  modele3: 'cv_preview_modele3'
 };
 
 window.selectionnerModele = (type) => {
-  if (type === 'modele2' || type === 'modele3') return;
   document.querySelectorAll('.m-card').forEach(c => c.classList.remove('sel'));
   document.getElementById('carte-' + type).classList.add('sel');
   modeleSelectionne = type;
   document.getElementById('zoneModeleTexte').style.display = type === 'import' ? 'none' : 'block';
   document.getElementById('zoneImport').style.display = type === 'import' ? 'block' : 'none';
   if (type !== 'import') {
-    document.getElementById('modelePreviewTxt').innerHTML = DESCRIPTIONS_MODELES[type];
+    document.getElementById('modelePreviewTxt').innerHTML = T(DESCRIPTIONS_MODELES_KEYS[type]);
   }
 };
 
 window.continuerVersModele = () => {
   fermerModal();
-  if (modeleSelectionne === 'premium') {
-    editMode = true;
-    els.btnToggleEdit.style.display = 'none';
-    els.btnSave.style.display = 'inline-flex';
-    if (isOwner) els.btnChangerModele.style.display = 'inline-flex';
-    afficherEtat('cv');
-    render();
-  }
+  if (modeleSelectionne === 'import') return;
+  currentCvId = null; // nouvelle création
+  cvData = blankCvData();
+  cvData.titreInterne = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
+  activePrefix = MODELE_TO_PREFIX[modeleSelectionne];
+  editMode = true;
+  $p(activePrefix, 'btnToggleEdit').style.display = 'none';
+  $p(activePrefix, 'btnSave').style.display = 'inline-flex';
+  $p(activePrefix, 'contactRow').style.display = 'none';
+  afficherEtat(MODELE_TO_ETAT[modeleSelectionne]);
+  render();
 };
+
+window.alerterAppel = () => alert(T('cv_alert_appel'));
+window.alerterDiscuter = () => alert(T('cv_alert_discuter'));
 
 let importDataURL = '';
 let importEstImage = true;
@@ -628,72 +1075,86 @@ window.publierImport = async () => {
   if (!currentUser || !importDataURL) return;
   const btn = document.getElementById('btnPublierImport');
   btn.disabled = true;
-  btn.textContent = '⏳ Publication…';
+  btn.textContent = T('cv_btn_publication');
+  const titre = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
   try {
-    await setDoc(doc(db, 'cv_professionnels', currentUser.uid), {
-      modeleChoisi: 'import', importURL: importDataURL, publie: true,
-      auteurUid: currentUser.uid, majLe: new Date().toISOString()
-    }, { merge: true });
+    await addDoc(collection(db, 'cv_professionnels', currentUser.uid, 'mes_cv'), {
+      modeleChoisi: 'import', importURL: importDataURL, titreInterne: titre, publie: true,
+      auteurUid: currentUser.uid, creeLe: new Date().toISOString(), majLe: new Date().toISOString()
+    });
     fermerModal();
-    afficherImport({ modeleChoisi:'import', importURL: importDataURL });
+    importDataURL = '';
+    document.getElementById('btnPublierImport').disabled = true;
+    document.getElementById('btnPublierImport').textContent = T('cv_btn_publier');
+    document.getElementById('importApercu').style.display = 'none';
+    await chargerListe();
+    afficherEtat('liste');
   } catch (err) {
     console.error(err);
-    btn.textContent = '❌ Erreur, réessayez';
+    btn.textContent = T('cv_btn_erreur_reessayez');
     btn.disabled = false;
   }
 };
 
-/* ── RENDU DU CV PREMIUM ── */
+/* ── RENDU GÉNÉRALISÉ (Premium / Modèle 2 / Modèle 3) ── */
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
-const exemplesListe = { qualites: 'Ex : Rigueur et ponctualité', competences: 'Ex : Pose de carrelage' };
 
 function render(){
-  els.hNom.textContent = cvData.nomFamille || '';
-  els.hPrenom.textContent = cvData.prenom || '';
-  els.hMetier.textContent = cvData.metier || '';
-  els.hNom.contentEditable = editMode;
-  els.hPrenom.contentEditable = editMode;
-  els.hMetier.contentEditable = editMode;
+  renderInto(activePrefix);
+}
 
-  sideFields.forEach(id => {
-    const el = document.getElementById(id);
+function renderInto(prefix){
+  const hNom = $p(prefix, 'hNom'), hPrenom = $p(prefix, 'hPrenom'), hMetier = $p(prefix, 'hMetier');
+  hNom.textContent = cvData.nomFamille || '';
+  hPrenom.textContent = cvData.prenom || '';
+  hMetier.textContent = cvData.metier || '';
+  hNom.contentEditable = editMode;
+  hPrenom.contentEditable = editMode;
+  hMetier.contentEditable = editMode;
+
+  sideFieldIds.forEach(id => {
+    const el = $p(prefix, id);
     el.textContent = cvData[el.dataset.key] || '';
     el.contentEditable = editMode;
   });
 
-  els.profilView.textContent = cvData.profil || '';
-  els.profilView.style.display = editMode ? 'none' : 'block';
-  els.profilEdit.style.display = editMode ? 'block' : 'none';
-  els.profilEdit.value = cvData.profil || '';
-  if (!editMode && !cvData.profil) els.profilView.innerHTML = '<span class="empty-hint">Aucun profil renseigné.</span>';
+  const profilView = $p(prefix, 'profilView'), profilEdit = $p(prefix, 'profilEdit');
+  profilView.textContent = cvData.profil || '';
+  profilView.style.display = editMode ? 'none' : 'block';
+  profilEdit.style.display = editMode ? 'block' : 'none';
+  profilEdit.value = cvData.profil || '';
+  if (!editMode && !cvData.profil) profilView.innerHTML = `<span class="empty-hint">${T('cv_empty_profil')}</span>`;
 
+  const photoImg = $p(prefix, 'photoImg'), photoInit = $p(prefix, 'photoInit'), photoEditDot = $p(prefix, 'photoEditDot');
   if (cvData.photoURL) {
-    els.photoImg.src = cvData.photoURL; els.photoImg.style.display = 'block'; els.photoInit.style.display = 'none';
+    photoImg.src = cvData.photoURL; photoImg.style.display = 'block'; photoInit.style.display = 'none';
   } else {
-    els.photoInit.textContent = (cvData.nomFamille || '?')[0]?.toUpperCase() || '?';
-    els.photoImg.style.display = 'none'; els.photoInit.style.display = 'block';
+    photoInit.textContent = (cvData.nomFamille || '?')[0]?.toUpperCase() || '?';
+    photoImg.style.display = 'none'; photoInit.style.display = 'block';
   }
-  els.photoEditDot.style.display = (isOwner && editMode) ? 'flex' : 'none';
+  photoEditDot.style.display = (isOwner && editMode) ? 'flex' : 'none';
 
-  renderListe(cvData.qualites, els.qualitesList, 'qualites');
-  renderListe(cvData.competences, els.compList, 'competences');
-  renderFormations();
-  renderExperiences();
+  renderListeInto(prefix, cvData.qualites, 'qualitesList', 'qualites');
+  renderListeInto(prefix, cvData.competences, 'compList', 'competences');
+  renderFormationsInto(prefix);
+  renderExperiencesInto(prefix);
 
-  els.qualitesAdd.style.display = editMode ? 'flex' : 'none';
-  els.compAdd.style.display = editMode ? 'flex' : 'none';
-  els.formAdd.style.display = editMode ? 'block' : 'none';
-  els.expAdd.style.display = editMode ? 'block' : 'none';
+  $p(prefix, 'qualitesAdd').style.display = editMode ? 'flex' : 'none';
+  $p(prefix, 'compAdd').style.display = editMode ? 'flex' : 'none';
+  $p(prefix, 'formAdd').style.display = editMode ? 'block' : 'none';
+  $p(prefix, 'expAdd').style.display = editMode ? 'block' : 'none';
 }
 
-function renderListe(arr, ul, key){
+function renderListeInto(prefix, arr, listId, key){
+  const ul = $p(prefix, listId);
   ul.innerHTML = '';
   if (!arr.length) {
+    const exempleKey = key === 'qualites' ? 'cv_example_qualite' : 'cv_example_competence';
     ul.innerHTML = editMode
-      ? `<li class="example-hint" style="list-style:none;padding-left:0">${exemplesListe[key] || 'Ex : ...'}</li>`
-      : '<li class="empty-hint" style="list-style:none;padding-left:0">Aucune information renseignée.</li>';
+      ? `<li class="example-hint" style="list-style:none;padding-left:0">${T(exempleKey)}</li>`
+      : `<li class="empty-hint" style="list-style:none;padding-left:0">${T('cv_empty_generic')}</li>`;
     return;
   }
   arr.forEach((txt, i) => {
@@ -704,12 +1165,13 @@ function renderListe(arr, ul, key){
   ul.querySelectorAll('.rm').forEach(el => { el.onclick = () => { cvData[key].splice(+el.dataset.i, 1); render(); }; });
 }
 
-function renderFormations(){
-  els.formList.innerHTML = '';
+function renderFormationsInto(prefix){
+  const formList = $p(prefix, 'formList');
+  formList.innerHTML = '';
   if (!cvData.formations.length) {
-    els.formList.innerHTML = editMode
-      ? '<div class="example-hint">Ex : CAP Menuiserie — Lycée Technique de Cotonou — 2018 - 2020</div>'
-      : '<div class="empty-hint">Aucune formation renseignée.</div>';
+    formList.innerHTML = editMode
+      ? `<div class="example-hint">${T('cv_example_formation')}</div>`
+      : `<div class="empty-hint">${T('cv_empty_formation')}</div>`;
     return;
   }
   cvData.formations.forEach((f, i) => {
@@ -721,17 +1183,18 @@ function renderFormations(){
       <div class="item-titre">${escapeHtml(f.diplome||'')}</div>
       <div class="item-sub">${escapeHtml(f.etablissement||'')}</div>
     `;
-    els.formList.appendChild(div);
+    formList.appendChild(div);
   });
-  els.formList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.formations.splice(+el.dataset.i, 1); render(); }; });
+  formList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.formations.splice(+el.dataset.i, 1); render(); }; });
 }
 
-function renderExperiences(){
-  els.expList.innerHTML = '';
+function renderExperiencesInto(prefix){
+  const expList = $p(prefix, 'expList');
+  expList.innerHTML = '';
   if (!cvData.experiences.length) {
-    els.expList.innerHTML = editMode
-      ? "<div class=\"example-hint\">Ex : Menuisier — Atelier Bois d'Or, Cotonou — 2021 - Aujourd'hui</div>"
-      : '<div class="empty-hint">Aucune expérience renseignée.</div>';
+    expList.innerHTML = editMode
+      ? `<div class="example-hint">${T('cv_example_experience')}</div>`
+      : `<div class="empty-hint">${T('cv_empty_experience')}</div>`;
     return;
   }
   cvData.experiences.forEach((e, i) => {
@@ -745,92 +1208,169 @@ function renderExperiences(){
       <div class="item-sub">${escapeHtml(e.entreprise||'')}</div>
       <ul class="bullets" style="margin-top:6px">${puces.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
     `;
-    els.expList.appendChild(div);
+    expList.appendChild(div);
   });
-  els.expList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.experiences.splice(+el.dataset.i, 1); render(); }; });
+  expList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.experiences.splice(+el.dataset.i, 1); render(); }; });
 }
 
-window.ajouterQualite = function(){
-  const v = document.getElementById('qualiteInput').value.trim();
+window.ajouterQualite = function(prefix){
+  const input = $p(prefix, 'qualiteInput');
+  const v = input.value.trim();
   if (!v) return;
-  cvData.qualites.push(v); document.getElementById('qualiteInput').value = ''; render();
+  cvData.qualites.push(v); input.value = ''; render();
 };
-window.ajouterCompetence = function(){
-  const v = document.getElementById('compInput').value.trim();
+window.ajouterCompetence = function(prefix){
+  const input = $p(prefix, 'compInput');
+  const v = input.value.trim();
   if (!v) return;
-  cvData.competences.push(v); document.getElementById('compInput').value = ''; render();
+  cvData.competences.push(v); input.value = ''; render();
 };
-window.ajouterFormation = function(){
-  const diplome = document.getElementById('formDiplome2').value.trim();
-  const etablissement = document.getElementById('formEtab').value.trim();
-  const periode = document.getElementById('formPeriode').value.trim();
+window.ajouterFormation = function(prefix){
+  const diplome = $p(prefix, 'formDiplome2').value.trim();
+  const etablissement = $p(prefix, 'formEtab').value.trim();
+  const periode = $p(prefix, 'formPeriode').value.trim();
   if (!diplome) return;
   cvData.formations.push({ diplome, etablissement, periode });
-  ['formDiplome2','formEtab','formPeriode'].forEach(id => document.getElementById(id).value = '');
+  ['formDiplome2','formEtab','formPeriode'].forEach(id => $p(prefix, id).value = '');
   render();
 };
-window.ajouterExperience = function(){
-  const poste = document.getElementById('expPoste').value.trim();
-  const entreprise = document.getElementById('expEntreprise').value.trim();
-  const periode = document.getElementById('expPeriode').value.trim();
-  const description = document.getElementById('expDesc').value.trim();
+window.ajouterExperience = function(prefix){
+  const poste = $p(prefix, 'expPoste').value.trim();
+  const entreprise = $p(prefix, 'expEntreprise').value.trim();
+  const periode = $p(prefix, 'expPeriode').value.trim();
+  const description = $p(prefix, 'expDesc').value.trim();
   if (!poste) return;
   cvData.experiences.unshift({ poste, entreprise, periode, description });
-  ['expPoste','expEntreprise','expPeriode','expDesc'].forEach(id => document.getElementById(id).value = '');
+  ['expPoste','expEntreprise','expPeriode','expDesc'].forEach(id => $p(prefix, id).value = '');
   render();
 };
 
-els.photoEditDot.addEventListener('click', () => els.photoInput.click());
-els.photoInput.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => { cvData.photoURL = reader.result; render(); };
-  reader.readAsDataURL(file);
-});
-els.profilEdit.addEventListener('input', () => { cvData.profil = els.profilEdit.value; });
-els.hNom.addEventListener('input', () => { cvData.nomFamille = els.hNom.textContent; });
-els.hPrenom.addEventListener('input', () => { cvData.prenom = els.hPrenom.textContent; });
-els.hMetier.addEventListener('input', () => { cvData.metier = els.hMetier.textContent; });
-sideFields.forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', () => { cvData[el.dataset.key] = el.textContent; });
+/* ── ÉVÉNEMENTS COMMUNS AUX 3 MODÈLES ── */
+PREFIXES.forEach(prefix => {
+  const photoEditDot = $p(prefix, 'photoEditDot');
+  const photoInput = $p(prefix, 'photoInput');
+  photoEditDot.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { cvData.photoURL = reader.result; render(); };
+    reader.readAsDataURL(file);
+  });
+
+  $p(prefix, 'profilEdit').addEventListener('input', (e) => { cvData.profil = e.target.value; });
+  $p(prefix, 'hNom').addEventListener('input', (e) => { cvData.nomFamille = e.target.textContent; });
+  $p(prefix, 'hPrenom').addEventListener('input', (e) => { cvData.prenom = e.target.textContent; });
+  $p(prefix, 'hMetier').addEventListener('input', (e) => { cvData.metier = e.target.textContent; });
+  sideFieldIds.forEach(id => {
+    const el = $p(prefix, id);
+    el.addEventListener('input', () => { cvData[el.dataset.key] = el.textContent; });
+  });
+
+  $p(prefix, 'btnToggleEdit').addEventListener('click', () => {
+    editMode = true;
+    $p(prefix, 'btnToggleEdit').style.display = 'none';
+    $p(prefix, 'btnSave').style.display = 'inline-flex';
+    render();
+  });
+
+  $p(prefix, 'btnSave').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const btnSave = $p(prefix, 'btnSave');
+    btnSave.disabled = true;
+    btnSave.textContent = T('cv_btn_enregistrement');
+    try {
+      const payload = {
+        ...cvData,
+        modeleChoisi: PREFIX_TO_MODELE[prefix],
+        publie: true,
+        auteurUid: currentUser.uid,
+        majLe: new Date().toISOString()
+      };
+      if (!payload.titreInterne) payload.titreInterne = T('cv_titre_sans_titre');
+
+      if (currentCvId) {
+        await setDoc(doc(db, 'cv_professionnels', currentUser.uid, 'mes_cv', currentCvId), payload, { merge: true });
+      } else {
+        const ref = await addDoc(collection(db, 'cv_professionnels', currentUser.uid, 'mes_cv'), {
+          ...payload, creeLe: new Date().toISOString()
+        });
+        currentCvId = ref.id;
+      }
+
+      btnSave.textContent = T('cv_btn_confirme');
+      setTimeout(async () => {
+        editMode = false;
+        btnSave.style.display = 'none';
+        btnSave.textContent = T('cv_btn_confirmer');
+        btnSave.disabled = false;
+        await chargerListe();
+        afficherEtat('liste');
+      }, 900);
+    } catch (err) {
+      console.error(err);
+      btnSave.textContent = T('cv_btn_erreur');
+      setTimeout(() => { btnSave.textContent = T('cv_btn_confirmer'); btnSave.disabled = false; }, 1600);
+    }
+  });
 });
 
-els.btnToggleEdit.addEventListener('click', () => {
-  editMode = true;
-  els.btnToggleEdit.style.display = 'none';
-  els.btnSave.style.display = 'inline-flex';
+/* ── Rafraîchissement complet des textes dynamiques au changement de langue ── */
+function refreshDynamicTexts(){
+  PREFIXES.forEach(prefix => {
+    $p(prefix, 'profilEdit').placeholder = T('cv_example_profil');
+    $p(prefix, 'qualiteInput').placeholder = T('cv_example_qualite');
+    $p(prefix, 'compInput').placeholder = T('cv_example_competence');
+    $p(prefix, 'formDiplome2').placeholder = T('cv_ph_formation_diplome');
+    $p(prefix, 'formEtab').placeholder = T('cv_ph_formation_etab');
+    $p(prefix, 'formPeriode').placeholder = T('cv_ph_formation_periode');
+    $p(prefix, 'expPoste').placeholder = T('cv_ph_exp_poste');
+    $p(prefix, 'expEntreprise').placeholder = T('cv_ph_exp_entreprise');
+    $p(prefix, 'expPeriode').placeholder = T('cv_ph_exp_periode');
+    $p(prefix, 'expDesc').placeholder = T('cv_ph_exp_desc');
+    $p(prefix, 'hNom').setAttribute('data-placeholder', T('cv_ph_nom'));
+    $p(prefix, 'hPrenom').setAttribute('data-placeholder', T('cv_ph_prenom'));
+    $p(prefix, 'hMetier').setAttribute('data-placeholder', T('cv_ph_metier'));
+    $p(prefix, 'fPays').setAttribute('data-placeholder', T('cv_ph_pays'));
+    $p(prefix, 'fVille').setAttribute('data-placeholder', T('cv_ph_ville'));
+    $p(prefix, 'fDiplome').setAttribute('data-placeholder', T('cv_ph_diplome'));
+    $p(prefix, 'fExperience').setAttribute('data-placeholder', T('cv_ph_experience_resume'));
+    $p(prefix, 'fAdresse').setAttribute('data-placeholder', T('cv_ph_adresse'));
+    $p(prefix, 'fTelephone').setAttribute('data-placeholder', T('cv_ph_telephone'));
+    $p(prefix, 'fEmail').setAttribute('data-placeholder', T('cv_ph_email'));
+  });
+  const titreInterneInput = document.getElementById('titreInterneInput');
+  if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
+
+  updateAcctBadgeLabels();
   render();
-});
+  renderListeCards();
 
-els.btnChangerModele.addEventListener('click', () => { ouvrirModal(); });
-
-els.btnSave.addEventListener('click', async () => {
-  if (!currentUser) return;
-  els.btnSave.disabled = true;
-  els.btnSave.textContent = '⏳ Enregistrement…';
-  try {
-    await setDoc(doc(db, 'cv_professionnels', currentUser.uid), {
-      ...cvData, modeleChoisi: 'premium', publie: true,
-      auteurUid: currentUser.uid, majLe: new Date().toISOString()
-    }, { merge: true });
-    els.btnSave.textContent = '✅ Confirmé';
-    setTimeout(() => {
-      editMode = false;
-      els.btnSave.style.display = 'none';
-      els.btnSave.textContent = '✅ Confirmer';
-      els.btnSave.disabled = false;
-      els.btnToggleEdit.style.display = 'inline-flex';
-      els.btnChangerModele.style.display = 'inline-flex';
-      render();
-    }, 900);
-  } catch (err) {
-    console.error(err);
-    els.btnSave.textContent = '❌ Erreur';
-    setTimeout(() => { els.btnSave.textContent = '✅ Confirmer'; els.btnSave.disabled = false; }, 1600);
+  if (modeleSelectionne && modeleSelectionne !== 'import' && DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]) {
+    const box = document.getElementById('modelePreviewTxt');
+    if (box) box.innerHTML = T(DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]);
   }
-});
+}
+
+/* Rattache le rafraîchissement CV Pro à la fonction setLang() globale de translations.js,
+   sans modifier translations.js lui-même. */
+function accrocherRafraichissementLangue(){
+  if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
+    const original = window.setLang;
+    window.setLang = function(code, flag, el){
+      original(code, flag, el);
+      refreshDynamicTexts();
+    };
+    window.__cvProSetLangAccroche = true;
+    refreshDynamicTexts();
+  } else if (!window.__cvProSetLangAccroche) {
+    setTimeout(accrocherRafraichissementLangue, 50);
+  }
+}
+accrocherRafraichissementLangue();
 </script>
+
+<script src="translations.js"></script>
+
 </body>
 </html>
