@@ -93,6 +93,11 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 }
 .visitor-cv-pill.active{ background:var(--blue-ico); border-color:var(--blue-ico); color:#fff; }
 
+.section-separateur{
+  margin:26px 12px 10px; padding-top:16px; border-top:1px solid #e0e3ec;
+  font-size:13px; font-weight:800; color:var(--navy2);
+}
+
 /* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
 .acct-badge{ text-align:center; line-height:1.25; }
 .acct-role{ font-size:9.5px; font-weight:800; color:#8fb4ff; text-transform:uppercase; letter-spacing:0.5px; }
@@ -399,11 +404,9 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
 <div class="content">
 
-  <div id="visitorCvSwitch" style="display:none"></div>
-
   <div class="loading" id="loading" data-i18n="cv_loading">Chargement de votre CV Pro…</div>
 
-  <!-- LISTE DE MES CV — bouton "+Ajouter" toujours visible en haut -->
+  <!-- LISTE : Mes CV (en premier, bouton "+Ajouter" toujours visible en haut) + Communauté (en dessous) -->
   <div id="cvListeWrap" style="display:none">
     <div class="hero-card" id="heroCard">
       <div>
@@ -418,12 +421,22 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <p data-i18n="cv_empty_desc">Créez votre CV professionnel pour vous faire remarquer par les visiteurs et clients ArtiRoyce.</p>
     </div>
     <div class="cv-cards" id="cvCardsListe"></div>
+
+    <div class="section-separateur" id="separateurCommunaute" style="display:none">
+      <span data-i18n="cv_sec_communaute">🌍 CV de la communauté</span>
+    </div>
+    <div class="empty-block" id="empty-block-communaute" style="display:none">
+      <div class="ico">🌍</div>
+      <h3 data-i18n="cv_empty_communaute_title">Aucun autre CV publié pour l'instant</h3>
+      <p data-i18n="cv_empty_communaute_desc">Les CV publiés par les autres artisans ArtiRoyce apparaîtront ici.</p>
+    </div>
+    <div class="cv-cards" id="cvCardsCommunaute"></div>
   </div>
 
   <!-- CV IMPORTÉ -->
   <div id="importWrap" style="display:none">
     <div class="published-bar">
-      <button class="btn-retour-liste" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <button class="btn-retour-liste" onclick="retourListe()" data-i18n="cv_btn_retour">← Retour</button>
       <div class="pub-status"><span class="pub-dot"></span> <span data-i18n="cv_badge_publie">CV publié — visible publiquement</span></div>
     </div>
     <div class="import-preview" id="importPreviewContent"></div>
@@ -432,7 +445,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   <!-- MODÈLE CV PREMIUM -->
   <div id="cvWrap" style="display:none">
     <div class="cv-topbar">
-      <button class="btn-retour-liste" id="btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <button class="btn-retour-liste" id="btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Retour</button>
       <div class="cv-title" id="cvTopbarTitle" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
       <button class="btn-changer-modele" id="btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
       <button class="btn-cv-edit" id="btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
@@ -558,7 +571,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   <!-- ═══ MODÈLE 2 : Sobre Duo ═══ -->
   <div id="cvWrapM2" style="display:none">
     <div class="m2-topbar">
-      <button class="btn-retour-liste" id="m2_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <button class="btn-retour-liste" id="m2_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Retour</button>
       <div class="m2-title" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
       <button class="btn-changer-modele" id="m2_btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
       <button class="btn-cv-edit" id="m2_btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
@@ -652,7 +665,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   <!-- ═══ MODÈLE 3 : Élégance Or ═══ -->
   <div id="cvWrapM3" style="display:none">
     <div class="m3-topbar">
-      <button class="btn-retour-liste" id="m3_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Mes CV</button>
+      <button class="btn-retour-liste" id="m3_btnRetourListe" onclick="retourListe()" data-i18n="cv_btn_retour">← Retour</button>
       <div class="m3-title" data-i18n="cv_topbar_title">Mon CV Professionnel</div>
       <button class="btn-changer-modele" id="m3_btnChangerModele" style="display:none" data-i18n="cv_btn_modele">🔁 Modèle</button>
       <button class="btn-cv-edit" id="m3_btnToggleEdit" style="display:none" data-i18n="cv_btn_modifier">✏️ Modifier</button>
@@ -806,7 +819,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, query, where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -821,9 +834,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const params = new URLSearchParams(location.search);
-const uidParam = params.get('uid');
-
 /* ── Traduction : fonction T() locale (placeholders et textes dynamiques JS) ──
    TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
 function T(key){
@@ -835,12 +845,13 @@ function T(key){
 }
 
 let currentUser = null;
-let viewedUid = null;
-let isOwner = false;
 let editMode = false;
 let activePrefix = ''; // '' = Premium, 'm2_' = Modèle 2, 'm3_' = Modèle 3
 let currentCvId = null; // null = nouvelle création, sinon = édition d'un CV existant
-let listeCv = [];
+let currentCvEstAMoi = false;
+let listeMesCv = [];
+let listeCommunaute = [];
+let listeToutes = []; // combinée, pour retrouver un CV par id peu importe la section
 
 function blankCvData(){
   return {
@@ -876,12 +887,14 @@ function afficherEtat(etat){
   cvWrapM3.style.display = etat === 'cv-m3' ? 'block' : 'none';
 }
 
-/* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
+/* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ──
+   Affiche le rôle + prénom de l'AUTEUR du CV consulté (pas forcément soi-même). */
 let acctPrenom = '';
 let acctRoleCode = 'artisan';
-async function chargerBadge(){
+async function chargerBadgePour(auteurUid){
+  acctPrenom = ''; acctRoleCode = 'artisan';
   try {
-    const snap = await getDoc(doc(db, 'utilisateurs', viewedUid));
+    const snap = await getDoc(doc(db, 'utilisateurs', auteurUid));
     if (snap.exists()) {
       acctPrenom = snap.data().prenom || '';
       acctRoleCode = snap.data().role || 'artisan';
@@ -900,53 +913,67 @@ function updateAcctBadgeLabels(){
   });
 }
 
-/* ── LISTE DE MES CV ── */
+/* ── CHARGEMENT DE LA LISTE COMMUNE — tout le monde publie dans la même base,
+   chacun ne peut modifier/supprimer que ses propres CV (vérifié via auteurUid). ── */
+function estAMoi(c){ return !!(currentUser && c.auteurUid === currentUser.uid); }
+
 async function chargerListe(){
   try {
-    const snap = await getDocs(collection(db, 'cv_professionnels', viewedUid, 'mes_cv'));
-    listeCv = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, 'cv_professionnels'));
+    listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.publie);
   } catch (err) {
     console.error(err);
-    listeCv = [];
+    listeToutes = [];
   }
-  if (!isOwner) listeCv = listeCv.filter(c => c.publie);
+  listeMesCv = currentUser ? listeToutes.filter(c => estAMoi(c)) : [];
+  listeCommunaute = listeToutes.filter(c => !estAMoi(c));
   renderListeCards();
 }
 
 function renderListeCards(){
-  const cardsEl = document.getElementById('cvCardsListe');
-  const emptyEl = document.getElementById('empty-block-liste');
-  cardsEl.innerHTML = '';
+  const cardsMoi = document.getElementById('cvCardsListe');
+  const emptyMoi = document.getElementById('empty-block-liste');
+  const separateur = document.getElementById('separateurCommunaute');
+  const cardsCommu = document.getElementById('cvCardsCommunaute');
+  const emptyCommu = document.getElementById('empty-block-communaute');
 
-  emptyEl.style.display = listeCv.length ? 'none' : 'block';
+  document.getElementById('heroCard').style.display = currentUser ? 'flex' : 'none';
+  emptyMoi.style.display = (currentUser && listeMesCv.length === 0) ? 'block' : 'none';
+  cardsMoi.style.display = (currentUser && listeMesCv.length > 0) ? 'flex' : 'none';
 
-  listeCv.forEach(c => {
-    const card = document.createElement('div');
-    card.className = 'cv-card';
-    const icone = MODELE_ICONE[c.modeleChoisi] || '📇';
-    const titre = c.titreInterne || T('cv_titre_sans_titre');
-    const sous = c.modeleChoisi === 'import' ? T('cv_sub_fichier_importe') : (c.metier || T('cv_sub_metier_non_renseigne'));
-    card.innerHTML = `
-      <div class="cv-card-ico">${icone}</div>
-      <div class="cv-card-info">
-        <div class="cv-card-titre">${escapeHtml(titre)}</div>
-        <div class="cv-card-sub">${escapeHtml(sous)}</div>
-        ${c.publie ? `<div class="cv-card-badge">${T('cv_badge_publie')}</div>` : ''}
-      </div>
-      <div class="cv-card-actions">
-        <button class="btn-cv-voir" data-id="${c.id}">${T('cv_btn_voir')}</button>
-        ${isOwner ? `<button class="btn-cv-suppr" data-id="${c.id}">🗑️</button>` : ''}
-      </div>
-    `;
-    cardsEl.appendChild(card);
-  });
+  separateur.style.display = 'block';
+  emptyCommu.style.display = listeCommunaute.length === 0 ? 'block' : 'none';
+  cardsCommu.style.display = listeCommunaute.length > 0 ? 'flex' : 'none';
 
-  cardsEl.querySelectorAll('.btn-cv-voir').forEach(btn => {
-    btn.addEventListener('click', () => voirCV(btn.dataset.id));
-  });
-  cardsEl.querySelectorAll('.btn-cv-suppr').forEach(btn => {
-    btn.addEventListener('click', (e) => { e.stopPropagation(); supprimerCV(btn.dataset.id); });
-  });
+  cardsMoi.innerHTML = '';
+  listeMesCv.forEach(c => cardsMoi.appendChild(construireCarteCv(c, true)));
+
+  cardsCommu.innerHTML = '';
+  listeCommunaute.forEach(c => cardsCommu.appendChild(construireCarteCv(c, false)));
+}
+
+function construireCarteCv(c, avecSuppr){
+  const card = document.createElement('div');
+  card.className = 'cv-card';
+  const icone = MODELE_ICONE[c.modeleChoisi] || '📇';
+  const titre = c.titreInterne || T('cv_titre_sans_titre');
+  const sous = c.modeleChoisi === 'import' ? T('cv_sub_fichier_importe') : (c.metier || T('cv_sub_metier_non_renseigne'));
+  card.innerHTML = `
+    <div class="cv-card-ico">${icone}</div>
+    <div class="cv-card-info">
+      <div class="cv-card-titre">${escapeHtml(titre)}</div>
+      <div class="cv-card-sub">${escapeHtml(sous)}</div>
+      <div class="cv-card-badge">${T('cv_badge_publie')}</div>
+    </div>
+    <div class="cv-card-actions">
+      <button class="btn-cv-voir">${T('cv_btn_voir')}</button>
+      ${avecSuppr ? `<button class="btn-cv-suppr">🗑️</button>` : ''}
+    </div>
+  `;
+  card.querySelector('.btn-cv-voir').addEventListener('click', () => voirCV(c.id));
+  const btnSuppr = card.querySelector('.btn-cv-suppr');
+  if (btnSuppr) btnSuppr.addEventListener('click', (e) => { e.stopPropagation(); supprimerCV(c.id); });
+  return card;
 }
 
 window.retourListe = () => {
@@ -957,16 +984,19 @@ window.retourListe = () => {
 window.supprimerCV = async (cvId) => {
   if (!confirm(T('cv_confirm_suppr'))) return;
   try {
-    await deleteDoc(doc(db, 'cv_professionnels', currentUser.uid, 'mes_cv', cvId));
+    await deleteDoc(doc(db, 'cv_professionnels', cvId));
     chargerListe();
   } catch (err) { console.error(err); }
 };
 
 function voirCV(cvId){
-  const c = listeCv.find(x => x.id === cvId);
+  const c = listeToutes.find(x => x.id === cvId);
   if (!c) return;
   currentCvId = cvId;
-  document.querySelectorAll('.btn-retour-liste').forEach(b => { b.style.display = isOwner ? '' : 'none'; });
+  currentCvEstAMoi = estAMoi(c);
+  document.querySelectorAll('.btn-retour-liste').forEach(b => { b.style.display = ''; });
+
+  chargerBadgePour(c.auteurUid);
 
   if (c.modeleChoisi === 'import') {
     afficherImportDetail(c);
@@ -982,7 +1012,7 @@ function voirCV(cvId){
     $p(p, 'btnToggleEdit').style.display = 'none';
     $p(p, 'contactRow').style.display = 'none';
   });
-  if (isOwner) {
+  if (currentCvEstAMoi) {
     $p(activePrefix, 'btnToggleEdit').style.display = 'inline-flex';
   } else {
     $p(activePrefix, 'contactRow').style.display = 'flex';
@@ -1002,55 +1032,10 @@ function afficherImportDetail(c){
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
-  viewedUid = uidParam || (user ? user.uid : null);
-
-  if (!viewedUid) {
-    // Aperçu hors connexion : liste vide testable, bouton +Ajouter fonctionnel
-    isOwner = true;
-    document.getElementById('heroCard').style.display = 'flex';
-    document.getElementById('empty-block-liste').style.display = 'block';
-    afficherEtat('liste');
-    return;
-  }
-
-  isOwner = !!(user && user.uid === viewedUid);
-  document.getElementById('heroCard').style.display = isOwner ? 'flex' : 'none';
-  document.getElementById('heroTitreListe').textContent = isOwner
-    ? T('cv_hero_title')
-    : T('cv_hero_title_visitor');
-
-  await chargerBadge();
   await chargerListe();
   refreshDynamicTexts();
-
-  if (isOwner) {
-    // Le propriétaire gère ses CV : liste avec bouton +Ajouter fixe en haut.
-    afficherEtat('liste');
-  } else if (listeCv.length > 0) {
-    // Un visiteur doit voir directement le CV en grand — c'est fait pour être vu et permettre le contact.
-    afficherSwitchVisiteur();
-    voirCV(listeCv[0].id);
-  } else {
-    afficherEtat('liste'); // rien à montrer : message "aucun CV publié"
-  }
+  afficherEtat('liste');
 });
-
-function afficherSwitchVisiteur(){
-  const zone = document.getElementById('visitorCvSwitch');
-  if (listeCv.length <= 1) { zone.style.display = 'none'; zone.innerHTML = ''; return; }
-  zone.innerHTML = listeCv.map(c =>
-    `<button class="visitor-cv-pill" data-id="${c.id}">${escapeHtml(c.titreInterne || T('cv_titre_sans_titre'))}</button>`
-  ).join('');
-  zone.style.display = 'flex';
-  zone.querySelectorAll('.visitor-cv-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      voirCV(btn.dataset.id);
-      zone.querySelectorAll('.visitor-cv-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-  zone.querySelector('.visitor-cv-pill').classList.add('active');
-}
 
 /* ── MODAL ── */
 window.ouvrirModal = () => {
@@ -1080,7 +1065,9 @@ window.selectionnerModele = (type) => {
 window.continuerVersModele = () => {
   fermerModal();
   if (modeleSelectionne === 'import') return;
+  if (!currentUser) return;
   currentCvId = null; // nouvelle création
+  currentCvEstAMoi = true;
   cvData = blankCvData();
   cvData.titreInterne = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
   activePrefix = MODELE_TO_PREFIX[modeleSelectionne];
@@ -1088,6 +1075,8 @@ window.continuerVersModele = () => {
   $p(activePrefix, 'btnToggleEdit').style.display = 'none';
   $p(activePrefix, 'btnSave').style.display = 'inline-flex';
   $p(activePrefix, 'contactRow').style.display = 'none';
+  acctPrenom = ''; acctRoleCode = 'artisan';
+  chargerBadgePour(currentUser.uid);
   afficherEtat(MODELE_TO_ETAT[modeleSelectionne]);
   render();
 };
@@ -1119,7 +1108,7 @@ window.publierImport = async () => {
   btn.textContent = T('cv_btn_publication');
   const titre = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
   try {
-    await addDoc(collection(db, 'cv_professionnels', currentUser.uid, 'mes_cv'), {
+    await addDoc(collection(db, 'cv_professionnels'), {
       modeleChoisi: 'import', importURL: importDataURL, titreInterne: titre, publie: true,
       auteurUid: currentUser.uid, creeLe: new Date().toISOString(), majLe: new Date().toISOString()
     });
@@ -1175,7 +1164,7 @@ function renderInto(prefix){
     photoInit.textContent = (cvData.nomFamille || '?')[0]?.toUpperCase() || '?';
     photoImg.style.display = 'none'; photoInit.style.display = 'block';
   }
-  photoEditDot.style.display = (isOwner && editMode) ? 'flex' : 'none';
+  photoEditDot.style.display = (currentCvEstAMoi && editMode) ? 'flex' : 'none';
 
   renderListeInto(prefix, cvData.qualites, 'qualitesList', 'qualites');
   renderListeInto(prefix, cvData.competences, 'compList', 'competences');
@@ -1331,9 +1320,9 @@ PREFIXES.forEach(prefix => {
       if (!payload.titreInterne) payload.titreInterne = T('cv_titre_sans_titre');
 
       if (currentCvId) {
-        await setDoc(doc(db, 'cv_professionnels', currentUser.uid, 'mes_cv', currentCvId), payload, { merge: true });
+        await setDoc(doc(db, 'cv_professionnels', currentCvId), payload, { merge: true });
       } else {
-        const ref = await addDoc(collection(db, 'cv_professionnels', currentUser.uid, 'mes_cv'), {
+        const ref = await addDoc(collection(db, 'cv_professionnels'), {
           ...payload, creeLe: new Date().toISOString()
         });
         currentCvId = ref.id;
@@ -1383,6 +1372,7 @@ function refreshDynamicTexts(){
   const titreInterneInput = document.getElementById('titreInterneInput');
   if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
 
+  document.getElementById('heroTitreListe').textContent = T('cv_hero_title');
   updateAcctBadgeLabels();
   render();
   renderListeCards();
@@ -1410,6 +1400,7 @@ function accrocherRafraichissementLangue(){
 }
 accrocherRafraichissementLangue();
 </script>
+
 
 <script src="translations.js"></script>
 
