@@ -51,6 +51,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 
 /* ── ÉTAT VIDE : hero + bouton "+Ajouter" en haut ── */
 .hero-card{
+  position:sticky; top:108px; z-index:50;
   margin:14px 12px 0; background:#fff; border-radius:24px; border:1px solid #E8ECF0;
   box-shadow:0 4px 20px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.07); padding:24px 22px;
   display:flex; align-items:center; justify-content:space-between; gap:16px;
@@ -83,6 +84,14 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 .btn-cv-suppr{ background:#fff0ef; color:var(--red); border:1.5px solid #f5c9c5; border-radius:14px; padding:8px 10px; font-size:12px; cursor:pointer; }
 
 .btn-retour-liste{ background:#f5f5f5; border:1.5px solid #ddd; color:#1a1a1a; border-radius:18px; padding:7px 13px; font-size:12px; font-weight:700; cursor:pointer; }
+
+#visitorCvSwitch{ display:flex; gap:8px; overflow-x:auto; padding:0 12px 4px; margin-top:12px; scrollbar-width:none; }
+#visitorCvSwitch::-webkit-scrollbar{ display:none; }
+.visitor-cv-pill{
+  flex-shrink:0; background:#fff; border:1.5px solid #ddd; color:#555; border-radius:18px;
+  padding:8px 16px; font-size:12.5px; font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.visitor-cv-pill.active{ background:var(--blue-ico); border-color:var(--blue-ico); color:#fff; }
 
 /* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
 .acct-badge{ text-align:center; line-height:1.25; }
@@ -390,11 +399,13 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
 <div class="content">
 
+  <div id="visitorCvSwitch" style="display:none"></div>
+
   <div class="loading" id="loading" data-i18n="cv_loading">Chargement de votre CV Pro…</div>
 
   <!-- LISTE DE MES CV — bouton "+Ajouter" toujours visible en haut -->
   <div id="cvListeWrap" style="display:none">
-    <div class="hero-card">
+    <div class="hero-card" id="heroCard">
       <div>
         <h2 id="heroTitreListe" data-i18n="cv_hero_title">Créez votre carte de visite professionnelle</h2>
         <button class="btn-ajouter" onclick="ouvrirModal()" data-i18n="cv_btn_ajouter">➕ Ajouter mon CV</button>
@@ -955,6 +966,7 @@ function voirCV(cvId){
   const c = listeCv.find(x => x.id === cvId);
   if (!c) return;
   currentCvId = cvId;
+  document.querySelectorAll('.btn-retour-liste').forEach(b => { b.style.display = isOwner ? '' : 'none'; });
 
   if (c.modeleChoisi === 'import') {
     afficherImportDetail(c);
@@ -995,12 +1007,14 @@ onAuthStateChanged(auth, async (user) => {
   if (!viewedUid) {
     // Aperçu hors connexion : liste vide testable, bouton +Ajouter fonctionnel
     isOwner = true;
+    document.getElementById('heroCard').style.display = 'flex';
     document.getElementById('empty-block-liste').style.display = 'block';
     afficherEtat('liste');
     return;
   }
 
   isOwner = !!(user && user.uid === viewedUid);
+  document.getElementById('heroCard').style.display = isOwner ? 'flex' : 'none';
   document.getElementById('heroTitreListe').textContent = isOwner
     ? T('cv_hero_title')
     : T('cv_hero_title_visitor');
@@ -1008,8 +1022,35 @@ onAuthStateChanged(auth, async (user) => {
   await chargerBadge();
   await chargerListe();
   refreshDynamicTexts();
-  afficherEtat('liste');
+
+  if (isOwner) {
+    // Le propriétaire gère ses CV : liste avec bouton +Ajouter fixe en haut.
+    afficherEtat('liste');
+  } else if (listeCv.length > 0) {
+    // Un visiteur doit voir directement le CV en grand — c'est fait pour être vu et permettre le contact.
+    afficherSwitchVisiteur();
+    voirCV(listeCv[0].id);
+  } else {
+    afficherEtat('liste'); // rien à montrer : message "aucun CV publié"
+  }
 });
+
+function afficherSwitchVisiteur(){
+  const zone = document.getElementById('visitorCvSwitch');
+  if (listeCv.length <= 1) { zone.style.display = 'none'; zone.innerHTML = ''; return; }
+  zone.innerHTML = listeCv.map(c =>
+    `<button class="visitor-cv-pill" data-id="${c.id}">${escapeHtml(c.titreInterne || T('cv_titre_sans_titre'))}</button>`
+  ).join('');
+  zone.style.display = 'flex';
+  zone.querySelectorAll('.visitor-cv-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      voirCV(btn.dataset.id);
+      zone.querySelectorAll('.visitor-cv-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+  zone.querySelector('.visitor-cv-pill').classList.add('active');
+}
 
 /* ── MODAL ── */
 window.ouvrirModal = () => {
