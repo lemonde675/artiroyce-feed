@@ -233,6 +233,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
   padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e4e6eb;
   background: #fff; font-size: 13px; cursor: pointer; font-weight: 600;
   color: #65676b; transition: all .15s; position: relative;
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation;
 }
 .like-btn.liked { background: #fff8f7; border-color: var(--red); color: var(--red); }
 /* Panoplie réactions */
@@ -358,7 +359,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .comm-meta-spacer { flex: 1; }
 
 /* "J'aime" cliquable dans la ligne méta, comme TikTok/Facebook */
-.rep-jaime { font-weight: 700; color: #8e8e8e; cursor: pointer; user-select: none; }
+.rep-jaime { font-weight: 700; color: #8e8e8e; cursor: pointer; user-select: none; -webkit-touch-callout: none; -webkit-user-select: none; touch-action: manipulation; }
 .rep-jaime.liked { color: var(--red); }
 
 /* Compteur de réactions aligné à droite, sur la même ligne que Répondre */
@@ -816,12 +817,21 @@ onAuthStateChanged(auth, async user => {
 });
 
 /* ── CHARGER OFFRES ── */
+let _unsubscribeOffres = null;
+const _unsubscribeCommentaires = {}; // { [offreId]: fonction de désabonnement }
+
 function chargerOffres() {
   const feedEl = document.getElementById('feedOffres');
   if (!feedEl) return;
 
+  // Empêcher l'empilement d'écouteurs Firebase : fermer le précédent avant d'en ouvrir un nouveau
+  // (chargerOffres() est appelée à plusieurs endroits — connexion, publication, changement de langue —
+  // et sans cette fermeture, chaque appel ajoutait un écouteur supplémentaire, faisant tourner
+  // le comptage des "J'aime" en boucle à chaque changement.)
+  if (_unsubscribeOffres) { _unsubscribeOffres(); _unsubscribeOffres = null; }
+
   let q = query(collection(db, 'offres'), orderBy('createdAt', 'desc'));
-  onSnapshot(q, snap => {
+  _unsubscribeOffres = onSnapshot(q, snap => {
     feedEl.innerHTML = '';
     const now = Date.now();
     let actives = [], expirees = [];
@@ -1025,10 +1035,10 @@ function buildCard(o, expiree) {
     <div class="comm-section" id="comms-${o.id}">
       <div class="comm-reactions">
         <div style="position:relative;display:inline-block;">
-          <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-reaction=""
+          <button class="like-btn ${_offreReactions[o.id]?'liked':''}" id="like-btn-${o.id}" data-id="${o.id}" data-reaction="${_offreReactions[o.id]||''}"
             onpointerdown="startLikeHold('${o.id}')" onpointerup="cancelLikeHold('${o.id}')" onpointerleave="cancelLikeHold('${o.id}')"
             onclick="handleLikeClick('${o.id}')">
-            <span id="like-emoji-${o.id}">👍</span>
+            <span id="like-emoji-${o.id}">${_offreReactions[o.id]||'👍'}</span>
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
           <div class="reactions-panel" id="reactions-${o.id}">
@@ -1071,9 +1081,10 @@ function buildCard(o, expiree) {
     }).catch(()=>{});
   }
 
-  // Écouter commentaires temps réel
+  // Écouter commentaires temps réel — fermer l'écouteur précédent pour cette offre s'il existe déjà
+  if (_unsubscribeCommentaires[o.id]) { _unsubscribeCommentaires[o.id](); }
   const qc = query(collection(db,'offres',o.id,'commentaires'), orderBy('createdAt','asc'));
-  onSnapshot(qc, snap2 => {
+  _unsubscribeCommentaires[o.id] = onSnapshot(qc, snap2 => {
     const listEl = document.getElementById('comm-list-'+o.id);
     const countEl = document.getElementById('comm-count-'+o.id);
     if (!listEl) return;
@@ -1175,6 +1186,7 @@ function buildCard(o, expiree) {
 
 /* ── RÉACTIONS SUR COMMENTAIRE — appui long = panoplie, tap court = ❤️ rapide (même principe que le post) ── */
 const _commentairesReactions = {}; // { [commentId]: emoji choisi localement }
+const _offreReactions = {}; // { [offreId]: emoji choisi localement } — survit à la reconstruction de la carte
 let _commentHoldTimer = {};
 let _commentHoldTriggered = {};
 
@@ -1425,13 +1437,14 @@ window.choisirReaction = async (offreId, emoji, label) => {
   const btn    = document.getElementById('like-btn-'+offreId);
   const emojiEl= document.getElementById('like-emoji-'+offreId);
   const countEl= document.getElementById('like-count-'+offreId);
-  const prev   = btn ? btn.dataset.reaction : '';
+  const prev   = _offreReactions[offreId] || '';
   const current= parseInt(countEl ? countEl.textContent : '0') || 0;
 
   try {
     const reacRef = doc(db, 'offres', offreId, 'reactions', currentUser.uid);
     if (prev === emoji) {
       // Enlever reaction
+      delete _offreReactions[offreId];
       await updateDoc(doc(db,'offres',offreId), { likes: increment(-1) });
       try { await updateDoc(reacRef, { emoji: '', uid: currentUser.uid }); } catch(e){}
       if (btn)    { btn.dataset.reaction = ''; btn.classList.remove('liked'); }
@@ -1440,6 +1453,7 @@ window.choisirReaction = async (offreId, emoji, label) => {
     } else {
       // Nouvelle reaction — increment seulement si pas de reaction avant
       const delta = prev && prev !== '' ? 0 : 1;
+      _offreReactions[offreId] = emoji;
       if (delta) await updateDoc(doc(db,'offres',offreId), { likes: increment(1) });
       // Sauvegarder dans Firestore (setDoc = create or overwrite)
       try {
