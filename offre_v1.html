@@ -1026,7 +1026,8 @@ function buildCard(o, expiree) {
       <div class="comm-reactions">
         <div style="position:relative;display:inline-block;">
           <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-reaction=""
-            onpointerdown="startLikeHold('${o.id}')" onpointerup="endLikeHold('${o.id}')" onpointerleave="cancelLikeHold('${o.id}')">
+            onpointerdown="startLikeHold('${o.id}')" onpointerup="cancelLikeHold('${o.id}')" onpointerleave="cancelLikeHold('${o.id}')"
+            onclick="handleLikeClick('${o.id}')">
             <span id="like-emoji-${o.id}">👍</span>
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
@@ -1404,19 +1405,18 @@ window.startLikeHold = (id) => {
   }, 400);
 };
 
-window.endLikeHold = (id) => {
+window.cancelLikeHold = (id) => {
+  // Le doigt se lève ou quitte le bouton : on annule juste le minuteur d'appui long.
+  // Le déclenchement du J'aime rapide se fait via onclick (handleLikeClick), pas ici,
+  // pour éviter tout double-appel (pointerup + pointerleave qui se déclenchaient tous les deux).
   clearTimeout(_holdTimer[id]);
-  if (!_holdTriggered[id]) {
-    // Appui court (tap simple) -> J'aime rapide, comme sur Facebook
-    _holdTriggered[id] = true; // empêche un second déclenchement si pointerleave suit juste après
-    window.toggleLike({ dataset: { id } });
-  }
 };
 
-window.cancelLikeHold = (id) => {
-  // Le doigt quitte le bouton (ou l'a déjà quitté) : on annule juste le minuteur,
-  // sans redéclencher un J'aime — évite le double-appel qui empêchait le compteur de monter.
-  clearTimeout(_holdTimer[id]);
+window.handleLikeClick = (id) => {
+  // onclick est garanti par le navigateur de ne se déclencher qu'UNE SEULE FOIS par tap,
+  // contrairement à pointerup/pointerleave qui pouvaient se déclencher tous les deux.
+  if (_holdTriggered[id]) return; // un appui long a déjà ouvert la panoplie, on ne fait rien de plus
+  window.toggleLike({ dataset: { id } });
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
@@ -1815,7 +1815,8 @@ function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffr
 function toggleUrgent(){ if(window.toggleUrgent) window.toggleUrgent(); }
 function fermerModal(){ document.getElementById('overlay').classList.remove('open'); }
 function startLikeHold(id){ if(window.startLikeHold) window.startLikeHold(id); }
-function endLikeHold(id){ if(window.endLikeHold) window.endLikeHold(id); }
+function cancelLikeHold(id){ if(window.cancelLikeHold) window.cancelLikeHold(id); }
+function handleLikeClick(id){ if(window.handleLikeClick) window.handleLikeClick(id); }
 function choisirReaction(id,emoji,label){ if(window.choisirReaction) window.choisirReaction(id,emoji,label); }
 </script>
 
