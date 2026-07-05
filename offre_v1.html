@@ -1450,7 +1450,10 @@ window.choisirReaction = async (offreId, emoji, label) => {
       if (emojiEl)  emojiEl.textContent = emoji;
       if (countEl && delta) countEl.textContent = current + 1;
     }
-  } catch(e) { console.error('reaction:', e); }
+  } catch(e) {
+    console.error('reaction:', e);
+    showToast("Erreur J'aime : " + (e.code || e.message || 'inconnue'));
+  }
 };
 
 // Tap simple = J'aime rapide
