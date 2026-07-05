@@ -288,7 +288,8 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 }
 .user-ava {
   width: 32px; height: 32px; border-radius: 50%;
-  background: #ccc; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#1a5276,#2e86c1); color:#fff; font-size:13px; font-weight:800;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden;
 }
 .user-ava img { width: 100%; height: 100%; object-fit: cover; }
@@ -301,17 +302,17 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .comm-input-icons { display: flex; gap: 8px; align-items: center; font-size: 18px; }
 
 /* UN COMMENTAIRE — style TikTok */
-.comm-item { display: flex; gap: 10px; margin-bottom: 14px; }
+.comm-item { display: flex; gap: 10px; margin-bottom: 16px; align-items: flex-start; }
 
 .comm-avatar {
   width: 36px; height: 36px; border-radius: 50%;
   background: #e4e6eb; flex-shrink: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: #555;
+  font-size: 13px; font-weight: 700; color: #fff;
 }
 .comm-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.comm-right { flex: 1; }
+.comm-right { flex: 1; min-width: 0; }
 
 /* Nom + badge Créateur */
 .comm-name-row {
@@ -328,20 +329,27 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 
 /* Texte commentaire */
 .comm-text {
-  font-size: 14px; color: #1c1e21; line-height: 1.45; margin-bottom: 5px;
+  font-size: 14px; color: #1c1e21; line-height: 1.45; margin-bottom: 5px; word-break: break-word;
 }
 
-/* Méta : date · Répondre · ❤️ */
+/* Méta : date · Répondre (le cœur est sorti de cette ligne, façon TikTok) */
 .comm-meta {
   display: flex; align-items: center; gap: 14px;
   font-size: 12px; color: #8e8e8e;
 }
 .comm-meta .date { color: #8e8e8e; }
 .comm-meta .rep  { font-weight: 700; color: #8e8e8e; cursor: pointer; }
-.comm-meta .likes {
-  display: flex; align-items: center; gap: 3px;
-  margin-left: auto; font-size: 12px; color: #8e8e8e;
+
+/* Cœur vertical à droite du commentaire — comme TikTok */
+.comm-like-col {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex-shrink: 0; padding-top: 2px; cursor: pointer; user-select: none;
 }
+.comm-like-col .heart { font-size: 16px; transition: transform .15s ease; }
+.comm-like-col.liked .heart { filter: none; }
+.comm-like-col:active .heart { transform: scale(1.3); }
+.comm-like-col .heart-count { font-size: 11px; color: #8e8e8e; }
+.comm-like-col.liked .heart-count { color: var(--red); font-weight: 700; }
 
 /* Ligne verticale réponses imbriquées */
 .replies-toggle {
@@ -1042,7 +1050,7 @@ function buildCard(o, expiree) {
       <div class="comm-input-row">
         <div class="user-ava">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
         <input class="comm-input-box" type="text" placeholder="${T('off_ph_commentaire')}" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
-        <div class="comm-input-icons" style="cursor:pointer;font-size:18px;" data-id="${o.id}" onclick="envoyerComm(this.dataset.id)">➤</div>
+        <div class="comm-input-icons" style="cursor:pointer;font-size:15px;background:var(--red);color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;" data-id="${o.id}" onclick="envoyerComm(this.dataset.id)">➤</div>
       </div>
       <div id="comm-list-${o.id}"></div>
     </div>`;
@@ -1074,21 +1082,28 @@ function buildCard(o, expiree) {
     snap2.forEach(cd => {
       const c = cd.data();
       const isAuteur = c.uid === o.auteurUid;
+      const commId = cd.id;
+      const initiale = (c.nom||'?')[0].toUpperCase();
+      const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
+      const dejaAime = _commentairesAimes.has(commId);
       const commEl = document.createElement('div');
       commEl.innerHTML = `
         <div class="comm-item">
-          <div class="comm-avatar">${(c.nom||'?')[0].toUpperCase()}</div>
+          <div class="comm-avatar" style="background:${avColor}">${initiale}</div>
           <div class="comm-right">
             <div class="comm-name-row">
-              <span class="comm-name">${c.nom||'Anonyme'}</span>
+              <span class="comm-name">${c.nom||T('off_anonyme')}</span>
               ${isAuteur ? '<span class="badge-createur">' + T('off_createur') + '</span>' : ''}
             </div>
             <div class="comm-text">${c.texte}</div>
             <div class="comm-meta">
               <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
               <span class="rep" data-id="${o.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.nom)">${T('off_repondre')}</span>
-              <span class="likes">❤️ ${c.likes||0}</span>
             </div>
+          </div>
+          <div class="comm-like-col ${dejaAime?'liked':''}" onclick="toggleCommentLike('${o.id}','${commId}',${c.likes||0},this)">
+            <span class="heart">${dejaAime?'❤️':'🤍'}</span>
+            <span class="heart-count">${c.likes||0}</span>
           </div>
         </div>`;
       listEl.appendChild(commEl);
@@ -1099,6 +1114,27 @@ function buildCard(o, expiree) {
 }
 
 /* ── ENVOYER COMMENTAIRE ── */
+const _commentairesAimes = new Set();
+
+window.toggleCommentLike = async (offreId, commentId, likesActuels, el) => {
+  if (!currentUser) { alert(T('off_alert_login_reagir')); return; }
+  const dejaAime = _commentairesAimes.has(commentId);
+  const heartEl = el.querySelector('.heart');
+  const countEl = el.querySelector('.heart-count');
+  const nouveauTotal = dejaAime ? Math.max(0, likesActuels - 1) : likesActuels + 1;
+
+  // Retour visuel immédiat
+  if (dejaAime) { _commentairesAimes.delete(commentId); el.classList.remove('liked'); heartEl.textContent = '🤍'; }
+  else { _commentairesAimes.add(commentId); el.classList.add('liked'); heartEl.textContent = '❤️'; }
+  countEl.textContent = nouveauTotal;
+
+  try {
+    await updateDoc(doc(db, 'offres', offreId, 'commentaires', commentId), {
+      likes: increment(dejaAime ? -1 : 1)
+    });
+  } catch (e) { console.error(e); }
+};
+
 window.envoyerComm = async (offreId) => {
   if (!currentUser) { alert(T('off_alert_login_comment')); return; }
   const inp = document.getElementById('cinput-'+offreId);
@@ -1796,7 +1832,7 @@ function rotateCrop(){ if(typeof rotateCrop!=='undefined') window._rotateCrop?.(
 function validerCrop(){ if(typeof validerCrop!=='undefined') window._validerCrop?.(); }
 </script>
 
-<script src="translations.js"></script>
+<script src="translations.js?v=20250705c"></script>
 
 </body>
 </html>
