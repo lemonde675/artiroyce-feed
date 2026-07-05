@@ -351,6 +351,19 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .comm-like-col .heart-count { font-size: 11px; color: #8e8e8e; }
 .comm-like-col.liked .heart-count { color: var(--red); font-weight: 700; }
 
+/* Réponses imbriquées sous leur commentaire parent — façon Facebook */
+.comm-replies-zone { margin-left: 30px; padding-left: 14px; border-left: 2px solid #eceef1; margin-bottom: 10px; }
+.comm-replies-zone .comm-item { margin-bottom: 12px; }
+.comm-replies-zone .comm-avatar { width: 28px; height: 28px; font-size: 11px; }
+
+/* Bandeau "réponse à …" au-dessus de la saisie */
+.reply-indicator {
+  display: none; align-items: center; justify-content: space-between;
+  background: #f0f2f5; border-radius: 10px; padding: 6px 10px; margin-bottom: 8px; font-size: 12px; color: #555;
+}
+.reply-indicator.active { display: flex; }
+.reply-indicator .cancel-reply { cursor: pointer; font-weight: 800; color: #8e8e8e; padding: 0 4px; }
+
 /* Ligne verticale réponses imbriquées */
 .replies-toggle {
   display: flex; align-items: center; gap: 6px;
@@ -398,6 +411,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .crop-topbar button {
   background: none; border: none; color: #fff; font-size: 15px;
   font-weight: 700; cursor: pointer; padding: 6px 10px;
+  position: relative; z-index: 20; pointer-events: auto;
 }
 .crop-topbar .crop-title { font-size: 15px; font-weight: 700; }
 .crop-topbar .crop-rotate { font-size: 22px; background: none; border: none; color: #fff; cursor: pointer; }
@@ -871,7 +885,7 @@ function chargerOffres() {
     if (mesOffresActives.length > 0) {
       const lblMoi = document.createElement('div');
       lblMoi.className = 'sec-label';
-      lblMoi.textContent = T('off_sec_mes_offres');
+      lblMoi.textContent = 'Mes offres';
       feedEl.appendChild(lblMoi);
       mesOffresActives.forEach(o => feedEl.appendChild(buildCard(o, false)));
     }
@@ -879,7 +893,7 @@ function chargerOffres() {
     if (autresOffresActives.length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = T('off_sec_communaute');
+      lbl.textContent = '🌍 Offres de la communauté';
       feedEl.appendChild(lbl);
       autresOffresActives.forEach(o => feedEl.appendChild(buildCard(o, false)));
     }
@@ -888,7 +902,7 @@ function chargerOffres() {
     if (filtrer(expirees).length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = T('off_sec_expirees');
+      lbl.textContent = 'Offres expirées';
       feedEl.appendChild(lbl);
       filtrer(expirees).forEach(o => feedEl.appendChild(buildCard(o, true)));
     }
@@ -897,7 +911,7 @@ function chargerOffres() {
       // Afficher offres exemples si vide
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = T('off_sec_exemples');
+      lbl.textContent = 'Exemples';
       feedEl.appendChild(lbl);
       const exemples = [
         { id:'ex1', type:'demande', titre:'Recherche 10 maçons qualifiés', auteurNom:'Kofi Adjovi', ville:'Cotonou', categorie:'🧱 Maçonnerie', budget:'50 000 FCFA/j', urgent:true, dispo:'Dès lundi', candidatures:23, likes:12, dureeDays:14, categEmoji:'🧱', createdAt:{toMillis:()=>Date.now()-7200000} },
@@ -907,7 +921,7 @@ function chargerOffres() {
       exemples.forEach(o => feedEl.appendChild(buildCard(o, false)));
       const note = document.createElement('div');
       note.style.cssText='text-align:center;padding:16px;font-size:12px;color:#aaa;';
-      note.textContent = T('off_note_premiere');
+      note.textContent = 'Publiez la première vraie offre !';
       feedEl.appendChild(note);
     }
   });
@@ -928,7 +942,7 @@ function buildCard(o, expiree) {
   const tempsAgo  = tempsDepuis(createdMs);
 
   // Type badge
-  const typeLabel = o.type === 'demande' ? T('off_type_demande') : o.type === 'texte' ? T('off_type_annonce') : T('off_type_offre');
+  const typeLabel = o.type === 'demande' ? '🔴 Demande' : o.type === 'texte' ? '📣 Annonce' : '🟢 Offre';
   const typeCls   = o.type === 'demande' ? 'demande' : 'offre';
 
   // Image
@@ -937,23 +951,23 @@ function buildCard(o, expiree) {
     : '';
 
   // Tags
-  let tagsHtml = `<span class="tag">${o.categorie||T('off_general')}</span>`;
+  let tagsHtml = `<span class="tag">${o.categorie||'Général'}</span>`;
   if (o.budget) tagsHtml += `<span class="tag prix">💰 ${o.budget}</span>`;
-  if (o.urgent) tagsHtml += `<span class="tag urgent">⚡ ${T('off_urgent_tag')}</span>`;
+  if (o.urgent) tagsHtml += `<span class="tag urgent">⚡ ${'Urgent'}</span>`;
   if (o.ville)  tagsHtml += `<span class="tag lieu">📍 ${o.ville}</span>`;
   if (o.dispo)  tagsHtml += `<span class="tag date">📅 ${o.dispo}</span>`;
 
   // Expiration
   const validHtml = expiree
-    ? `<div class="valid-row"><div class="dot off"></div><span class="vs expire">${T('off_expiree')}</span><span style="color:#ccc">${T('off_offre_cloturee')}</span><span class="vt">${tempsAgo}</span></div>
-       <div class="expired-banner">${T('off_banner_expiree')}</div>`
-    : `<div class="valid-row"><div class="dot on"></div><span class="vs active">${T('off_active')}</span><span style="color:#65676b">· ${joursRest} ${joursRest>1?T('off_jours_pluriel'):T('off_jour_singulier')} ${joursRest>1?T('off_restants_pluriel'):T('off_restant_singulier')}</span><span class="vt">${tempsAgo}</span></div>`;
+    ? `<div class="valid-row"><div class="dot off"></div><span class="vs expire">${'Expirée'}</span><span style="color:#ccc">${'· Offre clôturée'}</span><span class="vt">${tempsAgo}</span></div>
+       <div class="expired-banner">${'🔒 Offre expirée — candidature impossible'}</div>`
+    : `<div class="valid-row"><div class="dot on"></div><span class="vs active">${'Active'}</span><span style="color:#65676b">· ${joursRest} ${joursRest>1?'jours':'jour'} ${joursRest>1?'restants':'restant'}</span><span class="vt">${tempsAgo}</span></div>`;
 
   // Actions
   const actionsHtml = expiree ? '' : `
     <div class="card-actions">
-      <button class="btn-c" onclick="contacterOffre(this)">${T('off_btn_contacter')}</button>
-      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?T('off_btn_je_veux'):T('off_btn_postuler')}</button>
+      <button class="btn-c" onclick="contacterOffre(this)">${'📞 Contacter'}</button>
+      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
     </div>`;
 
   // Avatar auteur — photo si disponible, sinon initiales colorées
@@ -990,9 +1004,9 @@ function buildCard(o, expiree) {
     <div style="position:relative;display:inline-block;">
       <button onclick="toggleMenuSuppr('${o.id}')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#65676b;padding:4px 8px;">⋯</button>
       <div id="menu-suppr-${o.id}" style="display:none;position:absolute;right:0;top:28px;background:#fff;border:1px solid #e4e6eb;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;min-width:200px;">
-        <div onclick="supprimerOffre('${o.id}','definitif')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e63224;border-bottom:1px solid #f0f0f0;">${T('off_menu_suppr_def')}</div>
-        <div onclick="supprimerOffre('${o.id}','15j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;">${T('off_menu_expire_15')}</div>
-        <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">${T('off_menu_expire_30')}</div>
+        <div onclick="supprimerOffre('${o.id}','definitif')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e63224;border-bottom:1px solid #f0f0f0;">${'🗑️ Supprimer définitivement'}</div>
+        <div onclick="supprimerOffre('${o.id}','15j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;">${'⏳ Expirer dans 15 jours'}</div>
+        <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">${'⏳ Expirer dans 30 jours'}</div>
       </div>
     </div>` : '';
 
@@ -1007,7 +1021,7 @@ function buildCard(o, expiree) {
           ${badgeVerif}
         </div>
         <div style="flex:1;">
-          <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||T('off_anonyme')}</div>
+          <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
           <div style="font-size:11px;color:#65676b;">${o.ville||''} · ${tempsAgo}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -1016,14 +1030,14 @@ function buildCard(o, expiree) {
         </div>
       </div>
       <!-- Titre offre -->
-      <h3 style="font-size:15px;font-weight:800;color:#1c1e21;margin-bottom:10px;line-height:1.35;">${o.titre||o.texte?.substring(0,60)||T('off_sans_titre')}</h3>
+      <h3 style="font-size:15px;font-weight:800;color:#1c1e21;margin-bottom:10px;line-height:1.35;">${o.titre||o.texte?.substring(0,60)||'Sans titre'}</h3>
     </div>
     ${imgHtml}
     <div class="card-body" style="padding-top:${imgHtml?'10px':'0'}">
       ${o.description ? `<div style="font-size:14px;color:#1c1e21;line-height:1.5;margin-bottom:10px;">${o.description}</div>` : ''}
       <div class="tags">${tagsHtml}</div>
       ${validHtml}
-      ${!expiree ? `<div class="cand">👥 ${o.candidatures||0} ${(o.candidatures||0)>1?T('off_candidatures_pluriel'):T('off_candidature_singulier')}</div>` : ''}
+      ${!expiree ? `<div class="cand">👥 ${o.candidatures||0} ${(o.candidatures||0)>1?'candidatures':'candidature'}</div>` : ''}
     </div>
     ${actionsHtml}
     <div class="comm-section" id="comms-${o.id}">
@@ -1035,21 +1049,25 @@ function buildCard(o, expiree) {
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
           <div class="reactions-panel" id="reactions-${o.id}">
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','Jaime')"><span class="r-emoji">👍</span><span class="r-label">${T('off_reaction_jaime')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','Jadore')"><span class="r-emoji">❤️</span><span class="r-label">${T('off_reaction_jadore')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">${T('off_reaction_solidaire')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">${T('off_reaction_haha')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">${T('off_reaction_wouah')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">${T('off_reaction_triste')}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colere')"><span class="r-emoji">😡</span><span class="r-label">${T('off_reaction_colere')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','Jaime')"><span class="r-emoji">👍</span><span class="r-label">${'J\'aime'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','Jadore')"><span class="r-emoji">❤️</span><span class="r-label">${'J\'adore'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">${'Solidaire'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">${'Haha'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">${'Wouah'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">${'Triste'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colere')"><span class="r-emoji">😡</span><span class="r-label">${'Colère'}</span></div>
           </div>
         </div>
-        <span id="comm-count-${o.id}">0 ${T('off_commentaire_singulier')}</span>
+        <span id="comm-count-${o.id}">0 ${'commentaire'}</span>
       </div>
-      <div class="comm-title">${T('off_commentaires_titre')}</div>
+      <div class="comm-title">Commentaires</div>
+      <div class="reply-indicator" id="reply-indicator-${o.id}">
+        <span id="reply-indicator-text-${o.id}"></span>
+        <span class="cancel-reply" onclick="annulerReponse('${o.id}')">✕</span>
+      </div>
       <div class="comm-input-row">
         <div class="user-ava">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
-        <input class="comm-input-box" type="text" placeholder="${T('off_ph_commentaire')}" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
+        <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
         <div class="comm-input-icons" style="cursor:pointer;font-size:15px;background:var(--red);color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;" data-id="${o.id}" onclick="envoyerComm(this.dataset.id)">➤</div>
       </div>
       <div id="comm-list-${o.id}"></div>
@@ -1077,36 +1095,56 @@ function buildCard(o, expiree) {
     const countEl = document.getElementById('comm-count-'+o.id);
     if (!listEl) return;
     const total = snap2.size;
-    if (countEl) countEl.textContent = total + ' ' + (total>1?T('off_commentaires_pluriel'):T('off_commentaire_singulier'));
-    listEl.innerHTML = '';
-    snap2.forEach(cd => {
-      const c = cd.data();
+    if (countEl) countEl.textContent = total + ' ' + (total>1?'commentaires':'commentaire');
+
+    // Étape 1 : tout récupérer, puis séparer commentaires principaux et réponses
+    const tous = [];
+    snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+    const principaux = tous.filter(c => !c.parentId);
+    const reponsesParParent = {};
+    tous.filter(c => c.parentId).forEach(c => {
+      (reponsesParParent[c.parentId] = reponsesParParent[c.parentId] || []).push(c);
+    });
+
+    function construireCommentaireHTML(c, estReponse){
       const isAuteur = c.uid === o.auteurUid;
-      const commId = cd.id;
       const initiale = (c.nom||'?')[0].toUpperCase();
       const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
-      const dejaAime = _commentairesAimes.has(commId);
-      const commEl = document.createElement('div');
-      commEl.innerHTML = `
+      const dejaAime = _commentairesAimes.has(c.id);
+      const wrap = document.createElement('div');
+      wrap.className = estReponse ? 'comm-reply-wrap' : '';
+      wrap.innerHTML = `
         <div class="comm-item">
           <div class="comm-avatar" style="background:${avColor}">${initiale}</div>
           <div class="comm-right">
             <div class="comm-name-row">
-              <span class="comm-name">${c.nom||T('off_anonyme')}</span>
-              ${isAuteur ? '<span class="badge-createur">' + T('off_createur') + '</span>' : ''}
+              <span class="comm-name">${c.nom||'Anonyme'}</span>
+              ${isAuteur ? '<span class="badge-createur">· Créateur</span>' : ''}
             </div>
             <div class="comm-text">${c.texte}</div>
             <div class="comm-meta">
               <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
-              <span class="rep" data-id="${o.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.nom)">${T('off_repondre')}</span>
+              <span class="rep" data-id="${o.id}" data-commid="${c.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.commid,this.dataset.nom)">Répondre</span>
             </div>
           </div>
-          <div class="comm-like-col ${dejaAime?'liked':''}" onclick="toggleCommentLike('${o.id}','${commId}',${c.likes||0},this)">
+          <div class="comm-like-col ${dejaAime?'liked':''}" onclick="toggleCommentLike('${o.id}','${c.id}',${c.likes||0},this)">
             <span class="heart">${dejaAime?'❤️':'🤍'}</span>
             <span class="heart-count">${c.likes||0}</span>
           </div>
         </div>`;
-      listEl.appendChild(commEl);
+      return wrap;
+    }
+
+    listEl.innerHTML = '';
+    principaux.forEach(c => {
+      listEl.appendChild(construireCommentaireHTML(c, false));
+      const reponses = reponsesParParent[c.id] || [];
+      if (reponses.length) {
+        const repZone = document.createElement('div');
+        repZone.className = 'comm-replies-zone';
+        reponses.forEach(r => repZone.appendChild(construireCommentaireHTML(r, true)));
+        listEl.appendChild(repZone);
+      }
     });
   });
 
@@ -1114,10 +1152,8 @@ function buildCard(o, expiree) {
 }
 
 /* ── ENVOYER COMMENTAIRE ── */
-const _commentairesAimes = new Set();
-
 window.toggleCommentLike = async (offreId, commentId, likesActuels, el) => {
-  if (!currentUser) { alert(T('off_alert_login_reagir')); return; }
+  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
   const dejaAime = _commentairesAimes.has(commentId);
   const heartEl = el.querySelector('.heart');
   const countEl = el.querySelector('.heart-count');
@@ -1135,20 +1171,26 @@ window.toggleCommentLike = async (offreId, commentId, likesActuels, el) => {
   } catch (e) { console.error(e); }
 };
 
+/* ── ENVOYER COMMENTAIRE / RÉPONDRE (liée au commentaire précis, façon Facebook) ── */
+const _commentairesAimes = new Set();
+const _replyingTo = {}; // { [offreId]: { commentId, nom } }
+
 window.envoyerComm = async (offreId) => {
-  if (!currentUser) { alert(T('off_alert_login_comment')); return; }
+  if (!currentUser) { alert('Connectez-vous pour commenter.'); return; }
   const inp = document.getElementById('cinput-'+offreId);
   const texte = inp?.value?.trim();
   if (!texte) return;
   inp.value = '';
+  const reponseA = _replyingTo[offreId] || null;
   try {
     await addDoc(collection(db,'offres',offreId,'commentaires'), {
       texte,
       nom: currentUser.displayName || 'Anonyme',
       uid: currentUser.uid,
+      parentId: reponseA ? reponseA.commentId : null,
       createdAt: serverTimestamp()
     });
-    // Permettre envoi sur Enter
+    window.annulerReponse(offreId);
   } catch(e){ console.error(e); }
 };
 
@@ -1160,10 +1202,23 @@ document.addEventListener('keydown', e => {
   }
 });
 
-/* ── RÉPONDRE ── */
-window.repondreComm = (offreId, nom) => {
+/* ── RÉPONDRE — la réponse sera liée au commentaire précis, pas juste un texte libre ── */
+window.repondreComm = (offreId, commentId, nom) => {
+  _replyingTo[offreId] = { commentId, nom };
+  const indicateur = document.getElementById('reply-indicator-'+offreId);
+  const texteIndic = document.getElementById('reply-indicator-text-'+offreId);
+  if (indicateur && texteIndic) {
+    texteIndic.textContent = 'Réponse à ' + nom;
+    indicateur.classList.add('active');
+  }
   const inp = document.getElementById('cinput-'+offreId);
-  if (inp) { inp.value = '@'+nom+' '; inp.focus(); }
+  if (inp) { inp.focus(); }
+};
+
+window.annulerReponse = (offreId) => {
+  delete _replyingTo[offreId];
+  const indicateur = document.getElementById('reply-indicator-'+offreId);
+  if (indicateur) indicateur.classList.remove('active');
 };
 
 /* ── CONTACTER ── */
@@ -1175,10 +1230,10 @@ window.contacterOffre = (btn) => {
 };
 window.contacter = (whatsapp, nom) => {
   if (whatsapp) {
-    const msg = encodeURIComponent(T('off_bonjour_contact').replace('{nom}', nom));
+    const msg = encodeURIComponent('Bonjour {nom}, je vous contacte via ArtiRoyce.'.replace('{nom}', nom));
     window.open('https://wa.me/'+whatsapp.replace(/[^0-9]/g,'')+'?text='+msg,'_blank');
   } else {
-    alert(T('off_alert_whatsapp'));
+    alert('Contact WhatsApp non disponible.');
   }
 };
 
@@ -1191,11 +1246,11 @@ window.postulerOffre = (btn) => {
 window.choisirPostuler = async (choix) => {
   document.getElementById('postulerOverlay').classList.remove('open');
   const offreId = window._postulerId;
-  if (!offreId || !currentUser) { alert(T('off_alert_login_postuler')); return; }
+  if (!offreId || !currentUser) { alert('Connectez-vous pour postuler.'); return; }
   const messages = {
-    interesse: T('off_msg_interesse'),
-    retenu: T('off_msg_retenu'),
-    postuler: T('off_msg_postule')
+    interesse: '🙋 Je suis intéressé, on se contacte en privé',
+    retenu: '✅ Comptez-moi parmi les retenus',
+    postuler: '📩 A postulé à cette offre'
   };
   try {
     await updateDoc(doc(db,'offres',offreId), { candidatures: increment(1) });
@@ -1205,7 +1260,7 @@ window.choisirPostuler = async (choix) => {
       uid: currentUser.uid,
       createdAt: serverTimestamp()
     });
-    showToast(T('off_toast_candidature'));
+    showToast('Candidature envoyée !');
   } catch(e){ console.error(e); }
 };
 
@@ -1225,7 +1280,7 @@ window.endLikeHold = (id) => {
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
-  if (!currentUser) { alert(T('off_alert_login_reagir')); return; }
+  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
   document.getElementById('reactions-'+offreId)?.classList.remove('open');
   const btn    = document.getElementById('like-btn-'+offreId);
   const emojiEl= document.getElementById('like-emoji-'+offreId);
@@ -1275,7 +1330,7 @@ document.addEventListener('click', e => {
 
 /* ── PUBLIER UNE OFFRE ── */
 window.publierOffre = async () => {
-  if (!currentUser) { alert(T('off_alert_login_publier')); return; }
+  if (!currentUser) { alert('Connectez-vous pour publier.'); return; }
 
   let data = {
     auteurUid: currentUser.uid,
@@ -1289,7 +1344,7 @@ window.publierOffre = async () => {
 
   if (currentModele === 'texte') {
     const texte = document.getElementById('texteSimple')?.value?.trim();
-    if (!texte) { alert(T('off_alert_ecrire_annonce')); return; }
+    if (!texte) { alert('Écrivez votre annonce.'); return; }
     data.type = 'texte';
     data.texte = texte;
     data.titre = texte.substring(0,60);
@@ -1298,7 +1353,7 @@ window.publierOffre = async () => {
     if (imgBase64Txt) data.imageUrl = imgBase64Txt;
   } else {
     const titre = document.querySelector('#formZone input[type=text]')?.value?.trim();
-    if (!titre) { alert(T('off_alert_titre_obligatoire')); return; }
+    if (!titre) { alert('Le titre est obligatoire.'); return; }
     const selects = document.querySelectorAll('#formZone select');
     const inputs  = document.querySelectorAll('#formZone input[type=text]');
     const dureeVal = document.querySelector('#formZone input[type=number]')?.value || 30;
@@ -1329,7 +1384,7 @@ window.publierOffre = async () => {
   }
 
   try {
-    document.querySelector('.btn-modal-pub').textContent = T('off_btn_publication_cours');
+    document.querySelector('.btn-modal-pub').textContent = '⏳ Publication…';
     await addDoc(collection(db,'offres'), data);
     document.getElementById('overlay').classList.remove('open');
     showToast('✅ Offre publiée !');
@@ -1337,9 +1392,9 @@ window.publierOffre = async () => {
     imgBase64=''; imgBase64Txt='';
   } catch(e){
     console.error(e);
-    alert(T('off_alert_erreur')+e.message);
+    alert('Erreur : '+e.message);
   } finally {
-    document.querySelector('.btn-modal-pub').textContent = T('off_publier_maintenant');
+    document.querySelector('.btn-modal-pub').textContent = '📢 Publier maintenant';
   }
 };
 
@@ -1403,7 +1458,7 @@ window.previewImg = e => {
     if (!cropBtn) {
       cropBtn = document.createElement('button');
       cropBtn.id = 'btn-crop-main';
-      cropBtn.textContent = T('off_crop_recadrer');
+      cropBtn.textContent = '✂️ Recadrer cette image';
       cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
       cropBtn.onclick = () => ouvrirCrop(imgBase64, 'main');
       imgPrev.parentNode.insertBefore(cropBtn, imgPrev.nextSibling);
@@ -1443,7 +1498,7 @@ window.previewImgTexte = e => {
     if (!cropBtn) {
       cropBtn = document.createElement('button');
       cropBtn.id = 'btn-crop-texte';
-      cropBtn.textContent = T('off_crop_recadrer');
+      cropBtn.textContent = '✂️ Recadrer cette image';
       cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
       cropBtn.onclick = () => ouvrirCrop(imgBase64Txt, 'texte');
       i.parentNode.insertBefore(cropBtn, i.nextSibling);
@@ -1475,9 +1530,9 @@ window.supprimerOffre = (offreId, mode) => {
 
   // Afficher dialog confirmation
   const messages = {
-    definitif: T('off_confirm_desc_def'),
-    '15j': T('off_confirm_desc_expire').replace('{n}', '15'),
-    '30j': T('off_confirm_desc_expire').replace('{n}', '30')
+    definitif: 'Cette offre sera supprimée définitivement. Cette action est irréversible.',
+    '15j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '15'),
+    '30j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '30')
   };
 
   const dialog = document.createElement('div');
@@ -1485,10 +1540,10 @@ window.supprimerOffre = (offreId, mode) => {
   const box = document.createElement('div');
   box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
   const icon = mode === 'definitif' ? '🗑️' : '⏳';
-  const titre = mode === 'definitif' ? T('off_confirm_titre_def') : T('off_confirm_titre_expire');
+  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
   const desc = mode === 'definitif'
-    ? T('off_confirm_desc_def')
-    : T('off_confirm_desc_expire').replace('{n}', mode === '15j' ? '15' : '30');
+    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
+    : 'Cette offre expirera dans {n} jours.'.replace('{n}', mode === '15j' ? '15' : '30');
 
   const iconDiv = document.createElement('div');
   iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
@@ -1503,11 +1558,11 @@ window.supprimerOffre = (offreId, mode) => {
   btnsDiv.style.cssText = 'display:flex;gap:10px;';
   const btnNon = document.createElement('button');
   btnNon.id = 'btn-non';
-  btnNon.textContent = T('off_confirm_non');
+  btnNon.textContent = 'Non, annuler';
   btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
   const btnOui = document.createElement('button');
   btnOui.id = 'btn-oui';
-  btnOui.textContent = T('off_confirm_oui');
+  btnOui.textContent = 'Oui, confirmer';
   btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
   btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
   box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
@@ -1546,10 +1601,26 @@ let _canvasRect = null;
 
 function ouvrirCrop(src, target) {
   _cropSrc = src; _cropTarget = target; _cropRotation = 0;
+  _cropFrame = { x:0, y:0, w:0, h:0 };
   const overlay = document.getElementById('cropOverlay');
   overlay.classList.add('open');
   _cropImg = new Image();
-  _cropImg.onload = () => dessinerCrop();
+  _cropImg.onload = () => {
+    // Attendre 2 frames pour être sûr que .crop-canvas-wrap a bien sa taille réelle
+    // (sur certains téléphones, l'overlay vient tout juste de s'afficher et la mise en page n'est pas encore prête)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const wrap = document.getElementById('cropWrap');
+      if (!wrap.clientWidth || !wrap.clientHeight) {
+        setTimeout(() => dessinerCrop(), 150); // dernier filet de sécurité
+      } else {
+        dessinerCrop();
+      }
+    }));
+  };
+  _cropImg.onerror = () => {
+    alert('Impossible de charger cette image pour le recadrage.');
+    overlay.classList.remove('open');
+  };
   _cropImg.src = src;
 }
 
@@ -1715,15 +1786,15 @@ function showToast(msg) {
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
   const m = Math.floor(diff/60000);
-  if (m < 1)  return T('off_temps_peu');
-  if (m < 60) return T('off_temps_min').replace('{n}', m);
+  if (m < 1)  return 'il y a peu';
+  if (m < 60) return 'il y a {n}min'.replace('{n}', m);
   const h = Math.floor(m/60);
-  if (h < 24) return T('off_temps_h').replace('{n}', h);
+  if (h < 24) return 'il y a {n}h'.replace('{n}', h);
   const j = Math.floor(h/24);
-  if (j < 7)  return T('off_temps_j').replace('{n}', j);
+  if (j < 7)  return 'il y a {n}j'.replace('{n}', j);
   const s = Math.floor(j/7);
-  if (s < 4)  return T('off_temps_sem').replace('{n}', s);
-  return T('off_temps_mois').replace('{n}', Math.floor(j/30));
+  if (s < 4)  return 'il y a {n} sem.'.replace('{n}', s);
+  return 'il y a {n} mois'.replace('{n}', Math.floor(j/30));
 }
 
 /* ── DÉMARRAGE ── */
