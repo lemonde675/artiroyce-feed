@@ -144,6 +144,9 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 /* variante sur fond clair (aucune utilisée pour l'instant, prévu si besoin) */
 .acct-badge.on-light .acct-role{ color:var(--blue-ico); }
 .acct-badge.on-light .acct-nom{ color:var(--navy2); }
+.import-author-badge{ padding:10px 14px 0; text-align:left; }
+.import-contact-row{ display:flex; gap:10px; padding:0 14px 16px; }
+.import-contact-row .cbtn{ flex:1; padding:11px; border-radius:14px; border:none; font-size:13px; font-weight:700; cursor:pointer; }
 
 /* ── BARRE "CV publié" ── */
 .published-bar{
@@ -1112,6 +1115,15 @@ function creerInstanceImport(c, estMoi){
     wrapper.appendChild(menu);
   }
 
+  const badge = document.createElement('div');
+  badge.className = 'acct-badge on-light import-author-badge';
+  badge.innerHTML = `<div class="acct-role"></div><div class="acct-nom"></div>`;
+  wrapper.appendChild(badge);
+  getAuthorInfo(c.auteurUid).then(info => {
+    badge.querySelector('.acct-role').textContent = info.role === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
+    badge.querySelector('.acct-nom').textContent = info.prenom;
+  });
+
   const body = document.createElement('div');
   body.className = 'import-preview';
   const isImage = (c.importURL || '').startsWith('data:image');
@@ -1119,6 +1131,16 @@ function creerInstanceImport(c, estMoi){
     ? `<img src="${c.importURL}" alt="CV importé">`
     : `<a class="filelink" href="${c.importURL}" target="_blank">${T('cv_import_ouvrir')}</a>`;
   wrapper.appendChild(body);
+
+  if (!estMoi) {
+    const contact = document.createElement('div');
+    contact.className = 'contact-row import-contact-row';
+    contact.innerHTML = `
+      <button class="cbtn appel" onclick="alerterAppel()">${T('cv_btn_appeler')}</button>
+      <button class="cbtn msg" onclick="alerterDiscuter()">${T('cv_btn_discuter')}</button>
+    `;
+    wrapper.appendChild(contact);
+  }
 
   if (estMoi) {
     bar.querySelector('.cv-instance-menu-btn').addEventListener('click', (e) => {
