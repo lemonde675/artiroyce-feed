@@ -1037,18 +1037,18 @@ function buildCard(o, expiree) {
         <div style="position:relative;display:inline-block;">
           <button class="like-btn ${_offreReactions[o.id]?'liked':''}" id="like-btn-${o.id}" data-id="${o.id}" data-reaction="${_offreReactions[o.id]||''}"
             onpointerdown="startLikeHold('${o.id}')" onpointerup="cancelLikeHold('${o.id}')" onpointerleave="cancelLikeHold('${o.id}')"
-            onclick="handleLikeClick('${o.id}')">
+            onclick="handleLikeClick('${o.id}',${o.likes||0})">
             <span id="like-emoji-${o.id}">${_offreReactions[o.id]||'👍'}</span>
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
           <div class="reactions-panel" id="reactions-${o.id}">
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','Jaime')"><span class="r-emoji">👍</span><span class="r-label">${'J\'aime'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','Jadore')"><span class="r-emoji">❤️</span><span class="r-label">${'J\'adore'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">${'Solidaire'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">${'Haha'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">${'Wouah'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">${'Triste'}</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colere')"><span class="r-emoji">😡</span><span class="r-label">${'Colère'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍',${o.likes||0})"><span class="r-emoji">👍</span><span class="r-label">${'J\'aime'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️',${o.likes||0})"><span class="r-emoji">❤️</span><span class="r-label">${'J\'adore'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗',${o.likes||0})"><span class="r-emoji">🤗</span><span class="r-label">${'Solidaire'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂',${o.likes||0})"><span class="r-emoji">😂</span><span class="r-label">${'Haha'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮',${o.likes||0})"><span class="r-emoji">😮</span><span class="r-label">${'Wouah'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢',${o.likes||0})"><span class="r-emoji">😢</span><span class="r-label">${'Triste'}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡',${o.likes||0})"><span class="r-emoji">😡</span><span class="r-label">${'Colère'}</span></div>
           </div>
         </div>
         <span id="comm-count-${o.id}">0 ${'commentaire'}</span>
@@ -1403,7 +1403,7 @@ window.choisirPostuler = async (choix) => {
   } catch(e){ console.error(e); }
 };
 
-// Réactions — hold pour panoplie, tap simple pour toggle
+// Réactions du post — copie fidèle du mécanisme des commentaires (qui fonctionne, confirmé)
 let _holdTimer = {};
 let _holdTriggered = {};
 
@@ -1411,71 +1411,52 @@ window.startLikeHold = (id) => {
   _holdTriggered[id] = false;
   _holdTimer[id] = setTimeout(() => {
     _holdTriggered[id] = true;
-    // Afficher panoplie après 400ms (appui long)
-    const panel = document.getElementById('reactions-'+id);
-    if (panel) panel.classList.add('open');
+    document.getElementById('reactions-'+id)?.classList.add('open');
   }, 400);
 };
 
 window.cancelLikeHold = (id) => {
-  // Le doigt se lève ou quitte le bouton : on annule juste le minuteur d'appui long.
-  // Le déclenchement du J'aime rapide se fait via onclick (handleLikeClick), pas ici,
-  // pour éviter tout double-appel (pointerup + pointerleave qui se déclenchaient tous les deux).
   clearTimeout(_holdTimer[id]);
 };
 
-window.handleLikeClick = (id) => {
-  // onclick est garanti par le navigateur de ne se déclencher qu'UNE SEULE FOIS par tap,
-  // contrairement à pointerup/pointerleave qui pouvaient se déclencher tous les deux.
-  if (_holdTriggered[id]) return; // un appui long a déjà ouvert la panoplie, on ne fait rien de plus
-  window.toggleLike({ dataset: { id } });
+window.handleLikeClick = (id, likesActuels) => {
+  if (_holdTriggered[id]) return; // un appui long a déjà ouvert la panoplie
+  window.choisirReaction(id, '👍', likesActuels);
 };
 
-window.choisirReaction = async (offreId, emoji, label) => {
+window.choisirReaction = async (offreId, emoji, likesActuels) => {
   if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
   document.getElementById('reactions-'+offreId)?.classList.remove('open');
-  const btn    = document.getElementById('like-btn-'+offreId);
-  const emojiEl= document.getElementById('like-emoji-'+offreId);
-  const countEl= document.getElementById('like-count-'+offreId);
-  const prev   = _offreReactions[offreId] || '';
-  const current= parseInt(countEl ? countEl.textContent : '0') || 0;
+  const prev = _offreReactions[offreId] || '';
+  const btn     = document.getElementById('like-btn-'+offreId);
+  const emojiEl = document.getElementById('like-emoji-'+offreId);
+  const numEl   = document.getElementById('like-count-'+offreId);
+
+  function majAffichage(nouveauTotal, aime, emojiAffiche){
+    if (btn) btn.classList.toggle('liked', aime);
+    if (emojiEl) emojiEl.textContent = emojiAffiche;
+    if (numEl) numEl.textContent = nouveauTotal;
+  }
 
   try {
-    const reacRef = doc(db, 'offres', offreId, 'reactions', currentUser.uid);
     if (prev === emoji) {
-      // Enlever reaction
       delete _offreReactions[offreId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      majAffichage(nouveauTotal, false, '👍');
+      if (btn) btn.dataset.reaction = '';
       await updateDoc(doc(db,'offres',offreId), { likes: increment(-1) });
-      try { await updateDoc(reacRef, { emoji: '', uid: currentUser.uid }); } catch(e){}
-      if (btn)    { btn.dataset.reaction = ''; btn.classList.remove('liked'); }
-      if (emojiEl)  emojiEl.textContent = '👍';
-      if (countEl)  countEl.textContent = Math.max(0, current - 1);
     } else {
-      // Nouvelle reaction — increment seulement si pas de reaction avant
-      const delta = prev && prev !== '' ? 0 : 1;
+      const delta = prev ? 0 : 1;
       _offreReactions[offreId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      majAffichage(nouveauTotal, true, emoji);
+      if (btn) btn.dataset.reaction = emoji;
       if (delta) await updateDoc(doc(db,'offres',offreId), { likes: increment(1) });
-      // Sauvegarder dans Firestore (setDoc = create or overwrite)
-      try {
-        const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-        await setDoc(reacRef, { emoji, uid: currentUser.uid });
-      } catch(e) { console.error('setDoc:', e); }
-      if (btn)    { btn.dataset.reaction = emoji; btn.classList.add('liked'); }
-      if (emojiEl)  emojiEl.textContent = emoji;
-      if (countEl && delta) countEl.textContent = current + 1;
     }
   } catch(e) {
     console.error('reaction:', e);
     showToast("Erreur J'aime : " + (e.code || e.message || 'inconnue'));
   }
-};
-
-// Tap simple = J'aime rapide
-window.toggleLike = async (btn) => {
-  const id = btn ? btn.dataset.id : '';
-  if (!id) return;
-  const prevEmoji = btn.dataset.reaction || '';
-  await window.choisirReaction(id, '👍', 'Jaime');
 };
 
 // Fermer panoplie si clic ailleurs
@@ -1826,13 +1807,12 @@ function repondreComm(id,nom){ if(window.repondreComm) window.repondreComm(id,no
 function contacterOffre(btn){ if(window.contacterOffre) window.contacterOffre(btn); }
 function postulerOffre(btn){ if(window.postulerOffre) window.postulerOffre(btn); }
 function choisirPostuler(choix){ if(window.choisirPostuler) window.choisirPostuler(choix); }
-function toggleLike(btn){ if(window.toggleLike) window.toggleLike(btn); }
+function cancelLikeHold(id){ if(window.cancelLikeHold) window.cancelLikeHold(id); }
 function toggleMenuSuppr(id){ if(window.toggleMenuSuppr) window.toggleMenuSuppr(id); }
 function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffre(id,mode); }
 function toggleUrgent(){ if(window.toggleUrgent) window.toggleUrgent(); }
 function fermerModal(){ document.getElementById('overlay').classList.remove('open'); }
 function startLikeHold(id){ if(window.startLikeHold) window.startLikeHold(id); }
-function cancelLikeHold(id){ if(window.cancelLikeHold) window.cancelLikeHold(id); }
 function handleLikeClick(id){ if(window.handleLikeClick) window.handleLikeClick(id); }
 function choisirReaction(id,emoji,label){ if(window.choisirReaction) window.choisirReaction(id,emoji,label); }
 </script>
