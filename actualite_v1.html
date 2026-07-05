@@ -139,6 +139,28 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 .toast.g{background:var(--green)}
+/* ═══ VERSION PC (≥768px) — plein écran, grille, curseur cliquable ═══ */
+@media (min-width: 768px) {
+  html, body { max-width: 100%; overflow: visible; }
+  .top-header { max-width: 100%; }
+  .body-wrap { max-width: 100%; }
+  .feed { max-width: 1100px; margin: 0 auto; padding: 10px 12px 70px; }
+  .bot-nav { max-width: 100%; }
+
+  #feedPosts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; align-items: start; }
+  .post { margin: 0; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .create-post { grid-column: 1 / -1; border-radius: 14px; margin-bottom: 0; }
+  #feedLoading, #feedEmpty { grid-column: 1 / -1; }
+
+  @media (min-width: 1300px) {
+    #feedPosts { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .cat-pill, .pab, .create-post, .ph-more, .cm-act, .ss-opt, .ro, .cp-input { cursor: pointer; }
+  .pab:hover { background: #f7f8fa; }
+  .post:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.10); }
+  .cat-pill:hover { border-color: var(--dark); }
+}
 </style>
 </head>
 <body>
@@ -171,200 +193,34 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
   <!-- CATEGORIES -->
   <div class="cats">
-    <div class="cat-pill active" onclick="setCat(this)">Tout</div>
-    <div class="cat-pill" onclick="setCat(this)">🎨 Arts</div>
-    <div class="cat-pill" onclick="setCat(this)">🎉 Événements</div>
-    <div class="cat-pill" onclick="setCat(this)">💼 Business</div>
-    <div class="cat-pill" onclick="setCat(this)">🌟 Élites</div>
-    <div class="cat-pill" onclick="setCat(this)">💡 Conseils</div>
+    <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)">Tout</div>
+    <div class="cat-pill" data-cat="Arts" onclick="setCat(this)">🎨 Arts</div>
+    <div class="cat-pill" data-cat="Événements" onclick="setCat(this)">🎉 Événements</div>
+    <div class="cat-pill" data-cat="Business" onclick="setCat(this)">💼 Business</div>
+    <div class="cat-pill" data-cat="Élites" onclick="setCat(this)">🌟 Élites</div>
+    <div class="cat-pill" data-cat="Conseils" onclick="setCat(this)">💡 Conseils</div>
   </div>
 
   <div class="feed">
 
     <!-- CRÉER PUBLICATION -->
     <div class="create-post" onclick="openCreate()">
-      <div class="cp-av">👤</div>
+      <div class="cp-av" id="cpAvatar">👤</div>
       <input class="cp-input" placeholder="Quoi de neuf ?" readonly/>
       <button class="cp-img-btn">🖼️</button>
     </div>
 
-    <!-- POST 1 -->
-    <div class="post">
-      <div class="ph">
-        <div class="ph-av" style="background:linear-gradient(135deg,#001030,#002060)">DK
-          <div class="ph-vb">✔</div>
-        </div>
-        <div class="ph-info">
-          <div class="ph-top">
-            <span class="ph-name">David Koffi</span>
-            <span class="ph-badge">🎉 Événement</span>
-          </div>
-          <div class="ph-meta">🎧 DJ · Il y a 2h</div>
-        </div>
-        <span class="ph-more">⋯</span>
-      </div>
-      <div class="pt">
-        🔥 Event EXCEPTIONNEL samedi 22h ! La soirée de l'année vous attend. DJ Set non-stop, ambiance garantie. Places limitées — réservez maintenant ! 🎶
-        <span class="vp"> Voir plus</span>
-      </div>
-      <div class="p-img-1" style="background:linear-gradient(160deg,#0a0e2a,#161b3d)">🎧</div>
-      <div class="pr-row">
-        <div class="pr-l">
-          <div class="pr-bubbles">
-            <div class="pr-b" style="background:#f5f5f5">❤️</div>
-            <div class="pr-b" style="background:#f5f5f5">👍</div>
-            <div class="pr-b" style="background:#f5f5f5">🔥</div>
-          </div>
-          <span class="pr-cnt">312</span>
-        </div>
-        <span class="pr-r">42 commentaires · 18 partages</span>
-      </div>
-      <div class="p-acts">
-        <button class="pab" id="pb1" onclick="showRP('r1','pb1')">
-          <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
-          J'aime
-          <div class="rpick" id="r1">
-            <div class="ro" onclick="doReact('pb1','❤️','r1')"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
-            <div class="ro" onclick="doReact('pb1','👍','r1')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
-            <div class="ro" onclick="doReact('pb1','😮','r1')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
-            <div class="ro" onclick="doReact('pb1','😂','r1')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
-            <div class="ro" onclick="doReact('pb1','🔥','r1')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
-            <div class="ro" onclick="doReact('pb1','😢','r1')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
-          </div>
-        </button>
-        <button class="pab" onclick="toast('💬 Commenter bientôt !','')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Commenter
-        </button>
-        <button class="pab" onclick="toast('📱 Contacter David','g')">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-          Contacter
-        </button>
-        <button class="pab" onclick="openShare()">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Partager
-        </button>
-      </div>
+    <div id="feedLoading" style="text-align:center;padding:40px 20px;color:#aaa;">
+      <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+      <div style="font-size:14px;font-weight:600;">Chargement des publications…</div>
     </div>
 
-    <!-- POST 2 -->
-    <div class="post">
-      <div class="ph">
-        <div class="ph-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
-          <div class="ph-vb">✔</div>
-        </div>
-        <div class="ph-info">
-          <div class="ph-top">
-            <span class="ph-name">Mariama Kouyaté</span>
-            <span class="ph-badge">🎨 Arts</span>
-          </div>
-          <div class="ph-meta">✂️ Coiffeuse · Il y a 12 min</div>
-        </div>
-        <span class="ph-more">⋯</span>
-      </div>
-      <div class="pt">Nouvelle collection disponible ! 💇‍♀️ Prenez rendez-vous dès maintenant. Places limitées ce week-end.</div>
-      <div class="p-img-2">
-        <div class="p-cell" style="background:linear-gradient(160deg,#0d2b0f,#1a5e20)">✂️</div>
-        <div class="p-cell" style="background:linear-gradient(160deg,#1a5e20,#27a945)">💇‍♀️</div>
-      </div>
-      <div class="pr-row">
-        <div class="pr-l">
-          <div class="pr-bubbles">
-            <div class="pr-b" style="background:#f5f5f5">❤️</div>
-            <div class="pr-b" style="background:#f5f5f5">👍</div>
-          </div>
-          <span class="pr-cnt">47</span>
-        </div>
-        <span class="pr-r">8 commentaires</span>
-      </div>
-      <div class="p-acts">
-        <button class="pab" id="pb2" onclick="showRP('r2','pb2')">
-          <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
-          J'aime
-          <div class="rpick" id="r2">
-            <div class="ro" onclick="doReact('pb2','❤️','r2')"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
-            <div class="ro" onclick="doReact('pb2','👍','r2')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
-            <div class="ro" onclick="doReact('pb2','😮','r2')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
-            <div class="ro" onclick="doReact('pb2','😂','r2')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
-            <div class="ro" onclick="doReact('pb2','🔥','r2')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
-            <div class="ro" onclick="doReact('pb2','😢','r2')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
-          </div>
-        </button>
-        <button class="pab" onclick="toast('💬 Commenter bientôt !','')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Commenter
-        </button>
-        <button class="pab" onclick="toast('📱 Contacter Mariama','g')">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-          Contacter
-        </button>
-        <button class="pab" onclick="openShare()">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Partager
-        </button>
-      </div>
-    </div>
+    <div id="feedPosts"></div>
 
-    <!-- POST 3 -->
-    <div class="post">
-      <div class="ph">
-        <div class="ph-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
-          <div class="ph-vb">✔</div>
-        </div>
-        <div class="ph-info">
-          <div class="ph-top">
-            <span class="ph-name">Jean-Paul Mensah</span>
-            <span class="ph-badge">💼 Business</span>
-          </div>
-          <div class="ph-meta">📷 Photographe · Il y a 34 min</div>
-        </div>
-        <span class="ph-more">⋯</span>
-      </div>
-      <div class="pt">Portfolio mis à jour ! 🎨 Shootings professionnels, mariages, événements. Contactez-moi pour vos projets.</div>
-      <div class="p-img-3">
-        <div class="p-cell span2" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e);height:160px;font-size:70px">📷</div>
-        <div class="p-cell" style="background:linear-gradient(135deg,#0a0a2e,#2a2a8e);height:120px">🎞️</div>
-        <div class="p-cell pi-more" style="background:linear-gradient(135deg,#0d0d40,#1a1a6e);height:120px">
-          🖼️
-          <div class="p-more-ov">+5</div>
-        </div>
-      </div>
-      <div class="pr-row">
-        <div class="pr-l">
-          <div class="pr-bubbles">
-            <div class="pr-b" style="background:#f5f5f5">❤️</div>
-            <div class="pr-b" style="background:#f5f5f5">😮</div>
-          </div>
-          <span class="pr-cnt">124</span>
-        </div>
-        <span class="pr-r">15 commentaires · 7 partages</span>
-      </div>
-      <div class="p-acts">
-        <button class="pab" id="pb3" onclick="showRP('r3','pb3')">
-          <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
-          J'aime
-          <div class="rpick" id="r3">
-            <div class="ro" onclick="doReact('pb3','❤️','r3')"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
-            <div class="ro" onclick="doReact('pb3','👍','r3')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
-            <div class="ro" onclick="doReact('pb3','😮','r3')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
-            <div class="ro" onclick="doReact('pb3','😂','r3')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
-            <div class="ro" onclick="doReact('pb3','🔥','r3')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
-            <div class="ro" onclick="doReact('pb3','😢','r3')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
-          </div>
-        </button>
-        <button class="pab" onclick="toast('💬 Commenter bientôt !','')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Commenter
-        </button>
-        <button class="pab" onclick="toast('📱 Contacter Jean-Paul','g')">
-          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
-          Contacter
-        </button>
-        <button class="pab" onclick="openShare()">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Partager
-        </button>
-      </div>
+    <div id="feedEmpty" style="display:none;text-align:center;padding:50px 20px;color:#aaa;">
+      <div style="font-size:40px;margin-bottom:10px;">📭</div>
+      <div style="font-size:14px;font-weight:600;">Aucune publication pour l'instant</div>
+      <div style="font-size:12px;margin-top:4px;">Soyez le premier à publier !</div>
     </div>
 
   </div>
@@ -399,19 +255,19 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="ss-handle"></div>
     <div class="ss-title">Partager cette publication</div>
     <div class="ss-grid">
-      <div class="ss-opt" onclick="toast('💬 Partagé en Discussion !','g');closeShare()">
+      <div class="ss-opt" onclick="partagerDiscussion()">
         <div class="ss-icon" style="background:#e8f5e9">💬</div>
         <span class="ss-name">Discussion</span>
       </div>
-      <div class="ss-opt" onclick="toast('📱 Partagé sur WhatsApp !','g');closeShare()">
+      <div class="ss-opt" onclick="partagerWhatsapp()">
         <div class="ss-icon" style="background:#e8f5e9">📱</div>
         <span class="ss-name">WhatsApp</span>
       </div>
-      <div class="ss-opt" onclick="toast('🔗 Lien copié !','g');closeShare()">
+      <div class="ss-opt" onclick="partagerCopierLien()">
         <div class="ss-icon" style="background:#f5f5f5">🔗</div>
         <span class="ss-name">Copier lien</span>
       </div>
-      <div class="ss-opt" onclick="toast('⭐ Enregistré !','g');closeShare()">
+      <div class="ss-opt" onclick="partagerEnregistrer()">
         <div class="ss-icon" style="background:#fff8e1">⭐</div>
         <span class="ss-name">Enregistrer</span>
       </div>
@@ -424,35 +280,33 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="cm-header">
     <span class="cm-cancel" onclick="closeCreate()">Annuler</span>
     <span class="cm-title">Créer une publication</span>
-    <button class="cm-publish" onclick="publishPost()">Publier</button>
+    <button class="cm-publish" id="btnPublish" onclick="publishPost()">Publier</button>
   </div>
   <div class="cm-user">
-    <div class="cm-av">👤</div>
+    <div class="cm-av" id="cmAvatar">👤</div>
     <div>
-      <div class="cm-name">Mon compte</div>
-      <div class="cm-pub-select">🌍 Public ▾</div>
+      <div class="cm-name" id="cmNom">Mon compte</div>
+      <select id="cmCategorie" style="display:inline-flex;align-items:center;gap:5px;background:#f5f5f5;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;color:#555;margin-top:3px;border:none;cursor:pointer;">
+        <option value="Arts">🎨 Arts</option>
+        <option value="Événements">🎉 Événements</option>
+        <option value="Business">💼 Business</option>
+        <option value="Élites">🌟 Élites</option>
+        <option value="Conseils">💡 Conseils</option>
+      </select>
     </div>
   </div>
   <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6"></textarea>
+  <img id="cmImgPreview" style="display:none;width:calc(100% - 32px);margin:8px 16px;border-radius:12px;max-height:280px;object-fit:contain;"/>
   <div class="cm-actions">
-    <div class="cm-act" onclick="toast('🖼️ Photos/Vidéos bientôt !','g')">
+    <div class="cm-act" onclick="document.getElementById('cmFileInput').click()">
       <div class="cm-act-icon" style="background:#e8f5e9">🖼️</div>
-      <span class="cm-act-name">Photos / Vidéos</span>
+      <span class="cm-act-name">Photo</span>
       <span class="cm-act-arrow">›</span>
     </div>
-    <div class="cm-act" onclick="toast('📍 Localisation bientôt !','g')">
-      <div class="cm-act-icon" style="background:#fff0f0">📍</div>
-      <span class="cm-act-name">Ajouter un lieu</span>
-      <span class="cm-act-arrow">›</span>
-    </div>
-    <div class="cm-act" onclick="toast('😊 Humeur bientôt !','g')">
-      <div class="cm-act-icon" style="background:#fff8e1">😊</div>
-      <span class="cm-act-name">Humeur / Activité</span>
-      <span class="cm-act-arrow">›</span>
-    </div>
-    <div class="cm-act" onclick="toast('🏷️ Identifier bientôt !','g')">
-      <div class="cm-act-icon" style="background:#f0f0ff">🏷️</div>
-      <span class="cm-act-name">Identifier des personnes</span>
+    <input type="file" id="cmFileInput" accept="image/*" style="display:none" onchange="previewCmImage(event)"/>
+    <div class="cm-act" onclick="toast('⚡ Marquer comme urgent bientôt !','')">
+      <div class="cm-act-icon" style="background:#fff0f0">🔥</div>
+      <span class="cm-act-name">Marquer important</span>
       <span class="cm-act-arrow">›</span>
     </div>
   </div>
@@ -470,50 +324,7 @@ window.toast=function(m,t){
   setTimeout(()=>el.className='toast',2400);
 }
 
-window.setCat=function(el){
-  document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-}
-
-let openRP=null;
-window.showRP=function(rpId,btnId){
-  const rp=document.getElementById(rpId);
-  if(openRP&&openRP!==rp){openRP.classList.remove('show');}
-  rp.classList.toggle('show');
-  openRP=rp.classList.contains('show')?rp:null;
-}
-
-window.doReact=function(btnId,emoji,rpId){
-  const btn=document.getElementById(btnId);
-  const rp=document.getElementById(rpId);
-  btn.classList.add('reacted');
-  const txt=btn.childNodes[btn.childNodes.length-1];
-  if(txt.nodeType===3){txt.textContent=' '+emoji;}
-  rp.classList.remove('show');openRP=null;
-  toast(emoji+' Réaction ajoutée !','g');
-  event.stopPropagation();
-}
-
-document.addEventListener('click',function(e){
-  if(openRP&&!e.target.closest('.pab')){openRP.classList.remove('show');openRP=null;}
-});
-
-window.openShare=function(){document.getElementById('shareSheet').classList.add('open')}
-window.closeShare=function(){document.getElementById('shareSheet').classList.remove('open')}
-
-window.openCreate=function(){
-  document.getElementById('createModal').classList.add('open');
-  setTimeout(()=>document.getElementById('cmText').focus(),400);
-}
-window.closeCreate=function(){document.getElementById('createModal').classList.remove('open')}
-window.publishPost=function(){
-  const txt=document.getElementById('cmText').value.trim();
-  if(!txt){toast('⚠️ Écrivez quelque chose !','');return;}
-  closeCreate();
-  toast('✅ Publication publiée !','g');
-}
-
-// PostMessage swipe
+// PostMessage swipe (communication avec accueil.html si affiché en iframe)
 (function(){
   let sx=0,sy=0,sw=false;
   document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});
@@ -528,5 +339,557 @@ window.publishPost=function(){
   },{passive:true});
 })();
 </script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc,
+  increment, onSnapshot, orderBy, query, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let categorieActive = 'Tout';
+let listePublications = [];
+let imgBase64Post = '';
+
+const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+const BADGES = { 'Arts':'🎨 Arts', 'Événements':'🎉 Événement', 'Business':'💼 Business', 'Élites':'🌟 Élite', 'Conseils':'💡 Conseil' };
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+function tempsDepuis(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff/60000);
+  if (m < 1)  return 'il y a peu';
+  if (m < 60) return 'il y a '+m+'min';
+  const h = Math.floor(m/60);
+  if (h < 24) return 'il y a '+h+'h';
+  const j = Math.floor(h/24);
+  if (j < 7)  return 'il y a '+j+'j';
+  const s = Math.floor(j/7);
+  if (s < 4)  return 'il y a '+s+' sem.';
+  return 'il y a '+Math.floor(j/30)+' mois';
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'connexion.html'; return; }
+  currentUser = user;
+  currentUser.displayName = user.email ? user.email.split('@')[0] : 'Moi';
+  currentUser.metier = '';
+  currentUser.verifie = false;
+  try {
+    const snap = await getDoc(doc(db,'utilisateurs', user.uid));
+    if (snap.exists()) {
+      const d = snap.data();
+      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.metier = d.metier || d.role || '';
+      currentUser.verifie = d.statut === 'verifie';
+    }
+  } catch(e){ console.error(e); }
+
+  const initiale = (currentUser.displayName||'?')[0].toUpperCase();
+  document.getElementById('cpAvatar').textContent = initiale;
+  document.getElementById('cmAvatar').textContent = initiale;
+  document.getElementById('cmNom').textContent = currentUser.displayName;
+
+  chargerPublications();
+});
+
+function chargerPublications(){
+  const q = query(collection(db,'publications'), orderBy('createdAt','desc'));
+  onSnapshot(q, snap => {
+    listePublications = [];
+    snap.forEach(d => listePublications.push({ id: d.id, ...d.data() }));
+    document.getElementById('feedLoading').style.display = 'none';
+    afficherFeed();
+  }, err => {
+    console.error(err);
+    document.getElementById('feedLoading').innerHTML = '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.</div>';
+  });
+}
+
+function afficherFeed(){
+  const filtres = categorieActive === 'Tout' ? listePublications : listePublications.filter(p => p.categorie === categorieActive);
+  const feedEl = document.getElementById('feedPosts');
+  document.getElementById('feedEmpty').style.display = filtres.length ? 'none' : 'block';
+  feedEl.innerHTML = '';
+  filtres.forEach(p => feedEl.appendChild(construirePost(p)));
+}
+
+window.setCat = (el) => {
+  document.querySelectorAll('.cat-pill').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  categorieActive = el.dataset.cat;
+  afficherFeed();
+};
+
+/* ══════════ CONSTRUCTION D'UNE PUBLICATION ══════════ */
+const _pubReactions = {}; // { [postId]: emoji } — mémoire locale qui survit à la reconstruction
+
+function construirePost(p){
+  const isAuteur = currentUser && p.auteurUid === currentUser.uid;
+  const initiale = (p.auteurNom||'?')[0].toUpperCase();
+  const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
+  const badgeTxt = BADGES[p.categorie] || p.categorie || '';
+  const texteLong = (p.texte||'').length > 220;
+  const texteAffiche = texteLong ? escapeHtml(p.texte.substring(0,220)) + '…' : escapeHtml(p.texte||'');
+
+  const div = document.createElement('div');
+  div.className = 'post';
+  div.id = 'post-'+p.id;
+
+  const menuHtml = isAuteur ? `
+    <div class="post-menu" id="menu-${p.id}" style="display:none;position:absolute;top:36px;right:12px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);border:1px solid #eee;z-index:80;overflow:hidden;min-width:180px;">
+      <div style="padding:11px 16px;font-size:13px;font-weight:700;color:#e63224;cursor:pointer;" onclick="supprimerPublication('${p.id}')">🗑️ Supprimer</div>
+    </div>` : '';
+
+  div.innerHTML = `
+    <div class="ph" style="position:relative;">
+      <div class="ph-av" style="background:${avColor}">${p.photoAuteurURL?'':initiale}${p.photoAuteurURL?`<img src="${p.photoAuteurURL}">`:''}
+        ${p.auteurVerifie ? '<div class="ph-vb">✔</div>' : ''}
+      </div>
+      <div class="ph-info">
+        <div class="ph-top">
+          <span class="ph-name">${escapeHtml(p.auteurNom||'Anonyme')}</span>
+          ${badgeTxt ? `<span class="ph-badge">${badgeTxt}</span>` : ''}
+        </div>
+        <div class="ph-meta">${p.auteurMetier ? escapeHtml(p.auteurMetier)+' · ' : ''}${tempsDepuis(p.createdAt?.toMillis?p.createdAt.toMillis():Date.now())}</div>
+      </div>
+      ${isAuteur ? `<span class="ph-more" onclick="toggleMenuPost('${p.id}')">⋯</span>` : ''}
+      ${menuHtml}
+    </div>
+    <div class="pt" id="pt-${p.id}">
+      ${texteAffiche}
+      ${texteLong ? `<span class="vp" onclick="voirPlusTexte('${p.id}')"> Voir plus</span>` : ''}
+    </div>
+    ${p.imageURL ? `<div class="p-img-1" style="background:#000;"><img src="${p.imageURL}" style="width:100%;height:100%;object-fit:cover;"></div>` : ''}
+    <div class="pr-row">
+      <div class="pr-l">
+        <div class="pr-bubbles" id="bulles-${p.id}"></div>
+        <span class="pr-cnt" id="likecount-${p.id}">${p.likes||0}</span>
+      </div>
+      <span class="pr-r" id="commcount-${p.id}">0 commentaire · ${p.partages||0} partage${(p.partages||0)>1?'s':''}</span>
+    </div>
+    <div class="p-acts">
+      <button class="pab ${_pubReactions[p.id]?'reacted':''}" id="pb-${p.id}"
+        onpointerdown="startPubHold('${p.id}')" onpointerup="cancelPubHold('${p.id}')" onpointerleave="cancelPubHold('${p.id}')"
+        onclick="handlePubClick('${p.id}',${p.likes||0})">
+        <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+        <span id="pblabel-${p.id}">${_pubReactions[p.id] ? 'Aimé' : "J'aime"}</span>
+        <div class="rpick" id="rp-${p.id}">
+          <div class="ro" onclick="choisirReactionPub('${p.id}','❤️',${p.likes||0})"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
+          <div class="ro" onclick="choisirReactionPub('${p.id}','👍',${p.likes||0})"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
+          <div class="ro" onclick="choisirReactionPub('${p.id}','😮',${p.likes||0})"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
+          <div class="ro" onclick="choisirReactionPub('${p.id}','😂',${p.likes||0})"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
+          <div class="ro" onclick="choisirReactionPub('${p.id}','🔥',${p.likes||0})"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
+          <div class="ro" onclick="choisirReactionPub('${p.id}','😢',${p.likes||0})"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
+        </div>
+      </button>
+      <button class="pab" onclick="toggleComments('${p.id}')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Commenter
+      </button>
+      <button class="pab" onclick="contacterAuteur('${escapeHtml(p.auteurNom||'')}','${p.auteurTelephone||''}')">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        Contacter
+      </button>
+      <button class="pab" onclick="openShare('${p.id}')">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Partager
+      </button>
+    </div>
+    <div class="comm-zone" id="commzone-${p.id}" style="display:none;padding:12px 16px;border-top:1px solid #f5f5f5;"></div>
+  `;
+
+  // Charger le compteur réel de commentaires + écouter en direct
+  ecouterCommentaires(p.id);
+  return div;
+}
+
+window.voirPlusTexte = (postId) => {
+  const p = listePublications.find(x => x.id === postId);
+  if (!p) return;
+  document.getElementById('pt-'+postId).textContent = p.texte;
+};
+
+window.toggleMenuPost = (postId) => {
+  document.querySelectorAll('.post-menu').forEach(m => { if (m.id !== 'menu-'+postId) m.style.display = 'none'; });
+  const menu = document.getElementById('menu-'+postId);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ph-more') && !e.target.closest('.post-menu')) {
+    document.querySelectorAll('.post-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerPublication = async (postId) => {
+  if (!confirm('Supprimer définitivement cette publication ?')) return;
+  try {
+    await deleteDoc(doc(db,'publications',postId));
+    toast('🗑️ Publication supprimée','g');
+  } catch(e) { console.error(e); toast('Erreur lors de la suppression',''); }
+};
+
+window.contacterAuteur = (nom) => {
+  toast('📱 Contacter '+nom, 'g');
+};
+
+let _shareIdCourant = null;
+window.openShare = (postId) => { _shareIdCourant = postId; document.getElementById('shareSheet').classList.add('open'); };
+window.closeShare = () => document.getElementById('shareSheet').classList.remove('open');
+
+/* ══════════ RÉACTIONS SUR PUBLICATION — même mécanisme fiable que sur Offres ══════════ */
+let _pubHoldTimer = {};
+let _pubHoldTriggered = {};
+
+window.startPubHold = (postId) => {
+  _pubHoldTriggered[postId] = false;
+  _pubHoldTimer[postId] = setTimeout(() => {
+    _pubHoldTriggered[postId] = true;
+    document.getElementById('rp-'+postId)?.classList.add('show');
+  }, 400);
+};
+window.cancelPubHold = (postId) => { clearTimeout(_pubHoldTimer[postId]); };
+window.handlePubClick = (postId, likesActuels) => {
+  if (_pubHoldTriggered[postId]) return;
+  window.choisirReactionPub(postId, '❤️', likesActuels);
+};
+
+window.choisirReactionPub = async (postId, emoji, likesActuels) => {
+  if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
+  document.getElementById('rp-'+postId)?.classList.remove('show');
+  const prev = _pubReactions[postId] || '';
+  const btn = document.getElementById('pb-'+postId);
+  const labelEl = document.getElementById('pblabel-'+postId);
+  const countEl = document.getElementById('likecount-'+postId);
+  const bullesEl = document.getElementById('bulles-'+postId);
+
+  function majBulles(){
+    if (!bullesEl) return;
+    bullesEl.innerHTML = prevEtActuel().map(e => `<div class="pr-b" style="background:#f5f5f5">${e}</div>`).join('');
+  }
+  function prevEtActuel(){
+    const set = new Set(['❤️','👍']);
+    if (_pubReactions[postId]) set.add(_pubReactions[postId]);
+    return Array.from(set).slice(0,3);
+  }
+
+  try {
+    if (prev === emoji) {
+      delete _pubReactions[postId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      if (btn) btn.classList.remove('reacted');
+      if (labelEl) labelEl.textContent = "J'aime";
+      if (countEl) countEl.textContent = nouveauTotal;
+      await updateDoc(doc(db,'publications',postId), { likes: increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      _pubReactions[postId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      if (btn) btn.classList.add('reacted');
+      if (labelEl) labelEl.textContent = 'Aimé';
+      if (countEl) countEl.textContent = nouveauTotal;
+      if (delta) await updateDoc(doc(db,'publications',postId), { likes: increment(1) });
+    }
+  } catch(e) {
+    console.error(e);
+    toast("Erreur J'aime",'');
+  }
+};
+
+document.addEventListener('click', function(e){
+  if (!e.target.closest('.pab')) {
+    document.querySelectorAll('.rpick.show').forEach(rp => rp.classList.remove('show'));
+  }
+});
+
+/* ══════════ COMMENTAIRES — copie fidèle du système Offres (réponses imbriquées, réactions) ══════════ */
+const _commentairesReactions = {};
+let _commentHoldTimer = {};
+let _commentHoldTriggered = {};
+const _replyingTo = {};
+
+window.toggleComments = (postId) => {
+  const zone = document.getElementById('commzone-'+postId);
+  if (!zone) return;
+  const ouvert = zone.style.display !== 'none';
+  zone.style.display = ouvert ? 'none' : 'block';
+  if (!ouvert && !zone.dataset.init) {
+    zone.dataset.init = '1';
+    construireZoneCommentaires(postId, zone);
+  }
+};
+
+function construireZoneCommentaires(postId, zone){
+  zone.innerHTML = `
+    <div class="comm-input-row" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <div class="user-ava" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
+      <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${postId}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
+      <div style="cursor:pointer;font-size:15px;background:#e63224;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="envoyerCommentairePub('${postId}')">➤</div>
+    </div>
+    <div class="reply-indicator" id="reply-indicator-${postId}" style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555;">
+      <span id="reply-indicator-text-${postId}"></span>
+      <span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px;" onclick="annulerReponsePub('${postId}')">✕</span>
+    </div>
+    <div id="comm-list-${postId}"></div>
+  `;
+  document.getElementById('cinput-'+postId).addEventListener('keydown', e => {
+    if (e.key === 'Enter') envoyerCommentairePub(postId);
+  });
+}
+
+function ecouterCommentaires(postId){
+  const qc = query(collection(db,'publications',postId,'commentaires'), orderBy('createdAt','asc'));
+  onSnapshot(qc, snap2 => {
+    const total = snap2.size;
+    const compteEl = document.getElementById('commcount-'+postId);
+    const p = listePublications.find(x => x.id === postId);
+    if (compteEl) compteEl.textContent = total + (total>1?' commentaires':' commentaire') + (p ? ' · '+(p.partages||0)+' partage'+((p.partages||0)>1?'s':'') : '');
+
+    const listEl = document.getElementById('comm-list-'+postId);
+    if (!listEl) return;
+
+    const tous = [];
+    snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+    const parentDe = {};
+    tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+    function trouverRacine(id){ let cur=id, garde=0; while(parentDe[cur] && garde<20){cur=parentDe[cur];garde++;} return cur; }
+    const principaux = tous.filter(c => !c.parentId).sort((a,b) => {
+      const ta = a.createdAt?.toMillis?a.createdAt.toMillis():0, tb = b.createdAt?.toMillis?b.createdAt.toMillis():0;
+      return tb - ta;
+    });
+    const reponsesParRacine = {};
+    tous.filter(c => c.parentId).forEach(c => {
+      const racine = trouverRacine(c.id);
+      (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+    });
+
+    function construireCommentaireHTML(c, racineId){
+      const auteurPub = (listePublications.find(x=>x.id===postId)||{}).auteurUid;
+      const isAuteur = c.uid === auteurPub;
+      const initiale = (c.nom||'?')[0].toUpperCase();
+      const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
+      const dejaAime = !!_commentairesReactions[c.id];
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="comm-item" style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start;">
+          <div style="width:36px;height:36px;border-radius:50%;background:${avColor};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;">${initiale}</div>
+          <div style="flex:1;min-width:0;position:relative;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
+              <span style="font-size:13px;font-weight:700;color:#757575;">${escapeHtml(c.nom||'Anonyme')}</span>
+              ${isAuteur ? '<span style="font-size:11px;font-weight:700;color:#1a5276;">· Créateur</span>' : ''}
+            </div>
+            <div style="font-size:14px;color:#1c1e21;line-height:1.45;margin-bottom:5px;word-break:break-word;">${escapeHtml(c.texte)}</div>
+            <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e;">
+              <span>${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
+              <span style="font-weight:700;color:${dejaAime?'#e63224':'#8e8e8e'};cursor:pointer;" id="comm-jaime-${c.id}"
+                onpointerdown="startCommentHoldPub('${c.id}')" onpointerup="cancelCommentHoldPub('${c.id}')" onpointerleave="cancelCommentHoldPub('${c.id}')"
+                onclick="handleCommentClickPub('${postId}','${c.id}',${c.likes||0})">${dejaAime?'Aimé':"J'aime"}</span>
+              <span style="cursor:pointer;font-weight:700;color:#8e8e8e;" onclick="repondrePub('${postId}','${racineId}','${escapeHtml(c.nom||'')}')">Répondre</span>
+              <span class="comm-meta-spacer" style="flex:1"></span>
+              <span id="comm-heart-count-${c.id}" style="display:${c.likes?'inline-flex':'none'};align-items:center;gap:3px;">
+                <span id="comm-heart-${c.id}">${_commentairesReactions[c.id]||'❤️'}</span><span id="comm-heart-num-${c.id}">${c.likes||0}</span>
+              </span>
+            </div>
+            <div class="comm-reactions-panel" id="comm-reactions-${c.id}" style="display:none;position:absolute;bottom:24px;left:40px;background:#fff;border-radius:30px;padding:6px 8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);border:1px solid #e4e6eb;z-index:60;white-space:nowrap;">
+              <div style="display:flex;gap:4px;align-items:center;">
+                <div class="comm-reaction-item" style="cursor:pointer;padding:3px 4px;" onclick="choisirReactionCommentairePub('${postId}','${c.id}','👍',${c.likes||0})">👍</div>
+                <div class="comm-reaction-item" style="cursor:pointer;padding:3px 4px;" onclick="choisirReactionCommentairePub('${postId}','${c.id}','❤️',${c.likes||0})">❤️</div>
+                <div class="comm-reaction-item" style="cursor:pointer;padding:3px 4px;" onclick="choisirReactionCommentairePub('${postId}','${c.id}','😂',${c.likes||0})">😂</div>
+                <div class="comm-reaction-item" style="cursor:pointer;padding:3px 4px;" onclick="choisirReactionCommentairePub('${postId}','${c.id}','😮',${c.likes||0})">😮</div>
+                <div class="comm-reaction-item" style="cursor:pointer;padding:3px 4px;" onclick="choisirReactionCommentairePub('${postId}','${c.id}','😢',${c.likes||0})">😢</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      return wrap;
+    }
+
+    listEl.innerHTML = '';
+    principaux.forEach(c => {
+      listEl.appendChild(construireCommentaireHTML(c, c.id));
+      const reponses = reponsesParRacine[c.id] || [];
+      if (reponses.length) {
+        const repZone = document.createElement('div');
+        repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px;';
+        const toggle = document.createElement('div');
+        toggle.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px;';
+        toggle.innerHTML = `— Afficher ${reponses.length} réponse${reponses.length>1?'s':''} ▾`;
+        toggle.onclick = () => {
+          const frag = document.createDocumentFragment();
+          reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
+          repZone.appendChild(frag);
+          toggle.remove();
+        };
+        repZone.appendChild(toggle);
+        listEl.appendChild(repZone);
+      }
+    });
+  });
+}
+
+window.envoyerCommentairePub = async (postId) => {
+  if (!currentUser) { toast('Connectez-vous pour commenter',''); return; }
+  const inp = document.getElementById('cinput-'+postId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  const reponseA = _replyingTo[postId] || null;
+  try {
+    await addDoc(collection(db,'publications',postId,'commentaires'), {
+      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid,
+      parentId: reponseA ? reponseA.commentId : null, createdAt: serverTimestamp()
+    });
+    window.annulerReponsePub(postId);
+  } catch(e) { console.error(e); }
+};
+
+window.repondrePub = (postId, commentId, nom) => {
+  _replyingTo[postId] = { commentId, nom };
+  const indicateur = document.getElementById('reply-indicator-'+postId);
+  const texteIndic = document.getElementById('reply-indicator-text-'+postId);
+  if (indicateur && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indicateur.style.display = 'flex'; }
+  document.getElementById('cinput-'+postId)?.focus();
+};
+window.annulerReponsePub = (postId) => {
+  delete _replyingTo[postId];
+  const indicateur = document.getElementById('reply-indicator-'+postId);
+  if (indicateur) indicateur.style.display = 'none';
+};
+
+window.startCommentHoldPub = (commentId) => {
+  _commentHoldTriggered[commentId] = false;
+  _commentHoldTimer[commentId] = setTimeout(() => {
+    _commentHoldTriggered[commentId] = true;
+    document.getElementById('comm-reactions-'+commentId)?.style && (document.getElementById('comm-reactions-'+commentId).style.display = 'block');
+  }, 400);
+};
+window.cancelCommentHoldPub = (commentId) => { clearTimeout(_commentHoldTimer[commentId]); };
+window.handleCommentClickPub = (postId, commentId, likesActuels) => {
+  if (_commentHoldTriggered[commentId]) return;
+  window.choisirReactionCommentairePub(postId, commentId, '❤️', likesActuels);
+};
+
+window.choisirReactionCommentairePub = async (postId, commentId, emoji, likesActuels) => {
+  if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
+  const panel = document.getElementById('comm-reactions-'+commentId);
+  if (panel) panel.style.display = 'none';
+  const prev = _commentairesReactions[commentId] || '';
+  const jaimeEl = document.getElementById('comm-jaime-'+commentId);
+  const heartEl = document.getElementById('comm-heart-'+commentId);
+  const numEl = document.getElementById('comm-heart-num-'+commentId);
+  const countWrap = document.getElementById('comm-heart-count-'+commentId);
+
+  function majAffichage(nouveauTotal, aime, emojiAffiche){
+    if (jaimeEl) { jaimeEl.textContent = aime ? 'Aimé' : "J'aime"; jaimeEl.style.color = aime ? '#e63224' : '#8e8e8e'; }
+    if (heartEl) heartEl.textContent = emojiAffiche;
+    if (numEl) numEl.textContent = nouveauTotal;
+    if (countWrap) countWrap.style.display = nouveauTotal > 0 ? 'inline-flex' : 'none';
+  }
+
+  try {
+    if (prev === emoji) {
+      delete _commentairesReactions[commentId];
+      majAffichage(Math.max(0, likesActuels-1), false, '❤️');
+      await updateDoc(doc(db,'publications',postId,'commentaires',commentId), { likes: increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      _commentairesReactions[commentId] = emoji;
+      majAffichage(likesActuels + delta, true, emoji);
+      if (delta) await updateDoc(doc(db,'publications',postId,'commentaires',commentId), { likes: increment(1) });
+    }
+  } catch(e) { console.error(e); }
+};
+
+/* ══════════ CRÉATION D'UNE PUBLICATION ══════════ */
+window.openCreate = () => {
+  document.getElementById('createModal').classList.add('open');
+  setTimeout(() => document.getElementById('cmText').focus(), 400);
+};
+window.closeCreate = () => {
+  document.getElementById('createModal').classList.remove('open');
+  document.getElementById('cmText').value = '';
+  document.getElementById('cmImgPreview').style.display = 'none';
+  imgBase64Post = '';
+};
+
+window.previewCmImage = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64Post = ev.target.result;
+    const img = document.getElementById('cmImgPreview');
+    img.src = ev.target.result;
+    img.style.display = 'block';
+  };
+  r.readAsDataURL(f);
+};
+
+window.publishPost = async () => {
+  const txt = document.getElementById('cmText').value.trim();
+  if (!txt) { toast('⚠️ Écrivez quelque chose !',''); return; }
+  if (!currentUser) { toast('Connectez-vous pour publier',''); return; }
+  const btn = document.getElementById('btnPublish');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  const categorie = document.getElementById('cmCategorie').value;
+  try {
+    await addDoc(collection(db,'publications'), {
+      texte: txt,
+      imageURL: imgBase64Post || '',
+      categorie,
+      auteurUid: currentUser.uid,
+      auteurNom: currentUser.displayName || 'Anonyme',
+      auteurMetier: currentUser.metier || '',
+      auteurVerifie: !!currentUser.verifie,
+      likes: 0, partages: 0,
+      createdAt: serverTimestamp()
+    });
+    closeCreate();
+    toast('✅ Publication publiée !','g');
+  } catch(e) {
+    console.error(e);
+    toast('Erreur lors de la publication','');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Publier';
+  }
+};
+
+/* ══════════ PARTAGE ══════════ */
+window.partagerCopierLien = async () => {
+  const url = window.location.href.split('#')[0] + '#post-' + _shareIdCourant;
+  try {
+    await navigator.clipboard.writeText(url);
+    if (_shareIdCourant) await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) });
+    toast('🔗 Lien copié !','g');
+  } catch(e) { toast('Impossible de copier le lien',''); }
+  closeShare();
+};
+window.partagerWhatsapp = async () => {
+  const p = listePublications.find(x => x.id === _shareIdCourant);
+  const texte = p ? p.texte.substring(0,100) : 'Regarde cette publication ArtiRoyce !';
+  window.open('https://wa.me/?text=' + encodeURIComponent(texte + ' ' + window.location.href), '_blank');
+  if (_shareIdCourant) { try { await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) }); } catch(e){} }
+  closeShare();
+};
+window.partagerDiscussion = () => { toast('💬 Partagé en Discussion !','g'); closeShare(); };
+window.partagerEnregistrer = () => { toast('⭐ Enregistré !','g'); closeShare(); };
+</script>
+
 </body>
 </html>
