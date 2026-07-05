@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root { --red:#e63224; --green:#27a945; --navy:#0a0a2e; --navy2:#1a1a6e; --blue-ico:#2f6fed; --blue-light:#eaf1fb; --gold:#e8c574; --ribbon1:#1d3f7a; --ribbon2:#2e5aac; }
-html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; color: #1c1e21; max-width: 480px; margin: 0 auto; }
+html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; color: #1c1e21; max-width: 480px; margin: 0 auto; }
 
 /* ── HEADER — copie exacte accueil.html / offre_v1.html ── */
 .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
@@ -47,7 +47,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
 .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
 
-.content { padding-top: 108px; padding-bottom: 40px; background: #F2F4F7; }
+.content { padding-top: 108px; padding-bottom: 40px; background: #FFFFFF; }
 
 /* ── ÉTAT VIDE : hero + bouton "+Ajouter" en haut ── */
 .hero-card{
@@ -1015,7 +1015,7 @@ async function renderListeCards(){
 
   const cardsMoi = document.getElementById('cvCardsListe');
   cardsMoi.innerHTML = '';
-  for (const c of listeMesCv) cardsMoi.appendChild(creerInstanceLecture(c, true));
+  for (const c of listeMesCv) cardsMoi.appendChild(construireInstance(c, true));
 
   const toggleCorb = document.getElementById('corbeilleToggle');
   toggleCorb.style.display = listeCorbeille.length ? 'flex' : 'none';
@@ -1027,7 +1027,12 @@ async function renderListeCards(){
   document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-  for (const c of listeCommunaute) cardsCommu.appendChild(creerInstanceLecture(c, false));
+  for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
+}
+
+// Aiguille vers le bon gabarit : photo/fichier importé ou modèle Premium/2/3
+function construireInstance(c, estMoi){
+  return c.modeleChoisi === 'import' ? creerInstanceImport(c, estMoi) : creerInstanceLecture(c, estMoi);
 }
 
 window.toggleCorbeille = () => {
@@ -1087,6 +1092,47 @@ async function supprimerDefinitivement(cvId){
 }
 
 /* ══════════ INSTANCE DE CV EN LECTURE SEULE (pleine page, dans la liste) ══════════ */
+// CV de type "import" : on affiche la vraie photo/fichier de la personne, jamais le gabarit Premium
+function creerInstanceImport(c, estMoi){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'cv-instance-wrap';
+
+  const bar = document.createElement('div');
+  bar.className = 'cv-instance-bar';
+  const titre = c.titreInterne || T('cv_titre_sans_titre');
+  bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
+    (estMoi ? `<button class="cv-instance-menu-btn">⋮</button>` : '');
+  wrapper.appendChild(bar);
+
+  let menu = null;
+  if (estMoi) {
+    menu = document.createElement('div');
+    menu.className = 'cv-instance-menu';
+    menu.innerHTML = `<button data-action="corbeille" class="danger">${T('cv_menu_corbeille')}</button>`;
+    wrapper.appendChild(menu);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'import-preview';
+  const isImage = (c.importURL || '').startsWith('data:image');
+  body.innerHTML = isImage
+    ? `<img src="${c.importURL}" alt="CV importé">`
+    : `<a class="filelink" href="${c.importURL}" target="_blank">${T('cv_import_ouvrir')}</a>`;
+  wrapper.appendChild(body);
+
+  if (estMoi) {
+    bar.querySelector('.cv-instance-menu-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dejaOuvert = menu.classList.contains('open');
+      fermerTousMenus();
+      if (!dejaOuvert) menu.classList.add('open');
+    });
+    menu.querySelector('[data-action="corbeille"]').addEventListener('click', () => { fermerTousMenus(); mettreALaCorbeille(c.id); });
+  }
+
+  return wrapper;
+}
+
 function creerInstanceLecture(c, estMoi){
   const prefix = MODELE_TO_PREFIX.hasOwnProperty(c.modeleChoisi) ? MODELE_TO_PREFIX[c.modeleChoisi] : '';
 
