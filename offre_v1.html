@@ -1026,7 +1026,7 @@ function buildCard(o, expiree) {
       <div class="comm-reactions">
         <div style="position:relative;display:inline-block;">
           <button class="like-btn" id="like-btn-${o.id}" data-id="${o.id}" data-reaction=""
-            onpointerdown="startLikeHold('${o.id}')" onpointerup="endLikeHold('${o.id}')" onpointerleave="endLikeHold('${o.id}')">
+            onpointerdown="startLikeHold('${o.id}')" onpointerup="endLikeHold('${o.id}')" onpointerleave="cancelLikeHold('${o.id}')">
             <span id="like-emoji-${o.id}">👍</span>
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
@@ -1408,8 +1408,15 @@ window.endLikeHold = (id) => {
   clearTimeout(_holdTimer[id]);
   if (!_holdTriggered[id]) {
     // Appui court (tap simple) -> J'aime rapide, comme sur Facebook
+    _holdTriggered[id] = true; // empêche un second déclenchement si pointerleave suit juste après
     window.toggleLike({ dataset: { id } });
   }
+};
+
+window.cancelLikeHold = (id) => {
+  // Le doigt quitte le bouton (ou l'a déjà quitté) : on annule juste le minuteur,
+  // sans redéclencher un J'aime — évite le double-appel qui empêchait le compteur de monter.
+  clearTimeout(_holdTimer[id]);
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
