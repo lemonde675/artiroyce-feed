@@ -7,7 +7,7 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root { --red: #e63224; --green: #27a945; --blue: #1877f2; }
-html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; color: #1c1e21; max-width: 480px; margin: 0 auto; }
+html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; color: #1c1e21; max-width: 480px; margin: 0 auto; }
 
 /* ── HEADER — copie exacte accueil.html ── */
 .top-header {
@@ -39,6 +39,24 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 }
 .h-ico.chat .bdot { background: var(--green); }
 .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+
+/* ── SÉLECTEUR DE LANGUE — pilule standard ArtiRoyce ── */
+#langSel{ position:relative; }
+.lang-pill{
+  display:flex; align-items:center; gap:3px; background:#f5f5f5; border:1.5px solid #ddd;
+  border-radius:16px; padding:5px 8px; font-size:12px; cursor:pointer; white-space:nowrap;
+}
+.lang-dropdown{
+  display:none; position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e6eb;
+  border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.12); z-index:400; min-width:150px; max-height:280px;
+  overflow-y:auto; padding:6px;
+}
+#langSel.open .lang-dropdown{ display:block; }
+.lang-option{
+  padding:8px 10px; font-size:13px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+.lang-option:hover{ background:#f5f5f5; }
+.lang-option.active{ background:#eef1fb; font-weight:700; color:var(--blue); }
 .h-tabs {
   display: flex; align-items: center; overflow-x: auto; scrollbar-width: none;
   padding: 0 10px 7px; gap: 6px;
@@ -53,10 +71,11 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
 
 /* ── CONTENU ── */
-.content { padding-top: 108px; padding-bottom: 28px; background: #F2F4F7; }
+.content { padding-top: 108px; padding-bottom: 28px; background: #FFFFFF; }
 
 /* Hero */
 .hero {
+  position: sticky; top: 108px; z-index: 50;
   margin: 14px 12px 0;
   background: #FFFFFF; border-radius: 24px;
   border: 1px solid #E8ECF0;
@@ -479,6 +498,50 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
   background: var(--red); color: #fff; border: none;
   font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 6px;
 }
+/* ═══════════════════════════════════════════════════════
+   VERSION PC (≥768px) — plein écran, pas de cadre étroit,
+   grille de cartes, curseur cliquable + effets hover
+   ═══════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  html, body { max-width: 100%; }
+  .top-header { max-width: 100%; }
+  .content { max-width: 1100px; margin: 0 auto; }
+
+  .modal { max-width: 600px; border-radius: 20px; margin-bottom: 5vh; }
+  .overlay { align-items: center; }
+
+  /* Le libellé de section ("Mes offres" / communauté) occupe toute la largeur */
+  .sec-label { grid-column: 1 / -1; padding-left: 0; margin-top: 4px; }
+
+  /* Grille de cartes à partir de la tablette */
+  #feedOffres {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    align-items: start;
+    padding: 0 12px;
+  }
+  .card { margin: 0; }
+
+  @media (min-width: 1200px) {
+    #feedOffres { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Curseur cliquable + petits effets :hover sur les éléments interactifs */
+  .btn-pub, .filtre, .card, .btn-c, .btn-a, .like-btn, .h-tab, .h-ico,
+  .reaction-item, .comm-input-icons, .m-card, .fi-card {
+    cursor: pointer;
+  }
+  .btn-pub:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .filtre:hover { border-color: var(--red); }
+  .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 14px 34px rgba(0,0,0,0.10); transform: translateY(-2px); transition: all .15s ease; }
+  .btn-c:hover, .btn-a:hover { background: #f7f8fa; }
+  .h-tab:hover { background: #f0f2f5; }
+
+  * { scrollbar-width: thin; }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-thumb { background: #c8cbe0; border-radius: 10px; }
+}
 </style>
 </head>
 <body>
@@ -503,6 +566,23 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
       <div style="display:flex;align-items:center;gap:3px">
         <div class="h-ico chat" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0">🔍</span>
+        <div id="langSel">
+          <div class="lang-pill" onclick="toggleLang()">
+            🌍 <span id="activFlag">🇫🇷</span><span id="activCode">FR</span>
+          </div>
+          <div class="lang-dropdown">
+            <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
+            <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
+            <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
+            <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
+            <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
+            <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
+            <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
+            <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
+            <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
+            <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
+          </div>
+        </div>
         <span class="h-dots">⋮</span>
       </div>
     </div>
@@ -524,41 +604,41 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
 <!-- Hero -->
 <div class="hero">
   <div class="hero-left" style="text-align:center;">
-    <p>Trouvez ou proposez vos services</p>
-    <button class="btn-pub" onclick="openModal()">＋ Publier une offre</button>
+    <p data-i18n="off_hero_text">Trouvez ou proposez vos services</p>
+    <button class="btn-pub" onclick="openModal()" data-i18n="off_btn_publier">＋ Publier une offre</button>
   </div>
   <div class="panneau-outer">
     <div class="ficelle"><div class="crochet"></div></div>
     <div class="panneau-box">
-      <div class="pt">OFFRE</div>
-      <div class="ps">D'EMPLOI</div>
+      <div class="pt" data-i18n="off_panneau_offre">OFFRE</div>
+      <div class="ps" data-i18n="off_panneau_emploi">D'EMPLOI</div>
     </div>
   </div>
 </div>
 
 <!-- Stats — simples, noir -->
 <div class="stats">
-  <div class="stat"><div class="sv" id="stat-demandes">—</div><div class="sl">Demandes</div></div>
-  <div class="stat"><div class="sv" id="stat-offres">—</div><div class="sl">Offres</div></div>
-  <div class="stat"><div class="sv" id="stat-urgentes">—</div><div class="sl">Urgentes</div></div>
+  <div class="stat"><div class="sv" id="stat-demandes">—</div><div class="sl" data-i18n="off_stat_demandes">Demandes</div></div>
+  <div class="stat"><div class="sv" id="stat-offres">—</div><div class="sl" data-i18n="off_stat_offres">Offres</div></div>
+  <div class="stat"><div class="sv" id="stat-urgentes">—</div><div class="sl" data-i18n="off_stat_urgentes">Urgentes</div></div>
 </div>
 
 <!-- Filtres -->
 <div class="filtres">
-  <span class="filtre on">Tout</span>
-  <span class="filtre">⚡ Urgent</span>
-  <span class="filtre">🟢 Offres</span>
-  <span class="filtre">🔴 Demandes</span>
-  <span class="filtre">📣 Annonces</span>
-  <span class="filtre">🏙️ Cotonou</span>
-  <span class="filtre">✂️ Couture</span>
-  <span class="filtre">🧱 Maçonnerie</span>
+  <span class="filtre on" data-i18n="off_filtre_tout">Tout</span>
+  <span class="filtre" data-i18n="off_filtre_urgent">⚡ Urgent</span>
+  <span class="filtre" data-i18n="off_filtre_offres">🟢 Offres</span>
+  <span class="filtre" data-i18n="off_filtre_demandes">🔴 Demandes</span>
+  <span class="filtre" data-i18n="off_filtre_annonces">📣 Annonces</span>
+  <span class="filtre" data-i18n="off_filtre_cotonou">🏙️ Cotonou</span>
+  <span class="filtre" data-i18n="off_filtre_couture">✂️ Couture</span>
+  <span class="filtre" data-i18n="off_filtre_maconnerie">🧱 Maçonnerie</span>
 </div>
 
 <div id="feedOffres">
   <div id="feed-loading" style="text-align:center;padding:40px 20px;color:#aaa;">
     <div style="font-size:32px;margin-bottom:10px;">⏳</div>
-    <div style="font-size:14px;font-weight:600;">Chargement des offres…</div>
+    <div style="font-size:14px;font-weight:600;" data-i18n="off_chargement">Chargement des offres…</div>
   </div>
 </div>
 
@@ -570,44 +650,44 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
       <div style="width:36px;height:4px;background:#ddd;border-radius:4px;"></div>
       <div style="width:32px;"></div>
     </div>
-    <h3>📢 Publier une offre</h3>
-    <p class="modal-sub">Choisissez un modèle</p>
+    <h3 data-i18n="off_modal_titre">📢 Publier une offre</h3>
+    <p class="modal-sub" data-i18n="off_modal_sous_titre">Choisissez un modèle</p>
     <div class="m-grid">
       <div class="m-card sel" onclick="selModele(this,'demande')">
         <div class="m-icon">🔍</div>
-        <div class="m-name">Demande</div>
-        <div class="m-desc">Je cherche un artisan</div>
+        <div class="m-name" data-i18n="off_card_demande">Demande</div>
+        <div class="m-desc" data-i18n="off_card_demande_desc">Je cherche un artisan</div>
       </div>
       <div class="m-card" onclick="selModele(this,'photo')">
         <div class="m-icon">🖼️</div>
-        <div class="m-name">Avec photo</div>
-        <div class="m-desc">Image au centre</div>
+        <div class="m-name" data-i18n="off_card_photo">Avec photo</div>
+        <div class="m-desc" data-i18n="off_card_photo_desc">Image au centre</div>
       </div>
       <div class="m-card" onclick="selModele(this,'offre')">
         <div class="m-icon">💼</div>
-        <div class="m-name">Mes services</div>
-        <div class="m-desc">Je propose un service</div>
+        <div class="m-name" data-i18n="off_card_service">Mes services</div>
+        <div class="m-desc" data-i18n="off_card_service_desc">Je propose un service</div>
       </div>
       <div class="m-card" onclick="selModele(this,'texte')">
         <div class="m-icon">✏️</div>
-        <div class="m-name">Publication simple</div>
-        <div class="m-desc">Texte + image optionnelle</div>
+        <div class="m-name" data-i18n="off_card_texte">Publication simple</div>
+        <div class="m-desc" data-i18n="off_card_texte_desc">Texte + image optionnelle</div>
       </div>
     </div>
 
     <!-- Zone texte simple visible si modèle texte -->
     <div id="zoneTexte" style="display:none;margin-bottom:12px;">
-      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" style="width:100%;min-height:120px;border:1.5px solid #e4e6eb;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" data-i18n-ph="off_ph_annonce" style="width:100%;min-height:120px;border:1.5px solid #e4e6eb;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
       <div style="margin-top:8px;">
         <div class="tog-row" onclick="toggleImgTexte()" style="margin-bottom:8px;">
           <div class="tog" id="togImgTexte"></div>
-          Ajouter une image (optionnel)
+          <span data-i18n="off_ajouter_image">Ajouter une image (optionnel)</span>
         </div>
         <div id="uploadZoneTexte" style="display:none">
           <div class="upload-zone" onclick="document.getElementById('fi3').click()">
             <div class="uz-icon">🖼️</div>
-            <div class="uz-txt">Choisir une image</div>
-            <div class="uz-sub">JPG · PNG · max 3 Mo</div>
+            <div class="uz-txt" data-i18n="off_choisir_image">Choisir une image</div>
+            <div class="uz-sub" data-i18n="off_max_3mo">JPG · PNG · max 3 Mo</div>
           </div>
           <input type="file" id="fi3" accept="image/*" style="display:none" onchange="previewImgTexte(event)"/>
           <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:200px;object-fit:cover;"/>
@@ -616,55 +696,55 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
     </div>
 
     <div class="m2-preview" id="m2preview" onclick="document.getElementById('fi').click()">
-      🖼️<span>Appuyer pour ajouter une photo</span>
+      🖼️<span data-i18n="off_appuyer_photo">Appuyer pour ajouter une photo</span>
     </div>
     <input type="file" id="fi" accept="image/*" style="display:none" onchange="previewImg(event)"/>
     <img id="imgPrev" style="display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:12px;"/>
 
     <div id="formZone">
-    <div class="fg"><label>Titre *</label><input type="text" placeholder="Ex : Recherche 5 peintres qualifiés"/></div>
-    <div class="fg"><label>Description</label><textarea placeholder="Décrivez votre offre…"></textarea></div>
+    <div class="fg"><label data-i18n="off_lbl_titre">Titre *</label><input type="text" id="inp-titre" placeholder="Ex : Recherche 5 peintres qualifiés" data-i18n-ph="off_ph_titre"/></div>
+    <div class="fg"><label data-i18n="off_lbl_description">Description</label><textarea id="inp-desc" placeholder="Décrivez votre offre…" data-i18n-ph="off_ph_description"></textarea></div>
     <div class="row2">
       <div class="fg">
-        <label>Catégorie *</label>
+        <label data-i18n="off_lbl_categorie">Catégorie *</label>
         <select>
-          <option>🧱 Maçonnerie</option><option>✂️ Couture</option>
-          <option>⚡ Électricité</option><option>🔧 Plomberie</option>
-          <option>🎧 DJ / Musique</option><option>🍳 Cuisine</option>
-          <option>📱 Informatique</option><option>Autre…</option>
+          <option data-i18n="off_cat_maconnerie">🧱 Maçonnerie</option><option data-i18n="off_cat_couture">✂️ Couture</option>
+          <option data-i18n="off_cat_electricite">⚡ Électricité</option><option data-i18n="off_cat_plomberie">🔧 Plomberie</option>
+          <option data-i18n="off_cat_dj">🎧 DJ / Musique</option><option data-i18n="off_cat_cuisine">🍳 Cuisine</option>
+          <option data-i18n="off_cat_info">📱 Informatique</option><option data-i18n="off_cat_autre">Autre…</option>
         </select>
       </div>
-      <div class="fg"><label>Ville *</label><input type="text" placeholder="Cotonou"/></div>
+      <div class="fg"><label data-i18n="off_lbl_ville">Ville *</label><input type="text" id="inp-ville" placeholder="Cotonou" data-i18n-ph="off_ph_ville"/></div>
     </div>
     <div class="row2">
-      <div class="fg"><label>Budget / Tarif</label><input type="text" placeholder="50 000 FCFA/j"/></div>
-      <div class="fg"><label>Disponibilité</label><input type="text" placeholder="Dès lundi"/></div>
+      <div class="fg"><label data-i18n="off_lbl_budget">Budget / Tarif</label><input type="text" id="inp-budget" placeholder="50 000 FCFA/j" data-i18n-ph="off_ph_budget"/></div>
+      <div class="fg"><label data-i18n="off_lbl_dispo">Disponibilité</label><input type="text" id="inp-dispo" placeholder="Dès lundi" data-i18n-ph="off_ph_dispo"/></div>
     </div>
     <div class="fg">
-      <label>⏳ Durée de validité</label>
+      <label data-i18n="off_lbl_duree">⏳ Durée de validité</label>
       <div class="duree">
         <input type="number" placeholder="30" min="1" id="inp-duree"/>
-        <select id="inp-duree-unit"><option>jours</option><option>semaines</option><option>mois</option></select>
+        <select id="inp-duree-unit"><option data-i18n="off_unite_jours">jours</option><option data-i18n="off_unite_semaines">semaines</option><option data-i18n="off_unite_mois">mois</option></select>
       </div>
     </div>
     <div id="togRow2" class="tog-row" onclick="toggleUrgent()" style="margin-bottom:10px;">
       <div class="tog" id="togUrgent"></div>
-      ⚡ Marquer comme urgent
+      <span data-i18n="off_marquer_urgent">⚡ Marquer comme urgent</span>
     </div>
     <div id="togRow" class="tog-row" onclick="toggleImg()">
       <div class="tog" id="togImg"></div>
-      Ajouter une image (optionnel)
+      <span data-i18n="off_ajouter_image">Ajouter une image (optionnel)</span>
     </div>
     <div id="uploadZone" style="display:none">
       <div class="upload-zone" onclick="document.getElementById('fi2').click()">
         <div class="uz-icon">🖼️</div>
-        <div class="uz-txt">Choisir une image</div>
-        <div class="uz-sub">JPG · PNG · max 3 Mo</div>
+        <div class="uz-txt" data-i18n="off_choisir_image">Choisir une image</div>
+        <div class="uz-sub" data-i18n="off_max_3mo">JPG · PNG · max 3 Mo</div>
       </div>
       <input type="file" id="fi2" accept="image/*" style="display:none"/>
     </div>
     </div><!-- /formZone -->
-    <button class="btn-modal-pub">📢 Publier maintenant</button>
+    <button class="btn-modal-pub" data-i18n="off_publier_maintenant">📢 Publier maintenant</button>
   </div>
 </div>
 
@@ -688,6 +768,16 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 const stor = getStorage(app);
+
+/* ── Traduction : fonction T() locale (textes dynamiques JS) ──
+   TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
+function T(key){
+  const lang = (typeof currentLang !== 'undefined') ? currentLang : 'FR';
+  const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : null;
+  if (dict && dict[lang] && dict[lang][key] !== undefined) return dict[lang][key];
+  if (dict && dict.FR && dict.FR[key] !== undefined) return dict.FR[key];
+  return key;
+}
 
 /* ── ÉTAT GLOBAL ── */
 let currentUser  = null;
@@ -766,20 +856,31 @@ function chargerOffres() {
       return arr;
     };
 
-    // Afficher actives
-    if (filtrer(actives).length > 0) {
+    // Afficher actives : mes offres d'abord, puis celles de la communauté
+    const mesOffresActives = filtrer(actives).filter(o => currentUser && o.auteurUid === currentUser.uid);
+    const autresOffresActives = filtrer(actives).filter(o => !(currentUser && o.auteurUid === currentUser.uid));
+
+    if (mesOffresActives.length > 0) {
+      const lblMoi = document.createElement('div');
+      lblMoi.className = 'sec-label';
+      lblMoi.textContent = T('off_sec_mes_offres');
+      feedEl.appendChild(lblMoi);
+      mesOffresActives.forEach(o => feedEl.appendChild(buildCard(o, false)));
+    }
+
+    if (autresOffresActives.length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = 'Nouvelles offres';
+      lbl.textContent = T('off_sec_communaute');
       feedEl.appendChild(lbl);
-      filtrer(actives).forEach(o => feedEl.appendChild(buildCard(o, false)));
+      autresOffresActives.forEach(o => feedEl.appendChild(buildCard(o, false)));
     }
 
     // Afficher expirées
     if (filtrer(expirees).length > 0) {
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = 'Offres expirées';
+      lbl.textContent = T('off_sec_expirees');
       feedEl.appendChild(lbl);
       filtrer(expirees).forEach(o => feedEl.appendChild(buildCard(o, true)));
     }
@@ -788,7 +889,7 @@ function chargerOffres() {
       // Afficher offres exemples si vide
       const lbl = document.createElement('div');
       lbl.className = 'sec-label';
-      lbl.textContent = 'Exemples';
+      lbl.textContent = T('off_sec_exemples');
       feedEl.appendChild(lbl);
       const exemples = [
         { id:'ex1', type:'demande', titre:'Recherche 10 maçons qualifiés', auteurNom:'Kofi Adjovi', ville:'Cotonou', categorie:'🧱 Maçonnerie', budget:'50 000 FCFA/j', urgent:true, dispo:'Dès lundi', candidatures:23, likes:12, dureeDays:14, categEmoji:'🧱', createdAt:{toMillis:()=>Date.now()-7200000} },
@@ -798,7 +899,7 @@ function chargerOffres() {
       exemples.forEach(o => feedEl.appendChild(buildCard(o, false)));
       const note = document.createElement('div');
       note.style.cssText='text-align:center;padding:16px;font-size:12px;color:#aaa;';
-      note.textContent='Publiez la première vraie offre !';
+      note.textContent = T('off_note_premiere');
       feedEl.appendChild(note);
     }
   });
@@ -819,7 +920,7 @@ function buildCard(o, expiree) {
   const tempsAgo  = tempsDepuis(createdMs);
 
   // Type badge
-  const typeLabel = o.type === 'demande' ? '🔴 Demande' : o.type === 'texte' ? '📣 Annonce' : '🟢 Offre';
+  const typeLabel = o.type === 'demande' ? T('off_type_demande') : o.type === 'texte' ? T('off_type_annonce') : T('off_type_offre');
   const typeCls   = o.type === 'demande' ? 'demande' : 'offre';
 
   // Image
@@ -828,23 +929,23 @@ function buildCard(o, expiree) {
     : '';
 
   // Tags
-  let tagsHtml = `<span class="tag">${o.categorie||'Général'}</span>`;
+  let tagsHtml = `<span class="tag">${o.categorie||T('off_general')}</span>`;
   if (o.budget) tagsHtml += `<span class="tag prix">💰 ${o.budget}</span>`;
-  if (o.urgent) tagsHtml += `<span class="tag urgent">⚡ Urgent</span>`;
+  if (o.urgent) tagsHtml += `<span class="tag urgent">⚡ ${T('off_urgent_tag')}</span>`;
   if (o.ville)  tagsHtml += `<span class="tag lieu">📍 ${o.ville}</span>`;
   if (o.dispo)  tagsHtml += `<span class="tag date">📅 ${o.dispo}</span>`;
 
   // Expiration
   const validHtml = expiree
-    ? `<div class="valid-row"><div class="dot off"></div><span class="vs expire">Expirée</span><span style="color:#ccc">· Offre clôturée</span><span class="vt">${tempsAgo}</span></div>
-       <div class="expired-banner">🔒 Offre expirée — candidature impossible</div>`
-    : `<div class="valid-row"><div class="dot on"></div><span class="vs active">Active</span><span style="color:#65676b">· ${joursRest} jour${joursRest>1?'s':''} restant${joursRest>1?'s':''}</span><span class="vt">${tempsAgo}</span></div>`;
+    ? `<div class="valid-row"><div class="dot off"></div><span class="vs expire">${T('off_expiree')}</span><span style="color:#ccc">${T('off_offre_cloturee')}</span><span class="vt">${tempsAgo}</span></div>
+       <div class="expired-banner">${T('off_banner_expiree')}</div>`
+    : `<div class="valid-row"><div class="dot on"></div><span class="vs active">${T('off_active')}</span><span style="color:#65676b">· ${joursRest} ${joursRest>1?T('off_jours_pluriel'):T('off_jour_singulier')} ${joursRest>1?T('off_restants_pluriel'):T('off_restant_singulier')}</span><span class="vt">${tempsAgo}</span></div>`;
 
   // Actions
   const actionsHtml = expiree ? '' : `
     <div class="card-actions">
-      <button class="btn-c" onclick="contacterOffre(this)">📞 Contacter</button>
-      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?'✋ Je veux':'✅ Postuler'}</button>
+      <button class="btn-c" onclick="contacterOffre(this)">${T('off_btn_contacter')}</button>
+      <button class="btn-a ${o.type==='offre'?'vert':'rouge'}" data-id="${o.id}" onclick="postulerOffre(this)">${o.type==='offre'?T('off_btn_je_veux'):T('off_btn_postuler')}</button>
     </div>`;
 
   // Avatar auteur — photo si disponible, sinon initiales colorées
@@ -881,9 +982,9 @@ function buildCard(o, expiree) {
     <div style="position:relative;display:inline-block;">
       <button onclick="toggleMenuSuppr('${o.id}')" style="background:none;border:none;font-size:20px;cursor:pointer;color:#65676b;padding:4px 8px;">⋯</button>
       <div id="menu-suppr-${o.id}" style="display:none;position:absolute;right:0;top:28px;background:#fff;border:1px solid #e4e6eb;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;min-width:200px;">
-        <div onclick="supprimerOffre('${o.id}','definitif')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e63224;border-bottom:1px solid #f0f0f0;">🗑️ Supprimer définitivement</div>
-        <div onclick="supprimerOffre('${o.id}','15j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;">⏳ Expirer dans 15 jours</div>
-        <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">⏳ Expirer dans 30 jours</div>
+        <div onclick="supprimerOffre('${o.id}','definitif')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#e63224;border-bottom:1px solid #f0f0f0;">${T('off_menu_suppr_def')}</div>
+        <div onclick="supprimerOffre('${o.id}','15j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;border-bottom:1px solid #f0f0f0;">${T('off_menu_expire_15')}</div>
+        <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">${T('off_menu_expire_30')}</div>
       </div>
     </div>` : '';
 
@@ -898,7 +999,7 @@ function buildCard(o, expiree) {
           ${badgeVerif}
         </div>
         <div style="flex:1;">
-          <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
+          <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||T('off_anonyme')}</div>
           <div style="font-size:11px;color:#65676b;">${o.ville||''} · ${tempsAgo}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -907,14 +1008,14 @@ function buildCard(o, expiree) {
         </div>
       </div>
       <!-- Titre offre -->
-      <h3 style="font-size:15px;font-weight:800;color:#1c1e21;margin-bottom:10px;line-height:1.35;">${o.titre||o.texte?.substring(0,60)||'Sans titre'}</h3>
+      <h3 style="font-size:15px;font-weight:800;color:#1c1e21;margin-bottom:10px;line-height:1.35;">${o.titre||o.texte?.substring(0,60)||T('off_sans_titre')}</h3>
     </div>
     ${imgHtml}
     <div class="card-body" style="padding-top:${imgHtml?'10px':'0'}">
       ${o.description ? `<div style="font-size:14px;color:#1c1e21;line-height:1.5;margin-bottom:10px;">${o.description}</div>` : ''}
       <div class="tags">${tagsHtml}</div>
       ${validHtml}
-      ${!expiree ? `<div class="cand">👥 ${o.candidatures||0} candidature${(o.candidatures||0)>1?'s':''}</div>` : ''}
+      ${!expiree ? `<div class="cand">👥 ${o.candidatures||0} ${(o.candidatures||0)>1?T('off_candidatures_pluriel'):T('off_candidature_singulier')}</div>` : ''}
     </div>
     ${actionsHtml}
     <div class="comm-section" id="comms-${o.id}">
@@ -926,21 +1027,21 @@ function buildCard(o, expiree) {
             <span id="like-count-${o.id}">${o.likes||0}</span>
           </button>
           <div class="reactions-panel" id="reactions-${o.id}">
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','J\'aime')"><span class="r-emoji">👍</span><span class="r-label">J\'aime</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','J\'adore')"><span class="r-emoji">❤️</span><span class="r-label">J\'adore</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">Solidaire</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">Haha</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">Wouah</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">Triste</span></div>
-            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colère')"><span class="r-emoji">😡</span><span class="r-label">Colère</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','👍','Jaime')"><span class="r-emoji">👍</span><span class="r-label">${T('off_reaction_jaime')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','❤️','Jadore')"><span class="r-emoji">❤️</span><span class="r-label">${T('off_reaction_jadore')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','🤗','Solidaire')"><span class="r-emoji">🤗</span><span class="r-label">${T('off_reaction_solidaire')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😂','Haha')"><span class="r-emoji">😂</span><span class="r-label">${T('off_reaction_haha')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😮','Wouah')"><span class="r-emoji">😮</span><span class="r-label">${T('off_reaction_wouah')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😢','Triste')"><span class="r-emoji">😢</span><span class="r-label">${T('off_reaction_triste')}</span></div>
+            <div class="reaction-item" onclick="choisirReaction('${o.id}','😡','Colere')"><span class="r-emoji">😡</span><span class="r-label">${T('off_reaction_colere')}</span></div>
           </div>
         </div>
-        <span id="comm-count-${o.id}">0 commentaire</span>
+        <span id="comm-count-${o.id}">0 ${T('off_commentaire_singulier')}</span>
       </div>
-      <div class="comm-title">Commentaires</div>
+      <div class="comm-title">${T('off_commentaires_titre')}</div>
       <div class="comm-input-row">
         <div class="user-ava">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
-        <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
+        <input class="comm-input-box" type="text" placeholder="${T('off_ph_commentaire')}" id="cinput-${o.id}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
         <div class="comm-input-icons" style="cursor:pointer;font-size:18px;" data-id="${o.id}" onclick="envoyerComm(this.dataset.id)">➤</div>
       </div>
       <div id="comm-list-${o.id}"></div>
@@ -968,7 +1069,7 @@ function buildCard(o, expiree) {
     const countEl = document.getElementById('comm-count-'+o.id);
     if (!listEl) return;
     const total = snap2.size;
-    if (countEl) countEl.textContent = total + ' commentaire' + (total>1?'s':'');
+    if (countEl) countEl.textContent = total + ' ' + (total>1?T('off_commentaires_pluriel'):T('off_commentaire_singulier'));
     listEl.innerHTML = '';
     snap2.forEach(cd => {
       const c = cd.data();
@@ -980,12 +1081,12 @@ function buildCard(o, expiree) {
           <div class="comm-right">
             <div class="comm-name-row">
               <span class="comm-name">${c.nom||'Anonyme'}</span>
-              ${isAuteur ? '<span class="badge-createur">· Créateur</span>' : ''}
+              ${isAuteur ? '<span class="badge-createur">' + T('off_createur') + '</span>' : ''}
             </div>
             <div class="comm-text">${c.texte}</div>
             <div class="comm-meta">
               <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
-              <span class="rep" data-id="${o.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.nom)">Répondre</span>
+              <span class="rep" data-id="${o.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.nom)">${T('off_repondre')}</span>
               <span class="likes">❤️ ${c.likes||0}</span>
             </div>
           </div>
@@ -999,7 +1100,7 @@ function buildCard(o, expiree) {
 
 /* ── ENVOYER COMMENTAIRE ── */
 window.envoyerComm = async (offreId) => {
-  if (!currentUser) { alert('Connectez-vous pour commenter.'); return; }
+  if (!currentUser) { alert(T('off_alert_login_comment')); return; }
   const inp = document.getElementById('cinput-'+offreId);
   const texte = inp?.value?.trim();
   if (!texte) return;
@@ -1038,10 +1139,10 @@ window.contacterOffre = (btn) => {
 };
 window.contacter = (whatsapp, nom) => {
   if (whatsapp) {
-    const msg = encodeURIComponent('Bonjour '+nom+', je vous contacte via ArtiRoyce.');
+    const msg = encodeURIComponent(T('off_bonjour_contact').replace('{nom}', nom));
     window.open('https://wa.me/'+whatsapp.replace(/[^0-9]/g,'')+'?text='+msg,'_blank');
   } else {
-    alert('Contact WhatsApp non disponible.');
+    alert(T('off_alert_whatsapp'));
   }
 };
 
@@ -1054,11 +1155,11 @@ window.postulerOffre = (btn) => {
 window.choisirPostuler = async (choix) => {
   document.getElementById('postulerOverlay').classList.remove('open');
   const offreId = window._postulerId;
-  if (!offreId || !currentUser) { alert('Connectez-vous pour postuler.'); return; }
+  if (!offreId || !currentUser) { alert(T('off_alert_login_postuler')); return; }
   const messages = {
-    interesse: '🙋 Je suis intéressé, on se contacte en privé',
-    retenu: '✅ Comptez-moi parmi les retenus',
-    postuler: '📩 A postulé à cette offre'
+    interesse: T('off_msg_interesse'),
+    retenu: T('off_msg_retenu'),
+    postuler: T('off_msg_postule')
   };
   try {
     await updateDoc(doc(db,'offres',offreId), { candidatures: increment(1) });
@@ -1068,7 +1169,7 @@ window.choisirPostuler = async (choix) => {
       uid: currentUser.uid,
       createdAt: serverTimestamp()
     });
-    showToast('Candidature envoyée !');
+    showToast(T('off_toast_candidature'));
   } catch(e){ console.error(e); }
 };
 
@@ -1088,7 +1189,7 @@ window.endLikeHold = (id) => {
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
-  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
+  if (!currentUser) { alert(T('off_alert_login_reagir')); return; }
   document.getElementById('reactions-'+offreId)?.classList.remove('open');
   const btn    = document.getElementById('like-btn-'+offreId);
   const emojiEl= document.getElementById('like-emoji-'+offreId);
@@ -1138,7 +1239,7 @@ document.addEventListener('click', e => {
 
 /* ── PUBLIER UNE OFFRE ── */
 window.publierOffre = async () => {
-  if (!currentUser) { alert('Connectez-vous pour publier.'); return; }
+  if (!currentUser) { alert(T('off_alert_login_publier')); return; }
 
   let data = {
     auteurUid: currentUser.uid,
@@ -1152,7 +1253,7 @@ window.publierOffre = async () => {
 
   if (currentModele === 'texte') {
     const texte = document.getElementById('texteSimple')?.value?.trim();
-    if (!texte) { alert('Écrivez votre annonce.'); return; }
+    if (!texte) { alert(T('off_alert_ecrire_annonce')); return; }
     data.type = 'texte';
     data.texte = texte;
     data.titre = texte.substring(0,60);
@@ -1161,7 +1262,7 @@ window.publierOffre = async () => {
     if (imgBase64Txt) data.imageUrl = imgBase64Txt;
   } else {
     const titre = document.querySelector('#formZone input[type=text]')?.value?.trim();
-    if (!titre) { alert('Le titre est obligatoire.'); return; }
+    if (!titre) { alert(T('off_alert_titre_obligatoire')); return; }
     const selects = document.querySelectorAll('#formZone select');
     const inputs  = document.querySelectorAll('#formZone input[type=text]');
     const dureeVal = document.querySelector('#formZone input[type=number]')?.value || 30;
@@ -1192,7 +1293,7 @@ window.publierOffre = async () => {
   }
 
   try {
-    document.querySelector('.btn-modal-pub').textContent = '⏳ Publication…';
+    document.querySelector('.btn-modal-pub').textContent = T('off_btn_publication_cours');
     await addDoc(collection(db,'offres'), data);
     document.getElementById('overlay').classList.remove('open');
     showToast('✅ Offre publiée !');
@@ -1200,9 +1301,9 @@ window.publierOffre = async () => {
     imgBase64=''; imgBase64Txt='';
   } catch(e){
     console.error(e);
-    alert('Erreur : '+e.message);
+    alert(T('off_alert_erreur')+e.message);
   } finally {
-    document.querySelector('.btn-modal-pub').textContent = '📢 Publier maintenant';
+    document.querySelector('.btn-modal-pub').textContent = T('off_publier_maintenant');
   }
 };
 
@@ -1266,7 +1367,7 @@ window.previewImg = e => {
     if (!cropBtn) {
       cropBtn = document.createElement('button');
       cropBtn.id = 'btn-crop-main';
-      cropBtn.textContent = '✂️ Recadrer cette image';
+      cropBtn.textContent = T('off_crop_recadrer');
       cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
       cropBtn.onclick = () => ouvrirCrop(imgBase64, 'main');
       imgPrev.parentNode.insertBefore(cropBtn, imgPrev.nextSibling);
@@ -1306,7 +1407,7 @@ window.previewImgTexte = e => {
     if (!cropBtn) {
       cropBtn = document.createElement('button');
       cropBtn.id = 'btn-crop-texte';
-      cropBtn.textContent = '✂️ Recadrer cette image';
+      cropBtn.textContent = T('off_crop_recadrer');
       cropBtn.style.cssText = 'display:block;width:100%;margin-top:8px;padding:10px;border:1.5px solid #e4e6eb;border-radius:10px;background:#fff;font-size:13px;font-weight:700;color:#65676b;cursor:pointer;';
       cropBtn.onclick = () => ouvrirCrop(imgBase64Txt, 'texte');
       i.parentNode.insertBefore(cropBtn, i.nextSibling);
@@ -1338,9 +1439,9 @@ window.supprimerOffre = (offreId, mode) => {
 
   // Afficher dialog confirmation
   const messages = {
-    definitif: 'Supprimer definitivement cette offre ? Action irreversible.',
-    '15j': 'Faire expirer cette offre dans 15 jours.',
-    '30j': 'Faire expirer cette offre dans 30 jours.'
+    definitif: T('off_confirm_desc_def'),
+    '15j': T('off_confirm_desc_expire').replace('{n}', '15'),
+    '30j': T('off_confirm_desc_expire').replace('{n}', '30')
   };
 
   const dialog = document.createElement('div');
@@ -1348,10 +1449,10 @@ window.supprimerOffre = (offreId, mode) => {
   const box = document.createElement('div');
   box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
   const icon = mode === 'definitif' ? '🗑️' : '⏳';
-  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
+  const titre = mode === 'definitif' ? T('off_confirm_titre_def') : T('off_confirm_titre_expire');
   const desc = mode === 'definitif'
-    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
-    : 'Cette offre expirera dans ' + (mode === '15j' ? '15' : '30') + ' jours.';
+    ? T('off_confirm_desc_def')
+    : T('off_confirm_desc_expire').replace('{n}', mode === '15j' ? '15' : '30');
 
   const iconDiv = document.createElement('div');
   iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
@@ -1366,11 +1467,11 @@ window.supprimerOffre = (offreId, mode) => {
   btnsDiv.style.cssText = 'display:flex;gap:10px;';
   const btnNon = document.createElement('button');
   btnNon.id = 'btn-non';
-  btnNon.textContent = 'Non, annuler';
+  btnNon.textContent = T('off_confirm_non');
   btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
   const btnOui = document.createElement('button');
   btnOui.id = 'btn-oui';
-  btnOui.textContent = 'Oui, confirmer';
+  btnOui.textContent = T('off_confirm_oui');
   btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
   btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
   box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
@@ -1578,30 +1679,54 @@ function showToast(msg) {
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
   const m = Math.floor(diff/60000);
-  if (m < 1)  return 'il y a peu';
-  if (m < 60) return 'il y a '+m+'min';
+  if (m < 1)  return T('off_temps_peu');
+  if (m < 60) return T('off_temps_min').replace('{n}', m);
   const h = Math.floor(m/60);
-  if (h < 24) return 'il y a '+h+'h';
+  if (h < 24) return T('off_temps_h').replace('{n}', h);
   const j = Math.floor(h/24);
-  if (j < 7)  return 'il y a '+j+'j';
+  if (j < 7)  return T('off_temps_j').replace('{n}', j);
   const s = Math.floor(j/7);
-  if (s < 4)  return 'il y a '+s+' sem.';
-  return 'il y a '+Math.floor(j/30)+' mois';
+  if (s < 4)  return T('off_temps_sem').replace('{n}', s);
+  return T('off_temps_mois').replace('{n}', Math.floor(j/30));
 }
 
 /* ── DÉMARRAGE ── */
 // Bouton publier connecté
 document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
 
+/* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
+function refreshDynamicTexts(){
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = T(el.dataset.i18nPh);
+  });
+  // Redessiner le fil pour re-traduire les cartes déjà affichées (dates, boutons, badges…)
+  if (typeof chargerOffres === 'function') chargerOffres();
+}
+
+function accrocherRafraichissementLangue(){
+  if (typeof window.setLang === 'function' && !window.__offresSetLangAccroche) {
+    const original = window.setLang;
+    window.setLang = function(code, flag, el){
+      original(code, flag, el);
+      refreshDynamicTexts();
+    };
+    window.__offresSetLangAccroche = true;
+    refreshDynamicTexts();
+  } else if (!window.__offresSetLangAccroche) {
+    setTimeout(accrocherRafraichissementLangue, 50);
+  }
+}
+accrocherRafraichissementLangue();
+
 </script>
 <!-- CROP OVERLAY -->
 <div class="crop-overlay" id="cropOverlay">
   <div class="crop-topbar" style="background:#000;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;flex-shrink:0;">
-    <button onclick="annulerCrop()" style="background:none;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:10px;">✕ Annuler</button>
+    <button onclick="annulerCrop()" style="background:none;border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:8px 12px;border-radius:10px;" data-i18n="off_crop_annuler">✕ Annuler</button>
     <div style="display:flex;align-items:center;gap:6px;">
       <button onclick="rotateCrop()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;padding:8px 12px;border-radius:10px;">↻</button>
     </div>
-    <button onclick="validerCrop()" style="background:#27a945;color:#fff;border-radius:20px;padding:9px 20px;font-weight:800;border:none;font-size:15px;cursor:pointer;">✓ Terminé</button>
+    <button onclick="validerCrop()" style="background:#27a945;color:#fff;border-radius:20px;padding:9px 20px;font-weight:800;border:none;font-size:15px;cursor:pointer;" data-i18n="off_crop_termine">✓ Terminé</button>
   </div>
   <div class="crop-canvas-wrap" id="cropWrap">
     <canvas id="cropCanvas"></canvas>
@@ -1612,35 +1737,35 @@ document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre)
       <div class="crop-handle br" data-corner="br"></div>
     </div>
   </div>
-  <div class="crop-bottombar">Déplacez et redimensionnez le cadre pour recadrer</div>
+  <div class="crop-bottombar" data-i18n="off_crop_instructions">Déplacez et redimensionnez le cadre pour recadrer</div>
 </div>
 
 <!-- SHEET POSTULER -->
 <div class="postuler-overlay" id="postulerOverlay">
   <div class="postuler-sheet">
-    <div class="postuler-title">📋 Comment postuler ?</div>
+    <div class="postuler-title" data-i18n="off_postuler_titre">📋 Comment postuler ?</div>
     <button class="postuler-opt" onclick="choisirPostuler('interesse')">
       <span class="opt-icon">🙋</span>
       <div>
-        <div>Je suis intéressé, on se contacte en privé</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;">Un message sera posté + inbox ouvert</div>
+        <div data-i18n="off_postuler_interesse">Je suis intéressé, on se contacte en privé</div>
+        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_interesse_sub">Un message sera posté + inbox ouvert</div>
       </div>
     </button>
     <button class="postuler-opt" onclick="choisirPostuler('retenu')">
       <span class="opt-icon">✅</span>
       <div>
-        <div>Comptez-moi parmi les retenus</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;">Votre candidature sera enregistrée</div>
+        <div data-i18n="off_postuler_retenu">Comptez-moi parmi les retenus</div>
+        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
       </div>
     </button>
     <button class="postuler-opt" onclick="choisirPostuler('postuler')">
       <span class="opt-icon">📩</span>
       <div>
-        <div>A postulé à cette offre</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;">Simple candidature enregistrée</div>
+        <div data-i18n="off_postuler_postule">A postulé à cette offre</div>
+        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_postule_sub">Simple candidature enregistrée</div>
       </div>
     </button>
-    <button class="postuler-cancel" onclick="document.getElementById('postulerOverlay').classList.remove('open')">Annuler</button>
+    <button class="postuler-cancel" onclick="document.getElementById('postulerOverlay').classList.remove('open')" data-i18n="off_annuler">Annuler</button>
   </div>
 </div>
 
@@ -1670,5 +1795,8 @@ function annulerCrop(){ if(typeof annulerCrop==='function') window._annulerCrop?
 function rotateCrop(){ if(typeof rotateCrop!=='undefined') window._rotateCrop?.(); }
 function validerCrop(){ if(typeof validerCrop!=='undefined') window._validerCrop?.(); }
 </script>
+
+<script src="translations.js"></script>
+
 </body>
 </html>
