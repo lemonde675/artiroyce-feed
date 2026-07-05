@@ -98,6 +98,45 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #F2F4F7; co
   font-size:13px; font-weight:800; color:var(--navy2);
 }
 
+/* ── Instance de CV affichée en pleine page dans la liste ── */
+.cv-instance-wrap{ margin:0 12px 16px; position:relative; }
+.cv-instance-bar{
+  display:flex; align-items:center; gap:10px; padding:10px 14px; background:#fff;
+  border:1px solid #E8ECF0; border-bottom:none; border-radius:16px 16px 0 0;
+}
+.cv-instance-titre{ flex:1; font-weight:800; font-size:13px; color:var(--navy2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cv-instance-menu-btn{ background:#f5f5f5; border:1.5px solid #ddd; border-radius:50%; width:30px; height:30px; font-size:16px; cursor:pointer; flex-shrink:0; }
+.cv-instance-menu{
+  display:none; position:absolute; top:48px; right:14px; background:#fff; border:1px solid #e4e6eb;
+  border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.14); z-index:60; min-width:200px; overflow:hidden;
+}
+.cv-instance-menu.open{ display:block; }
+.cv-instance-menu button{
+  display:block; width:100%; text-align:left; padding:11px 14px; font-size:13px; border:none; background:#fff;
+  cursor:pointer; border-bottom:1px solid #f0f1f6;
+}
+.cv-instance-menu button:last-child{ border-bottom:none; }
+.cv-instance-menu button:hover{ background:#f7f8fc; }
+.cv-instance-menu button.danger{ color:var(--red); }
+.cv-instance-wrap .sheet, .cv-instance-wrap .m2-sheet, .cv-instance-wrap .m3-sheet{ border-radius:0 0 20px 20px; }
+
+/* ── Corbeille ── */
+.corbeille-toggle{
+  margin:12px 12px 0; background:#fff8f0; border:1px solid #f0dfc2; border-radius:14px; padding:10px 14px;
+  font-size:12.5px; font-weight:700; color:#8a6d1a; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+.corbeille-liste{ display:none; margin:8px 12px 0; }
+.corbeille-liste.open{ display:flex; flex-direction:column; gap:8px; }
+.corbeille-item{
+  background:#fff; border:1px solid #f0dfc2; border-radius:12px; padding:10px 14px;
+  display:flex; align-items:center; gap:10px;
+}
+.corbeille-item-info{ flex:1; min-width:0; }
+.corbeille-item-titre{ font-size:12.5px; font-weight:700; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.corbeille-item-sub{ font-size:11px; color:#a07a1a; }
+.btn-restaurer{ background:#eafaf0; color:var(--green); border:1.5px solid var(--green); border-radius:12px; padding:7px 11px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.btn-suppr-def{ background:#fff0ef; color:var(--red); border:1.5px solid #f5c9c5; border-radius:12px; padding:7px 11px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap; }
+
 /* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ── */
 .acct-badge{ text-align:center; line-height:1.25; }
 .acct-role{ font-size:9.5px; font-weight:800; color:#8fb4ff; text-transform:uppercase; letter-spacing:0.5px; }
@@ -422,6 +461,11 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
     </div>
     <div class="cv-cards" id="cvCardsListe"></div>
 
+    <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
+      <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
+    </div>
+    <div class="corbeille-liste" id="corbeilleListe"></div>
+
     <div class="section-separateur" id="separateurCommunaute" style="display:none">
       <span data-i18n="cv_sec_communaute">🌍 CV de la communauté</span>
     </div>
@@ -469,7 +513,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           <img id="photoImg" style="display:none">
           <input type="file" id="photoInput" accept="image/*">
         </div>
-        <div class="photo-edit-dot" id="photoEditDot" style="display:none">📷</div>
+        <div class="photo-edit-dot js-photo-edit-dot" id="photoEditDot" style="display:none">📷</div>
       </div>
 
       <div class="body-grid">
@@ -503,7 +547,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
             <div class="info-label-row"><div class="info-ico">✉️</div><div class="info-label" data-i18n="cv_lbl_email">Email</div></div>
             <div class="info-value" id="fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div>
           </div>
-          <div class="contact-row" id="contactRow" style="display:none">
+          <div class="contact-row js-contact-row" id="contactRow" style="display:none">
             <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
             <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
           </div>
@@ -519,7 +563,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
           <div class="sec">
             <div class="sec-title"><span class="sec-ico">⭐</span><div class="sec-label" data-i18n="cv_sec_qualites">Qualités</div><div class="sec-line"></div></div>
-            <ul class="bullets" id="qualitesList"></ul>
+            <ul class="bullets js-qualites" id="qualitesList"></ul>
             <div class="add-mini-row" id="qualitesAdd">
               <input id="qualiteInput" placeholder="Ex : Rigueur et ponctualité">
               <button class="btn-add-mini" onclick="ajouterQualite()">+ Ajouter</button>
@@ -528,7 +572,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
           <div class="sec">
             <div class="sec-title"><span class="sec-ico">🎓</span><div class="sec-label" data-i18n="cv_sec_formation">Formation</div><div class="sec-line"></div></div>
-            <div id="formList"></div>
+            <div class="js-formations" id="formList"></div>
             <div class="tl-add" id="formAdd">
               <div class="tl-add-grid">
                 <input id="formDiplome2" placeholder="Ex : CAP Menuiserie">
@@ -541,7 +585,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
           <div class="sec">
             <div class="sec-title"><span class="sec-ico">💼</span><div class="sec-label" data-i18n="cv_sec_experience">Expérience professionnelle</div><div class="sec-line"></div></div>
-            <div id="expList"></div>
+            <div class="js-experiences" id="expList"></div>
             <div class="tl-add" id="expAdd">
               <div class="tl-add-grid">
                 <input id="expPoste" placeholder="Ex : Menuisier">
@@ -556,7 +600,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
           <div class="sec">
             <div class="sec-title"><span class="sec-ico">🛠️</span><div class="sec-label" data-i18n="cv_sec_competences">Compétences</div><div class="sec-line"></div></div>
-            <ul class="bullets" id="compList"></ul>
+            <ul class="bullets js-competences" id="compList"></ul>
             <div class="add-mini-row" id="compAdd">
               <input id="compInput" placeholder="Ex : Pose de carrelage">
               <button class="btn-add-mini" onclick="ajouterCompetence()">+ Ajouter</button>
@@ -594,7 +638,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
             <img id="m2_photoImg" style="display:none">
             <input type="file" id="m2_photoInput" accept="image/*">
           </div>
-          <div class="m2-photo-edit-dot" id="m2_photoEditDot" style="display:none">📷</div>
+          <div class="m2-photo-edit-dot js-photo-edit-dot" id="m2_photoEditDot" style="display:none">📷</div>
           <div class="m2-side-fields">
             <div class="m2-info-block"><div class="m2-info-label">🌍 <span data-i18n="cv_lbl_pays">Pays</span></div><div class="m2-info-value" id="m2_fPays" data-key="pays" data-placeholder="Ex : France"></div></div>
             <div class="m2-info-block"><div class="m2-info-label">📍 <span data-i18n="cv_lbl_ville">Ville</span></div><div class="m2-info-value" id="m2_fVille" data-key="ville" data-placeholder="Ex : Paris"></div></div>
@@ -604,7 +648,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
             <div class="m2-info-block"><div class="m2-info-label">📞 <span data-i18n="cv_lbl_telephone">Téléphone</span></div><div class="m2-info-value" id="m2_fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div></div>
             <div class="m2-info-block"><div class="m2-info-label">✉️ <span data-i18n="cv_lbl_email">Email</span></div><div class="m2-info-value" id="m2_fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div></div>
           </div>
-          <div class="m2-contact" id="m2_contactRow" style="display:none">
+          <div class="m2-contact js-contact-row" id="m2_contactRow" style="display:none">
             <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
             <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
           </div>
@@ -617,7 +661,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m2-sec">
             <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_qualites">Qualités</span><span class="line"></span></div>
-            <ul class="bullets" id="m2_qualitesList"></ul>
+            <ul class="bullets js-qualites" id="m2_qualitesList"></ul>
             <div class="add-mini-row" id="m2_qualitesAdd">
               <input id="m2_qualiteInput" placeholder="Ex : Rigueur et ponctualité">
               <button class="btn-add-mini" onclick="ajouterQualite('m2_')">+ Ajouter</button>
@@ -625,7 +669,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m2-sec">
             <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_formation">Formation</span><span class="line"></span></div>
-            <div id="m2_formList"></div>
+            <div class="js-formations" id="m2_formList"></div>
             <div class="tl-add" id="m2_formAdd">
               <div class="tl-add-grid">
                 <input id="m2_formDiplome2" placeholder="Ex : CAP Menuiserie">
@@ -637,7 +681,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m2-sec">
             <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_experience">Expérience professionnelle</span><span class="line"></span></div>
-            <div id="m2_expList"></div>
+            <div class="js-experiences" id="m2_expList"></div>
             <div class="tl-add" id="m2_expAdd">
               <div class="tl-add-grid">
                 <input id="m2_expPoste" placeholder="Ex : Menuisier">
@@ -651,7 +695,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m2-sec">
             <div class="m2-sec-title"><span class="ico">✓</span><span class="lab" data-i18n="cv_sec_competences">Compétences</span><span class="line"></span></div>
-            <ul class="bullets" id="m2_compList"></ul>
+            <ul class="bullets js-competences" id="m2_compList"></ul>
             <div class="add-mini-row" id="m2_compAdd">
               <input id="m2_compInput" placeholder="Ex : Pose de carrelage">
               <button class="btn-add-mini" onclick="ajouterCompetence('m2_')">+ Ajouter</button>
@@ -683,7 +727,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
             <img id="m3_photoImg" style="display:none">
             <input type="file" id="m3_photoInput" accept="image/*">
           </div>
-          <div class="m3-photo-edit-dot" id="m3_photoEditDot" style="display:none">📷</div>
+          <div class="m3-photo-edit-dot js-photo-edit-dot" id="m3_photoEditDot" style="display:none">📷</div>
           <div class="m3-nameplate">
             <div class="m3-nom" id="m3_hNom" data-key="nomFamille" data-placeholder="Ex : DUPONT" contenteditable="false"></div>
             <div class="m3-prenom" id="m3_hPrenom" data-key="prenom" data-placeholder="Ex : Jean" contenteditable="false"></div>
@@ -696,7 +740,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           <div class="m3-info-block"><div class="m3-info-label">🏠 <span data-i18n="cv_lbl_adresse">Adresse</span></div><div class="m3-info-value" id="m3_fAdresse" data-key="adresse" data-placeholder="Ex : Quartier, Ville"></div></div>
           <div class="m3-info-block"><div class="m3-info-label">📞 <span data-i18n="cv_lbl_telephone">Téléphone</span></div><div class="m3-info-value" id="m3_fTelephone" data-key="telephone" data-placeholder="Ex : +33 6 12 34 56 78"></div></div>
           <div class="m3-info-block"><div class="m3-info-label">✉️ <span data-i18n="cv_lbl_email">Email</span></div><div class="m3-info-value" id="m3_fEmail" data-key="email" data-placeholder="Ex : nom@email.com"></div></div>
-          <div class="m2-contact" id="m3_contactRow" style="display:none">
+          <div class="m2-contact js-contact-row" id="m3_contactRow" style="display:none">
             <button class="cbtn appel" onclick="alerterAppel()" data-i18n="cv_btn_appeler">📞 Appeler</button>
             <button class="cbtn msg" onclick="alerterDiscuter()" data-i18n="cv_btn_discuter">💬 Discuter</button>
           </div>
@@ -709,7 +753,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m3-sec">
             <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_qualites">Qualités</span><span class="line"></span></div>
-            <ul class="bullets" id="m3_qualitesList"></ul>
+            <ul class="bullets js-qualites" id="m3_qualitesList"></ul>
             <div class="add-mini-row" id="m3_qualitesAdd">
               <input id="m3_qualiteInput" placeholder="Ex : Rigueur et ponctualité">
               <button class="btn-add-mini" onclick="ajouterQualite('m3_')">+ Ajouter</button>
@@ -717,7 +761,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m3-sec">
             <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_formation">Formation</span><span class="line"></span></div>
-            <div id="m3_formList"></div>
+            <div class="js-formations" id="m3_formList"></div>
             <div class="tl-add" id="m3_formAdd">
               <div class="tl-add-grid">
                 <input id="m3_formDiplome2" placeholder="Ex : CAP Menuiserie">
@@ -729,7 +773,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m3-sec">
             <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_experience">Expérience professionnelle</span><span class="line"></span></div>
-            <div id="m3_expList"></div>
+            <div class="js-experiences" id="m3_expList"></div>
             <div class="tl-add" id="m3_expAdd">
               <div class="tl-add-grid">
                 <input id="m3_expPoste" placeholder="Ex : Menuisier">
@@ -743,7 +787,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
           </div>
           <div class="m3-sec">
             <div class="m3-sec-title"><span class="lab" data-i18n="cv_sec_competences">Compétences</span><span class="line"></span></div>
-            <ul class="bullets" id="m3_compList"></ul>
+            <ul class="bullets js-competences" id="m3_compList"></ul>
             <div class="add-mini-row" id="m3_compAdd">
               <input id="m3_compInput" placeholder="Ex : Pose de carrelage">
               <button class="btn-add-mini" onclick="ajouterCompetence('m3_')">+ Ajouter</button>
@@ -819,7 +863,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, query, where
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -834,8 +878,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ── Traduction : fonction T() locale (placeholders et textes dynamiques JS) ──
-   TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
+/* ── Traduction : fonction T() locale ── */
 function T(key){
   const lang = (typeof currentLang !== 'undefined') ? currentLang : 'FR';
   const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : null;
@@ -846,12 +889,15 @@ function T(key){
 
 let currentUser = null;
 let editMode = false;
-let activePrefix = ''; // '' = Premium, 'm2_' = Modèle 2, 'm3_' = Modèle 3
-let currentCvId = null; // null = nouvelle création, sinon = édition d'un CV existant
+let activePrefix = '';
+let currentCvId = null;
 let currentCvEstAMoi = false;
 let listeMesCv = [];
+let listeCorbeille = [];
 let listeCommunaute = [];
-let listeToutes = []; // combinée, pour retrouver un CV par id peu importe la section
+let listeToutes = [];
+const authorInfoCache = {};
+const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 
 function blankCvData(){
   return {
@@ -871,6 +917,13 @@ const MODELE_TO_PREFIX = { premium: '', modele2: 'm2_', modele3: 'm3_' };
 const MODELE_TO_ETAT = { premium: 'cv', modele2: 'cv-m2', modele3: 'cv-m3' };
 const MODELE_ICONE = { premium: '📇', modele2: '🗂️', modele3: '📋', import: '📎' };
 
+// Copies "vierges" des 3 modèles, capturées avant toute manipulation, pour affichage en lecture seule
+const BLUEPRINTS = {
+  '': document.getElementById('cvWrap').outerHTML,
+  'm2_': document.getElementById('cvWrapM2').outerHTML,
+  'm3_': document.getElementById('cvWrapM3').outerHTML
+};
+
 const loading = document.getElementById('loading');
 const cvListeWrap = document.getElementById('cvListeWrap');
 const importWrap = document.getElementById('importWrap');
@@ -880,154 +933,312 @@ const cvWrapM3 = document.getElementById('cvWrapM3');
 
 function afficherEtat(etat){
   loading.style.display = etat === 'loading' ? 'block' : 'none';
-  cvListeWrap.style.display = etat === 'liste' ? 'block' : 'none';
+  cvListeWrap.style.display = etat === 'loading' ? 'none' : 'block';
+  afficherDetail(etat === 'loading' || etat === 'liste' ? null : etat);
+}
+
+function afficherDetail(etat){
   importWrap.style.display = etat === 'import' ? 'block' : 'none';
   cvWrap.style.display = etat === 'cv' ? 'block' : 'none';
   cvWrapM2.style.display = etat === 'cv-m2' ? 'block' : 'none';
   cvWrapM3.style.display = etat === 'cv-m3' ? 'block' : 'none';
+  if (etat) {
+    const zone = etat === 'import' ? importWrap : (etat === 'cv' ? cvWrap : (etat === 'cv-m2' ? cvWrapM2 : cvWrapM3));
+    setTimeout(() => zone.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+  }
 }
 
-/* ── BADGE compte connecté (au-dessus de la photo, sur les 3 modèles) ──
-   Affiche le rôle + prénom de l'AUTEUR du CV consulté (pas forcément soi-même). */
-let acctPrenom = '';
-let acctRoleCode = 'artisan';
-async function chargerBadgePour(auteurUid){
-  acctPrenom = ''; acctRoleCode = 'artisan';
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+function estAMoi(c){ return !!(currentUser && c.auteurUid === currentUser.uid); }
+
+async function getAuthorInfo(uid){
+  if (authorInfoCache[uid]) return authorInfoCache[uid];
+  const info = { prenom: '', role: 'artisan' };
   try {
-    const snap = await getDoc(doc(db, 'utilisateurs', auteurUid));
+    const snap = await getDoc(doc(db, 'utilisateurs', uid));
     if (snap.exists()) {
-      acctPrenom = snap.data().prenom || '';
-      acctRoleCode = snap.data().role || 'artisan';
+      info.prenom = snap.data().prenom || '';
+      info.role = snap.data().role || 'artisan';
     }
   } catch (err) { console.error(err); }
-  updateAcctBadgeLabels();
+  authorInfoCache[uid] = info;
+  return info;
 }
 
-function updateAcctBadgeLabels(){
-  const libelle = acctRoleCode === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
+/* ── Badge du modèle en cours d'ÉDITION (singleton) ── */
+async function chargerBadgePour(auteurUid){
+  const info = await getAuthorInfo(auteurUid);
+  const libelle = info.role === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
   PREFIXES.forEach(prefix => {
     const roleEl = $p(prefix, 'acctRole');
     const nomEl = $p(prefix, 'acctNom');
     if (roleEl) roleEl.textContent = libelle;
-    if (nomEl) nomEl.textContent = acctPrenom;
+    if (nomEl) nomEl.textContent = info.prenom;
   });
 }
 
-/* ── CHARGEMENT DE LA LISTE COMMUNE — tout le monde publie dans la même base,
-   chacun ne peut modifier/supprimer que ses propres CV (vérifié via auteurUid). ── */
-function estAMoi(c){ return !!(currentUser && c.auteurUid === currentUser.uid); }
-
+/* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
 async function chargerListe(){
   try {
     const snap = await getDocs(collection(db, 'cv_professionnels'));
-    listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.publie);
+    listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (err) {
     console.error(err);
     listeToutes = [];
   }
-  listeMesCv = currentUser ? listeToutes.filter(c => estAMoi(c)) : [];
-  listeCommunaute = listeToutes.filter(c => !estAMoi(c));
-  renderListeCards();
+
+  // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
+  const maintenant = Date.now();
+  const aPurger = listeToutes.filter(c => c.corbeille && estAMoi(c) && c.corbeilleDepuis &&
+    (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
+  for (const c of aPurger) {
+    try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
+  }
+  if (aPurger.length) {
+    const idsAPurger = new Set(aPurger.map(c => c.id));
+    listeToutes = listeToutes.filter(c => !idsAPurger.has(c.id));
+  }
+
+  listeMesCv = listeToutes.filter(c => estAMoi(c) && c.publie && !c.corbeille);
+  listeCorbeille = listeToutes.filter(c => estAMoi(c) && c.corbeille);
+  listeCommunaute = listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille);
+
+  await renderListeCards();
 }
 
-function renderListeCards(){
-  const cardsMoi = document.getElementById('cvCardsListe');
-  const emptyMoi = document.getElementById('empty-block-liste');
-  const separateur = document.getElementById('separateurCommunaute');
-  const cardsCommu = document.getElementById('cvCardsCommunaute');
-  const emptyCommu = document.getElementById('empty-block-communaute');
-
+async function renderListeCards(){
   document.getElementById('heroCard').style.display = currentUser ? 'flex' : 'none';
-  emptyMoi.style.display = (currentUser && listeMesCv.length === 0) ? 'block' : 'none';
-  cardsMoi.style.display = (currentUser && listeMesCv.length > 0) ? 'flex' : 'none';
+  document.getElementById('empty-block-liste').style.display = (currentUser && listeMesCv.length === 0) ? 'block' : 'none';
 
-  separateur.style.display = 'block';
-  emptyCommu.style.display = listeCommunaute.length === 0 ? 'block' : 'none';
-  cardsCommu.style.display = listeCommunaute.length > 0 ? 'flex' : 'none';
-
+  const cardsMoi = document.getElementById('cvCardsListe');
   cardsMoi.innerHTML = '';
-  listeMesCv.forEach(c => cardsMoi.appendChild(construireCarteCv(c, true)));
+  for (const c of listeMesCv) cardsMoi.appendChild(creerInstanceLecture(c, true));
 
+  const toggleCorb = document.getElementById('corbeilleToggle');
+  toggleCorb.style.display = listeCorbeille.length ? 'flex' : 'none';
+  document.getElementById('corbeilleLabel').textContent = `${T('cv_corbeille_titre')} (${listeCorbeille.length})`;
+  const corbListe = document.getElementById('corbeilleListe');
+  corbListe.innerHTML = '';
+  listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
+
+  document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
+  const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-  listeCommunaute.forEach(c => cardsCommu.appendChild(construireCarteCv(c, false)));
+  for (const c of listeCommunaute) cardsCommu.appendChild(creerInstanceLecture(c, false));
 }
 
-function construireCarteCv(c, avecSuppr){
-  const card = document.createElement('div');
-  card.className = 'cv-card';
-  const icone = MODELE_ICONE[c.modeleChoisi] || '📇';
-  const titre = c.titreInterne || T('cv_titre_sans_titre');
-  const sous = c.modeleChoisi === 'import' ? T('cv_sub_fichier_importe') : (c.metier || T('cv_sub_metier_non_renseigne'));
-  card.innerHTML = `
-    <div class="cv-card-ico">${icone}</div>
-    <div class="cv-card-info">
-      <div class="cv-card-titre">${escapeHtml(titre)}</div>
-      <div class="cv-card-sub">${escapeHtml(sous)}</div>
-      <div class="cv-card-badge">${T('cv_badge_publie')}</div>
+window.toggleCorbeille = () => {
+  document.getElementById('corbeilleListe').classList.toggle('open');
+};
+
+function creerLigneCorbeille(c){
+  const row = document.createElement('div');
+  row.className = 'corbeille-item';
+  const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(c.corbeilleDepuis || Date.now()).getTime());
+  const joursRestants = Math.max(0, Math.ceil(restantMs / (24*60*60*1000)));
+  row.innerHTML = `
+    <div class="corbeille-item-info">
+      <div class="corbeille-item-titre">${escapeHtml(c.titreInterne || T('cv_titre_sans_titre'))}</div>
+      <div class="corbeille-item-sub">${T('cv_jours_restants').replace('{n}', joursRestants)}</div>
     </div>
-    <div class="cv-card-actions">
-      <button class="btn-cv-voir">${T('cv_btn_voir')}</button>
-      ${avecSuppr ? `<button class="btn-cv-suppr">🗑️</button>` : ''}
-    </div>
+    <button class="btn-restaurer" data-action="restaurer">${T('cv_btn_restaurer')}</button>
+    <button class="btn-suppr-def" data-action="suppr-def">${T('cv_btn_suppr_def')}</button>
   `;
-  card.querySelector('.btn-cv-voir').addEventListener('click', () => voirCV(c.id));
-  const btnSuppr = card.querySelector('.btn-cv-suppr');
-  if (btnSuppr) btnSuppr.addEventListener('click', (e) => { e.stopPropagation(); supprimerCV(c.id); });
-  return card;
+  row.querySelector('[data-action="restaurer"]').addEventListener('click', () => restaurerCV(c.id));
+  row.querySelector('[data-action="suppr-def"]').addEventListener('click', () => supprimerDefinitivement(c.id));
+  return row;
 }
 
 window.retourListe = () => {
-  afficherEtat('liste');
+  afficherDetail(null);
   chargerListe();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-window.supprimerCV = async (cvId) => {
-  if (!confirm(T('cv_confirm_suppr'))) return;
+function fermerTousMenus(){
+  document.querySelectorAll('.cv-instance-menu.open').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', fermerTousMenus);
+
+async function mettreALaCorbeille(cvId){
+  if (!confirm(T('cv_confirm_corbeille'))) return;
+  try {
+    await setDoc(doc(db, 'cv_professionnels', cvId), { corbeille: true, corbeilleDepuis: new Date().toISOString() }, { merge: true });
+    chargerListe();
+  } catch (err) { console.error(err); }
+}
+
+async function restaurerCV(cvId){
+  try {
+    await setDoc(doc(db, 'cv_professionnels', cvId), { corbeille: false }, { merge: true });
+    chargerListe();
+  } catch (err) { console.error(err); }
+}
+
+async function supprimerDefinitivement(cvId){
+  if (!confirm(T('cv_confirm_suppr_def'))) return;
   try {
     await deleteDoc(doc(db, 'cv_professionnels', cvId));
     chargerListe();
   } catch (err) { console.error(err); }
-};
+}
 
-function voirCV(cvId){
-  const c = listeToutes.find(x => x.id === cvId);
-  if (!c) return;
-  currentCvId = cvId;
-  currentCvEstAMoi = estAMoi(c);
-  document.querySelectorAll('.btn-retour-liste').forEach(b => { b.style.display = ''; });
+/* ══════════ INSTANCE DE CV EN LECTURE SEULE (pleine page, dans la liste) ══════════ */
+function creerInstanceLecture(c, estMoi){
+  const prefix = MODELE_TO_PREFIX.hasOwnProperty(c.modeleChoisi) ? MODELE_TO_PREFIX[c.modeleChoisi] : '';
 
-  chargerBadgePour(c.auteurUid);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'cv-instance-wrap';
 
-  if (c.modeleChoisi === 'import') {
-    afficherImportDetail(c);
-    return;
+  const bar = document.createElement('div');
+  bar.className = 'cv-instance-bar';
+  const titre = c.titreInterne || T('cv_titre_sans_titre');
+  bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
+    (estMoi ? `<button class="cv-instance-menu-btn">⋮</button>` : '');
+  wrapper.appendChild(bar);
+
+  let menu = null;
+  if (estMoi) {
+    menu = document.createElement('div');
+    menu.className = 'cv-instance-menu';
+    menu.innerHTML = `
+      <button data-action="modifier">${T('cv_menu_modifier')}</button>
+      <button data-action="corbeille" class="danger">${T('cv_menu_corbeille')}</button>
+    `;
+    wrapper.appendChild(menu);
   }
 
+  const temp = document.createElement('div');
+  temp.innerHTML = BLUEPRINTS[prefix];
+  const el = temp.firstElementChild;
+  el.style.display = 'block';
+  el.querySelectorAll('[id]').forEach(node => node.removeAttribute('id')); // évite tout doublon d'ID avec l'éditeur
+
+  const origBar = el.querySelector('.cv-topbar, .m2-topbar, .m3-topbar');
+  if (origBar) origBar.style.display = 'none';
+
+  remplirLectureSeule(el, c, estMoi);
+  wrapper.appendChild(el);
+
+  if (estMoi) {
+    bar.querySelector('.cv-instance-menu-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dejaOuvert = menu.classList.contains('open');
+      fermerTousMenus();
+      if (!dejaOuvert) menu.classList.add('open');
+    });
+    menu.querySelector('[data-action="modifier"]').addEventListener('click', () => { fermerTousMenus(); ouvrirEdition(c); });
+    menu.querySelector('[data-action="corbeille"]').addEventListener('click', () => { fermerTousMenus(); mettreALaCorbeille(c.id); });
+  }
+
+  return wrapper;
+}
+
+function remplirLectureSeule(el, c, estMoi){
+  el.querySelectorAll('[data-key]').forEach(node => {
+    node.textContent = c[node.dataset.key] || '';
+  });
+
+  const profilView = el.querySelector('.profil-txt');
+  profilView.style.display = 'block';
+  if (c.profil) { profilView.textContent = c.profil; }
+  else { profilView.innerHTML = `<span class="empty-hint">${T('cv_empty_profil')}</span>`; }
+  const profilEdit = el.querySelector('textarea.txt-edit');
+  if (profilEdit) profilEdit.style.display = 'none';
+
+  const photoImg = el.querySelector('img');
+  const photoInit = el.querySelector('.init');
+  if (c.photoURL) { photoImg.src = c.photoURL; photoImg.style.display = 'block'; photoInit.style.display = 'none'; }
+  else { photoInit.textContent = (c.nomFamille || '?')[0]?.toUpperCase() || '?'; photoImg.style.display = 'none'; photoInit.style.display = 'block'; }
+  const photoInput = el.querySelector('input[type=file]');
+  if (photoInput) photoInput.style.display = 'none';
+  const photoEditDot = el.querySelector('.js-photo-edit-dot');
+  if (photoEditDot) photoEditDot.style.display = 'none';
+
+  remplirListeLecture(el.querySelector('.js-qualites'), c.qualites);
+  remplirListeLecture(el.querySelector('.js-competences'), c.competences);
+  el.querySelectorAll('.add-mini-row, .tl-add').forEach(n => n.style.display = 'none');
+
+  remplirFormationsLecture(el.querySelector('.js-formations'), c.formations);
+  remplirExperiencesLecture(el.querySelector('.js-experiences'), c.experiences);
+
+  const contactRow = el.querySelector('.js-contact-row');
+  if (contactRow) contactRow.style.display = estMoi ? 'none' : 'flex';
+
+  getAuthorInfo(c.auteurUid).then(info => {
+    const roleEl = el.querySelector('.acct-role');
+    const nomEl = el.querySelector('.acct-nom');
+    if (roleEl) roleEl.textContent = info.role === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
+    if (nomEl) nomEl.textContent = info.prenom;
+  });
+}
+
+function remplirListeLecture(ul, arr){
+  if (!ul) return;
+  ul.innerHTML = '';
+  if (!arr || !arr.length) {
+    ul.innerHTML = `<li class="empty-hint" style="list-style:none;padding-left:0">${T('cv_empty_generic')}</li>`;
+    return;
+  }
+  arr.forEach(txt => { const li = document.createElement('li'); li.textContent = txt; ul.appendChild(li); });
+}
+
+function remplirFormationsLecture(container, arr){
+  if (!container) return;
+  container.innerHTML = '';
+  if (!arr || !arr.length) { container.innerHTML = `<div class="empty-hint">${T('cv_empty_formation')}</div>`; return; }
+  arr.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'form-item';
+    div.innerHTML = `
+      <span class="item-periode">${escapeHtml(f.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(f.diplome||'')}</div>
+      <div class="item-sub">${escapeHtml(f.etablissement||'')}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function remplirExperiencesLecture(container, arr){
+  if (!container) return;
+  container.innerHTML = '';
+  if (!arr || !arr.length) { container.innerHTML = `<div class="empty-hint">${T('cv_empty_experience')}</div>`; return; }
+  arr.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'exp-item';
+    const puces = (e.description||'').split(/\.\s*|\n/).map(s=>s.trim()).filter(Boolean);
+    div.innerHTML = `
+      <span class="item-periode">${escapeHtml(e.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(e.poste||'')}</div>
+      <div class="item-sub">${escapeHtml(e.entreprise||'')}</div>
+      <ul class="bullets" style="margin-top:6px">${puces.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    `;
+    container.appendChild(div);
+  });
+}
+
+/* ══════════ ÉDITION (instance unique, réutilisée pour créer ou modifier) ══════════ */
+function ouvrirEdition(c){
+  currentCvId = c.id;
+  currentCvEstAMoi = true;
   const modele = MODELE_TO_PREFIX.hasOwnProperty(c.modeleChoisi) ? c.modeleChoisi : 'premium';
   activePrefix = MODELE_TO_PREFIX[modele];
   cvData = Object.assign(blankCvData(), c);
-  editMode = false;
+  editMode = true;
 
   PREFIXES.forEach(p => {
     $p(p, 'btnToggleEdit').style.display = 'none';
+    $p(p, 'btnSave').style.display = 'none';
     $p(p, 'contactRow').style.display = 'none';
   });
-  if (currentCvEstAMoi) {
-    $p(activePrefix, 'btnToggleEdit').style.display = 'inline-flex';
-  } else {
-    $p(activePrefix, 'contactRow').style.display = 'flex';
-  }
+  $p(activePrefix, 'btnSave').style.display = 'inline-flex';
 
-  afficherEtat(MODELE_TO_ETAT[modele]);
+  chargerBadgePour(c.auteurUid);
+  afficherDetail(MODELE_TO_ETAT[modele]);
   render();
-}
-
-function afficherImportDetail(c){
-  const isImage = (c.importURL || '').startsWith('data:image');
-  document.getElementById('importPreviewContent').innerHTML = isImage
-    ? `<img src="${c.importURL}" alt="CV importé">`
-    : `<a class="filelink" href="${c.importURL}" target="_blank">${T('cv_import_ouvrir')}</a>`;
-  afficherEtat('import');
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -1064,20 +1275,17 @@ window.selectionnerModele = (type) => {
 
 window.continuerVersModele = () => {
   fermerModal();
-  if (modeleSelectionne === 'import') return;
-  if (!currentUser) return;
-  currentCvId = null; // nouvelle création
+  if (modeleSelectionne === 'import' || !currentUser) return;
+  currentCvId = null;
   currentCvEstAMoi = true;
   cvData = blankCvData();
   cvData.titreInterne = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
   activePrefix = MODELE_TO_PREFIX[modeleSelectionne];
   editMode = true;
-  $p(activePrefix, 'btnToggleEdit').style.display = 'none';
+  PREFIXES.forEach(p => { $p(p, 'btnToggleEdit').style.display = 'none'; $p(p, 'btnSave').style.display = 'none'; $p(p, 'contactRow').style.display = 'none'; });
   $p(activePrefix, 'btnSave').style.display = 'inline-flex';
-  $p(activePrefix, 'contactRow').style.display = 'none';
-  acctPrenom = ''; acctRoleCode = 'artisan';
   chargerBadgePour(currentUser.uid);
-  afficherEtat(MODELE_TO_ETAT[modeleSelectionne]);
+  afficherDetail(MODELE_TO_ETAT[modeleSelectionne]);
   render();
 };
 
@@ -1109,7 +1317,7 @@ window.publierImport = async () => {
   const titre = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
   try {
     await addDoc(collection(db, 'cv_professionnels'), {
-      modeleChoisi: 'import', importURL: importDataURL, titreInterne: titre, publie: true,
+      modeleChoisi: 'import', importURL: importDataURL, titreInterne: titre, publie: true, corbeille: false,
       auteurUid: currentUser.uid, creeLe: new Date().toISOString(), majLe: new Date().toISOString()
     });
     fermerModal();
@@ -1118,7 +1326,7 @@ window.publierImport = async () => {
     document.getElementById('btnPublierImport').textContent = T('cv_btn_publier');
     document.getElementById('importApercu').style.display = 'none';
     await chargerListe();
-    afficherEtat('liste');
+    afficherDetail(null);
   } catch (err) {
     console.error(err);
     btn.textContent = T('cv_btn_erreur_reessayez');
@@ -1126,11 +1334,7 @@ window.publierImport = async () => {
   }
 };
 
-/* ── RENDU GÉNÉRALISÉ (Premium / Modèle 2 / Modèle 3) ── */
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-}
-
+/* ══════════ RENDU DE L'ÉDITEUR (Premium / Modèle 2 / Modèle 3) ══════════ */
 function render(){
   renderInto(activePrefix);
 }
@@ -1275,7 +1479,7 @@ window.ajouterExperience = function(prefix){
   render();
 };
 
-/* ── ÉVÉNEMENTS COMMUNS AUX 3 MODÈLES ── */
+/* ── ÉVÉNEMENTS DE L'ÉDITEUR (les 3 modèles) ── */
 PREFIXES.forEach(prefix => {
   const photoEditDot = $p(prefix, 'photoEditDot');
   const photoInput = $p(prefix, 'photoInput');
@@ -1314,6 +1518,7 @@ PREFIXES.forEach(prefix => {
         ...cvData,
         modeleChoisi: PREFIX_TO_MODELE[prefix],
         publie: true,
+        corbeille: false,
         auteurUid: currentUser.uid,
         majLe: new Date().toISOString()
       };
@@ -1334,8 +1539,8 @@ PREFIXES.forEach(prefix => {
         btnSave.style.display = 'none';
         btnSave.textContent = T('cv_btn_confirmer');
         btnSave.disabled = false;
+        afficherDetail(null);
         await chargerListe();
-        afficherEtat('liste');
       }, 900);
     } catch (err) {
       console.error(err);
@@ -1345,7 +1550,7 @@ PREFIXES.forEach(prefix => {
   });
 });
 
-/* ── Rafraîchissement complet des textes dynamiques au changement de langue ── */
+/* ── Rafraîchissement des textes dynamiques au changement de langue ── */
 function refreshDynamicTexts(){
   PREFIXES.forEach(prefix => {
     $p(prefix, 'profilEdit').placeholder = T('cv_example_profil');
@@ -1373,7 +1578,6 @@ function refreshDynamicTexts(){
   if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
 
   document.getElementById('heroTitreListe').textContent = T('cv_hero_title');
-  updateAcctBadgeLabels();
   render();
   renderListeCards();
 
@@ -1383,8 +1587,6 @@ function refreshDynamicTexts(){
   }
 }
 
-/* Rattache le rafraîchissement CV Pro à la fonction setLang() globale de translations.js,
-   sans modifier translations.js lui-même. */
 function accrocherRafraichissementLangue(){
   if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
     const original = window.setLang;
@@ -1400,6 +1602,7 @@ function accrocherRafraichissementLangue(){
 }
 accrocherRafraichissementLangue();
 </script>
+
 
 
 <script src="translations.js"></script>
