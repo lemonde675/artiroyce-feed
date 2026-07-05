@@ -251,6 +251,19 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .reaction-item .r-emoji { font-size: 28px; transition: transform .15s; }
 .reaction-item:hover .r-emoji { transform: scale(1.25); }
 .reaction-item .r-label { font-size: 10px; color: #65676b; font-weight: 600; }
+
+/* Panoplie de réactions sur chaque commentaire — même principe, en plus compact */
+.comm-like-wrap { position: relative; }
+.comm-reactions-panel {
+  display: none; position: absolute; bottom: 32px; right: 0;
+  background: #fff; border-radius: 30px; padding: 6px 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e4e6eb;
+  z-index: 60; white-space: nowrap;
+}
+.comm-reactions-panel.open { display: flex; gap: 4px; align-items: center; }
+.comm-reaction-item { cursor: pointer; padding: 3px 4px; border-radius: 10px; transition: background .15s; }
+.comm-reaction-item:hover { background: #f0f2f5; transform: scale(1.2); }
+.comm-reaction-item .r-emoji { font-size: 20px; }
 /* Modal postuler */
 .postuler-overlay {
   display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
@@ -331,6 +344,10 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .comm-text {
   font-size: 14px; color: #1c1e21; line-height: 1.45; margin-bottom: 5px; word-break: break-word;
 }
+.voir-traduction {
+  font-size: 12px; color: #8e8e8e; cursor: pointer; margin-bottom: 5px; display: inline-block;
+}
+.voir-traduction:hover { text-decoration: underline; }
 
 /* Méta : date · Répondre (le cœur est sorti de cette ligne, façon TikTok) */
 .comm-meta {
@@ -1063,20 +1080,29 @@ function buildCard(o, expiree) {
     const total = snap2.size;
     if (countEl) countEl.textContent = total + ' ' + (total>1?'commentaires':'commentaire');
 
-    // Étape 1 : tout récupérer, puis séparer commentaires principaux et réponses
+    // Étape 1 : tout récupérer, puis remonter chaque réponse jusqu'à son commentaire racine
+    // (une réponse à une réponse compte quand même dans le total du commentaire principal)
     const tous = [];
     snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+    const parentDe = {};
+    tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+    function trouverRacine(id){
+      let cur = id, garde = 0;
+      while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; }
+      return cur;
+    }
     const principaux = tous.filter(c => !c.parentId);
-    const reponsesParParent = {};
+    const reponsesParRacine = {};
     tous.filter(c => c.parentId).forEach(c => {
-      (reponsesParParent[c.parentId] = reponsesParParent[c.parentId] || []).push(c);
+      const racine = trouverRacine(c.id);
+      (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
     });
 
-    function construireCommentaireHTML(c, estReponse){
+    function construireCommentaireHTML(c, estReponse, racineId){
       const isAuteur = c.uid === o.auteurUid;
       const initiale = (c.nom||'?')[0].toUpperCase();
       const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
-      const dejaAime = _commentairesAimes.has(c.id);
+      const dejaAime = !!_commentairesReactions[c.id];
       const wrap = document.createElement('div');
       wrap.className = estReponse ? 'comm-reply-wrap' : '';
       wrap.innerHTML = `
@@ -1087,15 +1113,28 @@ function buildCard(o, expiree) {
               <span class="comm-name">${c.nom||'Anonyme'}</span>
               ${isAuteur ? '<span class="badge-createur">· Créateur</span>' : ''}
             </div>
-            <div class="comm-text">${c.texte}</div>
+            <div class="comm-text" id="comm-text-${c.id}">${c.texte}</div>
+            <div class="voir-traduction" id="voir-trad-${c.id}" onclick="traduireCommentaire('${c.id}', this)">Voir la traduction</div>
             <div class="comm-meta">
               <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
-              <span class="rep" data-id="${o.id}" data-commid="${c.id}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.commid,this.dataset.nom)">Répondre</span>
+              <span class="rep" data-id="${o.id}" data-commid="${racineId}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.commid,this.dataset.nom)">Répondre</span>
             </div>
           </div>
-          <div class="comm-like-col ${dejaAime?'liked':''}" onclick="toggleCommentLike('${o.id}','${c.id}',${c.likes||0},this)">
-            <span class="heart">${dejaAime?'❤️':'🤍'}</span>
-            <span class="heart-count">${c.likes||0}</span>
+          <div class="comm-like-wrap">
+            <div class="comm-like-col ${dejaAime?'liked':''}" id="comm-like-${c.id}"
+                 onpointerdown="startCommentHold('${c.id}')" onpointerup="endCommentHold('${o.id}','${c.id}',${c.likes||0})" onpointerleave="cancelCommentHold('${c.id}')">
+              <span class="heart" id="comm-heart-${c.id}">${dejaAime?(_commentairesReactions[c.id]||'❤️'):'🤍'}</span>
+              <span class="heart-count" id="comm-heart-count-${c.id}">${c.likes||0}</span>
+            </div>
+            <div class="comm-reactions-panel" id="comm-reactions-${c.id}">
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','👍',${c.likes||0})"><span class="r-emoji">👍</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','❤️',${c.likes||0})"><span class="r-emoji">❤️</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','🤗',${c.likes||0})"><span class="r-emoji">🤗</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','😂',${c.likes||0})"><span class="r-emoji">😂</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','😮',${c.likes||0})"><span class="r-emoji">😮</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','😢',${c.likes||0})"><span class="r-emoji">😢</span></div>
+              <div class="comm-reaction-item" onclick="choisirReactionCommentaire('${o.id}','${c.id}','😡',${c.likes||0})"><span class="r-emoji">😡</span></div>
+            </div>
           </div>
         </div>`;
       return wrap;
@@ -1103,8 +1142,8 @@ function buildCard(o, expiree) {
 
     listEl.innerHTML = '';
     principaux.forEach(c => {
-      listEl.appendChild(construireCommentaireHTML(c, false));
-      const reponses = reponsesParParent[c.id] || [];
+      listEl.appendChild(construireCommentaireHTML(c, false, c.id));
+      const reponses = reponsesParRacine[c.id] || [];
       if (reponses.length) {
         const repZone = document.createElement('div');
         repZone.className = 'comm-replies-zone';
@@ -1114,7 +1153,7 @@ function buildCard(o, expiree) {
         toggle.innerHTML = `— Afficher ${reponses.length} réponse${reponses.length>1?'s':''} <span style="font-size:10px">▾</span>`;
         toggle.onclick = () => {
           const frag = document.createDocumentFragment();
-          reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, true)));
+          reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, true, c.id)));
           repZone.appendChild(frag);
           toggle.remove();
         };
@@ -1127,28 +1166,110 @@ function buildCard(o, expiree) {
   return div;
 }
 
-/* ── ENVOYER COMMENTAIRE ── */
-window.toggleCommentLike = async (offreId, commentId, likesActuels, el) => {
-  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
-  const dejaAime = _commentairesAimes.has(commentId);
-  const heartEl = el.querySelector('.heart');
-  const countEl = el.querySelector('.heart-count');
-  const nouveauTotal = dejaAime ? Math.max(0, likesActuels - 1) : likesActuels + 1;
+/* ── RÉACTIONS SUR COMMENTAIRE — appui long = panoplie, tap court = ❤️ rapide (même principe que le post) ── */
+const _commentairesReactions = {}; // { [commentId]: emoji choisi localement }
+let _commentHoldTimer = {};
+let _commentHoldTriggered = {};
 
-  // Retour visuel immédiat
-  if (dejaAime) { _commentairesAimes.delete(commentId); el.classList.remove('liked'); heartEl.textContent = '🤍'; }
-  else { _commentairesAimes.add(commentId); el.classList.add('liked'); heartEl.textContent = '❤️'; }
-  countEl.textContent = nouveauTotal;
+window.startCommentHold = (commentId) => {
+  _commentHoldTriggered[commentId] = false;
+  _commentHoldTimer[commentId] = setTimeout(() => {
+    _commentHoldTriggered[commentId] = true;
+    document.getElementById('comm-reactions-'+commentId)?.classList.add('open');
+  }, 400);
+};
+
+window.cancelCommentHold = (commentId) => {
+  clearTimeout(_commentHoldTimer[commentId]);
+};
+
+window.endCommentHold = (offreId, commentId, likesActuels) => {
+  clearTimeout(_commentHoldTimer[commentId]);
+  if (!_commentHoldTriggered[commentId]) {
+    // Tap court -> J'aime rapide
+    window.choisirReactionCommentaire(offreId, commentId, '❤️', likesActuels);
+  }
+};
+
+window.choisirReactionCommentaire = async (offreId, commentId, emoji, likesActuels) => {
+  if (!currentUser) { alert('Connectez-vous pour reagir.'); return; }
+  document.getElementById('comm-reactions-'+commentId)?.classList.remove('open');
+  const prev = _commentairesReactions[commentId] || '';
+  const heartEl = document.getElementById('comm-heart-'+commentId);
+  const countEl = document.getElementById('comm-heart-count-'+commentId);
+  const likeCol = document.getElementById('comm-like-'+commentId);
+
+  if (prev === emoji) {
+    delete _commentairesReactions[commentId];
+    likeCol?.classList.remove('liked');
+    if (heartEl) heartEl.textContent = '🤍';
+    if (countEl) countEl.textContent = Math.max(0, likesActuels - 1);
+    try { await updateDoc(doc(db,'offres',offreId,'commentaires',commentId), { likes: increment(-1) }); } catch(e){ console.error(e); }
+  } else {
+    const delta = prev ? 0 : 1;
+    _commentairesReactions[commentId] = emoji;
+    likeCol?.classList.add('liked');
+    if (heartEl) heartEl.textContent = emoji;
+    if (countEl && delta) countEl.textContent = likesActuels + 1;
+    if (delta) {
+      try { await updateDoc(doc(db,'offres',offreId,'commentaires',commentId), { likes: increment(1) }); } catch(e){ console.error(e); }
+    }
+  }
+};
+
+/* ── TRADUCTION À LA DEMANDE D'UN COMMENTAIRE — façon Facebook "Voir la traduction" ──
+   Traduit le TEXTE LIBRE écrit par la personne (pas les libellés de l'appli).
+   Service gratuit MyMemory, sans clé à configurer. Limite ~5000 mots/jour. */
+const _traductionsCache = {};
+const _texteOriginalComm = {};
+const LANGUE_API_MAP = { FR:'fr', EN:'en', ES:'es', PT:'pt', AR:'ar', ZH:'zh-CN', RU:'ru', DE:'de', JA:'ja', HI:'hi' };
+
+window.traduireCommentaire = async (commentId, lienEl) => {
+  const textEl = document.getElementById('comm-text-'+commentId);
+  if (!textEl) return;
+
+  // Déjà traduit -> revenir au texte d'origine
+  if (textEl.dataset.traduit === '1') {
+    textEl.textContent = _texteOriginalComm[commentId];
+    textEl.dataset.traduit = '0';
+    lienEl.textContent = 'Voir la traduction';
+    return;
+  }
+
+  // Déjà en cache -> pas besoin de rappeler le service
+  if (_traductionsCache[commentId]) {
+    _texteOriginalComm[commentId] = textEl.textContent;
+    textEl.textContent = _traductionsCache[commentId];
+    textEl.dataset.traduit = '1';
+    lienEl.textContent = "Voir l'original";
+    return;
+  }
+
+  const original = textEl.textContent;
+  _texteOriginalComm[commentId] = original;
+  lienEl.textContent = 'Traduction…';
 
   try {
-    await updateDoc(doc(db, 'offres', offreId, 'commentaires', commentId), {
-      likes: increment(dejaAime ? -1 : 1)
-    });
-  } catch (e) { console.error(e); }
+    const cible = (typeof currentLang !== 'undefined' && LANGUE_API_MAP[currentLang]) || 'fr';
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(original)}&langpair=Autodetect|${cible}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const traduit = data && data.responseData && data.responseData.translatedText;
+    if (traduit) {
+      _traductionsCache[commentId] = traduit;
+      textEl.textContent = traduit;
+      textEl.dataset.traduit = '1';
+      lienEl.textContent = "Voir l'original";
+    } else {
+      lienEl.textContent = 'Voir la traduction';
+    }
+  } catch (e) {
+    console.error('Traduction indisponible:', e);
+    lienEl.textContent = 'Voir la traduction';
+  }
 };
 
 /* ── ENVOYER COMMENTAIRE / RÉPONDRE (liée au commentaire précis, façon Facebook) ── */
-const _commentairesAimes = new Set();
 const _replyingTo = {}; // { [offreId]: { commentId, nom } }
 
 window.envoyerComm = async (offreId) => {
@@ -1242,10 +1363,13 @@ window.choisirPostuler = async (choix) => {
 
 // Réactions — hold pour panoplie, tap simple pour toggle
 let _holdTimer = {};
+let _holdTriggered = {};
 
 window.startLikeHold = (id) => {
+  _holdTriggered[id] = false;
   _holdTimer[id] = setTimeout(() => {
-    // Afficher panoplie après 400ms
+    _holdTriggered[id] = true;
+    // Afficher panoplie après 400ms (appui long)
     const panel = document.getElementById('reactions-'+id);
     if (panel) panel.classList.add('open');
   }, 400);
@@ -1253,6 +1377,10 @@ window.startLikeHold = (id) => {
 
 window.endLikeHold = (id) => {
   clearTimeout(_holdTimer[id]);
+  if (!_holdTriggered[id]) {
+    // Appui court (tap simple) -> J'aime rapide, comme sur Facebook
+    window.toggleLike({ dataset: { id } });
+  }
 };
 
 window.choisirReaction = async (offreId, emoji, label) => {
