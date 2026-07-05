@@ -250,6 +250,10 @@ const TRANSLATIONS = {
     pro_news_history_title: 'Historique des publications',
     pro_news_history_empty: 'Aucune publication pour le moment.',
     /* CV PRO */
+    pro_directions: 'Itinéraire',
+    pro_stat_likes: 'J\'aime',
+    pv_report_fake_sub: 'Usurpation d\'identité ou faux profil',
+    pv_report_scam_sub: 'Tentative de fraude ou d\'escroquerie',
     cv_menu_modifier: '✏️ Modifier',
     cv_menu_corbeille: '🗑️ Mettre à la corbeille',
     cv_corbeille_titre: 'Corbeille',
@@ -2024,8 +2028,4 @@ const TRANSLATIONS = {
     login_label_email: 'البريد الإلكتروني / الهاتف',
     login_forgot:    'نسيت كلمة المرور؟',
     login_btn:       'تسجيل الدخول &nbsp;←',
-    login_no_account: 'ليس لديك حساب بعد؟',
-    login_signup_link: 'سجّل الآن',
-    login_err_email_required: '⚠ يرجى إدخال بريدك الإلكتروني.',
-    login_err_email_format: '⚠ صيغة بريد إلكتروني غير صالحة.',
- 
+    login_no_
