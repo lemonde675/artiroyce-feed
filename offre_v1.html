@@ -324,7 +324,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 }
 .comm-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.comm-right { flex: 1; min-width: 0; }
+.comm-right { flex: 1; min-width: 0; position: relative; }
 
 /* Nom + badge Créateur */
 .comm-name-row {
@@ -1262,29 +1262,38 @@ window.traduireCommentaire = async (commentId, lienEl) => {
   _texteOriginalComm[commentId] = original;
   lienEl.textContent = 'Traduction…';
 
-  try {
-    const cible = (typeof currentLang !== 'undefined' && LANGUE_API_MAP[currentLang]) || 'fr';
+  // Fonction d'appel au service, réutilisée pour les deux essais
+  async function appelerTraduction(cible){
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(original)}&langpair=Autodetect|${cible}`;
     const res = await fetch(url);
     const data = await res.json();
     const traduit = data && data.responseData && data.responseData.translatedText;
-    // Le service renvoie parfois un message d'erreur À LA PLACE de la traduction
-    // (ex: langue source = langue cible déjà). On le détecte pour ne pas l'afficher comme un vrai texte.
     const estUneErreur = !traduit
       || data.responseStatus !== 200
       || /PLEASE SELECT|INVALID|QUERY LENGTH|IS AN INVALID/i.test(traduit);
-    if (!estUneErreur && traduit.trim().toLowerCase() !== original.trim().toLowerCase()) {
+    if (estUneErreur) return null;
+    if (traduit.trim().toLowerCase() === original.trim().toLowerCase()) return null; // rien n'a changé
+    return traduit;
+  }
+
+  try {
+    // Vrai aller-retour FR ↔ EN, peu importe la langue du site :
+    // on essaie d'abord l'anglais ; si ça ne change rien (texte déjà en anglais), on essaie le français.
+    let traduit = await appelerTraduction('en');
+    if (!traduit) traduit = await appelerTraduction('fr');
+
+    if (traduit) {
       _traductionsCache[commentId] = traduit;
       textEl.textContent = traduit;
       textEl.dataset.traduit = '1';
       lienEl.textContent = "Voir l'original";
     } else {
-      // Déjà dans la bonne langue, ou service indisponible : on ne touche pas au texte
       textEl.textContent = original;
       lienEl.textContent = 'Voir la traduction';
     }
   } catch (e) {
     console.error('Traduction indisponible:', e);
+    textEl.textContent = original;
     lienEl.textContent = 'Voir la traduction';
   }
 };
