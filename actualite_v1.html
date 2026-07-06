@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Actualités ArtiRoyce</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -119,12 +119,76 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .cm-pub-select{display:inline-flex;align-items:center;gap:5px;background:#f5f5f5;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;color:#555;margin-top:3px;cursor:pointer}
 .cm-textarea{flex:1;border:none;outline:none;padding:0 16px;font-size:16px;color:var(--dark);font-family:'Segoe UI',Arial,sans-serif;resize:none;line-height:1.6}
 .cm-textarea::placeholder{color:#bbb}
-.cm-actions{border-top:1px solid #f5f5f5;padding:12px 16px;display:flex;flex-direction:column;gap:0}
+.cm-actions{border-top:1px solid #f5f5f5;padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column;gap:0}
 .cm-act{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;cursor:pointer}
 .cm-act:last-child{border-bottom:none}
 .cm-act-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .cm-act-name{font-size:14px;font-weight:700;color:var(--dark)}
 .cm-act-arrow{margin-left:auto;color:#ccc;font-size:16px}
+
+/* ═══ ÉCRAN DE CHOIX DU MODÈLE (juste après "Quoi de neuf") ═══ */
+.cm-choix{padding:6px 16px 16px;overflow-y:auto;flex:1}
+.cm-choix-intro{font-size:12px;color:var(--muted);padding:2px 0 16px;line-height:1.5}
+.cm-choix-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cm-choix-tile{background:#fafafa;border:1.5px solid #eee;border-radius:16px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;transition:all .15s;text-align:center}
+.cm-choix-tile:active{transform:scale(.96);background:#f0f0f0}
+.cm-choix-tile.wide{grid-column:1/-1;flex-direction:row;text-align:left;padding:16px}
+.cm-choix-ico{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.cm-choix-nom{font-size:13.5px;font-weight:800;color:var(--dark)}
+.cm-choix-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.cm-back{font-size:20px;color:var(--dark);cursor:pointer;padding:2px 8px 2px 0}
+
+/* ═══ ÉTAPE GALERIE : 1 à 8 photos, mise en page magazine automatique ═══ */
+.cm-gal-wrap{padding:14px 16px;flex:1;overflow-y:auto}
+.cm-gal-textarea{width:100%;border:none;outline:none;background:#f7f7f9;border-radius:12px;padding:12px 14px;font-size:14px;color:var(--dark);font-family:'Segoe UI',Arial,sans-serif;resize:none;margin-bottom:12px}
+.cm-gal-textarea::placeholder{color:#bbb}
+
+/* ═══ ÉTAPE BOUTIQUE : dispositions créatives + étiquettes nom/prix ═══ */
+.cm-step-boutique{flex:1;display:none;flex-direction:column;overflow-y:auto}
+.cad-layout-picker{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 14px;scrollbar-width:none}
+.cad-layout-picker::-webkit-scrollbar{display:none}
+.cad-layout-opt{flex-shrink:0;width:44px;height:44px;border-radius:12px;border:2px solid #e4e6eb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;font-weight:900;color:#999}
+.cad-layout-opt.active{border-color:var(--red);color:var(--red);background:#fff5f4}
+.cad-titre-input{width:calc(100% - 32px);margin:0 16px 10px;display:block;border:none;background:#f7f7f9;border-radius:10px;padding:9px 12px;font-size:14px;font-weight:800;color:var(--dark);outline:none}
+.cad-color-picker{display:flex;align-items:center;gap:9px;padding:0 16px 12px}
+.cad-tcp-label{font-size:11px;font-weight:700;color:#999}
+.cad-tcp-dot{width:22px;height:22px;border-radius:50%;border:2px solid #e4e6eb;cursor:pointer;position:relative;flex-shrink:0}
+.cad-tcp-dot.active{border-color:var(--dark)}
+.cad-tcp-dot.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+.cad-tcp-blanc{background:#fff}.cad-tcp-blanc.active::after{color:#14143a}
+.cad-tcp-vert{background:var(--green)}.cad-tcp-vert.active::after{color:#fff}
+.cad-tcp-rose{background:#ff5c9e}.cad-tcp-rose.active::after{color:#fff}
+.cad-grid-wrap{padding:0 16px 6px}
+.cad-note{font-size:11px;color:#999;text-align:center;padding:6px 16px 14px}
+
+/* Grille de cadres partagée (builder galerie + builder boutique) */
+.media-grid{display:grid;gap:2px}
+.media-slot{position:relative;overflow:hidden;background:#fff}
+.media-slot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.media-slot.editable{border:2px dashed #ddd;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff}
+.media-slot.editable.filled{border-style:solid;border-color:#f0f0f0}
+.media-slot-empty{font-size:22px;color:#bbb}
+.media-slot-remove{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:5;cursor:pointer}
+.media-tags{position:absolute;left:6px;right:6px;bottom:6px;display:flex;justify-content:space-between;align-items:flex-end;gap:5px;z-index:3}
+.media-chip{border:none;outline:none;border-radius:99px;font-weight:800;font-size:10px;padding:4px 9px;max-width:60%;box-shadow:0 2px 7px rgba(0,0,0,.22);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tags-blanc .media-chip{background:#fff;color:#14143a}
+.tags-vert .media-chip{background:var(--green);color:#fff}
+.tags-rose .media-chip{background:#ff5c9e;color:#fff}
+
+/* Galerie libre (possibilité 9, sans cadre ni étiquette) */
+.free-gallery{display:flex;flex-wrap:wrap;gap:8px;padding:0 2px}
+.free-item{position:relative;width:calc(33.333% - 6px);aspect-ratio:1;border-radius:12px;overflow:hidden;background:#fff;border:2px solid #f0f0f0}
+.free-item img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.free-remove{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:5;cursor:pointer}
+.free-add{width:calc(33.333% - 6px);aspect-ratio:1;border-radius:12px;border:2px dashed #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;font-size:24px;cursor:pointer;gap:3px}
+.free-add .lbl{font-size:10px;font-weight:700;color:#999}
+
+/* Rendu dans le fil : grille magazine pour Photo/Galerie et Boutique */
+.p-media-grid{display:grid;gap:2px;background:#fff}
+.p-media-item{position:relative;overflow:hidden}
+.p-media-item img{width:100%;height:100%;object-fit:cover}
+.p-media-free{display:flex;flex-wrap:wrap;gap:2px;background:#fff}
+.p-media-free .p-media-item{width:calc(33.333% - 1.33px);aspect-ratio:1}
 
 /* BOT NAV */
 .bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
@@ -280,11 +344,32 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <!-- CREATE POST MODAL -->
 <div class="create-modal" id="createModal">
   <div class="cm-header">
-    <span class="cm-cancel" onclick="closeCreate()">Annuler</span>
-    <span class="cm-title">Créer une publication</span>
-    <button class="cm-publish" id="btnPublish" onclick="publishPost()">Publier</button>
+    <span class="cm-cancel" id="cmBackOrCancel" onclick="cmBackOrClose()">Annuler</span>
+    <span class="cm-title" id="cmTitleLbl">Créer une publication</span>
+    <button class="cm-publish" id="btnPublish" onclick="publishPost()" style="display:none">Publier</button>
   </div>
-  <div class="cm-user">
+
+  <!-- ÉTAPE 0 — CHOIX DU MODÈLE -->
+  <div class="cm-choix" id="cmStepChoix">
+    <div class="cm-choix-intro">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
+    <div class="cm-choix-grid">
+      <div class="cm-choix-tile wide" id="tileTexte" onclick="chooseModel('texte')">
+        <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
+        <div><div class="cm-choix-nom">Texte</div><div class="cm-choix-sub">Un message simple, sans photo</div></div>
+      </div>
+      <div class="cm-choix-tile" id="tileGalerie" onclick="chooseModel('galerie')">
+        <div class="cm-choix-ico" style="background:#e8f5e9">🖼️</div>
+        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">1 à 8 photos, disposition automatique</div></div>
+      </div>
+      <div class="cm-choix-tile" id="tileBoutique" onclick="chooseModel('boutique')">
+        <div class="cm-choix-ico" style="background:#fff0f0">🏪</div>
+        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Cadres avec nom et prix par article</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE TEXTE -->
+  <div class="cm-user" id="cmStepUser" style="display:none">
     <div class="cm-av" id="cmAvatar">👤</div>
     <div>
       <div class="cm-name" id="cmNom">Mon compte</div>
@@ -297,20 +382,26 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       </select>
     </div>
   </div>
-  <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6"></textarea>
-  <img id="cmImgPreview" style="display:none;width:calc(100% - 32px);margin:8px 16px;border-radius:12px;max-height:280px;object-fit:contain;"/>
-  <div class="cm-actions">
-    <div class="cm-act" onclick="document.getElementById('cmFileInput').click()">
-      <div class="cm-act-icon" style="background:#e8f5e9">🖼️</div>
-      <span class="cm-act-name">Photo</span>
-      <span class="cm-act-arrow">›</span>
+  <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
+
+  <!-- ÉTAPE GALERIE (1 à 8 photos) -->
+  <div class="cm-gal-wrap" id="cmStepGalerie" style="display:none">
+    <textarea class="cm-gal-textarea" id="cmGalText" rows="2" placeholder="Une légende (facultatif)…"></textarea>
+    <div class="media-grid" id="galGrid"></div>
+  </div>
+
+  <!-- ÉTAPE BOUTIQUE (cadres + étiquettes) -->
+  <div class="cm-step-boutique" id="cmStepBoutique">
+    <div class="cad-layout-picker" id="cadLayoutPicker"></div>
+    <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique">
+    <div class="cad-color-picker" id="cadColorPicker">
+      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
+      <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
+      <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
     </div>
-    <input type="file" id="cmFileInput" accept="image/*" style="display:none" onchange="previewCmImage(event)"/>
-    <div class="cm-act" onclick="toast('⚡ Marquer comme urgent bientôt !','')">
-      <div class="cm-act-icon" style="background:#fff0f0">🔥</div>
-      <span class="cm-act-name">Marquer important</span>
-      <span class="cm-act-arrow">›</span>
-    </div>
+    <div class="cad-grid-wrap"><div id="cadGrid"></div></div>
+    <div class="cad-note" id="cadNote">Touchez un cadre vide pour ajouter une photo, avec son nom et son prix</div>
   </div>
 </div>
 
@@ -324,7 +415,7 @@ window.toast=function(m,t){
   const el=document.getElementById('toastEl');
   el.textContent=m;el.className='toast show'+(t==='g'?' g':'');
   setTimeout(()=>el.className='toast',2400);
-}
+};
 
 // PostMessage swipe (communication avec accueil.html si affiché en iframe)
 (function(){
@@ -365,7 +456,25 @@ const db = getFirestore(app);
 let currentUser = null;
 let categorieActive = 'Tout';
 let listePublications = [];
-let imgBase64Post = '';
+
+/* ══ ÉTAT DE CRÉATION MULTI-MODÈLES (Texte / Photo·Galerie / Boutique) ══ */
+window._cmType = null;   // 'texte' | 'galerie' | 'boutique'
+let galImages = [];      // Photo/Galerie : photos en base64, sans cadre ni étiquette
+let cadLayoutActif = 4;  // Boutique : 1 à 8 = disposition à cadres, 9 = galerie libre
+let cadSlots = [];       // Boutique : [{photo, nom, prix}]
+let cadTagColor = 'vert';
+
+// Dispositions créatives partagées (constructeur boutique + rendu magazine des galeries)
+const MEDIA_LAYOUTS = {
+  1: { template:'1fr', areas:['1 / 1 / 2 / 2'], ratio:'16/9', cRatio:'16/9' },
+  2: { template:'2fr 1fr', areas:['1/1/2/2','1/2/2/3'], ratio:'1', cRatio:'3/2' },
+  3: { template:'2fr 1fr / 1fr 1fr', rows:'1fr 1fr', areas:['1/1/3/2','1/2/2/3','2/2/3/3'], ratio:'1', cRatio:'4/3' },
+  4: { template:'1fr 1fr', rows:'1fr 1fr', areas:['1/1/2/2','1/2/2/3','2/1/3/2','2/2/3/3'], ratio:'1', cRatio:'1/1' },
+  5: { template:'1fr 1fr 1fr', rows:'1.4fr 1fr', areas:['1/1/2/4','2/1/3/2','2/2/3/3','2/3/3/4'], ratio:'1', cRatio:'4/3' },
+  6: { template:'1fr 1fr 1fr', rows:'1fr 1fr', areas:null, ratio:'1' },
+  7: { template:'2fr 1fr 1fr', rows:'1fr 1fr 1fr', areas:['1/1/3/2'], ratio:'1', cRatio:'1/1' },
+  8: { template:'1fr 1fr 1fr 1fr', rows:'1fr 1fr', areas:null, ratio:'1' }
+};
 
 const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
 const BADGES = { 'Arts':'🎨 Arts', 'Événements':'🎉 Événement', 'Business':'💼 Business', 'Élites':'🌟 Élite', 'Conseils':'💡 Conseil' };
@@ -443,6 +552,53 @@ window.setCat = (el) => {
 /* ══════════ CONSTRUCTION D'UNE PUBLICATION ══════════ */
 const _pubReactions = {}; // { [postId]: emoji } — mémoire locale qui survit à la reconstruction
 
+function construireMediaHTML(p){
+  // Compat : anciens posts publiés avant l'introduction des modèles (juste imageURL)
+  if (!p.type) {
+    return p.imageURL ? `<div class="p-img-1" style="background:#000;"><img src="${p.imageURL}" style="width:100%;height:100%;object-fit:cover;"></div>` : '';
+  }
+  if (p.type === 'texte') return '';
+
+  if (p.type === 'galerie') {
+    const imgs = p.images || [];
+    if (!imgs.length) return '';
+    const L = MEDIA_LAYOUTS[Math.min(imgs.length, 8)];
+    let style = `grid-template-columns:${L.template};`;
+    if (L.rows) style += `grid-template-rows:${L.rows};`;
+    if (L.cRatio) style += `aspect-ratio:${L.cRatio};`;
+    const cells = imgs.map((src,i) => {
+      const area = (L.areas && L.areas[i]) ? `grid-area:${L.areas[i]};` : `aspect-ratio:${L.areas ? '1' : L.ratio};`;
+      return `<div class="p-media-item" style="${area}"><img src="${src}"></div>`;
+    }).join('');
+    return `<div class="p-media-grid" style="${style}">${cells}</div>`;
+  }
+
+  if (p.type === 'boutique') {
+    const cadres = p.cadres || [];
+    if (!cadres.length) return '';
+    if (p.disposition === 9) {
+      const cells = cadres.map(c => `<div class="p-media-item"><img src="${c.photo}"></div>`).join('');
+      return `<div class="p-media-free">${cells}</div>`;
+    }
+    const L = MEDIA_LAYOUTS[p.disposition] || MEDIA_LAYOUTS[4];
+    let style = `grid-template-columns:${L.template};`;
+    if (L.rows) style += `grid-template-rows:${L.rows};`;
+    if (L.cRatio) style += `aspect-ratio:${L.cRatio};`;
+    const cells = cadres.map((c,i) => {
+      const area = (L.areas && L.areas[i]) ? `grid-area:${L.areas[i]};` : `aspect-ratio:${L.areas ? '1' : L.ratio};`;
+      return `<div class="p-media-item tags-${p.tagColor||'vert'}" style="${area}">
+        <img src="${c.photo}">
+        <div class="media-tags">
+          <span class="media-chip">${escapeHtml(c.nom||'Article')}</span>
+          <span class="media-chip">${escapeHtml(c.prix||'')}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="p-media-grid" style="${style}">${cells}</div>`;
+  }
+  return '';
+}
+
 function construirePost(p){
   const isAuteur = currentUser && p.auteurUid === currentUser.uid;
   const initiale = (p.auteurNom||'?')[0].toUpperCase();
@@ -479,7 +635,7 @@ function construirePost(p){
       ${texteAffiche}
       ${texteLong ? `<span class="vp" onclick="voirPlusTexte('${p.id}')"> Voir plus</span>` : ''}
     </div>
-    ${p.imageURL ? `<div class="p-img-1" style="background:#000;"><img src="${p.imageURL}" style="width:100%;height:100%;object-fit:cover;"></div>` : ''}
+    ${construireMediaHTML(p)}
     <div class="pr-row">
       <div class="pr-l">
         <div class="pr-bubbles" id="bulles-${p.id}"></div>
@@ -820,41 +976,245 @@ window.choisirReactionCommentairePub = async (postId, commentId, emoji, likesAct
 };
 
 /* ══════════ CRÉATION D'UNE PUBLICATION ══════════ */
+// Calcule en px la hauteur réelle du header FIXE du shell parent (accueil.html) quand
+// cette page est chargée en iframe. Le panels-container du shell n'a pas de z-index,
+// donc son top-header (z-index:200) recouvre le haut de nos modales plein écran :
+// on pousse le modal de cette hauteur exacte pour ne plus jamais cacher "Annuler/Publier".
+function getEmbedTopOffsetPx(){
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const parentTop = window.parent.document.getElementById('topH');
+      if (parentTop) return parentTop.getBoundingClientRect().height;
+    }
+  } catch(e) { /* cross-origin ou parent absent : on ignore, offset = 0 */ }
+  return 0;
+}
+
 window.openCreate = () => {
-  document.getElementById('createModal').classList.add('open');
-  setTimeout(() => document.getElementById('cmText').focus(), 400);
+  const modal = document.getElementById('createModal');
+  modal.style.paddingTop = getEmbedTopOffsetPx() + 'px';
+  backToChoix();
+  document.getElementById('cmText').value = '';
+  document.getElementById('cmGalText').value = '';
+  modal.classList.add('open');
 };
 window.closeCreate = () => {
   document.getElementById('createModal').classList.remove('open');
   document.getElementById('cmText').value = '';
-  document.getElementById('cmImgPreview').style.display = 'none';
-  imgBase64Post = '';
+  document.getElementById('cmGalText').value = '';
+  galImages = []; cadSlots = []; window._cmType = null;
 };
 
-window.previewCmImage = (e) => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    imgBase64Post = ev.target.result;
-    const img = document.getElementById('cmImgPreview');
-    img.src = ev.target.result;
-    img.style.display = 'block';
+/* ── Navigation entre l'écran de choix et les 3 modèles ── */
+window.chooseModel = (type) => {
+  window._cmType = type;
+  document.getElementById('cmStepChoix').style.display = 'none';
+  document.getElementById('cmStepUser').style.display = (type==='texte') ? 'flex' : 'none';
+  document.getElementById('cmText').style.display = (type==='texte') ? 'block' : 'none';
+  document.getElementById('cmStepGalerie').style.display = (type==='galerie') ? 'flex' : 'none';
+  document.getElementById('cmStepBoutique').style.display = (type==='boutique') ? 'flex' : 'none';
+  document.getElementById('cmBackOrCancel').textContent = '‹ Retour';
+  document.getElementById('btnPublish').style.display = 'inline-block';
+  document.getElementById('cmTitleLbl').textContent = { texte:'Texte', galerie:'Photo · Galerie', boutique:'Boutique' }[type] || 'Créer une publication';
+
+  if (type === 'texte') { setTimeout(() => document.getElementById('cmText').focus(), 250); }
+  if (type === 'galerie') { galImages = []; renderGalGrid(); }
+  if (type === 'boutique') { cadLayoutActif = 4; cadTagColor = 'vert'; initCadSlots(4); renderCadLayoutPicker(); renderCadColorPicker(); renderCadGrid(); }
+};
+window.backToChoix = () => {
+  window._cmType = null;
+  document.getElementById('cmStepChoix').style.display = 'block';
+  document.getElementById('cmStepUser').style.display = 'none';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
+  document.getElementById('btnPublish').style.display = 'none';
+  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
+};
+window.cmBackOrClose = () => { if (window._cmType) backToChoix(); else closeCreate(); };
+
+/* ── Modèle Photo · Galerie (1 à 8 photos, disposition magazine automatique) ── */
+function renderGalGrid(){
+  const grid = document.getElementById('galGrid');
+  grid.className = 'media-grid';
+  if (!galImages.length) {
+    grid.style.gridTemplateColumns = '1fr';
+    grid.style.gridTemplateRows = '';
+    grid.innerHTML = `<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>`;
+    return;
+  }
+  const L = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
+  grid.style.gridTemplateColumns = L.template;
+  grid.style.gridTemplateRows = L.rows || '';
+  grid.style.aspectRatio = L.cRatio || '';
+  grid.innerHTML = '';
+  galImages.forEach((photo, i) => {
+    const div = document.createElement('div');
+    div.className = 'media-slot';
+    if (L.areas && L.areas[i]) div.style.gridArea = L.areas[i];
+    div.style.aspectRatio = L.areas ? '' : L.ratio;
+    div.innerHTML = `<img src="${photo}"><div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(${i})">✕</div>`;
+    grid.appendChild(div);
+  });
+  if (galImages.length < 8) {
+    const add = document.createElement('div');
+    add.className = 'media-slot editable';
+    add.style.aspectRatio = '1';
+    add.innerHTML = `<span class="media-slot-empty">＋</span>`;
+    add.onclick = galAjouterPhoto;
+    grid.appendChild(add);
+  }
+}
+window.galAjouterPhoto = () => {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { galImages.push(ev.target.result); renderGalGrid(); };
+    r.readAsDataURL(f);
   };
-  r.readAsDataURL(f);
+  input.click();
 };
+window.galRetirerPhoto = (i) => { galImages.splice(i,1); renderGalGrid(); };
 
+/* ── Modèle Boutique (cadres 1-8 + étiquettes, ou galerie libre 9) ── */
+function initCadSlots(n){ cadSlots = []; for (let i=0;i<n;i++) cadSlots.push({photo:'',nom:'',prix:''}); }
+
+function renderCadLayoutPicker(){
+  const wrap = document.getElementById('cadLayoutPicker');
+  wrap.innerHTML = '';
+  [1,2,3,4,5,6,7,8,9].forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'cad-layout-opt' + (n === cadLayoutActif ? ' active' : '');
+    div.textContent = n === 9 ? '📁' : n;
+    div.title = n === 9 ? 'Galerie libre — sans cadre ni étiquette' : ('Disposition à ' + n + ' case(s)');
+    div.onclick = () => {
+      cadLayoutActif = n;
+      if (n === 9) { cadSlots = []; } else { initCadSlots(n); }
+      renderCadLayoutPicker(); renderCadGrid();
+    };
+    wrap.appendChild(div);
+  });
+}
+function renderCadColorPicker(){
+  document.querySelectorAll('.cad-tcp-dot').forEach(d => {
+    d.classList.toggle('active', d.dataset.c === cadTagColor);
+    d.onclick = () => { cadTagColor = d.dataset.c; renderCadColorPicker(); renderCadGrid(); };
+  });
+}
+function renderCadGrid(){
+  const grid = document.getElementById('cadGrid');
+  document.getElementById('cadColorPicker').style.display = (cadLayoutActif === 9) ? 'none' : 'flex';
+  document.getElementById('cadNote').textContent = (cadLayoutActif === 9)
+    ? 'Ajoutez librement vos photos, sans cadre ni étiquette'
+    : 'Touchez un cadre vide pour ajouter une photo, avec son nom et son prix';
+
+  if (cadLayoutActif === 9) {
+    grid.className = 'free-gallery';
+    grid.innerHTML = '';
+    cadSlots.forEach((s,i) => {
+      const div = document.createElement('div');
+      div.className = 'free-item';
+      div.innerHTML = `<img src="${s.photo}"><div class="free-remove" onclick="event.stopPropagation();cadRetirerLibre(${i})">✕</div>`;
+      grid.appendChild(div);
+    });
+    if (cadSlots.length < 8) {
+      const add = document.createElement('div');
+      add.className = 'free-add';
+      add.innerHTML = `<span>📷</span><span class="lbl">Ajouter</span>`;
+      add.onclick = cadAjouterLibre;
+      grid.appendChild(add);
+    }
+    return;
+  }
+
+  const L = MEDIA_LAYOUTS[cadLayoutActif];
+  grid.className = 'media-grid tags-' + cadTagColor;
+  grid.style.gridTemplateColumns = L.template;
+  grid.style.gridTemplateRows = L.rows || '';
+  grid.style.aspectRatio = L.cRatio || '';
+  grid.innerHTML = '';
+  cadSlots.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'media-slot editable' + (s.photo ? ' filled' : '');
+    if (L.areas && L.areas[i]) div.style.gridArea = L.areas[i];
+    div.style.aspectRatio = L.areas ? '' : L.ratio;
+    if (s.photo) {
+      div.innerHTML = `
+        <img src="${s.photo}">
+        <div class="media-slot-remove" onclick="event.stopPropagation();cadRetirerPhoto(${i})">✕</div>
+        <div class="media-tags">
+          <input class="media-chip" placeholder="Nom…" value="${s.nom}" oninput="cadSetNom(${i},this.value)" onclick="event.stopPropagation()">
+          <input class="media-chip" placeholder="Prix…" value="${s.prix}" oninput="cadSetPrix(${i},this.value)" onclick="event.stopPropagation()">
+        </div>`;
+    } else {
+      div.innerHTML = `<span class="media-slot-empty">📷</span>`;
+      div.onclick = () => cadChoisirPhoto(i);
+    }
+    grid.appendChild(div);
+  });
+}
+function cadChoisirPhoto(i){
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { cadSlots[i].photo = ev.target.result; renderCadGrid(); };
+    r.readAsDataURL(f);
+  };
+  input.click();
+}
+window.cadRetirerPhoto = (i) => { cadSlots[i] = {photo:'',nom:'',prix:''}; renderCadGrid(); };
+window.cadSetNom = (i, v) => { if (cadSlots[i]) cadSlots[i].nom = v; };
+window.cadSetPrix = (i, v) => { if (cadSlots[i]) cadSlots[i].prix = v; };
+function cadAjouterLibre(){
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { cadSlots.push({photo:ev.target.result, nom:'', prix:''}); renderCadGrid(); };
+    r.readAsDataURL(f);
+  };
+  input.click();
+}
+window.cadRetirerLibre = (i) => { cadSlots.splice(i,1); renderCadGrid(); };
+
+/* ── Publication : construit le document Firestore selon le modèle choisi ── */
 window.publishPost = async () => {
-  const txt = document.getElementById('cmText').value.trim();
-  if (!txt) { toast('⚠️ Écrivez quelque chose !',''); return; }
   if (!currentUser) { toast('Connectez-vous pour publier',''); return; }
+
+  let payload = null;
+  if (window._cmType === 'texte') {
+    const txt = document.getElementById('cmText').value.trim();
+    if (!txt) { toast('⚠️ Écrivez quelque chose !',''); return; }
+    payload = { type:'texte', texte:txt, categorie: document.getElementById('cmCategorie').value };
+  } else if (window._cmType === 'galerie') {
+    if (!galImages.length) { toast('⚠️ Ajoutez au moins une photo !',''); return; }
+    payload = { type:'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice(0,8), categorie:'Arts' };
+  } else if (window._cmType === 'boutique') {
+    const remplis = cadSlots.filter(s => s.photo);
+    if (!remplis.length) { toast('⚠️ Ajoutez au moins un article !',''); return; }
+    payload = {
+      type:'boutique',
+      texte: (document.getElementById('cadTitreInput').value.trim() || 'Boutique'),
+      disposition: cadLayoutActif,
+      tagColor: cadTagColor,
+      cadres: remplis.map(s => ({ photo:s.photo, nom:s.nom||'Article', prix:s.prix||'' })),
+      categorie:'Arts'
+    };
+  } else {
+    toast('Choisissez un modèle de publication',''); return;
+  }
+
   const btn = document.getElementById('btnPublish');
   btn.disabled = true; btn.textContent = 'Publication…';
-  const categorie = document.getElementById('cmCategorie').value;
   try {
     await addDoc(collection(db,'publications'), {
-      texte: txt,
-      imageURL: imgBase64Post || '',
-      categorie,
+      ...payload,
       auteurUid: currentUser.uid,
       auteurNom: currentUser.displayName || 'Anonyme',
       auteurMetier: currentUser.metier || '',
