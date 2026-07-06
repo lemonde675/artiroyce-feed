@@ -37,7 +37,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .feed::-webkit-scrollbar{display:none}
 
 /* CRÉER PUBLICATION */
-.create-post{background:#fff;margin:0 0 8px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid #f5f5f5}
+.create-post{background:#fff;margin:0 0 8px;padding:14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;border-bottom:1px solid #f5f5f5;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .cp-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0d2b0f,#27a945);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
 .cp-input{flex:1;background:#f5f5f5;border-radius:22px;padding:10px 16px;font-size:14px;color:#888;cursor:pointer;border:none;font-family:'Segoe UI',Arial,sans-serif}
 .cp-img-btn{width:38px;height:38px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:none;cursor:pointer}
@@ -149,7 +149,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .cad-layout-picker::-webkit-scrollbar{display:none}
 .cad-layout-opt{flex-shrink:0;width:44px;height:44px;border-radius:12px;border:2px solid #e4e6eb;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;font-weight:900;color:#999}
 .cad-layout-opt.active{border-color:var(--red);color:var(--red);background:#fff5f4}
-.cad-titre-input{width:calc(100% - 32px);margin:0 16px 10px;display:block;border:none;background:#f7f7f9;border-radius:10px;padding:9px 12px;font-size:14px;font-weight:800;color:var(--dark);outline:none}
+.cad-titre-wrap{display:flex;align-items:center;gap:8px;width:calc(100% - 32px);margin:0 16px 10px;background:#f7f7f9;border:1.5px dashed #ddd;border-radius:10px;padding:9px 12px}
+.cad-titre-wrap:focus-within{border-color:var(--red);border-style:solid;background:#fff}
+.cad-titre-ico{font-size:13px;flex-shrink:0;color:#aaa}
+.cad-titre-input{flex:1;min-width:0;border:none;background:transparent;padding:0;font-size:14px;font-weight:800;color:var(--dark);outline:none}
 .cad-color-picker{display:flex;align-items:center;gap:9px;padding:0 16px 12px}
 .cad-tcp-label{font-size:11px;font-weight:700;color:#999}
 .cad-tcp-dot{width:22px;height:22px;border-radius:50%;border:2px solid #e4e6eb;cursor:pointer;position:relative;flex-shrink:0}
@@ -164,7 +167,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* Grille de cadres partagée (builder galerie + builder boutique) */
 .media-grid{display:grid;gap:2px}
 .media-slot{position:relative;overflow:hidden;background:#fff}
-.media-slot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.media-slot img{width:100%;height:100%;object-fit:contain;background:#fafafa;position:absolute;inset:0}
 .media-slot.editable{border:2px dashed #ddd;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff}
 .media-slot.editable.filled{border-style:solid;border-color:#f0f0f0}
 .media-slot-empty{font-size:22px;color:#bbb}
@@ -178,7 +181,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* Galerie libre (possibilité 9, sans cadre ni étiquette) */
 .free-gallery{display:flex;flex-wrap:wrap;gap:8px;padding:0 2px}
 .free-item{position:relative;width:calc(33.333% - 6px);aspect-ratio:1;border-radius:12px;overflow:hidden;background:#fff;border:2px solid #f0f0f0}
-.free-item img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.free-item img{width:100%;height:100%;object-fit:contain;background:#fafafa;position:absolute;inset:0}
 .free-remove{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;z-index:5;cursor:pointer}
 .free-add{width:calc(33.333% - 6px);aspect-ratio:1;border-radius:12px;border:2px dashed #ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;font-size:24px;cursor:pointer;gap:3px}
 .free-add .lbl{font-size:10px;font-weight:700;color:#999}
@@ -186,11 +189,20 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* Rendu dans le fil : grille magazine pour Photo/Galerie et Boutique */
 .p-media-grid{display:grid;gap:2px;background:#fff}
 .p-media-item{position:relative;overflow:hidden}
-.p-media-item img{width:100%;height:100%;object-fit:cover}
+.p-media-item img{width:100%;height:100%;object-fit:contain;background:#fafafa}
 .p-media-free{display:flex;flex-wrap:wrap;gap:2px;background:#fff}
 .p-media-free .p-media-item{width:calc(33.333% - 1.33px);aspect-ratio:1}
 
-/* BOT NAV */
+/* CORBEILLE (repris du pattern validé de cv_pro.html) */
+.corbeille-toggle{display:flex;align-items:center;gap:6px;padding:10px 16px;background:#fff;margin:0 0 8px;border-bottom:1px solid #f5f5f5;font-size:13px;font-weight:700;color:#a07a1a;cursor:pointer}
+.corbeille-liste{display:none;flex-direction:column;gap:8px;padding:0 16px 10px;background:#fff;margin:-8px 0 8px}
+.corbeille-liste.open{display:flex}
+.corbeille-item{display:flex;align-items:center;gap:10px;background:#fffaf0;border:1px solid #f5e6c8;border-radius:12px;padding:10px 12px}
+.corbeille-item-info{flex:1;min-width:0}
+.corbeille-item-titre{font-size:12.5px;font-weight:700;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.corbeille-item-sub{font-size:11px;color:#a07a1a}
+.btn-restaurer{background:#eafaf0;color:var(--green);border:1.5px solid var(--green);border-radius:12px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-suppr-def{background:#fdecea;color:var(--red);border:1.5px solid var(--red);border-radius:12px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;margin-left:6px}
 .bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
 .nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
 .nav-lb{font-size:10px;font-weight:700;color:#aaa}
@@ -275,6 +287,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <input class="cp-input" placeholder="Quoi de neuf ?" readonly/>
       <button class="cp-img-btn">🖼️</button>
     </div>
+
+    <!-- CORBEILLE (mes publications supprimées, 15 jours avant suppression définitive automatique) -->
+    <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
+      <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
+    </div>
+    <div class="corbeille-liste" id="corbeilleListe"></div>
 
     <div id="feedLoading" style="text-align:center;padding:40px 20px;color:#aaa;">
       <div style="font-size:32px;margin-bottom:10px;">⏳</div>
@@ -393,7 +411,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <!-- ÉTAPE BOUTIQUE (cadres + étiquettes) -->
   <div class="cm-step-boutique" id="cmStepBoutique">
     <div class="cad-layout-picker" id="cadLayoutPicker"></div>
-    <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique">
+    <div class="cad-titre-wrap">
+      <span class="cad-titre-ico">✏️</span>
+      <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique" onfocus="this.select()">
+    </div>
     <div class="cad-color-picker" id="cadColorPicker">
       <span class="cad-tcp-label">🎨 Étiquettes</span>
       <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
@@ -456,6 +477,8 @@ const db = getFirestore(app);
 let currentUser = null;
 let categorieActive = 'Tout';
 let listePublications = [];
+let listeCorbeille = [];
+const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 
 /* ══ ÉTAT DE CRÉATION MULTI-MODÈLES (Texte / Photo·Galerie / Boutique) ══ */
 window._cmType = null;   // 'texte' | 'galerie' | 'boutique'
@@ -524,18 +547,68 @@ onAuthStateChanged(auth, async (user) => {
 function chargerPublications(){
   const q = query(collection(db,'publications'), orderBy('createdAt','desc'));
   onSnapshot(q, snap => {
-    listePublications = [];
-    snap.forEach(d => listePublications.push({ id: d.id, ...d.data() }));
+    const toutes = [];
+    snap.forEach(d => toutes.push({ id: d.id, ...d.data() }));
+
+    listePublications = toutes.filter(p => !p.corbeille);
+    listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
+
+    // Purge automatique : mes propres publications à la corbeille depuis plus de 15 jours -> suppression définitive
+    const maintenant = Date.now();
+    listeCorbeille.filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+      .forEach(p => deleteDoc(doc(db,'publications',p.id)).catch(e => console.error(e)));
+
     document.getElementById('feedLoading').style.display = 'none';
     afficherFeed();
+    afficherCorbeille();
   }, err => {
     console.error(err);
     document.getElementById('feedLoading').innerHTML = '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.</div>';
   });
 }
 
+function afficherCorbeille(){
+  const toggle = document.getElementById('corbeilleToggle');
+  toggle.style.display = listeCorbeille.length ? 'flex' : 'none';
+  document.getElementById('corbeilleLabel').textContent = `Corbeille (${listeCorbeille.length})`;
+  const liste = document.getElementById('corbeilleListe');
+  liste.innerHTML = '';
+  listeCorbeille.forEach(p => liste.appendChild(creerLigneCorbeille(p)));
+  if (!listeCorbeille.length) liste.classList.remove('open');
+}
+window.toggleCorbeille = () => { document.getElementById('corbeilleListe').classList.toggle('open'); };
+
+function creerLigneCorbeille(p){
+  const row = document.createElement('div');
+  row.className = 'corbeille-item';
+  const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(p.corbeilleDepuis || Date.now()).getTime());
+  const joursRestants = Math.max(0, Math.ceil(restantMs / (24*60*60*1000)));
+  const titre = p.texte ? p.texte.slice(0,40) : (p.type === 'boutique' ? 'Boutique' : 'Publication');
+  row.innerHTML = `
+    <div class="corbeille-item-info">
+      <div class="corbeille-item-titre">${escapeHtml(titre || 'Sans titre')}</div>
+      <div class="corbeille-item-sub">Supprimée définitivement dans ${joursRestants} jour${joursRestants>1?'s':''}</div>
+    </div>
+    <button class="btn-restaurer" data-action="restaurer">Restaurer</button>
+    <button class="btn-suppr-def" data-action="suppr-def">Supprimer</button>
+  `;
+  row.querySelector('[data-action="restaurer"]').addEventListener('click', () => restaurerPublication(p.id));
+  row.querySelector('[data-action="suppr-def"]').addEventListener('click', () => supprimerDefinitivement(p.id));
+  return row;
+}
+
 function afficherFeed(){
-  const filtres = categorieActive === 'Tout' ? listePublications : listePublications.filter(p => p.categorie === categorieActive);
+  let filtres = categorieActive === 'Tout' ? listePublications : listePublications.filter(p => p.categorie === categorieActive);
+  // Les publications de l'utilisateur connecté restent toujours en tête (ses propres publications
+  // d'abord, dans leur ordre chronologique décroissant), les autres viennent en dessous.
+  if (currentUser) {
+    filtres = filtres.slice().sort((a,b) => {
+      const aMoi = a.auteurUid === currentUser.uid, bMoi = b.auteurUid === currentUser.uid;
+      if (aMoi && !bMoi) return -1;
+      if (!aMoi && bMoi) return 1;
+      return 0; // tri stable : conserve l'ordre chronologique déjà fourni par Firestore
+    });
+  }
   const feedEl = document.getElementById('feedPosts');
   document.getElementById('feedEmpty').style.display = filtres.length ? 'none' : 'block';
   feedEl.innerHTML = '';
@@ -613,7 +686,7 @@ function construirePost(p){
 
   const menuHtml = isAuteur ? `
     <div class="post-menu" id="menu-${p.id}" style="display:none;position:absolute;top:36px;right:12px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);border:1px solid #eee;z-index:80;overflow:hidden;min-width:180px;">
-      <div style="padding:11px 16px;font-size:13px;font-weight:700;color:#e63224;cursor:pointer;" onclick="supprimerPublication('${p.id}')">🗑️ Supprimer</div>
+      <div style="padding:11px 16px;font-size:13px;font-weight:700;color:#e63224;cursor:pointer;" onclick="supprimerPublication('${p.id}')">🗑️ Mettre à la corbeille</div>
     </div>` : '';
 
   div.innerHTML = `
@@ -626,7 +699,7 @@ function construirePost(p){
           <span class="ph-name">${escapeHtml(p.auteurNom||'Anonyme')}</span>
           ${badgeTxt ? `<span class="ph-badge">${badgeTxt}</span>` : ''}
         </div>
-        <div class="ph-meta">${p.auteurMetier ? escapeHtml(p.auteurMetier)+' · ' : ''}${tempsDepuis(p.createdAt?.toMillis?p.createdAt.toMillis():Date.now())}</div>
+        <div class="ph-meta">${p.auteurVerifie ? 'Professionnel' : 'Visiteur'} · ${tempsDepuis(p.createdAt?.toMillis?p.createdAt.toMillis():Date.now())}</div>
       </div>
       ${isAuteur ? `<span class="ph-more" onclick="toggleMenuPost('${p.id}')">⋯</span>` : ''}
       ${menuHtml}
@@ -697,10 +770,26 @@ document.addEventListener('click', (e) => {
 });
 
 window.supprimerPublication = async (postId) => {
-  if (!confirm('Supprimer définitivement cette publication ?')) return;
+  if (!confirm('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  try {
+    await updateDoc(doc(db,'publications',postId), { corbeille: true, corbeilleDepuis: new Date().toISOString() });
+    toast('🗑️ Publication mise à la corbeille','g');
+  } catch(e) { console.error(e); toast('Erreur lors de la suppression',''); }
+};
+
+window.restaurerPublication = async (postId) => {
+  if (!confirm('Restaurer cette publication ? Elle réapparaîtra dans le fil.')) return;
+  try {
+    await updateDoc(doc(db,'publications',postId), { corbeille: false, corbeilleDepuis: null });
+    toast('♻️ Publication restaurée','g');
+  } catch(e) { console.error(e); toast('Erreur lors de la restauration',''); }
+};
+
+window.supprimerDefinitivement = async (postId) => {
+  if (!confirm('Supprimer définitivement cette publication ? Cette action est irréversible.')) return;
   try {
     await deleteDoc(doc(db,'publications',postId));
-    toast('🗑️ Publication supprimée','g');
+    toast('🗑️ Publication supprimée définitivement','g');
   } catch(e) { console.error(e); toast('Erreur lors de la suppression',''); }
 };
 
@@ -799,7 +888,7 @@ function construireZoneCommentaires(postId, zone){
     <div class="comm-input-row" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
       <div class="user-ava" style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${currentUser?(currentUser.displayName||'?')[0].toUpperCase():'?'}</div>
       <input class="comm-input-box" type="text" placeholder="Ajouter un commentaire…" id="cinput-${postId}" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit;"/>
-      <div style="cursor:pointer;font-size:15px;background:#e63224;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onclick="envoyerCommentairePub('${postId}')">➤</div>
+      <div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(230,50,36,0.3);" onclick="envoyerCommentairePub('${postId}')">➤</div>
     </div>
     <div class="reply-indicator" id="reply-indicator-${postId}" style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555;">
       <span id="reply-indicator-text-${postId}"></span>
@@ -851,7 +940,7 @@ function ecouterCommentaires(postId){
           <div style="flex:1;min-width:0;position:relative;">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap;">
               <span style="font-size:13px;font-weight:700;color:#757575;">${escapeHtml(c.nom||'Anonyme')}</span>
-              ${isAuteur ? '<span style="font-size:11px;font-weight:700;color:#1a5276;">· Créateur</span>' : ''}
+              <span style="font-size:11px;font-weight:700;color:${isAuteur?'#1a5276':'#8e8e8e'};">· ${isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')}</span>
             </div>
             <div style="font-size:14px;color:#1c1e21;line-height:1.45;margin-bottom:5px;word-break:break-word;">${escapeHtml(c.texte)}</div>
             <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e;">
@@ -911,7 +1000,7 @@ window.envoyerCommentairePub = async (postId) => {
   const reponseA = _replyingTo[postId] || null;
   try {
     await addDoc(collection(db,'publications',postId,'commentaires'), {
-      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid,
+      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid, verifie: !!currentUser.verifie,
       parentId: reponseA ? reponseA.commentId : null, createdAt: serverTimestamp()
     });
     window.annulerReponsePub(postId);
