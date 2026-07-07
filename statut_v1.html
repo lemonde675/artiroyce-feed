@@ -491,7 +491,7 @@ window.chargerStatuts=function(){
           bg:bgPourUid(uid),role:d.auteurRole||'visiteur',hidden:false,items:[]};
       }
       map[uid].items.push({
-        docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,video:d.video||null,bg:d.bg||null,
+        docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,photos:d.photos||null,effet:d.effet||'static',video:d.video||null,bg:d.bg||null,
         music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
         postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0)
       });
@@ -624,9 +624,12 @@ function renderStrip(){
     var div=document.createElement('div');
     div.className='strip-item';
     div.onclick=function(){openViewer(p.id);};
+    var vraiePhoto=dernier.photo||(dernier.photos&&dernier.photos[0])||null;
     div.innerHTML='<div class="s-card"'+(vu?' style="opacity:.5"':'')+'>'
-      +'<div class="s-card-bg" style="background:'+p.bg+'"></div><div class="s-card-overlay"></div>'
-      +'<div class="s-card-emoji">'+dernier.e+'</div>'
+      +(vraiePhoto
+        ? '<div class="s-card-bg" style="background:url(\''+vraiePhoto+'\') center/cover"></div>'
+        : '<div class="s-card-bg" style="background:'+p.bg+'"></div><div class="s-card-emoji">'+dernier.e+'</div>')
+      +'<div class="s-card-overlay"></div>'
       +'<div class="s-card-av" style="background:rgba(0,0,0,0.35)">'+p.i+'</div>'
       +(vu?'':'<div class="s-card-unseen"></div>')
       +(dernier.music?'<div class="s-card-music">🎵 '+esc(dernier.music)+'</div>':'')
@@ -671,20 +674,22 @@ async function deleteFromRow(){
 
 // VIEWER
 var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8;
-var ITEM_DUREE_MS=5000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
+var ITEM_DUREE_MS=7000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
-  enTrainDeTenir=false;
-  holdTimer=setTimeout(function(){enTrainDeTenir=true;pauseViewer();},180);
+  holdTimer=Date.now();
+  pauseViewer(); // pause immédiate, sans délai — plus fluide qu'un seuil d'attente avant exécution
 };
 window.onZoneUp=function(e,dir){
-  clearTimeout(holdTimer);
-  if(enTrainDeTenir){resumeViewer();enTrainDeTenir=false;return;}
-  if(dir==='next')goNextItem();else goPrevItem();
+  var duree=Date.now()-holdTimer;
+  resumeViewer();
+  if(duree<220){ // relâché vite = un vrai tap -> on navigue comme avant
+    if(dir==='next')goNextItem();else goPrevItem();
+  }
+  // sinon, la personne voulait juste lire tranquillement : on reste simplement sur l'item, pas de saut
 };
 window.onZoneLeave=function(){
-  clearTimeout(holdTimer);
-  if(enTrainDeTenir){resumeViewer();enTrainDeTenir=false;}
+  resumeViewer();
 };
 function pauseViewer(){
   if(estEnPause)return;
@@ -741,6 +746,14 @@ function showCurrentItem(){
   if(it.photo){
     document.getElementById('vBg').style.background='#000';
     vMedia.innerHTML='<img src="'+it.photo+'" style="width:100%;height:100%;object-fit:contain">';
+    vMedia.style.display='block';
+    document.getElementById('vEmoji').style.display='none';
+  }else if(it.photos&&it.photos.length){
+    document.getElementById('vBg').style.background='#000';
+    var cols=it.photos.length===1?1:2;
+    vMedia.innerHTML='<div style="width:100%;height:100%;display:grid;grid-template-columns:repeat('+cols+',1fr);gap:2px">'
+      +it.photos.map(function(src){return '<div style="background:url(\''+src+'\') center/cover"></div>';}).join('')
+      +'</div>';
     vMedia.style.display='block';
     document.getElementById('vEmoji').style.display='none';
   }else if(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId])){
@@ -892,6 +905,7 @@ function closeMenu(){document.getElementById('menuOverlay').classList.remove('op
 // ÉDITEUR
 function openEditor(mode){
   editorMode=mode;editorMusic=null;editorPhotoData=null;editorVideoUrl=null;
+  collageImages=[];collageEff='static';
   var titles={photo:'📷 Photo',video:'🎥 Vidéo',text:'✍️ Texte',collage:'🖼️ Collage',audio:'🎤 Audio'};
   document.getElementById('editorTitle').textContent=titles[mode]||'Éditeur';
   var body=document.getElementById('editorBody');
@@ -1062,6 +1076,7 @@ async function publishStatut(){
   var emojis={photo:'📷',video:'🎥',text:'✍️',collage:'🖼️',audio:'🎤'};
   if(editorMode==='photo'&&!editorPhotoData){toast('⚠️ Choisis une photo d\'abord',''); return;}
   if(editorMode==='video'&&!editorVideoUrl){toast('⚠️ Choisis une vidéo d\'abord',''); return;}
+  if(editorMode==='collage'&&(!collageImages||!collageImages.length)){toast('⚠️ Ajoute au moins une photo',''); return;}
   if(!window.currentUid){toast('Connecte-toi pour publier',''); return;}
   var tv=editorMode==='text'&&document.getElementById('textArea')?document.getElementById('textArea').value||'Statut texte':'';
   var me=window.ME||{prenom:'Moi',role:'visiteur'};
@@ -1070,6 +1085,8 @@ async function publishStatut(){
     auteurUid:window.currentUid, auteurNom:me.prenom||'Moi', auteurVerifie:(me.role&&me.role!=='visiteur'), auteurRole:me.role||'visiteur',
     e:emojis[editorMode]||'📢', texte:tv||msgs[editorMode],
     photo:editorMode==='photo'?editorPhotoData:null,
+    photos:editorMode==='collage'?collageImages.slice(0,4):null,
+    effet:editorMode==='collage'?collageEff:null,
     bg:editorMode==='text'?selectedBg:null,
     music:editorMusic||null, musicUrl:editorMusicUrl||null, trimS:editorMusicTrimS||0, trimE:editorMusicTrimE||15,
     createdAt:window.fb.serverTimestamp(), vuPar:[]
@@ -1124,10 +1141,13 @@ function closeMusicPanel(){
 function triggerAudioGallery(){document.getElementById('audioGalleryInput').click();}
 function handleAudioGallery(inp){
   if(!inp.files||!inp.files[0])return;
-  var name=inp.files[0].name.replace(/\.[^.]+$/,'');
-  currentTrack=name;
+  var f=inp.files[0];
+  var name=f.name.replace(/\.[^.]+$/,'');
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  var url=URL.createObjectURL(f);
+  currentTrack=name;currentTrackUrl=url;currentTrackIdx='galerie';
   showTrimSec(name);
-  toast('🎼 "'+name+'" chargé','g');
+  toast('🎼 "'+name+'" chargé depuis la galerie','g');
 }
 function searchMusic(){
   var q=document.getElementById('musicInp').value.trim();
