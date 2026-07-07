@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--red:#e63224;--green:#27a945;--bg:#f2f2f7}
-html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
+html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);max-width:480px;margin:0 auto}
 .top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,0.07)}
 .h-row1{display:flex;align-items:center;padding:8px 14px 6px;gap:8px}
 .h-house{font-size:22px;flex-shrink:0;cursor:pointer}
@@ -20,7 +20,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
 .h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
 .h-ico.chat .bdot{background:var(--green)}
-.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;background:var(--bg)}
+.body-wrap{width:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
 .spacer{flex-shrink:0;min-height:60px}
 .pg-title{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0}
 .pg-name{font-size:18px;font-weight:900;color:#111;display:flex;align-items:center;gap:8px}
@@ -48,7 +48,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .section-header{display:flex;align-items:center;justify-content:space-between;padding:2px 16px 8px;flex-shrink:0}
 .list-title{font-size:12px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.8px}
 .list-count{font-size:11px;font-weight:700;color:var(--green)}
-.st-list{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 12px 20px}
+.st-list{padding:0 12px 40px}
 .st-list::-webkit-scrollbar{display:none}
 .st-row{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:11px 12px;margin-bottom:7px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.06);transition:all 0.15s;position:relative}
 .st-row:active{transform:scale(0.97)}
@@ -92,7 +92,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .v-info{flex:1;min-width:0}
 .v-nm{font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
 .v-t{font-size:10px;color:rgba(255,255,255,0.8);margin-top:1px}
-.v-music-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,0.5);border-radius:20px;padding:3px 8px;font-size:10px;color:#fff;font-weight:700;margin-top:3px;backdrop-filter:blur(6px)}
+.v-music-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,0.6);border-radius:20px;padding:5px 11px;font-size:11px;color:#fff;font-weight:700;margin-top:4px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25)}
 .v-music-wave{display:flex;align-items:center;gap:1.5px}
 .v-music-wave span{width:2px;background:#fff;border-radius:2px;animation:wave 0.8s infinite ease-in-out}
 .v-music-wave span:nth-child(1){height:5px;animation-delay:0s}
@@ -123,9 +123,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .v-tap-l{left:0}
 .v-tap-r{right:0}
 /* Curseur de volume (visible seulement si musique attachée) */
-.v-vol-wrap{display:flex;align-items:center;gap:5px;margin-top:5px}
-.v-vol-ico{font-size:11px;color:#fff;flex-shrink:0}
-.v-vol-slider{-webkit-appearance:none;appearance:none;width:70px;height:3px;border-radius:3px;background:rgba(255,255,255,0.35);outline:none}
+.v-vol-wrap{display:flex;align-items:center;gap:8px;margin-top:6px;background:rgba(0,0,0,0.55);border-radius:20px;padding:6px 12px 6px 10px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);width:fit-content}
+.v-vol-ico{font-size:18px;color:#fff;flex-shrink:0;cursor:pointer;user-select:none}
+.v-vol-slider{-webkit-appearance:none;appearance:none;width:110px;height:6px;border-radius:6px;background:rgba(255,255,255,0.35);outline:none}
+.v-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:2px solid #fff}
+.v-vol-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--red);cursor:pointer;border:2px solid #fff}
 .v-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer}
 .v-act-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:all 0.15s}
 .v-act-btn:active{background:rgba(255,255,255,0.35);transform:scale(1.1)}
@@ -331,7 +333,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
         <div class="v-music-wave"><span></span><span></span><span></span><span></span></div><span id="vMusicName">—</span>
       </div>
       <div class="v-vol-wrap" id="vVolWrap" style="display:none">
-        <span class="v-vol-ico">🔉</span>
+        <span class="v-vol-ico" id="vVolIco" onclick="toggleMuteViewer()">🔉</span>
         <input type="range" class="v-vol-slider" id="vVolSlider" min="0" max="100" value="80" oninput="setViewerVolume(this.value)">
       </div>
     </div>
@@ -843,6 +845,19 @@ window.setViewerVolume=function(v){
   var ico=document.querySelector('.v-vol-ico');
   if(ico)ico.textContent=v==0?'🔇':v<50?'🔈':'🔊';
 };
+var _volAvantMute=80;
+window.toggleMuteViewer=function(){
+  var slider=document.getElementById('vVolSlider');
+  if(!slider)return;
+  var actuel=Number(slider.value);
+  if(actuel>0){
+    _volAvantMute=actuel;
+    slider.value=0;
+  }else{
+    slider.value=_volAvantMute||80;
+  }
+  setViewerVolume(slider.value);
+};
 
 function closeViewer(){
   document.getElementById('viewer').classList.remove('open');
@@ -1003,18 +1018,42 @@ function musicSec(){
 
 function trigEdFile(){var f=document.getElementById('edFile');if(f)f.click();}
 
+// Redimensionne et compresse une photo avant de la stocker en base64 : une vraie photo de
+// téléphone (plusieurs Mo) dépasse largement la limite de Firestore (1 Mo par document, TOUS
+// les champs confondus) — surtout multipliée par 4 pour un collage. Sans ça, "Erreur lors de
+// la publication" apparaît dès qu'on utilise de vraies photos (pas juste des images de test).
+function compresserImage(file, maxDim, qualite){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var w = img.width, h = img.height;
+        if (w > h) { if (w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; } }
+        else { if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; } }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', qualite || 0.7));
+      };
+      img.onerror = function(){ reject(new Error('image invalide')); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ reject(new Error('lecture du fichier échouée')); };
+    reader.readAsDataURL(file);
+  });
+}
+
 function handleEdFile(inp){
   if(!inp.files||!inp.files[0])return;
   var f=inp.files[0];
   var ph=document.getElementById('edPh');if(ph)ph.style.display='none';
   var ch=document.getElementById('edChange');if(ch)ch.style.display='block';
   if(editorMode==='photo'){
-    var r=new FileReader();
-    r.onload=function(e){
-      editorPhotoData=e.target.result;
-      var img=document.getElementById('edImg');img.src=editorPhotoData;img.style.display='block';
-    };
-    r.readAsDataURL(f);
+    compresserImage(f, 1000, 0.72).then(function(dataUrl){
+      editorPhotoData=dataUrl;
+      var img=document.getElementById('edImg');img.src=dataUrl;img.style.display='block';
+    }).catch(function(err){ console.error(err); toast('⚠️ Photo invalide, réessaie',''); });
   }else if(editorMode==='video'){
     var url=URL.createObjectURL(f);
     editorVideoUrl=url;editorVideoFile=f;
@@ -1031,14 +1070,16 @@ function handleCollage(inp){
   var files=Array.from(inp.files).slice(0,4);
   var loaded=0;
   files.forEach(function(f,i){
-    var r=new FileReader();
-    r.onload=function(e){
-      collageImages[i]=e.target.result;loaded++;
+    compresserImage(f, 700, 0.62).then(function(dataUrl){
+      collageImages[i]=dataUrl;loaded++;
       var d=document.createElement('div');
-      d.style.cssText='height:55px;border-radius:7px;background:url('+e.target.result+') center/cover;cursor:pointer;';
+      d.style.cssText='height:55px;border-radius:7px;background:url('+dataUrl+') center/cover;cursor:pointer;';
       if(grid)grid.appendChild(d);
       if(loaded===files.length){var ph=document.getElementById('collagePH');if(ph)ph.style.display='none';renderCollage();}
-    };r.readAsDataURL(f);
+    }).catch(function(err){
+      console.error(err); loaded++;
+      toast('⚠️ Une photo du collage n\'a pas pu être traitée','');
+    });
   });
 }
 function setEff(e){
@@ -1119,12 +1160,25 @@ async function publishStatut(){
       createdAt:window.fb.serverTimestamp(), vuPar:[]
     };
 
+    // Vérification de sécurité : Firestore refuse tout document dépassant 1 Mo. Les photos sont
+    // déjà compressées avant d'arriver ici, mais on vérifie quand même pour donner un message
+    // clair plutôt qu'une erreur technique si jamais une photo compresse mal.
+    var tailleApprox = new Blob([JSON.stringify(payload)]).size;
+    if (tailleApprox > 950000) {
+      toast('⚠️ Contenu trop volumineux, réessaie avec moins de photos ou une photo plus légère','');
+      if(btn){btn.disabled=false;btn.textContent='🚀 Publier';}
+      return;
+    }
+
     await window.fb.addDoc(window.fb.collection(window.db,'statuts'),payload);
     closeEditor();
     toast(msgs[editorMode]+(editorMusic?' 🎵':''),'g');
   }catch(e){
     console.error(e);
-    toast('Erreur'+(editorMode==='video'?' — vérifie que Firebase Storage est activé sur ton projet':' lors de la publication'),'');
+    var msgErreur = 'Erreur lors de la publication';
+    if (editorMode==='video') msgErreur += ' — vérifie que Firebase Storage est activé sur ton projet';
+    else if (e && e.message && /longer than|exceeds|too large|invalid-argument/i.test(e.message)) msgErreur = '⚠️ Contenu trop volumineux pour être publié — réessaie avec moins de photos';
+    toast(msgErreur,'');
   }finally{
     if(btn){btn.disabled=false;btn.textContent='🚀 Publier';}
   }
@@ -1140,6 +1194,24 @@ function renderMyCard(){
   var moi=S.find(function(x){return x.id===MOI_ID;});
   if(!moi){card.onclick=openMenu;return;}
   moi.items=moi.items.filter(itemNonExpire);
+
+  // Preuve visuelle réelle qu'on a publié : la vraie photo (ou l'emoji du texte) + anneau vert,
+  // directement sur SA PROPRE tuile — sinon impossible de savoir si la publication a marché.
+  if(moi.items.length){
+    var dernier=moi.items[moi.items.length-1];
+    var vraiePhoto=dernier.photo||(dernier.photos&&dernier.photos[0])||null;
+    card.style.border='2.5px solid var(--green)';
+    card.style.overflow='hidden';
+    card.style.background=vraiePhoto?'#000':(dernier.bg||moi.bg||'linear-gradient(135deg,#e63224,#ff6b5b)');
+    card.innerHTML=(vraiePhoto
+        ?'<img src="'+vraiePhoto+'" style="width:100%;height:100%;object-fit:cover;border-radius:16px">'
+        :'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px">'+dernier.e+'</div>')
+      +'<div class="my-card-add-badge" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:2">+</div>'
+      +'<div style="position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.9);z-index:2">✓ Publié</div>';
+  }else if(window.rendreCardDefaut){
+    window.rendreCardDefaut(); // tout a expiré : on revient à la photo de profil/initiale par défaut
+  }
+
   card.onclick=function(event){
     if(event&&event.target&&event.target.closest('.my-card-add-badge')){openMenu();return;}
     if(moi.items.length)openViewer(MOI_ID,0);else openMenu();
@@ -1312,6 +1384,22 @@ window.db=db;
 window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,arrayUnion,serverTimestamp,getDoc,storageRef:ref,uploadBytes,getDownloadURL};
 window.storage=storage;
 window.ME={prenom:'Moi',initiale:'M',photo:null,metier:'',role:'visiteur'};
+window.rendreCardDefaut=function(){
+  var card=document.getElementById('myStatutCard');
+  if(!card||!window.ME)return;
+  if(window.ME.photo){
+    card.style.border='2.5px solid var(--green)';card.style.background='#000';card.style.overflow='hidden';
+    card.innerHTML='<img src="'+window.ME.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:16px" onerror="this.style.display=\'none\'">'
+      +'<div class="my-card-add-badge" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff">+</div>'
+      +'<div style="position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.9)">'+window.ME.prenom+'</div>';
+  }else{
+    card.style.border='2.5px dashed #d0d0d0';card.style.background='#fff';card.style.overflow='hidden';
+    card.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),#ff6b5b);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff">'+window.ME.initiale+'</div>'
+      +'<div style="font-size:9px;font-weight:700;color:#aaa">'+window.ME.prenom+'</div></div>';
+  }
+};
+
 onAuthStateChanged(auth,async(user)=>{
   if(!user)return;
   try{
@@ -1328,16 +1416,7 @@ onAuthStateChanged(auth,async(user)=>{
       var moi=window.S.find(function(x){return x.id===window.MOI_ID;});
       if(moi){moi.n=window.ME.prenom;moi.i=window.ME.initiale;moi.role=window.ME.role;}
     }
-    if(card&&window.ME.photo){
-      card.style.border='2.5px solid var(--green)';card.style.background='#000';card.style.overflow='hidden';
-      card.innerHTML='<img src="'+window.ME.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:16px" onerror="this.style.display=\'none\'">'
-        +'<div class="my-card-add-badge" style="position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #fff">+</div>'
-        +'<div style="position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.9)">'+window.ME.prenom+'</div>';
-    }else if(card){
-      card.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px">'
-        +'<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),#ff6b5b);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff">'+window.ME.initiale+'</div>'
-        +'<div style="font-size:9px;font-weight:700;color:#aaa">'+window.ME.prenom+'</div></div>';
-    }
+    if(card)window.rendreCardDefaut();
     if(lbl)lbl.textContent=window.ME.prenom;
     if(window.renderMyCard)window.renderMyCard();
     window.currentUid=user.uid;
