@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Statuts - ArtiRoyce</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -139,7 +139,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* OVERLAY GÉNÉRIQUE */
 .overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .overlay.open{display:flex}
-.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;max-height:92vh;overflow:hidden}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;max-height:92vh;overflow:hidden;padding-bottom:env(safe-area-inset-bottom, 0px)}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-handle{width:38px;height:4px;background:#e0e0e0;border-radius:4px;margin:11px auto 0;flex-shrink:0}
 .sheet-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 12px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
@@ -310,28 +310,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       </div>
       <span class="s-card-time" style="color:var(--red);font-weight:800">+ Ajouter</span>
     </div>
-    <div class="strip-item" onclick="openViewer(0)">
-      <div class="s-card"><div class="s-card-bg" style="background:linear-gradient(160deg,#0d2b0f,#27a945)"></div><div class="s-card-overlay"></div><div class="s-card-emoji">✂️</div><div class="s-card-av" style="background:rgba(0,0,0,0.35)">MK</div><div class="s-card-unseen"></div><div class="s-card-music">🎵 Afrobeats</div><div class="s-card-name">Mariama K.</div></div>
-      <span class="s-card-time">12 min</span>
-    </div>
-    <div class="strip-item" onclick="openViewer(1)">
-      <div class="s-card"><div class="s-card-bg" style="background:linear-gradient(160deg,#0a0a2e,#1a1a6e)"></div><div class="s-card-overlay"></div><div class="s-card-emoji">📷</div><div class="s-card-av" style="background:rgba(0,0,0,0.35)">JP</div><div class="s-card-unseen"></div><div class="s-card-name">Jean-Paul M.</div></div>
-      <span class="s-card-time">34 min</span>
-    </div>
-    <div class="strip-item" onclick="openViewer(2)">
-      <div class="s-card"><div class="s-card-bg" style="background:linear-gradient(160deg,#4a1a00,#c0392b)"></div><div class="s-card-overlay"></div><div class="s-card-emoji">💄</div><div class="s-card-av" style="background:rgba(0,0,0,0.35)">AT</div><div class="s-card-name">Aminata T.</div></div>
-      <span class="s-card-time">1h · Vu</span>
-    </div>
-    <div class="strip-item" onclick="openViewer(3)">
-      <div class="s-card"><div class="s-card-bg" style="background:linear-gradient(160deg,#001030,#002060)"></div><div class="s-card-overlay"></div><div class="s-card-emoji">🎧</div><div class="s-card-av" style="background:rgba(0,0,0,0.35)">DK</div><div class="s-card-unseen"></div><div class="s-card-music">🎵 DJ Set</div><div class="s-card-name">David K.</div></div>
-      <span class="s-card-time">2h</span>
-    </div>
-    <div class="strip-item" onclick="openViewer(4)">
-      <div class="s-card"><div class="s-card-bg" style="background:linear-gradient(160deg,#2c0060,#6a0dad)"></div><div class="s-card-overlay"></div><div class="s-card-emoji">🍽️</div><div class="s-card-av" style="background:rgba(0,0,0,0.35)">FD</div><div class="s-card-name">Fatou D.</div></div>
-      <span class="s-card-time">3h · Vu</span>
-    </div>
   </div>
-  <div class="section-header"><span class="list-title">Récents</span><span class="list-count">5 nouveaux</span></div>
+  <div class="section-header"><span class="list-title">Récents</span><span class="list-count">0 nouveau</span></div>
+  <div id="stLoading" style="text-align:center;padding:30px 20px;color:#aaa;font-size:13px;font-weight:600">⏳ Chargement des statuts…</div>
   <div class="st-list" id="stList"></div>
 </div>
 
@@ -339,6 +320,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="viewer" id="viewer">
   <div class="v-bg" id="vBg"></div>
   <div class="v-ov"></div>
+  <div id="vMedia" style="position:absolute;inset:0;display:none;z-index:1"></div>
   <div class="v-prog" id="vProg"></div>
   <div class="v-hdr" id="vHdr">
     <div class="v-av" id="vAv">?</div>
@@ -359,8 +341,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
   </div>
   <div class="v-body"><span class="v-emoji" id="vEmoji">📸</span><div class="v-txt" id="vTxt">—</div></div>
-  <div class="v-tap v-tap-l" onclick="goPrevItem()"></div>
-  <div class="v-tap v-tap-r" onclick="goNextItem()"></div>
+  <div class="v-tap v-tap-l" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'prev')" onpointerleave="onZoneLeave()"></div>
+  <div class="v-tap v-tap-r" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'next')" onpointerleave="onZoneLeave()"></div>
   <div class="v-stickers" id="vStickers">
     <div class="v-stk-title">Stickers ArtiRoyce</div>
     <div class="v-stk-grid">
@@ -461,11 +443,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="sheet" style="max-height:auto;padding-bottom:20px">
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title" id="viewerMenuName">Options</span><span class="sheet-x" onclick="closeViewerMenu()">✕</span></div>
-    <div style="padding:8px 0">
-      <div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>
-      <div class="ctx-item" onclick="openContactsPicker()"><span class="ctx-item-icon">👥</span>Choisir qui peut voir</div>
-      <div class="ctx-item danger" onclick="deleteStatut()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>
-    </div>
+    <div style="padding:8px 0" id="viewerMenuOptions"></div>
   </div>
 </div>
 
@@ -483,29 +461,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 </div>
 
 <script>
-var NOW=Date.now();
-var S=[
-  {id:0,n:'Mariama Kouyaté',vb:true,i:'MK',bg:'linear-gradient(160deg,#0d2b0f,#27a945)',role:'artisan',hidden:false,items:[
-    {e:'✂️',m:'Nouvelle coiffure disponible ! RDV 🙏',music:'Burna Boy — Last Last',musicUrl:null,trimS:0,trimE:15,postedAt:NOW-12*60000,vu:false},
-    {e:'💇',m:'Avant / après du jour ✨',music:null,musicUrl:null,postedAt:NOW-8*60000,vu:false},
-    {e:'📅',m:'Il reste 2 créneaux ce soir',music:null,musicUrl:null,postedAt:NOW-3*60000,vu:false}
-  ]},
-  {id:1,n:'Jean-Paul Mensah',vb:true,i:'JP',bg:'linear-gradient(160deg,#0a0a2e,#1a1a6e)',role:'artisan',hidden:false,items:[
-    {e:'📷',m:'Portfolio mis à jour ! Shootings pro 🎨',music:null,musicUrl:null,postedAt:NOW-34*60000,vu:false}
-  ]},
-  {id:2,n:'Aminata Traoré',vb:false,i:'AT',bg:'linear-gradient(160deg,#4a1a00,#c0392b)',role:'visiteur',hidden:false,items:[
-    {e:'💄',m:'Disponible ce week-end pour mariages 💐',music:null,musicUrl:null,postedAt:NOW-60*60000,vu:true}
-  ]},
-  {id:3,n:'David Koffi',vb:true,i:'DK',bg:'linear-gradient(160deg,#001030,#002060)',role:'artisan',hidden:false,items:[
-    {e:'🎧',m:'Event samedi 22h — DJ Set 🔥🔥',music:'Davido — Feel',musicUrl:null,trimS:0,trimE:15,postedAt:NOW-2*3600000,vu:false},
-    {e:'🎶',m:'Playlist déjà prête !',music:null,musicUrl:null,postedAt:NOW-3600000,vu:false}
-  ]},
-  {id:4,n:'Fatou Diop',vb:false,i:'FD',bg:'linear-gradient(160deg,#2c0060,#6a0dad)',role:'visiteur',hidden:false,items:[
-    {e:'🍽️',m:'Menu spécial 50 personnes disponible !',music:null,musicUrl:null,postedAt:NOW-3*3600000,vu:true}
-  ]}
-];
-var MOI_ID='__moi__';
-S.push({id:MOI_ID,n:'Moi',vb:false,i:'M',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',role:'moi',hidden:false,items:[]});
+var S=[];
+var MOI_ID=null; // devient le vrai uid de l'utilisateur connecté dès que le profil est chargé
+var BG_PALETTE=['linear-gradient(160deg,#0d2b0f,#27a945)','linear-gradient(160deg,#0a0a2e,#1a1a6e)','linear-gradient(160deg,#4a1a00,#c0392b)','linear-gradient(160deg,#001030,#002060)','linear-gradient(160deg,#2c0060,#6a0dad)','linear-gradient(160deg,#7b3f00,#c0722a)'];
+function bgPourUid(uid){var h=0;for(var i=0;i<uid.length;i++)h=(h*31+uid.charCodeAt(i))>>>0;return BG_PALETTE[h%BG_PALETTE.length];}
+
 var CONTACTS=[
   {id:'c1',n:'Brice K.',i:'BK',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',checked:true},
   {id:'c2',n:'Sandra M.',i:'SM',bg:'linear-gradient(135deg,#27a945,#5ee87a)',checked:true},
@@ -514,16 +474,66 @@ var CONTACTS=[
   {id:'c5',n:'Rémi D.',i:'RD',bg:'linear-gradient(135deg,#2c0060,#6a0dad)',checked:true}
 ];
 
+// Regroupe les documents plats de Firestore ('statuts') par auteur, comme WhatsApp affiche
+// une seule tuile par personne avec ses items empilés.
+window.chargerStatuts=function(){
+  MOI_ID=window.currentUid;
+  var q=window.fb.query(window.fb.collection(window.db,'statuts'),window.fb.orderBy('createdAt','desc'));
+  window.fb.onSnapshot(q,function(snap){
+    var map={};
+    snap.forEach(function(docSnap){
+      var d=docSnap.data();
+      var ts=d.createdAt&&d.createdAt.toMillis?d.createdAt.toMillis():Date.now();
+      if((Date.now()-ts)>=VINGT_QUATRE_H_MS)return; // expiré : on ne l'affiche même pas
+      var uid=d.auteurUid;
+      if(!map[uid]){
+        map[uid]={id:uid,n:d.auteurNom||'Anonyme',vb:!!d.auteurVerifie,i:(d.auteurNom||'?')[0].toUpperCase(),
+          bg:bgPourUid(uid),role:d.auteurRole||'visiteur',hidden:false,items:[]};
+      }
+      map[uid].items.push({
+        docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,video:d.video||null,bg:d.bg||null,
+        music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
+        postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0)
+      });
+    });
+    Object.keys(map).forEach(function(uid){map[uid].items.sort(function(a,b){return a.postedAt-b.postedAt;});});
+    if(!map[MOI_ID])map[MOI_ID]={id:MOI_ID,n:'Moi',vb:false,i:'M',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',role:'moi',hidden:false,items:[]};
+    S=Object.keys(map).map(function(k){return map[k];});
+    document.getElementById('stLoading').style.display='none';
+    renderList();renderMyCard();
+
+    // Purge automatique : MES propres statuts de plus de 24h (les autres nettoient les leurs de leur côté)
+    snap.forEach(function(docSnap){
+      var d=docSnap.data();
+      if(d.auteurUid!==MOI_ID)return;
+      var ts=d.createdAt&&d.createdAt.toMillis?d.createdAt.toMillis():Date.now();
+      if((Date.now()-ts)>=VINGT_QUATRE_H_MS)window.fb.deleteDoc(docSnap.ref).catch(function(){});
+    });
+  },function(err){
+    console.error(err);
+    document.getElementById('stLoading').innerHTML='<div style="color:#e63224;font-size:13px;text-align:center;padding:20px">Erreur de chargement des statuts</div>';
+  });
+};
+
 var T=null,curIdx=0,editorMode='',editorMusic=null,editorMusicUrl=null,editorMusicTrimS=0,editorMusicTrimE=15,selectedBg='linear-gradient(135deg,#e63224,#ff6b5b)';
+var editorPhotoData=null,editorVideoUrl=null;
 var trimSPct=0,trimEPct=0.3,draggingH=null;
 var currentAudio=null,currentTrack=null,currentTrackUrl=null,currentTrackIdx=null,musicCtx=null;
 var previewAudio=null,previewPlaying=false;
 var recInterval=null,recSecs=0,isRecording=false;
 var BG_LIST=['linear-gradient(135deg,#e63224,#ff6b5b)','linear-gradient(135deg,#27a945,#5ee87a)','linear-gradient(135deg,#0a0a2e,#1a1a6e)','linear-gradient(135deg,#4a1a00,#c0392b)','linear-gradient(135deg,#001030,#002060)','linear-gradient(135deg,#2c0060,#6a0dad)','linear-gradient(135deg,#111,#444)','linear-gradient(135deg,#7b3f00,#c0722a)'];
 
-function adj(){var h=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=Math.max(h,60)+'px';}
+function adj(){
+  var localH=document.getElementById('topH').offsetHeight;
+  var embedH=getEmbedTopOffsetPx();
+  // Quand la page est en iframe, le header VRAIMENT visible est celui du shell (plus grand,
+  // il inclut aussi la rangée d'onglets Actualités/Statuts/Élites...), pas le header local
+  // de cette page qui reste invisible, caché dessous. On utilise le plus grand des deux.
+  var h=Math.max(localH,embedH);
+  document.getElementById('spacer').style.height=Math.max(h,60)+'px';
+}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);
-setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);
+setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);setTimeout(adj,2000);
 
 // Calcule en px la vraie hauteur du header FIXE du shell parent (accueil.html) quand cette page
 // est chargée en iframe, pour ne jamais cacher le haut du lecteur plein écran sous le nav du shell.
@@ -588,7 +598,7 @@ function renderList(){
       +'<svg class="str-ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="'+(vu?'#ddd':'#e63224')+'" stroke-width="2.5" stroke-dasharray="126 0" transform="rotate(-90 22 22)"/></svg>'
       +'<div class="str-thumb" style="background:'+p.bg+'">'+dernier.e+'</div>'
       +'</div>'
-      +'<div class="str-body" onclick="openViewer('+p.id+')">'
+      +'<div class="str-body" onclick="openViewer(\''+p.id+'\')">'
       +'<div class="str-name">'+esc(p.n)+(p.vb?' <span class="str-vb">✔</span>':'')+'</div>'
       +'<div class="str-prev">'+dernier.e+' '+esc(dernier.m.substring(0,38))+'…</div>'
       +(dernier.music?'<div class="str-music">🎵 '+esc(dernier.music)+'</div>':'')
@@ -596,7 +606,7 @@ function renderList(){
       +'</div>'
       +'<div class="str-right">'
       +(cnt>0?'<div class="str-dot"></div><div class="str-cnt">'+cnt+'</div>':'')
-      +'<div class="str-menu-btn" onclick="openRowMenu('+p.id+',event)">⋯</div>'
+      +'<div class="str-menu-btn" onclick="openRowMenu(\''+p.id+'\',event)">⋯</div>'
       +'</div>';
     list.appendChild(row);
   });
@@ -634,23 +644,65 @@ function openRowMenu(id,ev){
   ev.stopPropagation();
   closeCtxMenu();
   curIdx=S.findIndex(function(x){return x.id===id;});
+  var estMoi=id===MOI_ID;
   var m=document.createElement('div');
   m.className='ctx-menu';
   m.style.right='12px';
   m.style.top=(ev.clientY-10)+'px';
-  m.innerHTML='<div class="ctx-item" onclick="maskFromRow()"><span class="ctx-item-icon">🙈</span>Masquer</div>'
-    +'<div class="ctx-item" onclick="closeCtxMenu();openViewerMenu()" ><span class="ctx-item-icon">👥</span>Choisir qui voit</div>'
-    +'<div class="ctx-item danger" onclick="deleteFromRow()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>';
+  m.innerHTML=(estMoi
+      ? '<div class="ctx-item" onclick="closeCtxMenu();openViewerMenu()"><span class="ctx-item-icon">👥</span>Choisir qui voit</div>'
+        +'<div class="ctx-item danger" onclick="deleteFromRow()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>'
+      : '<div class="ctx-item" onclick="maskFromRow()"><span class="ctx-item-icon">🙈</span>Masquer</div>');
   document.body.appendChild(m);
   ctxMenuEl=m;
   setTimeout(function(){document.addEventListener('click',closeCtxMenu,{once:true});},50);
 }
 function closeCtxMenu(){if(ctxMenuEl){ctxMenuEl.remove();ctxMenuEl=null;}}
 function maskFromRow(){closeCtxMenu();S[curIdx].hidden=true;renderList();toast('Statut masqué','');}
-function deleteFromRow(){closeCtxMenu();S.splice(curIdx,1);renderList();toast('Statut supprimé','');}
+async function deleteFromRow(){
+  closeCtxMenu();
+  var p=S[curIdx];if(!p||p.id!==MOI_ID)return;
+  if(!confirm('Supprimer tous tes statuts actifs ?'))return;
+  try{
+    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
+    toast('Statut supprimé','g');
+  }catch(e){console.error(e);toast('Erreur lors de la suppression','');}
+}
 
 // VIEWER
 var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8;
+var ITEM_DUREE_MS=5000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
+
+window.onZoneDown=function(){
+  enTrainDeTenir=false;
+  holdTimer=setTimeout(function(){enTrainDeTenir=true;pauseViewer();},180);
+};
+window.onZoneUp=function(e,dir){
+  clearTimeout(holdTimer);
+  if(enTrainDeTenir){resumeViewer();enTrainDeTenir=false;return;}
+  if(dir==='next')goNextItem();else goPrevItem();
+};
+window.onZoneLeave=function(){
+  clearTimeout(holdTimer);
+  if(enTrainDeTenir){resumeViewer();enTrainDeTenir=false;}
+};
+function pauseViewer(){
+  if(estEnPause)return;
+  estEnPause=true;
+  if(T){clearTimeout(T);T=null;}
+  itemPauseElapsed+=Date.now()-itemDebut;
+  document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='paused';});
+  if(viewerAudio)viewerAudio.pause();
+}
+function resumeViewer(){
+  if(!estEnPause)return;
+  estEnPause=false;
+  itemDebut=Date.now();
+  var restant=Math.max(300,ITEM_DUREE_MS-itemPauseElapsed);
+  document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='running';});
+  if(viewerAudio)viewerAudio.play().catch(function(){});
+  T=setTimeout(goNextItem,restant);
+}
 
 function openViewer(personId,itemIdx){
   var pIdx=S.findIndex(function(x){return x.id===personId;});
@@ -683,6 +735,25 @@ function showCurrentItem(){
   document.getElementById('vAv').style.background=p.bg;
   document.getElementById('vNm').textContent=p.n+(p.vb?' ✔':'');
   document.getElementById('vT').textContent=tempsDepuis(it.postedAt)+' · '+roleTexte(p);
+
+  // Vraie photo/vidéo si présente, sinon le fond décoratif + emoji (statut texte, ou compat anciens statuts)
+  var vMedia=document.getElementById('vMedia');
+  if(it.photo){
+    document.getElementById('vBg').style.background='#000';
+    vMedia.innerHTML='<img src="'+it.photo+'" style="width:100%;height:100%;object-fit:contain">';
+    vMedia.style.display='block';
+    document.getElementById('vEmoji').style.display='none';
+  }else if(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId])){
+    var videoSrc=it.video||window.VIDEOS_LOCAUX[it.docId];
+    document.getElementById('vBg').style.background='#000';
+    vMedia.innerHTML='<video src="'+videoSrc+'" style="width:100%;height:100%;object-fit:contain" autoplay muted playsinline></video>';
+    vMedia.style.display='block';
+    document.getElementById('vEmoji').style.display='none';
+  }else{
+    document.getElementById('vBg').style.background=it.bg||p.bg;
+    vMedia.innerHTML='';vMedia.style.display='none';
+    document.getElementById('vEmoji').style.display='block';
+  }
   document.getElementById('vEmoji').textContent=it.e;
   document.getElementById('vTxt').textContent=it.m;
   document.getElementById('vStickers').classList.remove('open');
@@ -708,10 +779,16 @@ function showCurrentItem(){
   p.items.forEach(function(x,j){var cls=j<curItemIdx?'done':j===curItemIdx?'active':'';bars+='<div class="v-bar"><div class="v-fill '+cls+'"></div></div>';});
   document.getElementById('vProg').innerHTML=bars;
 
-  it.vu=true; // marqué "vu" dès l'affichage, comme WhatsApp
+  if(!it.vu){
+    it.vu=true; // mise à jour optimiste immédiate à l'écran
+    if(p.id!==MOI_ID&&it.docId){
+      window.fb.updateDoc(window.fb.doc(window.db,'statuts',it.docId),{vuPar:window.fb.arrayUnion(MOI_ID)}).catch(function(e){console.error(e);});
+    }
+  }
 
+  itemDebut=Date.now();itemPauseElapsed=0;estEnPause=false;
   if(T)clearTimeout(T);
-  T=setTimeout(goNextItem,5000);
+  T=setTimeout(goNextItem,ITEM_DUREE_MS);
 }
 
 function goNextItem(){
@@ -769,11 +846,25 @@ function sendReply(){var inp=document.getElementById('vInp');var hasP=document.g
 function openViewerMenu(){
   var s=S[curPersonIdx];
   document.getElementById('viewerMenuName').textContent=s?s.n:'Options';
+  var estMoi=s&&s.id===MOI_ID;
+  document.getElementById('viewerMenuOptions').innerHTML=estMoi
+    ? '<div class="ctx-item" onclick="openContactsPicker()"><span class="ctx-item-icon">👥</span>Choisir qui peut voir</div>'
+      +'<div class="ctx-item danger" onclick="deleteStatut()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>'
+    : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>';
   document.getElementById('viewerMenuOverlay').classList.add('open');
 }
 function closeViewerMenu(){document.getElementById('viewerMenuOverlay').classList.remove('open');}
 function maskStatut(){closeViewerMenu();if(S[curPersonIdx])S[curPersonIdx].hidden=true;renderList();closeViewer();toast('Statut masqué','');}
-function deleteStatut(){closeViewerMenu();S.splice(curPersonIdx,1);renderList();closeViewer();toast('Statut supprimé','');}
+async function deleteStatut(){
+  closeViewerMenu();
+  var p=S[curPersonIdx];if(!p||p.id!==MOI_ID)return;
+  if(!confirm('Supprimer tous tes statuts actifs ?'))return;
+  try{
+    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
+    closeViewer();
+    toast('Statut supprimé','g');
+  }catch(e){console.error(e);toast('Erreur lors de la suppression','');}
+}
 
 // CONTACTS
 function openContactsPicker(){
@@ -800,7 +891,7 @@ function closeMenu(){document.getElementById('menuOverlay').classList.remove('op
 
 // ÉDITEUR
 function openEditor(mode){
-  editorMode=mode;editorMusic=null;
+  editorMode=mode;editorMusic=null;editorPhotoData=null;editorVideoUrl=null;
   var titles={photo:'📷 Photo',video:'🎥 Vidéo',text:'✍️ Texte',collage:'🖼️ Collage',audio:'🎤 Audio'};
   document.getElementById('editorTitle').textContent=titles[mode]||'Éditeur';
   var body=document.getElementById('editorBody');
@@ -891,11 +982,21 @@ function trigEdFile(){var f=document.getElementById('edFile');if(f)f.click();}
 
 function handleEdFile(inp){
   if(!inp.files||!inp.files[0])return;
-  var url=URL.createObjectURL(inp.files[0]);
+  var f=inp.files[0];
   var ph=document.getElementById('edPh');if(ph)ph.style.display='none';
   var ch=document.getElementById('edChange');if(ch)ch.style.display='block';
-  if(editorMode==='photo'){var img=document.getElementById('edImg');img.src=url;img.style.display='block';}
-  else if(editorMode==='video'){var vid=document.getElementById('edVid');vid.src=url;vid.style.display='block';}
+  if(editorMode==='photo'){
+    var r=new FileReader();
+    r.onload=function(e){
+      editorPhotoData=e.target.result;
+      var img=document.getElementById('edImg');img.src=editorPhotoData;img.style.display='block';
+    };
+    r.readAsDataURL(f);
+  }else if(editorMode==='video'){
+    var url=URL.createObjectURL(f);
+    editorVideoUrl=url;
+    var vid=document.getElementById('edVid');vid.src=url;vid.style.display='block';
+  }
 }
 
 var collageImages=[],collageEff='static',collageSlideT=null;
@@ -956,29 +1057,55 @@ function toggleRec(){
   }else{btn.textContent='🎙️';btn.style.background='var(--red)';st.textContent='Audio enregistré ('+recSecs+'s) ✅';w.style.opacity='0';clearInterval(recInterval);}
 }
 
-function publishStatut(){
+async function publishStatut(){
   var msgs={photo:'📷 Photo publiée !',video:'🎥 Vidéo publiée !',text:'✍️ Texte publié !',collage:'🖼️ Collage publié !',audio:'🎤 Audio publié !'};
   var emojis={photo:'📷',video:'🎥',text:'✍️',collage:'🖼️',audio:'🎤'};
+  if(editorMode==='photo'&&!editorPhotoData){toast('⚠️ Choisis une photo d\'abord',''); return;}
+  if(editorMode==='video'&&!editorVideoUrl){toast('⚠️ Choisis une vidéo d\'abord',''); return;}
+  if(!window.currentUid){toast('Connecte-toi pour publier',''); return;}
   var tv=editorMode==='text'&&document.getElementById('textArea')?document.getElementById('textArea').value||'Statut texte':'';
-  var moi=S.find(function(x){return x.id===MOI_ID;});
-  // Empilé sur la tuile existante (comme WhatsApp) — jamais un nouveau statut séparé
-  moi.items.push({
-    e:emojis[editorMode]||'📢', m:tv||msgs[editorMode],
-    music:editorMusic, musicUrl:editorMusicUrl, trimS:editorMusicTrimS, trimE:editorMusicTrimE,
-    postedAt:Date.now(), vu:true // vu par moi-même par défaut (auteur)
-  });
-  closeEditor();renderMyCard();
-  toast(msgs[editorMode]+(editorMusic?' 🎵':''),'g');
-  editorMusic=null;editorMusicUrl=null;
+  var me=window.ME||{prenom:'Moi',role:'visiteur'};
+
+  var payload={
+    auteurUid:window.currentUid, auteurNom:me.prenom||'Moi', auteurVerifie:(me.role&&me.role!=='visiteur'), auteurRole:me.role||'visiteur',
+    e:emojis[editorMode]||'📢', texte:tv||msgs[editorMode],
+    photo:editorMode==='photo'?editorPhotoData:null,
+    bg:editorMode==='text'?selectedBg:null,
+    music:editorMusic||null, musicUrl:editorMusicUrl||null, trimS:editorMusicTrimS||0, trimE:editorMusicTrimE||15,
+    createdAt:window.fb.serverTimestamp(), vuPar:[]
+  };
+  // La vidéo reste pour l'instant une URL locale au navigateur (pas encore de vrai hébergement de
+  // fichier) : elle ne sera visible que dans ta propre session tant que ce n'est pas branché.
+  if(editorMode==='video'){payload.videoLocalUniquement=true;}
+
+  var btn=document.querySelector('.pub-btn');
+  if(btn){btn.disabled=true;btn.textContent='Publication…';}
+  try{
+    var docRef=await window.fb.addDoc(window.fb.collection(window.db,'statuts'),payload);
+    if(editorMode==='video'&&editorVideoUrl){
+      window.VIDEOS_LOCAUX=window.VIDEOS_LOCAUX||{};
+      window.VIDEOS_LOCAUX[docRef.id]=editorVideoUrl;
+    }
+    closeEditor();
+    toast(msgs[editorMode]+(editorMusic?' 🎵':'')+(editorMode==='video'?' (visible seulement par toi pour l\'instant)':''),'g');
+  }catch(e){
+    console.error(e);
+    toast('Erreur lors de la publication','');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='🚀 Publier';}
+  }
+  editorMusic=null;editorMusicUrl=null;editorPhotoData=null;editorVideoUrl=null;
 }
 
 // Tuile "Mon statut" : tant qu'il y a des statuts actifs (non expirés), le tap central les rejoue ;
 // le "+" reste toujours disponible séparément pour en ajouter un autre par-dessus.
 function renderMyCard(){
-  var moi=S.find(function(x){return x.id===MOI_ID;});
-  moi.items=moi.items.filter(itemNonExpire);
   var card=document.getElementById('myStatutCard');
   if(!card)return;
+  if(!MOI_ID){card.onclick=openMenu;return;} // profil pas encore chargé : le "+" ouvre directement la création
+  var moi=S.find(function(x){return x.id===MOI_ID;});
+  if(!moi){card.onclick=openMenu;return;}
+  moi.items=moi.items.filter(itemNonExpire);
   card.onclick=function(event){
     if(event&&event.target&&event.target.closest('.my-card-add-badge')){openMenu();return;}
     if(moi.items.length)openViewer(MOI_ID,0);else openMenu();
@@ -1134,9 +1261,17 @@ function attachMusic(){
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,doc,getDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{
+  getFirestore,doc,getDoc,collection,addDoc,onSnapshot,orderBy,query,
+  updateDoc,deleteDoc,arrayUnion,serverTimestamp
+}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const cfg={apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",authDomain:"artiroyce-f42e4.firebaseapp.com",projectId:"artiroyce-f42e4",storageBucket:"artiroyce-f42e4.firebasestorage.app",messagingSenderId:"588140774605",appId:"1:588140774605:web:b69cf8740c2fe5f1d59584"};
 const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);
+// Exposés au script classique (non-module) qui gère l'affichage et le lecteur —
+// même précaution que pour "toast" sur actualite_v1 : un module ne partage pas ses
+// variables globalement, donc on les attache explicitement à window.
+window.db=db;
+window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,arrayUnion,serverTimestamp,getDoc};
 window.ME={prenom:'Moi',initiale:'M',photo:null,metier:'',role:'visiteur'};
 onAuthStateChanged(auth,async(user)=>{
   if(!user)return;
@@ -1166,6 +1301,8 @@ onAuthStateChanged(auth,async(user)=>{
     }
     if(lbl)lbl.textContent=window.ME.prenom;
     if(window.renderMyCard)window.renderMyCard();
+    window.currentUid=user.uid;
+    if(window.chargerStatuts)window.chargerStatuts();
   }catch(e){console.log('profil:',e);}
 });
 </script>
