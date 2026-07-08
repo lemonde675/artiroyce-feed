@@ -707,7 +707,7 @@ async function deleteFromRow(){
 }
 
 // VIEWER
-var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8;
+var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8,viewerEffTimer=null;
 var ITEM_DUREE_MS=11000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
@@ -759,6 +759,7 @@ function openViewer(personId,itemIdx){
 }
 
 function showCurrentItem(){
+  if(viewerEffTimer){clearInterval(viewerEffTimer);viewerEffTimer=null;}
   var p=S[curPersonIdx];
   if(!p||!p.items.length)return closeViewer();
   if(curItemIdx>=p.items.length)curItemIdx=p.items.length-1;
@@ -785,11 +786,7 @@ function showCurrentItem(){
     document.getElementById('vEmoji').style.display='none';
   }else if(it.photos&&it.photos.length){
     document.getElementById('vBg').style.background='#000';
-    var cols=it.photos.length===1?1:2;
-    vMedia.innerHTML='<div style="width:100%;height:100%;display:grid;grid-template-columns:repeat('+cols+',1fr);gap:2px">'
-      +it.photos.map(function(src){return '<div style="background:url(\''+src+'\') center/cover"></div>';}).join('')
-      +'</div>';
-    vMedia.style.display='block';
+    renderViewerCollageEffect(vMedia, it.photos, it.effet);
     document.getElementById('vEmoji').style.display='none';
   }else if(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId])){
     var videoSrc=it.video||window.VIDEOS_LOCAUX[it.docId];
@@ -885,6 +882,7 @@ window.toggleMuteViewer=function(){
 };
 
 function closeViewer(){
+  if(viewerEffTimer){clearInterval(viewerEffTimer);viewerEffTimer=null;}
   document.getElementById('viewer').classList.remove('open');
   document.getElementById('vStickers').classList.remove('open');
   document.getElementById('viewerMenuOverlay').classList.remove('open');
@@ -1087,6 +1085,42 @@ function handleEdFile(inp){
     var url=URL.createObjectURL(f);
     editorVideoUrl=url;editorVideoFile=f;
     var vid=document.getElementById('edVid');vid.src=url;vid.style.display='block';
+  }
+}
+
+// Reproduit dans le VIEWER (après publication) le même effet que l'aperçu au moment de la création
+// (renderCollage ci-dessous) : jusqu'ici seul l'aperçu appliquait l'effet, le viewer affichait
+// toujours une grille statique quel que soit l'effet choisi.
+var _viewerEffStyleInjecte=false;
+function renderViewerCollageEffect(c, photos, effet){
+  if(!effet)effet='static';
+  c.innerHTML='';c.style.cssText='position:absolute;inset:0;z-index:1;overflow:hidden;display:block;';
+  if(!_viewerEffStyleInjecte){
+    var st=document.createElement('style');
+    st.textContent='@keyframes vKbz{0%{transform:scale(1)}100%{transform:scale(1.18) translate(-3%,-2%)}}'
+      +'@keyframes vFloatImg{0%{transform:translateY(0) rotate(-1deg)}100%{transform:translateY(-12px) rotate(1deg)}}'
+      +'@keyframes vSlIn{0%{transform:translateX(100%)}100%{transform:translateX(0)}}';
+    document.head.appendChild(st);
+    _viewerEffStyleInjecte=true;
+  }
+  if(effet==='static'){
+    var cols=photos.length===1?1:2;
+    c.style.display='grid';c.style.gridTemplateColumns='repeat('+cols+',1fr)';c.style.gap='2px';
+    photos.forEach(function(s){var d=document.createElement('div');d.style.cssText='background:url(\''+s+'\') center/cover;';c.appendChild(d);});
+  }else if(effet==='kenburns'){
+    var ki=0;
+    function showKB(){c.innerHTML='';var d=document.createElement('div');d.style.cssText='position:absolute;inset:0;background:url(\''+photos[ki%photos.length]+'\') center/cover;animation:vKbz 4s ease forwards;';c.appendChild(d);ki++;}
+    showKB();viewerEffTimer=setInterval(showKB,4200);
+  }else if(effet==='float'){
+    c.style.display='block';
+    photos.forEach(function(s,i){var d=document.createElement('div');var sz=70+Math.random()*30;d.style.cssText='position:absolute;width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*60)+'%;top:'+(Math.random()*55)+'%;border-radius:12px;background:url(\''+s+'\') center/cover;box-shadow:0 6px 18px rgba(0,0,0,0.4);animation:vFloatImg '+(3+Math.random()*2)+'s '+(i*0.5)+'s ease-in-out infinite alternate;';c.appendChild(d);});
+  }else if(effet==='slide'){
+    var si=0;
+    function showSl(){c.innerHTML='';var d=document.createElement('div');d.style.cssText='position:absolute;inset:0;background:url(\''+photos[si%photos.length]+'\') center/cover;animation:vSlIn 0.5s ease forwards;';c.appendChild(d);si++;}
+    showSl();viewerEffTimer=setInterval(showSl,2000);
+  }else{
+    // effet inconnu/futur : repli sûr sur la grille statique, jamais un écran vide
+    renderViewerCollageEffect(c, photos, 'static');
   }
 }
 
