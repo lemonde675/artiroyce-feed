@@ -77,7 +77,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .ctx-item.danger{color:var(--red)}
 .ctx-item-icon{font-size:18px;width:24px;text-align:center}
 /* VIEWER */
-.viewer{position:fixed;inset:0;height:100vh;height:calc(var(--vh,1vh)*100);z-index:500;transform:translateY(100%);transition:transform 0.32s cubic-bezier(.4,0,.2,1)}
+.viewer{position:fixed;inset:0;z-index:500;transform:translateY(100%);transition:transform 0.32s cubic-bezier(.4,0,.2,1)}
 .viewer.open{transform:translateY(0)}
 .v-bg{position:absolute;inset:0;transition:background 0.3s}
 .v-ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.5) 0%,transparent 25%,transparent 60%,rgba(0,0,0,0.65) 100%)}
@@ -146,7 +146,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 /* OVERLAY GÉNÉRIQUE */
 .overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .overlay.open{display:flex}
-.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;max-height:92vh;overflow:hidden;padding-bottom:env(safe-area-inset-bottom, 0px)}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;max-height:92%;overflow:hidden;padding-bottom:env(safe-area-inset-bottom, 0px)}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .sheet-handle{width:38px;height:4px;background:#e0e0e0;border-radius:4px;margin:11px auto 0;flex-shrink:0}
 .sheet-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 12px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
@@ -211,7 +211,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 /* MUSIQUE PANEL */
 .music-panel{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)}
 .music-panel.open{display:flex}
-.music-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);max-height:86vh;display:flex;flex-direction:column}
+.music-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;animation:su 0.25s cubic-bezier(.4,0,.2,1);max-height:86%;display:flex;flex-direction:column}
 .music-hdr{padding:11px 16px 10px;border-bottom:1px solid #f0f0f0;flex-shrink:0}
 .music-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .music-title{font-size:15px;font-weight:900;color:#111}
@@ -456,7 +456,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 
 <!-- MENU CONTEXTUEL VIEWER -->
 <div class="overlay" id="viewerMenuOverlay" onclick="if(event.target===this)closeViewerMenu()">
-  <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))">
+  <div class="sheet" style="max-height:92%;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))">
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title" id="viewerMenuName">Options</span><span class="sheet-x" onclick="closeViewerMenu()">✕</span></div>
     <div style="padding:8px 0" id="viewerMenuOptions"></div>
