@@ -101,29 +101,29 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-music-wave span:nth-child(4){height:9px;animation-delay:0.45s}
 @keyframes wave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1.2)}}
 .v-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.v-x{color:rgba(255,255,255,0.9);font-size:24px;cursor:pointer;padding:4px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:50%;backdrop-filter:blur(4px)}
+.v-x{color:rgba(255,255,255,0.9);font-size:24px;cursor:pointer;padding:4px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:50%;backdrop-filter:blur(4px);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .v-dots{color:rgba(255,255,255,0.9);font-size:18px;cursor:pointer;padding:4px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);border-radius:50%;backdrop-filter:blur(4px);font-weight:700;letter-spacing:-1px}
 .v-body{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;width:88%;pointer-events:none}
 .v-emoji{font-size:90px;display:block;margin-bottom:14px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))}
 .v-txt{font-size:20px;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.6);line-height:1.4}
-.v-stickers{position:absolute;bottom:calc(130px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:none;flex-direction:column;gap:7px;z-index:20;animation:stkIn 0.2s ease}
+.v-stickers{position:absolute;bottom:calc(184px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:none;flex-direction:column;gap:7px;z-index:20;animation:stkIn 0.2s ease}
 .v-stickers.open{display:flex}
 @keyframes stkIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .v-stk-title{font-size:10px;font-weight:800;color:rgba(255,255,255,0.7);text-align:center;text-transform:uppercase;letter-spacing:0.5px}
 .v-stk-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;background:rgba(10,10,30,0.75);border-radius:18px;padding:10px;backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12)}
 .v-stk{font-size:28px;cursor:pointer;padding:4px;border-radius:10px;transition:transform 0.12s}
 .v-stk:active{transform:scale(1.5)}
-.v-photo-prev{position:absolute;bottom:calc(130px + env(safe-area-inset-bottom, 0px));left:12px;background:rgba(10,10,30,0.8);border-radius:14px;padding:8px;display:none;align-items:center;gap:8px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);z-index:15}
+.v-photo-prev{position:absolute;bottom:calc(184px + env(safe-area-inset-bottom, 0px));left:12px;background:rgba(10,10,30,0.8);border-radius:14px;padding:8px;display:none;align-items:center;gap:8px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);z-index:15}
 .v-photo-prev.show{display:flex}
 .v-photo-thumb{width:44px;height:44px;border-radius:9px;background:#333;background-size:cover;background-position:center}
 .v-photo-rm{color:#fff;font-size:16px;cursor:pointer;opacity:0.7}
-.v-foot{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:10}
+.v-foot{position:absolute;bottom:calc(70px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:10}
 .v-foot-row{display:flex;gap:7px;align-items:center}
 .v-quick-row{display:flex;gap:6px;justify-content:flex-end;padding:0 2px}
 .v-quick-emoji{width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:transform 0.15s;flex-shrink:0}
 .v-quick-emoji:active{transform:scale(1.2)}
 /* Zones de tap précédent/suivant sur le lecteur de statut (façon WhatsApp/Instagram) */
-.v-tap{position:absolute;top:112px;bottom:82px;width:38%;z-index:3}
+.v-tap{position:absolute;top:122px;bottom:82px;width:38%;z-index:3}
 #vMedia img,#vMedia video{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;pointer-events:none}
 .v-tap-l{left:0}
 .v-tap-r{right:0}
@@ -456,7 +456,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 
 <!-- MENU CONTEXTUEL VIEWER -->
 <div class="overlay" id="viewerMenuOverlay" onclick="if(event.target===this)closeViewerMenu()">
-  <div class="sheet" style="max-height:92%;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))">
+  <div class="sheet" style="max-height:92%;overflow-y:auto;padding-bottom:calc(60px + env(safe-area-inset-bottom, 0px))">
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title" id="viewerMenuName">Options</span><span class="sheet-x" onclick="closeViewerMenu()">✕</span></div>
     <div style="padding:8px 0" id="viewerMenuOptions"></div>
