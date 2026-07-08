@@ -85,7 +85,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-bar{flex:1;height:2.5px;background:rgba(255,255,255,0.3);border-radius:3px;overflow:hidden}
 .v-fill{height:100%;background:#fff;border-radius:3px;width:0%}
 .v-fill.done{width:100%}
-.v-fill.active{animation:pFill 7s linear forwards}
+.v-fill.active{animation:pFill 11s linear forwards}
 @keyframes pFill{from{width:0%}to{width:100%}}
 .v-hdr{position:absolute;top:60px;left:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:10}
 .v-av{width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
@@ -106,20 +106,25 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-body{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5;width:88%;pointer-events:none}
 .v-emoji{font-size:90px;display:block;margin-bottom:14px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4))}
 .v-txt{font-size:20px;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.6);line-height:1.4}
-.v-stickers{position:absolute;bottom:88px;left:12px;right:12px;display:none;flex-direction:column;gap:7px;z-index:20;animation:stkIn 0.2s ease}
+.v-stickers{position:absolute;bottom:calc(130px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:none;flex-direction:column;gap:7px;z-index:20;animation:stkIn 0.2s ease}
 .v-stickers.open{display:flex}
 @keyframes stkIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .v-stk-title{font-size:10px;font-weight:800;color:rgba(255,255,255,0.7);text-align:center;text-transform:uppercase;letter-spacing:0.5px}
 .v-stk-grid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;background:rgba(10,10,30,0.75);border-radius:18px;padding:10px;backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12)}
 .v-stk{font-size:28px;cursor:pointer;padding:4px;border-radius:10px;transition:transform 0.12s}
 .v-stk:active{transform:scale(1.5)}
-.v-photo-prev{position:absolute;bottom:88px;left:12px;background:rgba(10,10,30,0.8);border-radius:14px;padding:8px;display:none;align-items:center;gap:8px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);z-index:15}
+.v-photo-prev{position:absolute;bottom:calc(130px + env(safe-area-inset-bottom, 0px));left:12px;background:rgba(10,10,30,0.8);border-radius:14px;padding:8px;display:none;align-items:center;gap:8px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);z-index:15}
 .v-photo-prev.show{display:flex}
 .v-photo-thumb{width:44px;height:44px;border-radius:9px;background:#333;background-size:cover;background-position:center}
 .v-photo-rm{color:#fff;font-size:16px;cursor:pointer;opacity:0.7}
-.v-foot{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:flex;gap:7px;z-index:10;align-items:center}
+.v-foot{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom, 0px));left:12px;right:12px;display:flex;flex-direction:column;gap:8px;z-index:10}
+.v-foot-row{display:flex;gap:7px;align-items:center}
+.v-quick-row{display:flex;gap:6px;justify-content:flex-end;padding:0 2px}
+.v-quick-emoji{width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:transform 0.15s;flex-shrink:0}
+.v-quick-emoji:active{transform:scale(1.2)}
 /* Zones de tap précédent/suivant sur le lecteur de statut (façon WhatsApp/Instagram) */
 .v-tap{position:absolute;top:112px;bottom:82px;width:38%;z-index:3}
+#vMedia img,#vMedia video{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;pointer-events:none}
 .v-tap-l{left:0}
 .v-tap-r{right:0}
 /* Curseur de volume (visible seulement si musique attachée) */
@@ -268,7 +273,8 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   @media (min-width: 1300px) {
     .st-list { grid-template-columns: repeat(3, 1fr); }
   }
-  .st-row, .strip-item, .my-card, .s-card, .pg-add, .str-menu-btn, .v-x, .v-dots, .v-act-btn, .v-tap { cursor: pointer; }
+  .st-row, .strip-item, .my-card, .s-card, .pg-add, .str-menu-btn, .v-x, .v-dots, .v-act-btn, .v-tap, .v-quick-emoji { cursor: pointer; }
+  .v-quick-emoji:hover{ transform: scale(1.15); background: rgba(0,0,0,0.5); }
   .st-row:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.10); }
   .s-card:hover, .my-card:hover { transform: translateY(-3px); }
 }
@@ -343,8 +349,8 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     </div>
   </div>
   <div class="v-body"><span class="v-emoji" id="vEmoji">📸</span><div class="v-txt" id="vTxt">—</div></div>
-  <div class="v-tap v-tap-l" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'prev')" onpointerleave="onZoneLeave()"></div>
-  <div class="v-tap v-tap-r" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'next')" onpointerleave="onZoneLeave()"></div>
+  <div class="v-tap v-tap-l" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'prev')" onpointerleave="onZoneLeave()" onpointercancel="onZoneLeave()"></div>
+  <div class="v-tap v-tap-r" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'next')" onpointerleave="onZoneLeave()" onpointercancel="onZoneLeave()"></div>
   <div class="v-stickers" id="vStickers">
     <div class="v-stk-title">Stickers ArtiRoyce</div>
     <div class="v-stk-grid">
@@ -365,12 +371,21 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     <span class="v-photo-rm" onclick="removePhoto()">✕</span>
   </div>
   <div class="v-foot">
-    <button class="v-act-btn" onclick="toggleStickers()">😊</button>
-    <button class="v-act-btn" onclick="triggerPhotoInput()">📷</button>
-    <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(this)"/>
-    <div class="v-inp-wrap">
-      <input class="v-inp" placeholder="Répondre…" id="vInp" onkeydown="if(event.key==='Enter')sendReply()"/>
-      <button class="v-snd" onclick="sendReply()">➤</button>
+    <div class="v-quick-row">
+      <span class="v-quick-emoji" onclick="sendSticker('❤️',event)">❤️</span>
+      <span class="v-quick-emoji" onclick="sendSticker('😍',event)">😍</span>
+      <span class="v-quick-emoji" onclick="sendSticker('😂',event)">😂</span>
+      <span class="v-quick-emoji" onclick="sendSticker('😮',event)">😮</span>
+      <span class="v-quick-emoji" onclick="sendSticker('🔥',event)">🔥</span>
+    </div>
+    <div class="v-foot-row">
+      <button class="v-act-btn" onclick="toggleStickers()">😊</button>
+      <button class="v-act-btn" onclick="triggerPhotoInput()">📷</button>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(this)"/>
+      <div class="v-inp-wrap">
+        <input class="v-inp" placeholder="Répondre…" id="vInp" onkeydown="if(event.key==='Enter')sendReply()"/>
+        <button class="v-snd" onclick="sendReply()">➤</button>
+      </div>
     </div>
   </div>
 </div>
@@ -441,7 +456,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 
 <!-- MENU CONTEXTUEL VIEWER -->
 <div class="overlay" id="viewerMenuOverlay" onclick="if(event.target===this)closeViewerMenu()">
-  <div class="sheet" style="max-height:auto;padding-bottom:20px">
+  <div class="sheet" style="max-height:92vh;overflow-y:auto;padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))">
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title" id="viewerMenuName">Options</span><span class="sheet-x" onclick="closeViewerMenu()">✕</span></div>
     <div style="padding:8px 0" id="viewerMenuOptions"></div>
@@ -538,11 +553,19 @@ function adj(){
 // même quand la barre d'adresse est affichée, ce qui coupe le bas de l'écran (scroll bloqué,
 // "Répondre" caché sous les boutons du téléphone). C'est le bug classique du 100vh mobile.
 function majVh(){
-  document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');
+  // visualViewport suit la VRAIE zone visible en direct (barre d'adresse qui apparaît/disparaît,
+  // clavier, etc.) — contrairement à window.innerHeight qui peut rester périmé sur certains
+  // navigateurs mobiles tant qu'un vrai resize n'est pas déclenché.
+  var h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;
+  document.documentElement.style.setProperty('--vh',(h*0.01)+'px');
 }
 majVh();
 window.addEventListener('load',adj);window.addEventListener('resize',adj);
 window.addEventListener('resize',majVh);window.addEventListener('orientationchange',majVh);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',majVh);
+  window.visualViewport.addEventListener('scroll',majVh);
+}
 setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);setTimeout(adj,2000);
 setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
@@ -685,7 +708,7 @@ async function deleteFromRow(){
 
 // VIEWER
 var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8;
-var ITEM_DUREE_MS=7000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
+var ITEM_DUREE_MS=11000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
   holdTimer=Date.now();
@@ -721,6 +744,7 @@ function resumeViewer(){
 }
 
 function openViewer(personId,itemIdx){
+  majVh(); // valeur fraîche à l'instant T, au cas où la barre d'adresse aurait changé depuis le chargement
   var pIdx=S.findIndex(function(x){return x.id===personId;});
   if(pIdx<0)return;
   curPersonIdx=pIdx;
@@ -863,6 +887,8 @@ window.toggleMuteViewer=function(){
 function closeViewer(){
   document.getElementById('viewer').classList.remove('open');
   document.getElementById('vStickers').classList.remove('open');
+  document.getElementById('viewerMenuOverlay').classList.remove('open');
+  document.getElementById('contactsOverlay').classList.remove('open');
   if(T){clearTimeout(T);T=null;}
   if(viewerAudio){viewerAudio.pause();viewerAudio=null;}
   renderList(); // reflète les statuts désormais "vus" dans la liste et le bandeau
@@ -882,6 +908,7 @@ function sendReply(){var inp=document.getElementById('vInp');var hasP=document.g
 
 // VIEWER MENU (3 points dans viewer)
 function openViewerMenu(){
+  pauseViewer(); // le statut ne doit pas avancer/finir pendant que ce sheet est ouvert
   var s=S[curPersonIdx];
   document.getElementById('viewerMenuName').textContent=s?s.n:'Options';
   var estMoi=s&&s.id===MOI_ID;
@@ -891,7 +918,7 @@ function openViewerMenu(){
     : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>';
   document.getElementById('viewerMenuOverlay').classList.add('open');
 }
-function closeViewerMenu(){document.getElementById('viewerMenuOverlay').classList.remove('open');}
+function closeViewerMenu(){document.getElementById('viewerMenuOverlay').classList.remove('open');resumeViewer();}
 function maskStatut(){closeViewerMenu();if(S[curPersonIdx])S[curPersonIdx].hidden=true;renderList();closeViewer();toast('Statut masqué','');}
 async function deleteStatut(){
   closeViewerMenu();
@@ -907,6 +934,7 @@ async function deleteStatut(){
 // CONTACTS
 function openContactsPicker(){
   closeViewerMenu();
+  pauseViewer();
   var list=document.getElementById('contactsList');
   list.innerHTML='';
   CONTACTS.forEach(function(c){
@@ -920,7 +948,7 @@ function openContactsPicker(){
   });
   document.getElementById('contactsOverlay').classList.add('open');
 }
-function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');}
+function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');resumeViewer();}
 function saveContacts(){var sel=CONTACTS.filter(function(c){return c.checked;}).map(function(c){return c.n;});closeContacts();toast('Visible par '+sel.length+' contact(s) ✅','g');}
 
 // MENU CRÉER
