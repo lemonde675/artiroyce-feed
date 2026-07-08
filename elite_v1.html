@@ -2,148 +2,98 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Élites ArtiRoyce</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Élite – ArtiRoyce</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--red:#e63224;--green:#27a945;--bg:#f5f5f5;--dark:#111;--muted:#888;
-  --diamond:#00cfff;--platine:#b8c5d6;--gold:#ffd700;--silver:#c0c0c0;--bronze:#cd7f32}
-html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
+  :root { --red:#e63224; --green:#27a945; --navy:#0a0a2e; --navy2:#1a1a6e; --blue-ico:#2f6fed; --blue-light:#eaf1fb; --gold:#e8c574; }
+  *{box-sizing:border-box}
+  html,body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1a1a2e}
 
-/* HEADER */
-.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #eee}
-.h-row1{display:flex;align-items:center;padding:6px 12px 4px;gap:6px}
-.h-house{font-size:24px;flex-shrink:0;cursor:pointer}
-.h-logo{flex:1;display:flex;align-items:center;justify-content:center;gap:6px}
-.h-logo-text{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
-.h-logo-text .arti{color:var(--red)}.h-logo-text .royce{color:var(--green)}
-.h-icons{display:flex;align-items:center;gap:3px;flex-shrink:0}
-.h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
-.h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
-.h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
-.h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.h-ico.chat .bdot{background:var(--green)}
+  /* ═══ HEADER — identique à toutes les pages ArtiRoyce ═══ */
+  .top-header { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: #fff; border-bottom: 1px solid #e8e8e8; }
+  .h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
+  .h-house { font-size: 24px; flex-shrink: 0; cursor:pointer; }
+  .h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
+  .h-logo-text .arti { color: var(--red); }
+  .h-logo-text .royce { color: var(--green); }
+  .h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .h-ico { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+  .h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
+  .h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
+  .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+  .h-ico.chat .bdot { background: var(--green); }
+  .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 0 10px 7px; gap: 6px; }
+  .h-tabs::-webkit-scrollbar { display: none; }
+  .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; text-decoration:none }
+  .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
+  .spacer{flex-shrink:0;min-height:92px}
 
-.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;display:flex;flex-direction:column}
-.spacer{flex-shrink:0}
+  /* ═══ HERO — fond blanc neige (demandé), plus de dégradé bleu nuit ═══ */
+  .hero{background:#fdfdfe;padding:18px 16px 14px;border-bottom:1px solid #f0f0f3}
+  .eyebrow{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:4px}
+  .titre-elite{font-size:26px;font-weight:800;margin:0 0 6px;color:#16163a;display:flex;align-items:center;gap:8px}
+  .sous-titre{font-size:13.5px;color:#6b6f85;margin:0;max-width:560px;line-height:1.5}
 
-/* PAGE HEAD */
-.pg-head{background:#fff;padding:14px 16px 0;flex-shrink:0;border-bottom:1px solid #eee}
-.pg-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.pg-title{font-size:18px;font-weight:900;color:var(--dark)}
-.pg-btn{background:var(--dark);color:#fff;font-size:12px;font-weight:800;padding:7px 16px;border-radius:22px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px}
-.m-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
-.m-tabs::-webkit-scrollbar{display:none}
-.m-tab{white-space:nowrap;padding:5px 14px;border-radius:22px;font-size:12px;font-weight:700;border:1.5px solid #eee;cursor:pointer;flex-shrink:0;color:#888;background:#fff;transition:all 0.18s}
-.m-tab.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+  /* ═══ BANDE HORIZONTALE — même comportement que les Statuts (scroll natif façon WhatsApp) ═══ */
+  .spotlight-scroll{display:flex;gap:12px;overflow-x:auto;padding:14px 16px 6px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .spotlight-scroll::-webkit-scrollbar{display:none}
+  .spot-card{flex-shrink:0;width:140px;scroll-snap-align:start;border-radius:20px;padding:14px 10px;background:#fff;border:1.5px solid #eef0f6;text-align:center;position:relative;box-shadow:0 2px 10px rgba(0,0,0,0.05);cursor:pointer}
+  .spot-card.diamant{border-color:#bfe8ff;box-shadow:0 4px 16px rgba(125,211,252,0.25)}
+  .spot-badge{position:absolute;top:8px;right:8px;font-size:15px}
+  .spot-av{width:54px;height:54px;border-radius:50%;margin:6px auto 8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
+  .spot-nom{font-weight:800;font-size:13px;color:#16163a}
+  .spot-metier{font-size:10.5px;color:#9296a8;margin-top:2px}
+  .spot-tier-label{margin-top:8px;font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:3px 10px;border-radius:20px;display:inline-block}
+  .spot-tier-label.diamant{background:#eaf8ff;color:#1c9fd8}
+  .spot-tier-label.or{background:#fff6e0;color:#b8860b}
+  .spot-tier-label.argent{background:#f0f1f4;color:#6c7280}
+  .spot-empty{flex-shrink:0;width:140px;display:flex;align-items:center;justify-content:center;color:#c7cad6;font-size:12px;text-align:center;padding:14px}
 
-/* FEED */
-.feed{flex:1;overflow-y:auto;scrollbar-width:none;padding:12px 12px 70px}
-.feed::-webkit-scrollbar{display:none}
+  .section-title{font-size:12.5px;font-weight:800;color:#9a9fb3;text-transform:uppercase;letter-spacing:.6px;margin:22px 16px 10px}
 
-/* ══ ANNEAUX SIMPLES ══ */
-.rank-ring{position:absolute;inset:-4px;border-radius:50%;border:3px solid transparent}
-.rank-ring.diamond{border-color:var(--diamond)}
-.rank-ring.platine{border-color:var(--platine)}
-.rank-ring.gold{border-color:var(--gold)}
-.rank-ring.silver{border-color:var(--silver)}
-.rank-ring.bronze{border-color:var(--bronze)}
+  /* ═══ SCORE ÉLITE — on garde tel quel ═══ */
+  .gauge-card{background:#fff;border-radius:20px;padding:16px;margin:0 16px 12px;display:flex;gap:16px;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #f2f2f6}
+  .gauge-wrap{width:80px;height:80px;flex-shrink:0;position:relative}
+  .gauge-wrap svg{transform:rotate(-90deg)}
+  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge-total{font-weight:800;font-size:16px;font-family:Consolas,monospace;color:#16163a}
+  .gauge-tier-icon{font-size:11px}
+  .gauge-info{flex:1;min-width:0}
+  .gauge-nom{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;color:#16163a}
+  .gauge-metier{font-size:12px;color:#9296a8;margin-bottom:6px}
+  .gauge-legend{display:flex;gap:10px;font-size:10px;color:#7a7f92;flex-wrap:wrap}
+  .gauge-legend span{display:flex;align-items:center;gap:4px}
+  .gauge-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .badge-demo{font-size:9px;background:#fff3cd;color:#8a6d00;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:4px}
+  .btn-voir{background:var(--red);color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0}
 
-/* RANG BADGE */
-.rang-badge{position:absolute;top:-6px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:900;padding:2px 7px;border-radius:99px;white-space:nowrap;border:1.5px solid #fff;z-index:2}
-.rang-badge.diamond{background:var(--diamond);color:#003a4a}
-.rang-badge.platine{background:var(--platine);color:#2a3a4a}
-.rang-badge.gold{background:var(--gold);color:#5a3e00}
-.rang-badge.silver{background:var(--silver);color:#333}
-.rang-badge.bronze{background:var(--bronze);color:#fff}
+  .non-classe-card{margin:0 16px 12px;padding:14px 16px;border-radius:20px;border:1.5px dashed #e2e4ee;color:#9a9fb3;font-size:12.5px;display:flex;align-items:center;gap:10px}
 
-/* MONETISATION BANNER */
-.money-banner{background:#fff;border-radius:18px;margin-bottom:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);border:1.5px solid #f0f0f0}
-.mb-top{padding:16px;display:flex;align-items:center;gap:12px}
-.mb-icon{width:48px;height:48px;border-radius:14px;background:#f9f6ee;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mb-info h3{font-size:15px;font-weight:900;color:var(--dark);margin-bottom:3px}
-.mb-info p{font-size:12px;color:var(--muted);line-height:1.4}
-.mb-rangs{display:flex;gap:0;border-top:1px solid #f5f5f5;overflow-x:auto;scrollbar-width:none}
-.mb-rangs::-webkit-scrollbar{display:none}
-.mb-rang{flex:1;min-width:80px;padding:10px 6px;text-align:center;border-right:1px solid #f5f5f5}
-.mb-rang:last-child{border-right:none}
-.mb-rang-ico{font-size:18px;margin-bottom:3px}
-.mb-rang-name{font-size:10px;font-weight:800;margin-bottom:2px}
-.mb-rang-name.diamond{color:var(--diamond)}
-.mb-rang-name.platine{color:var(--platine)}
-.mb-rang-name.gold{color:#b8860b}
-.mb-rang-name.silver{color:#888}
-.mb-rang-name.bronze{color:var(--bronze)}
-.mb-rang-val{font-size:9px;color:var(--muted);line-height:1.3}
-.mb-steps{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #f5f5f5}
-.mb-step{padding:12px 6px;text-align:center;border-right:1px solid #f5f5f5}
-.mb-step:last-child{border-right:none}
-.mb-step-n{font-size:16px;font-weight:900;color:var(--dark);margin-bottom:3px}
-.mb-step-l{font-size:10px;color:var(--muted);line-height:1.4}
-.mb-cta{margin:0 16px 16px;background:var(--dark);color:#fff;font-size:13px;font-weight:800;padding:11px;border-radius:14px;border:none;cursor:pointer;width:calc(100% - 0px);display:flex;align-items:center;justify-content:center;gap:8px}
+  .footer-note{margin:24px 16px 40px;font-size:11.5px;color:#b3b7c6;text-align:center;line-height:1.6}
 
-/* PODIUM */
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:16px;padding:8px 0 0}
-.pod-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
-.pod-av-wrap{position:relative;margin-bottom:4px}
-.pod-av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;position:relative}
-.pod-av.first{width:84px;height:84px;font-size:30px}
-.pod-av.second,.pod-av.third{width:66px;height:66px;font-size:22px}
-.pod-crown{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:22px}
-.pod-vb{position:absolute;bottom:2px;right:2px;width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:900}
-.pod-name{font-size:11px;font-weight:800;color:var(--dark);text-align:center;max-width:90px}
-.pod-job{font-size:10px;color:var(--muted);text-align:center}
-.pod-score{font-size:12px;font-weight:900;color:#b8860b}
-.pod-base{border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;width:100%}
-.pod-base.gold{background:linear-gradient(180deg,#fff8cc,#ffe87a);height:65px;min-width:120px}
-.pod-base.silver{background:linear-gradient(180deg,#f0f0f0,#e0e0e0);height:48px;min-width:100px}
-.pod-base.bronze{background:linear-gradient(180deg,#fae8d8,#f5d0b0);height:36px;min-width:100px}
-.pod-num{font-size:18px;font-weight:900;color:rgba(0,0,0,0.15)}
-.pod-btn{background:none;color:var(--dark);font-size:10px;font-weight:700;padding:5px 12px;border-radius:22px;border:1.5px solid #ddd;cursor:pointer;margin-top:4px}
-
-/* LISTE ELITES */
-.sec-lbl{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.sec-lbl span{font-size:12px;color:var(--red);text-transform:none;letter-spacing:0;font-weight:700;cursor:pointer}
-
-.ec{background:#fff;border-radius:16px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 5px rgba(0,0,0,0.05);cursor:pointer;transition:transform 0.1s;border:1.5px solid #f0f0f0}
-.ec:active{transform:scale(0.98)}
-.ec.diamond{border-color:rgba(0,207,255,0.3);background:linear-gradient(135deg,#f0fdff,#fff)}
-.ec.gold-card{border-color:rgba(255,215,0,0.3);background:linear-gradient(135deg,#fffdf0,#fff)}
-.ec-rank{font-size:14px;font-weight:900;color:#ddd;width:22px;text-align:center;flex-shrink:0}
-.ec-av-wrap{position:relative;flex-shrink:0}
-.ec-av{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
-.ec-vb{position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
-.ec-body{flex:1;min-width:0}
-.ec-name{font-size:14px;font-weight:800;color:var(--dark);margin-bottom:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ec-rang-tag{font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px}
-.ec-rang-tag.diamond{background:rgba(0,207,255,0.15);color:#007a99}
-.ec-rang-tag.platine{background:rgba(184,197,214,0.2);color:#5a6a7a}
-.ec-rang-tag.gold{background:rgba(255,215,0,0.2);color:#8a6200}
-.ec-rang-tag.silver{background:rgba(192,192,192,0.2);color:#666}
-.ec-rang-tag.bronze{background:rgba(205,127,50,0.15);color:#7a4a10}
-.ec-job{font-size:12px;color:var(--muted);margin-bottom:4px}
-.ec-stars{font-size:11px;color:#ffc107;letter-spacing:1px}
-.ec-avis{font-size:11px;color:var(--muted)}
-.ec-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
-.ec-btn{background:none;color:var(--dark);font-size:11px;font-weight:700;padding:7px 14px;border-radius:22px;border:1.5px solid #ddd;cursor:pointer}
-
-/* BOT NAV */
-.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
-.nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
-.nav-lb{font-size:10px;font-weight:700;color:#aaa}
-.nav-i.active .nav-lb{color:var(--green)}
-.nav-plus-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:8px}
-.nav-plus{width:48px;height:48px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 14px rgba(230,50,36,0.55);margin-top:-16px}
-.nav-ico{width:24px;height:24px}
-.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}.toast.g{background:var(--green)}
+  @media (min-width:768px){
+    .top-header{max-width:100%}
+    .hero,.section-title{padding-left:24px;padding-right:24px}
+    .section-title{margin-left:0;margin-right:0}
+    .spotlight-scroll{padding-left:24px;padding-right:24px}
+    #scoreList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 24px;align-items:start}
+    .gauge-card{margin:0}
+    .non-classe-card{margin:0;grid-column:1/-1}
+    .gauge-card,.non-classe-card{cursor:pointer}
+    .gauge-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+    .btn-voir:hover{background:#c8291d}
+    .spot-card:hover{transform:translateY(-3px)}
+    .h-tab:hover{background:#f2f2f6}
+    .h-house:hover{opacity:0.75}
+  }
 </style>
 </head>
 <body>
 
 <header class="top-header" id="topH">
   <div class="h-row1">
-    <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
+    <span class="h-house" onclick="goAccueil()">🏠</span>
     <div class="h-logo">
       <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
         <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -158,252 +108,188 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="h-icons">
       <div class="h-ico bell">🔔<div class="bdot">3</div></div>
       <div class="h-ico chat">💬<div class="bdot">1</div></div>
-      <span style="font-size:20px;cursor:pointer;padding:2px 3px">🔍</span>
-      <span style="font-size:22px;color:#333;cursor:pointer;padding:2px;font-weight:700">⋮</span>
+      <span style="font-size:20px;cursor:pointer;padding:2px 4px">🔍</span>
+      <span style="font-size:22px;color:#444;cursor:pointer;padding:2px;font-weight:700">⋮</span>
     </div>
   </div>
 </header>
+<div class="spacer" id="spacer"></div>
 
-<div class="body-wrap">
-  <div class="spacer" id="spacer"></div>
-
-  <div class="pg-head">
-    <div class="pg-row">
-      <span class="pg-title">⭐ Élites</span>
-      <button class="pg-btn" onclick="toast('💎 Devenir Élite bientôt !','g')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/></svg>
-        Devenir Élite
-      </button>
-    </div>
-    <div class="m-tabs">
-      <div class="m-tab active" onclick="setT(this)">Tout</div>
-      <div class="m-tab" onclick="setT(this)">✂️ Coiffure</div>
-      <div class="m-tab" onclick="setT(this)">📷 Photo</div>
-      <div class="m-tab" onclick="setT(this)">🎧 DJ</div>
-      <div class="m-tab" onclick="setT(this)">💄 Maquillage</div>
-      <div class="m-tab" onclick="setT(this)">🍽️ Traiteur</div>
-      <div class="m-tab" onclick="setT(this)">🔧 Artisan</div>
-    </div>
-  </div>
-
-  <div class="feed">
-
-    <!-- BANNER MONÉTISATION -->
-    <div class="money-banner">
-      <div class="mb-top">
-        <div class="mb-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="12" stroke="#c9a227" stroke-width="2"/>
-            <text x="14" y="19" text-anchor="middle" font-size="14" font-weight="900" fill="#c9a227">$</text>
-          </svg>
-        </div>
-        <div class="mb-info">
-          <h3>Gagnez des milliers de dollars</h3>
-          <p>Plus de vues et j'aime = plus de revenus. Montez de rang et monétisez votre talent !</p>
-        </div>
-      </div>
-      <div class="mb-steps">
-        <div class="mb-step">
-          <div class="mb-step-n">5 000</div>
-          <div class="mb-step-l">vues → premiers gains</div>
-        </div>
-        <div class="mb-step">
-          <div class="mb-step-n">10 000</div>
-          <div class="mb-step-l">j'aime → Élite</div>
-        </div>
-        <div class="mb-step">
-          <div class="mb-step-n">💰</div>
-          <div class="mb-step-l">Paiements directs</div>
-        </div>
-      </div>
-      <button class="mb-cta" onclick="toast('💰 Programme de monétisation bientôt !','g')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/></svg>
-        En savoir plus sur la monétisation
-      </button>
-    </div>
-
-    <!-- PODIUM -->
-    <div class="podium">
-      <!-- 2ème - Or -->
-      <div class="pod-item" onclick="toast('📱 Contacter Jean-Paul','g')">
-        <div class="pod-av-wrap">
-          <div class="pod-av second" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
-            <div class="rank-ring silver"></div>
-            <div class="pod-vb">✔</div>
-          </div>
-        </div>
-        <div class="pod-name">Jean-Paul M.</div>
-        <div class="pod-job">📷 Photo</div>
-        <div class="pod-score">4.9★</div>
-        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
-        <div class="pod-base silver"><div class="pod-num">2</div></div>
-      </div>
-
-      <!-- 1er - Diamant -->
-      <div class="pod-item" onclick="toast('📱 Contacter Mariama','g')">
-        <div class="pod-av-wrap">
-          <div class="pod-crown">👑</div>
-          <div class="pod-av first" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
-            <div class="rank-ring gold"></div>
-            <div class="pod-vb">✔</div>
-          </div>
-        </div>
-        <div class="pod-name">Mariama K.</div>
-        <div class="pod-job">✂️ Coiffure</div>
-        <div class="pod-score">5.0★</div>
-        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
-        <div class="pod-base gold"><div class="pod-num">1</div></div>
-      </div>
-
-      <!-- 3ème - Or -->
-      <div class="pod-item" onclick="toast('📱 Contacter David','g')">
-        <div class="pod-av-wrap">
-          <div class="pod-av third" style="background:linear-gradient(135deg,#001030,#002060)">DK
-            <div class="rank-ring bronze"></div>
-            <div class="pod-vb">✔</div>
-          </div>
-        </div>
-        <div class="pod-name">David K.</div>
-        <div class="pod-job">🎧 DJ</div>
-        <div class="pod-score">4.8★</div>
-        <button class="pod-btn" onclick="toast('📱 Contacter','g')">Contacter</button>
-        <div class="pod-base bronze"><div class="pod-num">3</div></div>
-      </div>
-    </div>
-
-    <!-- LISTE ÉLITES -->
-    <div class="sec-lbl">Classement complet <span>Voir tout ›</span></div>
-
-    <!-- 1 - DIAMANT -->
-    <div class="ec">
-      <div class="ec-rank">1</div>
-      <div class="ec-av-wrap">
-        <div class="ec-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK
-          <div class="rank-ring diamond"></div>
-          <div class="ec-vb">✔</div>
-        </div>
-      </div>
-      <div class="ec-body">
-        <div class="ec-name">Mariama Kouyaté <span class="ec-rang-tag diamond">💎 Diamant</span></div>
-        <div class="ec-job">✂️ Coiffeuse · Cotonou</div>
-        <div class="ec-stars">★★★★★ <span class="ec-avis">5.0 · 10k avis</span></div>
-      </div>
-      <div class="ec-right">
-        <button class="ec-btn" onclick="toast('📱 Contacter Mariama','g')">Contacter</button>
-      </div>
-    </div>
-
-    <!-- 2 - PLATINE -->
-    <div class="ec">
-      <div class="ec-rank">2</div>
-      <div class="ec-av-wrap">
-        <div class="ec-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP
-          <div class="rank-ring platine"></div>
-          <div class="ec-vb">✔</div>
-        </div>
-      </div>
-      <div class="ec-body">
-        <div class="ec-name">Jean-Paul Mensah <span class="ec-rang-tag platine">🏆 Platine</span></div>
-        <div class="ec-job">📷 Photographe · Cotonou</div>
-        <div class="ec-stars">★★★★★ <span class="ec-avis">4.9 · 8.2k avis</span></div>
-      </div>
-      <div class="ec-right">
-        <button class="ec-btn" onclick="toast('📱 Contacter Jean-Paul','g')">Contacter</button>
-      </div>
-    </div>
-
-    <!-- 3 - OR -->
-    <div class="ec">
-      <div class="ec-rank">3</div>
-      <div class="ec-av-wrap">
-        <div class="ec-av" style="background:linear-gradient(135deg,#001030,#002060)">DK
-          <div class="rank-ring gold"></div>
-          <div class="ec-vb">✔</div>
-        </div>
-      </div>
-      <div class="ec-body">
-        <div class="ec-name">David Koffi <span class="ec-rang-tag gold">⭐ Or</span></div>
-        <div class="ec-job">🎧 DJ · Cotonou</div>
-        <div class="ec-stars">★★★★★ <span class="ec-avis">4.8 · 6.5k avis</span></div>
-      </div>
-      <div class="ec-right">
-        <button class="ec-btn" onclick="toast('📱 Contacter David','g')">Contacter</button>
-      </div>
-    </div>
-
-    <!-- 4 - ARGENT -->
-    <div class="ec">
-      <div class="ec-rank">4</div>
-      <div class="ec-av-wrap">
-        <div class="ec-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT
-          <div class="rank-ring silver"></div>
-          <div class="ec-vb">✔</div>
-        </div>
-      </div>
-      <div class="ec-body">
-        <div class="ec-name">Aminata Traoré <span class="ec-rang-tag silver">🥈 Argent</span></div>
-        <div class="ec-job">💄 Maquilleuse · Porto-Novo</div>
-        <div class="ec-stars">★★★★½ <span class="ec-avis">4.7 · 4.1k avis</span></div>
-      </div>
-      <div class="ec-right">
-        <button class="ec-btn" onclick="toast('📱 Contacter Aminata','g')">Contacter</button>
-      </div>
-    </div>
-
-    <!-- 5 - BRONZE -->
-    <div class="ec">
-      <div class="ec-rank">5</div>
-      <div class="ec-av-wrap">
-        <div class="ec-av" style="background:linear-gradient(135deg,#2c0060,#6a0dad)">FD
-          <div class="rank-ring bronze"></div>
-          <div class="ec-vb">✔</div>
-        </div>
-      </div>
-      <div class="ec-body">
-        <div class="ec-name">Fatou Diop <span class="ec-rang-tag bronze">🥉 Bronze</span></div>
-        <div class="ec-job">🍽️ Traiteure · Abomey-Calavi</div>
-        <div class="ec-stars">★★★★½ <span class="ec-avis">4.6 · 3.8k avis</span></div>
-      </div>
-      <div class="ec-right">
-        <button class="ec-btn" onclick="toast('📱 Contacter Fatou','g')">Contacter</button>
-      </div>
-    </div>
-
-  </div>
+<div class="hero">
+  <div class="eyebrow">Classement</div>
+  <h1 class="titre-elite">💎 Élite</h1>
+  <p class="sous-titre">Les professionnels les plus reconnus d'ArtiRoyce. Le rang combine l'abonnement, la performance réelle (avis, ventes, ancienneté) et une validation admin.</p>
 </div>
 
-<!-- BOT NAV -->
-<nav class="bot-nav">
-  <div class="nav-i" onclick="window.location.href='profil.html'">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="5" stroke="#aaa" stroke-width="2"/><path d="M6 27c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#aaa" stroke-width="2" stroke-linecap="round"/></svg>
-    <span class="nav-lb">Mon Profil</span>
-  </div>
-  <div class="nav-i active">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="3" y="4" width="22" height="16" rx="4" stroke="#27a945" stroke-width="2"/><path d="M3 20l4 5v-5" stroke="#27a945" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="10" x2="20" y2="10" stroke="#27a945" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="14" x2="16" y2="14" stroke="#27a945" stroke-width="2" stroke-linecap="round"/></svg>
-    <span class="nav-lb" style="color:var(--green)">Discussion</span>
-  </div>
-  <div class="nav-plus-w">
-    <div class="nav-plus">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
-    </div>
-  </div>
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="2" y="6" width="20" height="14" rx="3" stroke="#aaa" stroke-width="2"/><path d="M22 11l7-4v14l-7-4V11z" stroke="#aaa" stroke-width="2" stroke-linejoin="round"/></svg>
-    <span class="nav-lb">Live</span>
-  </div>
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 32 32" fill="none"><rect x="3" y="6" width="26" height="18" rx="3" stroke="#aaa" stroke-width="2"/><path d="M3 9l13 9 13-9" stroke="#aaa" stroke-width="2" stroke-linecap="round"/></svg>
-    <span class="nav-lb">Messages</span>
-  </div>
-</nav>
+<div class="spotlight-scroll" id="spotlightScroll">
+  <!-- rempli dynamiquement -->
+</div>
 
-<div class="toast" id="toastEl"></div>
-<script>
-function adj(){const h=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=h+'px'}
-window.addEventListener('load',adj);setTimeout(adj,100);
-window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':'');setTimeout(()=>el.className='toast',2400)}
-window.setT=function(el){document.querySelectorAll('.m-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
-(function(){let sx=0,sy=0,sw=false;document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});document.addEventListener('touchmove',(e)=>{const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(!sw&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>6){sw=true;}if(sw&&window.parent!==window){window.parent.postMessage({type:'swipeMove',dx:dx},'*');}},{passive:true});document.addEventListener('touchend',(e)=>{if(!sw)return;const dx=e.changedTouches[0].clientX-sx;if(window.parent!==window){window.parent.postMessage({type:'swipeEnd',dx:dx},'*');}sw=false;},{passive:true});})();
+<div class="section-title">Score Élite</div>
+<div id="scoreList">
+  <!-- rempli dynamiquement -->
+</div>
+
+<div class="footer-note">Les rangs Diamant / Or / Argent affichés ici sont des scores de démonstration, en attendant l'activation du vrai calcul (avis, ventes, ancienneté).</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+function adj(){
+  var localH=document.getElementById('topH').offsetHeight;
+  var embedH=getEmbedTopOffsetPx();
+  var h=Math.max(localH,embedH);
+  document.getElementById('spacer').style.height=Math.max(h,60)+'px';
+}
+function getEmbedTopOffsetPx(){
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      var parentTop = window.parent.document.getElementById('topH');
+      if (parentTop) return parentTop.getBoundingClientRect().height;
+    }
+  } catch(e) {}
+  return 0;
+}
+window.addEventListener('load',adj);window.addEventListener('resize',adj);
+setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);setTimeout(adj,2000);
+window.goAccueil=function(){if(window.parent!==window)window.parent.postMessage({type:'goPanel',panel:0},'*');else window.location.href='accueil.html';};
+
+// Scores de démonstration : tant que le vrai calcul (avis/ventes/ancienneté) n'existe pas,
+// on lie ces scores fictifs à de VRAIS comptes existants (par nom), pour ne pas inventer de faux profils isolés.
+const SCORES_DEMO = {
+  'brunelle': { abo:30, perf:38, admin:24, tier:'diamant' },
+  'abrissette': { abo:18, perf:25, admin:18, tier:'argent' },
+  'libertrek': { abo:22, perf:30, admin:20, tier:'or' },
+  'mria': { abo:10, perf:14, admin:10, tier:null }
+};
+const TIER_LABEL = { diamant:{icon:'💎', label:'DIAMANT'}, or:{icon:'🥇', label:'OR'}, argent:{icon:'🥈', label:'ARGENT'} };
+const TIER_COLOR = { diamant:'#7dd3fc', or:'#f5b301', argent:'#9aa5b1' };
+
+function initialesCouleur(nom){
+  const palette=['#234','#3a3a7a','#7a4a2a','#2a6a5a','#5a2a6a'];
+  let h=0; for(const c of nom) h=(h+c.charCodeAt(0))%palette.length;
+  return palette[h];
+}
+
+async function chargerElite(){
+  let professionnels=[];
+  try{
+    const snap = await getDocs(collection(db,'utilisateurs'));
+    snap.forEach(d=>{
+      const u=d.data();
+      if(!u || u.role==='visiteur') return; // rôle 'visiteur' = Visiteur, tout le reste = Professionnel
+      professionnels.push({
+        uid:d.id,
+        nom:(u.nom||u.prenom||'Pro'),
+        metier:u.metier||'Professionnel ArtiRoyce',
+        photoAvatar:u.photoAvatar||null
+      });
+    });
+  }catch(e){
+    console.error('Chargement utilisateurs Firestore impossible :', e);
+  }
+
+  // Associer chaque compte réel à un score démo si son nom correspond, sinon "pas encore classé"
+  const enrichis = professionnels.map(p=>{
+    const cle = p.nom.trim().toLowerCase();
+    const demo = SCORES_DEMO[cle];
+    if(!demo) return {...p, classe:false};
+    const total = demo.abo+demo.perf+demo.admin;
+    return {...p, classe:true, ...demo, total};
+  });
+
+  const classes = enrichis.filter(p=>p.classe && p.tier).sort((a,b)=>b.total-a.total);
+  const nonClasses = enrichis.filter(p=>!p.classe || !p.tier);
+
+  renderSpotlight(classes);
+  renderScoreList(classes, nonClasses);
+}
+
+function renderSpotlight(classes){
+  const el = document.getElementById('spotlightScroll');
+  if(classes.length===0){
+    el.innerHTML = '<div class="spot-empty">Aucun professionnel classé pour l’instant</div>';
+    return;
+  }
+  el.innerHTML = classes.map(p=>{
+    const t = TIER_LABEL[p.tier];
+    return `<div class="spot-card ${p.tier}" onclick='alert(${jsAttr('Profil de '+p.nom+' — à relier au CV Pro')})'>
+      <div class="spot-badge">${t.icon}</div>
+      <div class="spot-av" style="background:${initialesCouleur(p.nom)}">${p.nom[0].toUpperCase()}</div>
+      <div class="spot-nom">${escHtml(p.nom)}</div>
+      <div class="spot-metier">${escHtml(p.metier)}</div>
+      <div class="spot-tier-label ${p.tier}">${t.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderScoreList(classes, nonClasses){
+  const el = document.getElementById('scoreList');
+  let html = classes.map(p=>{
+    const color = TIER_COLOR[p.tier];
+    const t = TIER_LABEL[p.tier];
+    const circ = 2*Math.PI*36;
+    const pct = Math.min(100, Math.round((p.total/100)*100));
+    const offset = circ - (circ*pct/100);
+    return `<div class="gauge-card">
+      <div class="gauge-wrap">
+        <svg width="80" height="80" viewBox="0 0 84 84">
+          <circle cx="42" cy="42" r="36" fill="none" stroke="#eee" stroke-width="9"/>
+          <circle cx="42" cy="42" r="36" fill="none" stroke="${color}" stroke-width="9"
+            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-tier-icon">${t.icon}</div>
+          <div class="gauge-total">${p.total}</div>
+        </div>
+      </div>
+      <div class="gauge-info">
+        <div class="gauge-nom">${escHtml(p.nom)} <span class="badge-demo">démo</span></div>
+        <div class="gauge-metier">Rang ${t.label.charAt(0)+t.label.slice(1).toLowerCase()} · ${escHtml(p.metier)}</div>
+        <div class="gauge-legend">
+          <span><i style="background:#27a945"></i>Abonnement ${p.abo}/30</span>
+          <span><i style="background:#f5b301"></i>Performance ${p.perf}/40</span>
+          <span><i style="background:#3b82f6"></i>Admin ${p.admin}/30</span>
+        </div>
+      </div>
+      <button class="btn-voir" onclick='alert(${jsAttr('Profil de '+p.nom+' — à relier au CV Pro')})'>Voir</button>
+    </div>`;
+  }).join('');
+
+  if(nonClasses.length){
+    html += `<div class="non-classe-card">🕒 ${nonClasses.length} professionnel(s) pas encore classé(s) — le classement s'activera automatiquement dès que les avis, ventes et validations seront en place.</div>`;
+  }
+  el.innerHTML = html || '<div class="non-classe-card">Aucun professionnel pour l’instant.</div>';
+}
+
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+// Construit un attribut onclick='...' sûr même si le nom contient une apostrophe (ex: "N'Guessan") :
+// JSON.stringify échappe correctement pour le JS, puis on échappe l'apostrophe restante pour l'attribut HTML.
+function jsAttr(str){ return JSON.stringify(str).replace(/'/g,"&#39;"); }
+
+// Exposer pour les tests / débogage
+window.chargerElite = chargerElite;
+window.SCORES_DEMO = SCORES_DEMO;
+window.renderSpotlight = renderSpotlight;
+window.renderScoreList = renderScoreList;
+
+onAuthStateChanged(auth, ()=>{ chargerElite(); });
+chargerElite(); // premier chargement même sans attendre l'auth (lecture publique)
 </script>
+
 </body>
 </html>
