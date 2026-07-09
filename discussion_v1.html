@@ -573,6 +573,33 @@ window.setMode=function(mode,el){
   document.getElementById('secG').style.display=(mode==='all'||mode==='groups')?'':'none';
   document.getElementById('secC').style.display=(mode==='all'||mode==='conf')?'':'none';
 }
+/* ══════════════ TOUCHE RETOUR MODERNISÉE (History API) ══════════════
+   Chaque vue plein écran (discussion, conférence, appel) empile un état d'historique.
+   Le bouton retour physique du téléphone (ou le geste navigateur) dépile alors
+   la vue au lieu de quitter la page directement. */
+let viewStack=[];
+history.replaceState({depth:0},'',location.href);
+function pushView(name){
+  viewStack.push(name);
+  history.pushState({depth:viewStack.length},'',location.href);
+}
+window.requestClose=function(){ if(viewStack.length>0) history.back(); }
+window.addEventListener('popstate',(e)=>{
+  const target=(e.state&&e.state.depth)||0;
+  while(viewStack.length>target){ hideView(viewStack.pop()); }
+});
+function hideView(name){
+  if(name==='chat'){ document.getElementById('chatPanel').classList.remove('open'); cancelReply(); }
+  else if(name==='conf'){ document.getElementById('confPanel').classList.remove('open'); }
+  else if(name==='call'){
+    clearInterval(callTimerInt);
+    const dur=callSeconds;
+    if(callStream){ callStream.getTracks().forEach(t=>t.stop()); callStream=null; }
+    document.getElementById('callScreen').classList.remove('open');
+    if(dur>0) logCallBubble(callType,fmtTime(dur));
+  }
+}
+
 let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
 window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo){
   currentChatName=name;currentChatIni=ini;currentChatBg=bg;
@@ -592,10 +619,11 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo){
     seed.style.display='none';empty.style.display='flex';
   }
   document.getElementById('chatPanel').classList.add('open');
+  if(viewStack[viewStack.length-1]!=='chat') pushView('chat');
   cancelReply();
   setTimeout(()=>{const a=document.getElementById('msgsArea');a.scrollTop=a.scrollHeight},100);
 }
-window.closeChat=function(){document.getElementById('chatPanel').classList.remove('open');cancelReply()}
+window.closeChat=function(){requestClose()}
 
 /* ══════════════ ENVOI TEXTE + RÉPONSE ══════════════ */
 window.onTa=function(){const ta=document.getElementById('mTa');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px';document.getElementById('sb').disabled=!ta.value.trim()}
@@ -883,12 +911,13 @@ async function startCallReal(type){
   document.getElementById('callCamBtn').style.display=type==='video'?'':'none';
   document.getElementById('callLocalWrap').classList.remove('show');
   document.getElementById('callScreen').classList.add('open');
+  pushView('call');
   try{
     callStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});
   }catch(err){
     document.getElementById('callStatus').textContent='Micro/caméra refusés — appel impossible';
     logCallBubble(type,'Échec — accès refusé');
-    setTimeout(endCall,1600);
+    setTimeout(requestClose,1600);
     return;
   }
   if(type==='video'){
@@ -917,13 +946,7 @@ window.toggleSpk=function(){
   const b=document.getElementById('callSpkBtn');b.classList.toggle('active');
   toast('🔊 Haut-parleur (contrôle système du téléphone)','')
 }
-window.endCall=function(){
-  clearInterval(callTimerInt);
-  const dur=callSeconds;
-  if(callStream){callStream.getTracks().forEach(t=>t.stop());callStream=null}
-  document.getElementById('callScreen').classList.remove('open');
-  if(dur>0)logCallBubble(callType,fmtTime(dur));
-}
+window.endCall=function(){requestClose()}
 function logCallBubble(type,label){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';
@@ -935,8 +958,8 @@ function logCallBubble(type,label){
 }
 
 /* ══════════════ CONFÉRENCE ══════════════ */
-window.openConf=function(){document.getElementById('confPanel').classList.add('open')}
-window.closeConf=function(){document.getElementById('confPanel').classList.remove('open')}
+window.openConf=function(){document.getElementById('confPanel').classList.add('open');pushView('conf')}
+window.closeConf=function(){requestClose()}
 let confGen=false;
 window.genLink=function(){const c=Math.random().toString(36).substr(2,8).toUpperCase();document.getElementById('confLink').textContent='artiroyce.app/conf/'+c;confGen=true;toast('🔗 Lien généré !','g')}
 window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Copié !','g')).catch(()=>toast('📋 Copié !','g'))}
