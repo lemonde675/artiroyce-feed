@@ -322,6 +322,55 @@
   </div>
 </div>
 
+<script>
+/* Mise en page critique (en-tête, iframes, menu ⋮) — volontairement séparée du script
+   Firebase plus bas. Si Firebase est lent ou bloqué (4G, pare-feu, bloqueur de pub),
+   cette partie doit fonctionner quand même : c'est justement ce qui ne marchait pas
+   avant, tout étant piégé dans un seul script qui s'arrêtait net si l'import Firebase
+   échouait ou tardait. */
+function adjustLayout() {
+  const topHEl = document.getElementById('topH');
+  const hh = topHEl ? topHEl.offsetHeight : 0;
+  const hSpacerEl = document.getElementById('hSpacer');
+  if (hSpacerEl) hSpacerEl.style.height = hh + 'px';
+  document.querySelectorAll('.btn-suivre-wrap').forEach(el => { el.style.top = (hh + 50) + 'px'; });
+  document.querySelectorAll('.badge-v').forEach(el => { el.style.top = '230px'; });
+  document.querySelectorAll('.info-top').forEach(el => { el.style.top = '370px'; });
+  document.querySelectorAll('.info-bot').forEach(el => { el.style.bottom = '70px'; });
+  // Les iframes (Actualités, Statuts, Élites, Offres, CV Pro, Discussion, FAQ) étaient
+  // en 100% de leur panneau (donc 100vh), et se retrouvaient cachées derrière le vrai
+  // en-tête fixe en haut et la barre du bas fixe en bas. On ne touche pas au flux
+  // principal (panel-0, jamais signalé cassé) : on repositionne uniquement les iframes,
+  // avec la vraie hauteur mesurée plutôt que devinée.
+  const botNavEl = document.querySelector('.bot-nav');
+  const bnh = botNavEl ? botNavEl.offsetHeight : 0;
+  document.querySelectorAll('.panel-slide iframe').forEach(f => {
+    f.style.position = 'absolute';
+    f.style.left = '0';
+    f.style.top = hh + 'px';
+    f.style.width = '100%';
+    f.style.height = 'calc(100vh - ' + hh + 'px - ' + bnh + 'px)';
+    try { f.contentWindow.postMessage({ type: 'parentFrame', headerHeight: hh, bottomNavHeight: bnh }, '*'); } catch(e) {}
+  });
+  const pc = document.getElementById('panelsContainer');
+  if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
+}
+window.toggleMoreMenu = function(e){
+  if(e) e.stopPropagation();
+  document.getElementById('moreMenu').classList.toggle('show');
+  document.getElementById('moreMenuOverlay').classList.toggle('show');
+}
+window.closeMoreMenu = function(){
+  document.getElementById('moreMenu').classList.remove('show');
+  document.getElementById('moreMenuOverlay').classList.remove('show');
+}
+adjustLayout();
+window.addEventListener('load', adjustLayout);
+window.addEventListener('resize', adjustLayout);
+setTimeout(adjustLayout, 100);
+setTimeout(adjustLayout, 400);
+setTimeout(adjustLayout, 1200);
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -450,53 +499,6 @@
     </div>`;
   }
 
-  function adjustLayout() {
-    const hh = document.getElementById('topH').offsetHeight;
-    document.getElementById('hSpacer').style.height = hh + 'px';
-    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
-      el.style.top = (hh + 50) + 'px';
-    });
-    document.querySelectorAll('.badge-v').forEach(el => {
-      el.style.top = '230px';
-    });
-    document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '370px';
-    });
-    document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = '70px';
-    });
-    // Les iframes (Actualités, Statuts, Élites, Offres, CV Pro, Discussion, FAQ) étaient
-    // en 100% de leur panneau (donc 100vh), et se retrouvaient cachées derrière le vrai
-    // en-tête fixe en haut et la barre du bas fixe en bas. On ne touche pas au flux
-    // principal (panel-0, jamais signalé cassé) : on repositionne uniquement les iframes,
-    // avec la vraie hauteur mesurée plutôt que devinée.
-    const botNavEl = document.querySelector('.bot-nav');
-    const bnh = botNavEl ? botNavEl.offsetHeight : 0;
-    document.querySelectorAll('.panel-slide iframe').forEach(f => {
-      f.style.position = 'absolute';
-      f.style.left = '0';
-      f.style.top = hh + 'px';
-      f.style.width = '100%';
-      f.style.height = 'calc(100vh - ' + hh + 'px - ' + bnh + 'px)';
-      try { f.contentWindow.postMessage({ type: 'parentFrame', headerHeight: hh, bottomNavHeight: bnh }, '*'); } catch(e) {}
-    });
-    const pc = document.getElementById('panelsContainer');
-    if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
-  }
-
-  window.toggleMoreMenu = function(e){
-    if(e) e.stopPropagation();
-    document.getElementById('moreMenu').classList.toggle('show');
-    document.getElementById('moreMenuOverlay').classList.toggle('show');
-  }
-  window.closeMoreMenu = function(){
-    document.getElementById('moreMenu').classList.remove('show');
-    document.getElementById('moreMenuOverlay').classList.remove('show');
-  }
-  window.addEventListener('load', adjustLayout);
-  window.addEventListener('resize', adjustLayout);
-  setTimeout(adjustLayout, 100);
-  setTimeout(adjustLayout, 400);
 
   window.toast = function(msg, type) {
     const el = document.getElementById('toastEl');
