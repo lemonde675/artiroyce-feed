@@ -25,6 +25,13 @@
     .h-ico.chat .bdot { background: var(--green); }
     .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
     .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
+    .more-menu-overlay { display:none; position:fixed; inset:0; z-index:490; background:rgba(0,0,0,0.12); }
+    .more-menu-overlay.show { display:block; }
+    .more-menu { display:none; position:fixed; top:52px; right:12px; z-index:500; background:#fff; border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,0.22); overflow:hidden; min-width:180px; }
+    .more-menu.show { display:block; }
+    .more-item { padding:12px 16px; font-size:13.5px; font-weight:700; color:#222; cursor:pointer; }
+    .more-item:active { background:#f5f5f5; }
+    .more-item.danger { color:var(--red); border-top:1px solid #f0f0f0; }
     .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 6px 10px 10px; gap: 6px; }
     .h-tabs::-webkit-scrollbar { display: none; }
     .h-tab { white-space: nowrap; padding: 7px 16px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; }
@@ -166,7 +173,14 @@
         <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
         <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
+        <span class="h-dots" onclick="toggleMoreMenu(event)" style="padding:2px 0 2px 2px;">⋮</span>
       </div>
+    </div>
+    <div class="more-menu-overlay" id="moreMenuOverlay" onclick="closeMoreMenu()"></div>
+    <div class="more-menu" id="moreMenu">
+      <div class="more-item" onclick="closeMoreMenu();goProfile()">👤 Mon profil</div>
+      <div class="more-item" onclick="closeMoreMenu();goToPanel(7)">📖 Aide / FAQ</div>
+      <div class="more-item danger" onclick="doSignOut()">🚪 Se déconnecter</div>
     </div>
   </div>
   <div class="h-tabs">
@@ -220,9 +234,7 @@
 
   <!-- PANEL 5 : CV Pro (tab 5) -->
   <div class="panel-slide" id="panel-5" style="position:relative;">
-    <iframe src="cv_pro.html" style="width:100%;height:100%;border:none;display:block;" id="cvProFrame"></iframe>
-    <div id="swipeLeftCv" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
-    <div id="swipeRightCv" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
+    <iframe src="cv_pro.html" style="width:100%;height:100%;border:none;display:block;" id="cvFrame"></iframe>
   </div>
 
   <!-- PANEL 6 : Discussion (tab 6) -->
@@ -310,9 +322,58 @@
   </div>
 </div>
 
+<script>
+/* Mise en page critique (en-tête, iframes, menu ⋮) — volontairement séparée du script
+   Firebase plus bas. Si Firebase est lent ou bloqué (4G, pare-feu, bloqueur de pub),
+   cette partie doit fonctionner quand même : c'est justement ce qui ne marchait pas
+   avant, tout étant piégé dans un seul script qui s'arrêtait net si l'import Firebase
+   échouait ou tardait. */
+function adjustLayout() {
+  const topHEl = document.getElementById('topH');
+  const hh = topHEl ? topHEl.offsetHeight : 0;
+  const hSpacerEl = document.getElementById('hSpacer');
+  if (hSpacerEl) hSpacerEl.style.height = hh + 'px';
+  document.querySelectorAll('.btn-suivre-wrap').forEach(el => { el.style.top = (hh + 50) + 'px'; });
+  document.querySelectorAll('.badge-v').forEach(el => { el.style.top = '230px'; });
+  document.querySelectorAll('.info-top').forEach(el => { el.style.top = '370px'; });
+  document.querySelectorAll('.info-bot').forEach(el => { el.style.bottom = '70px'; });
+  // Les iframes (Actualités, Statuts, Élites, Offres, CV Pro, Discussion, FAQ) étaient
+  // en 100% de leur panneau (donc 100vh), et se retrouvaient cachées derrière le vrai
+  // en-tête fixe en haut et la barre du bas fixe en bas. On ne touche pas au flux
+  // principal (panel-0, jamais signalé cassé) : on repositionne uniquement les iframes,
+  // avec la vraie hauteur mesurée plutôt que devinée.
+  const botNavEl = document.querySelector('.bot-nav');
+  const bnh = botNavEl ? botNavEl.offsetHeight : 0;
+  document.querySelectorAll('.panel-slide iframe').forEach(f => {
+    f.style.position = 'absolute';
+    f.style.left = '0';
+    f.style.top = hh + 'px';
+    f.style.width = '100%';
+    f.style.height = 'calc(100vh - ' + hh + 'px - ' + bnh + 'px)';
+    try { f.contentWindow.postMessage({ type: 'parentFrame', headerHeight: hh, bottomNavHeight: bnh }, '*'); } catch(e) {}
+  });
+  const pc = document.getElementById('panelsContainer');
+  if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
+}
+window.toggleMoreMenu = function(e){
+  if(e) e.stopPropagation();
+  document.getElementById('moreMenu').classList.toggle('show');
+  document.getElementById('moreMenuOverlay').classList.toggle('show');
+}
+window.closeMoreMenu = function(){
+  document.getElementById('moreMenu').classList.remove('show');
+  document.getElementById('moreMenuOverlay').classList.remove('show');
+}
+adjustLayout();
+window.addEventListener('load', adjustLayout);
+window.addEventListener('resize', adjustLayout);
+setTimeout(adjustLayout, 100);
+setTimeout(adjustLayout, 400);
+setTimeout(adjustLayout, 1200);
+</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -327,6 +388,12 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  window.doSignOut = async function() {
+    closeMoreMenu();
+    try { await signOut(auth); } catch(e) { console.error('Déconnexion :', e); }
+    window.location.href = 'connexion.html';
+  }
 
   const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
 
@@ -432,32 +499,6 @@
     </div>`;
   }
 
-  function adjustLayout() {
-    const hh = document.getElementById('topH').offsetHeight;
-    document.getElementById('hSpacer').style.height = hh + 'px';
-    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
-      el.style.top = (hh + 50) + 'px';
-    });
-    document.querySelectorAll('.badge-v').forEach(el => {
-      el.style.top = '230px';
-    });
-    document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '370px';
-    });
-    document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = '70px';
-    });
-  }
-
-  window.addEventListener('load', () => {
-    adjustLayout();
-    // Redimensionner le container panels
-    const pc = document.getElementById('panelsContainer');
-    if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
-  });
-  window.addEventListener('resize', adjustLayout);
-  setTimeout(adjustLayout, 100);
-  setTimeout(adjustLayout, 400);
 
   window.toast = function(msg, type) {
     const el = document.getElementById('toastEl');
@@ -657,8 +698,6 @@
   addSwipeBand(document.getElementById('swipeRightAc'));
   addSwipeBand(document.getElementById('swipeLeftOf'));
   addSwipeBand(document.getElementById('swipeRightOf'));
-  addSwipeBand(document.getElementById('swipeLeftCv'));
-  addSwipeBand(document.getElementById('swipeRightCv'));
   addSwipeBand(document.getElementById('swipeLeftEl'));
   addSwipeBand(document.getElementById('swipeRightEl'));
   addSwipeBand(document.getElementById('swipeLeftFq'));
