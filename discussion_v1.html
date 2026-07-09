@@ -558,6 +558,24 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
 window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':t==='r'?' r':'');setTimeout(()=>el.className='toast',2400)}
+/* Affiché dans le cadre d'accueil.html : l'en-tête (logo+onglets) et la barre du bas
+   d'accueil font déjà le travail — on masque ceux d'ici pour éviter le doublon
+   (et le décalage des boutons d'appel / barre de saisie qu'il provoquait).
+   Forcé en !important + réappliqué à plusieurs moments pour ne pas dépendre
+   d'un seul passage (au cas où un cache servirait une exécution partielle). */
+function hideEmbeddedChrome(){
+  const th=document.getElementById('topH');
+  if(th) th.style.setProperty('display','none','important');
+  const sp=document.getElementById('spacer');
+  if(sp) sp.style.setProperty('height','0px','important');
+  document.querySelectorAll('nav.bot-nav').forEach(n=>n.style.setProperty('display','none','important'));
+}
+// On ne masque QUE si accueil.html confirme explicitement qu'il nous affiche dans son
+// cadre (message reçu) — jamais en devinant sur window.parent, qui déclenchait aussi
+// à tort dans un aperçu autonome (ex. ouverture directe du fichier dans le navigateur).
+window.addEventListener('message',(e)=>{
+  if(e.data && e.data.type==='parentFrame') hideEmbeddedChrome();
+});
 window.toggleSearch=function(){const w=document.getElementById('searchWrap');w.style.display=w.style.display==='none'?'':'none';if(w.style.display==='')document.getElementById('sq').focus()}
 window.closeSearch=function(){const w=document.getElementById('searchWrap');w.style.display='none';const sq=document.getElementById('sq');sq.value='';doSearch()}
 window.doSearch=function(){const q=document.getElementById('sq').value.toLowerCase();document.querySelectorAll('.conv-card').forEach(c=>{c.style.display=c.textContent.toLowerCase().includes(q)?'':'none'})}
