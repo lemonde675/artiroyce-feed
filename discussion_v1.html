@@ -577,6 +577,12 @@ function appliquerDecalageChat(){
   if(cp) cp.style.paddingTop=embedTopOffsetPx+'px';
 }
 window.addEventListener('resize',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); });
+// Calcul direct au chargement, SANS dépendre d'un message envoyé par accueil.html
+// (accueil.html n'envoie pas ce message : on ne peut donc pas attendre dessus).
+// window.parent!==window est un fait du DOM, pas une supposition : c'est fiable.
+embedTopOffsetPx=getEmbedTopOffsetPx();
+window.addEventListener('load',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); });
+setTimeout(()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); },300);
 window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':t==='r'?' r':'');setTimeout(()=>el.className='toast',2400)}
 /* Affiché dans le cadre d'accueil.html : l'en-tête (logo+onglets) et la barre du bas
    d'accueil font déjà le travail — on masque ceux d'ici pour éviter le doublon
