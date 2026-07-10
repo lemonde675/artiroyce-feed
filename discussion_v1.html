@@ -558,6 +558,25 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <script>
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
+
+// Calcule en px la vraie hauteur du header FIXE du shell parent (accueil.html) quand cette
+// page est chargée en iframe, pour ne jamais cacher le chat-hdr (boutons d'appel) dessous.
+// Même technique que dans statut_v1.
+function getEmbedTopOffsetPx(){
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const parentTop = window.parent.document.getElementById('topH');
+      if (parentTop) return parentTop.getBoundingClientRect().height;
+    }
+  } catch(e) {}
+  return 0;
+}
+let embedTopOffsetPx=0;
+function appliquerDecalageChat(){
+  const cp=document.getElementById('chatPanel');
+  if(cp) cp.style.paddingTop=embedTopOffsetPx+'px';
+}
+window.addEventListener('resize',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); });
 window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':t==='r'?' r':'');setTimeout(()=>el.className='toast',2400)}
 /* Affiché dans le cadre d'accueil.html : l'en-tête (logo+onglets) et la barre du bas
    d'accueil font déjà le travail — on masque ceux d'ici pour éviter le doublon
@@ -575,7 +594,11 @@ function hideEmbeddedChrome(){
 // cadre (message reçu) — jamais en devinant sur window.parent, qui déclenchait aussi
 // à tort dans un aperçu autonome (ex. ouverture directe du fichier dans le navigateur).
 window.addEventListener('message',(e)=>{
-  if(e.data && e.data.type==='parentFrame') hideEmbeddedChrome();
+  if(e.data && e.data.type==='parentFrame'){
+    hideEmbeddedChrome();
+    embedTopOffsetPx=getEmbedTopOffsetPx();
+    appliquerDecalageChat();
+  }
 });
 window.toggleSearch=function(){const w=document.getElementById('searchWrap');w.style.display=w.style.display==='none'?'':'none';if(w.style.display==='')document.getElementById('sq').focus()}
 window.closeSearch=function(){const w=document.getElementById('searchWrap');w.style.display='none';const sq=document.getElementById('sq');sq.value='';doSearch()}
@@ -638,6 +661,7 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo){
     seed.style.display='none';empty.style.display='flex';
   }
   document.getElementById('chatPanel').classList.add('open');
+  appliquerDecalageChat();
   if(viewStack[viewStack.length-1]!=='chat') pushView('chat');
   cancelReply();
   setTimeout(()=>{const a=document.getElementById('msgsArea');a.scrollTop=a.scrollHeight},100);
