@@ -61,8 +61,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .type-chip{border:1.5px solid #E8ECF0;border-radius:14px;padding:7px 12px;font-size:12.5px;font-weight:700;color:#555;cursor:pointer}
 .type-chip.active{color:#fff;border-color:transparent}
 .ribbon{display:inline-flex;align-items:center;gap:4px;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:0 10px 10px 0;margin-bottom:6px}
-.follow-btn{border:1.5px solid var(--green);color:var(--green);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
-.follow-btn.on{background:var(--green);color:#fff}
+.follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
+.follow-btn.on{background:#eee;color:#777;border-color:#eee}
 .react-picker{display:none;gap:6px;padding:8px 12px;border-top:1px solid #f2f2f2;background:#fafafa}
 .react-picker.show{display:flex}
 .react-em{font-size:22px;cursor:pointer;transition:transform .1s}
@@ -119,11 +119,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
         <span style="font-size:22px;cursor:pointer;color:#999" onclick="window.__closeComposer()">✕</span>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="typeRow">
-        <div class="type-chip active" data-type="actu" data-color="#e63224">📰 Actualité</div>
+        <div class="type-chip active" data-type="actu" data-color="#e63224">📰 Journal</div>
         <div class="type-chip" data-type="lancement" data-color="#27a945">🚀 Lancement</div>
         <div class="type-chip" data-type="partenariat" data-color="#8e44ad">🤝 Partenariat</div>
         <div class="type-chip" data-type="innovation" data-color="#0288d1">💡 Innovation</div>
       </div>
+      <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
       <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
       <div id="mediaPreview" style="margin-top:10px;display:none">
         <img id="imgPreview" style="width:100%;border-radius:14px;display:none;max-height:220px;object-fit:cover">
@@ -250,11 +251,21 @@ function renderPost(id, p, opts){
   const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
   const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
   const typeColors = {actu:'#e63224',lancement:'#27a945',partenariat:'#8e44ad',innovation:'#0288d1'};
-  const typeLabels = {actu:'📰 Actualité',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
-  const ribbon = p.type ? ('<div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div><br>') : '';
+  const typeLabels = {actu:'📰 Journal',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
+  const journalSuffix = p.journalNom ? (' — '+esc(p.journalNom)) : '';
+  const ribbon = p.type ? ('<div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+journalSuffix+'</div><br>') : '';
+  const roleLbl = p.official ? '' : (p.roleLbl || 'Professionnel');
   const imgs = (p.images||[]).slice(0,4).map(function(u){return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer">';}).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:100%;display:block;background:#000;max-height:260px"></video>') : '';
-  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__softDelete(\''+id+'\')">⋮</div>') : '';
+  const menu = (mine && !trashed) ? (
+    '<div style="position:relative;margin-left:auto">'
+    + '<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>'
+    + '<div id="menu-'+id+'" style="display:none;position:absolute;right:0;top:26px;background:#fff;border:1px solid #E8ECF0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;min-width:150px;overflow:hidden">'
+    +   '<div style="padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
+    +   '<div style="padding:11px 14px;font-size:13px;font-weight:700;color:var(--red);cursor:pointer;border-top:1px solid #f2f2f2" onclick="window.__softDelete(\''+id+'\')">🗑 Supprimer</div>'
+    + '</div>'
+    + '</div>'
+  ) : '';
   const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
@@ -270,7 +281,7 @@ function renderPost(id, p, opts){
     +   '</div>'
     +   '<div style="flex:1">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+metierBadge+'</div>'
-    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+timeAgo(p.createdAt)+'</div>'
+    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn + menu
     + '</div>'
@@ -370,6 +381,38 @@ async function markAuthorsOnline(){
   }
 }
 
+window.__toggleMenu = function(id){
+  document.querySelectorAll('[id^="menu-"]').forEach(function(m){ if(m.id!=='menu-'+id) m.style.display='none'; });
+  const m = document.getElementById('menu-'+id);
+  if(m) m.style.display = (m.style.display==='block') ? 'none' : 'block';
+};
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.post-menu') && !e.target.closest('[id^="menu-"]')){
+    document.querySelectorAll('[id^="menu-"]').forEach(function(m){ m.style.display='none'; });
+  }
+});
+
+let editingPostId = null;
+
+window.__editPost = async function(id){
+  document.querySelectorAll('[id^="menu-"]').forEach(function(m){ m.style.display='none'; });
+  const snap = await getDoc(doc(db,'fil_presse', id));
+  if(!snap.exists()) return;
+  const p = snap.data();
+  editingPostId = id;
+  document.getElementById('composerTxt').value = p.texte || '';
+  document.getElementById('composerJournal').value = p.journalNom || '';
+  document.querySelectorAll('.type-chip').forEach(function(c){
+    const active = c.dataset.type === (p.type||'actu');
+    c.classList.toggle('active', active);
+    c.style.background = active ? c.dataset.color : '';
+    c.style.color = active ? '#fff' : '';
+  });
+  selectedType = p.type || 'actu';
+  document.getElementById('btnPublier').textContent = 'Enregistrer les modifications';
+  window.__openComposer();
+};
+
 window.toggleTrash = function(){
   const list = document.getElementById('trashList');
   const arrow = document.getElementById('trashArrow');
@@ -428,10 +471,33 @@ async function ensureSeed(){
 let selectedType = 'actu';
 let selectedPhotoFile = null;
 let selectedVideoFile = null;
+let composerHistoryPushed = false;
+
+window.__openComposer = function(){
+  document.getElementById('composerModal').style.display = 'block';
+  if(!composerHistoryPushed){
+    history.pushState({ frComposer:true }, '');
+    composerHistoryPushed = true;
+  }
+};
 
 window.__closeComposer = function(){
   document.getElementById('composerModal').style.display = 'none';
+  editingPostId = null;
+  document.getElementById('btnPublier').textContent = 'Publier';
+  if(composerHistoryPushed){
+    composerHistoryPushed = false;
+    if(history.state && history.state.frComposer) history.back();
+  }
 };
+
+window.addEventListener('popstate', function(){
+  const modal = document.getElementById('composerModal');
+  if(modal && modal.style.display === 'block'){
+    modal.style.display = 'none';
+    composerHistoryPushed = false;
+  }
+});
 
 function wireComposerModal(){
   document.querySelectorAll('.type-chip').forEach(function(chip){
@@ -490,24 +556,39 @@ function wireComposerModal(){
       alert("L'envoi du média a échoué (vérifie que Firebase Storage est bien activé). La publication texte continue.");
     }
 
-    await addDoc(collection(db,'fil_presse'), {
-      uid: currentUid,
-      prenom: currentUserData.prenom || 'Professionnel',
-      metier: currentUserData.metier || '',
-      photoAvatar: currentUserData.photoAvatar || '',
-      official: false,
-      verifie: true,
-      type: selectedType,
-      texte: texte,
-      images: images,
-      videoUrl: videoUrl,
-      likes: 0,
-      comments: 0,
-      deletedAt: null,
-      createdAt: serverTimestamp()
-    });
+    const journalNom = document.getElementById('composerJournal').value.trim();
+    const roleLbl = (currentUserData.role === 'visiteur') ? 'Visiteur' : 'Professionnel';
+
+    if(editingPostId){
+      const updateData = { type: selectedType, texte: texte, journalNom: journalNom };
+      if(images.length) updateData.images = images;
+      if(videoUrl) updateData.videoUrl = videoUrl;
+      await updateDoc(doc(db,'fil_presse', editingPostId), updateData);
+      editingPostId = null;
+      document.getElementById('btnPublier').textContent = 'Publier';
+    } else {
+      await addDoc(collection(db,'fil_presse'), {
+        uid: currentUid,
+        prenom: currentUserData.prenom || 'Professionnel',
+        metier: currentUserData.metier || '',
+        photoAvatar: currentUserData.photoAvatar || '',
+        roleLbl: roleLbl,
+        journalNom: journalNom,
+        official: false,
+        verifie: true,
+        type: selectedType,
+        texte: texte,
+        images: images,
+        videoUrl: videoUrl,
+        likes: 0,
+        comments: 0,
+        deletedAt: null,
+        createdAt: serverTimestamp()
+      });
+    }
 
     document.getElementById('composerTxt').value = '';
+    document.getElementById('composerJournal').value = '';
     document.getElementById('mediaPreview').style.display = 'none';
     selectedPhotoFile = null; selectedVideoFile = null;
     btn.textContent = 'Publier'; btn.disabled = false;
@@ -527,7 +608,7 @@ window.__toggleFollow = async function(targetUid){
     if(btn){ btn.classList.remove('on'); btn.textContent = '+ Suivre'; }
   } else {
     await setDoc(relRef, { follower: currentUid, followed: targetUid, createdAt: serverTimestamp() });
-    if(btn){ btn.classList.add('on'); btn.textContent = '✔ Abonné(e)'; }
+    if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   }
 }
 
@@ -537,7 +618,7 @@ async function markFollowedButtons(){
   snap.forEach(function(d){
     const followed = d.data().followed;
     const btn = document.getElementById('follow-'+followed);
-    if(btn){ btn.classList.add('on'); btn.textContent = '✔ Abonné(e)'; }
+    if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   });
 }
 
@@ -632,7 +713,7 @@ async function initComposer(){
   }
   wireComposerModal();
   composerBtn.onclick = function(){
-    document.getElementById('composerModal').style.display = 'block';
+    window.__openComposer();
   };
 }
 
