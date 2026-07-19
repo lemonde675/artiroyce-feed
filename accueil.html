@@ -337,7 +337,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -493,7 +493,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   // ══ SWIPE HORIZONTAL ══
   const tabs = document.querySelectorAll('.h-tab');
   const track = document.getElementById('panelsTrack');
-  const totalPanels = 7;
+  const totalPanels = 9;
   let currentPanel = 0;
   let touchStartX = 0;
   let touchStartY = 0;
@@ -861,6 +861,19 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
       if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
     } catch(e) { console.error('rôle utilisateur:', e); }
+
+    // Présence en ligne : on touche derniereActivite pendant que l'utilisateur
+    // est réellement présent (onglet visible), pour permettre aux autres pages
+    // (ex. Répert-Discussion) d'afficher un vrai statut en ligne / vu il y a X.
+    function battementPresence(){
+      if (document.visibilityState === 'visible') {
+        updateDoc(doc(db, 'utilisateurs', user.uid), { derniereActivite: serverTimestamp() }).catch(()=>{});
+      }
+    }
+    battementPresence();
+    setInterval(battementPresence, 45000);
+    document.addEventListener('visibilitychange', battementPresence);
+
     const feed = document.getElementById('feedW');
     try {
       const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
