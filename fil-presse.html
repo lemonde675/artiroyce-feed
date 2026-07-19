@@ -28,6 +28,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .composer-row{display:flex;align-items:center;gap:10px;padding:12px 14px}
 .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
+.av-wrap{position:relative;flex-shrink:0}
+.online-dot{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
+.v-icon{position:absolute;top:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
 .composer-input{flex:1;background:#F2F4F7;border-radius:22px;padding:10px 16px;font-size:14px;color:#777;border:none;cursor:pointer}
 .composer-locked{font-size:12px;color:#999;text-align:center;padding:8px 14px 12px}
 
@@ -165,6 +168,29 @@ if(window.visualViewport){window.visualViewport.addEventListener('resize',majVh)
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
 
+// Même correctif que discussion_v1.html : calcule directement la vraie hauteur du
+// header FIXE du shell parent (accueil.html) quand cette page est en iframe, pour
+// ne jamais cacher le composeur/le contenu dessous. Ne dépend d'aucun message
+// (accueil.html n'en envoie pas) : le calcul est direct et sans risque.
+function getEmbedTopOffsetPx(){
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const parentTop = window.parent.document.getElementById('topH');
+      if (parentTop) return parentTop.getBoundingClientRect().height;
+    }
+  } catch(e) {}
+  return 0;
+}
+let embedTopOffsetPx = 0;
+function appliquerDecalage(){
+  document.querySelector('.body-wrap').style.paddingTop = embedTopOffsetPx + 'px';
+}
+embedTopOffsetPx = getEmbedTopOffsetPx();
+appliquerDecalage();
+window.addEventListener('load', ()=>{ embedTopOffsetPx = getEmbedTopOffsetPx(); appliquerDecalage(); });
+window.addEventListener('resize', ()=>{ embedTopOffsetPx = getEmbedTopOffsetPx(); appliquerDecalage(); });
+setTimeout(()=>{ embedTopOffsetPx = getEmbedTopOffsetPx(); appliquerDecalage(); }, 300);
+
 function hideEmbeddedChrome(){
   const th=document.getElementById('topH');
   if(th) th.style.setProperty('display','none','important');
@@ -238,7 +264,10 @@ function renderPost(id, p, opts){
 
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
-    +   '<div class="avatar">'+avatar+'</div>'
+    +   '<div class="av-wrap"><div class="avatar">'+avatar+'</div>'
+    +     ((p.official || p.verifie) ? '<div class="v-icon">✔</div>' : '')
+    +     '<div class="online-dot" data-author="'+(p.uid||'')+'" style="display:none"></div>'
+    +   '</div>'
     +   '<div style="flex:1">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+metierBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+timeAgo(p.createdAt)+'</div>'
@@ -313,12 +342,31 @@ async function loadFeed(){
     trashToggle.style.display = mineTrashed.length ? 'flex' : 'none';
     trashList.innerHTML = mineTrashed.map(function(x){return renderPost(x[0],x[1],{mine:true, trashed:true});}).join('');
     markFollowedButtons();
+    markAuthorsOnline();
     mineActive.concat(others).forEach(function(x){ refreshReactionCount(x[0]); });
   }catch(err){
     console.error('Fil Presse — chargement impossible :', err);
     document.getElementById('feedList').innerHTML =
       '<div class="empty-msg">⚠️ Impossible de charger le Fil Presse pour le moment.<br>'
       + '(Vérifie que Firebase Blaze est bien actif sur le projet.)</div>';
+  }
+}
+
+async function markAuthorsOnline(){
+  const dots = document.querySelectorAll('.online-dot[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d=>d.dataset.author).filter(Boolean))];
+  for(const uid of uids){
+    if(uid === 'artiroyce_presse') continue;
+    try{
+      const uSnap = await getDoc(doc(db,'utilisateurs', uid));
+      if(!uSnap.exists()) continue;
+      const da = uSnap.data().derniereActivite;
+      if(!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if(Date.now() - t < 120000){
+        document.querySelectorAll('.online-dot[data-author="'+uid+'"]').forEach(d=>d.style.display='');
+      }
+    }catch(e){}
   }
 }
 
@@ -448,6 +496,7 @@ function wireComposerModal(){
       metier: currentUserData.metier || '',
       photoAvatar: currentUserData.photoAvatar || '',
       official: false,
+      verifie: true,
       type: selectedType,
       texte: texte,
       images: images,
