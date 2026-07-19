@@ -263,21 +263,21 @@ function renderPost(id, p, opts){
   const roleLbl = p.official ? '' : (p.roleLbl || 'Professionnel');
   const imgs = (p.images||[]).slice(0,4).map(function(u){return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer">';}).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:100%;display:block;background:#000;max-height:260px"></video>') : '';
-  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>') : '';
-  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
+  const menu = (mine && !trashed) ? ('<div class="post-menu" data-act="toggle-menu" data-id="'+id+'">⋮</div>') : '';
+  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" data-act="follow" data-id="'+p.uid+'">+ Suivre</button>') : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
-    '<div class="pt-btn pt-restore" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
-    '<div class="pt-btn pt-del" onclick="window.__hardDelete(\''+id+'\')">🗑 Supprimer définitivement</div>'+
+    '<div class="pt-btn pt-restore" data-act="restore" data-id="'+id+'">↩ Restaurer</div>'+
+    '<div class="pt-btn pt-del" data-act="hard-delete" data-id="'+id+'">🗑 Supprimer définitivement</div>'+
     '</div>') : '';
 
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
-    +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
+    +   '<div class="av-wrap" style="cursor:pointer" data-act="voir-profil" data-id="'+(p.uid||'')+'"><div class="avatar">'+avatar+'</div>'
     +     ((p.official || p.verifie) ? '<div class="v-icon">✔</div>' : '')
     +     '<div class="online-dot" data-author="'+(p.uid||'')+'" style="display:none"></div>'
     +   '</div>'
-    +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
+    +   '<div style="flex:1;cursor:pointer" data-act="voir-profil" data-id="'+(p.uid||'')+'">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
@@ -285,8 +285,8 @@ function renderPost(id, p, opts){
     + '</div>'
     + (mine && !trashed ? (
         '<div class="own-actions" id="ownActions-'+id+'">'
-      +   '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
-      +   '<div class="oa-btn oa-del" onclick="window.__softDelete(\''+id+'\')">🗑 Supprimer</div>'
+      +   '<div class="oa-btn" data-act="edit" data-id="'+id+'">✏️ Modifier</div>'
+      +   '<div class="oa-btn oa-del" data-act="soft-delete" data-id="'+id+'">🗑 Supprimer</div>'
       + '</div>') : '')
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
     + (imgs ? ('<div class="post-imgs">'+imgs+'</div>') : '')
@@ -403,6 +403,23 @@ window.__toggleMenu = function(id){
 };
 
 let editingPostId = null;
+
+// Écoute déléguée UNIQUE sur le conteneur du fil : fonctionne pour toutes les
+// publications même après un rafraîchissement du fil (loadFeed remplace le HTML,
+// mais le conteneur #content, lui, ne change jamais). Même logique que cv_pro.html.
+document.getElementById('content').addEventListener('click', function(e){
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  const act = el.dataset.act;
+  const id = el.dataset.id;
+  if(act === 'toggle-menu') window.__toggleMenu(id);
+  else if(act === 'edit') window.__editPost(id);
+  else if(act === 'soft-delete') window.__softDelete(id);
+  else if(act === 'restore') window.__restore(id);
+  else if(act === 'hard-delete') window.__hardDelete(id);
+  else if(act === 'follow') window.__toggleFollow(id);
+  else if(act === 'voir-profil') window.__voirProfil(id);
+});
 
 window.__editPost = async function(id){
   document.querySelectorAll('.own-actions.show').forEach(function(r){ r.classList.remove('show'); });
