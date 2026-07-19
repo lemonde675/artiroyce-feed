@@ -132,9 +132,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
       </div>
       <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
       <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
-      <div id="mediaPreview" style="margin-top:10px;display:none">
-        <img id="imgPreview" style="width:100%;border-radius:14px;display:none;max-height:220px;object-fit:cover">
-        <video id="vidPreview" style="width:100%;border-radius:14px;display:none;max-height:220px" controls></video>
+      <div id="mediaPreview" style="margin-top:10px;display:none;text-align:center;background:#F2F4F7;border-radius:14px;padding:8px">
+        <img id="imgPreview" style="max-width:100%;border-radius:12px;display:none;max-height:220px;object-fit:contain;margin:0 auto">
+        <video id="vidPreview" style="max-width:100%;border-radius:12px;display:none;max-height:220px;margin:0 auto" controls></video>
       </div>
       <div style="display:flex;gap:10px;margin-top:12px">
         <label style="flex:1;text-align:center;background:#F2F4F7;border-radius:14px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">
@@ -549,61 +549,76 @@ function wireComposerModal(){
 
     let images = [];
     let videoUrl = '';
+
+    function avecDelaiMax(promesse, ms){
+      return Promise.race([
+        promesse,
+        new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('Délai dépassé (Storage indisponible ?)')); }, ms); })
+      ]);
+    }
+
     try{
-      if(selectedPhotoFile){
-        const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedPhotoFile.name;
-        const r = ref(storage, path);
-        await uploadBytes(r, selectedPhotoFile);
-        images = [await getDownloadURL(r)];
+      try{
+        if(selectedPhotoFile){
+          const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedPhotoFile.name;
+          const r = ref(storage, path);
+          await avecDelaiMax(uploadBytes(r, selectedPhotoFile), 20000);
+          images = [await avecDelaiMax(getDownloadURL(r), 10000)];
+        }
+        if(selectedVideoFile){
+          const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedVideoFile.name;
+          const r = ref(storage, path);
+          await avecDelaiMax(uploadBytes(r, selectedVideoFile), 40000);
+          videoUrl = await avecDelaiMax(getDownloadURL(r), 10000);
+        }
+      }catch(mediaErr){
+        console.error('Envoi média impossible :', mediaErr);
+        alert("L'envoi du média a échoué (Firebase Storage indisponible pour le moment). La publication continue sans média.");
       }
-      if(selectedVideoFile){
-        const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedVideoFile.name;
-        const r = ref(storage, path);
-        await uploadBytes(r, selectedVideoFile);
-        videoUrl = await getDownloadURL(r);
+
+      const journalNom = document.getElementById('composerJournal').value.trim();
+      const roleLbl = (currentUserData.role === 'visiteur') ? 'Visiteur' : 'Professionnel';
+
+      if(editingPostId){
+        const updateData = { type: selectedType, texte: texte, journalNom: journalNom };
+        if(images.length) updateData.images = images;
+        if(videoUrl) updateData.videoUrl = videoUrl;
+        await updateDoc(doc(db,'fil_presse', editingPostId), updateData);
+        editingPostId = null;
+      } else {
+        await addDoc(collection(db,'fil_presse'), {
+          uid: currentUid,
+          prenom: currentUserData.prenom || 'Professionnel',
+          metier: currentUserData.metier || '',
+          photoAvatar: currentUserData.photoAvatar || '',
+          roleLbl: roleLbl,
+          journalNom: journalNom,
+          official: false,
+          verifie: true,
+          type: selectedType,
+          texte: texte,
+          images: images,
+          videoUrl: videoUrl,
+          likes: 0,
+          comments: 0,
+          deletedAt: null,
+          createdAt: serverTimestamp()
+        });
       }
-    }catch(e){
-      alert("L'envoi du média a échoué (vérifie que Firebase Storage est bien activé). La publication texte continue.");
+
+      document.getElementById('composerTxt').value = '';
+      document.getElementById('composerJournal').value = '';
+      document.getElementById('mediaPreview').style.display = 'none';
+      selectedPhotoFile = null; selectedVideoFile = null;
+      window.__closeComposer();
+      loadFeed();
+    }catch(err){
+      console.error('Publication impossible :', err);
+      alert("La publication a échoué : " + (err && err.message ? err.message : 'erreur inconnue') + "\n(Vérifie ta connexion et que Firebase Blaze est actif.)");
+    }finally{
+      btn.textContent = 'Publier';
+      btn.disabled = false;
     }
-
-    const journalNom = document.getElementById('composerJournal').value.trim();
-    const roleLbl = (currentUserData.role === 'visiteur') ? 'Visiteur' : 'Professionnel';
-
-    if(editingPostId){
-      const updateData = { type: selectedType, texte: texte, journalNom: journalNom };
-      if(images.length) updateData.images = images;
-      if(videoUrl) updateData.videoUrl = videoUrl;
-      await updateDoc(doc(db,'fil_presse', editingPostId), updateData);
-      editingPostId = null;
-      document.getElementById('btnPublier').textContent = 'Publier';
-    } else {
-      await addDoc(collection(db,'fil_presse'), {
-        uid: currentUid,
-        prenom: currentUserData.prenom || 'Professionnel',
-        metier: currentUserData.metier || '',
-        photoAvatar: currentUserData.photoAvatar || '',
-        roleLbl: roleLbl,
-        journalNom: journalNom,
-        official: false,
-        verifie: true,
-        type: selectedType,
-        texte: texte,
-        images: images,
-        videoUrl: videoUrl,
-        likes: 0,
-        comments: 0,
-        deletedAt: null,
-        createdAt: serverTimestamp()
-      });
-    }
-
-    document.getElementById('composerTxt').value = '';
-    document.getElementById('composerJournal').value = '';
-    document.getElementById('mediaPreview').style.display = 'none';
-    selectedPhotoFile = null; selectedVideoFile = null;
-    btn.textContent = 'Publier'; btn.disabled = false;
-    window.__closeComposer();
-    loadFeed();
   });
 }
 
