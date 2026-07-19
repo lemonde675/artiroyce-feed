@@ -60,9 +60,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .empty-msg{text-align:center;color:#aaa;font-size:13px;padding:30px 20px}
 .type-chip{border:1.5px solid #E8ECF0;border-radius:14px;padding:7px 12px;font-size:12.5px;font-weight:700;color:#555;cursor:pointer}
 .type-chip.active{color:#fff;border-color:transparent}
-.ribbon{display:inline-flex;align-items:center;gap:4px;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:0 10px 10px 0;margin-bottom:6px}
+.ribbon-wrap{text-align:center;margin-bottom:8px}
+.ribbon{display:inline-flex;align-items:center;gap:5px;color:#fff;font-size:11.5px;font-weight:800;padding:5px 16px;border-radius:20px}
+.ribbon-journal{display:block;font-size:15px;font-weight:800;color:#222;margin-top:4px}
 .follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
 .follow-btn.on{background:#eee;color:#777;border-color:#eee}
+.own-actions{display:none;gap:8px;padding:0 14px 10px}
+.own-actions.show{display:flex}
+.oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:9px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
+.oa-del{background:#fdecea;color:var(--red)}
 .react-picker{display:none;gap:6px;padding:8px 12px;border-top:1px solid #f2f2f2;background:#fafafa}
 .react-picker.show{display:flex}
 .react-em{font-size:22px;cursor:pointer;transition:transform .1s}
@@ -119,10 +125,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
         <span style="font-size:22px;cursor:pointer;color:#999" onclick="window.__closeComposer()">✕</span>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="typeRow">
-        <div class="type-chip active" data-type="actu" data-color="#e63224">📰 Journal</div>
-        <div class="type-chip" data-type="lancement" data-color="#27a945">🚀 Lancement</div>
+        <div class="type-chip active" data-type="actu" data-color="#27a945">📰 Journal</div>
+        <div class="type-chip" data-type="lancement" data-color="#0288d1">🚀 Lancement</div>
         <div class="type-chip" data-type="partenariat" data-color="#8e44ad">🤝 Partenariat</div>
-        <div class="type-chip" data-type="innovation" data-color="#0288d1">💡 Innovation</div>
+        <div class="type-chip" data-type="innovation" data-color="#e63224">💡 Innovation</div>
       </div>
       <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
       <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
@@ -250,22 +256,14 @@ function renderPost(id, p, opts){
   const avatar = p.photoAvatar ? ('<img src="'+p.photoAvatar+'">') : initiale;
   const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
   const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
-  const typeColors = {actu:'#e63224',lancement:'#27a945',partenariat:'#8e44ad',innovation:'#0288d1'};
+  const typeColors = {actu:'#27a945',lancement:'#0288d1',partenariat:'#8e44ad',innovation:'#e63224'};
   const typeLabels = {actu:'📰 Journal',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
-  const journalSuffix = p.journalNom ? (' — '+esc(p.journalNom)) : '';
-  const ribbon = p.type ? ('<div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+journalSuffix+'</div><br>') : '';
+  const journalSuffix = p.journalNom ? ('<span class="ribbon-journal">'+esc(p.journalNom)+'</span>') : '';
+  const ribbon = p.type ? ('<div class="ribbon-wrap"><div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div>'+journalSuffix+'</div>') : '';
   const roleLbl = p.official ? '' : (p.roleLbl || 'Professionnel');
   const imgs = (p.images||[]).slice(0,4).map(function(u){return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer">';}).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:100%;display:block;background:#000;max-height:260px"></video>') : '';
-  const menu = (mine && !trashed) ? (
-    '<div style="position:relative;margin-left:auto">'
-    + '<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>'
-    + '<div id="menu-'+id+'" style="display:none;position:absolute;right:0;top:26px;background:#fff;border:1px solid #E8ECF0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:50;min-width:150px;overflow:hidden">'
-    +   '<div style="padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
-    +   '<div style="padding:11px 14px;font-size:13px;font-weight:700;color:var(--red);cursor:pointer;border-top:1px solid #f2f2f2" onclick="window.__softDelete(\''+id+'\')">🗑 Supprimer</div>'
-    + '</div>'
-    + '</div>'
-  ) : '';
+  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>') : '';
   const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
@@ -275,16 +273,21 @@ function renderPost(id, p, opts){
 
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
-    +   '<div class="av-wrap"><div class="avatar">'+avatar+'</div>'
+    +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
     +     ((p.official || p.verifie) ? '<div class="v-icon">✔</div>' : '')
     +     '<div class="online-dot" data-author="'+(p.uid||'')+'" style="display:none"></div>'
     +   '</div>'
-    +   '<div style="flex:1">'
-    +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+metierBadge+'</div>'
+    +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
+    +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn + menu
     + '</div>'
+    + (mine && !trashed ? (
+        '<div class="own-actions" id="ownActions-'+id+'">'
+      +   '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
+      +   '<div class="oa-btn oa-del" onclick="window.__softDelete(\''+id+'\')">🗑 Supprimer</div>'
+      + '</div>') : '')
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
     + (imgs ? ('<div class="post-imgs">'+imgs+'</div>') : '')
     + video
@@ -381,21 +384,28 @@ async function markAuthorsOnline(){
   }
 }
 
-window.__toggleMenu = function(id){
-  document.querySelectorAll('[id^="menu-"]').forEach(function(m){ if(m.id!=='menu-'+id) m.style.display='none'; });
-  const m = document.getElementById('menu-'+id);
-  if(m) m.style.display = (m.style.display==='block') ? 'none' : 'block';
+window.__voirProfil = function(uid){
+  if(!uid || uid === 'artiroyce_presse') return;
+  try{
+    if(window.parent && window.parent !== window && typeof window.parent.goUserProfile === 'function'){
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  }catch(e){}
+  window.location.href = 'profil.html?uid=' + uid;
 };
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.post-menu') && !e.target.closest('[id^="menu-"]')){
-    document.querySelectorAll('[id^="menu-"]').forEach(function(m){ m.style.display='none'; });
-  }
-});
+
+window.__toggleMenu = function(id){
+  const row = document.getElementById('ownActions-'+id);
+  if(!row) return;
+  document.querySelectorAll('.own-actions.show').forEach(function(r){ if(r!==row) r.classList.remove('show'); });
+  row.classList.toggle('show');
+};
 
 let editingPostId = null;
 
 window.__editPost = async function(id){
-  document.querySelectorAll('[id^="menu-"]').forEach(function(m){ m.style.display='none'; });
+  document.querySelectorAll('.own-actions.show').forEach(function(r){ r.classList.remove('show'); });
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
