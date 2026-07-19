@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Fil Presse — ArtiRoyce</title>
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<style>
+:root{--red:#e63224;--green:#27a945;--bg:#F2F4F7}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;background:var(--bg)}
+.spacer{flex-shrink:0}
+.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.th-row{display:flex;align-items:center;justify-content:space-between;padding:6px 12px 4px}
+.th-logo{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.th-logo .a{color:var(--red)}.th-logo .r{color:var(--green)}
+.lang-sel{display:flex;align-items:center;gap:4px;background:#F2F4F7;border-radius:20px;padding:6px 10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #E8ECF0}
+.h-icons{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
+.h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
+.h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
+.h-ico.chat .bdot{background:var(--green)}
+.h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+
+.composer{background:#fff;flex-shrink:0;border-bottom:1px solid #eee}
+.composer-row{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.composer-input{flex:1;background:#F2F4F7;border-radius:22px;padding:10px 16px;font-size:14px;color:#777;border:none;cursor:pointer}
+.composer-locked{font-size:12px;color:#999;text-align:center;padding:8px 14px 12px}
+
+.content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+.sec-title{font-size:12.5px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.5px;padding:14px 16px 6px;background:var(--bg)}
+.trash-toggle{margin:0 14px 8px;background:#fff;border:1px solid #E8ECF0;border-radius:16px;padding:10px 14px;font-size:13px;font-weight:700;color:#e63224;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+
+.post{background:#fff;margin-bottom:8px}
+.post-hd{display:flex;align-items:center;gap:10px;padding:14px 14px 6px}
+.post-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.post-name{font-size:14.5px;font-weight:800;color:#222}
+.badge-metier{background:#F2F4F7;border-radius:12px;padding:2px 9px;font-size:11.5px;font-weight:700;color:#555;display:inline-flex;align-items:center;gap:3px}
+.badge-off{background:var(--green);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:800}
+.post-sub{font-size:12px;color:#999;margin-top:1px}
+.post-menu{margin-left:auto;color:#bbb;font-size:20px;line-height:1;cursor:pointer;padding:4px}
+.post-txt{padding:2px 14px 10px;font-size:14px;color:#222;line-height:1.4}
+.post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.post-imgs img{width:100%;height:170px;object-fit:cover;display:block;background:#eee}
+.post-stats{display:flex;justify-content:space-between;padding:9px 14px;font-size:12.5px;color:#999}
+.post-actions{display:flex;border-top:1px solid #f2f2f2}
+.pa-btn{flex:1;text-align:center;padding:11px 4px;font-size:12.5px;font-weight:700;color:#777;cursor:pointer}
+.post-trash-actions{display:flex;gap:8px;padding:0 14px 12px}
+.pt-btn{flex:1;text-align:center;padding:9px;border-radius:12px;font-size:12.5px;font-weight:800;cursor:pointer}
+.pt-restore{background:#e8f5e9;color:var(--green)}
+.pt-del{background:#fdecea;color:var(--red)}
+.empty-msg{text-align:center;color:#aaa;font-size:13px;padding:30px 20px}
+.type-chip{border:1.5px solid #E8ECF0;border-radius:14px;padding:7px 12px;font-size:12.5px;font-weight:700;color:#555;cursor:pointer}
+.type-chip.active{color:#fff;border-color:transparent}
+.ribbon{display:inline-flex;align-items:center;gap:4px;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:0 10px 10px 0;margin-bottom:6px}
+.follow-btn{border:1.5px solid var(--green);color:var(--green);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
+.follow-btn.on{background:var(--green);color:#fff}
+.react-picker{display:none;gap:6px;padding:8px 12px;border-top:1px solid #f2f2f2;background:#fafafa}
+.react-picker.show{display:flex}
+.react-em{font-size:22px;cursor:pointer;transition:transform .1s}
+.react-em:active{transform:scale(1.3)}
+.comments-box{display:none;padding:10px 14px;border-top:1px solid #f2f2f2;background:#fafafa}
+.comments-box.show{display:block}
+.cmt-item{display:flex;gap:8px;margin-bottom:8px}
+.cmt-av{width:28px;height:28px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#666;flex-shrink:0}
+.cmt-bubble{background:#fff;border-radius:12px;padding:7px 10px;font-size:12.5px;flex:1}
+.cmt-bubble b{font-size:12px}
+.cmt-input-row{display:flex;gap:8px;margin-top:6px}
+.cmt-input{flex:1;border:1px solid #E8ECF0;border-radius:14px;padding:8px 12px;font-size:13px}
+.cmt-send{background:var(--red);color:#fff;border:none;border-radius:14px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="body-wrap">
+  <header class="top-header" id="topH">
+    <div class="th-row">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:24px">🏠</span>
+        <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+          <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+          <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+          <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+          <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+          <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+        </svg>
+        <div class="th-logo"><span class="a">Arti</span><span class="r">Royce</span></div>
+      </div>
+      <div class="h-icons">
+        <div class="h-ico bell">🔔<div class="bdot">3</div></div>
+        <div class="h-ico chat">💬<div class="bdot">1</div></div>
+        <span style="font-size:19px;cursor:pointer">🔍</span>
+        <span style="font-size:19px;cursor:pointer" id="langSel">🇫🇷</span>
+      </div>
+    </div>
+  </header>
+  <div class="spacer" id="spacer"></div>
+
+  <div class="composer" id="composer">
+    <div class="composer-row">
+      <div class="avatar" id="myAvatar">?</div>
+      <div class="composer-input" id="composerBtn" data-i18n="presse_quoi_neuf">Publier une actualité presse…</div>
+    </div>
+    <div class="composer-locked" id="composerLocked" style="display:none" data-i18n="presse_reserve">Réservé aux professionnels vérifiés</div>
+  </div>
+
+  <div id="composerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;">
+    <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <b style="font-size:16px">✍️ Nouvelle publication</b>
+        <span style="font-size:22px;cursor:pointer;color:#999" onclick="window.__closeComposer()">✕</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="typeRow">
+        <div class="type-chip active" data-type="actu" data-color="#e63224">📰 Actualité</div>
+        <div class="type-chip" data-type="lancement" data-color="#27a945">🚀 Lancement</div>
+        <div class="type-chip" data-type="partenariat" data-color="#8e44ad">🤝 Partenariat</div>
+        <div class="type-chip" data-type="innovation" data-color="#0288d1">💡 Innovation</div>
+      </div>
+      <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
+      <div id="mediaPreview" style="margin-top:10px;display:none">
+        <img id="imgPreview" style="width:100%;border-radius:14px;display:none;max-height:220px;object-fit:cover">
+        <video id="vidPreview" style="width:100%;border-radius:14px;display:none;max-height:220px" controls></video>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <label style="flex:1;text-align:center;background:#F2F4F7;border-radius:14px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">
+          📷 Photo<input type="file" accept="image/*" id="inputPhoto" style="display:none">
+        </label>
+        <label style="flex:1;text-align:center;background:#F2F4F7;border-radius:14px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">
+          🎥 Vidéo<input type="file" accept="video/*" id="inputVideo" style="display:none">
+        </label>
+      </div>
+      <button id="btnPublier" style="width:100%;margin-top:14px;background:var(--red);color:#fff;border:none;border-radius:16px;padding:14px;font-size:15px;font-weight:800;cursor:pointer">Publier</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div class="trash-toggle" id="trashToggle" style="display:none" onclick="toggleTrash()">
+      <span>🗑 <span data-i18n="presse_corbeille">Corbeille</span> (<span id="trashCount">0</span>)</span>
+      <span id="trashArrow">▾</span>
+    </div>
+    <div id="trashList" style="display:none"></div>
+
+    <div class="sec-title" id="secMineTitle" style="display:none" data-i18n="presse_mes_pubs">Mes publications</div>
+    <div id="mineList"></div>
+
+    <div class="sec-title" data-i18n="presse_fil">Fil Presse</div>
+    <div id="feedList"><div class="empty-msg" data-i18n="presse_chargement">Chargement…</div></div>
+  </div>
+</div>
+
+<script>
+function majVh(){
+  const h=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;
+  document.documentElement.style.setProperty('--vh',(h*0.01)+'px');
+}
+majVh();
+window.addEventListener('resize',majVh);
+if(window.visualViewport){window.visualViewport.addEventListener('resize',majVh);window.visualViewport.addEventListener('scroll',majVh);}
+
+function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
+window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
+
+function hideEmbeddedChrome(){
+  const th=document.getElementById('topH');
+  if(th) th.style.setProperty('display','none','important');
+  const sp=document.getElementById('spacer');
+  if(sp) sp.style.setProperty('height','0px','important');
+}
+window.addEventListener('message',(e)=>{
+  if(e.data && e.data.type==='parentFrame') hideEmbeddedChrome();
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, where, orderBy, getDocs, getDoc, doc,
+  addDoc, updateDoc, deleteDoc, setDoc, serverTimestamp, Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+const FIFTEEN_DAYS_MS = 15*24*60*60*1000;
+let currentUid = null;
+let currentUserData = null;
+
+function timeAgo(ts){
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const diff = Math.max(0, Date.now()-d.getTime());
+  const h = Math.floor(diff/3600000);
+  if(h<1) return "à l'instant";
+  if(h<24) return 'il y a '+h+'h';
+  const j = Math.floor(h/24);
+  if(j<30) return 'il y a '+j+'j';
+  return 'il y a '+Math.floor(j/30)+' mois';
+}
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderPost(id, p, opts){
+  opts = opts || {};
+  const mine = !!opts.mine, trashed = !!opts.trashed;
+  const initiale = (p.prenom||'?')[0].toUpperCase();
+  const avatar = p.photoAvatar ? ('<img src="'+p.photoAvatar+'">') : initiale;
+  const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
+  const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
+  const typeColors = {actu:'#e63224',lancement:'#27a945',partenariat:'#8e44ad',innovation:'#0288d1'};
+  const typeLabels = {actu:'📰 Actualité',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
+  const ribbon = p.type ? ('<div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div><br>') : '';
+  const imgs = (p.images||[]).slice(0,4).map(function(u){return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer">';}).join('');
+  const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:100%;display:block;background:#000;max-height:260px"></video>') : '';
+  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__softDelete(\''+id+'\')">⋮</div>') : '';
+  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
+  const trashActions = trashed ? (
+    '<div class="post-trash-actions">'+
+    '<div class="pt-btn pt-restore" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
+    '<div class="pt-btn pt-del" onclick="window.__hardDelete(\''+id+'\')">🗑 Supprimer définitivement</div>'+
+    '</div>') : '';
+
+  return '<div class="post" id="post-'+id+'">'
+    + '<div class="post-hd">'
+    +   '<div class="avatar">'+avatar+'</div>'
+    +   '<div style="flex:1">'
+    +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+metierBadge+'</div>'
+    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+timeAgo(p.createdAt)+'</div>'
+    +   '</div>'
+    +   followBtn + menu
+    + '</div>'
+    + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
+    + (imgs ? ('<div class="post-imgs">'+imgs+'</div>') : '')
+    + video
+    + (!trashed ? (
+        '<div class="post-stats" id="stats-'+id+'"><span>'+(p.likes||0)+' réaction(s)</span><span>'+(p.comments||0)+' commentaire(s)</span></div>'
+      + '<div class="post-actions">'
+      +   '<div class="pa-btn" onclick="window.__toggleReactPicker(\''+id+'\')">👍 J\'aime</div>'
+      +   '<div class="pa-btn" onclick="window.__toggleComments(\''+id+'\')">💬 Commenter</div>'
+      +   '<div class="pa-btn">↗ Partager</div>'
+      + '</div>'
+      + '<div class="react-picker" id="picker-'+id+'">'
+      +   ['❤️','😂','👍','😮','😢','🙏'].map(function(em){return '<span class="react-em" onclick="window.__sendReaction(\''+id+'\',\''+em+'\')">'+em+'</span>';}).join('')
+      + '</div>'
+      + '<div class="comments-box" id="comments-'+id+'">'
+      +   '<div id="cmtList-'+id+'"></div>'
+      +   '<div class="cmt-input-row">'
+      +     '<input class="cmt-input" id="cmtInput-'+id+'" placeholder="Écrire un commentaire…">'
+      +     '<button class="cmt-send" onclick="window.__addComment(\''+id+'\')">Envoyer</button>'
+      +   '</div>'
+      + '</div>') : '')
+    + trashActions
+    + '</div>';
+}
+
+async function loadFeed(){
+  try{
+    const col = collection(db, 'fil_presse');
+    const snap = await getDocs(query(col, orderBy('createdAt','desc')));
+
+    const mineActive = [];
+    const others = [];
+    const mineTrashed = [];
+    const now = Date.now();
+
+    snap.forEach(function(d){
+      const p = d.data();
+      const isMine = currentUid && p.uid === currentUid;
+      const isDeleted = !!p.deletedAt;
+
+      if(isDeleted){
+        if(isMine){
+          const delTime = p.deletedAt.toDate ? p.deletedAt.toDate().getTime() : new Date(p.deletedAt).getTime();
+          if(now - delTime > FIFTEEN_DAYS_MS){
+            deleteDoc(doc(db,'fil_presse', d.id)).catch(function(){});
+          } else {
+            mineTrashed.push([d.id, p]);
+          }
+        }
+        return;
+      }
+      if(isMine) mineActive.push([d.id, p]);
+      else others.push([d.id, p]);
+    });
+
+    document.getElementById('mineList').innerHTML = mineActive.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
+    document.getElementById('secMineTitle').style.display = mineActive.length ? '' : 'none';
+
+    document.getElementById('feedList').innerHTML = others.length
+      ? others.map(function(x){return renderPost(x[0],x[1],{mine:false});}).join('')
+      : '<div class="empty-msg">Aucune publication pour le moment.</div>';
+
+    const trashToggle = document.getElementById('trashToggle');
+    const trashCount = document.getElementById('trashCount');
+    const trashList = document.getElementById('trashList');
+    trashCount.textContent = mineTrashed.length;
+    trashToggle.style.display = mineTrashed.length ? 'flex' : 'none';
+    trashList.innerHTML = mineTrashed.map(function(x){return renderPost(x[0],x[1],{mine:true, trashed:true});}).join('');
+    markFollowedButtons();
+    mineActive.concat(others).forEach(function(x){ refreshReactionCount(x[0]); });
+  }catch(err){
+    console.error('Fil Presse — chargement impossible :', err);
+    document.getElementById('feedList').innerHTML =
+      '<div class="empty-msg">⚠️ Impossible de charger le Fil Presse pour le moment.<br>'
+      + '(Vérifie que Firebase Blaze est bien actif sur le projet.)</div>';
+  }
+}
+
+window.toggleTrash = function(){
+  const list = document.getElementById('trashList');
+  const arrow = document.getElementById('trashArrow');
+  const open = list.style.display === 'block';
+  list.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▾' : '▴';
+}
+
+window.__softDelete = async function(id){
+  await updateDoc(doc(db,'fil_presse', id), { deletedAt: serverTimestamp() });
+  loadFeed();
+}
+window.__restore = async function(id){
+  await updateDoc(doc(db,'fil_presse', id), { deletedAt: null });
+  loadFeed();
+}
+window.__hardDelete = async function(id){
+  await deleteDoc(doc(db,'fil_presse', id));
+  loadFeed();
+}
+
+async function ensureSeed(){
+  const metaRef = doc(db, 'fil_presse_meta', 'seed_v1');
+  const metaSnap = await getDoc(metaRef);
+  if(metaSnap.exists()) return;
+
+  const marques = [
+    "Une marque de streetwear new-yorkaise lance sa première collection capsule à Los Angeles.",
+    "Un géant américain de la chaussure de sport ouvre sa nouvelle ligne éco-responsable.",
+    "Une maison de joaillerie de Miami dévoile sa collection inspirée de l'Afrique de l'Ouest.",
+    "Un label de maroquinerie basé à Chicago s'associe à des artisans internationaux.",
+    "Une marque de cosmétiques naturels de San Francisco arrive sur le marché américain.",
+    "Un fabricant de mobilier design de Brooklyn lance sa gamme artisanale.",
+    "Une griffe de mode durable de Portland présente sa collection printemps-été.",
+    "Une marque de bijoux fantaisie d'Atlanta s'exporte pour la première fois.",
+    "Un atelier de couture de Houston dévoile sa ligne inspirée des tissus traditionnels.",
+    "Une entreprise textile de Seattle annonce un partenariat avec des créateurs indépendants."
+  ];
+
+  for(let i=0;i<marques.length;i++){
+    await addDoc(collection(db,'fil_presse'), {
+      uid: 'artiroyce_presse',
+      prenom: 'ArtiRoyce Presse',
+      official: true,
+      texte: marques[i],
+      images: [],
+      likes: 0,
+      comments: 0,
+      deletedAt: null,
+      createdAt: Timestamp.fromDate(new Date(Date.now() - i*20*3600*1000))
+    });
+  }
+  await setDoc(metaRef, { seededAt: serverTimestamp() });
+}
+
+let selectedType = 'actu';
+let selectedPhotoFile = null;
+let selectedVideoFile = null;
+
+window.__closeComposer = function(){
+  document.getElementById('composerModal').style.display = 'none';
+};
+
+function wireComposerModal(){
+  document.querySelectorAll('.type-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.type-chip').forEach(function(c){ c.classList.remove('active'); c.style.background=''; c.style.color=''; });
+      chip.classList.add('active');
+      chip.style.background = chip.dataset.color;
+      chip.style.color = '#fff';
+      selectedType = chip.dataset.type;
+    });
+  });
+  const firstChip = document.querySelector('.type-chip.active');
+  if(firstChip){ firstChip.style.background = firstChip.dataset.color; firstChip.style.color = '#fff'; }
+
+  document.getElementById('inputPhoto').addEventListener('change', function(e){
+    const f = e.target.files[0]; if(!f) return;
+    selectedPhotoFile = f; selectedVideoFile = null;
+    const url = URL.createObjectURL(f);
+    document.getElementById('mediaPreview').style.display = 'block';
+    document.getElementById('imgPreview').src = url;
+    document.getElementById('imgPreview').style.display = 'block';
+    document.getElementById('vidPreview').style.display = 'none';
+  });
+  document.getElementById('inputVideo').addEventListener('change', function(e){
+    const f = e.target.files[0]; if(!f) return;
+    selectedVideoFile = f; selectedPhotoFile = null;
+    const url = URL.createObjectURL(f);
+    document.getElementById('mediaPreview').style.display = 'block';
+    document.getElementById('vidPreview').src = url;
+    document.getElementById('vidPreview').style.display = 'block';
+    document.getElementById('imgPreview').style.display = 'none';
+  });
+
+  document.getElementById('btnPublier').addEventListener('click', async function(){
+    const texte = document.getElementById('composerTxt').value.trim();
+    if(!texte && !selectedPhotoFile && !selectedVideoFile){ return; }
+    const btn = document.getElementById('btnPublier');
+    btn.textContent = 'Publication en cours…'; btn.disabled = true;
+
+    let images = [];
+    let videoUrl = '';
+    try{
+      if(selectedPhotoFile){
+        const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedPhotoFile.name;
+        const r = ref(storage, path);
+        await uploadBytes(r, selectedPhotoFile);
+        images = [await getDownloadURL(r)];
+      }
+      if(selectedVideoFile){
+        const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedVideoFile.name;
+        const r = ref(storage, path);
+        await uploadBytes(r, selectedVideoFile);
+        videoUrl = await getDownloadURL(r);
+      }
+    }catch(e){
+      alert("L'envoi du média a échoué (vérifie que Firebase Storage est bien activé). La publication texte continue.");
+    }
+
+    await addDoc(collection(db,'fil_presse'), {
+      uid: currentUid,
+      prenom: currentUserData.prenom || 'Professionnel',
+      metier: currentUserData.metier || '',
+      photoAvatar: currentUserData.photoAvatar || '',
+      official: false,
+      type: selectedType,
+      texte: texte,
+      images: images,
+      videoUrl: videoUrl,
+      likes: 0,
+      comments: 0,
+      deletedAt: null,
+      createdAt: serverTimestamp()
+    });
+
+    document.getElementById('composerTxt').value = '';
+    document.getElementById('mediaPreview').style.display = 'none';
+    selectedPhotoFile = null; selectedVideoFile = null;
+    btn.textContent = 'Publier'; btn.disabled = false;
+    window.__closeComposer();
+    loadFeed();
+  });
+}
+
+window.__toggleFollow = async function(targetUid){
+  if(!currentUid || targetUid===currentUid) return;
+  const relId = currentUid + '_' + targetUid;
+  const relRef = doc(db, 'abonnements', relId);
+  const snap = await getDoc(relRef);
+  const btn = document.getElementById('follow-'+targetUid);
+  if(snap.exists()){
+    await deleteDoc(relRef);
+    if(btn){ btn.classList.remove('on'); btn.textContent = '+ Suivre'; }
+  } else {
+    await setDoc(relRef, { follower: currentUid, followed: targetUid, createdAt: serverTimestamp() });
+    if(btn){ btn.classList.add('on'); btn.textContent = '✔ Abonné(e)'; }
+  }
+}
+
+async function markFollowedButtons(){
+  if(!currentUid) return;
+  const snap = await getDocs(query(collection(db,'abonnements'), where('follower','==',currentUid)));
+  snap.forEach(function(d){
+    const followed = d.data().followed;
+    const btn = document.getElementById('follow-'+followed);
+    if(btn){ btn.classList.add('on'); btn.textContent = '✔ Abonné(e)'; }
+  });
+}
+
+window.__toggleReactPicker = function(postId){
+  const picker = document.getElementById('picker-'+postId);
+  if(!picker) return;
+  document.querySelectorAll('.react-picker.show').forEach(function(p){ if(p!==picker) p.classList.remove('show'); });
+  picker.classList.toggle('show');
+}
+
+window.__sendReaction = async function(postId, emoji){
+  if(!currentUid){ alert('Connecte-toi pour réagir.'); return; }
+  const reactRef = doc(db, 'fil_presse', postId, 'reactions', currentUid);
+  const snap = await getDoc(reactRef);
+  if(snap.exists() && snap.data().emoji === emoji){
+    await deleteDoc(reactRef);
+  } else {
+    await setDoc(reactRef, { emoji: emoji, uid: currentUid, createdAt: serverTimestamp() });
+  }
+  document.getElementById('picker-'+postId).classList.remove('show');
+  refreshReactionCount(postId);
+}
+
+async function refreshReactionCount(postId){
+  const snap = await getDocs(collection(db, 'fil_presse', postId, 'reactions'));
+  const counts = {};
+  snap.forEach(function(d){ const em = d.data().emoji; counts[em] = (counts[em]||0)+1; });
+  const top = Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];}).slice(0,3).join('');
+  const total = snap.size;
+  const el = document.getElementById('stats-'+postId);
+  if(el){
+    const spans = el.querySelectorAll('span');
+    spans[0].textContent = (top?top+' ':'') + total + ' réaction(s)';
+  }
+}
+
+window.__toggleComments = async function(postId){
+  const box = document.getElementById('comments-'+postId);
+  if(!box) return;
+  const opening = !box.classList.contains('show');
+  box.classList.toggle('show');
+  if(opening) await loadComments(postId);
+}
+
+async function loadComments(postId){
+  const listEl = document.getElementById('cmtList-'+postId);
+  listEl.innerHTML = '<div style="font-size:12px;color:#999">Chargement…</div>';
+  const snap = await getDocs(query(collection(db,'fil_presse', postId, 'comments'), orderBy('createdAt','asc')));
+  if(snap.empty){
+    listEl.innerHTML = '<div style="font-size:12px;color:#999">Aucun commentaire pour le moment.</div>';
+    return;
+  }
+  let html = '';
+  snap.forEach(function(d){
+    const c = d.data();
+    const ini = (c.prenom||'?')[0].toUpperCase();
+    html += '<div class="cmt-item"><div class="cmt-av">'+ini+'</div><div class="cmt-bubble"><b>'+esc(c.prenom||'Utilisateur')+'</b><br>'+esc(c.texte)+'</div></div>';
+  });
+  listEl.innerHTML = html;
+}
+
+window.__addComment = async function(postId){
+  if(!currentUid){ alert('Connecte-toi pour commenter.'); return; }
+  const input = document.getElementById('cmtInput-'+postId);
+  const texte = input.value.trim();
+  if(!texte) return;
+  await addDoc(collection(db,'fil_presse', postId, 'comments'), {
+    uid: currentUid,
+    prenom: (currentUserData && currentUserData.prenom) || 'Utilisateur',
+    texte: texte,
+    createdAt: serverTimestamp()
+  });
+  input.value = '';
+  await loadComments(postId);
+  const postRef = doc(db,'fil_presse', postId);
+  const snap = await getDocs(collection(db,'fil_presse', postId, 'comments'));
+  await updateDoc(postRef, { comments: snap.size });
+  const el = document.getElementById('stats-'+postId);
+  if(el){ el.querySelectorAll('span')[1].textContent = snap.size + ' commentaire(s)'; }
+}
+
+async function initComposer(){
+  const composerBtn = document.getElementById('composerBtn');
+  const locked = document.getElementById('composerLocked');
+  const isVerified = currentUserData && currentUserData.statut === 'verifie';
+
+  if(!isVerified){
+    composerBtn.style.pointerEvents = 'none';
+    composerBtn.style.opacity = '0.5';
+    locked.style.display = 'block';
+    return;
+  }
+  wireComposerModal();
+  composerBtn.onclick = function(){
+    document.getElementById('composerModal').style.display = 'block';
+  };
+}
+
+onAuthStateChanged(auth, async function(user){
+  currentUid = user ? user.uid : null;
+  if(user){
+    try{
+      const uSnap = await getDoc(doc(db,'utilisateurs', user.uid));
+      currentUserData = uSnap.exists() ? uSnap.data() : {};
+    }catch(e){ currentUserData = {}; }
+    const av = document.getElementById('myAvatar');
+    av.innerHTML = currentUserData.photoAvatar
+      ? ('<img src="'+currentUserData.photoAvatar+'">')
+      : (currentUserData.prenom||'?')[0].toUpperCase();
+  }
+  await initComposer();
+  try{ await ensureSeed(); }catch(e){ console.error('Seed Fil Presse impossible :', e); }
+  await loadFeed();
+  await markFollowedButtons();
+});
+</script>
+<script src="translations.js"></script>
+</body>
+</html>
