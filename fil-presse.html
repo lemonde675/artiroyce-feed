@@ -62,10 +62,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .badge-off{background:var(--green);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:800}
 .post-sub{font-size:12px;color:#999;margin-top:1px}
 .post-txt{padding:2px 14px 10px;font-size:15.5px;color:#050505;line-height:1.35;font-weight:400}
-.post-txt-feature{margin:2px 14px 10px;border-radius:16px;padding:28px 18px;text-align:center;color:#fff}
-.ptf-type{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
-.ptf-journal{font-size:16.5px;font-weight:800;margin-bottom:10px}
-.ptf-txt{font-size:16.5px;font-weight:600;line-height:1.4}
 .post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .post-imgs{display:grid;gap:4px;margin:0 14px 10px;border-radius:14px;overflow:hidden;background:#eee}
 .post-imgs img{width:100%;object-fit:cover;display:block;background:#eee}
@@ -275,25 +271,6 @@ function timeAgo(ts){
 
 function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-// Palette de dégradés variés et complémentaires pour les publications sans photo/vidéo.
-// Choisie de façon déterministe selon l'identifiant de la publication (stable au fil
-// des rafraîchissements), pour éviter que tout le fil paraisse d'une seule couleur.
-const FEATURE_GRADIENTS = [
-  'linear-gradient(135deg,#ff7a59,#ff3d81)',
-  'linear-gradient(135deg,#2ea3e6,#1f5fae)',
-  'linear-gradient(135deg,#11998e,#38ef7d)',
-  'linear-gradient(135deg,#a75cc9,#5a2a6e)',
-  'linear-gradient(135deg,#f7b733,#e6642c)',
-  'linear-gradient(135deg,#4568dc,#8b5cf6)',
-  'linear-gradient(135deg,#34c759,#1d8a37)',
-  'linear-gradient(135deg,#ff5f6d,#a01f8f)'
-];
-function pickFeatureGradient(id){
-  let h = 0;
-  for(let i=0;i<id.length;i++){ h = (h*31 + id.charCodeAt(i)) >>> 0; }
-  return FEATURE_GRADIENTS[h % FEATURE_GRADIENTS.length];
-}
-
 function renderPost(id, p, opts){
   opts = opts || {};
   const mine = !!opts.mine, trashed = !!opts.trashed;
@@ -327,24 +304,6 @@ function renderPost(id, p, opts){
     '<div class="pt-btn" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
     '</div>') : '';
 
-  // Sans photo ni vidéo, on donne à la publication une belle carte dégradée
-  // (couleur selon le type) plutôt qu'un texte nu sur fond blanc.
-  const hasMedia = imgCount > 0 || !!p.videoUrl;
-  let txtBlock = '';
-  if(p.texte || p.type){
-    if(hasMedia){
-      txtBlock = p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon ? ('<div class="post-txt">'+ribbon+'</div>') : '');
-    } else {
-      const bg = pickFeatureGradient(id);
-      const typeLbl = p.type ? (typeLabels[p.type]||p.type) : '';
-      txtBlock = '<div class="post-txt-feature" style="background:'+bg+'">'
-        + (typeLbl ? '<div class="ptf-type">'+typeLbl+'</div>' : '')
-        + (p.journalNom ? '<div class="ptf-journal">'+esc(p.journalNom)+'</div>' : '')
-        + (p.texte ? '<div class="ptf-txt">'+esc(p.texte)+'</div>' : '')
-        + '</div>';
-    }
-  }
-
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
     +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
@@ -358,7 +317,7 @@ function renderPost(id, p, opts){
     +   followBtn
     + '</div>'
     + ownActions
-    + txtBlock
+    + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
     + (imgs ? ('<div class="post-imgs" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
     + video
     + (!trashed ? (
@@ -403,13 +362,13 @@ function renderFilteredFeed(){
   let feedHTML = '';
   if(othersFiltered.length){
     const total = othersFiltered.length;
-    const useEveryTen = total >= 10;
+    const useEveryFive = total >= 5;
     const midPoint = Math.max(1, Math.floor(total / 2));
     othersFiltered.forEach(function(x, i){
       feedHTML += renderPost(x[0], x[1], {mine:false});
       if(carouselBlock){
-        if(useEveryTen){
-          if((i + 1) % 10 === 0) feedHTML += carouselBlock;
+        if(useEveryFive){
+          if((i + 1) % 5 === 0) feedHTML += carouselBlock;
         } else if((i + 1) === midPoint){
           feedHTML += carouselBlock;
         }
