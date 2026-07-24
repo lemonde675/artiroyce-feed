@@ -62,6 +62,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .badge-off{background:var(--green);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:800}
 .post-sub{font-size:12px;color:#999;margin-top:1px}
 .post-txt{padding:2px 14px 10px;font-size:15.5px;color:#050505;line-height:1.35;font-weight:400}
+.post-txt-feature{margin:2px 14px 10px;border-radius:16px;padding:28px 18px;text-align:center;color:#fff}
+.ptf-type{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.85;margin-bottom:8px}
+.ptf-journal{font-size:16.5px;font-weight:800;margin-bottom:10px}
+.ptf-txt{font-size:16.5px;font-weight:600;line-height:1.4}
 .post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .post-imgs{display:grid;gap:4px;margin:0 14px 10px;border-radius:14px;overflow:hidden;background:#eee}
 .post-imgs img{width:100%;object-fit:cover;display:block;background:#eee}
@@ -136,11 +140,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
   <div class="search-bar" id="searchBar">
     <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
     <span class="search-close" onclick="window.__closeSearch()">✕</span>
-  </div>
-
-  <div class="cover-carousel-wrap" id="coverCarouselWrap" style="display:none">
-    <div class="cover-carousel-title">📰 Nos parutions</div>
-    <div class="cover-carousel" id="coverCarousel"></div>
   </div>
 
   <div id="composerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;">
@@ -284,6 +283,12 @@ function renderPost(id, p, opts){
   const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
   const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
   const typeColors = {actu:'#27a945',lancement:'#0288d1',partenariat:'#8e44ad',innovation:'#e63224'};
+  const typeGradients = {
+    actu:'linear-gradient(135deg,#34c759,#1d8a37)',
+    lancement:'linear-gradient(135deg,#2ea3e6,#01578f)',
+    partenariat:'linear-gradient(135deg,#a75cc9,#5a2a6e)',
+    innovation:'linear-gradient(135deg,#f0645a,#a01f14)'
+  };
   const typeLabels = {actu:'📰 Journal',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
   const journalSuffix = p.journalNom ? ('<span class="ribbon-journal">'+esc(p.journalNom)+'</span>') : '';
   const ribbon = p.type ? ('<div class="ribbon-wrap"><div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div>'+journalSuffix+'</div>') : '';
@@ -309,6 +314,24 @@ function renderPost(id, p, opts){
     '<div class="pt-btn" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
     '</div>') : '';
 
+  // Sans photo ni vidéo, on donne à la publication une belle carte dégradée
+  // (couleur selon le type) plutôt qu'un texte nu sur fond blanc.
+  const hasMedia = imgCount > 0 || !!p.videoUrl;
+  let txtBlock = '';
+  if(p.texte || p.type){
+    if(hasMedia){
+      txtBlock = p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon ? ('<div class="post-txt">'+ribbon+'</div>') : '');
+    } else {
+      const bg = typeGradients[p.type] || 'linear-gradient(135deg,#5b6b78,#2f3a42)';
+      const typeLbl = p.type ? (typeLabels[p.type]||p.type) : '';
+      txtBlock = '<div class="post-txt-feature" style="background:'+bg+'">'
+        + (typeLbl ? '<div class="ptf-type">'+typeLbl+'</div>' : '')
+        + (p.journalNom ? '<div class="ptf-journal">'+esc(p.journalNom)+'</div>' : '')
+        + (p.texte ? '<div class="ptf-txt">'+esc(p.texte)+'</div>' : '')
+        + '</div>';
+    }
+  }
+
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
     +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
@@ -322,7 +345,7 @@ function renderPost(id, p, opts){
     +   followBtn
     + '</div>'
     + ownActions
-    + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
+    + txtBlock
     + (imgs ? ('<div class="post-imgs" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
     + video
     + (!trashed ? (
@@ -363,24 +386,31 @@ function renderFilteredFeed(){
   document.getElementById('mineList').innerHTML = mineFiltered.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
   document.getElementById('secMineTitle').style.display = mineFiltered.length ? '' : 'none';
 
-  document.getElementById('feedList').innerHTML = othersFiltered.length
-    ? othersFiltered.map(function(x){return renderPost(x[0],x[1],{mine:false});}).join('')
-    : ('<div class="empty-msg">'+(searchTerm ? 'Aucun résultat pour « '+esc(searchTerm)+' ».' : 'Aucune publication pour le moment.')+'</div>');
+  const carouselBlock = buildCoverCarouselBlock();
+  let feedHTML = '';
+  if(othersFiltered.length){
+    othersFiltered.forEach(function(x, i){
+      feedHTML += renderPost(x[0], x[1], {mine:false});
+      if(carouselBlock && (i + 1) % 10 === 0) feedHTML += carouselBlock;
+    });
+  } else {
+    feedHTML = '<div class="empty-msg">'+(searchTerm ? 'Aucun résultat pour « '+esc(searchTerm)+' ».' : 'Aucune publication pour le moment.')+'</div>';
+  }
+  document.getElementById('feedList').innerHTML = feedHTML;
 
   markFollowedButtons();
   markAuthorsOnline();
   mineFiltered.concat(othersFiltered).forEach(function(x){ refreshReactionCount(x[0]); });
 }
 
-let coverAutoTimer = null;
-let coverPauseTimeout = null;
-let coverListenersAttached = false;
+// Auto-défilement partagé : fait avancer TOUTES les instances de carrousel
+// présentes dans le fil (il peut y en avoir plusieurs, une toutes les 10 pubs).
+// Se met en pause dès qu'on touche l'une d'entre elles.
+let coverPausedUntil = 0;
 
-function startCoverAutoScroll(){
-  clearInterval(coverAutoTimer);
-  coverAutoTimer = setInterval(function(){
-    const track = document.getElementById('coverCarousel');
-    if(!track) return;
+setInterval(function(){
+  if(Date.now() < coverPausedUntil) return;
+  document.querySelectorAll('.cover-carousel').forEach(function(track){
     const maxScroll = track.scrollWidth - track.clientWidth;
     if(maxScroll <= 2) return;
     if(track.scrollLeft >= maxScroll - 2){
@@ -388,49 +418,30 @@ function startCoverAutoScroll(){
     } else {
       track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
     }
-  }, 3000);
-}
+  });
+}, 3000);
 
-function pauseCoverAutoScroll(){
-  clearInterval(coverAutoTimer);
-  clearTimeout(coverPauseTimeout);
-  coverPauseTimeout = setTimeout(startCoverAutoScroll, 4000);
-}
-
-function ensureCoverListeners(){
-  if(coverListenersAttached) return;
-  const track = document.getElementById('coverCarousel');
-  if(!track) return;
-  track.addEventListener('touchstart', pauseCoverAutoScroll, { passive: true });
-  track.addEventListener('mousedown', pauseCoverAutoScroll);
-  coverListenersAttached = true;
-}
+document.getElementById('content').addEventListener('touchstart', function(e){
+  if(e.target.closest('.cover-carousel')) coverPausedUntil = Date.now() + 4000;
+}, { passive: true });
+document.getElementById('content').addEventListener('mousedown', function(e){
+  if(e.target.closest('.cover-carousel')) coverPausedUntil = Date.now() + 4000;
+});
 
 window.__scrollToPost = function(id){
   const el = document.getElementById('post-' + id);
   if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
-// Bandeau "Nos parutions" : reprend les publications illustrées les plus récentes
-// (les siennes + celles des autres), indépendamment de la recherche en cours.
-function renderCoverCarousel(){
-  const wrap = document.getElementById('coverCarouselWrap');
-  const track = document.getElementById('coverCarousel');
-  if(!wrap || !track) return;
-
+// Construit un bloc "Nos parutions" (publications illustrées récentes), destiné
+// à être inséré directement dans le fil, comme les suggestions Facebook.
+function buildCoverCarouselBlock(){
   const combined = allMineActive.concat(allOthers)
     .filter(function(x){ return (x[1].images || []).length > 0; })
     .slice(0, 12);
+  if(!combined.length) return '';
 
-  if(!combined.length){
-    wrap.style.display = 'none';
-    track.innerHTML = '';
-    clearInterval(coverAutoTimer);
-    return;
-  }
-
-  wrap.style.display = 'block';
-  track.innerHTML = combined.map(function(x){
+  const cards = combined.map(function(x){
     const id = x[0], p = x[1];
     const journal = esc(p.journalNom || p.prenom || 'ArtiRoyce');
     const snippet = esc((p.texte || '').slice(0, 55));
@@ -440,8 +451,10 @@ function renderCoverCarousel(){
       + '</div>';
   }).join('');
 
-  ensureCoverListeners();
-  startCoverAutoScroll();
+  return '<div class="cover-carousel-wrap">'
+    + '<div class="cover-carousel-title">📰 Nos parutions</div>'
+    + '<div class="cover-carousel">' + cards + '</div>'
+    + '</div>';
 }
 
 async function loadFeed(){
@@ -477,7 +490,6 @@ async function loadFeed(){
     allMineActive = mineActive;
     allOthers = others;
     renderFilteredFeed();
-    renderCoverCarousel();
 
     const trashToggle = document.getElementById('trashToggle');
     const trashCount = document.getElementById('trashCount');
