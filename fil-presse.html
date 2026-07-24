@@ -22,6 +22,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .search-bar.show{display:flex}
 .search-bar input{flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222}
 .search-close{font-size:16px;color:#999;cursor:pointer;padding:4px 6px;flex-shrink:0}
+.cover-carousel-wrap{background:#fff;padding:14px 0 16px;border-bottom:8px solid var(--bg)}
+.cover-carousel-title{font-size:15px;font-weight:800;color:#222;padding:0 14px 10px}
+.cover-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none}
+.cover-carousel::-webkit-scrollbar{display:none}
+.cover-card{position:relative;flex:0 0 auto;width:150px;height:200px;border-radius:16px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer}
+.cover-card img{width:100%;height:100%;object-fit:cover;display:block}
+.cover-card-overlay{position:absolute;left:0;right:0;bottom:0;padding:10px 10px 8px;background:linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0))}
+.cover-card-journal{color:#fff;font-size:12.5px;font-weight:800;margin-bottom:2px}
+.cover-card-txt{color:#eee;font-size:10.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
 .h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
 .h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
@@ -127,6 +136,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
   <div class="search-bar" id="searchBar">
     <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
     <span class="search-close" onclick="window.__closeSearch()">✕</span>
+  </div>
+
+  <div class="cover-carousel-wrap" id="coverCarouselWrap" style="display:none">
+    <div class="cover-carousel-title">📰 Nos parutions</div>
+    <div class="cover-carousel" id="coverCarousel"></div>
   </div>
 
   <div id="composerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;">
@@ -358,6 +372,78 @@ function renderFilteredFeed(){
   mineFiltered.concat(othersFiltered).forEach(function(x){ refreshReactionCount(x[0]); });
 }
 
+let coverAutoTimer = null;
+let coverPauseTimeout = null;
+let coverListenersAttached = false;
+
+function startCoverAutoScroll(){
+  clearInterval(coverAutoTimer);
+  coverAutoTimer = setInterval(function(){
+    const track = document.getElementById('coverCarousel');
+    if(!track) return;
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    if(maxScroll <= 2) return;
+    if(track.scrollLeft >= maxScroll - 2){
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+    }
+  }, 3000);
+}
+
+function pauseCoverAutoScroll(){
+  clearInterval(coverAutoTimer);
+  clearTimeout(coverPauseTimeout);
+  coverPauseTimeout = setTimeout(startCoverAutoScroll, 4000);
+}
+
+function ensureCoverListeners(){
+  if(coverListenersAttached) return;
+  const track = document.getElementById('coverCarousel');
+  if(!track) return;
+  track.addEventListener('touchstart', pauseCoverAutoScroll, { passive: true });
+  track.addEventListener('mousedown', pauseCoverAutoScroll);
+  coverListenersAttached = true;
+}
+
+window.__scrollToPost = function(id){
+  const el = document.getElementById('post-' + id);
+  if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// Bandeau "Nos parutions" : reprend les publications illustrées les plus récentes
+// (les siennes + celles des autres), indépendamment de la recherche en cours.
+function renderCoverCarousel(){
+  const wrap = document.getElementById('coverCarouselWrap');
+  const track = document.getElementById('coverCarousel');
+  if(!wrap || !track) return;
+
+  const combined = allMineActive.concat(allOthers)
+    .filter(function(x){ return (x[1].images || []).length > 0; })
+    .slice(0, 12);
+
+  if(!combined.length){
+    wrap.style.display = 'none';
+    track.innerHTML = '';
+    clearInterval(coverAutoTimer);
+    return;
+  }
+
+  wrap.style.display = 'block';
+  track.innerHTML = combined.map(function(x){
+    const id = x[0], p = x[1];
+    const journal = esc(p.journalNom || p.prenom || 'ArtiRoyce');
+    const snippet = esc((p.texte || '').slice(0, 80));
+    return '<div class="cover-card" onclick="window.__scrollToPost(\'' + id + '\')">'
+      + '<img src="' + esc(p.images[0]) + '" loading="lazy" referrerpolicy="no-referrer">'
+      + '<div class="cover-card-overlay"><div class="cover-card-journal">' + journal + '</div><div class="cover-card-txt">' + snippet + '</div></div>'
+      + '</div>';
+  }).join('');
+
+  ensureCoverListeners();
+  startCoverAutoScroll();
+}
+
 async function loadFeed(){
   try{
     const col = collection(db, 'fil_presse');
@@ -391,6 +477,7 @@ async function loadFeed(){
     allMineActive = mineActive;
     allOthers = others;
     renderFilteredFeed();
+    renderCoverCarousel();
 
     const trashToggle = document.getElementById('trashToggle');
     const trashCount = document.getElementById('trashCount');
@@ -561,6 +648,42 @@ async function ensureSeed(){
       comments: 0,
       deletedAt: null,
       createdAt: Timestamp.fromDate(new Date(Date.now() - i*20*3600*1000))
+    });
+  }
+  await setDoc(metaRef, { seededAt: serverTimestamp() });
+}
+
+// Second lot de publications officielles ArtiRoyce Presse, illustrées cette fois,
+// pour que le carrousel "Nos parutions" ait de quoi défiler dès le départ.
+// Clairement identifié comme contenu éditorial officiel (pas de faux profils individuels).
+async function ensureSeedImages(){
+  const metaRef = doc(db, 'fil_presse_meta', 'seed_img_v1');
+  const metaSnap = await getDoc(metaRef);
+  if(metaSnap.exists()) return;
+
+  const items = [
+    { texte:"Le Bénouto explore la nouvelle vague de créateurs ouest-africains à l'international.", journalNom:"Le Bénouto", type:"actu", img:11 },
+    { texte:"Lancement remarqué d'une ligne de maroquinerie inspirée du wax à Cotonou.", journalNom:"Wesli", type:"lancement", img:12 },
+    { texte:"Un partenariat entre artisans locaux et une maison new-yorkaise fait parler.", journalNom:"Binétus", type:"partenariat", img:13 },
+    { texte:"Innovation textile : une matière recyclée conçue par de jeunes designers.", journalNom:"Benitus", type:"innovation", img:14 },
+    { texte:"Le retour en force de la mode traditionnelle revisitée par une nouvelle génération.", journalNom:"Oxygène Style", type:"actu", img:15 },
+    { texte:"Une styliste de la diaspora présente sa collection capsule inspirée du Bénin.", journalNom:"Le Bénouto", type:"lancement", img:16 }
+  ];
+
+  for(let i=0;i<items.length;i++){
+    const it = items[i];
+    await addDoc(collection(db,'fil_presse'), {
+      uid: 'artiroyce_presse',
+      prenom: 'ArtiRoyce Presse',
+      official: true,
+      texte: it.texte,
+      journalNom: it.journalNom,
+      type: it.type,
+      images: ['https://picsum.photos/seed/artiroyce'+it.img+'/900/700'],
+      likes: 0,
+      comments: 0,
+      deletedAt: null,
+      createdAt: Timestamp.fromDate(new Date(Date.now() - i*11*3600*1000))
     });
   }
   await setDoc(metaRef, { seededAt: serverTimestamp() });
@@ -913,6 +1036,7 @@ onAuthStateChanged(auth, async function(user){
   }
   await initComposer();
   try{ await ensureSeed(); }catch(e){ console.error('Seed Fil Presse impossible :', e); }
+  try{ await ensureSeedImages(); }catch(e){ console.error('Seed illustré impossible :', e); }
   await loadFeed();
   await markFollowedButtons();
 });
