@@ -18,7 +18,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .th-logo .a{color:var(--red)}.th-logo .r{color:var(--green)}
 .lang-sel{display:flex;align-items:center;gap:4px;background:#F2F4F7;border-radius:20px;padding:6px 10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #E8ECF0}
 .h-icons{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.search-bar{display:none;align-items:center;gap:8px;padding:0 12px 10px}
+.search-bar{display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee}
 .search-bar.show{display:flex}
 .search-bar input{flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222}
 .search-close{font-size:16px;color:#999;cursor:pointer;padding:4px 6px;flex-shrink:0}
@@ -60,9 +60,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .post-actions{display:flex;border-top:1px solid #f2f2f2}
 .pa-btn{flex:1;text-align:center;padding:11px 4px;font-size:12.5px;font-weight:700;color:#777;cursor:pointer}
 .post-trash-actions{display:flex;gap:8px;padding:0 14px 12px}
-.pt-btn{flex:1;text-align:center;padding:9px;border-radius:12px;font-size:12.5px;font-weight:800;cursor:pointer}
-.pt-restore{background:#e8f5e9;color:var(--green)}
-.pt-del{background:#fdecea;color:var(--red)}
+.pt-btn{flex:1;text-align:center;background:#F2F4F7;color:#444;padding:8px;border-radius:12px;font-size:11.5px;font-weight:700;cursor:pointer;touch-action:manipulation}
 .empty-msg{text-align:center;color:#aaa;font-size:13px;padding:30px 20px}
 .type-chip{border:1.5px solid #E8ECF0;border-radius:14px;padding:7px 12px;font-size:12.5px;font-weight:700;color:#555;cursor:pointer}
 .type-chip.active{color:#fff;border-color:transparent}
@@ -71,11 +69,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .ribbon-journal{display:block;font-size:15px;font-weight:800;color:#222;margin-top:4px}
 .follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
 .follow-btn.on{background:#eee;color:#777;border-color:#eee}
-.post-menu-btn{margin-left:auto;color:#bbb;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;flex-shrink:0}
-.own-actions{display:none;gap:8px;margin:0 14px 10px}
-.own-actions.show{display:flex}
-.oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
-.oa-del{background:#fdecea;color:var(--red)}
+.own-actions{display:flex;gap:8px;margin:0 14px 10px}
+.oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:8px;font-size:11.5px;font-weight:700;color:#444;cursor:pointer;touch-action:manipulation}
 .composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
 .upload-progress-wrap{display:none;margin-top:10px;background:#F2F4F7;border-radius:6px;height:6px;overflow:hidden}
 .upload-progress-bar{height:100%;width:0%;background:var(--green);border-radius:6px;transition:width .15s}
@@ -117,10 +112,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
         <span style="font-size:19px;cursor:pointer" id="langSel">🇫🇷</span>
       </div>
     </div>
-    <div class="search-bar" id="searchBar">
-      <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
-      <span class="search-close" onclick="window.__closeSearch()">✕</span>
-    </div>
   </header>
   <div class="spacer" id="spacer"></div>
 
@@ -133,11 +124,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
     <div class="composer-locked" id="composerLocked" style="display:none" data-i18n="presse_reserve">Réservé aux professionnels vérifiés</div>
   </div>
 
+  <div class="search-bar" id="searchBar">
+    <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
+    <span class="search-close" onclick="window.__closeSearch()">✕</span>
+  </div>
+
   <div id="composerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;">
     <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <b style="font-size:16px">✍️ Nouvelle publication</b>
-        <span style="font-size:22px;cursor:pointer;color:#999" onclick="window.__closeComposer()">✕</span>
+        <span style="font-size:20px;cursor:pointer;color:#666;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#F2F4F7;touch-action:manipulation;flex-shrink:0" onclick="window.__closeComposer()">✕</span>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="typeRow">
         <div class="type-chip active" data-type="actu" data-color="#27a945">📰 Journal</div>
@@ -287,17 +283,16 @@ function renderPost(id, p, opts){
   }).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
   const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
-  const menuBtn = (mine && !trashed) ? ('<div class="post-menu-btn" onclick="window.__toggleOwnActions(\''+id+'\')">⋯</div>') : '';
   const ownActions = (mine && !trashed) ? (
-    '<div class="own-actions" id="ownActions-'+id+'">'
+    '<div class="own-actions">'
     + '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
-    + '<div class="oa-btn oa-del" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
+    + '<div class="oa-btn" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
     + '</div>'
   ) : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
-    '<div class="pt-btn pt-restore" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
-    '<div class="pt-btn pt-del" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
+    '<div class="pt-btn" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
+    '<div class="pt-btn" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
     '</div>') : '';
 
   return '<div class="post" id="post-'+id+'">'
@@ -310,7 +305,7 @@ function renderPost(id, p, opts){
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
-    +   followBtn + menuBtn
+    +   followBtn
     + '</div>'
     + ownActions
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
@@ -446,7 +441,6 @@ window.__toggleSearch = function(){
   const bar = document.getElementById('searchBar');
   const opening = !bar.classList.contains('show');
   bar.classList.toggle('show', opening);
-  if(typeof window.adj === 'function') window.adj();
   if(opening){
     const input = document.getElementById('searchInput');
     if(input) input.focus();
@@ -462,7 +456,6 @@ window.__closeSearch = function(){
   if(input) input.value = '';
   searchTerm = '';
   renderFilteredFeed();
-  if(typeof window.adj === 'function') window.adj();
 };
 
 document.getElementById('searchInput').addEventListener('input', function(e){
@@ -471,7 +464,6 @@ document.getElementById('searchInput').addEventListener('input', function(e){
 });
 
 window.__editPost = async function(id){
-  document.querySelectorAll('.own-actions.show').forEach(function(r){ r.classList.remove('show'); });
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
@@ -810,13 +802,6 @@ async function markFollowedButtons(){
     const btn = document.getElementById('follow-'+followed);
     if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   });
-}
-
-window.__toggleOwnActions = function(postId){
-  const row = document.getElementById('ownActions-'+postId);
-  if(!row) return;
-  document.querySelectorAll('.own-actions.show').forEach(function(r){ if(r!==row) r.classList.remove('show'); });
-  row.classList.toggle('show');
 }
 
 window.__toggleReactPicker = function(postId){
