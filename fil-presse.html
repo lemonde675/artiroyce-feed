@@ -24,7 +24,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .search-close{font-size:16px;color:#999;cursor:pointer;padding:4px 6px;flex-shrink:0}
 .cover-carousel-wrap{background:#fff;padding:14px 0 16px;border-bottom:8px solid var(--bg)}
 .cover-carousel-title{font-size:15px;font-weight:800;color:#222;padding:0 14px 10px}
-.cover-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none}
+.cover-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab}
+.cover-carousel::-webkit-scrollbar{display:none}
 .cover-carousel::-webkit-scrollbar{display:none}
 .cover-card{position:relative;flex:0 0 auto;width:130px;height:160px;border-radius:14px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer}
 .cover-card img{width:100%;height:100%;object-fit:cover;display:block}
@@ -61,7 +62,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .badge-metier{background:#F2F4F7;border-radius:12px;padding:2px 9px;font-size:11.5px;font-weight:700;color:#555;display:inline-flex;align-items:center;gap:3px}
 .badge-off{background:var(--green);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:800}
 .post-sub{font-size:12px;color:#999;margin-top:1px}
-.post-txt{padding:2px 14px 10px;font-size:15.5px;color:#050505;line-height:1.35;font-weight:400}
+.post-txt{padding:2px 14px 10px;font-size:15.5px;color:#000000;line-height:1.35;font-weight:500}
 .post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .post-imgs{display:grid;gap:4px;margin:0 14px 10px;border-radius:14px;overflow:hidden;background:#eee}
 .post-imgs img{width:100%;object-fit:cover;display:block;background:#eee}
@@ -141,7 +142,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
       <div class="composer-input" id="composerBtn" data-i18n="presse_quoi_neuf">Publier une actualité presse…</div>
       <div class="search-circle-btn" onclick="window.__toggleSearch()" title="Rechercher">🔍</div>
     </div>
-    <div class="composer-locked" id="composerLocked" style="display:none" data-i18n="presse_reserve">Réservé aux professionnels vérifiés</div>
   </div>
 
   <div class="search-bar" id="searchBar">
@@ -417,9 +417,24 @@ setInterval(function(){
 document.getElementById('content').addEventListener('touchstart', function(e){
   if(e.target.closest('.cover-carousel')) coverPausedUntil = Date.now() + 4000;
 }, { passive: true });
+
+// Glissement à la souris pour le carrousel (ordinateur/portable) — équivalent du
+// glissement au doigt sur mobile, qui fonctionne déjà nativement.
+let dragTrack = null, dragStartX = 0, dragScrollStart = 0;
 document.getElementById('content').addEventListener('mousedown', function(e){
+  const track = e.target.closest('.cover-carousel');
+  if(track){
+    dragTrack = track;
+    dragStartX = e.pageX;
+    dragScrollStart = track.scrollLeft;
+  }
   if(e.target.closest('.cover-carousel')) coverPausedUntil = Date.now() + 4000;
 });
+window.addEventListener('mousemove', function(e){
+  if(!dragTrack) return;
+  dragTrack.scrollLeft = dragScrollStart - (e.pageX - dragStartX);
+});
+window.addEventListener('mouseup', function(){ dragTrack = null; });
 
 window.__scrollToPost = function(id){
   const el = document.getElementById('post-' + id);
@@ -526,6 +541,54 @@ window.__voirProfil = function(uid){
   }catch(e){}
   window.location.href = 'profil.html?uid=' + uid;
 };
+
+// Glissement gauche/droite pour changer d'onglet (Répert-Discussion / Fil Presse / FAQ),
+// comme un swipe classique. Si la page est intégrée dans accueil.html et qu'une fonction
+// switchTab existe côté parent, on l'utilise ; sinon on essaie un postMessage générique ;
+// en dernier recours (page ouverte seule, hors iframe), navigation directe.
+(function(){
+  let touchStartX = 0, touchStartY = 0;
+  const SWIPE_MIN = 60; // distance minimale en px pour un glissement volontaire
+
+  function goToAdjacentPage(direction){
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.switchTab === 'function'){
+        window.parent.switchTab(direction);
+        return;
+      }
+    }catch(e){}
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ action: 'swipeNav', direction: direction, from: 'fil-presse' }, '*');
+        return;
+      }
+    }catch(e){}
+    // Repli si la page n'est pas intégrée en iframe
+    if(direction === 'next') window.location.href = 'faq_v1.html';
+    else window.location.href = 'discussion_v1.html';
+  }
+
+  document.body.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.body.addEventListener('touchend', function(e){
+    if(!e.changedTouches || !e.changedTouches.length) return;
+    const modal = document.getElementById('composerModal');
+    if(modal && modal.style.display === 'block') return; // pas de swipe pendant la composition
+    if(e.target.closest('.cover-carousel')) return;       // le carrousel gère déjà son propre glissement
+    if(e.target.closest('input, textarea')) return;       // ne gêne pas la saisie/sélection de texte
+
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * 1.5) return; // pas assez horizontal
+
+    if(dx < 0) goToAdjacentPage('next'); // glissement vers la gauche -> page suivante
+    else goToAdjacentPage('prev');       // glissement vers la droite -> page précédente
+  }, { passive: true });
+})();
 
 let editingPostId = null;
 
@@ -1193,13 +1256,12 @@ window.__addComment = async function(postId){
 
 async function initComposer(){
   const composerBtn = document.getElementById('composerBtn');
-  const locked = document.getElementById('composerLocked');
-  const isVerified = currentUserData && currentUserData.statut === 'verifie';
 
-  if(!isVerified){
+  // Ouvert à tout le monde pour l'instant (la limitation spécifique aux comptes
+  // "visiteur" viendra dans un second temps, une fois validée séparément).
+  if(!currentUid){
     composerBtn.style.pointerEvents = 'none';
     composerBtn.style.opacity = '0.5';
-    locked.style.display = 'block';
     return;
   }
   wireComposerModal();
