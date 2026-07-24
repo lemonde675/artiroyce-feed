@@ -547,8 +547,9 @@ window.__voirProfil = function(uid){
 // switchTab existe côté parent, on l'utilise ; sinon on essaie un postMessage générique ;
 // en dernier recours (page ouverte seule, hors iframe), navigation directe.
 (function(){
-  let touchStartX = 0, touchStartY = 0, tracking = false;
-  const SWIPE_MIN = 25; // distance minimale en px pour un glissement volontaire (très assoupli)
+  let touchStartX = 0, touchStartY = 0, tracking = false, locked = null; // locked: 'h' (horizontal) | 'v' (vertical) | null
+  const SWIPE_MIN = 25;      // distance totale minimale pour valider le glissement
+  const LOCK_THRESHOLD = 10; // dès ce petit mouvement, on décide si c'est horizontal ou vertical
 
   function goToAdjacentPage(direction){
     try{
@@ -574,17 +575,30 @@ window.__voirProfil = function(uid){
     if(modal && modal.style.display === 'block'){ tracking = false; return; }
     if(e.target.closest('.cover-carousel, input, textarea')){ tracking = false; return; }
     tracking = true;
+    locked = null;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
+  // Dès qu'on a assez de mouvement pour juger, on verrouille la direction du geste.
+  // Un geste jugé vertical (défilement normal) ne pourra plus jamais déclencher
+  // un changement de page, même s'il dérive ensuite horizontalement.
+  document.addEventListener('touchmove', function(e){
+    if(!tracking || locked || !e.touches.length) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if(Math.abs(dx) < LOCK_THRESHOLD && Math.abs(dy) < LOCK_THRESHOLD) return;
+    locked = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v';
+  }, { passive: true });
+
   document.addEventListener('touchend', function(e){
-    if(!tracking || !e.changedTouches || !e.changedTouches.length){ tracking = false; return; }
+    const wasHorizontal = tracking && locked === 'h';
     tracking = false;
+    locked = null;
+    if(!wasHorizontal || !e.changedTouches || !e.changedTouches.length) return;
 
     const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dy) > Math.abs(dx) * 1.4) return; // pas assez horizontal
+    if(Math.abs(dx) < SWIPE_MIN) return;
 
     if(dx < 0) goToAdjacentPage('next'); // glissement vers la gauche -> page suivante
     else goToAdjacentPage('prev');       // glissement vers la droite -> page précédente
