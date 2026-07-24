@@ -275,6 +275,25 @@ function timeAgo(ts){
 
 function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Palette de dégradés variés et complémentaires pour les publications sans photo/vidéo.
+// Choisie de façon déterministe selon l'identifiant de la publication (stable au fil
+// des rafraîchissements), pour éviter que tout le fil paraisse d'une seule couleur.
+const FEATURE_GRADIENTS = [
+  'linear-gradient(135deg,#ff7a59,#ff3d81)',
+  'linear-gradient(135deg,#2ea3e6,#1f5fae)',
+  'linear-gradient(135deg,#11998e,#38ef7d)',
+  'linear-gradient(135deg,#a75cc9,#5a2a6e)',
+  'linear-gradient(135deg,#f7b733,#e6642c)',
+  'linear-gradient(135deg,#4568dc,#8b5cf6)',
+  'linear-gradient(135deg,#34c759,#1d8a37)',
+  'linear-gradient(135deg,#ff5f6d,#a01f8f)'
+];
+function pickFeatureGradient(id){
+  let h = 0;
+  for(let i=0;i<id.length;i++){ h = (h*31 + id.charCodeAt(i)) >>> 0; }
+  return FEATURE_GRADIENTS[h % FEATURE_GRADIENTS.length];
+}
+
 function renderPost(id, p, opts){
   opts = opts || {};
   const mine = !!opts.mine, trashed = !!opts.trashed;
@@ -283,12 +302,6 @@ function renderPost(id, p, opts){
   const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
   const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
   const typeColors = {actu:'#27a945',lancement:'#0288d1',partenariat:'#8e44ad',innovation:'#e63224'};
-  const typeGradients = {
-    actu:'linear-gradient(135deg,#34c759,#1d8a37)',
-    lancement:'linear-gradient(135deg,#2ea3e6,#01578f)',
-    partenariat:'linear-gradient(135deg,#a75cc9,#5a2a6e)',
-    innovation:'linear-gradient(135deg,#f0645a,#a01f14)'
-  };
   const typeLabels = {actu:'📰 Journal',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
   const journalSuffix = p.journalNom ? ('<span class="ribbon-journal">'+esc(p.journalNom)+'</span>') : '';
   const ribbon = p.type ? ('<div class="ribbon-wrap"><div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div>'+journalSuffix+'</div>') : '';
@@ -322,7 +335,7 @@ function renderPost(id, p, opts){
     if(hasMedia){
       txtBlock = p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon ? ('<div class="post-txt">'+ribbon+'</div>') : '');
     } else {
-      const bg = typeGradients[p.type] || 'linear-gradient(135deg,#5b6b78,#2f3a42)';
+      const bg = pickFeatureGradient(id);
       const typeLbl = p.type ? (typeLabels[p.type]||p.type) : '';
       txtBlock = '<div class="post-txt-feature" style="background:'+bg+'">'
         + (typeLbl ? '<div class="ptf-type">'+typeLbl+'</div>' : '')
