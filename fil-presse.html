@@ -89,10 +89,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .react-em:active{transform:scale(1.3)}
 .comments-box{display:none;padding:10px 14px;border-top:1px solid #f2f2f2;background:#fafafa}
 .comments-box.show{display:block}
-.cmt-item{display:flex;gap:8px;margin-bottom:8px}
+.cmt-item{display:flex;gap:8px;margin-bottom:6px}
 .cmt-av{width:28px;height:28px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#666;flex-shrink:0}
-.cmt-bubble{background:#fff;border-radius:12px;padding:7px 10px;font-size:12.5px;flex:1}
+.cmt-right{flex:1;min-width:0}
+.cmt-bubble{background:#fff;border-radius:14px;padding:7px 10px;font-size:12.5px;display:inline-block;max-width:100%}
 .cmt-bubble b{font-size:12px}
+.cmt-badge-createur{color:#999;font-size:11px;font-weight:600;margin-left:4px}
+.cmt-meta{display:flex;align-items:center;gap:12px;margin:3px 2px 0;font-size:11px;color:#999}
+.cmt-meta span{cursor:pointer}
+.cmt-like.liked{color:var(--red);font-weight:800}
+.cmt-like-count{display:none;align-items:center;gap:3px}
+.cmt-replies-zone{margin-left:34px}
+.cmt-reply-wrap{margin-top:6px}
+.cmt-voir-plus{font-size:11.5px;color:#666;font-weight:700;cursor:pointer;margin:4px 0 6px 34px}
+.cmt-reply-indicator{display:none;align-items:center;gap:6px;font-size:11.5px;color:#666;background:#eef0f3;border-radius:10px;padding:6px 10px;margin-top:8px}
+.cmt-reply-indicator span{cursor:pointer;color:#999;margin-left:auto}
 .cmt-input-row{display:flex;gap:8px;margin-top:6px}
 .cmt-input{flex:1;border:1px solid #E8ECF0;border-radius:14px;padding:8px 12px;font-size:13px}
 .cmt-send{background:var(--red);color:#fff;border:none;border-radius:14px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
@@ -236,7 +247,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore, collection, query, where, orderBy, getDocs, getDoc, doc,
-  addDoc, updateDoc, deleteDoc, setDoc, serverTimestamp, Timestamp
+  addDoc, updateDoc, deleteDoc, setDoc, serverTimestamp, Timestamp, increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -332,6 +343,7 @@ function renderPost(id, p, opts){
       + '</div>'
       + '<div class="comments-box" id="comments-'+id+'">'
       +   '<div id="cmtList-'+id+'"></div>'
+      +   '<div class="cmt-reply-indicator" id="cmtReplyTo-'+id+'">Réponse à <b id="cmtReplyName-'+id+'"></b><span onclick="window.__cancelReply(\''+id+'\')">✕ annuler</span></div>'
       +   '<div class="cmt-input-row">'
       +     '<input class="cmt-input" id="cmtInput-'+id+'" placeholder="Écrire un commentaire…">'
       +     '<button class="cmt-send" onclick="window.__addComment(\''+id+'\')">Envoyer</button>'
@@ -1013,21 +1025,147 @@ window.__toggleComments = async function(postId){
   if(opening) await loadComments(postId);
 }
 
+function findPostAuthorUid(postId){
+  const found = allMineActive.concat(allOthers).find(function(x){ return x[0] === postId; });
+  return found ? (found[1].uid || '') : '';
+}
+
+let replyTargets = {};   // { [postId]: {parentId, rootId, name} | null }
+
+window.__replyToComment = function(postId, commentId, rootId, name){
+  replyTargets[postId] = { parentId: commentId, rootId: rootId, name: name };
+  const indicator = document.getElementById('cmtReplyTo-'+postId);
+  const nameEl = document.getElementById('cmtReplyName-'+postId);
+  if(indicator && nameEl){ nameEl.textContent = name; indicator.style.display = 'flex'; }
+  const input = document.getElementById('cmtInput-'+postId);
+  if(input) input.focus();
+};
+
+window.__cancelReply = function(postId){
+  replyTargets[postId] = null;
+  const indicator = document.getElementById('cmtReplyTo-'+postId);
+  if(indicator) indicator.style.display = 'none';
+};
+
+// "J'aime" par commentaire, ancré dans Firebase : un document par utilisateur dans
+// fil_presse/{postId}/comments/{commentId}/likes/{uid} — exactement le même principe
+// que les réactions sur les publications (persiste après rechargement, par utilisateur).
+window.__toggleCommentLike = async function(postId, commentId, likeEl, countWrapEl, numEl){
+  if(!currentUid){ alert('Connecte-toi pour aimer un commentaire.'); return; }
+  const likeRef = doc(db, 'fil_presse', postId, 'comments', commentId, 'likes', currentUid);
+  const commentRef = doc(db, 'fil_presse', postId, 'comments', commentId);
+  try{
+    const likeSnap = await getDoc(likeRef);
+    if(likeSnap.exists()){
+      await deleteDoc(likeRef);
+      await updateDoc(commentRef, { likes: increment(-1) });
+      likeEl.classList.remove('liked');
+      likeEl.textContent = "J'aime";
+    } else {
+      await setDoc(likeRef, { uid: currentUid, createdAt: serverTimestamp() });
+      await updateDoc(commentRef, { likes: increment(1) });
+      likeEl.classList.add('liked');
+      likeEl.textContent = 'Aimé';
+    }
+    const freshSnap = await getDoc(commentRef);
+    const likes = freshSnap.exists() ? (freshSnap.data().likes || 0) : 0;
+    if(countWrapEl) countWrapEl.style.display = likes > 0 ? 'inline-flex' : 'none';
+    if(numEl) numEl.textContent = likes;
+  }catch(e){ console.error('Like commentaire impossible :', e); }
+};
+
+function buildCommentHTML(postId, c, authorUid, isReply, rootId, likedMap){
+  const ini = (c.prenom || '?')[0].toUpperCase();
+  const isCreateur = authorUid && c.uid === authorUid;
+  const liked = !!(likedMap && likedMap[c.id]);
+  const likes = c.likes || 0;
+  return '<div class="'+(isReply ? 'cmt-reply-wrap' : '')+'">'
+    + '<div class="cmt-item">'
+    +   '<div class="cmt-av">'+ini+'</div>'
+    +   '<div class="cmt-right">'
+    +     '<div class="cmt-bubble"><b>'+esc(c.prenom||'Utilisateur')+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">· Créateur</span>' : '')+'<br>'+esc(c.texte)+'</div>'
+    +     '<div class="cmt-meta">'
+    +       '<span>'+timeAgo(c.createdAt)+'</span>'
+    +       '<span class="cmt-like'+(liked?' liked':'')+'" id="cmtLike-'+c.id+'" onclick="window.__toggleCommentLike(\''+postId+'\',\''+c.id+'\', this, document.getElementById(\'cmtLikeCount-'+c.id+'\'), document.getElementById(\'cmtLikeNum-'+c.id+'\'))">'+(liked?'Aimé':"J'aime")+'</span>'
+    +       '<span onclick="window.__replyToComment(\''+postId+'\',\''+c.id+'\',\''+rootId+'\',\''+esc(c.prenom||'Utilisateur')+'\')">Répondre</span>'
+    +       '<span class="cmt-like-count" id="cmtLikeCount-'+c.id+'" style="display:'+(likes>0?'inline-flex':'none')+'">❤️ <span id="cmtLikeNum-'+c.id+'">'+likes+'</span></span>'
+    +     '</div>'
+    +   '</div>'
+    + '</div>'
+    + '</div>';
+}
+
 async function loadComments(postId){
   const listEl = document.getElementById('cmtList-'+postId);
   listEl.innerHTML = '<div style="font-size:12px;color:#999">Chargement…</div>';
+  const authorUid = findPostAuthorUid(postId);
   const snap = await getDocs(query(collection(db,'fil_presse', postId, 'comments'), orderBy('createdAt','asc')));
   if(snap.empty){
     listEl.innerHTML = '<div style="font-size:12px;color:#999">Aucun commentaire pour le moment.</div>';
     return;
   }
+
+  const tous = [];
+  snap.forEach(function(d){ tous.push(Object.assign({ id: d.id }, d.data())); });
+
+  // Récupère, pour l'utilisateur connecté, quels commentaires il a déjà aimés —
+  // en parallèle, pour que l'état "Aimé" soit correct dès l'ouverture (persistant).
+  const likedMap = {};
+  if(currentUid){
+    await Promise.all(tous.map(async function(c){
+      try{
+        const likeRef = doc(db, 'fil_presse', postId, 'comments', c.id, 'likes', currentUid);
+        const likeSnap = await getDoc(likeRef);
+        likedMap[c.id] = likeSnap.exists();
+      }catch(e){ likedMap[c.id] = false; }
+    }));
+  }
+
+  const parentDe = {};
+  tous.forEach(function(c){ parentDe[c.id] = c.parentId || null; });
+  function trouverRacine(id){
+    let cur = id, garde = 0;
+    while(parentDe[cur] && garde < 20){ cur = parentDe[cur]; garde++; }
+    return cur;
+  }
+
+  const principaux = tous.filter(function(c){ return !c.parentId; })
+    .sort(function(a,b){
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta; // plus récents en premier
+    });
+
+  const reponsesParRacine = {};
+  tous.filter(function(c){ return c.parentId; }).forEach(function(c){
+    const racine = trouverRacine(c.id);
+    (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+  });
+
   let html = '';
-  snap.forEach(function(d){
-    const c = d.data();
-    const ini = (c.prenom||'?')[0].toUpperCase();
-    html += '<div class="cmt-item"><div class="cmt-av">'+ini+'</div><div class="cmt-bubble"><b>'+esc(c.prenom||'Utilisateur')+'</b><br>'+esc(c.texte)+'</div></div>';
+  principaux.forEach(function(c){
+    html += buildCommentHTML(postId, c, authorUid, false, c.id, likedMap);
+    const reponses = reponsesParRacine[c.id] || [];
+    if(reponses.length){
+      html += '<div class="cmt-replies-zone" id="cmtReplies-'+c.id+'">'
+        + '<div class="cmt-voir-plus" id="cmtToggle-'+c.id+'">— Afficher '+reponses.length+' réponse'+(reponses.length>1?'s':'')+' ▾</div>'
+        + '</div>';
+    }
   });
   listEl.innerHTML = html;
+
+  // Câblage des replis "Afficher X réponses" (construits après coup pour garder le HTML léger au premier rendu)
+  principaux.forEach(function(c){
+    const reponses = reponsesParRacine[c.id] || [];
+    if(!reponses.length) return;
+    const toggle = document.getElementById('cmtToggle-'+c.id);
+    const zone = document.getElementById('cmtReplies-'+c.id);
+    if(!toggle || !zone) return;
+    toggle.onclick = function(){
+      const repsHTML = reponses.map(function(r){ return buildCommentHTML(postId, r, authorUid, true, c.id, likedMap); }).join('');
+      zone.innerHTML = repsHTML;
+    };
+  });
 }
 
 window.__addComment = async function(postId){
@@ -1035,13 +1173,16 @@ window.__addComment = async function(postId){
   const input = document.getElementById('cmtInput-'+postId);
   const texte = input.value.trim();
   if(!texte) return;
+  const target = replyTargets[postId];
   await addDoc(collection(db,'fil_presse', postId, 'comments'), {
     uid: currentUid,
     prenom: (currentUserData && currentUserData.prenom) || 'Utilisateur',
     texte: texte,
+    parentId: target ? target.parentId : null,
     createdAt: serverTimestamp()
   });
   input.value = '';
+  window.__cancelReply(postId);
   await loadComments(postId);
   const postRef = doc(db,'fil_presse', postId);
   const snap = await getDocs(collection(db,'fil_presse', postId, 'comments'));
