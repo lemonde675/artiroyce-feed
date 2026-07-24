@@ -548,7 +548,7 @@ window.__voirProfil = function(uid){
 // en dernier recours (page ouverte seule, hors iframe), navigation directe.
 (function(){
   let touchStartX = 0, touchStartY = 0, tracking = false;
-  const SWIPE_MIN = 40; // distance minimale en px pour un glissement volontaire (assoupli)
+  const SWIPE_MIN = 25; // distance minimale en px pour un glissement volontaire (très assoupli)
 
   function goToAdjacentPage(direction){
     try{
@@ -584,7 +584,7 @@ window.__voirProfil = function(uid){
 
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return; // pas assez horizontal
+    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dy) > Math.abs(dx) * 1.4) return; // pas assez horizontal
 
     if(dx < 0) goToAdjacentPage('next'); // glissement vers la gauche -> page suivante
     else goToAdjacentPage('prev');       // glissement vers la droite -> page précédente
