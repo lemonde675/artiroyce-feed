@@ -69,6 +69,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .own-actions.show{display:flex}
 .oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:9px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
 .oa-del{background:#fdecea;color:var(--red)}
+.menu-dropdown{position:fixed;display:none;background:#fff;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,0.16);border:1px solid #eee;min-width:170px;z-index:600;overflow:hidden}
+.menu-dropdown.show{display:block}
+.md-item{padding:12px 16px;font-size:13.5px;font-weight:700;color:#333;cursor:pointer;display:flex;align-items:center;gap:8px}
+.md-item:active{background:#F2F4F7}
+.md-item.danger{color:var(--red)}
+.md-sep{height:1px;background:#f0f0f0}
+.composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
+.upload-progress-wrap{display:none;margin-top:10px;background:#F2F4F7;border-radius:6px;height:6px;overflow:hidden}
+.upload-progress-bar{height:100%;width:0%;background:var(--green);border-radius:6px;transition:width .15s}
 .react-picker{display:none;gap:6px;padding:8px 12px;border-top:1px solid #f2f2f2;background:#fafafa}
 .react-picker.show{display:flex}
 .react-em{font-size:22px;cursor:pointer;transition:transform .1s}
@@ -145,8 +154,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
         </label>
       </div>
       <button id="btnPublier" style="width:100%;margin-top:14px;background:var(--red);color:#fff;border:none;border-radius:16px;padding:14px;font-size:15px;font-weight:800;cursor:pointer">Publier</button>
+      <div class="upload-progress-wrap" id="uploadProgressWrap"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+      <div class="composer-notice" id="composerNotice"></div>
     </div>
   </div>
+
+  <div class="menu-dropdown" id="postMenuDropdown"></div>
 
   <div class="content" id="content">
     <div class="trash-toggle" id="trashToggle" style="display:none" onclick="toggleTrash()">
@@ -216,7 +229,7 @@ import {
   getFirestore, collection, query, where, orderBy, getDocs, getDoc, doc,
   addDoc, updateDoc, deleteDoc, setDoc, serverTimestamp, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -283,11 +296,6 @@ function renderPost(id, p, opts){
     +   '</div>'
     +   followBtn + menu
     + '</div>'
-    + (mine && !trashed ? (
-        '<div class="own-actions" id="ownActions-'+id+'">'
-      +   '<div class="oa-btn" data-act="edit" data-id="'+id+'">✏️ Modifier</div>'
-      +   '<div class="oa-btn oa-del" data-act="soft-delete" data-id="'+id+'">🗑 Supprimer</div>'
-      + '</div>') : '')
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
     + (imgs ? ('<div class="post-imgs">'+imgs+'</div>') : '')
     + video
@@ -395,11 +403,41 @@ window.__voirProfil = function(uid){
   window.location.href = 'profil.html?uid=' + uid;
 };
 
-window.__toggleMenu = function(id){
-  const row = document.getElementById('ownActions-'+id);
-  if(!row) return;
-  document.querySelectorAll('.own-actions.show').forEach(function(r){ if(r!==row) r.classList.remove('show'); });
-  row.classList.toggle('show');
+function closePostMenu(){
+  const dd = document.getElementById('postMenuDropdown');
+  if(dd){ dd.classList.remove('show'); dd.dataset.forId = ''; }
+}
+
+window.__toggleMenu = function(id, iconEl){
+  const dd = document.getElementById('postMenuDropdown');
+  if(!dd || !iconEl) return;
+  if(dd.classList.contains('show') && dd.dataset.forId === id){
+    closePostMenu();
+    return;
+  }
+  dd.innerHTML =
+      '<div class="md-item" data-act="edit" data-id="'+id+'">✏️ Modifier</div>'
+    + '<div class="md-sep"></div>'
+    + '<div class="md-item danger" data-act="soft-delete" data-id="'+id+'">🗑 Supprimer</div>';
+  dd.dataset.forId = id;
+
+  const r = iconEl.getBoundingClientRect();
+  const ddWidth = 180;
+  let left = r.right - ddWidth;
+  left = Math.max(8, Math.min(left, window.innerWidth - ddWidth - 8));
+  let top = r.bottom + 6;
+  dd.style.width = ddWidth + 'px';
+  dd.style.left = left + 'px';
+  dd.style.top = top + 'px';
+  dd.classList.add('show');
+
+  // Si le menu déborderait en bas de l'écran, on l'affiche au-dessus de l'icône à la place.
+  requestAnimationFrame(function(){
+    const ddRect = dd.getBoundingClientRect();
+    if(ddRect.bottom > window.innerHeight - 8){
+      dd.style.top = (r.top - ddRect.height - 6) + 'px';
+    }
+  });
 };
 
 let editingPostId = null;
@@ -407,22 +445,28 @@ let editingPostId = null;
 // Écoute déléguée UNIQUE sur le conteneur du fil : fonctionne pour toutes les
 // publications même après un rafraîchissement du fil (loadFeed remplace le HTML,
 // mais le conteneur #content, lui, ne change jamais). Même logique que cv_pro.html.
-document.getElementById('content').addEventListener('click', function(e){
+document.addEventListener('click', function(e){
   const el = e.target.closest('[data-act]');
-  if(!el) return;
-  const act = el.dataset.act;
-  const id = el.dataset.id;
-  if(act === 'toggle-menu') window.__toggleMenu(id);
-  else if(act === 'edit') window.__editPost(id);
-  else if(act === 'soft-delete') window.__softDelete(id);
-  else if(act === 'restore') window.__restore(id);
-  else if(act === 'hard-delete') window.__hardDelete(id);
-  else if(act === 'follow') window.__toggleFollow(id);
-  else if(act === 'voir-profil') window.__voirProfil(id);
+  if(el){
+    const act = el.dataset.act;
+    const id = el.dataset.id;
+    if(act === 'toggle-menu') window.__toggleMenu(id, el);
+    else if(act === 'edit') window.__editPost(id);
+    else if(act === 'soft-delete') window.__softDelete(id);
+    else if(act === 'restore') window.__restore(id);
+    else if(act === 'hard-delete') window.__hardDelete(id, el);
+    else if(act === 'follow') window.__toggleFollow(id);
+    else if(act === 'voir-profil') window.__voirProfil(id);
+    return;
+  }
+  // Clic en dehors du menu ⋮ ouvert : on le referme (comportement moderne standard)
+  if(!e.target.closest('#postMenuDropdown')) closePostMenu();
 });
+window.addEventListener('resize', closePostMenu);
+document.getElementById('content').addEventListener('scroll', closePostMenu);
 
 window.__editPost = async function(id){
-  document.querySelectorAll('.own-actions.show').forEach(function(r){ r.classList.remove('show'); });
+  closePostMenu();
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
@@ -436,6 +480,13 @@ window.__editPost = async function(id){
     c.style.color = active ? '#fff' : '';
   });
   selectedType = p.type || 'actu';
+  // On repart d'un composeur propre pour le média : modifier le texte ne doit pas
+  // ré-attacher un média resté sélectionné d'une session de composition précédente.
+  selectedPhotoBase64 = null;
+  selectedVideoFile = null;
+  document.getElementById('mediaPreview').style.display = 'none';
+  document.getElementById('composerNotice').style.display = 'none';
+  document.getElementById('uploadProgressWrap').style.display = 'none';
   document.getElementById('btnPublier').textContent = 'Enregistrer les modifications';
   window.__openComposer();
 };
@@ -456,7 +507,17 @@ window.__restore = async function(id){
   await updateDoc(doc(db,'fil_presse', id), { deletedAt: null });
   loadFeed();
 }
-window.__hardDelete = async function(id){
+window.__hardDelete = async function(id, el){
+  if(el && el.dataset.confirm !== 'yes'){
+    el.dataset.confirm = 'yes';
+    const original = el.textContent;
+    el.textContent = '✅ Confirmer la suppression définitive';
+    setTimeout(function(){
+      if(el.dataset.confirm === 'yes'){ el.dataset.confirm = ''; el.textContent = original; }
+    }, 3000);
+    return;
+  }
+  if(el) el.dataset.confirm = '';
   await deleteDoc(doc(db,'fil_presse', id));
   loadFeed();
 }
@@ -496,8 +557,8 @@ async function ensureSeed(){
 }
 
 let selectedType = 'actu';
-let selectedPhotoFile = null;
-let selectedVideoFile = null;
+let selectedPhotoBase64 = null;   // Photo : encodée en base64 côté client, stockée directement dans Firestore (comme cv_pro/offre) — fiable, indépendant de Firebase Storage/Blaze.
+let selectedVideoFile = null;      // Vidéo : reste sur Firebase Storage (trop lourde pour Firestore), avec vraie barre de progression et repli propre si indisponible.
 let composerHistoryPushed = false;
 
 window.__openComposer = function(){
@@ -512,6 +573,8 @@ window.__closeComposer = function(){
   document.getElementById('composerModal').style.display = 'none';
   editingPostId = null;
   document.getElementById('btnPublier').textContent = 'Publier';
+  document.getElementById('uploadProgressWrap').style.display = 'none';
+  document.getElementById('composerNotice').style.display = 'none';
   if(composerHistoryPushed){
     composerHistoryPushed = false;
     if(history.state && history.state.frComposer) history.back();
@@ -526,6 +589,73 @@ window.addEventListener('popstate', function(){
   }
 });
 
+let composerNoticeTimeout = null;
+function showComposerNotice(msg, isError){
+  const el = document.getElementById('composerNotice');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.background = isError ? '#fdecea' : '#e8f5e9';
+  el.style.color = isError ? 'var(--red)' : 'var(--green)';
+  el.style.display = 'block';
+  if(composerNoticeTimeout) clearTimeout(composerNoticeTimeout);
+  composerNoticeTimeout = setTimeout(function(){ el.style.display = 'none'; }, 6000);
+}
+
+// Redimensionne et compresse une image côté client avant de l'encoder en base64.
+// Évite toute dépendance à Firebase Storage pour les photos (indépendant de Blaze).
+function resizeImageToBase64(file, maxDim, quality){
+  return new Promise(function(resolve, reject){
+    const reader = new FileReader();
+    reader.onerror = function(){ reject(new Error("Lecture de l'image impossible")); };
+    reader.onload = function(){
+      const img = new Image();
+      img.onerror = function(){ reject(new Error('Fichier image invalide')); };
+      img.onload = function(){
+        let w = img.width, h = img.height;
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Upload vidéo avec vraie progression (uploadBytesResumable) + garde-fou temporel :
+// si Storage ne répond pas (Blaze inactif), on abandonne proprement après 45s
+// au lieu de rester bloqué, et la publication continue sans vidéo.
+function uploaderVideo(file, btnEl){
+  return new Promise(function(resolve, reject){
+    const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + file.name;
+    const r = ref(storage, path);
+    const task = uploadBytesResumable(r, file);
+    const progressWrap = document.getElementById('uploadProgressWrap');
+    const progressBar = document.getElementById('uploadProgressBar');
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0%';
+    const failSafe = setTimeout(function(){ try{ task.cancel(); }catch(e){} }, 45000);
+    task.on('state_changed', function(snap){
+      const pct = snap.totalBytes ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100) : 0;
+      progressBar.style.width = pct + '%';
+      if(btnEl) btnEl.textContent = 'Envoi vidéo… ' + pct + '%';
+    }, function(err){
+      clearTimeout(failSafe);
+      progressWrap.style.display = 'none';
+      reject(err);
+    }, function(){
+      clearTimeout(failSafe);
+      progressWrap.style.display = 'none';
+      getDownloadURL(task.snapshot.ref).then(resolve).catch(reject);
+    });
+  });
+}
+
 function wireComposerModal(){
   document.querySelectorAll('.type-chip').forEach(function(chip){
     chip.addEventListener('click', function(){
@@ -539,18 +669,33 @@ function wireComposerModal(){
   const firstChip = document.querySelector('.type-chip.active');
   if(firstChip){ firstChip.style.background = firstChip.dataset.color; firstChip.style.color = '#fff'; }
 
-  document.getElementById('inputPhoto').addEventListener('change', function(e){
+  document.getElementById('inputPhoto').addEventListener('change', async function(e){
     const f = e.target.files[0]; if(!f) return;
-    selectedPhotoFile = f; selectedVideoFile = null;
-    const url = URL.createObjectURL(f);
-    document.getElementById('mediaPreview').style.display = 'block';
-    document.getElementById('imgPreview').src = url;
-    document.getElementById('imgPreview').style.display = 'block';
+    selectedVideoFile = null;
     document.getElementById('vidPreview').style.display = 'none';
+    try{
+      const dataUrl = await resizeImageToBase64(f, 1280, 0.75);
+      selectedPhotoBase64 = dataUrl;
+      document.getElementById('mediaPreview').style.display = 'block';
+      document.getElementById('imgPreview').src = dataUrl;
+      document.getElementById('imgPreview').style.display = 'block';
+    }catch(err){
+      console.error('Redimensionnement image impossible :', err);
+      showComposerNotice("Cette image n'a pas pu être traitée. Réessaie avec une autre photo.", true);
+    }finally{
+      e.target.value = '';
+    }
   });
+
   document.getElementById('inputVideo').addEventListener('change', function(e){
     const f = e.target.files[0]; if(!f) return;
-    selectedVideoFile = f; selectedPhotoFile = null;
+    const maxBytes = 40 * 1024 * 1024;
+    if(f.size > maxBytes){
+      showComposerNotice('Cette vidéo est trop lourde (max 40 Mo). Choisis un fichier plus léger.', true);
+      e.target.value = '';
+      return;
+    }
+    selectedVideoFile = f; selectedPhotoBase64 = null;
     const url = URL.createObjectURL(f);
     document.getElementById('mediaPreview').style.display = 'block';
     document.getElementById('vidPreview').src = url;
@@ -560,37 +705,22 @@ function wireComposerModal(){
 
   document.getElementById('btnPublier').addEventListener('click', async function(){
     const texte = document.getElementById('composerTxt').value.trim();
-    if(!texte && !selectedPhotoFile && !selectedVideoFile){ return; }
+    if(!texte && !selectedPhotoBase64 && !selectedVideoFile){ return; }
     const btn = document.getElementById('btnPublier');
-    btn.textContent = 'Publication en cours…'; btn.disabled = true;
+    const busyLabel = editingPostId ? 'Enregistrement…' : 'Publication en cours…';
+    btn.textContent = busyLabel; btn.disabled = true;
 
-    let images = [];
+    let images = selectedPhotoBase64 ? [selectedPhotoBase64] : [];
     let videoUrl = '';
 
-    function avecDelaiMax(promesse, ms){
-      return Promise.race([
-        promesse,
-        new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('Délai dépassé (Storage indisponible ?)')); }, ms); })
-      ]);
-    }
-
     try{
-      try{
-        if(selectedPhotoFile){
-          const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedPhotoFile.name;
-          const r = ref(storage, path);
-          await avecDelaiMax(uploadBytes(r, selectedPhotoFile), 20000);
-          images = [await avecDelaiMax(getDownloadURL(r), 10000)];
+      if(selectedVideoFile){
+        try{
+          videoUrl = await uploaderVideo(selectedVideoFile, btn);
+        }catch(videoErr){
+          console.error('Envoi vidéo impossible :', videoErr);
+          showComposerNotice("La vidéo n'a pas pu être envoyée (service temporairement indisponible). La publication continue sans vidéo.", true);
         }
-        if(selectedVideoFile){
-          const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + selectedVideoFile.name;
-          const r = ref(storage, path);
-          await avecDelaiMax(uploadBytes(r, selectedVideoFile), 40000);
-          videoUrl = await avecDelaiMax(getDownloadURL(r), 10000);
-        }
-      }catch(mediaErr){
-        console.error('Envoi média impossible :', mediaErr);
-        alert("L'envoi du média a échoué (Firebase Storage indisponible pour le moment). La publication continue sans média.");
       }
 
       const journalNom = document.getElementById('composerJournal').value.trim();
@@ -626,15 +756,15 @@ function wireComposerModal(){
       document.getElementById('composerTxt').value = '';
       document.getElementById('composerJournal').value = '';
       document.getElementById('mediaPreview').style.display = 'none';
-      selectedPhotoFile = null; selectedVideoFile = null;
+      selectedPhotoBase64 = null; selectedVideoFile = null;
       window.__closeComposer();
       loadFeed();
     }catch(err){
       console.error('Publication impossible :', err);
-      alert("La publication a échoué : " + (err && err.message ? err.message : 'erreur inconnue') + "\n(Vérifie ta connexion et que Firebase Blaze est actif.)");
+      showComposerNotice('La publication a échoué : ' + (err && err.message ? err.message : 'erreur inconnue'), true);
     }finally{
-      btn.textContent = 'Publier';
       btn.disabled = false;
+      btn.textContent = editingPostId ? 'Enregistrer les modifications' : 'Publier';
     }
   });
 }
