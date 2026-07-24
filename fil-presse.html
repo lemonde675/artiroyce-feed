@@ -18,6 +18,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .th-logo .a{color:var(--red)}.th-logo .r{color:var(--green)}
 .lang-sel{display:flex;align-items:center;gap:4px;background:#F2F4F7;border-radius:20px;padding:6px 10px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid #E8ECF0}
 .h-icons{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.search-bar{display:none;align-items:center;gap:8px;padding:0 12px 10px}
+.search-bar.show{display:flex}
+.search-bar input{flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222}
+.search-close{font-size:16px;color:#999;cursor:pointer;padding:4px 6px;flex-shrink:0}
 .h-ico{position:relative;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0}
 .h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
 .h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
@@ -46,7 +50,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .badge-metier{background:#F2F4F7;border-radius:12px;padding:2px 9px;font-size:11.5px;font-weight:700;color:#555;display:inline-flex;align-items:center;gap:3px}
 .badge-off{background:var(--green);color:#fff;border-radius:12px;padding:2px 9px;font-size:11px;font-weight:800}
 .post-sub{font-size:12px;color:#999;margin-top:1px}
-.post-menu{margin-left:auto;color:#bbb;font-size:20px;line-height:1;cursor:pointer;padding:4px}
 .post-txt{padding:2px 14px 10px;font-size:14px;color:#222;line-height:1.4}
 .post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .post-imgs{display:grid;gap:4px;margin:0 14px 10px;border-radius:14px;overflow:hidden;background:#eee}
@@ -66,13 +69,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .ribbon-journal{display:block;font-size:15px;font-weight:800;color:#222;margin-top:4px}
 .follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
 .follow-btn.on{background:#eee;color:#777;border-color:#eee}
-.post-menu-panel{display:none;margin:0 14px 10px;background:#F8F9FB;border:1px solid #EEF0F3;border-radius:14px;overflow:hidden}
-.post-menu-panel.show{display:block;animation:pmpIn .15s ease}
-@keyframes pmpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.pmp-item{padding:12px 16px;font-size:13.5px;font-weight:700;color:#333;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #EEF0F3}
-.pmp-item:last-child{border-bottom:none}
-.pmp-item:active{background:#EEF0F3}
-.pmp-item.danger{color:var(--red)}
+.own-actions{display:flex;gap:8px;margin:0 14px 10px}
+.oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
+.oa-del{background:#fdecea;color:var(--red)}
 .composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
 .upload-progress-wrap{display:none;margin-top:10px;background:#F2F4F7;border-radius:6px;height:6px;overflow:hidden}
 .upload-progress-bar{height:100%;width:0%;background:var(--green);border-radius:6px;transition:width .15s}
@@ -110,9 +109,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
       <div class="h-icons">
         <div class="h-ico bell">🔔<div class="bdot">3</div></div>
         <div class="h-ico chat">💬<div class="bdot">1</div></div>
-        <span style="font-size:19px;cursor:pointer">🔍</span>
+        <span style="font-size:19px;cursor:pointer" id="searchToggle" onclick="window.__toggleSearch()">🔍</span>
         <span style="font-size:19px;cursor:pointer" id="langSel">🇫🇷</span>
       </div>
+    </div>
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
+      <span class="search-close" onclick="window.__closeSearch()">✕</span>
     </div>
   </header>
   <div class="spacer" id="spacer"></div>
@@ -278,12 +281,11 @@ function renderPost(id, p, opts){
     return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer" style="'+sizing+'object-fit:cover">';
   }).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
-  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>') : '';
   const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
-  const menuPanel = (mine && !trashed) ? (
-    '<div class="post-menu-panel" id="menuPanel-'+id+'">'
-    + '<div class="pmp-item" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
-    + '<div class="pmp-item danger" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
+  const ownActions = (mine && !trashed) ? (
+    '<div class="own-actions">'
+    + '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
+    + '<div class="oa-btn oa-del" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
     + '</div>'
   ) : '';
   const trashActions = trashed ? (
@@ -302,9 +304,9 @@ function renderPost(id, p, opts){
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
-    +   followBtn + menu
+    +   followBtn
     + '</div>'
-    + menuPanel
+    + ownActions
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
     + (imgs ? ('<div class="post-imgs" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
     + video
@@ -327,6 +329,32 @@ function renderPost(id, p, opts){
       + '</div>') : '')
     + trashActions
     + '</div>';
+}
+
+let allMineActive = [];
+let allOthers = [];
+let searchTerm = '';
+
+function matchesSearch(p){
+  if(!searchTerm) return true;
+  const hay = ((p.journalNom||'') + ' ' + (p.prenom||'') + ' ' + (p.texte||'')).toLowerCase();
+  return hay.indexOf(searchTerm) !== -1;
+}
+
+function renderFilteredFeed(){
+  const mineFiltered = allMineActive.filter(function(x){ return matchesSearch(x[1]); });
+  const othersFiltered = allOthers.filter(function(x){ return matchesSearch(x[1]); });
+
+  document.getElementById('mineList').innerHTML = mineFiltered.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
+  document.getElementById('secMineTitle').style.display = mineFiltered.length ? '' : 'none';
+
+  document.getElementById('feedList').innerHTML = othersFiltered.length
+    ? othersFiltered.map(function(x){return renderPost(x[0],x[1],{mine:false});}).join('')
+    : ('<div class="empty-msg">'+(searchTerm ? 'Aucun résultat pour « '+esc(searchTerm)+' ».' : 'Aucune publication pour le moment.')+'</div>');
+
+  markFollowedButtons();
+  markAuthorsOnline();
+  mineFiltered.concat(othersFiltered).forEach(function(x){ refreshReactionCount(x[0]); });
 }
 
 async function loadFeed(){
@@ -359,12 +387,9 @@ async function loadFeed(){
       else others.push([d.id, p]);
     });
 
-    document.getElementById('mineList').innerHTML = mineActive.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
-    document.getElementById('secMineTitle').style.display = mineActive.length ? '' : 'none';
-
-    document.getElementById('feedList').innerHTML = others.length
-      ? others.map(function(x){return renderPost(x[0],x[1],{mine:false});}).join('')
-      : '<div class="empty-msg">Aucune publication pour le moment.</div>';
+    allMineActive = mineActive;
+    allOthers = others;
+    renderFilteredFeed();
 
     const trashToggle = document.getElementById('trashToggle');
     const trashCount = document.getElementById('trashCount');
@@ -372,9 +397,6 @@ async function loadFeed(){
     trashCount.textContent = mineTrashed.length;
     trashToggle.style.display = mineTrashed.length ? 'flex' : 'none';
     trashList.innerHTML = mineTrashed.map(function(x){return renderPost(x[0],x[1],{mine:true, trashed:true});}).join('');
-    markFollowedButtons();
-    markAuthorsOnline();
-    mineActive.concat(others).forEach(function(x){ refreshReactionCount(x[0]); });
   }catch(err){
     console.error('Fil Presse — chargement impossible :', err);
     document.getElementById('feedList').innerHTML =
@@ -412,30 +434,38 @@ window.__voirProfil = function(uid){
   window.location.href = 'profil.html?uid=' + uid;
 };
 
-function closePostMenus(exceptId){
-  document.querySelectorAll('.post-menu-panel.show').forEach(function(p){
-    if(!exceptId || p.id !== 'menuPanel-'+exceptId) p.classList.remove('show');
-  });
-}
-
-window.__toggleMenu = function(id){
-  const panel = document.getElementById('menuPanel-'+id);
-  if(!panel) return;
-  const willOpen = !panel.classList.contains('show');
-  closePostMenus(willOpen ? id : null);
-  panel.classList.toggle('show', willOpen);
-};
-
 let editingPostId = null;
 
-// Ferme le panneau ⋮ ouvert si on clique ailleurs sur la page (comportement standard).
-document.addEventListener('click', function(e){
-  if(e.target.closest('.post-menu') || e.target.closest('.post-menu-panel')) return;
-  closePostMenus();
+window.__toggleSearch = function(){
+  const bar = document.getElementById('searchBar');
+  const opening = !bar.classList.contains('show');
+  bar.classList.toggle('show', opening);
+  if(typeof window.adj === 'function') window.adj();
+  if(opening){
+    const input = document.getElementById('searchInput');
+    if(input) input.focus();
+  } else {
+    window.__closeSearch();
+  }
+};
+
+window.__closeSearch = function(){
+  const bar = document.getElementById('searchBar');
+  const input = document.getElementById('searchInput');
+  bar.classList.remove('show');
+  if(input) input.value = '';
+  searchTerm = '';
+  renderFilteredFeed();
+  if(typeof window.adj === 'function') window.adj();
+};
+
+document.getElementById('searchInput').addEventListener('input', function(e){
+  searchTerm = e.target.value.trim().toLowerCase();
+  renderFilteredFeed();
 });
 
 window.__editPost = async function(id){
-  closePostMenus();
+
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
@@ -482,7 +512,6 @@ window.__softDelete = async function(id, el){
   }
   if(el) el.dataset.confirm = '';
   await updateDoc(doc(db,'fil_presse', id), { deletedAt: serverTimestamp() });
-  closePostMenus();
   loadFeed();
 }
 window.__restore = async function(id){
