@@ -402,9 +402,18 @@ function renderFilteredFeed(){
   const carouselBlock = buildCoverCarouselBlock();
   let feedHTML = '';
   if(othersFiltered.length){
+    const total = othersFiltered.length;
+    const useEveryTen = total >= 10;
+    const midPoint = Math.max(1, Math.floor(total / 2));
     othersFiltered.forEach(function(x, i){
       feedHTML += renderPost(x[0], x[1], {mine:false});
-      if(carouselBlock && (i + 1) % 10 === 0) feedHTML += carouselBlock;
+      if(carouselBlock){
+        if(useEveryTen){
+          if((i + 1) % 10 === 0) feedHTML += carouselBlock;
+        } else if((i + 1) === midPoint){
+          feedHTML += carouselBlock;
+        }
+      }
     });
   } else {
     feedHTML = '<div class="empty-msg">'+(searchTerm ? 'Aucun résultat pour « '+esc(searchTerm)+' ».' : 'Aucune publication pour le moment.')+'</div>';
@@ -709,6 +718,58 @@ async function ensureSeedImages(){
       comments: 0,
       deletedAt: null,
       createdAt: Timestamp.fromDate(new Date(Date.now() - i*11*3600*1000))
+    });
+  }
+  await setDoc(metaRef, { seededAt: serverTimestamp() });
+}
+
+// Lot supplémentaire, plus fourni, pour donner tout de suite un résultat visible
+// (carrousel + fil bien remplis). Toujours du contenu officiel ArtiRoyce Presse,
+// clairement identifié — les vraies publications des professionnels viendront
+// naturellement compléter au fil du temps.
+async function ensureSeedMore(){
+  const metaRef = doc(db, 'fil_presse_meta', 'seed_img_v2');
+  const metaSnap = await getDoc(metaRef);
+  if(metaSnap.exists()) return;
+
+  const journaux = ['Le Bénouto','Wesli','Binétus','Benitus','Oxygène Style','La Vitrine Cotonou','Le Zou Mag','Flash Bénin','Cocotiers Mag','Wémè Actu','Porto Style','Golfe Presse'];
+  const types = ['actu','lancement','partenariat','innovation'];
+  const phrases = [
+    "Une jeune marque de sneakers personnalisées séduit la jeunesse urbaine.",
+    "Un défilé solidaire réunit créateurs locaux et diaspora à Cotonou.",
+    "Une ligne de bijoux en perles de verre recyclé attire l'attention à l'international.",
+    "Un incubateur de mode accompagne dix jeunes créateurs béninois cette année.",
+    "Une marque de cosmétiques bio à base de karité s'exporte vers l'Europe.",
+    "Un concept-store dédié au wax nouvelle génération ouvre ses portes.",
+    "Une maison de couture revisite le boubou pour une clientèle plus jeune.",
+    "Un partenariat entre artisans et designers new-yorkais fait sensation.",
+    "Une plateforme locale de e-commerce mode dépasse les 10 000 clients.",
+    "Un photographe de mode béninois expose ses clichés à Paris.",
+    "Une marque de maroquinerie artisanale mise sur le cuir végétal.",
+    "Un festival de mode urbaine attire plusieurs centaines de visiteurs.",
+    "Une créatrice lance sa première collection capsule dédiée aux mariées.",
+    "Un label textile s'associe à une ONG pour l'insertion des jeunes couturiers.",
+    "Une ligne de vêtements unisexes casse les codes du prêt-à-porter local.",
+    "Une boutique éphémère met en avant dix créateurs émergents.",
+    "Un influenceur mode béninois signe un partenariat avec une marque internationale.",
+    "Une association de stylistes organise sa première fashion week régionale."
+  ];
+
+  for(let i=0;i<phrases.length;i++){
+    const journal = journaux[i % journaux.length];
+    const type = types[i % types.length];
+    await addDoc(collection(db,'fil_presse'), {
+      uid: 'artiroyce_presse',
+      prenom: 'ArtiRoyce Presse',
+      official: true,
+      texte: phrases[i],
+      journalNom: journal,
+      type: type,
+      images: ['https://picsum.photos/seed/artiroyce_more'+i+'/900/700'],
+      likes: 0,
+      comments: 0,
+      deletedAt: null,
+      createdAt: Timestamp.fromDate(new Date(Date.now() - i*7*3600*1000))
     });
   }
   await setDoc(metaRef, { seededAt: serverTimestamp() });
@@ -1062,6 +1123,7 @@ onAuthStateChanged(auth, async function(user){
   await initComposer();
   try{ await ensureSeed(); }catch(e){ console.error('Seed Fil Presse impossible :', e); }
   try{ await ensureSeedImages(); }catch(e){ console.error('Seed illustré impossible :', e); }
+  try{ await ensureSeedMore(); }catch(e){ console.error('Seed supplémentaire impossible :', e); }
   await loadFeed();
   await markFollowedButtons();
 });
