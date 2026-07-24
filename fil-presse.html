@@ -30,6 +30,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 
 .composer{background:#fff;flex-shrink:0;border-bottom:1px solid #eee}
 .composer-row{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.search-circle-btn{width:40px;height:40px;border-radius:50%;background:#F2F4F7;border:1px solid #E8ECF0;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex-shrink:0}
+.search-circle-btn:active{background:#E8ECF0}
 .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .av-wrap{position:relative;flex-shrink:0}
@@ -69,7 +71,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .ribbon-journal{display:block;font-size:15px;font-weight:800;color:#222;margin-top:4px}
 .follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
 .follow-btn.on{background:#eee;color:#777;border-color:#eee}
-.own-actions{display:flex;gap:8px;margin:0 14px 10px}
+.post-menu-btn{margin-left:auto;color:#bbb;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;flex-shrink:0}
+.own-actions{display:none;gap:8px;margin:0 14px 10px}
+.own-actions.show{display:flex}
 .oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:10px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
 .oa-del{background:#fdecea;color:var(--red)}
 .composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
@@ -124,6 +128,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
     <div class="composer-row">
       <div class="avatar" id="myAvatar">?</div>
       <div class="composer-input" id="composerBtn" data-i18n="presse_quoi_neuf">Publier une actualité presse…</div>
+      <div class="search-circle-btn" onclick="window.__toggleSearch()" title="Rechercher">🔍</div>
     </div>
     <div class="composer-locked" id="composerLocked" style="display:none" data-i18n="presse_reserve">Réservé aux professionnels vérifiés</div>
   </div>
@@ -282,8 +287,9 @@ function renderPost(id, p, opts){
   }).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
   const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
+  const menuBtn = (mine && !trashed) ? ('<div class="post-menu-btn" onclick="window.__toggleOwnActions(\''+id+'\')">⋯</div>') : '';
   const ownActions = (mine && !trashed) ? (
-    '<div class="own-actions">'
+    '<div class="own-actions" id="ownActions-'+id+'">'
     + '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
     + '<div class="oa-btn oa-del" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
     + '</div>'
@@ -304,7 +310,7 @@ function renderPost(id, p, opts){
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
-    +   followBtn
+    +   followBtn + menuBtn
     + '</div>'
     + ownActions
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
@@ -465,7 +471,7 @@ document.getElementById('searchInput').addEventListener('input', function(e){
 });
 
 window.__editPost = async function(id){
-
+  document.querySelectorAll('.own-actions.show').forEach(function(r){ r.classList.remove('show'); });
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
@@ -804,6 +810,13 @@ async function markFollowedButtons(){
     const btn = document.getElementById('follow-'+followed);
     if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   });
+}
+
+window.__toggleOwnActions = function(postId){
+  const row = document.getElementById('ownActions-'+postId);
+  if(!row) return;
+  document.querySelectorAll('.own-actions.show').forEach(function(r){ if(r!==row) r.classList.remove('show'); });
+  row.classList.toggle('show');
 }
 
 window.__toggleReactPicker = function(postId){
