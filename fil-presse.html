@@ -49,7 +49,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .post-menu{margin-left:auto;color:#bbb;font-size:20px;line-height:1;cursor:pointer;padding:4px}
 .post-txt{padding:2px 14px 10px;font-size:14px;color:#222;line-height:1.4}
 .post-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.post-imgs img{width:100%;height:170px;object-fit:cover;display:block;background:#eee}
+.post-imgs{display:grid;gap:4px;margin:0 14px 10px;border-radius:14px;overflow:hidden;background:#eee}
+.post-imgs img{width:100%;object-fit:cover;display:block;background:#eee}
 .post-stats{display:flex;justify-content:space-between;padding:9px 14px;font-size:12.5px;color:#999}
 .post-actions{display:flex;border-top:1px solid #f2f2f2}
 .pa-btn{flex:1;text-align:center;padding:11px 4px;font-size:12.5px;font-weight:700;color:#777;cursor:pointer}
@@ -65,16 +66,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .ribbon-journal{display:block;font-size:15px;font-weight:800;color:#222;margin-top:4px}
 .follow-btn{border:1.5px solid var(--red);color:var(--red);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;margin-left:8px;flex-shrink:0}
 .follow-btn.on{background:#eee;color:#777;border-color:#eee}
-.own-actions{display:none;gap:8px;padding:0 14px 10px}
-.own-actions.show{display:flex}
-.oa-btn{flex:1;text-align:center;background:#F2F4F7;border-radius:12px;padding:9px;font-size:12.5px;font-weight:700;color:#444;cursor:pointer}
-.oa-del{background:#fdecea;color:var(--red)}
-.menu-dropdown{position:fixed;display:none;background:#fff;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,0.16);border:1px solid #eee;min-width:170px;z-index:600;overflow:hidden}
-.menu-dropdown.show{display:block}
-.md-item{padding:12px 16px;font-size:13.5px;font-weight:700;color:#333;cursor:pointer;display:flex;align-items:center;gap:8px}
-.md-item:active{background:#F2F4F7}
-.md-item.danger{color:var(--red)}
-.md-sep{height:1px;background:#f0f0f0}
+.post-menu-panel{display:none;margin:0 14px 10px;background:#F8F9FB;border:1px solid #EEF0F3;border-radius:14px;overflow:hidden}
+.post-menu-panel.show{display:block;animation:pmpIn .15s ease}
+@keyframes pmpIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.pmp-item{padding:12px 16px;font-size:13.5px;font-weight:700;color:#333;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #EEF0F3}
+.pmp-item:last-child{border-bottom:none}
+.pmp-item:active{background:#EEF0F3}
+.pmp-item.danger{color:var(--red)}
 .composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
 .upload-progress-wrap{display:none;margin-top:10px;background:#F2F4F7;border-radius:6px;height:6px;overflow:hidden}
 .upload-progress-bar{height:100%;width:0%;background:var(--green);border-radius:6px;transition:width .15s}
@@ -158,8 +156,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
       <div class="composer-notice" id="composerNotice"></div>
     </div>
   </div>
-
-  <div class="menu-dropdown" id="postMenuDropdown"></div>
 
   <div class="content" id="content">
     <div class="trash-toggle" id="trashToggle" style="display:none" onclick="toggleTrash()">
@@ -274,30 +270,43 @@ function renderPost(id, p, opts){
   const journalSuffix = p.journalNom ? ('<span class="ribbon-journal">'+esc(p.journalNom)+'</span>') : '';
   const ribbon = p.type ? ('<div class="ribbon-wrap"><div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div>'+journalSuffix+'</div>') : '';
   const roleLbl = p.official ? '' : (p.roleLbl || 'Professionnel');
-  const imgs = (p.images||[]).slice(0,4).map(function(u){return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer">';}).join('');
-  const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:100%;display:block;background:#000;max-height:260px"></video>') : '';
-  const menu = (mine && !trashed) ? ('<div class="post-menu" data-act="toggle-menu" data-id="'+id+'">⋮</div>') : '';
-  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" data-act="follow" data-id="'+p.uid+'">+ Suivre</button>') : '';
+  const imgList = (p.images||[]).slice(0,4);
+  const imgCount = imgList.length;
+  const imgsGridCols = imgCount <= 1 ? '1fr' : '1fr 1fr';
+  const imgs = imgList.map(function(u){
+    const sizing = imgCount === 1 ? 'aspect-ratio:4/5;max-height:520px;' : 'height:170px;';
+    return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer" style="'+sizing+'object-fit:cover">';
+  }).join('');
+  const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
+  const menu = (mine && !trashed) ? ('<div class="post-menu" onclick="window.__toggleMenu(\''+id+'\')">⋮</div>') : '';
+  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
+  const menuPanel = (mine && !trashed) ? (
+    '<div class="post-menu-panel" id="menuPanel-'+id+'">'
+    + '<div class="pmp-item" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
+    + '<div class="pmp-item danger" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
+    + '</div>'
+  ) : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
-    '<div class="pt-btn pt-restore" data-act="restore" data-id="'+id+'">↩ Restaurer</div>'+
-    '<div class="pt-btn pt-del" data-act="hard-delete" data-id="'+id+'">🗑 Supprimer définitivement</div>'+
+    '<div class="pt-btn pt-restore" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
+    '<div class="pt-btn pt-del" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
     '</div>') : '';
 
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
-    +   '<div class="av-wrap" style="cursor:pointer" data-act="voir-profil" data-id="'+(p.uid||'')+'"><div class="avatar">'+avatar+'</div>'
+    +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
     +     ((p.official || p.verifie) ? '<div class="v-icon">✔</div>' : '')
     +     '<div class="online-dot" data-author="'+(p.uid||'')+'" style="display:none"></div>'
     +   '</div>'
-    +   '<div style="flex:1;cursor:pointer" data-act="voir-profil" data-id="'+(p.uid||'')+'">'
+    +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
     +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn + menu
     + '</div>'
+    + menuPanel
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
-    + (imgs ? ('<div class="post-imgs">'+imgs+'</div>') : '')
+    + (imgs ? ('<div class="post-imgs" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
     + video
     + (!trashed ? (
         '<div class="post-stats" id="stats-'+id+'"><span>'+(p.likes||0)+' réaction(s)</span><span>'+(p.comments||0)+' commentaire(s)</span></div>'
@@ -403,70 +412,30 @@ window.__voirProfil = function(uid){
   window.location.href = 'profil.html?uid=' + uid;
 };
 
-function closePostMenu(){
-  const dd = document.getElementById('postMenuDropdown');
-  if(dd){ dd.classList.remove('show'); dd.dataset.forId = ''; }
+function closePostMenus(exceptId){
+  document.querySelectorAll('.post-menu-panel.show').forEach(function(p){
+    if(!exceptId || p.id !== 'menuPanel-'+exceptId) p.classList.remove('show');
+  });
 }
 
-window.__toggleMenu = function(id, iconEl){
-  const dd = document.getElementById('postMenuDropdown');
-  if(!dd || !iconEl) return;
-  if(dd.classList.contains('show') && dd.dataset.forId === id){
-    closePostMenu();
-    return;
-  }
-  dd.innerHTML =
-      '<div class="md-item" data-act="edit" data-id="'+id+'">✏️ Modifier</div>'
-    + '<div class="md-sep"></div>'
-    + '<div class="md-item danger" data-act="soft-delete" data-id="'+id+'">🗑 Supprimer</div>';
-  dd.dataset.forId = id;
-
-  const r = iconEl.getBoundingClientRect();
-  const ddWidth = 180;
-  let left = r.right - ddWidth;
-  left = Math.max(8, Math.min(left, window.innerWidth - ddWidth - 8));
-  let top = r.bottom + 6;
-  dd.style.width = ddWidth + 'px';
-  dd.style.left = left + 'px';
-  dd.style.top = top + 'px';
-  dd.classList.add('show');
-
-  // Si le menu déborderait en bas de l'écran, on l'affiche au-dessus de l'icône à la place.
-  requestAnimationFrame(function(){
-    const ddRect = dd.getBoundingClientRect();
-    if(ddRect.bottom > window.innerHeight - 8){
-      dd.style.top = (r.top - ddRect.height - 6) + 'px';
-    }
-  });
+window.__toggleMenu = function(id){
+  const panel = document.getElementById('menuPanel-'+id);
+  if(!panel) return;
+  const willOpen = !panel.classList.contains('show');
+  closePostMenus(willOpen ? id : null);
+  panel.classList.toggle('show', willOpen);
 };
 
 let editingPostId = null;
 
-// Écoute déléguée UNIQUE sur le conteneur du fil : fonctionne pour toutes les
-// publications même après un rafraîchissement du fil (loadFeed remplace le HTML,
-// mais le conteneur #content, lui, ne change jamais). Même logique que cv_pro.html.
+// Ferme le panneau ⋮ ouvert si on clique ailleurs sur la page (comportement standard).
 document.addEventListener('click', function(e){
-  const el = e.target.closest('[data-act]');
-  if(el){
-    const act = el.dataset.act;
-    const id = el.dataset.id;
-    if(act === 'toggle-menu') window.__toggleMenu(id, el);
-    else if(act === 'edit') window.__editPost(id);
-    else if(act === 'soft-delete') window.__softDelete(id);
-    else if(act === 'restore') window.__restore(id);
-    else if(act === 'hard-delete') window.__hardDelete(id, el);
-    else if(act === 'follow') window.__toggleFollow(id);
-    else if(act === 'voir-profil') window.__voirProfil(id);
-    return;
-  }
-  // Clic en dehors du menu ⋮ ouvert : on le referme (comportement moderne standard)
-  if(!e.target.closest('#postMenuDropdown')) closePostMenu();
+  if(e.target.closest('.post-menu') || e.target.closest('.post-menu-panel')) return;
+  closePostMenus();
 });
-window.addEventListener('resize', closePostMenu);
-document.getElementById('content').addEventListener('scroll', closePostMenu);
 
 window.__editPost = async function(id){
-  closePostMenu();
+  closePostMenus();
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists()) return;
   const p = snap.data();
@@ -499,8 +468,21 @@ window.toggleTrash = function(){
   arrow.textContent = open ? '▾' : '▴';
 }
 
-window.__softDelete = async function(id){
+// Un premier clic demande confirmation (le libellé change pendant 3s) ; un second
+// clic dans ce délai déplace réellement la publication en corbeille.
+window.__softDelete = async function(id, el){
+  if(el && el.dataset.confirm !== 'yes'){
+    el.dataset.confirm = 'yes';
+    const original = el.textContent;
+    el.textContent = '✅ Confirmer : mettre à la corbeille';
+    setTimeout(function(){
+      if(el.dataset.confirm === 'yes'){ el.dataset.confirm = ''; el.textContent = original; }
+    }, 3000);
+    return;
+  }
+  if(el) el.dataset.confirm = '';
   await updateDoc(doc(db,'fil_presse', id), { deletedAt: serverTimestamp() });
+  closePostMenus();
   loadFeed();
 }
 window.__restore = async function(id){
@@ -521,6 +503,7 @@ window.__hardDelete = async function(id, el){
   await deleteDoc(doc(db,'fil_presse', id));
   loadFeed();
 }
+
 
 async function ensureSeed(){
   const metaRef = doc(db, 'fil_presse_meta', 'seed_v1');
