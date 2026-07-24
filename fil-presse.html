@@ -84,10 +84,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg)}
 .composer-notice{display:none;margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;line-height:1.4}
 .upload-progress-wrap{display:none;margin-top:10px;background:#F2F4F7;border-radius:6px;height:6px;overflow:hidden}
 .upload-progress-bar{height:100%;width:0%;background:var(--green);border-radius:6px;transition:width .15s}
-.react-picker{display:none;gap:6px;padding:8px 12px;border-top:1px solid #f2f2f2;background:#fafafa}
+.react-picker{display:none;gap:2px;padding:6px 8px;border-top:1px solid #f2f2f2;background:#fafafa;justify-content:space-between}
 .react-picker.show{display:flex}
-.react-em{font-size:22px;cursor:pointer;transition:transform .1s}
-.react-em:active{transform:scale(1.3)}
+.react-em{font-size:24px;cursor:pointer;transition:transform .1s;padding:8px;border-radius:50%;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;flex:1;touch-action:manipulation}
+.react-em:active{transform:scale(1.25);background:#eee}
 .comments-box{display:none;padding:10px 14px;border-top:1px solid #f2f2f2;background:#fafafa}
 .comments-box.show{display:block}
 .cmt-item{display:flex;gap:8px;margin-bottom:6px}
@@ -547,8 +547,8 @@ window.__voirProfil = function(uid){
 // switchTab existe côté parent, on l'utilise ; sinon on essaie un postMessage générique ;
 // en dernier recours (page ouverte seule, hors iframe), navigation directe.
 (function(){
-  let touchStartX = 0, touchStartY = 0;
-  const SWIPE_MIN = 60; // distance minimale en px pour un glissement volontaire
+  let touchStartX = 0, touchStartY = 0, tracking = false;
+  const SWIPE_MIN = 40; // distance minimale en px pour un glissement volontaire (assoupli)
 
   function goToAdjacentPage(direction){
     try{
@@ -568,22 +568,23 @@ window.__voirProfil = function(uid){
     else window.location.href = 'discussion_v1.html';
   }
 
-  document.body.addEventListener('touchstart', function(e){
+  document.addEventListener('touchstart', function(e){
     if(e.touches.length !== 1) return;
+    const modal = document.getElementById('composerModal');
+    if(modal && modal.style.display === 'block'){ tracking = false; return; }
+    if(e.target.closest('.cover-carousel, input, textarea')){ tracking = false; return; }
+    tracking = true;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
-  document.body.addEventListener('touchend', function(e){
-    if(!e.changedTouches || !e.changedTouches.length) return;
-    const modal = document.getElementById('composerModal');
-    if(modal && modal.style.display === 'block') return; // pas de swipe pendant la composition
-    if(e.target.closest('.cover-carousel')) return;       // le carrousel gère déjà son propre glissement
-    if(e.target.closest('input, textarea')) return;       // ne gêne pas la saisie/sélection de texte
+  document.addEventListener('touchend', function(e){
+    if(!tracking || !e.changedTouches || !e.changedTouches.length){ tracking = false; return; }
+    tracking = false;
 
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * 1.5) return; // pas assez horizontal
+    if(Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy)) return; // pas assez horizontal
 
     if(dx < 0) goToAdjacentPage('next'); // glissement vers la gauche -> page suivante
     else goToAdjacentPage('prev');       // glissement vers la droite -> page précédente
