@@ -618,12 +618,13 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
   </div>
 </header>
 
+<div class="content">
+
 <div class="search-bar" id="searchBar">
   <input type="text" id="searchInput" placeholder="Rechercher une offre, une ville, une catégorie…">
   <span class="search-close" onclick="window.__closeSearch()">✕</span>
 </div>
 
-<div class="content">
 
 <!-- Hero -->
 <div class="hero">
@@ -1998,4 +1999,4 @@ window.supprimerOffre = (offreId, mode) => {
 function showToast(msg) {
   let t = document.getElementById('toast');
   if (!t) {
-    t = document.creat
+    t = document.crea
