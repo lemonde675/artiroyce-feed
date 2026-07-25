@@ -1184,6 +1184,14 @@ function chargerOffres() {
       note.textContent = 'Publiez la première vraie offre !';
       feedEl.appendChild(note);
     }
+  }, err => {
+    console.error('Erreur de chargement des offres :', err);
+    const loading = document.getElementById('feed-loading');
+    if (loading) {
+      loading.innerHTML = '<div style="font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
+    } else if (feedEl) {
+      feedEl.innerHTML = '<div style="text-align:center;padding:40px 20px;font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
+    }
   });
 }
 
@@ -1983,20 +1991,4 @@ window.supprimerOffre = (offreId, mode) => {
     try {
       if (mode === 'definitif') {
         const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-        await dd(doc(db,'offres',offreId));
-        showToast('Offre supprimée définitivement.');
-      } else {
-        const jours = mode === '15j' ? 15 : 30;
-        await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
-        showToast('Offre expirera dans '+jours+' jours.');
-      }
-    } catch(e){ console.error(e); showToast('Erreur : '+e.message); }
-  };
-};
-
-
-/* ── TOAST ── */
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.crea
+        awa
