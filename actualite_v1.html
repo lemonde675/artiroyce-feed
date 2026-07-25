@@ -89,9 +89,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .pab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* REACTION PICKER */
-.rpick{position:absolute;bottom:46px;left:-10px;background:#fff;border-radius:30px;padding:10px 14px;display:flex;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);z-index:100;opacity:0;pointer-events:none;transform:scale(0.8) translateY(8px);transition:all 0.2s cubic-bezier(.34,1.56,.64,1);border:1px solid #f0f0f0}
+.rpick{position:absolute;bottom:46px;left:-10px;background:#fff;border-radius:30px;padding:10px 16px;display:flex;gap:19px;box-shadow:0 8px 30px rgba(0,0,0,0.15);z-index:100;opacity:0;pointer-events:none;transform:scale(0.8) translateY(8px);transition:all 0.2s cubic-bezier(.34,1.56,.64,1);border:1px solid #f0f0f0}
 .rpick.show{opacity:1;pointer-events:all;transform:scale(1) translateY(0)}
-.ro{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform 0.15s}
+.ro{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform 0.15s;padding:4px;min-width:30px}
 .ro:hover{transform:scale(1.25) translateY(-4px)}
 .ro-e{font-size:24px;line-height:1}
 .ro-l{font-size:9px;font-weight:700;color:var(--muted)}
@@ -1187,8 +1187,12 @@ window.__toggleReactPickerActu = function(postId){
   document.getElementById('rp-'+postId)?.classList.toggle('show');
 };
 
+const _reactionEnCours = {}; // { [postId]: true } — verrou anti-double-tap sur le sélecteur d'emojis
+
 window.__sendReactionActu = async function(postId, emoji, likesActuels){
   if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
+  if (_reactionEnCours[postId]) return; // un tap est déjà en cours de traitement pour ce post, on ignore
+  _reactionEnCours[postId] = true;
 
   document.getElementById('rp-'+postId)?.classList.remove('show');
   const prev = _pubReactions[postId] || '';
@@ -1232,6 +1236,8 @@ window.__sendReactionActu = async function(postId, emoji, likesActuels){
   } catch(e) {
     console.error(e);
     toast("Erreur J'aime",'');
+  } finally {
+    delete _reactionEnCours[postId];
   }
 };
 
