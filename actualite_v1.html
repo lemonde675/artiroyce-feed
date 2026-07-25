@@ -460,7 +460,7 @@ window.addEventListener('unhandledrejection', function(e){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
+  getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
   increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -551,7 +551,29 @@ onAuthStateChanged(auth, async (user) => {
   chargerPublications();
   ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
   chargerSuivis();
+  chargerMesReactionsActu();
 });
+
+// ── Mes réactions, lues depuis Firestore (une seule requête, comme fil-presse) ──
+// Chaque "J'aime" est un document réel : publications/{postId}/reactions/{monUid}.
+// C'est la source de vérité — _pubReactions n'est qu'un cache local rempli à partir d'elle,
+// donc impossible qu'une publication affiche "Aimé" à tort à cause d'un autre postId.
+async function chargerMesReactionsActu(){
+  if (!currentUser) return;
+  try {
+    const snap = await getDocs(query(collectionGroup(db,'reactions'), where('uid','==',currentUser.uid)));
+    const nouvelles = {};
+    snap.forEach(d => {
+      const pubRef = d.ref.parent.parent; // le document publication parent
+      if (pubRef && pubRef.parent && pubRef.parent.id === 'publications') {
+        nouvelles[pubRef.id] = d.data().emoji;
+      }
+    });
+    Object.keys(_pubReactions).forEach(k => delete _pubReactions[k]);
+    Object.assign(_pubReactions, nouvelles);
+    afficherFeed();
+  } catch(e){ console.error('Chargement de mes réactions impossible :', e); }
+}
 
 async function chargerSuivis(){
   try {
@@ -980,7 +1002,7 @@ window.setCat = (el) => {
 };
 
 /* ══════════ CONSTRUCTION D'UNE PUBLICATION ══════════ */
-const _pubReactions = {}; // { [postId]: emoji } — mémoire locale qui survit à la reconstruction
+const _pubReactions = {}; // { [postId]: emoji } — cache d'affichage, synchronisé depuis Firestore par chargerMesReactionsActu()
 
 function construireMediaHTML(p){
   // Compat : anciens posts publiés avant l'introduction des modèles (juste imageURL)
@@ -1048,7 +1070,8 @@ function construirePost(p){
 
   div.innerHTML = `
     <div class="ph" style="position:relative;">
-      <div class="ph-av" style="background:${avColor};cursor:pointer" onclick="window.__voirProfilActu('${p.auteurUid||''}')">${p.photoAuteurURL?'':initiale}${p.photoAuteurURL?`<img src="${p.photoAuteurURL}">`:''}
+      <div style="position:relative;width:44px;height:44px;flex-shrink:0;cursor:pointer" onclick="window.__voirProfilActu('${p.auteurUid||''}')">
+        <div class="ph-av" style="background:${avColor}">${p.photoAuteurURL?'':initiale}${p.photoAuteurURL?`<img src="${p.photoAuteurURL}">`:''}</div>
         ${p.auteurVerifie ? '<div class="ph-vb">✔</div>' : ''}
         <div class="online-dot-actu" data-author="${p.auteurUid||''}" style="display:none"></div>
       </div>
@@ -1167,18 +1190,13 @@ window.__toggleReactPickerActu = function(postId){
 window.__sendReactionActu = async function(postId, emoji, likesActuels){
   if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
 
-  // ── DIAGNOSTIC TEMPORAIRE (désactivé) : décommenter pour ré-afficher les infos si besoin ──
-  // const nbBoutons = document.querySelectorAll('[id="pb-'+postId+'"]').length;
-  // const nbPubsMemeId = listePublications.filter(p => p.id === postId).length;
-  // __afficherErreurDiagnostic('DIAGNOSTIC J\'AIME\npostId = ' + postId + '\nBoutons partageant cet id : ' + nbBoutons + '\nPublications avec cet id dans la liste : ' + nbPubsMemeId);
-  // ── FIN DIAGNOSTIC ──
-
   document.getElementById('rp-'+postId)?.classList.remove('show');
   const prev = _pubReactions[postId] || '';
   const btn = document.getElementById('pb-'+postId);
   const labelEl = document.getElementById('pblabel-'+postId);
   const countEl = document.getElementById('likecount-'+postId);
   const bullesEl = document.getElementById('bulles-'+postId);
+  const reactRef = doc(db,'publications',postId,'reactions',currentUser.uid);
 
   function majBulles(){
     if (!bullesEl) return;
@@ -1195,6 +1213,7 @@ window.__sendReactionActu = async function(postId, emoji, likesActuels){
       if (labelEl) labelEl.textContent = "J'aime";
       if (countEl) countEl.textContent = nouveauTotal;
       majBulles();
+      await deleteDoc(reactRef);
       await updateDoc(doc(db,'publications',postId), { likes: increment(-1) });
     } else {
       const delta = prev ? 0 : 1;
@@ -1204,6 +1223,7 @@ window.__sendReactionActu = async function(postId, emoji, likesActuels){
       if (labelEl) labelEl.textContent = 'Aimé';
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
       majBulles();
+      await setDoc(reactRef, { emoji, uid: currentUser.uid, createdAt: serverTimestamp() });
       if (delta){
         await updateDoc(doc(db,'publications',postId), { likes: increment(1) });
         window.__burstHeartsActu(btn, emoji);
