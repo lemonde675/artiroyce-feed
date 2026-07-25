@@ -271,11 +271,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
 
-  <div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
-    <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222">
-    <span style="font-size:16px;color:#999;cursor:pointer;padding:4px 6px" onclick="window.__closeSearch()">✕</span>
-  </div>
-
   <!-- CATEGORIES -->
   <div class="cats">
     <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)">Tout</div>
@@ -293,6 +288,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
       <input class="cp-input" placeholder="Publier un produit (mèche, chaussures, broches...)" readonly onclick="openCreate()"/>
       <button class="cp-img-btn" onclick="event.stopPropagation();window.__toggleSearch()" title="Rechercher">🔍</button>
+    </div>
+
+    <div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
+      <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222">
+      <span style="font-size:16px;color:#999;cursor:pointer;padding:4px 6px" onclick="window.__closeSearch()">✕</span>
     </div>
 
     <!-- CORBEILLE (mes publications supprimées, 15 jours avant suppression définitive automatique) -->
@@ -439,6 +439,23 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
+// Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
+// JavaScript, pour qu'on voie le vrai problème sans avoir besoin de la console.
+function __afficherErreurDiagnostic(msg){
+  const target = document.getElementById('feedPosts') || document.body;
+  const bloc = document.createElement('div');
+  bloc.style.cssText = 'text-align:left;padding:14px 16px;margin:10px;font-size:12px;color:#e63224;background:#fff3f0;border:1px solid #f5c6bb;border-radius:12px;word-break:break-word;white-space:pre-wrap;font-family:monospace;';
+  bloc.textContent = '⚠️ ' + msg;
+  target.prepend(bloc);
+}
+window.addEventListener('error', function(e){
+  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
+});
+window.addEventListener('unhandledrejection', function(e){
+  const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+  __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
+});
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
