@@ -50,6 +50,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .ph-av{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;position:relative;overflow:hidden}
 .ph-av img{width:100%;height:100%;object-fit:cover}
 .ph-vb{position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
+.online-dot-actu{position:absolute;bottom:1px;left:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
 .ph-info{flex:1;min-width:0}
 .ph-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
 .ph-name{font-size:14px;font-weight:800;color:var(--dark)}
@@ -561,6 +562,24 @@ async function chargerSuivis(){
   } catch(e){ console.error(e); }
 }
 
+async function markAuthorsOnlineActu(){
+  const dots = document.querySelectorAll('.online-dot-actu[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    if (uid.indexOf('bq_') === 0 || uid.indexOf('mt_') === 0 || uid === 'artiroyce_officiel') continue;
+    try {
+      const uSnap = await getDoc(doc(db, 'utilisateurs', uid));
+      if (!uSnap.exists()) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot-actu[data-author="'+uid+'"]').forEach(d => d.style.display = '');
+      }
+    } catch(e){}
+  }
+}
+
 window.__voirProfilActu = function(uid){
   if(!uid) return;
   window.location.href = 'profil.html?uid=' + uid;
@@ -950,6 +969,7 @@ function afficherFeed(){
     }
   });
   if (carouselNode) wireCoverCarouselActu();
+  markAuthorsOnlineActu();
 }
 
 window.setCat = (el) => {
@@ -1030,6 +1050,7 @@ function construirePost(p){
     <div class="ph" style="position:relative;">
       <div class="ph-av" style="background:${avColor};cursor:pointer" onclick="window.__voirProfilActu('${p.auteurUid||''}')">${p.photoAuteurURL?'':initiale}${p.photoAuteurURL?`<img src="${p.photoAuteurURL}">`:''}
         ${p.auteurVerifie ? '<div class="ph-vb">✔</div>' : ''}
+        <div class="online-dot-actu" data-author="${p.auteurUid||''}" style="display:none"></div>
       </div>
       <div class="ph-info">
         <div class="ph-top">
@@ -1145,6 +1166,13 @@ window.__toggleReactPickerActu = function(postId){
 
 window.__sendReactionActu = async function(postId, emoji, likesActuels){
   if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
+
+  // ── DIAGNOSTIC TEMPORAIRE : révèle si plusieurs éléments partagent le même id ──
+  const nbBoutons = document.querySelectorAll('[id="pb-'+postId+'"]').length;
+  const nbPubsMemeId = listePublications.filter(p => p.id === postId).length;
+  __afficherErreurDiagnostic('DIAGNOSTIC J\'AIME\npostId = ' + postId + '\nBoutons partageant cet id : ' + nbBoutons + '\nPublications avec cet id dans la liste : ' + nbPubsMemeId);
+  // ── FIN DIAGNOSTIC ──
+
   document.getElementById('rp-'+postId)?.classList.remove('show');
   const prev = _pubReactions[postId] || '';
   const btn = document.getElementById('pb-'+postId);
