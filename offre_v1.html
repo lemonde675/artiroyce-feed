@@ -890,6 +890,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── Clic sur profil ── */
+async function markAuthorsOnlineOffre(){
+  const dots = document.querySelectorAll('.online-dot-offre[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    if (uid.indexOf('mt_') === 0) continue;
+    try {
+      const uSnap = await getDoc(doc(db, 'utilisateurs', uid));
+      if (!uSnap.exists()) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot-offre[data-author="'+uid+'"]').forEach(d => d.style.display = '');
+      }
+    } catch(e){}
+  }
+}
+
 window.__voirProfilOffre = function(uid){
   if (!uid) return;
   window.location.href = 'profil.html?uid=' + uid;
@@ -1140,6 +1158,7 @@ function chargerOffres() {
         }
       });
       if (carouselNode) wireCoverCarousel();
+      markAuthorsOnlineOffre();
     }
 
     // Afficher expirées
@@ -1273,6 +1292,7 @@ function buildCard(o, expiree) {
             ${avatarHtml}
           </div>
           ${badgeVerif}
+          <div class="online-dot-offre" data-author="${o.auteurUid||''}" style="display:none;position:absolute;bottom:1px;left:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>
         </div>
         <div style="flex:1;cursor:pointer" onclick="window.__voirProfilOffre('${o.auteurUid||''}')">
           <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
@@ -2065,21 +2085,4 @@ accrocherRafraichissementLangue();
         <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
       </div>
     </button>
-    <button class="postuler-opt" onclick="choisirPostuler('postuler')">
-      <span class="opt-icon">📩</span>
-      <div>
-        <div data-i18n="off_postuler_postule">A postulé à cette offre</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_postule_sub">Simple candidature enregistrée</div>
-      </div>
-    </button>
-    <button class="postuler-cancel" onclick="document.getElementById('postulerOverlay').classList.remove('open')" data-i18n="off_annuler">Annuler</button>
-  </div>
-</div>
-
-<script>
-// Pont entre onclick HTML et fonctions module Firebase
-function openModal(){ if(window.openModal) window.openModal(); else document.getElementById('overlay').classList.add('open'); }
-function closeSiDehors(e){ if(window.closeSiDehors) window.closeSiDehors(e); }
-function selModele(el,t){ if(window.selModele) window.selModele(el,t); }
-function toggleImg(){ if(window.toggleImg) window.toggleImg(); }
-function toggleImgTexte(){ if(window.toggl
+    <button class="postule
