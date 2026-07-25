@@ -139,7 +139,7 @@
   <div class="toast" id="toast"></div>
 
   <div class="top-header">
-    <a href="accueil.html" class="back-btn">
+    <a href="accueil.html" class="back-btn" onclick="return window.__retourIntelligent(event)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       <span data-i18n="pv_back">Accueil</span>
     </a>
@@ -205,6 +205,7 @@
     <div class="coords-grid">
       <div class="coord-item"><div class="coord-circle">📧</div><div class="coord-text"><div class="coord-label" data-i18n="label_email">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
       <div class="coord-item"><div class="coord-circle">📞</div><div class="coord-text"><div class="coord-label" data-i18n="label_tel">TÉLÉPHONE</div><div class="coord-value" id="coordTel">—</div></div></div>
+      <div class="coord-item"><div class="coord-circle">📍</div><div class="coord-text"><div class="coord-label" data-i18n="label_ville">VILLE</div><div class="coord-value" id="coordVille">—</div></div></div>
     </div>
   </div>
 
@@ -245,7 +246,9 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="field-label"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/300</span></div>
+        <div class="field-label"><span data-i18n="pv_ville_label">VILLE</span></div>
+        <input class="field-input" id="villeInput" type="text" maxlength="60" placeholder="Ex: Cotonou">
+        <div class="field-label" style="margin-top:12px"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/300</span></div>
         <textarea class="field-input" id="bioInput" rows="3" maxlength="300" oninput="updateBioCount()" placeholder="Parlez un peu de vous…"></textarea>
         <button class="btn-save" onclick="saveProfile()" data-i18n="pv_save_btn">Enregistrer</button>
       </div>
@@ -295,6 +298,16 @@
   </div>
 
   <script type="module">
+    window.__retourIntelligent = function(e){
+      const memeSite = document.referrer && document.referrer.indexOf(window.location.host) !== -1;
+      if(memeSite && window.history.length > 1){
+        e.preventDefault();
+        window.history.back();
+        return false;
+      }
+      return true;
+    };
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -381,6 +394,7 @@
     window.openModal = () => {
       if (!isOwnProfile) return; // sécurité : jamais modifier le profil de quelqu'un d'autre
       document.getElementById('bioInput').value = (userData && userData.bio) || '';
+      document.getElementById('villeInput').value = (userData && userData.ville) || '';
       updateBioCount();
       document.getElementById('modalOverlay').classList.add('open');
     };
@@ -529,10 +543,13 @@
     window.saveProfile = async () => {
       if (!currentUser || !isOwnProfile) return;
       const bio = document.getElementById('bioInput').value.trim();
+      const ville = document.getElementById('villeInput').value.trim();
       try {
-        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { bio });
+        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { bio, ville });
         userData.bio = bio;
+        userData.ville = ville;
         renderBio();
+        document.getElementById('coordVille').textContent = ville || '—';
         closeModal();
         showToast(T().pv_toast_saved || '✅ Profil mis à jour !', 'success');
       } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
@@ -574,6 +591,7 @@
         document.getElementById('avatarInitiale').textContent = initiale;
         document.getElementById('coordEmail').textContent = userData.email || (isOwnProfile ? user.email : '') || '—';
         document.getElementById('coordTel').textContent = userData.telephone || '—';
+        document.getElementById('coordVille').textContent = userData.ville || '—';
         renderBio();
         renderHistory();
         if (userData.photoAvatar) {
