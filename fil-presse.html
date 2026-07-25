@@ -1159,9 +1159,9 @@ function buildCommentHTML(postId, c, authorUid, isReply, rootId, likedMap){
   const likes = c.likes || 0;
   return '<div class="'+(isReply ? 'cmt-reply-wrap' : '')+'">'
     + '<div class="cmt-item">'
-    +   '<div class="cmt-av">'+ini+'</div>'
+    +   '<div class="cmt-av" style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+ini+'</div>'
     +   '<div class="cmt-right">'
-    +     '<div class="cmt-bubble"><b>'+esc(c.prenom||'Utilisateur')+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">· Créateur</span>' : '')+'<br>'+esc(c.texte)+'</div>'
+    +     '<div class="cmt-bubble"><b style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+esc(c.prenom||'Utilisateur')+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">· Créateur</span>' : '')+'<br>'+esc(c.texte)+'</div>'
     +     '<div class="cmt-meta">'
     +       '<span>'+timeAgo(c.createdAt)+'</span>'
     +       '<span class="cmt-like'+(liked?' liked':'')+'" id="cmtLike-'+c.id+'" onclick="window.__toggleCommentLike(\''+postId+'\',\''+c.id+'\', this, document.getElementById(\'cmtLikeCount-'+c.id+'\'), document.getElementById(\'cmtLikeNum-'+c.id+'\'))">'+(liked?'Aimé':"J'aime")+'</span>'
