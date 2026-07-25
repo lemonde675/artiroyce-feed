@@ -162,6 +162,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
         <div class="type-chip" data-type="innovation" data-color="#e63224">💡 Innovation</div>
       </div>
       <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
+      <input type="text" id="composerVille" placeholder="Ville (ex: Cotonou)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
       <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
       <div id="mediaPreview" style="margin-top:10px;display:none;text-align:center;background:#F2F4F7;border-radius:14px;padding:8px">
         <img id="imgPreview" style="max-width:100%;border-radius:12px;display:none;max-height:220px;object-fit:contain;margin:0 auto">
@@ -323,7 +324,7 @@ function renderPost(id, p, opts){
     +   '</div>'
     +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
-    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+timeAgo(p.createdAt)+'</div>'
+    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+(p.ville?esc(p.ville)+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn
     + '</div>'
@@ -359,7 +360,7 @@ let searchTerm = '';
 
 function matchesSearch(p){
   if(!searchTerm) return true;
-  const hay = ((p.journalNom||'') + ' ' + (p.prenom||'') + ' ' + (p.texte||'')).toLowerCase();
+  const hay = ((p.journalNom||'') + ' ' + (p.prenom||'') + ' ' + (p.texte||'') + ' ' + (p.ville||'')).toLowerCase();
   return hay.indexOf(searchTerm) !== -1;
 }
 
@@ -640,6 +641,7 @@ window.__editPost = async function(id){
   editingPostId = id;
   document.getElementById('composerTxt').value = p.texte || '';
   document.getElementById('composerJournal').value = p.journalNom || '';
+  document.getElementById('composerVille').value = p.ville || '';
   document.querySelectorAll('.type-chip').forEach(function(c){
     const active = c.dataset.type === (p.type||'actu');
     c.classList.toggle('active', active);
@@ -992,10 +994,11 @@ function wireComposerModal(){
       }
 
       const journalNom = document.getElementById('composerJournal').value.trim();
+      const ville = document.getElementById('composerVille').value.trim();
       const roleLbl = (currentUserData.role === 'visiteur') ? 'Visiteur' : 'Professionnel';
 
       if(editingPostId){
-        const updateData = { type: selectedType, texte: texte, journalNom: journalNom };
+        const updateData = { type: selectedType, texte: texte, journalNom: journalNom, ville: ville };
         if(images.length) updateData.images = images;
         if(videoUrl) updateData.videoUrl = videoUrl;
         await updateDoc(doc(db,'fil_presse', editingPostId), updateData);
@@ -1008,6 +1011,7 @@ function wireComposerModal(){
           photoAvatar: currentUserData.photoAvatar || '',
           roleLbl: roleLbl,
           journalNom: journalNom,
+          ville: ville,
           official: false,
           verifie: true,
           type: selectedType,
@@ -1163,7 +1167,7 @@ function buildCommentHTML(postId, c, authorUid, isReply, rootId, likedMap){
     +   '<div class="cmt-right">'
     +     '<div class="cmt-bubble"><b style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+esc(c.prenom||'Utilisateur')+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">· Créateur</span>' : '')+'<br>'+esc(c.texte)+'</div>'
     +     '<div class="cmt-meta">'
-    +       '<span>'+timeAgo(c.createdAt)+'</span>'
+    +       '<span>'+(c.ville?esc(c.ville)+' · ':'')+timeAgo(c.createdAt)+'</span>'
     +       '<span class="cmt-like'+(liked?' liked':'')+'" id="cmtLike-'+c.id+'" onclick="window.__toggleCommentLike(\''+postId+'\',\''+c.id+'\', this, document.getElementById(\'cmtLikeCount-'+c.id+'\'), document.getElementById(\'cmtLikeNum-'+c.id+'\'))">'+(liked?'Aimé':"J'aime")+'</span>'
     +       '<span onclick="window.__replyToComment(\''+postId+'\',\''+c.id+'\',\''+rootId+'\',\''+esc(c.prenom||'Utilisateur')+'\')">Répondre</span>'
     +       '<span class="cmt-like-count" id="cmtLikeCount-'+c.id+'" style="display:'+(likes>0?'inline-flex':'none')+'">❤️ <span id="cmtLikeNum-'+c.id+'">'+likes+'</span></span>'
@@ -1255,6 +1259,7 @@ window.__addComment = async function(postId){
   await addDoc(collection(db,'fil_presse', postId, 'comments'), {
     uid: currentUid,
     prenom: (currentUserData && currentUserData.prenom) || 'Utilisateur',
+    ville: (currentUserData && currentUserData.ville) || '',
     texte: texte,
     parentId: target ? target.parentId : null,
     createdAt: serverTimestamp()
@@ -1281,6 +1286,10 @@ async function initComposer(){
   }
   wireComposerModal();
   composerBtn.onclick = function(){
+    if(!editingPostId){
+      const villeInput = document.getElementById('composerVille');
+      if(villeInput && !villeInput.value) villeInput.value = (currentUserData && currentUserData.ville) || '';
+    }
     window.__openComposer();
   };
 }
