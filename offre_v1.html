@@ -1292,7 +1292,7 @@ function buildCard(o, expiree) {
             ${avatarHtml}
           </div>
           ${badgeVerif}
-          <div class="online-dot-offre" data-author="${o.auteurUid||''}" style="display:none;position:absolute;bottom:1px;left:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>
+          <div class="online-dot-offre" data-author="${o.auteurUid||''}" style="display:none;position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>
         </div>
         <div style="flex:1;cursor:pointer" onclick="window.__voirProfilOffre('${o.auteurUid||''}')">
           <div style="font-size:14px;font-weight:800;color:#1c1e21;">${o.auteurNom||'Anonyme'}</div>
@@ -2085,4 +2085,4 @@ accrocherRafraichissementLangue();
         <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
       </div>
     </button>
-    <button class="postule
+    <button class="postul
