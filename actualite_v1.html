@@ -33,7 +33,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .cat-pill.active{background:var(--dark);color:#fff;border-color:var(--dark)}
 
 /* FEED */
-.feed{flex:1;overflow-y:auto;scrollbar-width:none;padding:10px 0 70px}
+.feed{flex:1;overflow-y:auto;scrollbar-width:none;padding:10px 0 20px}
 .feed::-webkit-scrollbar{display:none}
 
 /* CRÉER PUBLICATION */
@@ -191,7 +191,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* Rendu dans le fil : grille magazine pour Photo/Galerie et Boutique */
 .p-media-grid{display:grid;gap:2px;background:#fff}
 .p-media-item{position:relative;overflow:hidden}
-.p-media-item img{width:100%;height:100%;object-fit:contain;background:#fafafa}
+.p-media-item img{width:100%;height:100%;object-fit:cover;object-position:center;background:#fafafa}
 .p-media-free{display:flex;flex-wrap:wrap;gap:2px;background:#fff}
 .p-media-free .p-media-item{width:calc(33.333% - 1.33px);aspect-ratio:1}
 
@@ -268,13 +268,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </header>
 
-<div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
-  <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222">
-  <span style="font-size:16px;color:#999;cursor:pointer;padding:4px 6px" onclick="window.__closeSearch()">✕</span>
-</div>
-
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
+
+  <div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
+    <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222">
+    <span style="font-size:16px;color:#999;cursor:pointer;padding:4px 6px" onclick="window.__closeSearch()">✕</span>
+  </div>
 
   <!-- CATEGORIES -->
   <div class="cats">
@@ -316,29 +316,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
   </div>
 </div>
-
-<!-- BOT NAV -->
-<nav class="bot-nav">
-  <div class="nav-i" onclick="window.location.href='profil.html'">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="nav-lb">Mon Profil</span>
-  </div>
-  <div class="nav-i active">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    <span class="nav-lb" style="color:var(--green)">Discussion</span>
-  </div>
-  <div class="nav-plus-w" onclick="openCreate()">
-    <div class="nav-plus">+</div>
-  </div>
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="3" fill="#e63224"/><polygon points="10,8 10,16 17,12" fill="#fff"/></svg>
-    <span class="nav-lb">Live</span>
-  </div>
-  <div class="nav-i">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-    <span class="nav-lb">Messages</span>
-  </div>
-</nav>
 
 <!-- SHARE SHEET -->
 <div class="share-sheet" id="shareSheet" onclick="closeShare()">
@@ -553,8 +530,8 @@ onAuthStateChanged(auth, async (user) => {
   document.getElementById('cmAvatar').textContent = initiale;
   document.getElementById('cmNom').textContent = currentUser.displayName;
 
-  try{ await ensureSeedActualites(); }catch(e){ console.error('Seed actualités impossible :', e); }
   chargerPublications();
+  ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
   chargerSuivis();
 });
 
@@ -604,9 +581,9 @@ async function ensureSeedActualites(){
   // 50 produits) avant de semer la version complète à 70, pour éviter les doublons.
   try {
     const ancienGenerique = await getDocs(query(collection(db,'publications'), where('auteurUid','==','artiroyce_officiel')));
-    for (const d of ancienGenerique.docs) { await deleteDoc(doc(db,'publications', d.id)); }
+    await Promise.all(ancienGenerique.docs.map(d => deleteDoc(doc(db,'publications', d.id))));
     const ancienBoutiques = await getDocs(query(collection(db,'publications'), where('auteurMetier','==','Boutique ArtiRoyce')));
-    for (const d of ancienBoutiques.docs) { await deleteDoc(doc(db,'publications', d.id)); }
+    await Promise.all(ancienBoutiques.docs.map(d => deleteDoc(doc(db,'publications', d.id))));
   } catch(e){ console.error('Nettoyage ancien seed impossible :', e); }
 
   const boutiques = [
@@ -701,10 +678,9 @@ async function ensureSeedActualites(){
 
   const tagColors = ['vert','rouge','vert','rouge','vert','rouge','vert','rouge','vert','rouge','vert','rouge','vert','rouge'];
 
-  for (let i = 0; i < produits.length; i++) {
-    const it = produits[i];
+  await Promise.all(produits.map((it, i) => {
     const bq = boutiques[it.bq];
-    await addDoc(collection(db,'publications'), {
+    return addDoc(collection(db,'publications'), {
       type: 'boutique',
       texte: bq.nom,
       disposition: 1,
@@ -719,7 +695,7 @@ async function ensureSeedActualites(){
       likes: 0, partages: 0,
       createdAt: Timestamp.fromDate(new Date(Date.now() - i * 3 * 3600 * 1000))
     });
-  }
+  }));
   await setDoc(metaRef, { seededAt: serverTimestamp() });
 }
 
@@ -1062,20 +1038,18 @@ function construirePost(p){
       <span class="pr-r" id="commcount-${p.id}">0 commentaire · ${p.partages||0} partage${(p.partages||0)>1?'s':''}</span>
     </div>
     <div class="p-acts">
-      <button class="pab ${_pubReactions[p.id]?'reacted':''}" id="pb-${p.id}"
-        onpointerdown="startPubHold('${p.id}')" onpointerup="cancelPubHold('${p.id}')" onpointerleave="cancelPubHold('${p.id}')"
-        onclick="handlePubClick('${p.id}',${p.likes||0})">
+      <div class="pab ${_pubReactions[p.id]?'reacted':''}" id="pb-${p.id}" onclick="window.__toggleReactPickerActu('${p.id}')">
         <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
         <span id="pblabel-${p.id}">${_pubReactions[p.id] ? 'Aimé' : "J'aime"}</span>
         <div class="rpick" id="rp-${p.id}">
-          <div class="ro" onclick="choisirReactionPub('${p.id}','❤️',${p.likes||0})"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
-          <div class="ro" onclick="choisirReactionPub('${p.id}','👍',${p.likes||0})"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
-          <div class="ro" onclick="choisirReactionPub('${p.id}','😮',${p.likes||0})"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
-          <div class="ro" onclick="choisirReactionPub('${p.id}','😂',${p.likes||0})"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
-          <div class="ro" onclick="choisirReactionPub('${p.id}','🔥',${p.likes||0})"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
-          <div class="ro" onclick="choisirReactionPub('${p.id}','😢',${p.likes||0})"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','❤️',${p.likes||0})"><span class="ro-e">❤️</span><span class="ro-l">J'aime</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','👍',${p.likes||0})"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','😮',${p.likes||0})"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','😂',${p.likes||0})"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','🔥',${p.likes||0})"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>
+          <div class="ro" onclick="event.stopPropagation();window.__sendReactionActu('${p.id}','😢',${p.likes||0})"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>
         </div>
-      </button>
+      </div>
       <button class="pab" onclick="toggleComments('${p.id}')">
         <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Commenter
@@ -1146,31 +1120,13 @@ let _shareIdCourant = null;
 window.openShare = (postId) => { _shareIdCourant = postId; document.getElementById('shareSheet').classList.add('open'); };
 window.closeShare = () => document.getElementById('shareSheet').classList.remove('open');
 
-/* ══════════ RÉACTIONS SUR PUBLICATION — même mécanisme fiable que sur Offres ══════════ */
-let _pubHoldTimer = {};
-let _pubHoldTriggered = {};
-
-window.startPubHold = (postId) => {
-  _pubHoldTriggered[postId] = false;
-  _pubHoldTimer[postId] = setTimeout(() => {
-    _pubHoldTriggered[postId] = true;
-    document.getElementById('rp-'+postId)?.classList.add('show');
-  }, 400);
-};
-window.cancelPubHold = (postId) => { clearTimeout(_pubHoldTimer[postId]); };
-window.handlePubClick = (postId, likesActuels) => {
-  if (_pubHoldTriggered[postId]) return;
-  if (_pubReactions[postId]) {
-    // Déjà réagi : un tap retire directement la réaction (pas besoin de re-choisir).
-    window.choisirReactionPub(postId, _pubReactions[postId], likesActuels);
-  } else {
-    // Pas encore réagi : on affiche tout de suite les suggestions de réactions,
-    // au lieu d'appliquer un ❤️ par défaut — la personne choisit elle-même.
-    document.getElementById('rp-'+postId)?.classList.add('show');
-  }
+/* ══════════ RÉACTIONS SUR PUBLICATION — même mécanisme simple et fiable que Fil Presse ══════════ */
+window.__toggleReactPickerActu = function(postId){
+  document.querySelectorAll('.rpick.show').forEach(rp => { if (rp.id !== 'rp-'+postId) rp.classList.remove('show'); });
+  document.getElementById('rp-'+postId)?.classList.toggle('show');
 };
 
-window.choisirReactionPub = async (postId, emoji, likesActuels) => {
+window.__sendReactionActu = async function(postId, emoji, likesActuels){
   if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
   document.getElementById('rp-'+postId)?.classList.remove('show');
   const prev = _pubReactions[postId] || '';
@@ -1181,12 +1137,9 @@ window.choisirReactionPub = async (postId, emoji, likesActuels) => {
 
   function majBulles(){
     if (!bullesEl) return;
-    bullesEl.innerHTML = prevEtActuel().map(e => `<div class="pr-b" style="background:#f5f5f5">${e}</div>`).join('');
-  }
-  function prevEtActuel(){
     const set = new Set(['❤️','👍']);
     if (_pubReactions[postId]) set.add(_pubReactions[postId]);
-    return Array.from(set).slice(0,3);
+    bullesEl.innerHTML = Array.from(set).slice(0,3).map(e => `<div class="pr-b" style="background:#f5f5f5">${e}</div>`).join('');
   }
 
   try {
@@ -1196,6 +1149,7 @@ window.choisirReactionPub = async (postId, emoji, likesActuels) => {
       if (btn) btn.classList.remove('reacted');
       if (labelEl) labelEl.textContent = "J'aime";
       if (countEl) countEl.textContent = nouveauTotal;
+      majBulles();
       await updateDoc(doc(db,'publications',postId), { likes: increment(-1) });
     } else {
       const delta = prev ? 0 : 1;
@@ -1204,6 +1158,7 @@ window.choisirReactionPub = async (postId, emoji, likesActuels) => {
       if (btn) btn.classList.add('reacted');
       if (labelEl) labelEl.textContent = 'Aimé';
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
+      majBulles();
       if (delta){
         await updateDoc(doc(db,'publications',postId), { likes: increment(1) });
         window.__burstHeartsActu(btn, emoji);
