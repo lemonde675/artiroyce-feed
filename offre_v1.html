@@ -1711,7 +1711,7 @@ window.publierOffre = async () => {
     data.description = document.querySelector('#formZone textarea')?.value?.trim() || '';
     data.categorie = categ;
     data.categEmoji = emojisMap[categClean] || '💼';
-    data.ville     = inputs[1]?.value?.trim() || '';
+    data.ville     = inputs[1]?.value?.trim() || currentUser.ville || '';
     data.budget    = inputs[2]?.value?.trim() || '';
     data.dispo     = inputs[3]?.value?.trim() || '';
     data.urgent    = urgentOn || false;
