@@ -369,6 +369,11 @@
         <label class="field-label">💬 WhatsApp</label>
         <input class="field-input" id="editWhatsapp" type="tel" placeholder="+229 01 60 23 35 85"/>
       </div>
+      <!-- Ville -->
+      <div class="field-group">
+        <label class="field-label">📍 Ville</label>
+        <input class="field-input" id="editVille" placeholder="Ex: Cotonou"/>
+      </div>
       <!-- Adresse -->
       <div class="field-group">
         <label class="field-label">📍 Adresse / Localisation</label>
@@ -429,7 +434,7 @@
 
 <!-- ── HEADER ── -->
 <div class="top-header">
-  <a href="accueil.html" class="back-btn">
+  <a href="accueil.html" class="back-btn" onclick="return window.__retourIntelligent(event)">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     <span data-i18n="pro_back">Retour</span>
   </a>
@@ -594,6 +599,7 @@
     <div class="coord-item"><div class="coord-circle whatsapp">💬</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_whatsapp">WHATSAPP</div><div class="coord-value" id="coordWa">—</div></div></div>
     <div class="coord-item"><div class="coord-circle email">📧</div><div class="coord-text"><div class="coord-label" data-i18n="label_email">EMAIL</div><div class="coord-value" id="coordEmail">—</div></div></div>
     <div class="coord-item"><div class="coord-circle web">🌐</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_web">SITE WEB</div><div class="coord-value" id="coordWeb">—</div></div></div>
+    <div class="coord-item"><div class="coord-circle location">📍</div><div class="coord-text"><div class="coord-label">VILLE</div><div class="coord-value" id="coordVille">—</div></div></div>
     <div class="coord-item"><div class="coord-circle location">📍</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_address">ADRESSE</div><div class="coord-value" id="coordAdresse">—</div></div></div>
     <div class="coord-item"><div class="coord-circle hours">🕐</div><div class="coord-text"><div class="coord-label" data-i18n="pro_coord_hours">HORAIRES</div><div class="coord-value" id="coordHoraires">—</div></div></div>
   </div>
@@ -711,6 +717,20 @@
 <div class="bottom-space"></div>
 
 <script type="module">
+  // Retour intelligent : si on est arrivé depuis une autre page du site (fil-presse,
+  // offre...) via un clic sur un profil, on revient en arrière avec l'historique du
+  // navigateur — ce qui restaure aussi le défilement et l'état (ex: commentaires
+  // ouverts) là où on était. Sinon (lien direct, nouvel onglet), on va à l'accueil.
+  window.__retourIntelligent = function(e){
+    const memeSite = document.referrer && document.referrer.indexOf(window.location.host) !== -1;
+    if(memeSite && window.history.length > 1){
+      e.preventDefault();
+      window.history.back();
+      return false;
+    }
+    return true;
+  };
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -799,6 +819,7 @@
       document.getElementById('coordWa').textContent        = userData.whatsapp  || userData.telephone || '—';
       document.getElementById('coordWeb').textContent       = userData.siteWeb   || '—';
       document.getElementById('coordAdresse').textContent   = userData.adresse   || '—';
+      document.getElementById('coordVille').textContent     = userData.ville     || '—';
       document.getElementById('coordHoraires').textContent  = userData.horaires  || '—';
       document.getElementById('profileBio').textContent     = userData.bio || 'Professionnel vérifié sur ArtiRoyce.';
       renderHistoryPro();
@@ -929,6 +950,7 @@
     document.getElementById('editBio').value     = userData.bio      || '';
     document.getElementById('editWhatsapp').value= userData.whatsapp || '';
     document.getElementById('editAdresse').value = userData.adresse  || '';
+    document.getElementById('editVille').value   = userData.ville    || '';
     document.getElementById('editHoraires').value= userData.horaires || '';
     document.getElementById('editSiteWeb').value = userData.siteWeb  || '';
     document.getElementById('modalModifier').classList.add('open');
@@ -942,15 +964,17 @@
     const bio      = document.getElementById('editBio').value.trim();
     const whatsapp = document.getElementById('editWhatsapp').value.trim();
     const adresse  = document.getElementById('editAdresse').value.trim();
+    const ville    = document.getElementById('editVille').value.trim();
     const horaires = document.getElementById('editHoraires').value.trim();
     const siteWeb  = document.getElementById('editSiteWeb').value.trim();
 
     try {
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), {
-        metier, bio, whatsapp, adresse, horaires, siteWeb
+        metier, bio, whatsapp, adresse, ville, horaires, siteWeb
       });
       // Mettre à jour localement
-      userData = { ...userData, metier, bio, whatsapp, adresse, horaires, siteWeb };
+      userData = { ...userData, metier, bio, whatsapp, adresse, ville, horaires, siteWeb };
+      document.getElementById('coordVille').textContent = ville || '—';
 
       // Mettre à jour l'affichage
       document.getElementById('profileBio').textContent = bio || 'Professionnel vérifié sur ArtiRoyce.';
