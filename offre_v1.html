@@ -777,7 +777,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, onSnapshot, orderBy, query, serverTimestamp, where, getDoc, setDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, onSnapshot, orderBy, query, serverTimestamp, where, getDoc, setDoc, Timestamp, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const firebaseConfig = {
@@ -849,40 +849,115 @@ const _unsubscribeCommentaires = {}; // { [offreId]: fonction de désabonnement 
 // Complète le carrousel avec des offres illustrées officielles ArtiRoyce (transparent,
 // pas de faux profils individuels), pour qu'il y ait tout de suite un résultat visible.
 // Les vraies offres des professionnels viendront s'ajouter par-dessus au fil du temps.
+// Complète le fil et le carrousel avec 50 offres/demandes illustrées, réparties sur des
+// identités de métier distinctes (chacune avec son propre compte), pour que "Suivre"
+// reste indépendant d'une identité à l'autre. Toujours transparent : ce sont des
+// comptes de démonstration par métier, pas de faux profils individuels précis.
 async function ensureSeedOffres(){
-  const metaRef = doc(db, 'offres_meta', 'seed_img_v1');
+  const metaRef = doc(db, 'offres_meta', 'seed_v2_50');
   const metaSnap = await getDoc(metaRef);
   if (metaSnap.exists()) return;
 
+  // Nettoyage de l'ancien lot (6 offres, toutes sous le même compte unique) s'il existe.
+  try {
+    const ancien = await getDocs(query(collection(db,'offres'), where('auteurUid','==','artiroyce_officiel')));
+    for (const d of ancien.docs) { await deleteDoc(doc(db,'offres', d.id)); }
+  } catch(e){ console.error('Nettoyage ancien seed impossible :', e); }
+
+  const metiers = [
+    { id:'mt_maconnerie_01', nom:'Cotonou Bâtiment Pro', emoji:'🧱', categorie:'🧱 Maçonnerie', ville:'Cotonou' },
+    { id:'mt_couture_02',    nom:'Atelier Couture Fatou', emoji:'✂️', categorie:'✂️ Couture', ville:'Porto-Novo' },
+    { id:'mt_dj_03',         nom:'Kponou Events DJ', emoji:'🎧', categorie:'🎧 DJ', ville:'Cotonou' },
+    { id:'mt_peinture_04',   nom:'Peinture Déco Bénin', emoji:'🎨', categorie:'🎨 Peinture', ville:'Abomey-Calavi' },
+    { id:'mt_photo_05',      nom:'Studio Lumière', emoji:'📷', categorie:'📷 Photographie', ville:'Cotonou' },
+    { id:'mt_menuiserie_06', nom:'Bois & Style Menuiserie', emoji:'🪚', categorie:'🪚 Menuiserie', ville:'Parakou' },
+    { id:'mt_coiffure_07',   nom:'Salon Belle Tête', emoji:'💇', categorie:'💇 Coiffure', ville:'Cotonou' },
+    { id:'mt_plomberie_08',  nom:'Plomberie Express Bénin', emoji:'🔧', categorie:'🔧 Plomberie', ville:'Cotonou' },
+    { id:'mt_electricite_09',nom:'Élec Pro Cotonou', emoji:'⚡', categorie:'⚡ Électricité', ville:'Cotonou' },
+    { id:'mt_info_10',       nom:'DigitalBoost Bénin', emoji:'📱', categorie:'📱 Informatique', ville:'Cotonou' },
+    { id:'mt_cuisine_11',    nom:'Traiteur Saveurs 229', emoji:'🍳', categorie:'🍳 Cuisine', ville:'Porto-Novo' },
+    { id:'mt_jardinage_12',  nom:'Jardins Verts Bénin', emoji:'🌿', categorie:'🌿 Jardinage', ville:'Abomey-Calavi' },
+    { id:'mt_mecanique_13',  nom:'Garage Fiable Auto', emoji:'🔩', categorie:'🔩 Mécanique', ville:'Cotonou' },
+    { id:'mt_transport_14',  nom:'Livraison Rapide 229', emoji:'🚚', categorie:'🚚 Transport', ville:'Cotonou' },
+    { id:'mt_menage_15',     nom:'Maison Propre Services', emoji:'🧹', categorie:'🧹 Ménage', ville:'Cotonou' },
+    { id:'mt_maquillage_16', nom:'Glam Makeup Bénin', emoji:'💄', categorie:'💄 Maquillage', ville:'Parakou' },
+    { id:'mt_securite_17',   nom:'Sécurité Plus Bénin', emoji:'🛡️', categorie:'🛡️ Sécurité', ville:'Cotonou' }
+  ];
+
   const items = [
-    { titre:'Recherche 8 carreleurs expérimentés', categorie:'🧱 Maçonnerie', categEmoji:'🧱', ville:'Cotonou', type:'demande', budget:'45 000 FCFA/j', description:"Chantier résidentiel de 3 mois, matériel fourni.", img:21 },
-    { titre:'Couturière disponible — tenues traditionnelles', categorie:'✂️ Couture', categEmoji:'✂️', ville:'Porto-Novo', type:'offre', budget:'Négociable', description:"Spécialiste boubou et tenues de cérémonie, délais courts.", img:22 },
-    { titre:'DJ événementiel disponible ce mois-ci', categorie:'🎧 DJ', categEmoji:'🎧', ville:'Cotonou', type:'offre', budget:'150 000 FCFA/soirée', description:"Mariages, anniversaires, soirées d'entreprise.", img:23 },
-    { titre:'Recherche 5 peintres qualifiés', categorie:'🎨 Peinture', categEmoji:'🎨', ville:'Abomey-Calavi', type:'demande', budget:'40 000 FCFA/j', description:"Peinture intérieure et extérieure, immeuble de bureaux.", img:24 },
-    { titre:'Photographe professionnel — portraits & événements', categorie:'📷 Photographie', categEmoji:'📷', ville:'Cotonou', type:'offre', budget:'À partir de 25 000 FCFA', description:"Studio ou extérieur, retouches incluses.", img:25 },
-    { titre:'Recherche 10 menuisiers pour chantier', categorie:'🪚 Menuiserie', categEmoji:'🪚', ville:'Parakou', type:'demande', budget:'50 000 FCFA/j', description:"Fabrication de mobilier sur mesure, 2 mois de mission.", img:26 }
+    { titre:'Recherche 8 carreleurs expérimentés', mt:0, type:'demande', budget:'45 000 FCFA/j', description:"Chantier résidentiel de 3 mois, matériel fourni." },
+    { titre:'Recherche 6 maçons pour extension', mt:0, type:'demande', budget:'40 000 FCFA/j', description:"Extension de maison, disponibilité immédiate." },
+    { titre:'Équipe de coulage disponible', mt:0, type:'offre', budget:'Négociable', description:"Coulage de dalles, fondations, chapes." },
+    { titre:'Recherche chef de chantier', mt:0, type:'demande', budget:'60 000 FCFA/j', description:"Supervision d'un chantier de 6 mois à Cotonou." },
+    { titre:'Maçon spécialisé carrelage disponible', mt:0, type:'offre', budget:'35 000 FCFA/j', description:"10 ans d'expérience, finitions soignées." },
+    { titre:'Couturière disponible — tenues traditionnelles', mt:1, type:'offre', budget:'Négociable', description:"Spécialiste boubou et tenues de cérémonie, délais courts." },
+    { titre:'Recherche couturières pour atelier', mt:1, type:'demande', budget:'30 000 FCFA/semaine', description:"Production de tenues sur mesure, atelier en centre-ville." },
+    { titre:'Confection robes de mariée sur mesure', mt:1, type:'offre', budget:'À partir de 50 000 FCFA', description:"Essayages inclus, délai 3 semaines." },
+    { titre:'Retouches et ourlets express', mt:1, type:'offre', budget:'2 000 FCFA', description:"Retouches en 24h, tissus tous types." },
+    { titre:'Recherche apprentie couturière', mt:1, type:'demande', budget:'15 000 FCFA/mois', description:"Formation assurée, débutante acceptée." },
+    { titre:'DJ événementiel disponible ce mois-ci', mt:2, type:'offre', budget:'150 000 FCFA/soirée', description:"Mariages, anniversaires, soirées d'entreprise." },
+    { titre:'Recherche DJ pour festival', mt:2, type:'demande', budget:'200 000 FCFA', description:"Événement 2 jours, matériel sur place." },
+    { titre:'Animation sono + éclairage', mt:2, type:'offre', budget:'180 000 FCFA/soirée', description:"Pack complet son et lumière, technicien inclus." },
+    { titre:'DJ mariage disponible weekends', mt:2, type:'offre', budget:'Négociable', description:"Playlist personnalisée, ambiance garantie." },
+    { titre:'Recherche 5 peintres qualifiés', mt:3, type:'demande', budget:'40 000 FCFA/j', description:"Peinture intérieure et extérieure, immeuble de bureaux." },
+    { titre:'Peintre décorateur disponible', mt:3, type:'offre', budget:'35 000 FCFA/j', description:"Peintures décoratives, faux effets, enduits." },
+    { titre:'Équipe peinture façade disponible', mt:3, type:'offre', budget:'Négociable', description:"Ravalement de façade, devis gratuit." },
+    { titre:'Recherche peintre pour villa', mt:3, type:'demande', budget:'45 000 FCFA/j', description:"Villa neuve, 8 pièces, démarrage rapide." },
+    { titre:'Photographe professionnel — portraits & événements', mt:4, type:'offre', budget:'À partir de 25 000 FCFA', description:"Studio ou extérieur, retouches incluses." },
+    { titre:'Recherche photographe pour mariage', mt:4, type:'demande', budget:'100 000 FCFA', description:"Cérémonie + réception, album inclus souhaité." },
+    { titre:'Shooting produits e-commerce', mt:4, type:'offre', budget:'15 000 FCFA/produit', description:"Photos studio fond blanc, livraison 48h." },
+    { titre:'Photographe événementiel disponible', mt:4, type:'offre', budget:'Négociable', description:"Conférences, lancements, soirées corporate." },
+    { titre:'Recherche 10 menuisiers pour chantier', mt:5, type:'demande', budget:'50 000 FCFA/j', description:"Fabrication de mobilier sur mesure, 2 mois de mission." },
+    { titre:'Menuisier ébéniste disponible', mt:5, type:'offre', budget:'40 000 FCFA/j', description:"Meubles sur mesure, restauration de mobilier ancien." },
+    { titre:'Fabrication portes et fenêtres bois', mt:5, type:'offre', budget:'Négociable', description:"Devis gratuit, bois local ou importé." },
+    { titre:'Salon de coiffure — tresses & soins', mt:6, type:'offre', budget:'À partir de 3 000 FCFA', description:"Tresses, locks, soins capillaires naturels." },
+    { titre:'Recherche coiffeuses pour salon', mt:6, type:'demande', budget:'25 000 FCFA/semaine', description:"Salon en expansion, clientèle assurée." },
+    { titre:'Coiffeur à domicile disponible', mt:6, type:'offre', budget:'Négociable', description:"Déplacement Cotonou et environs." },
+    { titre:'Défrisage et coupe homme', mt:6, type:'offre', budget:'2 500 FCFA', description:"Coupe moderne, dégradé, entretien barbe." },
+    { titre:'Plombier disponible urgences 24h', mt:7, type:'offre', budget:'Selon intervention', description:"Fuites, canalisations, installations sanitaires." },
+    { titre:'Recherche plombier pour immeuble', mt:7, type:'demande', budget:'35 000 FCFA/j', description:"Installation plomberie complète, immeuble 4 étages." },
+    { titre:'Réparation robinetterie et chauffe-eau', mt:7, type:'offre', budget:'Négociable', description:"Intervention rapide, pièces garanties." },
+    { titre:'Électricien qualifié disponible', mt:8, type:'offre', budget:'30 000 FCFA/j', description:"Installations, dépannages, mise aux normes." },
+    { titre:'Recherche électricien pour chantier', mt:8, type:'demande', budget:'38 000 FCFA/j', description:"Câblage complet villa neuve, 3 semaines." },
+    { titre:'Installation panneaux solaires', mt:8, type:'offre', budget:'Négociable', description:"Devis gratuit, installation et maintenance." },
+    { titre:'Développeur web freelance disponible', mt:9, type:'offre', budget:'À partir de 50 000 FCFA', description:"Sites vitrines, e-commerce, applications." },
+    { titre:'Recherche community manager', mt:9, type:'demande', budget:'40 000 FCFA/mois', description:"Gestion réseaux sociaux, création de contenu." },
+    { titre:'Réparation ordinateurs et téléphones', mt:9, type:'offre', budget:'À partir de 5 000 FCFA', description:"Diagnostic gratuit, pièces d'origine." },
+    { titre:'Traiteur pour événements disponible', mt:10, type:'offre', budget:'Sur devis', description:"Mariages, baptêmes, réceptions d'entreprise." },
+    { titre:'Recherche cuisinier pour restaurant', mt:10, type:'demande', budget:'35 000 FCFA/j', description:"Restaurant en centre-ville, poste permanent." },
+    { titre:'Pâtisserie sur commande', mt:10, type:'offre', budget:'À partir de 8 000 FCFA', description:"Gâteaux personnalisés, livraison possible." },
+    { titre:'Jardinier paysagiste disponible', mt:11, type:'offre', budget:'20 000 FCFA/j', description:"Entretien jardins, aménagement paysager." },
+    { titre:'Recherche jardinier pour résidence', mt:11, type:'demande', budget:'18 000 FCFA/j', description:"Entretien hebdomadaire, résidence privée." },
+    { titre:'Mécanicien auto disponible', mt:12, type:'offre', budget:'Selon intervention', description:"Vidange, freins, diagnostic électronique." },
+    { titre:'Recherche mécanicien pour garage', mt:12, type:'demande', budget:'30 000 FCFA/j', description:"Garage en développement, poste stable." },
+    { titre:'Service de livraison rapide disponible', mt:13, type:'offre', budget:'À partir de 1 000 FCFA', description:"Livraison colis et repas, Cotonou et environs." },
+    { titre:'Recherche livreurs à moto', mt:13, type:'demande', budget:'3 000 FCFA/course', description:"Plusieurs postes disponibles, moto fournie." },
+    { titre:'Ménage à domicile disponible', mt:14, type:'offre', budget:'5 000 FCFA/j', description:"Ménage complet, repassage, entretien maison." },
+    { titre:'Maquilleuse professionnelle disponible', mt:15, type:'offre', budget:'À partir de 10 000 FCFA', description:"Mariages, soirées, séances photo." },
+    { titre:'Agent de sécurité disponible', mt:16, type:'offre', budget:'25 000 FCFA/j', description:"Événements, résidences, entreprises. Expérience confirmée." }
   ];
 
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
+    const mt = metiers[it.mt];
     await addDoc(collection(db, 'offres'), {
-      auteurUid: 'artiroyce_officiel',
-      auteurNom: 'ArtiRoyce',
+      auteurUid: mt.id,
+      auteurNom: mt.nom,
       auteurVerifie: true,
       auteurRole: 'Professionnel',
       titre: it.titre,
       description: it.description,
-      categorie: it.categorie,
-      categEmoji: it.categEmoji,
-      ville: it.ville,
+      categorie: mt.categorie,
+      categEmoji: mt.emoji,
+      ville: mt.ville,
       type: it.type,
       budget: it.budget,
-      urgent: i % 3 === 0,
+      urgent: i % 4 === 0,
       dureeDays: 30,
       candidatures: 0,
       likes: 0,
-      imageUrl: 'https://picsum.photos/seed/artiroyce_offre' + it.img + '/900/700',
-      createdAt: Timestamp.fromDate(new Date(Date.now() - i * 9 * 3600 * 1000))
+      imageUrl: 'https://picsum.photos/seed/artiroyce_offre' + i + '/900/700',
+      createdAt: Timestamp.fromDate(new Date(Date.now() - i * 3 * 3600 * 1000))
     });
   }
   await setDoc(metaRef, { seededAt: serverTimestamp() });
@@ -1924,114 +1999,4 @@ function showToast(msg) {
   if (!t) {
     t = document.createElement('div');
     t.id = 'toast';
-    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity='1';
-  setTimeout(() => t.style.opacity='0', 2500);
-}
-
-/* ── TEMPS DEPUIS ── */
-function tempsDepuis(ms) {
-  const diff = Date.now() - ms;
-  const m = Math.floor(diff/60000);
-  if (m < 1)  return 'il y a peu';
-  if (m < 60) return 'il y a {n}min'.replace('{n}', m);
-  const h = Math.floor(m/60);
-  if (h < 24) return 'il y a {n}h'.replace('{n}', h);
-  const j = Math.floor(h/24);
-  if (j < 7)  return 'il y a {n}j'.replace('{n}', j);
-  const s = Math.floor(j/7);
-  if (s < 4)  return 'il y a {n} sem.'.replace('{n}', s);
-  return 'il y a {n} mois'.replace('{n}', Math.floor(j/30));
-}
-
-/* ── DÉMARRAGE ── */
-// Bouton publier connecté
-document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
-
-/* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
-function refreshDynamicTexts(){
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    el.placeholder = T(el.dataset.i18nPh);
-  });
-  // Redessiner le fil pour re-traduire les cartes déjà affichées (dates, boutons, badges…)
-  if (typeof chargerOffres === 'function') chargerOffres();
-}
-
-function accrocherRafraichissementLangue(){
-  if (typeof window.setLang === 'function' && !window.__offresSetLangAccroche) {
-    const original = window.setLang;
-    window.setLang = function(code, flag, el){
-      original(code, flag, el);
-      refreshDynamicTexts();
-    };
-    window.__offresSetLangAccroche = true;
-    refreshDynamicTexts();
-  } else if (!window.__offresSetLangAccroche) {
-    setTimeout(accrocherRafraichissementLangue, 50);
-  }
-}
-accrocherRafraichissementLangue();
-
-</script>
-
-<!-- SHEET POSTULER -->
-<div class="postuler-overlay" id="postulerOverlay">
-  <div class="postuler-sheet">
-    <div class="postuler-title" data-i18n="off_postuler_titre">📋 Comment postuler ?</div>
-    <button class="postuler-opt" onclick="choisirPostuler('interesse')">
-      <span class="opt-icon">🙋</span>
-      <div>
-        <div data-i18n="off_postuler_interesse">Je suis intéressé, on se contacte en privé</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_interesse_sub">Un message sera posté + inbox ouvert</div>
-      </div>
-    </button>
-    <button class="postuler-opt" onclick="choisirPostuler('retenu')">
-      <span class="opt-icon">✅</span>
-      <div>
-        <div data-i18n="off_postuler_retenu">Comptez-moi parmi les retenus</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
-      </div>
-    </button>
-    <button class="postuler-opt" onclick="choisirPostuler('postuler')">
-      <span class="opt-icon">📩</span>
-      <div>
-        <div data-i18n="off_postuler_postule">A postulé à cette offre</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_postule_sub">Simple candidature enregistrée</div>
-      </div>
-    </button>
-    <button class="postuler-cancel" onclick="document.getElementById('postulerOverlay').classList.remove('open')" data-i18n="off_annuler">Annuler</button>
-  </div>
-</div>
-
-<script>
-// Pont entre onclick HTML et fonctions module Firebase
-function openModal(){ if(window.openModal) window.openModal(); else document.getElementById('overlay').classList.add('open'); }
-function closeSiDehors(e){ if(window.closeSiDehors) window.closeSiDehors(e); }
-function selModele(el,t){ if(window.selModele) window.selModele(el,t); }
-function toggleImg(){ if(window.toggleImg) window.toggleImg(); }
-function toggleImgTexte(){ if(window.toggleImgTexte) window.toggleImgTexte(); }
-function previewImg(e){ if(window.previewImg) window.previewImg(e); }
-function previewImgSimple(e){ if(window.previewImgSimple) window.previewImgSimple(e); }
-function previewImgTexte(e){ if(window.previewImgTexte) window.previewImgTexte(e); }
-function envoyerComm(id){ if(window.envoyerComm) window.envoyerComm(id); }
-function repondreComm(id,nom){ if(window.repondreComm) window.repondreComm(id,nom); }
-function contacterOffre(btn){ if(window.contacterOffre) window.contacterOffre(btn); }
-function postulerOffre(btn){ if(window.postulerOffre) window.postulerOffre(btn); }
-function choisirPostuler(choix){ if(window.choisirPostuler) window.choisirPostuler(choix); }
-function cancelLikeHold(id){ if(window.cancelLikeHold) window.cancelLikeHold(id); }
-function toggleMenuSuppr(id){ if(window.toggleMenuSuppr) window.toggleMenuSuppr(id); }
-function supprimerOffre(id,mode){ if(window.supprimerOffre) window.supprimerOffre(id,mode); }
-function toggleUrgent(){ if(window.toggleUrgent) window.toggleUrgent(); }
-function fermerModal(){ document.getElementById('overlay').classList.remove('open'); }
-function startLikeHold(id){ if(window.startLikeHold) window.startLikeHold(id); }
-function handleLikeClick(id){ if(window.handleLikeClick) window.handleLikeClick(id); }
-function choisirReaction(id,emoji,label){ if(window.choisirReaction) window.choisirReaction(id,emoji,label); }
-</script>
-
-<script src="translations.js?v=20250705c"></script>
-
-</body>
-</html>
+    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 
