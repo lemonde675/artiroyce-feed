@@ -776,6 +776,27 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 
 <!-- FIREBASE -->
 <script type="module">
+// Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
+// JavaScript (même celles survenant très tôt, avant Firebase), pour qu'on voie le
+// vrai problème sans avoir besoin d'ouvrir la console du navigateur.
+function __afficherErreurDiagnostic(msg){
+  const loading = document.getElementById('feed-loading');
+  const feedEl = document.getElementById('feedOffres');
+  const target = loading || feedEl || document.body;
+  const bloc = document.createElement('div');
+  bloc.style.cssText = 'text-align:left;padding:14px 16px;margin:10px;font-size:12px;color:#e63224;background:#fff3f0;border:1px solid #f5c6bb;border-radius:12px;word-break:break-word;white-space:pre-wrap;font-family:monospace;';
+  bloc.textContent = '⚠️ ' + msg;
+  target.innerHTML = '';
+  target.appendChild(bloc);
+}
+window.addEventListener('error', function(e){
+  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
+});
+window.addEventListener('unhandledrejection', function(e){
+  const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+  __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
+});
+
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, onSnapshot, orderBy, query, serverTimestamp, where, getDoc, setDoc, Timestamp, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -1969,26 +1990,4 @@ window.supprimerOffre = (offreId, mode) => {
   const descDiv = document.createElement('div');
   descDiv.style.cssText = 'font-size:13px;color:#65676b;text-align:center;margin-bottom:20px;line-height:1.5;';
   descDiv.textContent = desc;
-  const btnsDiv = document.createElement('div');
-  btnsDiv.style.cssText = 'display:flex;gap:10px;';
-  const btnNon = document.createElement('button');
-  btnNon.id = 'btn-non';
-  btnNon.textContent = 'Non, annuler';
-  btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
-  const btnOui = document.createElement('button');
-  btnOui.id = 'btn-oui';
-  btnOui.textContent = 'Oui, confirmer';
-  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
-  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
-  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
-
-  dialog.appendChild(box);
-  document.body.appendChild(dialog);
-
-  dialog.querySelector('#btn-non').onclick = () => dialog.remove();
-  dialog.querySelector('#btn-oui').onclick = async () => {
-    dialog.remove();
-    try {
-      if (mode === 'definitif') {
-        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-        awa
+  const btnsDiv = document.creat
