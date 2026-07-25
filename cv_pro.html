@@ -1025,7 +1025,10 @@ function renderListeCardsRapide(){
 
   const cardsMoi = document.getElementById('cvCardsListe');
   cardsMoi.innerHTML = '';
-  for (const c of listeMesCv) cardsMoi.appendChild(construireInstance(c, true));
+  for (const c of listeMesCv) {
+    try { cardsMoi.appendChild(construireInstance(c, true)); }
+    catch (err) { console.error('Carte "mon CV" impossible à construire :', c.id, err); }
+  }
 
   const toggleCorb = document.getElementById('corbeilleToggle');
   toggleCorb.style.display = listeCorbeille.length ? 'flex' : 'none';
@@ -1038,9 +1041,13 @@ function renderListeCardsRapide(){
 
   const carrouselZone = document.getElementById('cvCarrouselCommunaute');
   if (carrouselZone) {
-    carrouselZone.innerHTML = '';
-    const node = buildCoverCarouselCv(listeCommunaute);
-    if (node) { carrouselZone.appendChild(node); wireCoverCarouselCv(); }
+    try {
+      carrouselZone.innerHTML = '';
+      const node = buildCoverCarouselCv(listeCommunaute);
+      if (node) { carrouselZone.appendChild(node); wireCoverCarouselCv(); }
+    } catch (err) {
+      console.error('Carrousel CV Pro impossible à construire :', err);
+    }
   }
 }
 
@@ -1056,7 +1063,10 @@ function renderCommunauteAsync(){
   function suite(){
     if (monToken !== _communauteRenderToken) return; // un rechargement plus récent a pris le relais
     const limite = Math.min(i + 3, liste.length);
-    for (; i < limite; i++) cardsCommu.appendChild(construireInstance(liste[i], false));
+    for (; i < limite; i++) {
+      try { cardsCommu.appendChild(construireInstance(liste[i], false)); }
+      catch (err) { console.error('Carte communauté impossible à construire :', liste[i]?.id, err); }
+    }
     if (i < liste.length) setTimeout(suite, 0);
   }
   suite();
@@ -1392,9 +1402,22 @@ function ouvrirEdition(c){
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
-  await chargerListe();
+  let dejaAffiche = false;
+  const bascule = () => { if (!dejaAffiche) { dejaAffiche = true; afficherEtat('liste'); } };
+  const filetDeSecurite = setTimeout(() => {
+    console.warn('CV Pro : le chargement normal a pris trop de temps, affichage forcé.');
+    bascule();
+  }, 6000); // jamais bloqué plus de 6 secondes sur "Chargement…", quoi qu'il arrive
+
+  try {
+    await chargerListe();
+  } catch (err) {
+    console.error('Erreur au chargement de CV Pro :', err);
+  }
   refreshDynamicTexts();
-  afficherEtat('liste');
+  bascule();
+  clearTimeout(filetDeSecurite);
+
   ensureSeedCvProFaux()
     .then(aSeede => { if (aSeede) chargerListe(); })
     .catch(e => console.error('Seed CV Pro impossible :', e));
@@ -1503,10 +1526,4 @@ const FAUX_CV_PROFILS = [
     qualites:['Créativité','Sens de l\u2019écoute'], competences:['Gestion de réseaux sociaux','Création de contenu','Analyse de statistiques'],
     formations:[{periode:'2016 - 2018', diplome:'BTS Communication', etablissement:'École Supérieure de Communication de Conakry'}],
     experiences:[{periode:'2018 - 2024', poste:'Community manager freelance', entreprise:'Nadia Digital', description:"Gestion des réseaux sociaux pour une dizaine de clients. Croissance moyenne de 40% d'abonnés en 6 mois. Formation aux réseaux sociaux pour artisans."}] },
-  { prenom:'Rachel', nom:'Assogba', metier:'Vidéaste monteuse', ville:'Porto-Novo', pays:'Bénin', diplome:'Formation en audiovisuel', img:31,
-    profil:"Vidéaste et monteuse, je réalise des vidéos de mariage, clips promotionnels et contenus pour réseaux sociaux avec un rendu professionnel.",
-    qualites:['Sens narratif','Créativité'], competences:['Tournage vidéo','Montage professionnel','Étalonnage couleur'],
-    formations:[{periode:'2018 - 2019', diplome:'Formation en audiovisuel', etablissement:'Institut des Médias de Porto-Novo'}],
-    experiences:[{periode:'2019 - 2024', poste:'Vidéaste indépendante', entreprise:'Rachel Films', description:"Réalisation de plus de 60 films de mariage. Production de contenus publicitaires pour des commerces locaux. Formation au montage vidéo."}] },
-  { prenom:'Thomas', nom:'Houngbo', metier:'Carreleur', ville:'Cotonou', pays:'Bénin', diplome:'CAP Carrelage', img:32,
-    profil:"Carreleur professionne
+  { prenom:'Rachel', nom:'Assogba', metier:'Vidéaste monteuse', ville:'Porto-Novo', pays:'Bénin', diplome:'Formation en audiovisuel', im
