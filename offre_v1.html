@@ -834,9 +834,11 @@ onAuthStateChanged(auth, async user => {
     document.querySelectorAll('.user-ava').forEach(el => {
       el.textContent = (currentUser.displayName||'?')[0].toUpperCase();
     });
-    // Charger offres maintenant que l'utilisateur est prêt
-    try{ await ensureSeedOffres(); }catch(e){ console.error('Seed offres impossible :', e); }
+    // Charger le fil immédiatement — ne pas attendre le seed, qui peut prendre du
+    // temps (nettoyage + création de plusieurs dizaines d'offres). Le seed tourne en
+    // arrière-plan ; l'écoute en direct (onSnapshot) rafraîchira le fil dès qu'il termine.
     chargerOffres();
+    ensureSeedOffres().catch(e => console.error('Seed offres impossible :', e));
   } else {
     window.location.href = 'connexion.html';
   }
@@ -861,7 +863,7 @@ async function ensureSeedOffres(){
   // Nettoyage de l'ancien lot (6 offres, toutes sous le même compte unique) s'il existe.
   try {
     const ancien = await getDocs(query(collection(db,'offres'), where('auteurUid','==','artiroyce_officiel')));
-    for (const d of ancien.docs) { await deleteDoc(doc(db,'offres', d.id)); }
+    await Promise.all(ancien.docs.map(d => deleteDoc(doc(db,'offres', d.id))));
   } catch(e){ console.error('Nettoyage ancien seed impossible :', e); }
 
   const metiers = [
@@ -937,10 +939,9 @@ async function ensureSeedOffres(){
     { titre:'Agent de sécurité disponible', mt:16, type:'offre', budget:'25 000 FCFA/j', description:"Événements, résidences, entreprises. Expérience confirmée." }
   ];
 
-  for (let i = 0; i < items.length; i++) {
-    const it = items[i];
+  await Promise.all(items.map((it, i) => {
     const mt = metiers[it.mt];
-    await addDoc(collection(db, 'offres'), {
+    return addDoc(collection(db, 'offres'), {
       auteurUid: mt.id,
       auteurNom: mt.nom,
       auteurVerifie: true,
@@ -959,7 +960,7 @@ async function ensureSeedOffres(){
       imageUrl: 'https://picsum.photos/seed/artiroyce_offre' + i + '/900/700',
       createdAt: Timestamp.fromDate(new Date(Date.now() - i * 3 * 3600 * 1000))
     });
-  }
+  }));
   await setDoc(metaRef, { seededAt: serverTimestamp() });
 }
 
@@ -1997,6 +1998,4 @@ window.supprimerOffre = (offreId, mode) => {
 function showToast(msg) {
   let t = document.getElementById('toast');
   if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 
+    t = document.creat
