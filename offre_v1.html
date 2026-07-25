@@ -827,6 +827,7 @@ onAuthStateChanged(auth, async user => {
         currentUser.photoURL = d.photoURL || null;
         currentUser.verifie = d.statut === 'verifie';
         currentUser.role = d.role === 'visiteur' ? 'Visiteur' : 'Professionnel';
+        currentUser.ville = d.ville || '';
       }
     } catch(e){}
     // Mettre à jour avatar dans zone commentaire
@@ -1330,7 +1331,7 @@ function buildCard(o, expiree) {
             <div class="comm-text" id="comm-text-${c.id}">${c.texte}</div>
             <div class="voir-traduction" id="voir-trad-${c.id}" onclick="traduireCommentaire('${c.id}', this)">Voir la traduction</div>
             <div class="comm-meta">
-              <span class="date">${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
+              <span class="date">${c.ville?escHtml(c.ville)+' · ':''}${tempsDepuis(c.createdAt?.toMillis?c.createdAt.toMillis():Date.now())}</span>
               <span class="rep-jaime ${dejaAime?'liked':''}" id="comm-jaime-${c.id}"
                     onpointerdown="startCommentHold('${c.id}')" onpointerup="endCommentHold('${o.id}','${c.id}',${c.likes||0})" onpointerleave="cancelCommentHold('${c.id}')">${dejaAime?'Aimé':"J'aime"}</span>
               <span class="rep" data-id="${o.id}" data-commid="${racineId}" data-nom="${c.nom||''}" onclick="repondreComm(this.dataset.id,this.dataset.commid,this.dataset.nom)">Répondre</span>
@@ -1521,6 +1522,7 @@ window.envoyerComm = async (offreId) => {
       texte,
       nom: currentUser.displayName || 'Anonyme',
       uid: currentUser.uid,
+      ville: currentUser.ville || '',
       parentId: reponseA ? reponseA.commentId : null,
       createdAt: serverTimestamp()
     });
@@ -1683,6 +1685,7 @@ window.publierOffre = async () => {
     data.texte = texte;
     data.titre = texte.substring(0,60);
     data.dureeDays = 30;
+    data.ville = currentUser.ville || '';
     // Image texte
     if (imgBase64Txt) data.imageUrl = imgBase64Txt;
   } else {
