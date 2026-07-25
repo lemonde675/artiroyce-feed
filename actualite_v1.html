@@ -50,7 +50,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .ph-av{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;position:relative;overflow:hidden}
 .ph-av img{width:100%;height:100%;object-fit:cover}
 .ph-vb{position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:900}
-.online-dot-actu{position:absolute;bottom:1px;left:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
+.online-dot-actu{position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
 .ph-info{flex:1;min-width:0}
 .ph-top{display:flex;align-items:center;gap:6px;margin-bottom:2px}
 .ph-name{font-size:14px;font-weight:800;color:var(--dark)}
@@ -1167,10 +1167,10 @@ window.__toggleReactPickerActu = function(postId){
 window.__sendReactionActu = async function(postId, emoji, likesActuels){
   if (!currentUser) { toast('Connectez-vous pour réagir',''); return; }
 
-  // ── DIAGNOSTIC TEMPORAIRE : révèle si plusieurs éléments partagent le même id ──
-  const nbBoutons = document.querySelectorAll('[id="pb-'+postId+'"]').length;
-  const nbPubsMemeId = listePublications.filter(p => p.id === postId).length;
-  __afficherErreurDiagnostic('DIAGNOSTIC J\'AIME\npostId = ' + postId + '\nBoutons partageant cet id : ' + nbBoutons + '\nPublications avec cet id dans la liste : ' + nbPubsMemeId);
+  // ── DIAGNOSTIC TEMPORAIRE (désactivé) : décommenter pour ré-afficher les infos si besoin ──
+  // const nbBoutons = document.querySelectorAll('[id="pb-'+postId+'"]').length;
+  // const nbPubsMemeId = listePublications.filter(p => p.id === postId).length;
+  // __afficherErreurDiagnostic('DIAGNOSTIC J\'AIME\npostId = ' + postId + '\nBoutons partageant cet id : ' + nbBoutons + '\nPublications avec cet id dans la liste : ' + nbPubsMemeId);
   // ── FIN DIAGNOSTIC ──
 
   document.getElementById('rp-'+postId)?.classList.remove('show');
