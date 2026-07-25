@@ -974,7 +974,7 @@ function wireComposerModal(){
       }
 
       const journalNom = document.getElementById('composerJournal').value.trim();
-      const ville = document.getElementById('composerVille').value.trim();
+      const ville = document.getElementById('composerVille').value.trim() || (currentUserData && currentUserData.ville) || '';
       const roleLbl = (currentUserData.role === 'visiteur') ? 'Visiteur' : 'Professionnel';
 
       if(editingPostId){
