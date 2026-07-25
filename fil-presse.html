@@ -671,16 +671,6 @@ window.toggleTrash = function(){
 // Un premier clic demande confirmation (le libellé change pendant 3s) ; un second
 // clic dans ce délai déplace réellement la publication en corbeille.
 window.__softDelete = async function(id, el){
-  if(el && el.dataset.confirm !== 'yes'){
-    el.dataset.confirm = 'yes';
-    const original = el.textContent;
-    el.textContent = '✅ Confirmer : mettre à la corbeille';
-    setTimeout(function(){
-      if(el.dataset.confirm === 'yes'){ el.dataset.confirm = ''; el.textContent = original; }
-    }, 3000);
-    return;
-  }
-  if(el) el.dataset.confirm = '';
   await updateDoc(doc(db,'fil_presse', id), { deletedAt: serverTimestamp() });
   loadFeed();
 }
@@ -689,16 +679,6 @@ window.__restore = async function(id){
   loadFeed();
 }
 window.__hardDelete = async function(id, el){
-  if(el && el.dataset.confirm !== 'yes'){
-    el.dataset.confirm = 'yes';
-    const original = el.textContent;
-    el.textContent = '✅ Confirmer la suppression définitive';
-    setTimeout(function(){
-      if(el.dataset.confirm === 'yes'){ el.dataset.confirm = ''; el.textContent = original; }
-    }, 3000);
-    return;
-  }
-  if(el) el.dataset.confirm = '';
   await deleteDoc(doc(db,'fil_presse', id));
   loadFeed();
 }
