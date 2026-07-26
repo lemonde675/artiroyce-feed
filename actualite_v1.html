@@ -467,13 +467,6 @@ window.addEventListener('unhandledrejection', function(e){
   __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
 });
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getFirestore, initializeFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
-  increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 // Petit journal visible directement à l'écran, pour voir où le chargement progresse ou s'arrête.
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
@@ -482,23 +475,67 @@ function ajouterEtape(texte){
   ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
   panneau.appendChild(ligne);
 }
-ajouterEtape('2. Imports Firebase chargés ✅');
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-  authDomain: "artiroyce-f42e4.firebaseapp.com",
-  projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.firebasestorage.app",
-  messagingSenderId: "588140774605",
-  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-// Correctif : le réseau bloque le flux temps réel normal de Firestore
-// (erreur "Listen/channel... 400 Bad Request"). L'auto-détection n'a pas suffi,
-// on force donc directement le mode de connexion compatible.
-const db = initializeFirestore(app, { experimentalForceLongPolling: true });
-ajouterEtape('3. Firebase initialisé ✅');
+function avecDelaiMax(promesse, millisecondes){
+  return Promise.race([
+    promesse,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
+  ]);
+}
+
+// Ces noms seront remplis une fois les bibliothèques Firebase chargées (voir plus bas).
+let initializeApp, getAuth, onAuthStateChanged, getFirestore, initializeFirestore, collection,
+    collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
+    increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter;
+let app, auth, db;
+
+(async function demarrerFirebase(){
+  ajouterEtape('2. Telechargement de la bibliotheque Firebase (app)...');
+  try {
+    const modApp = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"), 12000);
+    initializeApp = modApp.initializeApp;
+    ajouterEtape('2b. Bibliotheque app chargee ✅');
+
+    ajouterEtape('2c. Telechargement de la bibliotheque Firebase (auth)...');
+    const modAuth = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"), 12000);
+    getAuth = modAuth.getAuth; onAuthStateChanged = modAuth.onAuthStateChanged;
+    ajouterEtape('2d. Bibliotheque auth chargee ✅');
+
+    ajouterEtape('2e. Telechargement de la bibliotheque Firebase (firestore)...');
+    const modFs = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"), 12000);
+    getFirestore = modFs.getFirestore; initializeFirestore = modFs.initializeFirestore; collection = modFs.collection;
+    collectionGroup = modFs.collectionGroup; addDoc = modFs.addDoc; getDocs = modFs.getDocs; getDoc = modFs.getDoc;
+    doc = modFs.doc; setDoc = modFs.setDoc; updateDoc = modFs.updateDoc; deleteDoc = modFs.deleteDoc;
+    increment = modFs.increment; onSnapshot = modFs.onSnapshot; orderBy = modFs.orderBy; query = modFs.query;
+    where = modFs.where; serverTimestamp = modFs.serverTimestamp; Timestamp = modFs.Timestamp;
+    limit = modFs.limit; startAfter = modFs.startAfter;
+    ajouterEtape('3. Toutes les bibliotheques Firebase chargees ✅');
+  } catch(err) {
+    ajouterEtape('❌ ECHEC du telechargement Firebase : ' + (err && err.message ? err.message : String(err)));
+    document.getElementById('feedLoading').innerHTML =
+      '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger la bibliothèque Firebase (fichiers depuis gstatic.com).<br>'
+      + '<span style="font-family:monospace;font-size:11px">' + (err && err.message ? err.message.replace(/</g,'&lt;') : 'Erreur inconnue') + '</span><br>'
+      + '<button onclick="location.reload()" style="margin-top:10px;padding:8px 18px;border:none;border-radius:20px;background:#e63224;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Recharger la page</button></div>';
+    return;
+  }
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  // Correctif : le réseau bloque le flux temps réel normal de Firestore
+  // (erreur "Listen/channel... 400 Bad Request"). L'auto-détection n'a pas suffi,
+  // on force donc directement le mode de connexion compatible.
+  db = initializeFirestore(app, { experimentalForceLongPolling: true });
+  ajouterEtape('4. Firebase initialisé ✅, demarrage de l\u2019ecoute de connexion...');
+  onAuthStateChanged(auth, surChangementAuth);
+})();
 
 let currentUser = null;
 let categorieActive = 'Tout';
@@ -556,8 +593,8 @@ function tempsDepuis(ms) {
   return 'il y a '+Math.floor(j/30)+' mois';
 }
 
-onAuthStateChanged(auth, async (user) => {
-  ajouterEtape('4. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
+async function surChangementAuth(user) {
+  ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
   currentUser = user;
   currentUser.displayName = user.email ? user.email.split('@')[0] : 'Moi';
@@ -591,7 +628,7 @@ onAuthStateChanged(auth, async (user) => {
   ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
   chargerSuivis();
   chargerMesReactionsActu();
-});
+}
 
 // ── Mes réactions, lues depuis Firestore (une seule requête, comme fil-presse) ──
 // Chaque "J'aime" est un document réel : publications/{postId}/reactions/{monUid}.
@@ -820,13 +857,6 @@ function appliquerListesEtAfficher(){
   afficherCorbeille();
 }
 
-// Fait échouer une promesse si elle n'a pas répondu dans le délai donné (évite un blocage infini).
-function avecDelaiMax(promesse, millisecondes){
-  return Promise.race([
-    promesse,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
-  ]);
-}
 
 /* ══ LECTURE REST DIRECTE (contourne un bug du SDK bloqué sur ce projet/réseau) ══
    Le SDK Firestore classique (getDocs/onSnapshot) reste bloqué indéfiniment sur cette
@@ -1732,43 +1762,4 @@ window.chooseModel = (type) => {
   document.getElementById('cmText').style.display = (type==='texte') ? 'block' : 'none';
   document.getElementById('cmStepGalerie').style.display = (type==='galerie') ? 'flex' : 'none';
   document.getElementById('cmStepBoutique').style.display = (type==='boutique') ? 'flex' : 'none';
-  document.getElementById('cmBackOrCancel').textContent = '‹ Retour';
-  document.getElementById('btnPublish').style.display = 'inline-block';
-  document.getElementById('cmTitleLbl').textContent = { texte:'Texte', galerie:'Photo · Galerie', boutique:'Boutique' }[type] || 'Créer une publication';
-
-  if (type === 'texte') { setTimeout(() => document.getElementById('cmText').focus(), 250); }
-  if (type === 'galerie') { galImages = []; renderGalGrid(); }
-  if (type === 'boutique') { cadLayoutActif = 4; cadTagColor = 'vert'; initCadSlots(4); renderCadLayoutPicker(); renderCadColorPicker(); renderCadGrid(); }
-};
-window.backToChoix = () => {
-  window._cmType = null;
-  document.getElementById('cmStepChoix').style.display = 'block';
-  document.getElementById('cmStepUser').style.display = 'none';
-  document.getElementById('cmText').style.display = 'none';
-  document.getElementById('cmStepGalerie').style.display = 'none';
-  document.getElementById('cmStepBoutique').style.display = 'none';
-  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
-  document.getElementById('btnPublish').style.display = 'none';
-  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
-};
-window.cmBackOrClose = () => { if (window._cmType) backToChoix(); else closeCreate(); };
-
-/* ── Modèle Photo · Galerie (1 à 8 photos, disposition magazine automatique) ── */
-function renderGalGrid(){
-  const grid = document.getElementById('galGrid');
-  grid.className = 'media-grid';
-  if (!galImages.length) {
-    grid.style.gridTemplateColumns = '1fr';
-    grid.style.gridTemplateRows = '';
-    grid.innerHTML = `<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>`;
-    return;
-  }
-  const L = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
-  grid.style.gridTemplateColumns = L.template;
-  grid.style.gridTemplateRows = L.rows || '';
-  grid.style.aspectRatio = L.cRatio || '';
-  grid.innerHTML = '';
-  galImages.forEach((photo, i) => {
-    const div = document.createElement('div');
-    div.className = 'media-slot';
-    if (L.areas && L.areas[i]) div.st
+  document.getElementById('cmBackOrCancel').t
