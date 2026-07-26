@@ -74,7 +74,7 @@ async function chargerPremiere(){
   }, 1000);
   try {
     const q = query(collection(db,'publications'), orderBy('createdAt','desc'), limit(TAILLE));
-    const snap = await avecDelaiMax(getDocs(q), 10000);
+    const snap = await avecDelaiMax(getDocs(q), 30000);
     clearInterval(iv);
     const ms = Date.now() - debut;
     statut('ok', '✅ Succès en ' + ms + ' ms — ' + snap.size + ' publication(s) lue(s)');
