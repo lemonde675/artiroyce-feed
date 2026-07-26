@@ -472,7 +472,6 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
     <div class="section-separateur" id="separateurCommunaute" style="display:none">
       <span data-i18n="cv_sec_communaute">🌍 CV de la communauté</span>
     </div>
-    <div id="cvCarrouselCommunaute"></div>
     <div class="empty-block" id="empty-block-communaute" style="display:none">
       <div class="ico">🌍</div>
       <h3 data-i18n="cv_empty_communaute_title">Aucun autre CV publié pour l'instant</h3>
@@ -863,85 +862,12 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   </div>
 </div>
 
-<script>
-// Attrape-erreurs de diagnostic : si quoi que ce soit casse avant l'affichage normal,
-// le message d'erreur réel remplace "Chargement…" au lieu de rester bloqué en silence.
-window.addEventListener('error', function(e){
-  var el = document.getElementById('loading');
-  if (el) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    el.textContent = '⚠️ Erreur CV Pro : ' + (e.message || 'inconnue') + (e.filename ? (' — ' + e.filename.split('/').pop() + ':' + e.lineno) : '');
-  }
-});
-window.addEventListener('unhandledrejection', function(e){
-  var el = document.getElementById('loading');
-  if (el) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    var reason = e.reason;
-    el.textContent = '⚠️ Erreur CV Pro (promesse) : ' + (reason && reason.message ? reason.message : String(reason));
-  }
-});
-
-// Filet de secours ultime : si après 10 secondes rien ne s'est passé (ni succès,
-// ni erreur précise via le try/catch du script Firebase plus bas), le message
-// "Chargement…" resterait bloqué indéfiniment sans explication. On ne remplace
-// le texte QUE s'il est encore le texte de chargement d'origine (donc jamais
-// si une erreur précise a déjà été affichée entre-temps).
-window.__cvProFirebaseOK = false;
-setTimeout(function(){
-  if (window.__cvProFirebaseOK) return;
-  var el = document.getElementById('loading');
-  if (el && el.textContent.indexOf('Chargement de votre CV Pro') !== -1) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    el.style.lineHeight = '1.5';
-    el.textContent = '⚠️ Le chargement de CV Pro a expiré (10s) sans réponse du serveur. Réessaie ; si ça persiste, préviens-moi avec ce message.';
-  }
-}, 10000);
-</script>
 <script type="module">
-// Chargement du SDK Firebase via import() dynamique dans un vrai try/catch :
-// si ça échoue, on affiche l'erreur EXACTE renvoyée par le navigateur (au lieu
-// de deviner "réseau" ou "wifi"), et le message de secours plus bas ne parle
-// plus que d'un délai dépassé, sans accuser le wifi.
-let initializeApp, getAuth, onAuthStateChanged,
-    getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, serverTimestamp;
-
-function afficherErreurChargement(msg){
-  const el = document.getElementById('loading');
-  if (el) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    el.style.lineHeight = '1.5';
-    el.textContent = '⚠️ ' + msg;
-  }
-}
-
-try {
-  const modApp = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
-  initializeApp = modApp.initializeApp;
-  const modAuth = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-  getAuth = modAuth.getAuth;
-  onAuthStateChanged = modAuth.onAuthStateChanged;
-  const modFs = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-  getFirestore = modFs.getFirestore; doc = modFs.doc; getDoc = modFs.getDoc; setDoc = modFs.setDoc;
-  collection = modFs.collection; getDocs = modFs.getDocs; addDoc = modFs.addDoc;
-  deleteDoc = modFs.deleteDoc; serverTimestamp = modFs.serverTimestamp;
-} catch (err) {
-  window.__cvProFirebaseOK = true; // on a une vraie réponse (une erreur) : on annule le message de secours générique
-  afficherErreurChargement('Impossible de charger le SDK Firebase : ' + (err && err.message ? err.message : String(err)));
-  throw err; // on arrête ici, le reste du script (qui dépend de Firebase) ne peut pas continuer
-}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -954,7 +880,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-window.__cvProFirebaseOK = true; // le module a bien démarré : on annule le message de secours
 
 /* ── Traduction : fonction T() locale ── */
 function T(key){
@@ -1088,21 +1013,12 @@ async function chargerListe(){
 }
 
 async function renderListeCards(){
-  renderListeCardsRapide();
-  renderCommunauteAsync();
-}
-
-// Partie rapide : hero, mes CV, corbeille, carrousel léger « à la une ». S'affiche immédiatement.
-function renderListeCardsRapide(){
   document.getElementById('heroCard').style.display = currentUser ? 'flex' : 'none';
   document.getElementById('empty-block-liste').style.display = (currentUser && listeMesCv.length === 0) ? 'block' : 'none';
 
   const cardsMoi = document.getElementById('cvCardsListe');
   cardsMoi.innerHTML = '';
-  for (const c of listeMesCv) {
-    try { cardsMoi.appendChild(construireInstance(c, true)); }
-    catch (err) { console.error('Carte "mon CV" impossible à construire :', c.id, err); }
-  }
+  for (const c of listeMesCv) cardsMoi.appendChild(construireInstance(c, true));
 
   const toggleCorb = document.getElementById('corbeilleToggle');
   toggleCorb.style.display = listeCorbeille.length ? 'flex' : 'none';
@@ -1112,89 +1028,10 @@ function renderListeCardsRapide(){
   listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
 
   document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
-
-  const carrouselZone = document.getElementById('cvCarrouselCommunaute');
-  if (carrouselZone) {
-    try {
-      carrouselZone.innerHTML = '';
-      const node = buildCoverCarouselCv(listeCommunaute);
-      if (node) { carrouselZone.appendChild(node); wireCoverCarouselCv(); }
-    } catch (err) {
-      console.error('Carrousel CV Pro impossible à construire :', err);
-    }
-  }
-}
-
-// Partie lente : les grandes cartes CV complètes de la communauté, construites par petits lots
-// (setTimeout entre chaque lot) pour ne jamais geler l'affichage, même avec 30 profils ou plus.
-let _communauteRenderToken = 0;
-function renderCommunauteAsync(){
-  const monToken = ++_communauteRenderToken;
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-  const liste = listeCommunaute.slice();
-  let i = 0;
-  function suite(){
-    if (monToken !== _communauteRenderToken) return; // un rechargement plus récent a pris le relais
-    const limite = Math.min(i + 3, liste.length);
-    for (; i < limite; i++) {
-      try { cardsCommu.appendChild(construireInstance(liste[i], false)); }
-      catch (err) { console.error('Carte communauté impossible à construire :', liste[i]?.id, err); }
-    }
-    if (i < liste.length) setTimeout(suite, 0);
-  }
-  suite();
+  for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
 }
-
-// Carrousel léger « CV à la une » : aperçus rapides (photo + nom + métier), s'affiche instantanément
-// et fait défiler jusqu'à la grande carte correspondante au tap — même mécanique que dans Actualités/Offres.
-function buildCoverCarouselCv(liste){
-  const avecPhoto = liste.filter(c => c.photoURL).slice(0, 30);
-  if (!avecPhoto.length) return null;
-  const div = document.createElement('div');
-  div.style.cssText = 'background:#fff;padding:14px 0 16px;margin-bottom:8px';
-  const cards = avecPhoto.map(c => {
-    const nom = escapeHtml(((c.prenom||'') + ' ' + (c.nomFamille||'')).trim() || 'ArtiRoyce');
-    const sousTitre = escapeHtml([c.metier, c.ville].filter(Boolean).join(' · '));
-    return `<div class="ccv-card" style="position:relative;flex:0 0 auto;width:140px;height:180px;border-radius:14px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer" onclick="window.__scrollToCvInstance('${c.id}')">
-      <img src="${c.photoURL}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block">
-      <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 10px 10px;background:linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0))">
-        <div style="color:#fff;font-size:12.5px;font-weight:800;margin-bottom:2px">${nom}</div>
-        <div style="color:#eee;font-size:10px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${sousTitre}</div>
-      </div>
-    </div>`;
-  }).join('');
-  div.innerHTML = `<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">⭐ CV à la une</div>
-    <div class="ccv-track" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x">${cards}</div>`;
-  return div;
-}
-
-let _ccvIntervalStarted = false;
-let _ccvPausedUntil = 0;
-function wireCoverCarouselCv(){
-  if (_ccvIntervalStarted) return;
-  _ccvIntervalStarted = true;
-  setInterval(() => {
-    if (Date.now() < _ccvPausedUntil) return;
-    document.querySelectorAll('.ccv-track').forEach(track => {
-      const maxScroll = track.scrollWidth - track.clientWidth;
-      if (maxScroll <= 2) return;
-      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left:0, behavior:'smooth' });
-      else track.scrollTo({ left: track.scrollLeft + 160, behavior:'smooth' });
-    });
-  }, 3000);
-  document.addEventListener('touchstart', e => { if (e.target.closest('.ccv-track')) _ccvPausedUntil = Date.now() + 4000; }, { passive:true });
-  document.addEventListener('mousedown', e => { if (e.target.closest('.ccv-track')) _ccvPausedUntil = Date.now() + 4000; });
-}
-
-window.__scrollToCvInstance = function(id){
-  const tryScroll = (attempts) => {
-    const el = document.getElementById('cvinstance-'+id);
-    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
-    if (attempts > 0) setTimeout(() => tryScroll(attempts-1), 100);
-  };
-  tryScroll(15);
-};
 
 // Aiguille vers le bon gabarit : photo/fichier importé ou modèle Premium/2/3
 function construireInstance(c, estMoi){
@@ -1262,7 +1099,6 @@ async function supprimerDefinitivement(cvId){
 function creerInstanceImport(c, estMoi){
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
-  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
@@ -1324,7 +1160,6 @@ function creerInstanceLecture(c, estMoi){
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
-  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
@@ -1476,107 +1311,369 @@ function ouvrirEdition(c){
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
-  let dejaAffiche = false;
-  const bascule = () => { if (!dejaAffiche) { dejaAffiche = true; afficherEtat('liste'); } };
-  const filetDeSecurite = setTimeout(() => {
-    console.warn('CV Pro : le chargement normal a pris trop de temps, affichage forcé.');
-    bascule();
-  }, 6000); // jamais bloqué plus de 6 secondes sur "Chargement…", quoi qu'il arrive
-
-  try {
-    await chargerListe();
-  } catch (err) {
-    console.error('Erreur au chargement de CV Pro :', err);
-  }
+  await chargerListe();
   refreshDynamicTexts();
-  bascule();
-  clearTimeout(filetDeSecurite);
-
-  ensureSeedCvProFaux()
-    .then(aSeede => { if (aSeede) chargerListe(); })
-    .catch(e => console.error('Seed CV Pro impossible :', e));
+  afficherEtat('liste');
 });
 
-/* ══════════ 30 FAUX PROFILS CV — pour peupler le carrousel et la communauté ══════════
-   Un seul passage grâce au garde-fou cv_professionnels_meta/seed_v1_30profils. */
-const FAUX_CV_PROFILS = [
-  { prenom:'Awa', nom:'Traoré', metier:'Menuisière ébéniste', ville:'Bamako', pays:'Mali', diplome:'CAP Ébénisterie', img:11,
-    profil:"Ébéniste depuis 8 ans, je conçois et fabrique des meubles sur mesure en bois massif pour particuliers et professionnels. Je porte une attention particulière aux finitions et au respect des délais.",
-    qualites:['Précision','Créativité'], competences:['Menuiserie sur mesure','Finition laquée','Lecture de plans'],
-    formations:[{periode:'2014 - 2016', diplome:'CAP Ébénisterie', etablissement:'Centre de formation professionnelle de Bamako'}],
-    experiences:[{periode:'2016 - 2024', poste:'Ébéniste indépendante', entreprise:'Atelier Awa Bois', description:"Fabrication de meubles sur mesure pour particuliers. Restauration de mobilier ancien. Collaboration régulière avec des architectes d'intérieur."}] },
-  { prenom:'Kwame', nom:'Adjovi', metier:'Électricien bâtiment', ville:'Cotonou', pays:'Bénin', diplome:'BEP Électrotechnique', img:12,
-    profil:"Électricien certifié, j'interviens sur l'installation et la mise aux normes électriques de logements et de commerces. Je propose aussi un service de dépannage rapide.",
-    qualites:['Rigueur','Sens de la sécurité'], competences:['Installation électrique','Mise aux normes NF C 15-100','Dépannage'],
-    formations:[{periode:'2011 - 2013', diplome:'BEP Électrotechnique', etablissement:'Lycée technique de Cotonou'}],
-    experiences:[{periode:'2013 - 2024', poste:'Électricien indépendant', entreprise:'Adjovi Électricité', description:"Câblage complet de logements neufs. Mise en conformité d'installations anciennes. Maintenance pour plusieurs commerces du quartier."}] },
-  { prenom:'Fatou', nom:'Ndiaye', metier:'Photographe événementiel', ville:'Dakar', pays:'Sénégal', diplome:'Formation professionnelle en photographie', img:13,
-    profil:"Photographe passionnée, je capture mariages, baptêmes et événements d'entreprise avec un style naturel et vivant. Livraison rapide des photos retouchées.",
-    qualites:['Créativité','Sens du relationnel'], competences:['Photographie évènementielle','Retouche photo','Prise de vue en lumière naturelle'],
-    formations:[{periode:'2017 - 2018', diplome:'Formation professionnelle en photographie', etablissement:'Institut des Arts Visuels de Dakar'}],
-    experiences:[{periode:'2018 - 2024', poste:'Photographe indépendante', entreprise:'Fatou Ndiaye Photographie', description:"Plus de 150 mariages couverts. Séances portraits pour particuliers. Reportages pour des évènements d'entreprise locaux."}] },
-  { prenom:'Chidi', nom:'Okafor', metier:'Maquilleuse professionnelle', ville:'Abidjan', pays:"Côte d'Ivoire", diplome:'Certificat de maquillage professionnel', img:14,
-    profil:"Maquilleuse professionnelle spécialisée dans les mariages et les tournages, je sublime chaque peau avec des produits adaptés à toutes les carnations.",
-    qualites:['Minutie','Écoute'], competences:['Maquillage mariée','Maquillage peaux mates','Coiffure légère'],
-    formations:[{periode:'2016', diplome:'Certificat de maquillage professionnel', etablissement:'Beauty Academy Abidjan'}],
-    experiences:[{periode:'2016 - 2024', poste:'Maquilleuse indépendante', entreprise:'Chidi Beauty', description:"Prestations pour mariages, shootings photo et tournages publicitaires. Formation de nouvelles maquilleuses en atelier."}] },
-  { prenom:'Moussa', nom:'Diarra', metier:'Styliste-modéliste', ville:'Ouagadougou', pays:'Burkina Faso', diplome:'BTS Métiers de la Mode', img:15,
-    profil:"Styliste passionné par le wax et les matières locales, je crée des tenues sur mesure alliant tradition et modernité pour hommes et femmes.",
-    qualites:['Sens de l\u2019esthétique','Créativité'], competences:['Patronage','Couture sur mesure','Choix de tissus'],
-    formations:[{periode:'2015 - 2017', diplome:'BTS Métiers de la Mode', etablissement:'École Supérieure de la Mode de Ouagadougou'}],
-    experiences:[{periode:'2017 - 2024', poste:'Styliste indépendant', entreprise:'Diarra Couture', description:"Création de collections pour des défilés locaux. Confection de tenues de cérémonie sur mesure. Collaboration avec des boutiques de la capitale."}] },
-  { prenom:'Amina', nom:'Kaboré', metier:'Traiteur événementiel', ville:'Lomé', pays:'Togo', diplome:'CAP Cuisine', img:16,
-    profil:"Je propose des services traiteur pour mariages, baptêmes et séminaires, avec une cuisine locale et internationale préparée avec des produits frais.",
-    qualites:['Organisation','Sens du goût'], competences:['Cuisine locale et internationale','Gestion de grands évènements','Présentation de buffets'],
-    formations:[{periode:'2013 - 2015', diplome:'CAP Cuisine', etablissement:"École hôtelière de Lomé"}],
-    experiences:[{periode:'2015 - 2024', poste:'Traiteur indépendante', entreprise:'Amina Saveurs', description:"Prestations pour plus de 200 évènements. Menus personnalisés selon les demandes. Équipe de 5 personnes mobilisable pour les grands évènements."}] },
-  { prenom:'David', nom:'Koffi', metier:'DJ et sonorisateur', ville:'Porto-Novo', pays:'Bénin', diplome:'Formation technique du son', img:17,
-    profil:"DJ professionnel depuis 10 ans, j'anime mariages, soirées privées et évènements d'entreprise avec un matériel de sonorisation professionnel.",
-    qualites:['Dynamisme','Ponctualité'], competences:['Animation musicale','Sonorisation évènementielle','Éclairage scénique'],
-    formations:[{periode:'2012', diplome:'Formation technique du son', etablissement:'Studio Formation Porto-Novo'}],
-    experiences:[{periode:'2013 - 2024', poste:'DJ indépendant', entreprise:'David Koffi Sound', description:"Animation de plus de 300 évènements. Location de matériel de sonorisation et d'éclairage. Fidèle partenaire de plusieurs salles de réception."}] },
-  { prenom:'Mariama', nom:'Kouyaté', metier:'Coiffeuse styliste', ville:'Conakry', pays:'Guinée', diplome:'CAP Coiffure', img:18,
-    profil:"Coiffeuse spécialisée dans les tresses, tissages et soins capillaires naturels, je reçois en salon ou me déplace à domicile.",
-    qualites:['Créativité','Patience'], competences:['Tresses africaines','Soins capillaires naturels','Pose de tissage'],
-    formations:[{periode:'2014 - 2016', diplome:'CAP Coiffure', etablissement:'Institut de Coiffure de Conakry'}],
-    experiences:[{periode:'2016 - 2024', poste:'Coiffeuse indépendante', entreprise:'Salon Mariama', description:"Plus de 1000 clientes satisfaites. Formation de jeunes coiffeuses. Spécialisation dans les soins naturels sans produits chimiques."}] },
-  { prenom:'Jean-Paul', nom:'Mensah', metier:'Plombier chauffagiste', ville:'Lomé', pays:'Togo', diplome:'CAP Installation sanitaire', img:19,
-    profil:"Plombier expérimenté, j'interviens pour l'installation et la réparation de systèmes sanitaires et de chauffage, avec intervention rapide en urgence.",
-    qualites:['Fiabilité','Réactivité'], competences:['Plomberie sanitaire','Installation de chauffe-eau','Dépannage fuite'],
-    formations:[{periode:'2010 - 2012', diplome:'CAP Installation sanitaire', etablissement:'Centre de formation technique de Lomé'}],
-    experiences:[{periode:'2012 - 2024', poste:'Plombier indépendant', entreprise:'Mensah Plomberie', description:"Installation complète de salles de bain. Intervention d'urgence 7j/7. Contrats d'entretien avec plusieurs immeubles."}] },
-  { prenom:'Aminata', nom:'Traoré', metier:'Maquilleuse et esthéticienne', ville:'Bobo-Dioulasso', pays:'Burkina Faso', diplome:'CAP Esthétique', img:20,
-    profil:"Esthéticienne et maquilleuse, je propose soins du visage, manucure et maquillage pour toutes les occasions, dans une ambiance chaleureuse.",
-    qualites:['Douceur','Sens du détail'], competences:['Soins du visage','Manucure et pédicure','Maquillage jour et soirée'],
-    formations:[{periode:'2015 - 2017', diplome:'CAP Esthétique', etablissement:'Institut de Beauté de Bobo-Dioulasso'}],
-    experiences:[{periode:'2017 - 2024', poste:'Esthéticienne indépendante', entreprise:'Institut Aminata', description:"Clientèle fidèle de plus de 500 personnes. Formation continue aux nouvelles techniques de soin. Partenariats avec des salons de mariage."}] },
-  { prenom:'Ibrahim', nom:'Diallo', metier:'Peintre en bâtiment', ville:'Conakry', pays:'Guinée', diplome:'CAP Peinture en bâtiment', img:21,
-    profil:"Peintre professionnel, je réalise des travaux de peinture intérieure et extérieure avec des finitions soignées pour particuliers et entreprises.",
-    qualites:['Soin du détail','Propreté'], competences:['Peinture intérieure/extérieure','Enduits décoratifs','Pose de papier peint'],
-    formations:[{periode:'2013 - 2015', diplome:'CAP Peinture en bâtiment', etablissement:'Centre de formation du bâtiment de Conakry'}],
-    experiences:[{periode:'2015 - 2024', poste:'Peintre indépendant', entreprise:'Diallo Rénovation', description:"Rénovation complète de plus de 80 logements. Travaux de façades pour des commerces. Devis gratuit et respect des délais."}] },
-  { prenom:'Sophie', nom:'Adéyẹmí', metier:"Décoratrice d'intérieur", ville:'Cotonou', pays:'Bénin', diplome:'Licence en design d\u2019intérieur', img:22,
-    profil:"Décoratrice d'intérieur, j'accompagne particuliers et entreprises dans l'aménagement d'espaces chaleureux et fonctionnels, avec un budget maîtrisé.",
-    qualites:['Sens artistique','Écoute du client'], competences:['Aménagement d\u2019espace','Choix de matériaux','Suivi de chantier'],
-    formations:[{periode:'2016 - 2019', diplome:'Licence en design d\u2019intérieur', etablissement:'École de Design de Cotonou'}],
-    experiences:[{periode:'2019 - 2024', poste:'Décoratrice indépendante', entreprise:'Sophie Déco', description:"Réaménagement de plus de 40 appartements. Décoration de bureaux professionnels. Collaboration avec des menuisiers locaux."}] },
-  { prenom:'Yves', nom:'Kouassi', metier:'Cordonnier', ville:'Abidjan', pays:"Côte d'Ivoire", diplome:'CAP Cordonnerie', img:23,
-    profil:"Cordonnier depuis 15 ans, je répare et personnalise chaussures et articles en cuir avec un savoir-faire artisanal transmis de génération en génération.",
-    qualites:['Savoir-faire artisanal','Patience'], competences:['Réparation de chaussures','Travail du cuir','Teinture et finition'],
-    formations:[{periode:'2007 - 2009', diplome:'CAP Cordonnerie', etablissement:"Atelier-école d'Abidjan"}],
-    experiences:[{periode:'2009 - 2024', poste:'Cordonnier indépendant', entreprise:'Atelier Yves Cuir', description:"Réparation et personnalisation de plus de 3000 paires. Fabrication de sacs en cuir sur commande. Formation de deux apprentis."}] },
-  { prenom:'Grace', nom:'Adjaho', metier:'Bijoutière artisanale', ville:'Lomé', pays:'Togo', diplome:'Formation en bijouterie artisanale', img:24,
-    profil:"Bijoutière créatrice, je conçois des bijoux uniques en perles, laiton et pierres naturelles, inspirés des traditions ouest-africaines.",
-    qualites:['Créativité','Minutie'], competences:['Création de bijoux','Travail des perles','Finition artisanale'],
-    formations:[{periode:'2014', diplome:'Formation en bijouterie artisanale', etablissement:'Atelier des Artisans de Lomé'}],
-    experiences:[{periode:'2014 - 2024', poste:'Bijoutière indépendante', entreprise:'Grace Bijoux', description:"Vente de créations dans plusieurs boutiques locales. Collections pour mariages et cérémonies. Commandes personnalisées sur mesure."}] },
-  { prenom:'Paul', nom:'Nguema', metier:'Fleuriste', ville:'Yaoundé', pays:'Cameroun', diplome:'CAP Fleuriste', img:25,
-    profil:"Fleuriste créatif, je compose des bouquets et décorations florales pour mariages, deuils et évènements, avec des fleurs fraîches sélectionnées avec soin.",
-    qualites:['Sens artistique','Rapidité'], competences:['Composition florale','Décoration de mariage','Conservation des fleurs'],
-    formations:[{periode:'2012 - 2014', diplome:'CAP Fleuriste', etablissement:'École d\u2019Horticulture de Yaoundé'}],
-    experiences:[{periode:'2014 - 2024', poste:'Fleuriste indépendant', entreprise:'Paul Fleurs', description:"Décoration florale de plus de 200 mariages. Livraison rapide en ville. Abonnements fleurs fraîches pour entreprises."}] },
-  { prenom:'Clarisse', nom:'Mvondo', metier:'Pâtissière', ville:'Douala', pays:'Cameroun', diplome:'CAP Pâtisserie', img:26,
-    profil:"Pâtissière passionnée, je réalise gâteaux de mariage, pièces montées et pâtisseries sur mesure pour toutes les occasions.",
-    qualites:['Créativité','Rigueur'], competences:['Pâtisserie sur mesure','Décoration de gâteaux','Gestion des commandes'],
-    formations:[{periode:'2015 - 2017', diplome:'CAP Pâtisserie', etablissement:'École Hôtelière de Douala'}],
-    experiences:[{periode:'2017 - 2024', poste:'Pâtissière indépendante', entreprise:'Clarisse Pâtisserie', description:"Réalisation de plus de 300 gâteaux de mariage. Ateliers de pâtisser
+/* ── MODAL ── */
+window.ouvrirModal = () => {
+  document.getElementById('titreInterneInput').value = '';
+  document.getElementById('overlay').classList.add('open');
+};
+window.fermerModal = () => document.getElementById('overlay').classList.remove('open');
+
+let modeleSelectionne = 'premium';
+const DESCRIPTIONS_MODELES_KEYS = {
+  premium: 'cv_preview_premium',
+  modele2: 'cv_preview_modele2',
+  modele3: 'cv_preview_modele3'
+};
+
+window.selectionnerModele = (type) => {
+  document.querySelectorAll('.m-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('carte-' + type).classList.add('sel');
+  modeleSelectionne = type;
+  document.getElementById('zoneModeleTexte').style.display = type === 'import' ? 'none' : 'block';
+  document.getElementById('zoneImport').style.display = type === 'import' ? 'block' : 'none';
+  if (type !== 'import') {
+    document.getElementById('modelePreviewTxt').innerHTML = T(DESCRIPTIONS_MODELES_KEYS[type]);
+  }
+};
+
+window.continuerVersModele = () => {
+  fermerModal();
+  if (modeleSelectionne === 'import' || !currentUser) return;
+  currentCvId = null;
+  currentCvEstAMoi = true;
+  cvData = blankCvData();
+  cvData.titreInterne = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
+  activePrefix = MODELE_TO_PREFIX[modeleSelectionne];
+  editMode = true;
+  PREFIXES.forEach(p => { $p(p, 'btnToggleEdit').style.display = 'none'; $p(p, 'btnSave').style.display = 'none'; $p(p, 'contactRow').style.display = 'none'; });
+  $p(activePrefix, 'btnSave').style.display = 'inline-flex';
+  chargerBadgePour(currentUser.uid);
+  afficherDetail(MODELE_TO_ETAT[modeleSelectionne]);
+  render();
+};
+
+window.alerterAppel = () => alert(T('cv_alert_appel'));
+window.alerterDiscuter = () => alert(T('cv_alert_discuter'));
+
+let importDataURL = '';
+let importEstImage = true;
+document.getElementById('fiImport').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    importDataURL = reader.result;
+    importEstImage = file.type.startsWith('image/');
+    const apercu = document.getElementById('importApercu');
+    apercu.style.display = 'block';
+    apercu.innerHTML = importEstImage ? `<img src="${importDataURL}">` : `<div class="filechip">📎 ${file.name}</div>`;
+    document.getElementById('btnPublierImport').disabled = false;
+  };
+  reader.readAsDataURL(file);
+});
+
+window.publierImport = async () => {
+  if (!currentUser || !importDataURL) return;
+  const btn = document.getElementById('btnPublierImport');
+  btn.disabled = true;
+  btn.textContent = T('cv_btn_publication');
+  const titre = document.getElementById('titreInterneInput').value.trim() || T('cv_titre_sans_titre');
+  try {
+    await addDoc(collection(db, 'cv_professionnels'), {
+      modeleChoisi: 'import', importURL: importDataURL, titreInterne: titre, publie: true, corbeille: false,
+      auteurUid: currentUser.uid, creeLe: new Date().toISOString(), majLe: new Date().toISOString()
+    });
+    fermerModal();
+    importDataURL = '';
+    document.getElementById('btnPublierImport').disabled = true;
+    document.getElementById('btnPublierImport').textContent = T('cv_btn_publier');
+    document.getElementById('importApercu').style.display = 'none';
+    await chargerListe();
+    afficherDetail(null);
+  } catch (err) {
+    console.error(err);
+    btn.textContent = T('cv_btn_erreur_reessayez');
+    btn.disabled = false;
+  }
+};
+
+/* ══════════ RENDU DE L'ÉDITEUR (Premium / Modèle 2 / Modèle 3) ══════════ */
+function render(){
+  renderInto(activePrefix);
+}
+
+function renderInto(prefix){
+  const hNom = $p(prefix, 'hNom'), hPrenom = $p(prefix, 'hPrenom'), hMetier = $p(prefix, 'hMetier');
+  hNom.textContent = cvData.nomFamille || '';
+  hPrenom.textContent = cvData.prenom || '';
+  hMetier.textContent = cvData.metier || '';
+  hNom.contentEditable = editMode;
+  hPrenom.contentEditable = editMode;
+  hMetier.contentEditable = editMode;
+
+  sideFieldIds.forEach(id => {
+    const el = $p(prefix, id);
+    el.textContent = cvData[el.dataset.key] || '';
+    el.contentEditable = editMode;
+  });
+
+  const profilView = $p(prefix, 'profilView'), profilEdit = $p(prefix, 'profilEdit');
+  profilView.textContent = cvData.profil || '';
+  profilView.style.display = editMode ? 'none' : 'block';
+  profilEdit.style.display = editMode ? 'block' : 'none';
+  profilEdit.value = cvData.profil || '';
+  if (!editMode && !cvData.profil) profilView.innerHTML = `<span class="empty-hint">${T('cv_empty_profil')}</span>`;
+
+  const photoImg = $p(prefix, 'photoImg'), photoInit = $p(prefix, 'photoInit'), photoEditDot = $p(prefix, 'photoEditDot');
+  if (cvData.photoURL) {
+    photoImg.src = cvData.photoURL; photoImg.style.display = 'block'; photoInit.style.display = 'none';
+  } else {
+    photoInit.textContent = (cvData.nomFamille || '?')[0]?.toUpperCase() || '?';
+    photoImg.style.display = 'none'; photoInit.style.display = 'block';
+  }
+  photoEditDot.style.display = (currentCvEstAMoi && editMode) ? 'flex' : 'none';
+
+  renderListeInto(prefix, cvData.qualites, 'qualitesList', 'qualites');
+  renderListeInto(prefix, cvData.competences, 'compList', 'competences');
+  renderFormationsInto(prefix);
+  renderExperiencesInto(prefix);
+
+  $p(prefix, 'qualitesAdd').style.display = editMode ? 'flex' : 'none';
+  $p(prefix, 'compAdd').style.display = editMode ? 'flex' : 'none';
+  $p(prefix, 'formAdd').style.display = editMode ? 'block' : 'none';
+  $p(prefix, 'expAdd').style.display = editMode ? 'block' : 'none';
+}
+
+function renderListeInto(prefix, arr, listId, key){
+  const ul = $p(prefix, listId);
+  ul.innerHTML = '';
+  if (!arr.length) {
+    const exempleKey = key === 'qualites' ? 'cv_example_qualite' : 'cv_example_competence';
+    ul.innerHTML = editMode
+      ? `<li class="example-hint" style="list-style:none;padding-left:0">${T(exempleKey)}</li>`
+      : `<li class="empty-hint" style="list-style:none;padding-left:0">${T('cv_empty_generic')}</li>`;
+    return;
+  }
+  arr.forEach((txt, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = escapeHtml(txt) + (editMode ? ` <span class="rm" data-i="${i}">✕</span>` : '');
+    ul.appendChild(li);
+  });
+  ul.querySelectorAll('.rm').forEach(el => { el.onclick = () => { cvData[key].splice(+el.dataset.i, 1); render(); }; });
+}
+
+function renderFormationsInto(prefix){
+  const formList = $p(prefix, 'formList');
+  formList.innerHTML = '';
+  if (!cvData.formations.length) {
+    formList.innerHTML = editMode
+      ? `<div class="example-hint">${T('cv_example_formation')}</div>`
+      : `<div class="empty-hint">${T('cv_empty_formation')}</div>`;
+    return;
+  }
+  cvData.formations.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'form-item';
+    div.innerHTML = `
+      ${editMode ? `<span class="item-rm" data-i="${i}">✕</span>` : ''}
+      <span class="item-periode">${escapeHtml(f.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(f.diplome||'')}</div>
+      <div class="item-sub">${escapeHtml(f.etablissement||'')}</div>
+    `;
+    formList.appendChild(div);
+  });
+  formList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.formations.splice(+el.dataset.i, 1); render(); }; });
+}
+
+function renderExperiencesInto(prefix){
+  const expList = $p(prefix, 'expList');
+  expList.innerHTML = '';
+  if (!cvData.experiences.length) {
+    expList.innerHTML = editMode
+      ? `<div class="example-hint">${T('cv_example_experience')}</div>`
+      : `<div class="empty-hint">${T('cv_empty_experience')}</div>`;
+    return;
+  }
+  cvData.experiences.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'exp-item';
+    const puces = (e.description||'').split(/\.\s*|\n/).map(s=>s.trim()).filter(Boolean);
+    div.innerHTML = `
+      ${editMode ? `<span class="item-rm" data-i="${i}">✕</span>` : ''}
+      <span class="item-periode">${escapeHtml(e.periode||'')}</span>
+      <div class="item-titre">${escapeHtml(e.poste||'')}</div>
+      <div class="item-sub">${escapeHtml(e.entreprise||'')}</div>
+      <ul class="bullets" style="margin-top:6px">${puces.map(p=>`<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    `;
+    expList.appendChild(div);
+  });
+  expList.querySelectorAll('.item-rm').forEach(el => { el.onclick = () => { cvData.experiences.splice(+el.dataset.i, 1); render(); }; });
+}
+
+window.ajouterQualite = function(prefix){
+  const input = $p(prefix, 'qualiteInput');
+  const v = input.value.trim();
+  if (!v) return;
+  cvData.qualites.push(v); input.value = ''; render();
+};
+window.ajouterCompetence = function(prefix){
+  const input = $p(prefix, 'compInput');
+  const v = input.value.trim();
+  if (!v) return;
+  cvData.competences.push(v); input.value = ''; render();
+};
+window.ajouterFormation = function(prefix){
+  const diplome = $p(prefix, 'formDiplome2').value.trim();
+  const etablissement = $p(prefix, 'formEtab').value.trim();
+  const periode = $p(prefix, 'formPeriode').value.trim();
+  if (!diplome) return;
+  cvData.formations.push({ diplome, etablissement, periode });
+  ['formDiplome2','formEtab','formPeriode'].forEach(id => $p(prefix, id).value = '');
+  render();
+};
+window.ajouterExperience = function(prefix){
+  const poste = $p(prefix, 'expPoste').value.trim();
+  const entreprise = $p(prefix, 'expEntreprise').value.trim();
+  const periode = $p(prefix, 'expPeriode').value.trim();
+  const description = $p(prefix, 'expDesc').value.trim();
+  if (!poste) return;
+  cvData.experiences.unshift({ poste, entreprise, periode, description });
+  ['expPoste','expEntreprise','expPeriode','expDesc'].forEach(id => $p(prefix, id).value = '');
+  render();
+};
+
+/* ── ÉVÉNEMENTS DE L'ÉDITEUR (les 3 modèles) ── */
+PREFIXES.forEach(prefix => {
+  const photoEditDot = $p(prefix, 'photoEditDot');
+  const photoInput = $p(prefix, 'photoInput');
+  photoEditDot.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { cvData.photoURL = reader.result; render(); };
+    reader.readAsDataURL(file);
+  });
+
+  $p(prefix, 'profilEdit').addEventListener('input', (e) => { cvData.profil = e.target.value; });
+  $p(prefix, 'hNom').addEventListener('input', (e) => { cvData.nomFamille = e.target.textContent; });
+  $p(prefix, 'hPrenom').addEventListener('input', (e) => { cvData.prenom = e.target.textContent; });
+  $p(prefix, 'hMetier').addEventListener('input', (e) => { cvData.metier = e.target.textContent; });
+  sideFieldIds.forEach(id => {
+    const el = $p(prefix, id);
+    el.addEventListener('input', () => { cvData[el.dataset.key] = el.textContent; });
+  });
+
+  $p(prefix, 'btnToggleEdit').addEventListener('click', () => {
+    editMode = true;
+    $p(prefix, 'btnToggleEdit').style.display = 'none';
+    $p(prefix, 'btnSave').style.display = 'inline-flex';
+    render();
+  });
+
+  $p(prefix, 'btnSave').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const btnSave = $p(prefix, 'btnSave');
+    btnSave.disabled = true;
+    btnSave.textContent = T('cv_btn_enregistrement');
+    try {
+      const payload = {
+        ...cvData,
+        modeleChoisi: PREFIX_TO_MODELE[prefix],
+        publie: true,
+        corbeille: false,
+        auteurUid: currentUser.uid,
+        majLe: new Date().toISOString()
+      };
+      if (!payload.titreInterne) payload.titreInterne = T('cv_titre_sans_titre');
+
+      if (currentCvId) {
+        await setDoc(doc(db, 'cv_professionnels', currentCvId), payload, { merge: true });
+      } else {
+        const ref = await addDoc(collection(db, 'cv_professionnels'), {
+          ...payload, creeLe: new Date().toISOString()
+        });
+        currentCvId = ref.id;
+      }
+
+      btnSave.textContent = T('cv_btn_confirme');
+      setTimeout(async () => {
+        editMode = false;
+        btnSave.style.display = 'none';
+        btnSave.textContent = T('cv_btn_confirmer');
+        btnSave.disabled = false;
+        afficherDetail(null);
+        await chargerListe();
+      }, 900);
+    } catch (err) {
+      console.error(err);
+      btnSave.textContent = T('cv_btn_erreur');
+      setTimeout(() => { btnSave.textContent = T('cv_btn_confirmer'); btnSave.disabled = false; }, 1600);
+    }
+  });
+});
+
+/* ── Rafraîchissement des textes dynamiques au changement de langue ── */
+function refreshDynamicTexts(){
+  PREFIXES.forEach(prefix => {
+    $p(prefix, 'profilEdit').placeholder = T('cv_example_profil');
+    $p(prefix, 'qualiteInput').placeholder = T('cv_example_qualite');
+    $p(prefix, 'compInput').placeholder = T('cv_example_competence');
+    $p(prefix, 'formDiplome2').placeholder = T('cv_ph_formation_diplome');
+    $p(prefix, 'formEtab').placeholder = T('cv_ph_formation_etab');
+    $p(prefix, 'formPeriode').placeholder = T('cv_ph_formation_periode');
+    $p(prefix, 'expPoste').placeholder = T('cv_ph_exp_poste');
+    $p(prefix, 'expEntreprise').placeholder = T('cv_ph_exp_entreprise');
+    $p(prefix, 'expPeriode').placeholder = T('cv_ph_exp_periode');
+    $p(prefix, 'expDesc').placeholder = T('cv_ph_exp_desc');
+    $p(prefix, 'hNom').setAttribute('data-placeholder', T('cv_ph_nom'));
+    $p(prefix, 'hPrenom').setAttribute('data-placeholder', T('cv_ph_prenom'));
+    $p(prefix, 'hMetier').setAttribute('data-placeholder', T('cv_ph_metier'));
+    $p(prefix, 'fPays').setAttribute('data-placeholder', T('cv_ph_pays'));
+    $p(prefix, 'fVille').setAttribute('data-placeholder', T('cv_ph_ville'));
+    $p(prefix, 'fDiplome').setAttribute('data-placeholder', T('cv_ph_diplome'));
+    $p(prefix, 'fExperience').setAttribute('data-placeholder', T('cv_ph_experience_resume'));
+    $p(prefix, 'fAdresse').setAttribute('data-placeholder', T('cv_ph_adresse'));
+    $p(prefix, 'fTelephone').setAttribute('data-placeholder', T('cv_ph_telephone'));
+    $p(prefix, 'fEmail').setAttribute('data-placeholder', T('cv_ph_email'));
+  });
+  const titreInterneInput = document.getElementById('titreInterneInput');
+  if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
+
+  document.getElementById('heroTitreListe').textContent = T('cv_hero_title');
+  render();
+  renderListeCards();
+
+  if (modeleSelectionne && modeleSelectionne !== 'import' && DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]) {
+    const box = document.getElementById('modelePreviewTxt');
+    if (box) box.innerHTML = T(DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]);
+  }
+}
+
+function accrocherRafraichissementLangue(){
+  if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
+    const original = window.setLang;
+    window.setLang = function(code, flag, el){
+      original(code, flag, el);
+      refreshDynamicTexts();
+    };
+    window.__cvProSetLangAccroche = true;
+    refreshDynamicTexts();
+  } else if (!window.__cvProSetLangAccroche) {
+    setTimeout(accrocherRafraichissementLangue, 50);
+  }
+}
+accrocherRafraichissementLangue();
+</script>
+
+
+
+<script src="translations.js?v=20250705c"></script>
+
+</body>
+</html>
