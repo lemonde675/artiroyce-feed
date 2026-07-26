@@ -309,6 +309,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
     <div id="feedPosts"></div>
 
+    <div id="feedLoadingMore" style="display:none;text-align:center;padding:16px 20px;color:#aaa;">
+      <div style="font-size:12.5px;font-weight:600;">Chargement…</div>
+    </div>
+
     <div id="feedEmpty" style="display:none;text-align:center;padding:50px 20px;color:#aaa;">
       <div style="font-size:40px;margin-bottom:10px;">📭</div>
       <div style="font-size:14px;font-weight:600;">Aucune publication pour l'instant</div>
@@ -461,7 +465,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
-  increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp
+  increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -483,6 +487,14 @@ let searchTermActu = '';
 let listeCorbeille = [];
 let followedUids = new Set();
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+
+/* ══ PAGINATION DU FIL (chargement progressif, comme Facebook) ══ */
+const TAILLE_PAGE = 10;         // nombre de publications chargées à chaque fois
+let pubsTempsReel = [];         // page la plus récente, mise à jour en direct (onSnapshot)
+let pubsAnciennes = [];         // pages suivantes, chargées une à une au scroll
+let curseurPagination = null;   // dernier document Firestore lu, sert de point de départ pour la page suivante
+let chargementSuivantEnCours = false;
+let finPagination = false;      // true quand il n'y a plus de publications à charger
 
 /* ══ ÉTAT DE CRÉATION MULTI-MODÈLES (Texte / Photo·Galerie / Boutique) ══ */
 window._cmType = null;   // 'texte' | 'galerie' | 'boutique'
@@ -757,28 +769,79 @@ async function ensureSeedActualites(){
   await setDoc(metaRef, { seededAt: serverTimestamp() });
 }
 
+// Fusionne la page temps réel + les pages déjà chargées au scroll, sans doublons.
+function fusionnerToutesPublications(){
+  const vues = new Set();
+  const toutes = [];
+  [...pubsTempsReel, ...pubsAnciennes].forEach(p => {
+    if (!vues.has(p.id)) { vues.add(p.id); toutes.push(p); }
+  });
+  return toutes;
+}
+
+function appliquerListesEtAfficher(){
+  const toutes = fusionnerToutesPublications();
+  listePublications = toutes.filter(p => !p.corbeille);
+  listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
+
+  // Purge automatique : mes propres publications à la corbeille depuis plus de 15 jours -> suppression définitive
+  const maintenant = Date.now();
+  listeCorbeille.filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+    .forEach(p => deleteDoc(doc(db,'publications',p.id)).catch(e => console.error(e)));
+
+  afficherFeed();
+  afficherCorbeille();
+}
+
 function chargerPublications(){
-  const q = query(collection(db,'publications'), orderBy('createdAt','desc'));
+  // Seule la première page (les publications les plus récentes) reste en temps réel.
+  const q = query(collection(db,'publications'), orderBy('createdAt','desc'), limit(TAILLE_PAGE));
   onSnapshot(q, snap => {
-    const toutes = [];
-    snap.forEach(d => toutes.push({ id: d.id, ...d.data() }));
-
-    listePublications = toutes.filter(p => !p.corbeille);
-    listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
-
-    // Purge automatique : mes propres publications à la corbeille depuis plus de 15 jours -> suppression définitive
-    const maintenant = Date.now();
-    listeCorbeille.filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
-      .forEach(p => deleteDoc(doc(db,'publications',p.id)).catch(e => console.error(e)));
+    pubsTempsReel = [];
+    snap.forEach(d => pubsTempsReel.push({ id: d.id, ...d.data() }));
+    if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
+    if (snap.docs.length < TAILLE_PAGE) finPagination = true;
 
     document.getElementById('feedLoading').style.display = 'none';
-    afficherFeed();
-    afficherCorbeille();
+    appliquerListesEtAfficher();
   }, err => {
     console.error(err);
     document.getElementById('feedLoading').innerHTML = '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.</div>';
   });
 }
+
+// Charge la page suivante de 10 publications (appelé automatiquement en arrivant en bas du fil).
+async function chargerPageSuivante(){
+  if (chargementSuivantEnCours || finPagination || !curseurPagination) return;
+  chargementSuivantEnCours = true;
+  const indicateur = document.getElementById('feedLoadingMore');
+  if (indicateur) indicateur.style.display = 'block';
+  try {
+    const q = query(collection(db,'publications'), orderBy('createdAt','desc'), startAfter(curseurPagination), limit(TAILLE_PAGE));
+    const snap = await getDocs(q);
+    snap.forEach(d => pubsAnciennes.push({ id: d.id, ...d.data() }));
+    if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
+    if (snap.docs.length < TAILLE_PAGE) finPagination = true;
+    appliquerListesEtAfficher();
+  } catch(e) {
+    console.error(e);
+  } finally {
+    chargementSuivantEnCours = false;
+    if (indicateur) indicateur.style.display = 'none';
+  }
+}
+
+// Détection du scroll dans le fil : déclenche le chargement de la page suivante en approchant du bas.
+document.addEventListener('DOMContentLoaded', () => {
+  const feedContainer = document.querySelector('.feed');
+  if (!feedContainer) return;
+  feedContainer.addEventListener('scroll', () => {
+    const seuil = 400; // pixels avant d'atteindre le bas
+    if (feedContainer.scrollTop + feedContainer.clientHeight >= feedContainer.scrollHeight - seuil) {
+      chargerPageSuivante();
+    }
+  }, { passive: true });
+});
 
 function afficherCorbeille(){
   const toggle = document.getElementById('corbeilleToggle');
@@ -1754,13 +1817,4 @@ window.partagerCopierLien = async () => {
 window.partagerWhatsapp = async () => {
   const p = listePublications.find(x => x.id === _shareIdCourant);
   const texte = p ? p.texte.substring(0,100) : 'Regarde cette publication ArtiRoyce !';
-  window.open('https://wa.me/?text=' + encodeURIComponent(texte + ' ' + window.location.href), '_blank');
-  if (_shareIdCourant) { try { await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) }); } catch(e){} }
-  closeShare();
-};
-window.partagerDiscussion = () => { toast('💬 Partagé en Discussion !','g'); closeShare(); };
-window.partagerEnregistrer = () => { toast('⭐ Enregistré !','g'); closeShare(); };
-</script>
-
-</body>
-</html>
+  window.open('https://wa.me/?text=' + encod
