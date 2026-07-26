@@ -287,9 +287,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <!-- CRÉER PUBLICATION -->
     <div class="create-post">
       <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
-      <input class="cp-input" placeholder="Publier un produit (mèche, chaussures, broches...)" readonly onclick="openCreate()"/>
-      <button class="cp-img-btn" onclick="event.stopPropagation();window.__toggleSearch()" title="Rechercher">🔍</button>
-      <button class="cp-img-btn" id="btnRafraichir" onclick="event.stopPropagation();window.rafraichirFeed()" title="Actualiser">🔄</button>
+      <input class="cp-input" style="min-width:0" placeholder="Publier un produit (mèche, chaussures, broches...)" readonly onclick="openCreate()"/>
+      <button class="cp-img-btn" style="flex-shrink:0" onclick="event.stopPropagation();window.__toggleSearch()" title="Rechercher">🔍</button>
+      <button class="cp-img-btn" id="btnRafraichir" style="flex-shrink:0" onclick="event.stopPropagation();window.rafraichirFeed()" title="Actualiser">🔄</button>
     </div>
 
     <div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
@@ -797,13 +797,22 @@ function appliquerListesEtAfficher(){
   afficherCorbeille();
 }
 
+// Fait échouer une promesse si elle n'a pas répondu dans le délai donné (évite un blocage infini).
+function avecDelaiMax(promesse, millisecondes){
+  return Promise.race([
+    promesse,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
+  ]);
+}
+
 async function chargerPublications(){
   // Chargement en une seule demande (au lieu d'une écoute permanente bloquée par certains
   // réseaux). Les publications ne se mettent plus à jour toutes seules : on utilise le
-  // bouton "🔄 Actualiser" pour revoir les plus récentes.
+  // bouton "🔄 Actualiser" pour revoir les plus récentes. Délai maximum de 10s : si ça ne
+  // répond pas, on arrête d'attendre au lieu de rester bloqué sur le sablier indéfiniment.
   try {
     const q = query(collection(db,'publications'), orderBy('createdAt','desc'), limit(TAILLE_PAGE));
-    const snap = await getDocs(q);
+    const snap = await avecDelaiMax(getDocs(q), 10000);
     pubsTempsReel = [];
     snap.forEach(d => pubsTempsReel.push({ id: d.id, ...d.data() }));
     if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
@@ -813,8 +822,9 @@ async function chargerPublications(){
     appliquerListesEtAfficher();
   } catch(err) {
     console.error(err);
+    document.getElementById('feedLoading').style.display = 'block';
     document.getElementById('feedLoading').innerHTML =
-      '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.<br>'
+      '<div style="font-size:13px;color:#e63224;">Chargement trop long. Vérifiez votre connexion.<br>'
       + '<button onclick="window.__reessayerChargement()" style="margin-top:10px;padding:8px 18px;border:none;border-radius:20px;background:#e63224;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Réessayer</button></div>';
   }
 }
@@ -842,7 +852,7 @@ async function chargerPageSuivante(){
   if (indicateur) indicateur.style.display = 'block';
   try {
     const q = query(collection(db,'publications'), orderBy('createdAt','desc'), startAfter(curseurPagination), limit(TAILLE_PAGE));
-    const snap = await getDocs(q);
+    const snap = await avecDelaiMax(getDocs(q), 10000);
     snap.forEach(d => pubsAnciennes.push({ id: d.id, ...d.data() }));
     if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
     if (snap.docs.length < TAILLE_PAGE) finPagination = true;
@@ -1786,15 +1796,4 @@ window.publishPost = async () => {
   if (window._cmType === 'texte') {
     const txt = document.getElementById('cmText').value.trim();
     if (!txt) { toast('⚠️ Écrivez quelque chose !',''); return; }
-    payload = { type:'texte', texte:txt, categorie: document.getElementById('cmCategorie').value };
-  } else if (window._cmType === 'galerie') {
-    if (!galImages.length) { toast('⚠️ Ajoutez au moins une photo !',''); return; }
-    payload = { type:'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice(0,8), categorie:'Arts' };
-  } else if (window._cmType === 'boutique') {
-    const remplis = cadSlots.filter(s => s.photo);
-    if (!remplis.length) { toast('⚠️ Ajoutez au moins un article !',''); return; }
-    payload = {
-      type:'boutique',
-      texte: (document.getElementById('cadTitreInput').value.trim() || 'Boutique'),
-      disposition: cadLayoutActif,
-      ta
+    payload = { type:'texte', texte:txt, categorie: document.getElementById('cmCategorie')
