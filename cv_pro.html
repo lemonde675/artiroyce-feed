@@ -863,6 +863,31 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   </div>
 </div>
 
+<script>
+// Attrape-erreurs de diagnostic : si quoi que ce soit casse avant l'affichage normal,
+// le message d'erreur réel remplace "Chargement…" au lieu de rester bloqué en silence.
+window.addEventListener('error', function(e){
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    el.textContent = '⚠️ Erreur CV Pro : ' + (e.message || 'inconnue') + (e.filename ? (' — ' + e.filename.split('/').pop() + ':' + e.lineno) : '');
+  }
+});
+window.addEventListener('unhandledrejection', function(e){
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    var reason = e.reason;
+    el.textContent = '⚠️ Erreur CV Pro (promesse) : ' + (reason && reason.message ? reason.message : String(reason));
+  }
+});
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1521,9 +1546,3 @@ const FAUX_CV_PROFILS = [
     qualites:['Créativité','Autonomie'], competences:['Conception de sites web','UI/UX design','Optimisation mobile'],
     formations:[{periode:'2017 - 2020', diplome:'Licence en informatique', etablissement:'Université d\u2019Abomey-Calavi'}],
     experiences:[{periode:'2020 - 2024', poste:'Web designer indépendant', entreprise:'Zinsou Web Studio', description:"Réalisation de plus de 25 sites pour des artisans et commerces. Accompagnement à la mise en ligne. Maintenance et référencement."}] },
-  { prenom:'Nadia', nom:'Camara', metier:'Community manager', ville:'Conakry', pays:'Guinée', diplome:'BTS Communication', img:30,
-    profil:"Community manager, j'aide les artisans et petites entreprises à développer leur présence en ligne avec du contenu engageant et une stratégie claire.",
-    qualites:['Créativité','Sens de l\u2019écoute'], competences:['Gestion de réseaux sociaux','Création de contenu','Analyse de statistiques'],
-    formations:[{periode:'2016 - 2018', diplome:'BTS Communication', etablissement:'École Supérieure de Communication de Conakry'}],
-    experiences:[{periode:'2018 - 2024', poste:'Community manager freelance', entreprise:'Nadia Digital', description:"Gestion des réseaux sociaux pour une dizaine de clients. Croissance moyenne de 40% d'abonnés en 6 mois. Formation aux réseaux sociaux pour artisans."}] },
-  { prenom:'Rachel', nom:'Assogba', metier:'Vidéaste monteuse', ville:'Porto-Novo', pays:'Bénin', diplome:'Formation en audiovisuel', im
