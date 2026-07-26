@@ -889,18 +889,20 @@ window.addEventListener('unhandledrejection', function(e){
   }
 });
 window.__cvProFirebaseOK = false;
-setTimeout(function(){
-  if (window.__cvProFirebaseOK) return;
+(function(){
+  var debut = Date.now();
   var el = document.getElementById('loading');
-  if (el && el.textContent.indexOf('Chargement de votre CV Pro') !== -1) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    el.style.lineHeight = '1.5';
-    el.textContent = '⚠️ Le chargement de CV Pro a expiré (10s) sans réponse. Réessaie ; si ça persiste, préviens-moi avec ce message.';
-  }
-}, 10000);
+  var texteBase = el ? el.textContent : 'Chargement de votre CV Pro…';
+  var minuteur = setInterval(function(){
+    if (window.__cvProFirebaseOK) { clearInterval(minuteur); return; }
+    var el2 = document.getElementById('loading');
+    if (el2 && el2.textContent.indexOf('Chargement de votre CV Pro') === 0) {
+      var secondes = Math.round((Date.now() - debut) / 1000);
+      el2.textContent = texteBase + ' (' + secondes + 's…)';
+    }
+  }, 1000);
+})();
+
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1033,7 +1035,7 @@ async function chargerBadgePour(auteurUid){
    - « Mes CV » (petit volume, propre à chaque utilisateur) : chargé en entier.
    - « Communauté » : chargée par petits lots (CV_PAGE_SIZE à la fois), avec un
      bouton « Charger plus de CV » pour aller chercher la suite à la demande. */
-const CV_PAGE_SIZE = 12;
+const CV_PAGE_SIZE = 4;
 let _communauteDernierDoc = null; // curseur Firestore : point de reprise pour la page suivante
 let _communauteFinAtteinte = false; // vrai quand il n'y a plus rien à charger
 
@@ -1793,5 +1795,4 @@ function refreshDynamicTexts(){
     $p(prefix, 'formDiplome2').placeholder = T('cv_ph_formation_diplome');
     $p(prefix, 'formEtab').placeholder = T('cv_ph_formation_etab');
     $p(prefix, 'formPeriode').placeholder = T('cv_ph_formation_periode');
-    $p(prefix, 'expPoste').placeholder = T('cv_ph_exp_poste');
-    $p(prefix, 'exp
+    $p(prefix, 'expPoste').placehold
