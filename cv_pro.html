@@ -887,6 +887,25 @@ window.addEventListener('unhandledrejection', function(e){
     el.textContent = '⚠️ Erreur CV Pro (promesse) : ' + (reason && reason.message ? reason.message : String(reason));
   }
 });
+
+// Filet de secours : si le script Firebase (type="module") n'a jamais pu démarrer
+// (ex. page ouverte en fichier local via file://, ou coupure réseau), le message
+// "Chargement…" resterait bloqué indéfiniment sans aucune explication. On affiche
+// donc un message clair après 6 secondes, sauf si window.__cvProFirebaseOK a été
+// mis à true entre-temps (voir script Firebase plus bas).
+window.__cvProFirebaseOK = false;
+setTimeout(function(){
+  if (window.__cvProFirebaseOK) return;
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    el.style.lineHeight = '1.5';
+    el.textContent = '⚠️ Impossible de charger CV Pro. Vérifie que tu es bien sur le site en ligne (artiroyce-feed.vercel.app), pas sur un fichier local, et que ta connexion internet fonctionne.';
+  }
+}, 6000);
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -906,6 +925,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+window.__cvProFirebaseOK = true; // le module a bien démarré : on annule le message de secours
 
 /* ── Traduction : fonction T() locale ── */
 function T(key){
@@ -1540,9 +1560,4 @@ const FAUX_CV_PROFILS = [
     profil:"Tailleuse spécialisée dans les tenues traditionnelles et modernes, je confectionne des vêtements sur mesure pour hommes, femmes et enfants.",
     qualites:['Précision','Ponctualité'], competences:['Couture sur mesure','Broderie','Prise de mesures'],
     formations:[{periode:'2013 - 2015', diplome:'CAP Couture', etablissement:'École de Couture de Bamako'}],
-    experiences:[{periode:'2015 - 2024', poste:'Tailleuse indépendante', entreprise:'Atelier Aïcha Couture', description:"Confection de tenues pour de nombreux mariages. Formation de trois apprenties. Collaboration avec des stylistes locaux."}] },
-  { prenom:'Emmanuel', nom:'Zinsou', metier:'Web designer freelance', ville:'Cotonou', pays:'Bénin', diplome:'Licence en informatique', img:29,
-    profil:"Web designer freelance, je conçois des sites vitrines et boutiques en ligne modernes et responsives pour artisans et petites entreprises.",
-    qualites:['Créativité','Autonomie'], competences:['Conception de sites web','UI/UX design','Optimisation mobile'],
-    formations:[{periode:'2017 - 2020', diplome:'Licence en informatique', etablissement:'Université d\u2019Abomey-Calavi'}],
-    experiences:[{periode:'2020 - 2024', poste:'Web designer indépendant', entreprise:'Zinsou Web Studio', description:"Réalisation de plus de 25 sites pour des artisans et commerces. Accompagnement à la mise en ligne. Maintenance et référencement."}] },
+    experiences:[{periode:'201
