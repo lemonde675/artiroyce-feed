@@ -476,10 +476,8 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div class="ico">🌍</div>
       <h3 data-i18n="cv_empty_communaute_title">Aucun autre CV publié pour l'instant</h3>
       <p data-i18n="cv_empty_communaute_desc">Les CV publiés par les autres artisans ArtiRoyce apparaîtront ici.</p>
-      <p id="communauteErreurTech" style="display:none;color:#e63224;font-size:11.5px;margin-top:10px;word-break:break-word"></p>
     </div>
     <div class="cv-cards" id="cvCardsCommunaute"></div>
-    <button id="btnChargerPlusCommunaute" style="display:none;margin:10px 12px 4px;width:calc(100% - 24px);background:#F2F4F7;border:1px solid #E8ECF0;border-radius:14px;padding:11px;font-size:13px;font-weight:700;color:#444;cursor:pointer" onclick="window.__cvProChargerPlus()" data-i18n="cv_charger_plus">Charger plus de CV</button>
   </div>
 
   <!-- CV IMPORTÉ -->
@@ -864,52 +862,11 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   </div>
 </div>
 
-<script>
-// Attrape-erreurs de diagnostic : si quoi que ce soit casse avant l'affichage normal,
-// le message d'erreur réel remplace "Chargement…" au lieu de rester bloqué en silence.
-window.addEventListener('error', function(e){
-  var el = document.getElementById('loading');
-  if (el) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    el.textContent = '⚠️ Erreur CV Pro : ' + (e.message || 'inconnue') + (e.filename ? (' — ' + e.filename.split('/').pop() + ':' + e.lineno) : '');
-  }
-});
-window.addEventListener('unhandledrejection', function(e){
-  var el = document.getElementById('loading');
-  if (el) {
-    el.style.color = '#e63224';
-    el.style.padding = '16px';
-    el.style.textAlign = 'left';
-    el.style.fontSize = '13px';
-    var reason = e.reason;
-    el.textContent = '⚠️ Erreur CV Pro (promesse) : ' + (reason && reason.message ? reason.message : String(reason));
-  }
-});
-window.__cvProFirebaseOK = false;
-(function(){
-  var debut = Date.now();
-  var el = document.getElementById('loading');
-  var texteBase = el ? el.textContent : 'Chargement de votre CV Pro…';
-  var minuteur = setInterval(function(){
-    if (window.__cvProFirebaseOK) { clearInterval(minuteur); return; }
-    var el2 = document.getElementById('loading');
-    if (el2 && el2.textContent.indexOf('Chargement de votre CV Pro') === 0) {
-      var secondes = Math.round((Date.now() - debut) / 1000);
-      el2.textContent = texteBase + ' (' + secondes + 's…)';
-    }
-  }, 1000);
-})();
-
-</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc,
-  query, where, orderBy, limit, startAfter
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -923,7 +880,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-window.__cvProFirebaseOK = true; // le module a bien démarré : on annule le message de secours
 
 /* ── Traduction : fonction T() locale ── */
 function T(key){
@@ -1027,84 +983,34 @@ async function chargerBadgePour(auteurUid){
   });
 }
 
-/* ══════════ CHARGEMENT DE LA LISTE COMMUNE — EN PAGES ══════════
-   Avant : on téléchargeait TOUS les CV de la base à chaque ouverture de page,
-   quel que soit leur nombre. Avec peu de CV ça ne se voit pas, mais avec des
-   milliers/millions de CV, ça devient très lent et ça coûte cher en lectures
-   Firestore (facturées à la lecture sur Blaze). Ici on sépare :
-   - « Mes CV » (petit volume, propre à chaque utilisateur) : chargé en entier.
-   - « Communauté » : chargée par petits lots (CV_PAGE_SIZE à la fois), avec un
-     bouton « Charger plus de CV » pour aller chercher la suite à la demande. */
-const CV_PAGE_SIZE = 4;
-let _communauteDernierDoc = null; // curseur Firestore : point de reprise pour la page suivante
-let _communauteFinAtteinte = false; // vrai quand il n'y a plus rien à charger
-
-async function chargerMesCv(){
-  if (!currentUser) { listeMesCv = []; listeCorbeille = []; return; }
-  try {
-    const q = query(collection(db, 'cv_professionnels'), where('auteurUid', '==', currentUser.uid));
-    const snap = await getDocs(q);
-    let mine = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
-    const maintenant = Date.now();
-    const aPurger = mine.filter(c => c.corbeille && c.corbeilleDepuis &&
-      (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
-    for (const c of aPurger) {
-      try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
-    }
-    if (aPurger.length) {
-      const idsAPurger = new Set(aPurger.map(c => c.id));
-      mine = mine.filter(c => !idsAPurger.has(c.id));
-    }
-
-    listeMesCv = mine.filter(c => c.publie && !c.corbeille);
-    listeCorbeille = mine.filter(c => c.corbeille);
-  } catch (err) {
-    console.error(err);
-    listeMesCv = [];
-    listeCorbeille = [];
-  }
-}
-
-async function chargerCommunautePage(reset){
-  if (reset) { listeCommunaute = []; _communauteDernierDoc = null; _communauteFinAtteinte = false; }
-  if (_communauteFinAtteinte) return;
-  let erreurChargement = null;
-  try {
-    const clauses = [collection(db, 'cv_professionnels'), where('publie', '==', true), orderBy('creeLe', 'desc')];
-    if (_communauteDernierDoc) clauses.push(startAfter(_communauteDernierDoc));
-    clauses.push(limit(CV_PAGE_SIZE));
-    const snap = await getDocs(query(...clauses));
-    const lot = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => !estAMoi(c) && !c.corbeille);
-    listeCommunaute = listeCommunaute.concat(lot);
-    if (snap.docs.length) _communauteDernierDoc = snap.docs[snap.docs.length - 1];
-    if (snap.docs.length < CV_PAGE_SIZE) _communauteFinAtteinte = true;
-  } catch (err) {
-    console.error(err);
-    erreurChargement = err;
-    _communauteFinAtteinte = true; // on n'insiste pas si ça échoue
-  }
-  window.__cvProDerniereErreurListe = erreurChargement; // consultable via la console si besoin
-}
-
+/* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
 async function chargerListe(){
-  await chargerMesCv();
-  await chargerCommunautePage(true);
+  try {
+    const snap = await getDocs(collection(db, 'cv_professionnels'));
+    listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.error(err);
+    listeToutes = [];
+  }
+
+  // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
+  const maintenant = Date.now();
+  const aPurger = listeToutes.filter(c => c.corbeille && estAMoi(c) && c.corbeilleDepuis &&
+    (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
+  for (const c of aPurger) {
+    try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
+  }
+  if (aPurger.length) {
+    const idsAPurger = new Set(aPurger.map(c => c.id));
+    listeToutes = listeToutes.filter(c => !idsAPurger.has(c.id));
+  }
+
+  listeMesCv = listeToutes.filter(c => estAMoi(c) && c.publie && !c.corbeille);
+  listeCorbeille = listeToutes.filter(c => estAMoi(c) && c.corbeille);
+  listeCommunaute = listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille);
+
   await renderListeCards();
 }
-
-window.__cvProChargerPlus = async function(){
-  const btn = document.getElementById('btnChargerPlusCommunaute');
-  if (!btn || btn.disabled) return;
-  const texteOriginal = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = T('cv_charger_plus_encours') || 'Chargement…';
-  await chargerCommunautePage(false);
-  await renderListeCards();
-  btn.disabled = false;
-  btn.textContent = texteOriginal;
-};
 
 async function renderListeCards(){
   document.getElementById('heroCard').style.display = currentUser ? 'flex' : 'none';
@@ -1122,82 +1028,10 @@ async function renderListeCards(){
   listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
 
   document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
-  const erreurTech = document.getElementById('communauteErreurTech');
-  const derniereErreur = window.__cvProDerniereErreurListe;
-  if (listeCommunaute.length === 0 && derniereErreur) {
-    erreurTech.style.display = 'block';
-    const messageComplet = derniereErreur.message || String(derniereErreur);
-    const lienIndex = (messageComplet.match(/https:\/\/console\.firebase\.google\.com[^\s)]+/) || [])[0];
-    if (lienIndex) {
-      erreurTech.innerHTML = '⚠️ Index Firestore manquant. <a href="' + lienIndex + '" target="_blank" style="color:#1a73e8;font-weight:700;text-decoration:underline">Cliquer ici pour le créer</a> (une seule fois), puis recharger la page.';
-    } else {
-      erreurTech.textContent = '⚠️ Chargement impossible (' + (derniereErreur.code || '?') + ') : ' + messageComplet;
-    }
-  } else {
-    erreurTech.style.display = 'none';
-  }
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-
-  // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
-  // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
-  // Aucune génération automatique de profils : uniquement les CV déjà en base.
-  const avecCarrousel = listeCommunaute.length > 4;
-  listeCommunaute.forEach((c, i) => {
-    cardsCommu.appendChild(construireInstance(c, false));
-    if (avecCarrousel && (i + 1) % 4 === 0) {
-      try {
-        const node = buildCoverCarouselCv(listeCommunaute);
-        if (node) { cardsCommu.appendChild(node); wireCoverCarouselCv(); }
-      } catch (err) {
-        console.error('Carrousel CV Pro impossible à construire :', err);
-      }
-    }
-  });
-
-  const btnPlus = document.getElementById('btnChargerPlusCommunaute');
-  btnPlus.style.display = (!_communauteFinAtteinte && listeCommunaute.length > 0) ? 'block' : 'none';
+  for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
 }
-
-// Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
-// le carrousel de Fil Presse (130×160). Clic -> défile jusqu'à la grande carte correspondante.
-function buildCoverCarouselCv(liste){
-  const avecPhoto = liste.filter(c => c.photoURL);
-  if (!avecPhoto.length) return null;
-  const div = document.createElement('div');
-  div.style.cssText = 'background:#fff;padding:14px 0 16px;margin-bottom:8px';
-  const cards = avecPhoto.map(c => {
-    const nom = escapeHtml(((c.prenom||'') + ' ' + (c.nomFamille||'')).trim() || 'ArtiRoyce');
-    const sousTitre = escapeHtml([c.metier, c.ville].filter(Boolean).join(' · '));
-    return `<div style="position:relative;flex:0 0 auto;width:130px;height:160px;border-radius:14px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer" onclick="window.__scrollToCvInstance('${c.id}')">
-      <img src="${c.photoURL}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block">
-      <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 10px 8px;background:linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0))">
-        <div style="color:#fff;font-size:12.5px;font-weight:800;margin-bottom:2px">${nom}</div>
-        <div style="color:#eee;font-size:10.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${sousTitre}</div>
-      </div>
-    </div>`;
-  }).join('');
-  div.innerHTML = `<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">⭐ CV à la une</div>
-    <div class="ccv-track" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x">${cards}</div>`;
-  return div;
-}
-
-let _ccvIntervalStarted = false;
-function wireCoverCarouselCv(){
-  if (_ccvIntervalStarted) return;
-  _ccvIntervalStarted = true;
-  // Pas de défilement automatique par minuteur ici : uniquement le glissement au doigt/molette,
-  // exactement comme demandé — simple, léger, rien qui puisse bloquer le chargement.
-}
-
-window.__scrollToCvInstance = function(id){
-  const tryScroll = (attempts) => {
-    const el = document.getElementById('cvinstance-'+id);
-    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
-    if (attempts > 0) setTimeout(() => tryScroll(attempts-1), 100);
-  };
-  tryScroll(15);
-};
 
 // Aiguille vers le bon gabarit : photo/fichier importé ou modèle Premium/2/3
 function construireInstance(c, estMoi){
@@ -1265,7 +1099,6 @@ async function supprimerDefinitivement(cvId){
 function creerInstanceImport(c, estMoi){
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
-  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
@@ -1327,7 +1160,6 @@ function creerInstanceLecture(c, estMoi){
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
-  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
@@ -1795,4 +1627,53 @@ function refreshDynamicTexts(){
     $p(prefix, 'formDiplome2').placeholder = T('cv_ph_formation_diplome');
     $p(prefix, 'formEtab').placeholder = T('cv_ph_formation_etab');
     $p(prefix, 'formPeriode').placeholder = T('cv_ph_formation_periode');
-    $p(prefix, 'expPoste').placehold
+    $p(prefix, 'expPoste').placeholder = T('cv_ph_exp_poste');
+    $p(prefix, 'expEntreprise').placeholder = T('cv_ph_exp_entreprise');
+    $p(prefix, 'expPeriode').placeholder = T('cv_ph_exp_periode');
+    $p(prefix, 'expDesc').placeholder = T('cv_ph_exp_desc');
+    $p(prefix, 'hNom').setAttribute('data-placeholder', T('cv_ph_nom'));
+    $p(prefix, 'hPrenom').setAttribute('data-placeholder', T('cv_ph_prenom'));
+    $p(prefix, 'hMetier').setAttribute('data-placeholder', T('cv_ph_metier'));
+    $p(prefix, 'fPays').setAttribute('data-placeholder', T('cv_ph_pays'));
+    $p(prefix, 'fVille').setAttribute('data-placeholder', T('cv_ph_ville'));
+    $p(prefix, 'fDiplome').setAttribute('data-placeholder', T('cv_ph_diplome'));
+    $p(prefix, 'fExperience').setAttribute('data-placeholder', T('cv_ph_experience_resume'));
+    $p(prefix, 'fAdresse').setAttribute('data-placeholder', T('cv_ph_adresse'));
+    $p(prefix, 'fTelephone').setAttribute('data-placeholder', T('cv_ph_telephone'));
+    $p(prefix, 'fEmail').setAttribute('data-placeholder', T('cv_ph_email'));
+  });
+  const titreInterneInput = document.getElementById('titreInterneInput');
+  if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
+
+  document.getElementById('heroTitreListe').textContent = T('cv_hero_title');
+  render();
+  renderListeCards();
+
+  if (modeleSelectionne && modeleSelectionne !== 'import' && DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]) {
+    const box = document.getElementById('modelePreviewTxt');
+    if (box) box.innerHTML = T(DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]);
+  }
+}
+
+function accrocherRafraichissementLangue(){
+  if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
+    const original = window.setLang;
+    window.setLang = function(code, flag, el){
+      original(code, flag, el);
+      refreshDynamicTexts();
+    };
+    window.__cvProSetLangAccroche = true;
+    refreshDynamicTexts();
+  } else if (!window.__cvProSetLangAccroche) {
+    setTimeout(accrocherRafraichissementLangue, 50);
+  }
+}
+accrocherRafraichissementLangue();
+</script>
+
+
+
+<script src="translations.js?v=20250705c"></script>
+
+</body>
+</html>
