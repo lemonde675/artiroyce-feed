@@ -289,6 +289,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
       <input class="cp-input" placeholder="Publier un produit (mèche, chaussures, broches...)" readonly onclick="openCreate()"/>
       <button class="cp-img-btn" onclick="event.stopPropagation();window.__toggleSearch()" title="Rechercher">🔍</button>
+      <button class="cp-img-btn" id="btnRafraichir" onclick="event.stopPropagation();window.rafraichirFeed()" title="Actualiser">🔄</button>
     </div>
 
     <div class="search-bar" id="searchBar" style="display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee">
@@ -796,10 +797,13 @@ function appliquerListesEtAfficher(){
   afficherCorbeille();
 }
 
-function chargerPublications(){
-  // Seule la première page (les publications les plus récentes) reste en temps réel.
-  const q = query(collection(db,'publications'), orderBy('createdAt','desc'), limit(TAILLE_PAGE));
-  onSnapshot(q, snap => {
+async function chargerPublications(){
+  // Chargement en une seule demande (au lieu d'une écoute permanente bloquée par certains
+  // réseaux). Les publications ne se mettent plus à jour toutes seules : on utilise le
+  // bouton "🔄 Actualiser" pour revoir les plus récentes.
+  try {
+    const q = query(collection(db,'publications'), orderBy('createdAt','desc'), limit(TAILLE_PAGE));
+    const snap = await getDocs(q);
     pubsTempsReel = [];
     snap.forEach(d => pubsTempsReel.push({ id: d.id, ...d.data() }));
     if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
@@ -807,11 +811,28 @@ function chargerPublications(){
 
     document.getElementById('feedLoading').style.display = 'none';
     appliquerListesEtAfficher();
-  }, err => {
+  } catch(err) {
     console.error(err);
-    document.getElementById('feedLoading').innerHTML = '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.</div>';
-  });
+    document.getElementById('feedLoading').innerHTML =
+      '<div style="font-size:13px;color:#e63224;">Erreur de chargement. Vérifiez votre connexion.<br>'
+      + '<button onclick="window.__reessayerChargement()" style="margin-top:10px;padding:8px 18px;border:none;border-radius:20px;background:#e63224;color:#fff;font-weight:700;font-size:13px;cursor:pointer">Réessayer</button></div>';
+  }
 }
+window.__reessayerChargement = function(){
+  document.getElementById('feedLoading').style.display = 'block';
+  document.getElementById('feedLoading').innerHTML = '<div style="font-size:32px;margin-bottom:10px;">⏳</div><div style="font-size:14px;font-weight:600;">Chargement des publications…</div>';
+  chargerPublications();
+};
+// Bouton "Actualiser" : revient à la première page et relit les publications les plus récentes.
+window.rafraichirFeed = async function(){
+  const btn = document.getElementById('btnRafraichir');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  pubsAnciennes = [];
+  finPagination = false;
+  curseurPagination = null;
+  await chargerPublications();
+  if (btn) { btn.disabled = false; btn.textContent = '🔄'; }
+};
 
 // Charge la page suivante de 10 publications (appelé automatiquement en arrivant en bas du fil).
 async function chargerPageSuivante(){
@@ -1776,42 +1797,4 @@ window.publishPost = async () => {
       type:'boutique',
       texte: (document.getElementById('cadTitreInput').value.trim() || 'Boutique'),
       disposition: cadLayoutActif,
-      tagColor: cadTagColor,
-      cadres: remplis.map(s => ({ photo:s.photo, nom:s.nom||'Article', prix:s.prix||'' })),
-      categorie:'Arts'
-    };
-  } else {
-    toast('Choisissez un modèle de publication',''); return;
-  }
-
-  const btn = document.getElementById('btnPublish');
-  btn.disabled = true; btn.textContent = 'Publication…';
-  try {
-    await addDoc(collection(db,'publications'), {
-      ...payload,
-      auteurUid: currentUser.uid,
-      auteurNom: currentUser.displayName || 'Anonyme',
-      auteurMetier: currentUser.metier || '',
-      auteurVerifie: !!currentUser.verifie,
-      ville: currentUser.ville || '',
-      likes: 0, partages: 0,
-      createdAt: serverTimestamp()
-    });
-    closeCreate();
-    toast('✅ Publication publiée !','g');
-  } catch(e) {
-    console.error(e);
-    toast('Erreur lors de la publication','');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Publier';
-  }
-};
-
-/* ══════════ PARTAGE ══════════ */
-window.partagerCopierLien = async () => {
-  const url = window.location.href.split('#')[0] + '#post-' + _shareIdCourant;
-  try {
-    await navigator.clipboard.writeText(url);
-    if (_shareIdCourant) await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) });
-    toast('🔗 Lien copié !','g');
-  } catch(e) { toast('Impossible de
+      ta
