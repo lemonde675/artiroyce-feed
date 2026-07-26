@@ -478,10 +478,10 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-// Correctif : certains réseaux/box bloquent le flux temps réel normal de Firestore
-// (erreur "WebChannelConnection... transport errored"). Cette option fait basculer
-// automatiquement vers un mode de connexion plus compatible quand c'est nécessaire.
-const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+// Correctif : le réseau bloque le flux temps réel normal de Firestore
+// (erreur "Listen/channel... 400 Bad Request"). L'auto-détection n'a pas suffi,
+// on force donc directement le mode de connexion compatible.
+const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
 let currentUser = null;
 let categorieActive = 'Tout';
@@ -1813,4 +1813,5 @@ window.partagerCopierLien = async () => {
   try {
     await navigator.clipboard.writeText(url);
     if (_shareIdCourant) await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) });
-    toast('🔗 Lien copié 
+    toast('🔗 Lien copié !','g');
+  } catch(e) { toast('Impossible de
