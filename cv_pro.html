@@ -1085,7 +1085,13 @@ async function renderListeCards(){
   const derniereErreur = window.__cvProDerniereErreurListe;
   if (listeCommunaute.length === 0 && derniereErreur) {
     erreurTech.style.display = 'block';
-    erreurTech.textContent = '⚠️ Chargement impossible : ' + (derniereErreur.code || derniereErreur.message || String(derniereErreur));
+    const messageComplet = derniereErreur.message || String(derniereErreur);
+    const lienIndex = (messageComplet.match(/https:\/\/console\.firebase\.google\.com[^\s)]+/) || [])[0];
+    if (lienIndex) {
+      erreurTech.innerHTML = '⚠️ Index Firestore manquant. <a href="' + lienIndex + '" target="_blank" style="color:#1a73e8;font-weight:700;text-decoration:underline">Cliquer ici pour le créer</a> (une seule fois), puis recharger la page.';
+    } else {
+      erreurTech.textContent = '⚠️ Chargement impossible (' + (derniereErreur.code || '?') + ') : ' + messageComplet;
+    }
   } else {
     erreurTech.style.display = 'none';
   }
@@ -1777,21 +1783,4 @@ function refreshDynamicTexts(){
 }
 
 function accrocherRafraichissementLangue(){
-  if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
-    const original = window.setLang;
-    window.setLang = function(code, flag, el){
-      original(code, flag, el);
-      refreshDynamicTexts();
-    };
-    window.__cvProSetLangAccroche = true;
-    refreshDynamicTexts();
-  } else if (!window.__cvProSetLangAccroche) {
-    setTimeout(accrocherRafraichissementLangue, 50);
-  }
-}
-accrocherRafraichissementLangue();
-</script>
-
-
-
-<script src="translations.js?v=20
+  if (typeof window.setLang === 'function'
