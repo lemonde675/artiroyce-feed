@@ -476,6 +476,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div class="ico">🌍</div>
       <h3 data-i18n="cv_empty_communaute_title">Aucun autre CV publié pour l'instant</h3>
       <p data-i18n="cv_empty_communaute_desc">Les CV publiés par les autres artisans ArtiRoyce apparaîtront ici.</p>
+      <p id="communauteErreurTech" style="display:none;color:#e63224;font-size:11.5px;margin-top:10px;word-break:break-word"></p>
     </div>
     <div class="cv-cards" id="cvCardsCommunaute"></div>
   </div>
@@ -985,13 +986,16 @@ async function chargerBadgePour(auteurUid){
 
 /* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
 async function chargerListe(){
+  let erreurChargement = null;
   try {
     const snap = await getDocs(collection(db, 'cv_professionnels'));
     listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (err) {
     console.error(err);
+    erreurChargement = err;
     listeToutes = [];
   }
+  window.__cvProDerniereErreurListe = erreurChargement; // consultable via la console si besoin
 
   // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
   const maintenant = Date.now();
@@ -1028,10 +1032,73 @@ async function renderListeCards(){
   listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
 
   document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
+  const erreurTech = document.getElementById('communauteErreurTech');
+  const derniereErreur = window.__cvProDerniereErreurListe;
+  if (listeCommunaute.length === 0 && derniereErreur) {
+    erreurTech.style.display = 'block';
+    erreurTech.textContent = '⚠️ Chargement impossible : ' + (derniereErreur.code || derniereErreur.message || String(derniereErreur));
+  } else {
+    erreurTech.style.display = 'none';
+  }
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-  for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
+
+  // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
+  // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
+  // Aucune génération automatique de profils : uniquement les CV déjà en base.
+  const avecCarrousel = listeCommunaute.length > 4;
+  listeCommunaute.forEach((c, i) => {
+    cardsCommu.appendChild(construireInstance(c, false));
+    if (avecCarrousel && (i + 1) % 4 === 0) {
+      try {
+        const node = buildCoverCarouselCv(listeCommunaute);
+        if (node) { cardsCommu.appendChild(node); wireCoverCarouselCv(); }
+      } catch (err) {
+        console.error('Carrousel CV Pro impossible à construire :', err);
+      }
+    }
+  });
 }
+
+// Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
+// le carrousel de Fil Presse (130×160). Clic -> défile jusqu'à la grande carte correspondante.
+function buildCoverCarouselCv(liste){
+  const avecPhoto = liste.filter(c => c.photoURL);
+  if (!avecPhoto.length) return null;
+  const div = document.createElement('div');
+  div.style.cssText = 'background:#fff;padding:14px 0 16px;margin-bottom:8px';
+  const cards = avecPhoto.map(c => {
+    const nom = escapeHtml(((c.prenom||'') + ' ' + (c.nomFamille||'')).trim() || 'ArtiRoyce');
+    const sousTitre = escapeHtml([c.metier, c.ville].filter(Boolean).join(' · '));
+    return `<div style="position:relative;flex:0 0 auto;width:130px;height:160px;border-radius:14px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer" onclick="window.__scrollToCvInstance('${c.id}')">
+      <img src="${c.photoURL}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block">
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:10px 10px 8px;background:linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0))">
+        <div style="color:#fff;font-size:12.5px;font-weight:800;margin-bottom:2px">${nom}</div>
+        <div style="color:#eee;font-size:10.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${sousTitre}</div>
+      </div>
+    </div>`;
+  }).join('');
+  div.innerHTML = `<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">⭐ CV à la une</div>
+    <div class="ccv-track" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x">${cards}</div>`;
+  return div;
+}
+
+let _ccvIntervalStarted = false;
+function wireCoverCarouselCv(){
+  if (_ccvIntervalStarted) return;
+  _ccvIntervalStarted = true;
+  // Pas de défilement automatique par minuteur ici : uniquement le glissement au doigt/molette,
+  // exactement comme demandé — simple, léger, rien qui puisse bloquer le chargement.
+}
+
+window.__scrollToCvInstance = function(id){
+  const tryScroll = (attempts) => {
+    const el = document.getElementById('cvinstance-'+id);
+    if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+    if (attempts > 0) setTimeout(() => tryScroll(attempts-1), 100);
+  };
+  tryScroll(15);
+};
 
 // Aiguille vers le bon gabarit : photo/fichier importé ou modèle Premium/2/3
 function construireInstance(c, estMoi){
@@ -1099,6 +1166,7 @@ async function supprimerDefinitivement(cvId){
 function creerInstanceImport(c, estMoi){
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
+  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
@@ -1160,6 +1228,7 @@ function creerInstanceLecture(c, estMoi){
 
   const wrapper = document.createElement('div');
   wrapper.className = 'cv-instance-wrap';
+  wrapper.id = 'cvinstance-' + c.id;
 
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
