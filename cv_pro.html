@@ -479,6 +479,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <p id="communauteErreurTech" style="display:none;color:#e63224;font-size:11.5px;margin-top:10px;word-break:break-word"></p>
     </div>
     <div class="cv-cards" id="cvCardsCommunaute"></div>
+    <button id="btnChargerPlusCommunaute" style="display:none;margin:10px 12px 4px;width:calc(100% - 24px);background:#F2F4F7;border:1px solid #E8ECF0;border-radius:14px;padding:11px;font-size:13px;font-weight:700;color:#444;cursor:pointer" onclick="window.__cvProChargerPlus()" data-i18n="cv_charger_plus">Charger plus de CV</button>
   </div>
 
   <!-- CV IMPORTÉ -->
@@ -867,7 +868,8 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc,
+  query, where, orderBy, limit, startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -984,37 +986,84 @@ async function chargerBadgePour(auteurUid){
   });
 }
 
-/* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
-async function chargerListe(){
+/* ══════════ CHARGEMENT DE LA LISTE COMMUNE — EN PAGES ══════════
+   Avant : on téléchargeait TOUS les CV de la base à chaque ouverture de page,
+   quel que soit leur nombre. Avec peu de CV ça ne se voit pas, mais avec des
+   milliers/millions de CV, ça devient très lent et ça coûte cher en lectures
+   Firestore (facturées à la lecture sur Blaze). Ici on sépare :
+   - « Mes CV » (petit volume, propre à chaque utilisateur) : chargé en entier.
+   - « Communauté » : chargée par petits lots (CV_PAGE_SIZE à la fois), avec un
+     bouton « Charger plus de CV » pour aller chercher la suite à la demande. */
+const CV_PAGE_SIZE = 12;
+let _communauteDernierDoc = null; // curseur Firestore : point de reprise pour la page suivante
+let _communauteFinAtteinte = false; // vrai quand il n'y a plus rien à charger
+
+async function chargerMesCv(){
+  if (!currentUser) { listeMesCv = []; listeCorbeille = []; return; }
+  try {
+    const q = query(collection(db, 'cv_professionnels'), where('auteurUid', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    let mine = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
+    const maintenant = Date.now();
+    const aPurger = mine.filter(c => c.corbeille && c.corbeilleDepuis &&
+      (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
+    for (const c of aPurger) {
+      try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
+    }
+    if (aPurger.length) {
+      const idsAPurger = new Set(aPurger.map(c => c.id));
+      mine = mine.filter(c => !idsAPurger.has(c.id));
+    }
+
+    listeMesCv = mine.filter(c => c.publie && !c.corbeille);
+    listeCorbeille = mine.filter(c => c.corbeille);
+  } catch (err) {
+    console.error(err);
+    listeMesCv = [];
+    listeCorbeille = [];
+  }
+}
+
+async function chargerCommunautePage(reset){
+  if (reset) { listeCommunaute = []; _communauteDernierDoc = null; _communauteFinAtteinte = false; }
+  if (_communauteFinAtteinte) return;
   let erreurChargement = null;
   try {
-    const snap = await getDocs(collection(db, 'cv_professionnels'));
-    listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const clauses = [collection(db, 'cv_professionnels'), where('publie', '==', true), orderBy('creeLe', 'desc')];
+    if (_communauteDernierDoc) clauses.push(startAfter(_communauteDernierDoc));
+    clauses.push(limit(CV_PAGE_SIZE));
+    const snap = await getDocs(query(...clauses));
+    const lot = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => !estAMoi(c) && !c.corbeille);
+    listeCommunaute = listeCommunaute.concat(lot);
+    if (snap.docs.length) _communauteDernierDoc = snap.docs[snap.docs.length - 1];
+    if (snap.docs.length < CV_PAGE_SIZE) _communauteFinAtteinte = true;
   } catch (err) {
     console.error(err);
     erreurChargement = err;
-    listeToutes = [];
+    _communauteFinAtteinte = true; // on n'insiste pas si ça échoue
   }
   window.__cvProDerniereErreurListe = erreurChargement; // consultable via la console si besoin
+}
 
-  // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
-  const maintenant = Date.now();
-  const aPurger = listeToutes.filter(c => c.corbeille && estAMoi(c) && c.corbeilleDepuis &&
-    (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
-  for (const c of aPurger) {
-    try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
-  }
-  if (aPurger.length) {
-    const idsAPurger = new Set(aPurger.map(c => c.id));
-    listeToutes = listeToutes.filter(c => !idsAPurger.has(c.id));
-  }
-
-  listeMesCv = listeToutes.filter(c => estAMoi(c) && c.publie && !c.corbeille);
-  listeCorbeille = listeToutes.filter(c => estAMoi(c) && c.corbeille);
-  listeCommunaute = listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille);
-
+async function chargerListe(){
+  await chargerMesCv();
+  await chargerCommunautePage(true);
   await renderListeCards();
 }
+
+window.__cvProChargerPlus = async function(){
+  const btn = document.getElementById('btnChargerPlusCommunaute');
+  if (!btn || btn.disabled) return;
+  const texteOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = T('cv_charger_plus_encours') || 'Chargement…';
+  await chargerCommunautePage(false);
+  await renderListeCards();
+  btn.disabled = false;
+  btn.textContent = texteOriginal;
+};
 
 async function renderListeCards(){
   document.getElementById('heroCard').style.display = currentUser ? 'flex' : 'none';
@@ -1058,6 +1107,9 @@ async function renderListeCards(){
       }
     }
   });
+
+  const btnPlus = document.getElementById('btnChargerPlusCommunaute');
+  btnPlus.style.display = (!_communauteFinAtteinte && listeCommunaute.length > 0) ? 'block' : 'none';
 }
 
 // Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
@@ -1742,7 +1794,4 @@ accrocherRafraichissementLangue();
 
 
 
-<script src="translations.js?v=20250705c"></script>
-
-</body>
-</html>
+<script src="translations.js?v=20
