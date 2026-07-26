@@ -864,6 +864,44 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   </div>
 </div>
 
+<script>
+// Attrape-erreurs de diagnostic : si quoi que ce soit casse avant l'affichage normal,
+// le message d'erreur réel remplace "Chargement…" au lieu de rester bloqué en silence.
+window.addEventListener('error', function(e){
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    el.textContent = '⚠️ Erreur CV Pro : ' + (e.message || 'inconnue') + (e.filename ? (' — ' + e.filename.split('/').pop() + ':' + e.lineno) : '');
+  }
+});
+window.addEventListener('unhandledrejection', function(e){
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    var reason = e.reason;
+    el.textContent = '⚠️ Erreur CV Pro (promesse) : ' + (reason && reason.message ? reason.message : String(reason));
+  }
+});
+window.__cvProFirebaseOK = false;
+setTimeout(function(){
+  if (window.__cvProFirebaseOK) return;
+  var el = document.getElementById('loading');
+  if (el && el.textContent.indexOf('Chargement de votre CV Pro') !== -1) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    el.style.lineHeight = '1.5';
+    el.textContent = '⚠️ Le chargement de CV Pro a expiré (10s) sans réponse. Réessaie ; si ça persiste, préviens-moi avec ce message.';
+  }
+}, 10000);
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -883,6 +921,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+window.__cvProFirebaseOK = true; // le module a bien démarré : on annule le message de secours
 
 /* ── Traduction : fonction T() locale ── */
 function T(key){
@@ -1755,32 +1794,4 @@ function refreshDynamicTexts(){
     $p(prefix, 'formEtab').placeholder = T('cv_ph_formation_etab');
     $p(prefix, 'formPeriode').placeholder = T('cv_ph_formation_periode');
     $p(prefix, 'expPoste').placeholder = T('cv_ph_exp_poste');
-    $p(prefix, 'expEntreprise').placeholder = T('cv_ph_exp_entreprise');
-    $p(prefix, 'expPeriode').placeholder = T('cv_ph_exp_periode');
-    $p(prefix, 'expDesc').placeholder = T('cv_ph_exp_desc');
-    $p(prefix, 'hNom').setAttribute('data-placeholder', T('cv_ph_nom'));
-    $p(prefix, 'hPrenom').setAttribute('data-placeholder', T('cv_ph_prenom'));
-    $p(prefix, 'hMetier').setAttribute('data-placeholder', T('cv_ph_metier'));
-    $p(prefix, 'fPays').setAttribute('data-placeholder', T('cv_ph_pays'));
-    $p(prefix, 'fVille').setAttribute('data-placeholder', T('cv_ph_ville'));
-    $p(prefix, 'fDiplome').setAttribute('data-placeholder', T('cv_ph_diplome'));
-    $p(prefix, 'fExperience').setAttribute('data-placeholder', T('cv_ph_experience_resume'));
-    $p(prefix, 'fAdresse').setAttribute('data-placeholder', T('cv_ph_adresse'));
-    $p(prefix, 'fTelephone').setAttribute('data-placeholder', T('cv_ph_telephone'));
-    $p(prefix, 'fEmail').setAttribute('data-placeholder', T('cv_ph_email'));
-  });
-  const titreInterneInput = document.getElementById('titreInterneInput');
-  if (titreInterneInput) titreInterneInput.placeholder = T('cv_placeholder_titre_interne');
-
-  document.getElementById('heroTitreListe').textContent = T('cv_hero_title');
-  render();
-  renderListeCards();
-
-  if (modeleSelectionne && modeleSelectionne !== 'import' && DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]) {
-    const box = document.getElementById('modelePreviewTxt');
-    if (box) box.innerHTML = T(DESCRIPTIONS_MODELES_KEYS[modeleSelectionne]);
-  }
-}
-
-function accrocherRafraichissementLangue(){
-  if (typeof window.setLang === 'function'
+    $p(prefix, 'exp
