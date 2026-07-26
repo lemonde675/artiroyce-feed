@@ -547,7 +547,10 @@ onAuthStateChanged(auth, async (user) => {
   currentUser.metier = '';
   currentUser.verifie = false;
   try {
-    const snap = await getDoc(doc(db,'utilisateurs', user.uid));
+    // Délai maximum de 8s : cette lecture utilise encore l'ancienne méthode (SDK classique),
+    // qui peut rester bloquée indéfiniment sur ce projet. Si elle ne répond pas, on continue
+    // quand même avec les valeurs par défaut plutôt que de bloquer toute la page pour toujours.
+    const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
     if (snap.exists()) {
       const d = snap.data();
       currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
@@ -1782,13 +1785,4 @@ function renderCadLayoutPicker(){
     div.textContent = n === 9 ? '📁' : n;
     div.title = n === 9 ? 'Galerie libre — sans cadre ni étiquette' : ('Disposition à ' + n + ' case(s)');
     div.onclick = () => {
-      cadLayoutActif = n;
-      if (n === 9) { cadSlots = []; } else { initCadSlots(n); }
-      renderCadLayoutPicker(); renderCadGrid();
-    };
-    wrap.appendChild(div);
-  });
-}
-function renderCadColorPicker(){
-  document.querySelectorAll('.cad-tcp-dot').forEach(d => {
-    d.classList.toggle('active', d.da
+    
