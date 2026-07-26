@@ -476,6 +476,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div class="ico">🌍</div>
       <h3 data-i18n="cv_empty_communaute_title">Aucun autre CV publié pour l'instant</h3>
       <p data-i18n="cv_empty_communaute_desc">Les CV publiés par les autres artisans ArtiRoyce apparaîtront ici.</p>
+      <p id="communauteErreurTech" style="display:none;color:#e63224;font-size:11.5px;margin-top:10px;word-break:break-word"></p>
     </div>
     <div class="cv-cards" id="cvCardsCommunaute"></div>
   </div>
@@ -985,13 +986,16 @@ async function chargerBadgePour(auteurUid){
 
 /* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
 async function chargerListe(){
+  let erreurChargement = null;
   try {
     const snap = await getDocs(collection(db, 'cv_professionnels'));
     listeToutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (err) {
     console.error(err);
+    erreurChargement = err;
     listeToutes = [];
   }
+  window.__cvProDerniereErreurListe = erreurChargement; // consultable via la console si besoin
 
   // Purge automatique : mes propres CV à la corbeille depuis plus de 15 jours -> suppression définitive
   const maintenant = Date.now();
@@ -1028,25 +1032,32 @@ async function renderListeCards(){
   listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
 
   document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
+  const erreurTech = document.getElementById('communauteErreurTech');
+  const derniereErreur = window.__cvProDerniereErreurListe;
+  if (listeCommunaute.length === 0 && derniereErreur) {
+    erreurTech.style.display = 'block';
+    erreurTech.textContent = '⚠️ Chargement impossible : ' + (derniereErreur.code || derniereErreur.message || String(derniereErreur));
+  } else {
+    erreurTech.style.display = 'none';
+  }
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
-  for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
 
-  // Carrousel léger « CV à la une », inséré directement dans la liste juste après la 4e carte,
+  // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
   // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
   // Aucune génération automatique de profils : uniquement les CV déjà en base.
-  try {
-    if (listeCommunaute.length > 4) {
-      const node = buildCoverCarouselCv(listeCommunaute);
-      if (node) {
-        const refNode = cardsCommu.children[4] || null; // juste après la 4e carte
-        cardsCommu.insertBefore(node, refNode);
-        wireCoverCarouselCv();
+  const avecCarrousel = listeCommunaute.length > 4;
+  listeCommunaute.forEach((c, i) => {
+    cardsCommu.appendChild(construireInstance(c, false));
+    if (avecCarrousel && (i + 1) % 4 === 0) {
+      try {
+        const node = buildCoverCarouselCv(listeCommunaute);
+        if (node) { cardsCommu.appendChild(node); wireCoverCarouselCv(); }
+      } catch (err) {
+        console.error('Carrousel CV Pro impossible à construire :', err);
       }
     }
-  } catch (err) {
-    console.error('Carrousel CV Pro impossible à construire :', err);
-  }
+  });
 }
 
 // Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
