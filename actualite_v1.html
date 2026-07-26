@@ -492,17 +492,17 @@ let app, auth, db;
 (async function demarrerFirebase(){
   ajouterEtape('2. Telechargement de la bibliotheque Firebase (app)...');
   try {
-    const modApp = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"), 12000);
+    const modApp = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js?v=2"), 12000);
     initializeApp = modApp.initializeApp;
     ajouterEtape('2b. Bibliotheque app chargee ✅');
 
     ajouterEtape('2c. Telechargement de la bibliotheque Firebase (auth)...');
-    const modAuth = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"), 12000);
+    const modAuth = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js?v=2"), 12000);
     getAuth = modAuth.getAuth; onAuthStateChanged = modAuth.onAuthStateChanged;
     ajouterEtape('2d. Bibliotheque auth chargee ✅');
 
     ajouterEtape('2e. Telechargement de la bibliotheque Firebase (firestore)...');
-    const modFs = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"), 12000);
+    const modFs = await avecDelaiMax(import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js?v=2"), 12000);
     getFirestore = modFs.getFirestore; initializeFirestore = modFs.initializeFirestore; collection = modFs.collection;
     collectionGroup = modFs.collectionGroup; addDoc = modFs.addDoc; getDocs = modFs.getDocs; getDoc = modFs.getDoc;
     doc = modFs.doc; setDoc = modFs.setDoc; updateDoc = modFs.updateDoc; deleteDoc = modFs.deleteDoc;
@@ -1762,4 +1762,4 @@ window.chooseModel = (type) => {
   document.getElementById('cmText').style.display = (type==='texte') ? 'block' : 'none';
   document.getElementById('cmStepGalerie').style.display = (type==='galerie') ? 'flex' : 'none';
   document.getElementById('cmStepBoutique').style.display = (type==='boutique') ? 'flex' : 'none';
-  document.getElementById('cmBackOrCancel').t
+  document.getElementById('cmBack
