@@ -464,7 +464,7 @@ window.addEventListener('unhandledrejection', function(e){
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
+  getFirestore, initializeFirestore, collection, collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
   increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -478,7 +478,10 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+// Correctif : certains réseaux/box bloquent le flux temps réel normal de Firestore
+// (erreur "WebChannelConnection... transport errored"). Cette option fait basculer
+// automatiquement vers un mode de connexion plus compatible quand c'est nécessaire.
+const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
 let currentUser = null;
 let categorieActive = 'Tout';
@@ -1810,11 +1813,4 @@ window.partagerCopierLien = async () => {
   try {
     await navigator.clipboard.writeText(url);
     if (_shareIdCourant) await updateDoc(doc(db,'publications',_shareIdCourant), { partages: increment(1) });
-    toast('🔗 Lien copié !','g');
-  } catch(e) { toast('Impossible de copier le lien',''); }
-  closeShare();
-};
-window.partagerWhatsapp = async () => {
-  const p = listePublications.find(x => x.id === _shareIdCourant);
-  const texte = p ? p.texte.substring(0,100) : 'Regarde cette publication ArtiRoyce !';
-  window.open('https://wa.me/?text=' + encod
+    toast('🔗 Lien copié 
