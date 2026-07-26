@@ -24,6 +24,12 @@
   <div id="liste"></div>
   <button id="btnPlus" style="display:none" onclick="chargerSuite()">Charger 4 de plus</button>
 
+  <div style="margin-top:24px;border-top:1px solid #ddd;padding-top:16px">
+    <h1>🌐 Test brut (sans bibliothèque Firebase)</h1>
+    <div class="statut attente" id="statutBrut">En attente…</div>
+    <button onclick="testBrut()">Lancer le test réseau brut</button>
+  </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -111,6 +117,34 @@ onAuthStateChanged(auth, (user) => {
   statut('attente', '✅ Connecté comme ' + (user.email || user.uid) + '. Lecture des publications…');
   chargerPremiere();
 });
+
+window.testBrut = async function(){
+  const el = document.getElementById('statutBrut');
+  el.className = 'statut attente';
+  const debut = Date.now();
+  let secs = 0;
+  const iv = setInterval(() => {
+    secs = Math.floor((Date.now()-debut)/1000);
+    el.textContent = '⏳ Requête brute en cours (fetch, sans SDK)… ' + secs + 's écoulées';
+  }, 1000);
+  try {
+    const url = 'https://firestore.googleapis.com/v1/projects/artiroyce-f42e4/databases/(default)/documents/publications?pageSize=1';
+    const reponse = await Promise.race([
+      fetch(url),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Délai dépassé après 15s')), 15000))
+    ]);
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    const texte = await reponse.text();
+    el.className = 'statut ok';
+    el.textContent = '✅ Le serveur a répondu en ' + ms + ' ms !\nCode HTTP : ' + reponse.status + '\n\n(Un code 403 ici est normal et bon signe : ca veut dire que le serveur repond bien, juste qu il refuse sans jeton d authentification. C est ATTENDU pour ce test brut.)\n\nDebut de la reponse :\n' + texte.substring(0,200);
+  } catch(err) {
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    el.className = 'statut fail';
+    el.textContent = '❌ Échec après ' + ms + ' ms\n' + (err && err.message ? err.message : String(err)) + '\n\nSi ça bloque ici aussi, le problème est un blocage réseau total vers firestore.googleapis.com, avant même d\'arriver à Firebase.';
+  }
+};
 </script>
 </body>
 </html>
