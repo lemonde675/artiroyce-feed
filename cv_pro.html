@@ -888,31 +888,60 @@ window.addEventListener('unhandledrejection', function(e){
   }
 });
 
-// Filet de secours : si le script Firebase (type="module") n'a jamais pu démarrer
-// (ex. page ouverte en fichier local via file://, ou coupure réseau), le message
-// "Chargement…" resterait bloqué indéfiniment sans aucune explication. On affiche
-// donc un message clair après 6 secondes, sauf si window.__cvProFirebaseOK a été
-// mis à true entre-temps (voir script Firebase plus bas).
+// Filet de secours ultime : si après 10 secondes rien ne s'est passé (ni succès,
+// ni erreur précise via le try/catch du script Firebase plus bas), le message
+// "Chargement…" resterait bloqué indéfiniment sans explication. On ne remplace
+// le texte QUE s'il est encore le texte de chargement d'origine (donc jamais
+// si une erreur précise a déjà été affichée entre-temps).
 window.__cvProFirebaseOK = false;
 setTimeout(function(){
   if (window.__cvProFirebaseOK) return;
   var el = document.getElementById('loading');
+  if (el && el.textContent.indexOf('Chargement de votre CV Pro') !== -1) {
+    el.style.color = '#e63224';
+    el.style.padding = '16px';
+    el.style.textAlign = 'left';
+    el.style.fontSize = '13px';
+    el.style.lineHeight = '1.5';
+    el.textContent = '⚠️ Le chargement de CV Pro a expiré (10s) sans réponse du serveur. Réessaie ; si ça persiste, préviens-moi avec ce message.';
+  }
+}, 10000);
+</script>
+<script type="module">
+// Chargement du SDK Firebase via import() dynamique dans un vrai try/catch :
+// si ça échoue, on affiche l'erreur EXACTE renvoyée par le navigateur (au lieu
+// de deviner "réseau" ou "wifi"), et le message de secours plus bas ne parle
+// plus que d'un délai dépassé, sans accuser le wifi.
+let initializeApp, getAuth, onAuthStateChanged,
+    getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, serverTimestamp;
+
+function afficherErreurChargement(msg){
+  const el = document.getElementById('loading');
   if (el) {
     el.style.color = '#e63224';
     el.style.padding = '16px';
     el.style.textAlign = 'left';
     el.style.fontSize = '13px';
     el.style.lineHeight = '1.5';
-    el.textContent = '⚠️ Impossible de charger CV Pro. Vérifie que tu es bien sur le site en ligne (artiroyce-feed.vercel.app), pas sur un fichier local, et que ta connexion internet fonctionne.';
+    el.textContent = '⚠️ ' + msg;
   }
-}, 6000);
-</script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+}
+
+try {
+  const modApp = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+  initializeApp = modApp.initializeApp;
+  const modAuth = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+  getAuth = modAuth.getAuth;
+  onAuthStateChanged = modAuth.onAuthStateChanged;
+  const modFs = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+  getFirestore = modFs.getFirestore; doc = modFs.doc; getDoc = modFs.getDoc; setDoc = modFs.setDoc;
+  collection = modFs.collection; getDocs = modFs.getDocs; addDoc = modFs.addDoc;
+  deleteDoc = modFs.deleteDoc; serverTimestamp = modFs.serverTimestamp;
+} catch (err) {
+  window.__cvProFirebaseOK = true; // on a une vraie réponse (une erreur) : on annule le message de secours générique
+  afficherErreurChargement('Impossible de charger le SDK Firebase : ' + (err && err.message ? err.message : String(err)));
+  throw err; // on arrête ici, le reste du script (qui dépend de Firebase) ne peut pas continuer
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -1550,14 +1579,4 @@ const FAUX_CV_PROFILS = [
     profil:"Pâtissière passionnée, je réalise gâteaux de mariage, pièces montées et pâtisseries sur mesure pour toutes les occasions.",
     qualites:['Créativité','Rigueur'], competences:['Pâtisserie sur mesure','Décoration de gâteaux','Gestion des commandes'],
     formations:[{periode:'2015 - 2017', diplome:'CAP Pâtisserie', etablissement:'École Hôtelière de Douala'}],
-    experiences:[{periode:'2017 - 2024', poste:'Pâtissière indépendante', entreprise:'Clarisse Pâtisserie', description:"Réalisation de plus de 300 gâteaux de mariage. Ateliers de pâtisserie pour particuliers. Livraison dans toute la ville."}] },
-  { prenom:'Samuel', nom:'Etoundi', metier:'Mécanicien automobile', ville:'Yaoundé', pays:'Cameroun', diplome:'CAP Mécanique automobile', img:27,
-    profil:"Mécanicien expérimenté, j'assure l'entretien et la réparation de véhicules toutes marques, avec un diagnostic précis et des tarifs transparents.",
-    qualites:['Fiabilité','Rigueur technique'], competences:['Diagnostic électronique','Entretien moteur','Réparation freinage'],
-    formations:[{periode:'2011 - 2013', diplome:'CAP Mécanique automobile', etablissement:'Centre de formation automobile de Yaoundé'}],
-    experiences:[{periode:'2013 - 2024', poste:'Mécanicien indépendant', entreprise:'Garage Samuel', description:"Entretien de plus de 1000 véhicules. Partenariat avec des sociétés de transport locales. Dépannage à domicile disponible."}] },
-  { prenom:'Aïcha', nom:'Cissé', metier:'Tailleuse', ville:'Bamako', pays:'Mali', diplome:'CAP Couture', img:28,
-    profil:"Tailleuse spécialisée dans les tenues traditionnelles et modernes, je confectionne des vêtements sur mesure pour hommes, femmes et enfants.",
-    qualites:['Précision','Ponctualité'], competences:['Couture sur mesure','Broderie','Prise de mesures'],
-    formations:[{periode:'2013 - 2015', diplome:'CAP Couture', etablissement:'École de Couture de Bamako'}],
-    experiences:[{periode:'201
+    experiences:[{periode:'2017 - 2024', poste:'Pâtissière indépendante', entreprise:'Clarisse Pâtisserie', description:"Réalisation de plus de 300 gâteaux de mariage. Ateliers de pâtisser
