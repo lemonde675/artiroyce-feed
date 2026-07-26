@@ -269,6 +269,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </header>
 
+<div id="panneauDiagnostic" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
+  <div id="etapeScript">1. Script classique : en attente…</div>
+</div>
+<script>document.getElementById('etapeScript').textContent = '1. Script classique : OK ✅ (' + new Date().toLocaleTimeString() + ')';</script>
+
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
 
@@ -469,6 +474,16 @@ import {
   increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// Petit journal visible directement à l'écran, pour voir où le chargement progresse ou s'arrête.
+function ajouterEtape(texte){
+  const panneau = document.getElementById('panneauDiagnostic');
+  if (!panneau) return;
+  const ligne = document.createElement('div');
+  ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
+  panneau.appendChild(ligne);
+}
+ajouterEtape('2. Imports Firebase chargés ✅');
+
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
   authDomain: "artiroyce-f42e4.firebaseapp.com",
@@ -483,6 +498,7 @@ const auth = getAuth(app);
 // (erreur "Listen/channel... 400 Bad Request"). L'auto-détection n'a pas suffi,
 // on force donc directement le mode de connexion compatible.
 const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+ajouterEtape('3. Firebase initialisé ✅');
 
 let currentUser = null;
 let categorieActive = 'Tout';
@@ -541,6 +557,7 @@ function tempsDepuis(ms) {
 }
 
 onAuthStateChanged(auth, async (user) => {
+  ajouterEtape('4. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
   currentUser = user;
   currentUser.displayName = user.email ? user.email.split('@')[0] : 'Moi';
@@ -550,7 +567,9 @@ onAuthStateChanged(auth, async (user) => {
     // Délai maximum de 8s : cette lecture utilise encore l'ancienne méthode (SDK classique),
     // qui peut rester bloquée indéfiniment sur ce projet. Si elle ne répond pas, on continue
     // quand même avec les valeurs par défaut plutôt que de bloquer toute la page pour toujours.
+    ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
     const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
+    ajouterEtape('6. Profil utilisateur lu ✅');
     if (snap.exists()) {
       const d = snap.data();
       currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
@@ -560,13 +579,14 @@ onAuthStateChanged(auth, async (user) => {
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
     }
-  } catch(e){ console.error(e); }
+  } catch(e){ console.error(e); ajouterEtape('6bis. Echec lecture profil (' + (e&&e.message||e) + '), on continue quand meme'); }
 
   const initiale = (currentUser.displayName||'?')[0].toUpperCase();
   document.getElementById('cpAvatar').textContent = initiale;
   document.getElementById('cmAvatar').textContent = initiale;
   document.getElementById('cmNom').textContent = currentUser.displayName;
 
+  ajouterEtape('7. Appel de chargerPublications()...');
   chargerPublications();
   ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
   chargerSuivis();
@@ -848,7 +868,9 @@ const FIRESTORE_REST_BASE = 'https://firestore.googleapis.com/v1/projects/' + fi
 // avantAvant : ISO de date (chaîne) permettant de ne récupérer que les publications plus
 // anciennes que ce point (pagination), ou null pour la toute première page.
 async function lirePublicationsRest(avantDate){
+  ajouterEtape('8. lirePublicationsRest : recuperation du jeton...');
   const token = await currentUser.getIdToken();
+  ajouterEtape('9. Jeton recupere ✅, envoi de la requete REST...');
   const structuredQuery = {
     from: [{ collectionId: 'publications' }],
     orderBy: [{ field: { fieldPath: 'createdAt' }, direction: 'DESCENDING' }],
@@ -870,8 +892,10 @@ async function lirePublicationsRest(avantDate){
   }), 10000);
   if (!reponse.ok) {
     const texte = await reponse.text().catch(() => '');
+    ajouterEtape('9bis. Reponse HTTP ' + reponse.status + ' (echec)');
     throw new Error('Erreur HTTP ' + reponse.status + ' : ' + texte.substring(0,200));
   }
+  ajouterEtape('10. Reponse HTTP ' + reponse.status + ' recue ✅');
   const data = await reponse.json();
   const docs = [];
   (data || []).forEach(item => { if (item.document) docs.push(convertirDocumentRest(item.document)); });
@@ -879,6 +903,7 @@ async function lirePublicationsRest(avantDate){
 }
 
 async function chargerPublications(){
+  ajouterEtape('7bis. Entree dans chargerPublications()');
   // Chargement en une seule demande (au lieu d'une écoute permanente bloquée par certains
   // réseaux). Les publications ne se mettent plus à jour toutes seules : on utilise le
   // bouton "🔄 Actualiser" pour revoir les plus récentes. Délai maximum de 10s : si ça ne
@@ -1746,43 +1771,4 @@ function renderGalGrid(){
   galImages.forEach((photo, i) => {
     const div = document.createElement('div');
     div.className = 'media-slot';
-    if (L.areas && L.areas[i]) div.style.gridArea = L.areas[i];
-    div.style.aspectRatio = L.areas ? '' : L.ratio;
-    div.innerHTML = `<img src="${photo}"><div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(${i})">✕</div>`;
-    grid.appendChild(div);
-  });
-  if (galImages.length < 8) {
-    const add = document.createElement('div');
-    add.className = 'media-slot editable';
-    add.style.aspectRatio = '1';
-    add.innerHTML = `<span class="media-slot-empty">＋</span>`;
-    add.onclick = galAjouterPhoto;
-    grid.appendChild(add);
-  }
-}
-window.galAjouterPhoto = () => {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = 'image/*';
-  input.onchange = (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => { galImages.push(ev.target.result); renderGalGrid(); };
-    r.readAsDataURL(f);
-  };
-  input.click();
-};
-window.galRetirerPhoto = (i) => { galImages.splice(i,1); renderGalGrid(); };
-
-/* ── Modèle Boutique (cadres 1-8 + étiquettes, ou galerie libre 9) ── */
-function initCadSlots(n){ cadSlots = []; for (let i=0;i<n;i++) cadSlots.push({photo:'',nom:'',prix:''}); }
-
-function renderCadLayoutPicker(){
-  const wrap = document.getElementById('cadLayoutPicker');
-  wrap.innerHTML = '';
-  [1,2,3,4,5,6,7,8,9].forEach(n => {
-    const div = document.createElement('div');
-    div.className = 'cad-layout-opt' + (n === cadLayoutActif ? ' active' : '');
-    div.textContent = n === 9 ? '📁' : n;
-    div.title = n === 9 ? 'Galerie libre — sans cadre ni étiquette' : ('Disposition à ' + n + ' case(s)');
-    div.onclick = () => {
-    
+    if (L.areas && L.areas[i]) div.st
