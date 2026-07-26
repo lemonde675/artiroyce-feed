@@ -36,6 +36,13 @@
     <button onclick="testToken()">Récupérer mon jeton</button>
   </div>
 
+  <div style="margin-top:24px;border-top:1px solid #ddd;padding-top:16px">
+    <h1>🚀 Lecture REST directe (contourne le SDK)</h1>
+    <div class="statut attente" id="statutRest">En attente…</div>
+    <div id="listeRest"></div>
+    <button onclick="testLectureRest()">Lire 4 publications via REST</button>
+  </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -145,6 +152,74 @@ window.testToken = async function(){
     const ms = Date.now() - debut;
     el.className = 'statut ok';
     el.textContent = '✅ Jeton recupere en ' + ms + ' ms !\nLongueur du jeton : ' + token.length + ' caracteres.';
+  } catch(err) {
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    el.className = 'statut fail';
+    el.textContent = '❌ Echec apres ' + ms + ' ms\n' + (err && err.message ? err.message : String(err));
+  }
+};
+
+// Extrait une valeur simple d'un champ au format REST Firestore ({stringValue:...}, {integerValue:...}, etc.)
+function valeurChampRest(champ){
+  if (!champ) return '';
+  if ('stringValue' in champ) return champ.stringValue;
+  if ('integerValue' in champ) return champ.integerValue;
+  if ('booleanValue' in champ) return String(champ.booleanValue);
+  return '';
+}
+
+window.testLectureRest = async function(){
+  const el = document.getElementById('statutRest');
+  const liste = document.getElementById('listeRest');
+  liste.innerHTML = '';
+  if (!utilisateurConnecte) { el.className='statut fail'; el.textContent = '❌ Pas encore connecté.'; return; }
+  el.className = 'statut attente';
+  const debut = Date.now();
+  let secs = 0;
+  const iv = setInterval(() => {
+    secs = Math.floor((Date.now()-debut)/1000);
+    el.textContent = '⏳ Lecture REST en cours… ' + secs + 's écoulées';
+  }, 1000);
+  try {
+    const token = await utilisateurConnecte.getIdToken();
+    const url = 'https://firestore.googleapis.com/v1/projects/artiroyce-f42e4/databases/(default)/documents:runQuery';
+    const corps = {
+      structuredQuery: {
+        from: [{ collectionId: 'publications' }],
+        orderBy: [{ field: { fieldPath: 'createdAt' }, direction: 'DESCENDING' }],
+        limit: 4
+      }
+    };
+    const reponse = await Promise.race([
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(corps)
+      }),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Delai depasse apres 15s')), 15000))
+    ]);
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    const data = await reponse.json();
+    if (!reponse.ok) {
+      el.className = 'statut fail';
+      el.textContent = '❌ Code HTTP ' + reponse.status + ' apres ' + ms + ' ms\n' + JSON.stringify(data).substring(0,300);
+      return;
+    }
+    let compte = 0;
+    data.forEach(item => {
+      if (item.document && item.document.fields) {
+        compte++;
+        const f = item.document.fields;
+        const div = document.createElement('div');
+        div.className = 'post';
+        div.innerHTML = '<b>' + (valeurChampRest(f.auteurNom) || 'Anonyme') + '</b>' + (valeurChampRest(f.texte) || '(sans texte)').substring(0,120);
+        liste.appendChild(div);
+      }
+    });
+    el.className = 'statut ok';
+    el.textContent = '✅ SUCCES en ' + ms + ' ms — ' + compte + ' publication(s) lue(s) via REST direct !';
   } catch(err) {
     clearInterval(iv);
     const ms = Date.now() - debut;
