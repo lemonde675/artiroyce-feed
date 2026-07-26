@@ -30,6 +30,12 @@
     <button onclick="testBrut()">Lancer le test réseau brut</button>
   </div>
 
+  <div style="margin-top:24px;border-top:1px solid #ddd;padding-top:16px">
+    <h1>🔑 Test du jeton d'authentification</h1>
+    <div class="statut attente" id="statutToken">En attente…</div>
+    <button onclick="testToken()">Récupérer mon jeton</button>
+  </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -112,11 +118,40 @@ window.chargerSuite = async function(){
   }
 };
 
+let utilisateurConnecte = null;
 onAuthStateChanged(auth, (user) => {
   if (!user) { statut('fail', '❌ Pas connecté. Connecte-toi d\'abord sur connexion.html, puis reviens sur cette page.'); return; }
+  utilisateurConnecte = user;
   statut('attente', '✅ Connecté comme ' + (user.email || user.uid) + '. Lecture des publications…');
   chargerPremiere();
 });
+
+window.testToken = async function(){
+  const el = document.getElementById('statutToken');
+  if (!utilisateurConnecte) { el.className='statut fail'; el.textContent = '❌ Pas encore connecté, attends un peu et réessaie.'; return; }
+  el.className = 'statut attente';
+  const debut = Date.now();
+  let secs = 0;
+  const iv = setInterval(() => {
+    secs = Math.floor((Date.now()-debut)/1000);
+    el.textContent = '⏳ Récupération du jeton en cours… ' + secs + 's écoulées';
+  }, 1000);
+  try {
+    const token = await Promise.race([
+      utilisateurConnecte.getIdToken(true),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Délai dépassé après 15s — impossible de récupérer le jeton.')), 15000))
+    ]);
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    el.className = 'statut ok';
+    el.textContent = '✅ Jeton recupere en ' + ms + ' ms !\nLongueur du jeton : ' + token.length + ' caracteres.';
+  } catch(err) {
+    clearInterval(iv);
+    const ms = Date.now() - debut;
+    el.className = 'statut fail';
+    el.textContent = '❌ Echec apres ' + ms + ' ms\n' + (err && err.message ? err.message : String(err));
+  }
+};
 
 window.testBrut = async function(){
   const el = document.getElementById('statutBrut');
