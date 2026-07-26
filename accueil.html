@@ -193,56 +193,56 @@
 
   <!-- PANEL 1 : Actualités (tab 1) -->
   <div class="panel-slide" id="panel-1" style="position:relative;">
-    <iframe src="actualite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="actuFrame"></iframe>
+    <iframe data-src="actualite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="actuFrame"></iframe>
     <div id="swipeLeftAc" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightAc" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 2 : Statuts (tab 2) -->
   <div class="panel-slide" id="panel-2" style="position:relative;">
-    <iframe src="statut_v1.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
+    <iframe data-src="statut_v1.html" style="width:100%;height:100%;border:none;display:block;" id="statutFrame"></iframe>
     <div id="swipeLeftSt" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightSt" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 3 : Élites (tab 3) -->
   <div class="panel-slide" id="panel-3" style="position:relative;">
-    <iframe src="elite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="eliteFrame"></iframe>
+    <iframe data-src="elite_v1.html" style="width:100%;height:100%;border:none;display:block;" id="eliteFrame"></iframe>
     <div id="swipeLeftEl" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightEl" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 4 : Offres (tab 4) -->
   <div class="panel-slide" id="panel-4" style="position:relative;">
-    <iframe src="offre_v1.html" style="width:100%;height:100%;border:none;display:block;" id="offreFrame"></iframe>
+    <iframe data-src="offre_v1.html" style="width:100%;height:100%;border:none;display:block;" id="offreFrame"></iframe>
     <div id="swipeLeftOf" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightOf" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 5 : CV Pro (tab 5) -->
   <div class="panel-slide" id="panel-5" style="position:relative;">
-    <iframe src="cv_pro.html" style="width:100%;height:100%;border:none;display:block;" id="cvProFrame"></iframe>
+    <iframe data-src="cv_pro.html" style="width:100%;height:100%;border:none;display:block;" id="cvProFrame"></iframe>
     <div id="swipeLeftCv" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightCv" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 6 : Discussion (tab 6) -->
   <div class="panel-slide" id="panel-6" style="position:relative;">
-    <iframe src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
+    <iframe data-src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
     <div id="swipeLeft" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRight" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 7 : Fil Presse (tab 7) -->
   <div class="panel-slide" id="panel-7" style="position:relative;">
-    <iframe src="fil-presse.html" style="width:100%;height:100%;border:none;display:block;" id="presseFrame"></iframe>
+    <iframe data-src="fil-presse.html" style="width:100%;height:100%;border:none;display:block;" id="presseFrame"></iframe>
     <div id="swipeLeftPr" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightPr" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
   <!-- PANEL 8 : FAQ (tab 8) -->
   <div class="panel-slide" id="panel-8" style="position:relative;">
-    <iframe src="faq_v1.html" style="width:100%;height:100%;border:none;display:block;" id="faqFrame"></iframe>
+    <iframe data-src="faq_v1.html" style="width:100%;height:100%;border:none;display:block;" id="faqFrame"></iframe>
     <div id="swipeLeftFq" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRightFq" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
@@ -508,6 +508,17 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     if (index < 0) index = 0;
     if (index >= totalPanels) index = totalPanels - 1;
     currentPanel = index;
+
+    // Chargement paresseux : l'iframe de cet onglet ne se charge que maintenant,
+    // au moment où on l'ouvre pour la première fois (pas toutes en même temps
+    // à l'ouverture de la page, ce qui surchargeait le réseau et le navigateur).
+    const panelEl = document.getElementById('panel-' + index);
+    if (panelEl) {
+      const ifr = panelEl.querySelector('iframe[data-src]');
+      if (ifr && !ifr.getAttribute('src')) {
+        ifr.src = ifr.dataset.src;
+      }
+    }
 
     // Activer tab
     tabs.forEach(t => t.classList.remove('active'));
