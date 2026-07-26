@@ -450,7 +450,6 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
   <!-- LISTE : Mes CV (en premier, bouton "+Ajouter" toujours visible en haut) + Communauté (en dessous) -->
   <div id="cvListeWrap" style="display:none">
-    <div id="cvCarrouselCommunaute"></div>
     <div class="hero-card" id="heroCard">
       <div>
         <h2 id="heroTitreListe" data-i18n="cv_hero_title">Créez votre carte de visite professionnelle</h2>
@@ -1033,17 +1032,20 @@ async function renderListeCards(){
   cardsCommu.innerHTML = '';
   for (const c of listeCommunaute) cardsCommu.appendChild(construireInstance(c, false));
 
-  // Carrousel léger « CV à la une », construit uniquement à partir des CV déjà en base
-  // (aucune génération automatique de profils) — même format que le carrousel de Fil Presse.
-  const carrouselZone = document.getElementById('cvCarrouselCommunaute');
-  if (carrouselZone) {
-    try {
-      carrouselZone.innerHTML = '';
+  // Carrousel léger « CV à la une », inséré directement dans la liste juste après la 4e carte,
+  // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
+  // Aucune génération automatique de profils : uniquement les CV déjà en base.
+  try {
+    if (listeCommunaute.length > 4) {
       const node = buildCoverCarouselCv(listeCommunaute);
-      if (node) { carrouselZone.appendChild(node); wireCoverCarouselCv(); }
-    } catch (err) {
-      console.error('Carrousel CV Pro impossible à construire :', err);
+      if (node) {
+        const refNode = cardsCommu.children[4] || null; // juste après la 4e carte
+        cardsCommu.insertBefore(node, refNode);
+        wireCoverCarouselCv();
+      }
     }
+  } catch (err) {
+    console.error('Carrousel CV Pro impossible à construire :', err);
   }
 }
 
