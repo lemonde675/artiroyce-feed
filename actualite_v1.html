@@ -604,6 +604,141 @@ function tempsDepuis(ms) {
   return 'il y a '+Math.floor(j/30)+' mois';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 1 — AFFICHAGE DU FIL (lecture Firestore + rendu)
+   Ajouté le 26/07/2026. Ne modifie rien d'autre dans le fichier.
+   Collection Firestore utilisée : "publications"
+   Champs observés : auteurNom, auteurUid, auteurMetier, auteurVerifie,
+   type ("texte"|"galerie"|"boutique"), categorie, texte, createdAt,
+   disposition, tagColor, cadres (array {nom,photo,prix}), likes, partages.
+   ══════════════════════════════════════════════════════════════════ */
+
+// Construit l'avatar rond avec initiale + badge ✔ si vérifié
+function creerAvatarHTML(nom, verifie) {
+  const initiale = (nom || '?')[0].toUpperCase();
+  const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
+  return '<div class="ph-av" style="background:' + couleur + '">' + escapeHtml(initiale)
+    + (verifie ? '<span class="ph-vb">✔</span>' : '') + '</div>';
+}
+
+// Construit la grille média (Boutique = cadres avec nom/prix, Galerie = simples photos)
+function creerMediaHTML(pub) {
+  const tag = pub.tagColor || 'blanc';
+
+  if (pub.type === 'boutique' && Array.isArray(pub.cadres) && pub.cadres.length) {
+    const layout = MEDIA_LAYOUTS[pub.disposition] || MEDIA_LAYOUTS[4];
+    let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+      + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+    pub.cadres.forEach((c, i) => {
+      const area = layout.areas ? layout.areas[i] : null;
+      html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+        + 'aspect-ratio:' + (layout.cRatio || '1') + '">'
+        + (c.photo ? '<img src="' + c.photo + '" loading="lazy">' : '')
+        + '<div class="media-tags tags-' + tag + '">'
+        + '<span class="media-chip">' + escapeHtml(c.nom || '') + '</span>'
+        + (c.prix ? '<span class="media-chip">' + escapeHtml(String(c.prix)) + ' €</span>' : '')
+        + '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  if (pub.type === 'galerie' && Array.isArray(pub.images) && pub.images.length) {
+    const n = Math.min(pub.images.length, 8);
+    const layout = MEDIA_LAYOUTS[n] || null;
+    if (layout) {
+      let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+        + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+      pub.images.slice(0, n).forEach((img, i) => {
+        const area = layout.areas ? layout.areas[i] : null;
+        html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+          + 'aspect-ratio:' + (layout.cRatio || '1') + '"><img src="' + img + '" loading="lazy"></div>';
+      });
+      html += '</div>';
+      return html;
+    }
+    // Plus de 8 images ou disposition inconnue : galerie libre simple
+    let html = '<div class="p-media-free">';
+    pub.images.slice(0, 8).forEach(img => {
+      html += '<div class="p-media-item"><img src="' + img + '" loading="lazy"></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  return '';
+}
+
+// Construit la carte HTML complète d'une publication
+function creerPostHTML(pub) {
+  const nom = pub.auteurNom || 'Utilisateur';
+  const meta = (pub.auteurMetier ? escapeHtml(pub.auteurMetier) + ' · ' : '')
+    + tempsDepuis(pub.createdAt && pub.createdAt.toMillis ? pub.createdAt.toMillis() : Date.now());
+  const badge = BADGES[pub.categorie] ? '<span class="ph-badge">' + BADGES[pub.categorie] + '</span>' : '';
+
+  return '<div class="post" data-id="' + pub.id + '">'
+    + '<div class="ph">'
+    + creerAvatarHTML(nom, pub.auteurVerifie)
+    + '<div class="ph-info">'
+    +   '<div class="ph-top"><span class="ph-name">' + escapeHtml(nom) + '</span>' + badge + '</div>'
+    +   '<div class="ph-meta">' + meta + '</div>'
+    + '</div>'
+    + '</div>'
+    + (pub.texte ? '<div class="pt">' + escapeHtml(pub.texte) + '</div>' : '')
+    + creerMediaHTML(pub)
+    + '<div class="pr-row">'
+    +   '<div class="pr-l"><span class="pr-cnt">👍 ' + (pub.likes || 0) + '</span></div>'
+    +   '<div class="pr-r">' + (pub.partages || 0) + ' partages</div>'
+    + '</div>'
+    + '</div>';
+}
+
+// Affiche la liste de publications actuellement en mémoire (temps réel + pages suivantes)
+function afficherFeed() {
+  const conteneur = document.getElementById('feedPosts');
+  const toutes = [...pubsTempsReel, ...pubsAnciennes];
+  listePublications = toutes;
+
+  const filtrees = toutes.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+
+  document.getElementById('feedLoading').style.display = 'none';
+
+  if (!filtrees.length) {
+    conteneur.innerHTML = '';
+    document.getElementById('feedEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('feedEmpty').style.display = 'none';
+  conteneur.innerHTML = filtrees.map(creerPostHTML).join('');
+}
+
+// Écoute en temps réel la page la plus récente de publications
+function chargerPublications() {
+  const conteneur = document.getElementById('feedPosts');
+  if (!conteneur) return;
+  try {
+    const q = query(collection(db, 'publications'), orderBy('createdAt', 'desc'), limit(TAILLE_PAGE));
+    onSnapshot(q, snap => {
+      pubsTempsReel = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (snap.docs.length) curseurPagination = snap.docs[snap.docs.length - 1];
+      afficherFeed();
+      ajouterEtape('8. Publications chargées ✅ (' + pubsTempsReel.length + ')');
+    }, err => {
+      ajouterEtape('❌ Erreur lecture publications : ' + (err && err.message || err));
+      document.getElementById('feedLoading').style.display = 'none';
+      document.getElementById('feedEmpty').style.display = 'block';
+    });
+  } catch (e) {
+    ajouterEtape('❌ Exception chargerPublications : ' + (e && e.message || e));
+  }
+}
+
+// Bouton 🔄 "Actualiser" : relance simplement l'affichage à partir des données déjà en mémoire
+window.rafraichirFeed = function () {
+  afficherFeed();
+  window.toast && window.toast('Fil actualisé', 'g');
+};
+
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
