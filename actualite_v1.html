@@ -828,7 +828,19 @@ function openCreate() {
   cmAfficherChoix();
   document.getElementById('cmText').value = '';
   document.getElementById('createModal').classList.add('open');
+  window.scrollTo(0, 0);
 }
+
+/* ÉTAPE 6 — CORRECTIF : sur certains téléphones Android, l'ouverture du
+   clavier fait défiler toute la page (cachant le bouton "Publier" en
+   haut du modal). On reverrouille la page en position 0 pendant que
+   le modal est ouvert. Ajouté le 27/07/2026. */
+window.addEventListener('scroll', function () {
+  const m = document.getElementById('createModal');
+  if (m && m.classList.contains('open') && window.scrollY !== 0) {
+    window.scrollTo(0, 0);
+  }
+});
 
 // Bouton "Annuler" / "Retour" en haut du modal
 function cmBackOrClose() {
@@ -839,33 +851,68 @@ function cmBackOrClose() {
   }
 }
 
-// Choix d'un modèle sur l'écran 0. Seul "texte" est fonctionnel pour l'instant.
+// Choix d'un modèle sur l'écran 0 : les 3 modèles sont maintenant fonctionnels.
 function chooseModel(type) {
-  if (type !== 'texte') {
-    window.toast && window.toast('Bientôt disponible — arrive dans une prochaine étape');
-    return;
-  }
-  cmEtapeActuelle = 'texte';
+  cmEtapeActuelle = type;
   document.getElementById('cmStepChoix').style.display = 'none';
   document.getElementById('cmStepUser').style.display = 'flex';
-  document.getElementById('cmText').style.display = 'block';
-  document.getElementById('cmTitleLbl').textContent = 'Publication texte';
   document.getElementById('cmBackOrCancel').textContent = 'Retour';
   document.getElementById('btnPublish').style.display = 'block';
-  document.getElementById('cmText').focus();
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+
+  if (type === 'texte') {
+    document.getElementById('cmText').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Publication texte';
+    document.getElementById('cmText').focus();
+  } else if (type === 'galerie') {
+    galImages = [];
+    document.getElementById('cmGalText').value = '';
+    renderGalGrid();
+    document.getElementById('cmStepGalerie').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
+  } else if (type === 'boutique') {
+    cadLayoutActif = 4; cadSlots = new Array(4).fill(null); cadTagColor = 'vert';
+    document.getElementById('cadTitreInput').value = 'Boutique';
+    renderCadLayoutPicker();
+    renderCadColorPicker();
+    renderCadGrid();
+    document.getElementById('cmStepBoutique').style.display = 'flex';
+    document.getElementById('cmTitleLbl').textContent = 'Boutique';
+  }
 }
 
-// Envoie la publication texte dans Firestore
+// Envoie la publication dans Firestore (texte, galerie, ou boutique selon l'étape en cours)
 async function publishPost() {
-  const texte = document.getElementById('cmText').value.trim();
-  if (!texte) { window.toast && window.toast('Écrivez un message avant de publier'); return; }
   const categorie = document.getElementById('cmCategorie').value;
   const btn = document.getElementById('btnPublish');
+  let donnees = null;
+
+  if (cmEtapeActuelle === 'texte') {
+    const texte = document.getElementById('cmText').value.trim();
+    if (!texte) { window.toast && window.toast('Écrivez un message avant de publier'); return; }
+    donnees = { type: 'texte', texte: texte };
+  } else if (cmEtapeActuelle === 'galerie') {
+    if (!galImages.length) { window.toast && window.toast('Ajoutez au moins une photo'); return; }
+    donnees = { type: 'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice() };
+  } else if (cmEtapeActuelle === 'boutique') {
+    const cadresRemplis = cadSlots.filter(c => c && c.photo);
+    if (!cadresRemplis.length) { window.toast && window.toast('Ajoutez au moins un article avec photo'); return; }
+    donnees = {
+      type: 'boutique',
+      texte: document.getElementById('cadTitreInput').value.trim() || 'Boutique',
+      cadres: cadresRemplis,
+      disposition: cadLayoutActif,
+      tagColor: cadTagColor
+    };
+  } else {
+    return;
+  }
+
   btn.disabled = true; btn.textContent = 'Publication…';
   try {
-    await addDoc(collection(db, 'publications'), {
-      type: 'texte',
-      texte: texte,
+    await addDoc(collection(db, 'publications'), Object.assign({
       categorie: categorie,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
@@ -874,7 +921,7 @@ async function publishPost() {
       createdAt: serverTimestamp(),
       likes: 0,
       partages: 0
-    });
+    }, donnees));
     window.toast && window.toast('Publié ✅', 'g');
     document.getElementById('createModal').classList.remove('open');
     cmAfficherChoix();
@@ -885,6 +932,146 @@ async function publishPost() {
     btn.disabled = false; btn.textContent = 'Publier';
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 7 — MODÈLES "PHOTO · GALERIE" ET "BOUTIQUE"
+   Ajouté le 28/07/2026. Sélection de photos + redimensionnement côté
+   téléphone (max 1000px, JPEG) avant stockage en base64 dans Firestore,
+   pour éviter de dépasser la limite de 1 Mo par document.
+   ══════════════════════════════════════════════════════════════════ */
+
+// Redimensionne une photo choisie par l'utilisateur avant de la convertir en base64
+function redimensionnerImage(fichier, maxDim, qualite) {
+  return new Promise((resolve, reject) => {
+    const lecteur = new FileReader();
+    lecteur.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+        const toile = document.createElement('canvas');
+        toile.width = width; toile.height = height;
+        toile.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(toile.toDataURL('image/jpeg', qualite));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    lecteur.onerror = reject;
+    lecteur.readAsDataURL(fichier);
+  });
+}
+
+// Ouvre le sélecteur de photo du téléphone puis renvoie l'image redimensionnée
+function ouvrirSelecteurPhoto(callback) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    if (input.files && input.files[0]) {
+      try {
+        const base64 = await redimensionnerImage(input.files[0], 1000, 0.72);
+        callback(base64);
+      } catch (e) {
+        console.error(e);
+        window.toast && window.toast('Photo illisible, réessayez');
+      }
+    }
+  };
+  input.click();
+}
+
+/* ── Galerie (1 à 8 photos, sans cadre ni étiquette) ── */
+
+function renderGalGrid() {
+  const grille = document.getElementById('galGrid');
+  grille.className = 'free-gallery';
+  let html = '';
+  galImages.forEach((img, i) => {
+    html += '<div class="free-item"><img src="' + img + '">'
+      + '<div class="free-remove" onclick="retirerPhotoGalerie(' + i + ')">✕</div></div>';
+  });
+  if (galImages.length < 8) {
+    html += '<div class="free-add" onclick="ajouterPhotoGalerie()"><span>+</span><span class="lbl">Ajouter</span></div>';
+  }
+  grille.innerHTML = html;
+}
+window.ajouterPhotoGalerie = function () {
+  ouvrirSelecteurPhoto(base64 => { galImages.push(base64); renderGalGrid(); });
+};
+window.retirerPhotoGalerie = function (i) {
+  galImages.splice(i, 1);
+  renderGalGrid();
+};
+
+/* ── Boutique (cadres avec nom + prix par article) ── */
+
+function renderCadLayoutPicker() {
+  const wrap = document.getElementById('cadLayoutPicker');
+  let html = '';
+  [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+    html += '<div class="cad-layout-opt' + (cadLayoutActif === n ? ' active' : '') + '" onclick="choisirDisposition(' + n + ')">' + n + '</div>';
+  });
+  wrap.innerHTML = html;
+}
+window.choisirDisposition = function (n) {
+  cadLayoutActif = n;
+  const anciens = cadSlots.slice(0, n);
+  cadSlots = anciens.concat(new Array(Math.max(0, n - anciens.length)).fill(null));
+  renderCadLayoutPicker();
+  renderCadGrid();
+};
+
+function renderCadColorPicker() {
+  document.querySelectorAll('#cadColorPicker .cad-tcp-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.c === cadTagColor);
+    dot.onclick = () => { cadTagColor = dot.dataset.c; renderCadColorPicker(); renderCadGrid(); };
+  });
+}
+
+function renderCadGrid() {
+  const grille = document.getElementById('cadGrid');
+  const layout = MEDIA_LAYOUTS[cadLayoutActif] || MEDIA_LAYOUTS[4];
+  grille.className = 'media-grid';
+  grille.style.gridTemplateColumns = layout.template;
+  if (layout.rows) grille.style.gridTemplateRows = layout.rows;
+  else grille.style.removeProperty('grid-template-rows');
+
+  let html = '';
+  for (let i = 0; i < cadLayoutActif; i++) {
+    const area = layout.areas ? layout.areas[i] : null;
+    const styleZone = (area ? 'grid-area:' + area + ';' : '') + 'aspect-ratio:' + (layout.cRatio || '1');
+    const c = cadSlots[i];
+    if (c && c.photo) {
+      html += '<div class="media-slot editable filled" style="' + styleZone + '" onclick="remplirCadre(' + i + ')">'
+        + '<img src="' + c.photo + '">'
+        + '<div class="media-slot-remove" onclick="event.stopPropagation();retirerCadre(' + i + ')">✕</div>'
+        + '<div class="media-tags tags-' + cadTagColor + '">'
+        + '<span class="media-chip">' + escapeHtml(c.nom || '') + '</span>'
+        + (c.prix ? '<span class="media-chip">' + escapeHtml(String(c.prix)) + ' €</span>' : '')
+        + '</div></div>';
+    } else {
+      html += '<div class="media-slot editable" style="' + styleZone + '" onclick="remplirCadre(' + i + ')"><span class="media-slot-empty">+</span></div>';
+    }
+  }
+  grille.innerHTML = html;
+}
+window.remplirCadre = function (i) {
+  ouvrirSelecteurPhoto(base64 => {
+    const ancien = cadSlots[i] || {};
+    const nom = window.prompt('Nom de l\'article :', ancien.nom || '') || '';
+    const prix = window.prompt('Prix (nombre) :', ancien.prix || '') || '';
+    cadSlots[i] = { photo: base64, nom: nom, prix: prix };
+    renderCadGrid();
+  });
+};
+window.retirerCadre = function (i) {
+  cadSlots[i] = null;
+  renderCadGrid();
+};
 
 /* ══════════════════════════════════════════════════════════════════
    ÉTAPE 5 — CORRECTIF : rattacher à window les fonctions appelées
