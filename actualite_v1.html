@@ -788,6 +788,19 @@ async function chargerMesReactionsActu() {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 3 — CATÉGORIES CLIQUABLES
+   Ajouté le 27/07/2026.
+   ══════════════════════════════════════════════════════════════════ */
+
+// Change la catégorie active (pastille cliquée) et rafraîchit l'affichage du feed
+function setCat(pill) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  categorieActive = pill.dataset.cat;
+  afficherFeed();
+}
+
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
