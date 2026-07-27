@@ -801,6 +801,91 @@ function setCat(pill) {
   afficherFeed();
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 4 — CRÉATION D'UNE PUBLICATION (modèle "Texte" uniquement)
+   Ajouté le 27/07/2026. Les modèles "Photo · Galerie" et "Boutique"
+   demandent la gestion des photos : ce sera une étape séparée.
+   ══════════════════════════════════════════════════════════════════ */
+
+let cmEtapeActuelle = 'choix'; // 'choix' | 'texte'
+
+// Remet le modal à zéro sur l'étape "choix du modèle" (sans le fermer)
+function cmAfficherChoix() {
+  cmEtapeActuelle = 'choix';
+  document.getElementById('cmStepChoix').style.display = '';
+  document.getElementById('cmStepUser').style.display = 'none';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
+  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
+  document.getElementById('btnPublish').style.display = 'none';
+}
+
+// Ouvre le modal de création (appelé par l'avatar / le champ "Publier un produit")
+function openCreate() {
+  if (!currentUser) { window.toast && window.toast('Connexion requise'); return; }
+  cmAfficherChoix();
+  document.getElementById('cmText').value = '';
+  document.getElementById('createModal').classList.add('open');
+}
+
+// Bouton "Annuler" / "Retour" en haut du modal
+function cmBackOrClose() {
+  if (cmEtapeActuelle === 'choix') {
+    document.getElementById('createModal').classList.remove('open');
+  } else {
+    cmAfficherChoix();
+  }
+}
+
+// Choix d'un modèle sur l'écran 0. Seul "texte" est fonctionnel pour l'instant.
+function chooseModel(type) {
+  if (type !== 'texte') {
+    window.toast && window.toast('Bientôt disponible — arrive dans une prochaine étape');
+    return;
+  }
+  cmEtapeActuelle = 'texte';
+  document.getElementById('cmStepChoix').style.display = 'none';
+  document.getElementById('cmStepUser').style.display = 'flex';
+  document.getElementById('cmText').style.display = 'block';
+  document.getElementById('cmTitleLbl').textContent = 'Publication texte';
+  document.getElementById('cmBackOrCancel').textContent = 'Retour';
+  document.getElementById('btnPublish').style.display = 'block';
+  document.getElementById('cmText').focus();
+}
+
+// Envoie la publication texte dans Firestore
+async function publishPost() {
+  const texte = document.getElementById('cmText').value.trim();
+  if (!texte) { window.toast && window.toast('Écrivez un message avant de publier'); return; }
+  const categorie = document.getElementById('cmCategorie').value;
+  const btn = document.getElementById('btnPublish');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  try {
+    await addDoc(collection(db, 'publications'), {
+      type: 'texte',
+      texte: texte,
+      categorie: categorie,
+      auteurNom: currentUser.displayName,
+      auteurUid: currentUser.uid,
+      auteurMetier: currentUser.metier || '',
+      auteurVerifie: !!currentUser.verifie,
+      createdAt: serverTimestamp(),
+      likes: 0,
+      partages: 0
+    });
+    window.toast && window.toast('Publié ✅', 'g');
+    document.getElementById('createModal').classList.remove('open');
+    cmAfficherChoix();
+  } catch (e) {
+    console.error(e);
+    window.toast && window.toast('Erreur : publication impossible');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Publier';
+  }
+}
+
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
