@@ -554,6 +554,7 @@ let listePublications = [];
 let searchTermActu = '';
 let listeCorbeille = [];
 let followedUids = new Set();
+let mesReactionsActu = {};   // { idPublication: true } pour les publications déjà "aimées" par l'utilisateur
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 
 /* ══ PAGINATION DU FIL (chargement progressif, comme Facebook) ══ */
@@ -738,6 +739,54 @@ window.rafraichirFeed = function () {
   afficherFeed();
   window.toast && window.toast('Fil actualisé', 'g');
 };
+
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 2 — SUPPRESSION DES ERREURS "fonction non définie"
+   Ajouté le 27/07/2026. Fonctions en lecture seule uniquement (aucune
+   écriture automatique), donc sans risque pour les données existantes.
+   ══════════════════════════════════════════════════════════════════ */
+
+// Vérifie juste si les données de démonstration ont déjà été insérées.
+// Ne crée rien automatiquement (une insertion de données demande ton
+// accord explicite au préalable) : se contente de ne plus planter.
+async function ensureSeedActualites() {
+  try {
+    const refSeed = doc(db, 'publications_meta', 'seed_v1');
+    const snap = await getDoc(refSeed);
+    ajouterEtape(snap.exists()
+      ? '7b. Seed actualités déjà présent, rien à faire ✅'
+      : '7b. Aucun seed actualités trouvé (pas de création automatique)');
+  } catch (e) {
+    ajouterEtape('7b. ensureSeedActualites ignoré : ' + (e && e.message || e));
+  }
+}
+
+// Charge la liste des profils que l'utilisateur suit déjà (pour l'état du bouton "Suivre" plus tard)
+async function chargerSuivis() {
+  try {
+    if (!currentUser) return;
+    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivis'));
+    followedUids = new Set(snap.docs.map(d => d.id));
+    ajouterEtape('9. Suivis chargés ✅ (' + followedUids.size + ')');
+  } catch (e) {
+    followedUids = new Set();
+    ajouterEtape('9. chargerSuivis ignoré : ' + (e && e.message || e));
+  }
+}
+
+// Charge les publications déjà "aimées" par l'utilisateur (pour l'état du bouton 👍 plus tard)
+async function chargerMesReactionsActu() {
+  try {
+    if (!currentUser) return;
+    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'reactionsActu'));
+    mesReactionsActu = {};
+    snap.docs.forEach(d => { mesReactionsActu[d.id] = true; });
+    ajouterEtape('10. Mes réactions chargées ✅ (' + snap.docs.length + ')');
+  } catch (e) {
+    mesReactionsActu = {};
+    ajouterEtape('10. chargerMesReactionsActu ignoré : ' + (e && e.message || e));
+  }
+}
 
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
