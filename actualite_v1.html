@@ -886,6 +886,18 @@ async function publishPost() {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 5 — CORRECTIF : rattacher à window les fonctions appelées
+   depuis les onclick="..." du HTML. Obligatoire dans un script
+   type="module" (contrairement à un script classique). Ajouté le
+   27/07/2026. Ne change aucune logique, juste l'exposition.
+   ══════════════════════════════════════════════════════════════════ */
+window.setCat = setCat;
+window.openCreate = openCreate;
+window.cmBackOrClose = cmBackOrClose;
+window.chooseModel = chooseModel;
+window.publishPost = publishPost;
+
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
