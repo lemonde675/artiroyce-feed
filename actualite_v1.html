@@ -775,13 +775,21 @@ async function chargerSuivis() {
 }
 
 // Charge les publications déjà "aimées" par l'utilisateur (pour l'état du bouton 👍 plus tard)
+// Corrigé le 28/07/2026 : la vraie structure (vue dans le fichier de référence) est une
+// sous-collection "reactions" sous CHAQUE publication (publications/{id}/reactions/{reactionId}),
+// pas une sous-collection sous l'utilisateur comme je l'avais deviné au départ.
 async function chargerMesReactionsActu() {
   try {
     if (!currentUser) return;
-    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'reactionsActu'));
+    const snap = await getDocs(query(collectionGroup(db, 'reactions'), where('uid', '==', currentUser.uid)));
     mesReactionsActu = {};
-    snap.docs.forEach(d => { mesReactionsActu[d.id] = true; });
-    ajouterEtape('10. Mes réactions chargées ✅ (' + snap.docs.length + ')');
+    snap.forEach(d => {
+      const refPub = d.ref.parent.parent; // le document "publications/{id}" parent
+      if (refPub && refPub.parent && refPub.parent.id === 'publications') {
+        mesReactionsActu[refPub.id] = d.data().emoji || true;
+      }
+    });
+    ajouterEtape('10. Mes réactions chargées ✅ (' + Object.keys(mesReactionsActu).length + ')');
   } catch (e) {
     mesReactionsActu = {};
     ajouterEtape('10. chargerMesReactionsActu ignoré : ' + (e && e.message || e));
@@ -822,25 +830,31 @@ function cmAfficherChoix() {
   document.getElementById('btnPublish').style.display = 'none';
 }
 
+/* ÉTAPE 6 (corrigée le 28/07/2026 grâce au fichier de référence envoyé) —
+   La vraie cause du bouton "Publier" caché n'était pas le clavier : cette
+   page s'affiche en IFRAME dans accueil.html, et c'est le bandeau du
+   PARENT (accueil.html, z-index:200) qui recouvre le haut de notre modal
+   plein écran — un simple z-index interne ne peut jamais régler ça, ce
+   sont deux documents différents. On calcule la hauteur réelle du
+   bandeau parent et on pousse notre modal de cette hauteur exacte. */
+function getEmbedTopOffsetPx() {
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const topParent = window.parent.document.getElementById('topH');
+      if (topParent) return topParent.getBoundingClientRect().height;
+    }
+  } catch (e) { /* parent inaccessible (cross-origin) : offset = 0 */ }
+  return 0;
+}
+
 // Ouvre le modal de création (appelé par l'avatar / le champ "Publier un produit")
 function openCreate() {
   if (!currentUser) { window.toast && window.toast('Connexion requise'); return; }
   cmAfficherChoix();
   document.getElementById('cmText').value = '';
+  document.getElementById('createModal').style.paddingTop = getEmbedTopOffsetPx() + 'px';
   document.getElementById('createModal').classList.add('open');
-  window.scrollTo(0, 0);
 }
-
-/* ÉTAPE 6 — CORRECTIF : sur certains téléphones Android, l'ouverture du
-   clavier fait défiler toute la page (cachant le bouton "Publier" en
-   haut du modal). On reverrouille la page en position 0 pendant que
-   le modal est ouvert. Ajouté le 27/07/2026. */
-window.addEventListener('scroll', function () {
-  const m = document.getElementById('createModal');
-  if (m && m.classList.contains('open') && window.scrollY !== 0) {
-    window.scrollTo(0, 0);
-  }
-});
 
 // Bouton "Annuler" / "Retour" en haut du modal
 function cmBackOrClose() {
@@ -865,7 +879,7 @@ function chooseModel(type) {
   if (type === 'texte') {
     document.getElementById('cmText').style.display = 'block';
     document.getElementById('cmTitleLbl').textContent = 'Publication texte';
-    document.getElementById('cmText').focus();
+    setTimeout(() => document.getElementById('cmText').focus(), 250);
   } else if (type === 'galerie') {
     galImages = [];
     document.getElementById('cmGalText').value = '';
@@ -873,7 +887,8 @@ function chooseModel(type) {
     document.getElementById('cmStepGalerie').style.display = 'block';
     document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
   } else if (type === 'boutique') {
-    cadLayoutActif = 4; cadSlots = new Array(4).fill(null); cadTagColor = 'vert';
+    cadLayoutActif = 4; cadTagColor = 'vert';
+    initCadSlots(4);
     document.getElementById('cadTitreInput').value = 'Boutique';
     renderCadLayoutPicker();
     renderCadColorPicker();
@@ -885,6 +900,9 @@ function chooseModel(type) {
 
 // Envoie la publication dans Firestore (texte, galerie, ou boutique selon l'étape en cours)
 async function publishPost() {
+  // NB : contrairement à la version de référence (qui imposait categorie:'Arts'
+  // pour Galerie/Boutique), on garde ici le choix de catégorie de l'utilisateur
+  // pour les 3 modèles — plus cohérent avec les pastilles de filtre en haut du feed.
   const categorie = document.getElementById('cmCategorie').value;
   const btn = document.getElementById('btnPublish');
   let donnees = null;
@@ -895,16 +913,16 @@ async function publishPost() {
     donnees = { type: 'texte', texte: texte };
   } else if (cmEtapeActuelle === 'galerie') {
     if (!galImages.length) { window.toast && window.toast('Ajoutez au moins une photo'); return; }
-    donnees = { type: 'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice() };
+    donnees = { type: 'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice(0, 8) };
   } else if (cmEtapeActuelle === 'boutique') {
-    const cadresRemplis = cadSlots.filter(c => c && c.photo);
+    const cadresRemplis = cadSlots.filter(s => s.photo);
     if (!cadresRemplis.length) { window.toast && window.toast('Ajoutez au moins un article avec photo'); return; }
     donnees = {
       type: 'boutique',
       texte: document.getElementById('cadTitreInput').value.trim() || 'Boutique',
-      cadres: cadresRemplis,
       disposition: cadLayoutActif,
-      tagColor: cadTagColor
+      tagColor: cadTagColor,
+      cadres: cadresRemplis.map(s => ({ photo: s.photo, nom: s.nom || 'Article', prix: s.prix || '' }))
     };
   } else {
     return;
@@ -935,9 +953,13 @@ async function publishPost() {
 
 /* ══════════════════════════════════════════════════════════════════
    ÉTAPE 7 — MODÈLES "PHOTO · GALERIE" ET "BOUTIQUE"
-   Ajouté le 28/07/2026. Sélection de photos + redimensionnement côté
-   téléphone (max 1000px, JPEG) avant stockage en base64 dans Firestore,
-   pour éviter de dépasser la limite de 1 Mo par document.
+   Réécrit le 28/07/2026 d'après le fichier de référence fourni : grille
+   magazine (au lieu d'une simple liste), champs nom/prix intégrés
+   directement dans l'image (au lieu d'une fenêtre de dialogue), et
+   dimensionnement du cadre au niveau de la grille entière (meilleur
+   centrage des photos). On garde en plus un redimensionnement des
+   photos avant stockage, pour rester sous la limite de 1 Mo/document
+   de Firestore (absent de la version de référence).
    ══════════════════════════════════════════════════════════════════ */
 
 // Redimensionne une photo choisie par l'utilisateur avant de la convertir en base64
@@ -984,30 +1006,48 @@ function ouvrirSelecteurPhoto(callback) {
   input.click();
 }
 
-/* ── Galerie (1 à 8 photos, sans cadre ni étiquette) ── */
+/* ── Galerie (1 à 8 photos, disposition magazine automatique, sans étiquette) ── */
 
 function renderGalGrid() {
   const grille = document.getElementById('galGrid');
-  grille.className = 'free-gallery';
+  grille.className = 'media-grid';
+  if (!galImages.length) {
+    grille.style.gridTemplateColumns = '1fr';
+    grille.style.gridTemplateRows = '';
+    grille.innerHTML = '<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>';
+    return;
+  }
+  const layout = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
+  grille.style.gridTemplateColumns = layout.template;
+  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.aspectRatio = layout.cRatio || '';
   let html = '';
-  galImages.forEach((img, i) => {
-    html += '<div class="free-item"><img src="' + img + '">'
-      + '<div class="free-remove" onclick="retirerPhotoGalerie(' + i + ')">✕</div></div>';
+  galImages.forEach((photo, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.ratio;
+    html += '<div class="media-slot" style="' + area + ratio + '">'
+      + '<img src="' + photo + '">'
+      + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div></div>';
   });
   if (galImages.length < 8) {
-    html += '<div class="free-add" onclick="ajouterPhotoGalerie()"><span>+</span><span class="lbl">Ajouter</span></div>';
+    html += '<div class="media-slot editable" style="aspect-ratio:1" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
   }
   grille.innerHTML = html;
 }
-window.ajouterPhotoGalerie = function () {
+window.galAjouterPhoto = function () {
   ouvrirSelecteurPhoto(base64 => { galImages.push(base64); renderGalGrid(); });
 };
-window.retirerPhotoGalerie = function (i) {
+window.galRetirerPhoto = function (i) {
   galImages.splice(i, 1);
   renderGalGrid();
 };
 
-/* ── Boutique (cadres avec nom + prix par article) ── */
+/* ── Boutique (cadres avec nom + prix intégrés dans l'image) ── */
+
+function initCadSlots(n) {
+  cadSlots = [];
+  for (let i = 0; i < n; i++) cadSlots.push({ photo: '', nom: '', prix: '' });
+}
 
 function renderCadLayoutPicker() {
   const wrap = document.getElementById('cadLayoutPicker');
@@ -1019,8 +1059,7 @@ function renderCadLayoutPicker() {
 }
 window.choisirDisposition = function (n) {
   cadLayoutActif = n;
-  const anciens = cadSlots.slice(0, n);
-  cadSlots = anciens.concat(new Array(Math.max(0, n - anciens.length)).fill(null));
+  initCadSlots(n);
   renderCadLayoutPicker();
   renderCadGrid();
 };
@@ -1035,43 +1074,38 @@ function renderCadColorPicker() {
 function renderCadGrid() {
   const grille = document.getElementById('cadGrid');
   const layout = MEDIA_LAYOUTS[cadLayoutActif] || MEDIA_LAYOUTS[4];
-  grille.className = 'media-grid';
+  grille.className = 'media-grid tags-' + cadTagColor;
   grille.style.gridTemplateColumns = layout.template;
-  if (layout.rows) grille.style.gridTemplateRows = layout.rows;
-  else grille.style.removeProperty('grid-template-rows');
+  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.aspectRatio = layout.cRatio || '';
 
   let html = '';
-  for (let i = 0; i < cadLayoutActif; i++) {
-    const area = layout.areas ? layout.areas[i] : null;
-    const styleZone = (area ? 'grid-area:' + area + ';' : '') + 'aspect-ratio:' + (layout.cRatio || '1');
-    const c = cadSlots[i];
-    if (c && c.photo) {
-      html += '<div class="media-slot editable filled" style="' + styleZone + '" onclick="remplirCadre(' + i + ')">'
-        + '<img src="' + c.photo + '">'
-        + '<div class="media-slot-remove" onclick="event.stopPropagation();retirerCadre(' + i + ')">✕</div>'
-        + '<div class="media-tags tags-' + cadTagColor + '">'
-        + '<span class="media-chip">' + escapeHtml(c.nom || '') + '</span>'
-        + (c.prix ? '<span class="media-chip">' + escapeHtml(String(c.prix)) + ' €</span>' : '')
+  cadSlots.forEach((s, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.ratio;
+    if (s.photo) {
+      html += '<div class="media-slot editable filled" style="' + area + ratio + '">'
+        + '<img src="' + s.photo + '">'
+        + '<div class="media-slot-remove" onclick="event.stopPropagation();cadRetirerPhoto(' + i + ')">✕</div>'
+        + '<div class="media-tags">'
+        + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(s.nom) + '" oninput="cadSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(s.prix) + '" oninput="cadSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
         + '</div></div>';
     } else {
-      html += '<div class="media-slot editable" style="' + styleZone + '" onclick="remplirCadre(' + i + ')"><span class="media-slot-empty">+</span></div>';
+      html += '<div class="media-slot editable" style="' + area + ratio + '" onclick="cadChoisirPhoto(' + i + ')"><span class="media-slot-empty">📷</span></div>';
     }
-  }
+  });
   grille.innerHTML = html;
 }
-window.remplirCadre = function (i) {
-  ouvrirSelecteurPhoto(base64 => {
-    const ancien = cadSlots[i] || {};
-    const nom = window.prompt('Nom de l\'article :', ancien.nom || '') || '';
-    const prix = window.prompt('Prix (nombre) :', ancien.prix || '') || '';
-    cadSlots[i] = { photo: base64, nom: nom, prix: prix };
-    renderCadGrid();
-  });
+window.cadChoisirPhoto = function (i) {
+  ouvrirSelecteurPhoto(base64 => { cadSlots[i].photo = base64; renderCadGrid(); });
 };
-window.retirerCadre = function (i) {
-  cadSlots[i] = null;
+window.cadRetirerPhoto = function (i) {
+  cadSlots[i] = { photo: '', nom: '', prix: '' };
   renderCadGrid();
 };
+window.cadSetNom = function (i, v) { if (cadSlots[i]) cadSlots[i].nom = v; };
+window.cadSetPrix = function (i, v) { if (cadSlots[i]) cadSlots[i].prix = v; };
 
 /* ══════════════════════════════════════════════════════════════════
    ÉTAPE 5 — CORRECTIF : rattacher à window les fonctions appelées
