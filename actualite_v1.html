@@ -979,58 +979,29 @@ async function publishPost() {
    magazine (au lieu d'une simple liste), champs nom/prix intégrés
    directement dans l'image (au lieu d'une fenêtre de dialogue), et
    dimensionnement du cadre au niveau de la grille entière (meilleur
-   centrage des photos). On garde en plus un redimensionnement des
-   photos avant stockage, pour rester sous la limite de 1 Mo/document
-   de Firestore (absent de la version de référence).
+   centrage des photos).
+   Correctif du 29/07/2026 : le redimensionnement par canvas ajouté ici
+   (absent de la version de référence) semble être la cause du bug
+   "il faut choisir la photo 2 fois avant qu'elle apparaisse" sur
+   certains téléphones Android/iframe — retiré, on revient à la lecture
+   directe et simple du fichier, comme dans la version de référence.
    ══════════════════════════════════════════════════════════════════ */
 
-// Redimensionne une photo choisie par l'utilisateur avant de la convertir en base64
-function redimensionnerImage(fichier, maxDim, qualite) {
-  return new Promise((resolve, reject) => {
-    const lecteur = new FileReader();
-    lecteur.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > maxDim || height > maxDim) {
-          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
-          else { width = Math.round(width * maxDim / height); height = maxDim; }
-        }
-        const toile = document.createElement('canvas');
-        toile.width = width; toile.height = height;
-        toile.getContext('2d').drawImage(img, 0, 0, width, height);
-        resolve(toile.toDataURL('image/jpeg', qualite));
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    lecteur.onerror = reject;
-    lecteur.readAsDataURL(fichier);
-  });
-}
-
-// Ouvre le sélecteur de photo du téléphone puis renvoie l'image redimensionnée
+// Ouvre le sélecteur de photo du téléphone puis renvoie l'image en base64
 function ouvrirSelecteurPhoto(callback) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
   input.style.position = 'fixed';
   input.style.left = '-9999px';
-  // Correctif 29/07/2026 : dans un iframe, sur certains Android, un input
-  // "flottant" (jamais inséré dans la page) ouvre bien le sélecteur mais son
-  // évènement "change" n'est pas toujours pris en compte à temps — il fallait
-  // recommencer une 2e fois pour que la photo apparaisse. On l'insère donc
-  // réellement dans la page (invisible), et on le retire juste après usage.
   document.body.appendChild(input);
-  input.onchange = async () => {
-    if (input.files && input.files[0]) {
-      try {
-        const base64 = await redimensionnerImage(input.files[0], 1000, 0.72);
-        callback(base64);
-      } catch (e) {
-        console.error(e);
-        window.toast && window.toast('Photo illisible, réessayez');
-      }
+  input.onchange = () => {
+    const fichier = input.files && input.files[0];
+    if (fichier) {
+      const lecteur = new FileReader();
+      lecteur.onload = (e) => callback(e.target.result);
+      lecteur.onerror = () => window.toast && window.toast('Photo illisible, réessayez');
+      lecteur.readAsDataURL(fichier);
     }
     input.remove();
   };
