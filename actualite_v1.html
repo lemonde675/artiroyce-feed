@@ -692,9 +692,31 @@ function creerPostHTML(pub) {
     + (pub.texte ? '<div class="pt">' + escapeHtml(pub.texte) + '</div>' : '')
     + creerMediaHTML(pub)
     + '<div class="pr-row">'
-    +   '<div class="pr-l"><span class="pr-cnt">👍 ' + (pub.likes || 0) + '</span></div>'
-    +   '<div class="pr-r">' + (pub.partages || 0) + ' partages</div>'
+    +   '<div class="pr-l"><div class="pr-bubbles" id="bulles-' + pub.id + '"></div>'
+    +     '<span class="pr-cnt" id="likecount-' + pub.id + '">' + (mesReactionsActu[pub.id] || '') + ' ' + (pub.likes || 0) + '</span></div>'
+    +   '<span class="pr-r" id="commcount-' + pub.id + '">0 commentaire · ' + (pub.partages || 0) + ' partage' + ((pub.partages || 0) > 1 ? 's' : '') + '</span>'
     + '</div>'
+    + '<div class="p-acts">'
+    +   '<div class="pab' + (mesReactionsActu[pub.id] ? ' reacted' : '') + '" id="pb-' + pub.id + '" onclick="window.__toggleReactPickerActu(\'' + pub.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
+    +     '<span id="pblabel-' + pub.id + '">' + (mesReactionsActu[pub.id] ? 'Aimé' : "J'aime") + '</span>'
+    +     '<div class="rpick" id="rp-' + pub.id + '">'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'❤️\',' + (pub.likes || 0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'👍\',' + (pub.likes || 0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'😮\',' + (pub.likes || 0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'😂\',' + (pub.likes || 0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'🔥\',' + (pub.likes || 0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + pub.id + '\',\'😢\',' + (pub.likes || 0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+    +     '</div>'
+    +   '</div>'
+    +   '<button class="pab" onclick="toggleComments(\'' + pub.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+    +   '</button>'
+    +   '<button class="pab" onclick="openShare(\'' + pub.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+    +   '</button>'
+    + '</div>'
+    + '<div class="comm-zone" id="commzone-' + pub.id + '" style="display:none;padding:12px 16px;border-top:1px solid #f5f5f5"></div>'
     + '</div>';
 }
 
@@ -1203,6 +1225,334 @@ window.openCreate = openCreate;
 window.cmBackOrClose = cmBackOrClose;
 window.chooseModel = chooseModel;
 window.publishPost = publishPost;
+
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 9 — RÉACTIONS (6 emojis + animation), COMMENTAIRES (avec
+   réponses imbriquées) ET PARTAGE.
+   Repris et adapté du fichier de référence le 29/07/2026. mesReactionsActu
+   (déjà chargée par chargerMesReactionsActu) joue le rôle de _pubReactions.
+   ══════════════════════════════════════════════════════════════════ */
+
+const _reactionEnCours = {};       // verrou anti-double-tap sur le sélecteur d'emojis d'une publication
+const _commentairesReactions = {}; // { [commentId]: emoji } réactions déjà posées sur des commentaires
+let _commentHoldTimer = {};
+let _commentHoldTriggered = {};
+const _replyingTo = {};
+let _shareIdCourant = null;
+
+/* ── Réactions sur une publication ── */
+
+window.__toggleReactPickerActu = function (postId) {
+  document.querySelectorAll('.rpick.show').forEach(rp => { if (rp.id !== 'rp-' + postId) rp.classList.remove('show'); });
+  document.getElementById('rp-' + postId)?.classList.toggle('show');
+};
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.pab')) {
+    document.querySelectorAll('.rpick.show').forEach(rp => rp.classList.remove('show'));
+  }
+});
+
+window.__sendReactionActu = async function (postId, emoji, likesActuels) {
+  if (!currentUser) { window.toast && window.toast('Connectez-vous pour réagir'); return; }
+  if (_reactionEnCours[postId]) return;
+  _reactionEnCours[postId] = true;
+
+  document.getElementById('rp-' + postId)?.classList.remove('show');
+  const prev = mesReactionsActu[postId] || '';
+  const btn = document.getElementById('pb-' + postId);
+  const labelEl = document.getElementById('pblabel-' + postId);
+  const countEl = document.getElementById('likecount-' + postId);
+  const bullesEl = document.getElementById('bulles-' + postId);
+  const reactRef = doc(db, 'publications', postId, 'reactions', currentUser.uid);
+
+  function majBulles() {
+    if (!bullesEl) return;
+    const set = new Set(['❤️', '👍']);
+    if (mesReactionsActu[postId]) set.add(mesReactionsActu[postId]);
+    bullesEl.innerHTML = Array.from(set).slice(0, 3).map(e => '<div class="pr-b">' + e + '</div>').join('');
+  }
+
+  try {
+    if (prev === emoji) {
+      delete mesReactionsActu[postId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      if (btn) btn.classList.remove('reacted');
+      if (labelEl) labelEl.textContent = "J'aime";
+      if (countEl) countEl.textContent = nouveauTotal;
+      majBulles();
+      await deleteDoc(reactRef);
+      await updateDoc(doc(db, 'publications', postId), { likes: increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      mesReactionsActu[postId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      if (btn) btn.classList.add('reacted');
+      if (labelEl) labelEl.textContent = 'Aimé';
+      if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
+      majBulles();
+      await setDoc(reactRef, { emoji, uid: currentUser.uid, createdAt: serverTimestamp() });
+      if (delta) {
+        await updateDoc(doc(db, 'publications', postId), { likes: increment(1) });
+        window.__burstHeartsActu(btn, emoji);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    window.toast && window.toast("Erreur J'aime");
+  } finally {
+    delete _reactionEnCours[postId];
+  }
+};
+
+// Petite explosion d'emojis animée au moment du "J'aime"
+window.__burstHeartsActu = function (btnEl, emoji) {
+  if (!btnEl) return;
+  const rect = btnEl.getBoundingClientRect();
+  const originX = rect.left + rect.width / 2;
+  const originY = rect.top + rect.height / 2;
+  btnEl.style.transition = 'transform .18s cubic-bezier(.34,1.56,.64,1)';
+  btnEl.style.transform = 'scale(1.25)';
+  setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 180);
+
+  const symboles = [emoji || '❤️', emoji || '❤️', emoji || '❤️', '✨'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.textContent = symboles[Math.floor(Math.random() * symboles.length)];
+    const angle = (Math.random() * 100 - 50) - 90;
+    const distance = 55 + Math.random() * 70;
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    const taille = 13 + Math.random() * 15;
+    const duree = 650 + Math.random() * 500;
+    const rotation = (Math.random() * 140 - 70).toFixed(0);
+    p.style.cssText = 'position:fixed;left:' + originX + 'px;top:' + originY + 'px;font-size:' + taille + 'px;pointer-events:none;z-index:900;'
+      + 'transform:translate(-50%,-50%) scale(0.3) rotate(0deg);'
+      + 'transition:transform ' + duree + 'ms cubic-bezier(.17,.67,.34,1), opacity ' + duree + 'ms ease-out;opacity:1';
+    document.body.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(1.1) rotate(' + rotation + 'deg)';
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), duree + 100);
+  }
+};
+
+/* ── Commentaires (avec réponses imbriquées) ── */
+
+window.toggleComments = function (postId) {
+  const zone = document.getElementById('commzone-' + postId);
+  if (!zone) return;
+  const ouvert = zone.style.display !== 'none';
+  zone.style.display = ouvert ? 'none' : 'block';
+  if (!ouvert && !zone.dataset.init) {
+    zone.dataset.init = '1';
+    construireZoneCommentaires(postId, zone);
+    ecouterCommentaires(postId);
+  }
+};
+
+function construireZoneCommentaires(postId, zone) {
+  zone.innerHTML =
+    '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
+    + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    + (currentUser ? (currentUser.displayName || '?')[0].toUpperCase() : '?') + '</div>'
+    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + '<div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(230,50,36,0.3)" onclick="envoyerCommentairePub(\'' + postId + '\')">➤</div>'
+    + '</div>'
+    + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + postId + '">'
+    + '<span id="reply-indicator-text-' + postId + '"></span>'
+    + '<span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px" onclick="annulerReponsePub(\'' + postId + '\')">✕</span>'
+    + '</div>'
+    + '<div id="comm-list-' + postId + '"></div>';
+  document.getElementById('cinput-' + postId).addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.envoyerCommentairePub(postId);
+  });
+}
+
+function ecouterCommentaires(postId) {
+  const qc = query(collection(db, 'publications', postId, 'commentaires'), orderBy('createdAt', 'asc'));
+  onSnapshot(qc, snap2 => {
+    const total = snap2.size;
+    const compteEl = document.getElementById('commcount-' + postId);
+    const p = listePublications.find(x => x.id === postId);
+    if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (p ? ' · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') : '');
+
+    const listEl = document.getElementById('comm-list-' + postId);
+    if (!listEl) return;
+
+    const tous = [];
+    snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+    const parentDe = {};
+    tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+    function trouverRacine(id) { let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
+    const principaux = tous.filter(c => !c.parentId).sort((a, b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0, tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    const reponsesParRacine = {};
+    tous.filter(c => c.parentId).forEach(c => {
+      const racine = trouverRacine(c.id);
+      (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+    });
+
+    function construireCommentaireHTML(c, racineId) {
+      const auteurPub = (listePublications.find(x => x.id === postId) || {}).auteurUid;
+      const isAuteur = c.uid === auteurPub;
+      const initiale = (c.nom || '?')[0].toUpperCase();
+      const avColor = palettes[initiale.charCodeAt(0) % palettes.length];
+      const dejaAime = !!_commentairesReactions[c.id];
+      const wrap = document.createElement('div');
+      wrap.innerHTML =
+        '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + avColor + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">' + escapeHtml(initiale) + '</div>'
+        + '<div style="flex:1;min-width:0;position:relative">'
+        +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
+        +     '<span style="font-size:13px;font-weight:700;color:#757575">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
+        +     '<span style="font-size:11px;font-weight:700;color:' + (isAuteur ? '#1a5276' : '#8e8e8e') + '">· ' + (isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')) + '</span>'
+        +   '</div>'
+        +   '<div style="font-size:14px;color:#1c1e21;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
+        +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
+        +     '<span>' + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+        +     '<span style="font-weight:700;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + ';cursor:pointer" id="comm-jaime-' + c.id + '" '
+        +       'onpointerdown="startCommentHoldPub(\'' + c.id + '\')" onpointerup="cancelCommentHoldPub(\'' + c.id + '\')" onpointerleave="cancelCommentHoldPub(\'' + c.id + '\')" '
+        +       'onclick="handleCommentClickPub(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + '</span>'
+        +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
+        +     '<span style="flex:1"></span>'
+        +     '<span id="comm-heart-count-' + c.id + '" style="display:' + (c.likes ? 'inline-flex' : 'none') + ';align-items:center;gap:3px">'
+        +       '<span id="comm-heart-' + c.id + '">' + (_commentairesReactions[c.id] || '❤️') + '</span><span id="comm-heart-num-' + c.id + '">' + (c.likes || 0) + '</span>'
+        +     '</span>'
+        +   '</div>'
+        +   '<div id="comm-reactions-' + c.id + '" style="display:none;position:absolute;bottom:24px;left:40px;background:#fff;border-radius:30px;padding:6px 8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);border:1px solid #e4e6eb;z-index:60;white-space:nowrap">'
+        +     '<div style="display:flex;gap:4px;align-items:center">'
+        +       ['👍', '❤️', '😂', '😮', '😢'].map(e => '<div style="cursor:pointer;padding:3px 4px" onclick="choisirReactionCommentairePub(\'' + postId + '\',\'' + c.id + '\',\'' + e + '\',' + (c.likes || 0) + ')">' + e + '</div>').join('')
+        +     '</div>'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+      return wrap;
+    }
+
+    listEl.innerHTML = '';
+    principaux.forEach(c => {
+      listEl.appendChild(construireCommentaireHTML(c, c.id));
+      const reponses = reponsesParRacine[c.id] || [];
+      if (reponses.length) {
+        const repZone = document.createElement('div');
+        repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+        const toggle = document.createElement('div');
+        toggle.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
+        toggle.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length > 1 ? 's' : '') + ' ▾';
+        toggle.onclick = () => {
+          const frag = document.createDocumentFragment();
+          reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
+          repZone.appendChild(frag);
+          toggle.remove();
+        };
+        repZone.appendChild(toggle);
+        listEl.appendChild(repZone);
+      }
+    });
+  });
+}
+
+window.envoyerCommentairePub = async function (postId) {
+  if (!currentUser) { window.toast && window.toast('Connectez-vous pour commenter'); return; }
+  const inp = document.getElementById('cinput-' + postId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  const reponseA = _replyingTo[postId] || null;
+  try {
+    await addDoc(collection(db, 'publications', postId, 'commentaires'), {
+      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid, verifie: !!currentUser.verifie,
+      parentId: reponseA ? reponseA.commentId : null, createdAt: serverTimestamp()
+    });
+    window.annulerReponsePub(postId);
+  } catch (e) { console.error(e); }
+};
+
+window.repondrePub = function (postId, commentId, nom) {
+  _replyingTo[postId] = { commentId, nom };
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  const texteIndic = document.getElementById('reply-indicator-text-' + postId);
+  if (indicateur && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indicateur.style.display = 'flex'; }
+  document.getElementById('cinput-' + postId)?.focus();
+};
+window.annulerReponsePub = function (postId) {
+  delete _replyingTo[postId];
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  if (indicateur) indicateur.style.display = 'none';
+};
+
+window.startCommentHoldPub = function (commentId) {
+  _commentHoldTriggered[commentId] = false;
+  _commentHoldTimer[commentId] = setTimeout(() => {
+    _commentHoldTriggered[commentId] = true;
+    const panel = document.getElementById('comm-reactions-' + commentId);
+    if (panel) panel.style.display = 'block';
+  }, 400);
+};
+window.cancelCommentHoldPub = function (commentId) { clearTimeout(_commentHoldTimer[commentId]); };
+window.handleCommentClickPub = function (postId, commentId, likesActuels) {
+  if (_commentHoldTriggered[commentId]) return;
+  window.choisirReactionCommentairePub(postId, commentId, '❤️', likesActuels);
+};
+
+window.choisirReactionCommentairePub = async function (postId, commentId, emoji, likesActuels) {
+  if (!currentUser) { window.toast && window.toast('Connectez-vous pour réagir'); return; }
+  const panel = document.getElementById('comm-reactions-' + commentId);
+  if (panel) panel.style.display = 'none';
+  const prev = _commentairesReactions[commentId] || '';
+  const jaimeEl = document.getElementById('comm-jaime-' + commentId);
+  const heartEl = document.getElementById('comm-heart-' + commentId);
+  const numEl = document.getElementById('comm-heart-num-' + commentId);
+  const countWrap = document.getElementById('comm-heart-count-' + commentId);
+
+  function majAffichage(nouveauTotal, aime, emojiAffiche) {
+    if (jaimeEl) { jaimeEl.textContent = aime ? 'Aimé' : "J'aime"; jaimeEl.style.color = aime ? '#e63224' : '#8e8e8e'; }
+    if (heartEl) heartEl.textContent = emojiAffiche;
+    if (numEl) numEl.textContent = nouveauTotal;
+    if (countWrap) countWrap.style.display = nouveauTotal > 0 ? 'inline-flex' : 'none';
+  }
+
+  try {
+    const refC = doc(db, 'publications', postId, 'commentaires', commentId);
+    if (prev === emoji) {
+      delete _commentairesReactions[commentId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      majAffichage(nouveauTotal, false, '❤️');
+      await updateDoc(refC, { likes: increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      _commentairesReactions[commentId] = emoji;
+      majAffichage(likesActuels + delta, true, emoji);
+      if (delta) await updateDoc(refC, { likes: increment(1) });
+    }
+  } catch (e) { console.error(e); }
+};
+
+/* ── Partage ── */
+
+window.openShare = function (postId) { _shareIdCourant = postId; document.getElementById('shareSheet').classList.add('open'); };
+window.closeShare = function () { document.getElementById('shareSheet').classList.remove('open'); };
+window.partagerCopierLien = async function () {
+  const url = window.location.href.split('#')[0] + '#post-' + _shareIdCourant;
+  try {
+    await navigator.clipboard.writeText(url);
+    if (_shareIdCourant) await updateDoc(doc(db, 'publications', _shareIdCourant), { partages: increment(1) });
+    window.toast && window.toast('🔗 Lien copié !', 'g');
+  } catch (e) { window.toast && window.toast('Impossible de copier le lien'); }
+  window.closeShare();
+};
+window.partagerWhatsapp = async function () {
+  const p = listePublications.find(x => x.id === _shareIdCourant);
+  const texte = p && p.texte ? p.texte.substring(0, 100) : 'Regarde cette publication ArtiRoyce !';
+  window.open('https://wa.me/?text=' + encodeURIComponent(texte + ' ' + window.location.href), '_blank');
+  if (_shareIdCourant) { try { await updateDoc(doc(db, 'publications', _shareIdCourant), { partages: increment(1) }); } catch (e) { } }
+  window.closeShare();
+};
+window.partagerDiscussion = function () { window.toast && window.toast('💬 Partagé en Discussion !', 'g'); window.closeShare(); };
+window.partagerEnregistrer = function () { window.toast && window.toast('⭐ Enregistré !', 'g'); window.closeShare(); };
 
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
