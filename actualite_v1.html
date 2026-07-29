@@ -559,7 +559,6 @@ const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 
 /* ══ PAGINATION DU FIL (chargement progressif, comme Facebook) ══ */
 const TAILLE_LOT = 6;           // nombre de publications affichées par lot, ajouté à chaque approche du bas
-let toutesPublications = [];    // toutes les publications, chargées en temps réel (comme la version de référence)
 let nombreAffiches = TAILLE_LOT; // combien de publications (après filtre catégorie) sont actuellement affichées
 
 /* ══ ÉTAT DE CRÉATION MULTI-MODÈLES (Texte / Photo·Galerie / Boutique) ══ */
@@ -673,14 +672,22 @@ function creerPostHTML(pub) {
   const meta = (pub.auteurMetier ? escapeHtml(pub.auteurMetier) + ' · ' : '')
     + tempsDepuis(pub.createdAt && pub.createdAt.toMillis ? pub.createdAt.toMillis() : Date.now());
   const badge = BADGES[pub.categorie] ? '<span class="ph-badge">' + BADGES[pub.categorie] + '</span>' : '';
+  const estAuteur = currentUser && pub.auteurUid === currentUser.uid;
+  const menu = estAuteur
+    ? '<span class="ph-more" onclick="toggleMenuPost(\'' + pub.id + '\')">⋯</span>'
+      + '<div class="post-menu" id="menu-' + pub.id + '" style="display:none;position:absolute;top:36px;right:12px;background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);border:1px solid #eee;z-index:80;overflow:hidden;min-width:180px">'
+      + '<div style="padding:11px 16px;font-size:13px;font-weight:700;color:#e63224;cursor:pointer" onclick="supprimerPublication(\'' + pub.id + '\')">🗑️ Mettre à la corbeille</div>'
+      + '</div>'
+    : '';
 
   return '<div class="post" data-id="' + pub.id + '">'
-    + '<div class="ph">'
+    + '<div class="ph" style="position:relative">'
     + creerAvatarHTML(nom, pub.auteurVerifie)
     + '<div class="ph-info">'
     +   '<div class="ph-top"><span class="ph-name">' + escapeHtml(nom) + '</span>' + badge + '</div>'
     +   '<div class="ph-meta">' + meta + '</div>'
     + '</div>'
+    + menu
     + '</div>'
     + (pub.texte ? '<div class="pt">' + escapeHtml(pub.texte) + '</div>' : '')
     + creerMediaHTML(pub)
@@ -696,9 +703,8 @@ function creerPostHTML(pub) {
 // une "sentinelle" en bas qui, dès qu'elle devient visible en scrollant, révèle le lot suivant.
 function afficherFeed() {
   const conteneur = document.getElementById('feedPosts');
-  listePublications = toutesPublications;
 
-  const filtrees = toutesPublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+  const filtrees = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
 
   document.getElementById('feedLoading').style.display = 'none';
 
@@ -734,17 +740,28 @@ function observerSentinelleFeed() {
   _observateurFeed.observe(sentinelle);
 }
 
-// Écoute en temps réel TOUTES les publications (comme la version de référence), et
-// affiche seulement un lot à la fois côté écran (voir afficherFeed / observerSentinelleFeed).
+// Écoute en temps réel TOUTES les publications (comme la version de référence), sépare
+// les publications actives de la corbeille (mes propres publications supprimées), et
+// purge automatiquement (suppression définitive) celles à la corbeille depuis plus de
+// 15 jours. Seul un lot à la fois est affiché à l'écran (voir afficherFeed).
 function chargerPublications() {
   const conteneur = document.getElementById('feedPosts');
   if (!conteneur) return;
   try {
     const q = query(collection(db, 'publications'), orderBy('createdAt', 'desc'));
     onSnapshot(q, snap => {
-      toutesPublications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      listePublications = toutes.filter(p => !p.corbeille);
+      listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
+
+      const maintenant = Date.now();
+      listeCorbeille
+        .filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+        .forEach(p => deleteDoc(doc(db, 'publications', p.id)).catch(e => console.error(e)));
+
       afficherFeed();
-      ajouterEtape('8. Publications chargées ✅ (' + toutesPublications.length + ')');
+      afficherCorbeille();
+      ajouterEtape('8. Publications chargées ✅ (' + listePublications.length + ')');
     }, err => {
       ajouterEtape('❌ Erreur lecture publications : ' + (err && err.message || err));
       document.getElementById('feedLoading').style.display = 'none';
@@ -754,6 +771,72 @@ function chargerPublications() {
     ajouterEtape('❌ Exception chargerPublications : ' + (e && e.message || e));
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 8 — CORBEILLE (supprimer / restaurer / suppression définitive
+   après 15 jours) ET MENU ⋮ PAR PUBLICATION.
+   Repris du fichier de référence le 29/07/2026.
+   ══════════════════════════════════════════════════════════════════ */
+
+function afficherCorbeille() {
+  const toggle = document.getElementById('corbeilleToggle');
+  if (!toggle) return;
+  toggle.style.display = listeCorbeille.length ? 'flex' : 'none';
+  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  const liste = document.getElementById('corbeilleListe');
+  liste.innerHTML = listeCorbeille.map(creerLigneCorbeille).join('');
+  if (!listeCorbeille.length) liste.classList.remove('open');
+}
+window.toggleCorbeille = function () {
+  document.getElementById('corbeilleListe').classList.toggle('open');
+};
+
+function creerLigneCorbeille(p) {
+  const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(p.corbeilleDepuis || Date.now()).getTime());
+  const joursRestants = Math.max(0, Math.ceil(restantMs / (24 * 60 * 60 * 1000)));
+  const titre = p.texte ? p.texte.slice(0, 40) : (p.type === 'boutique' ? 'Boutique' : 'Publication');
+  return '<div class="corbeille-item">'
+    + '<div class="corbeille-item-info">'
+    + '<div class="corbeille-item-titre">' + escapeHtml(titre || 'Sans titre') + '</div>'
+    + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants > 1 ? 's' : '') + '</div>'
+    + '</div>'
+    + '<button class="btn-restaurer" onclick="restaurerPublication(\'' + p.id + '\')">Restaurer</button>'
+    + '<button class="btn-suppr-def" onclick="supprimerDefinitivement(\'' + p.id + '\')">Supprimer</button>'
+    + '</div>';
+}
+
+window.toggleMenuPost = function (postId) {
+  document.querySelectorAll('.post-menu').forEach(m => { if (m.id !== 'menu-' + postId) m.style.display = 'none'; });
+  const menu = document.getElementById('menu-' + postId);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ph-more') && !e.target.closest('.post-menu')) {
+    document.querySelectorAll('.post-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerPublication = async function (postId) {
+  if (!confirm('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  try {
+    await updateDoc(doc(db, 'publications', postId), { corbeille: true, corbeilleDepuis: new Date().toISOString() });
+    window.toast && window.toast('🗑️ Publication mise à la corbeille', 'g');
+  } catch (e) { console.error(e); window.toast && window.toast('Erreur lors de la suppression'); }
+};
+window.restaurerPublication = async function (postId) {
+  if (!confirm('Restaurer cette publication ? Elle réapparaîtra dans le fil.')) return;
+  try {
+    await updateDoc(doc(db, 'publications', postId), { corbeille: false, corbeilleDepuis: null });
+    window.toast && window.toast('♻️ Publication restaurée', 'g');
+  } catch (e) { console.error(e); window.toast && window.toast('Erreur lors de la restauration'); }
+};
+window.supprimerDefinitivement = async function (postId) {
+  if (!confirm('Supprimer définitivement cette publication ? Cette action est irréversible.')) return;
+  try {
+    await deleteDoc(doc(db, 'publications', postId));
+    window.toast && window.toast('Publication supprimée définitivement', 'g');
+  } catch (e) { console.error(e); window.toast && window.toast('Erreur lors de la suppression définitive'); }
+};
 
 // Bouton 🔄 "Actualiser" : relance simplement l'affichage à partir des données déjà en mémoire
 window.rafraichirFeed = function () {
@@ -942,7 +1025,7 @@ async function publishPost() {
     donnees = {
       type: 'boutique',
       texte: document.getElementById('cadTitreInput').value.trim() || 'Boutique',
-      disposition: cadLayoutActif,
+      disposition: cadresRemplis.length,
       tagColor: cadTagColor,
       cadres: cadresRemplis.map(s => ({ photo: s.photo, nom: s.nom || 'Article', prix: s.prix || '' }))
     };
