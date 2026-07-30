@@ -459,6 +459,7 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
+window.__moduleDemarre = true;
 (function(){ const p = document.getElementById('panneauDiagnostic'); if(p){ const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + ' — 1.5 LE BLOC SCRIPT MODULE DEMARRE'; p.appendChild(d); } })();
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
@@ -470,9 +471,11 @@ function __afficherErreurDiagnostic(msg){
   bloc.textContent = '⚠️ ' + msg;
   target.prepend(bloc);
 }
+// capture:true en plus, pour aussi attraper les erreurs de chargement de ressource
+// (ex: script/module qui échoue à se charger), qui ne remontent pas toujours en phase bulle.
 window.addEventListener('error', function(e){
-  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
-});
+  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')' + (e.error && e.error.stack ? '\n' + String(e.error.stack).slice(0,300) : ''));
+}, true);
 window.addEventListener('unhandledrejection', function(e){
   const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
   __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
@@ -1778,9 +1781,4 @@ async function surChangementAuth(user) {
     ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
     const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
     ajouterEtape('6. Profil utilisateur lu ✅');
-    if (snap.exists()) {
-      const d = snap.data();
-      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
-      currentUser.metier = d.metier || '';
-      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
-      curre
+    i
