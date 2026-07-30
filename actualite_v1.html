@@ -269,7 +269,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </header>
 
-<div id="panneauDiagnostic" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
+<div id="panneauDiagnostic" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
   <div id="etapeScript">1. Script classique : en attente…</div>
 </div>
 <script>document.getElementById('etapeScript').textContent = '1. Script classique : OK ✅ VERSION-6-CACHEBUSTER (' + new Date().toLocaleTimeString() + ')';
@@ -601,42 +601,6 @@ function premiereVille(ville) {
   return String(ville).split(/[,\s]+/)[0] || '';
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   ÉTAPE 11 — CLASSEMENT DU FIL PAR PRIORITÉ (ajouté le 30/07/2026)
-   La date/heure reste la base : on trie juste par paliers, chacun trié
-   par date à l'intérieur. Ordre : 1) mes propres publications, 2) les
-   personnes que je suis, 3) même pays que moi (indicatif téléphonique),
-   4) le reste (découverte). Le "boostage" (mise en avant payante) est
-   un chantier à part, pas inclus ici.
-   ══════════════════════════════════════════════════════════════════ */
-
-// Compare juste les premiers caractères du numéro (ex: "+229...") — pas une vraie
-// base de pays, juste "ce numéro commence pareil que le mien" comme convenu.
-function prefixePays(tel) {
-  if (!tel) return '';
-  return String(tel).replace(/\s+/g, '').slice(0, 4);
-}
-
-function rangPriorite(pub) {
-  if (currentUser && pub.auteurUid === currentUser.uid) return 0;     // moi d'abord
-  if (followedUids.has(pub.auteurUid)) return 1;                      // puis mes suivis
-  const monPrefixe = currentUser ? prefixePays(currentUser.telephone) : '';
-  if (monPrefixe && pub.paysPrefixe && pub.paysPrefixe === monPrefixe) return 2; // même pays
-  return 3;                                                            // le reste
-}
-
-// Trie une liste de publications par palier de priorité, en gardant la date/heure
-// comme critère à l'intérieur de chaque palier.
-function trierParPriorite(liste) {
-  return [...liste].sort((a, b) => {
-    const ra = rangPriorite(a), rb = rangPriorite(b);
-    if (ra !== rb) return ra - rb;
-    const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
-    const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
-    return tb - ta;
-  });
-}
-
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et, plus tard, le carrousel)
 // Corrigé le 30/07/2026, précisé le 30/07/2026 : chaque section du site (Actualités,
 // Offres, Demandes...) garde son PROPRE suivi, indépendant des autres — on peut suivre
@@ -687,15 +651,10 @@ function tempsDepuis(ms) {
 function creerAvatarHTML(nom, verifie, uid) {
   const initiale = (nom || '?')[0].toUpperCase();
   const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
-  // Le point vert est placé HORS du div .ph-av (qui a overflow:hidden pour rester bien
-  // rond) sinon il se fait couper dans le coin. On l'enveloppe dans un conteneur non
-  // découpé, positionné pareil, pour que le point reste bien visible par-dessus.
-  return '<span style="position:relative;display:inline-flex;flex-shrink:0;cursor:pointer" onclick="window.__voirProfil(\'' + (uid || '') + '\')">'
-    + '<div class="ph-av" style="background:' + couleur + '">' + escapeHtml(initiale)
+  return '<div class="ph-av" style="background:' + couleur + ';position:relative;cursor:pointer" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
     + (verifie ? '<span class="ph-vb">✔</span>' : '')
-    + '</div>'
-    + '<div class="online-dot" data-author="' + (uid || '') + '" style="display:none;position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2"></div>'
-    + '</span>';
+    + '<div class="online-dot" data-author="' + (uid || '') + '" style="display:none;position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>'
+    + '</div>';
 }
 
 // Va sur le profil d'un utilisateur, en gardant la possibilité de revenir en arrière
@@ -839,13 +798,44 @@ function creerPostHTML(pub) {
     + '</div>';
 }
 
+// Extrait l'indicatif pays approximatif d'un numéro de téléphone au format
+// international (ex: "+22901606352.." -> "+229"). Ce n'est pas une vraie base
+// de données des pays : on compare juste si deux numéros commencent pareil
+// sur les 4 premiers caractères. Retourne '' si le champ est absent/mal formaté
+// (l'utilisateur tombe alors simplement dans le groupe "reste", rien ne casse).
+function prefixePays(tel) {
+  if (!tel || typeof tel !== 'string') return '';
+  const t = tel.trim();
+  if (t[0] !== '+') return '';
+  return t.slice(0, 4);
+}
+
+// Classement du fil par paliers de priorité façon Facebook (voir échange du
+// 30/07/2026) : 1) mes publications, 2) mes suivis, 3) même pays/zone
+// (indicatif téléphonique), 4) le reste (découverte). Chaque palier reste
+// trié du plus récent au plus ancien à l'intérieur de lui-même, car le tri
+// est stable et la liste de départ est déjà triée par date décroissante
+// (query Firestore orderBy createdAt desc).
+function classerParPriorite(liste) {
+  if (!currentUser) return liste;
+  const monPrefixe = (currentUser.paysPrefixe || '');
+  const palier = (p) => {
+    if (p.auteurUid === currentUser.uid) return 0;
+    if (followedUids.has(p.auteurUid)) return 1;
+    if (monPrefixe && p.paysPrefixe && p.paysPrefixe === monPrefixe) return 2;
+    return 3;
+  };
+  return liste.slice().sort((a, b) => palier(a) - palier(b));
+}
+
 // Affiche la liste de publications actuellement en mémoire (temps réel + pages suivantes)
 // Affiche un lot progressif des publications (les plus récentes en premier), et ajoute
 // une "sentinelle" en bas qui, dès qu'elle devient visible en scrollant, révèle le lot suivant.
 function afficherFeed() {
   const conteneur = document.getElementById('feedPosts');
 
-  const filtrees = trierParPriorite(listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive));
+  const filtreesCategorie = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+  const filtrees = classerParPriorite(filtreesCategorie);
 
   document.getElementById('feedLoading').style.display = 'none';
 
@@ -1191,7 +1181,7 @@ async function publishPost() {
       auteurMetier: currentUser.metier || '',
       auteurVerifie: !!currentUser.verifie,
       ville: currentUser.ville || '',
-      paysPrefixe: prefixePays(currentUser.telephone),
+      paysPrefixe: currentUser.paysPrefixe || '',
       createdAt: serverTimestamp(),
       likes: 0,
       partages: 0
@@ -1783,4 +1773,14 @@ async function surChangementAuth(user) {
   currentUser.verifie = false;
   try {
     // Délai maximum de 8s : cette lecture utilise encore l'ancienne méthode (SDK classique),
-    // qui peut rester bloquée indéfiniment sur c
+    // qui peut rester bloquée indéfiniment sur ce projet. Si elle ne répond pas, on continue
+    // quand même avec les valeurs par défaut plutôt que de bloquer toute la page pour toujours.
+    ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
+    const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
+    ajouterEtape('6. Profil utilisateur lu ✅');
+    if (snap.exists()) {
+      const d = snap.data();
+      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.metier = d.metier || '';
+      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
+      curren
