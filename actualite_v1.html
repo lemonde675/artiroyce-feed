@@ -269,7 +269,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </header>
 
-<div id="panneauDiagnostic" style="display:block;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
+<div id="panneauDiagnostic" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
   <div id="etapeScript">1. Script classique : en attente…</div>
 </div>
 <script>document.getElementById('etapeScript').textContent = '1. Script classique : OK ✅ VERSION-6-CACHEBUSTER (' + new Date().toLocaleTimeString() + ')';
@@ -459,7 +459,6 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
-window.__moduleDemarre = true;
 (function(){ const p = document.getElementById('panneauDiagnostic'); if(p){ const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + ' — 1.5 LE BLOC SCRIPT MODULE DEMARRE'; p.appendChild(d); } })();
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
@@ -471,11 +470,9 @@ function __afficherErreurDiagnostic(msg){
   bloc.textContent = '⚠️ ' + msg;
   target.prepend(bloc);
 }
-// capture:true en plus, pour aussi attraper les erreurs de chargement de ressource
-// (ex: script/module qui échoue à se charger), qui ne remontent pas toujours en phase bulle.
 window.addEventListener('error', function(e){
-  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')' + (e.error && e.error.stack ? '\n' + String(e.error.stack).slice(0,300) : ''));
-}, true);
+  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
+});
 window.addEventListener('unhandledrejection', function(e){
   const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
   __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
@@ -801,44 +798,13 @@ function creerPostHTML(pub) {
     + '</div>';
 }
 
-// Extrait l'indicatif pays approximatif d'un numéro de téléphone au format
-// international (ex: "+22901606352.." -> "+229"). Ce n'est pas une vraie base
-// de données des pays : on compare juste si deux numéros commencent pareil
-// sur les 4 premiers caractères. Retourne '' si le champ est absent/mal formaté
-// (l'utilisateur tombe alors simplement dans le groupe "reste", rien ne casse).
-function prefixePays(tel) {
-  if (!tel || typeof tel !== 'string') return '';
-  const t = tel.trim();
-  if (t[0] !== '+') return '';
-  return t.slice(0, 4);
-}
-
-// Classement du fil par paliers de priorité façon Facebook (voir échange du
-// 30/07/2026) : 1) mes publications, 2) mes suivis, 3) même pays/zone
-// (indicatif téléphonique), 4) le reste (découverte). Chaque palier reste
-// trié du plus récent au plus ancien à l'intérieur de lui-même, car le tri
-// est stable et la liste de départ est déjà triée par date décroissante
-// (query Firestore orderBy createdAt desc).
-function classerParPriorite(liste) {
-  if (!currentUser) return liste;
-  const monPrefixe = (currentUser.paysPrefixe || '');
-  const palier = (p) => {
-    if (p.auteurUid === currentUser.uid) return 0;
-    if (followedUids.has(p.auteurUid)) return 1;
-    if (monPrefixe && p.paysPrefixe && p.paysPrefixe === monPrefixe) return 2;
-    return 3;
-  };
-  return liste.slice().sort((a, b) => palier(a) - palier(b));
-}
-
 // Affiche la liste de publications actuellement en mémoire (temps réel + pages suivantes)
 // Affiche un lot progressif des publications (les plus récentes en premier), et ajoute
 // une "sentinelle" en bas qui, dès qu'elle devient visible en scrollant, révèle le lot suivant.
 function afficherFeed() {
   const conteneur = document.getElementById('feedPosts');
 
-  const filtreesCategorie = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
-  const filtrees = classerParPriorite(filtreesCategorie);
+  const filtrees = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
 
   document.getElementById('feedLoading').style.display = 'none';
 
@@ -1184,7 +1150,6 @@ async function publishPost() {
       auteurMetier: currentUser.metier || '',
       auteurVerifie: !!currentUser.verifie,
       ville: currentUser.ville || '',
-      paysPrefixe: currentUser.paysPrefixe || '',
       createdAt: serverTimestamp(),
       likes: 0,
       partages: 0
@@ -1781,4 +1746,30 @@ async function surChangementAuth(user) {
     ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
     const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
     ajouterEtape('6. Profil utilisateur lu ✅');
-    i
+    if (snap.exists()) {
+      const d = snap.data();
+      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.metier = d.metier || '';
+      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
+      currentUser.role = d.role || 'visiteur';
+      currentUser.verifie = currentUser.role !== 'visiteur';
+      currentUser.ville = d.ville || '';
+    }
+  } catch(e){ console.error(e); ajouterEtape('6bis. Echec lecture profil (' + (e&&e.message||e) + '), on continue quand meme'); }
+
+  const initiale = (currentUser.displayName||'?')[0].toUpperCase();
+  document.getElementById('cpAvatar').textContent = initiale;
+  document.getElementById('cmAvatar').textContent = initiale;
+  document.getElementById('cmNom').textContent = currentUser.displayName;
+
+  ajouterEtape('7. Appel de chargerPublications()...');
+  chargerPublications();
+  ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
+  chargerSuivis();
+  chargerMesReactionsActu();
+}
+</script>
+
+<!-- FIN_FICHIER_ARTIROYCE_OK -->
+</body>
+</html>
