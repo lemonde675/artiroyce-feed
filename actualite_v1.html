@@ -459,6 +459,7 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
+window.__moduleDemarre = true;
 (function(){ const p = document.getElementById('panneauDiagnostic'); if(p){ const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + ' — 1.5 LE BLOC SCRIPT MODULE DEMARRE'; p.appendChild(d); } })();
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
@@ -1785,4 +1786,4 @@ async function surChangementAuth(user) {
     ajouterEtape('6. Profil utilisateur lu ✅');
     if (snap.exists()) {
       const d = snap.data();
-      currentUser.displayName = d.nom || d.pre
+      currentUs
