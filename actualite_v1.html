@@ -660,7 +660,7 @@ function creerMediaHTML(pub) {
   const tag = pub.tagColor || 'blanc';
 
   if (pub.type === 'boutique' && Array.isArray(pub.cadres) && pub.cadres.length) {
-    const layout = MEDIA_LAYOUTS[pub.disposition] || MEDIA_LAYOUTS[4];
+    const layout = MEDIA_LAYOUTS[pub.cadres.length] || MEDIA_LAYOUTS[4];
     let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
       + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
     pub.cadres.forEach((c, i) => {
@@ -1648,7 +1648,7 @@ function buildCoverCarouselHTML(toutes) {
   }).join('');
 
   return '<div class="cca-wrap" style="background:#fff;padding:14px 0 16px;margin-bottom:8px">'
-    + '<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">📰 À la une</div>'
+    + '<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">Nos coups de cœur</div>'
     + '<div class="cover-carousel-actu" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x">' + cards + '</div>'
     + '</div>';
 }
