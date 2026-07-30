@@ -601,6 +601,42 @@ function premiereVille(ville) {
   return String(ville).split(/[,\s]+/)[0] || '';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   ÉTAPE 11 — CLASSEMENT DU FIL PAR PRIORITÉ (ajouté le 30/07/2026)
+   La date/heure reste la base : on trie juste par paliers, chacun trié
+   par date à l'intérieur. Ordre : 1) mes propres publications, 2) les
+   personnes que je suis, 3) même pays que moi (indicatif téléphonique),
+   4) le reste (découverte). Le "boostage" (mise en avant payante) est
+   un chantier à part, pas inclus ici.
+   ══════════════════════════════════════════════════════════════════ */
+
+// Compare juste les premiers caractères du numéro (ex: "+229...") — pas une vraie
+// base de pays, juste "ce numéro commence pareil que le mien" comme convenu.
+function prefixePays(tel) {
+  if (!tel) return '';
+  return String(tel).replace(/\s+/g, '').slice(0, 4);
+}
+
+function rangPriorite(pub) {
+  if (currentUser && pub.auteurUid === currentUser.uid) return 0;     // moi d'abord
+  if (followedUids.has(pub.auteurUid)) return 1;                      // puis mes suivis
+  const monPrefixe = currentUser ? prefixePays(currentUser.telephone) : '';
+  if (monPrefixe && pub.paysPrefixe && pub.paysPrefixe === monPrefixe) return 2; // même pays
+  return 3;                                                            // le reste
+}
+
+// Trie une liste de publications par palier de priorité, en gardant la date/heure
+// comme critère à l'intérieur de chaque palier.
+function trierParPriorite(liste) {
+  return [...liste].sort((a, b) => {
+    const ra = rangPriorite(a), rb = rangPriorite(b);
+    if (ra !== rb) return ra - rb;
+    const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+    const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+    return tb - ta;
+  });
+}
+
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et, plus tard, le carrousel)
 // Corrigé le 30/07/2026, précisé le 30/07/2026 : chaque section du site (Actualités,
 // Offres, Demandes...) garde son PROPRE suivi, indépendant des autres — on peut suivre
@@ -651,10 +687,15 @@ function tempsDepuis(ms) {
 function creerAvatarHTML(nom, verifie, uid) {
   const initiale = (nom || '?')[0].toUpperCase();
   const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
-  return '<div class="ph-av" style="background:' + couleur + ';position:relative;cursor:pointer" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+  // Le point vert est placé HORS du div .ph-av (qui a overflow:hidden pour rester bien
+  // rond) sinon il se fait couper dans le coin. On l'enveloppe dans un conteneur non
+  // découpé, positionné pareil, pour que le point reste bien visible par-dessus.
+  return '<span style="position:relative;display:inline-flex;flex-shrink:0;cursor:pointer" onclick="window.__voirProfil(\'' + (uid || '') + '\')">'
+    + '<div class="ph-av" style="background:' + couleur + '">' + escapeHtml(initiale)
     + (verifie ? '<span class="ph-vb">✔</span>' : '')
-    + '<div class="online-dot" data-author="' + (uid || '') + '" style="display:none;position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>'
-    + '</div>';
+    + '</div>'
+    + '<div class="online-dot" data-author="' + (uid || '') + '" style="display:none;position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2"></div>'
+    + '</span>';
 }
 
 // Va sur le profil d'un utilisateur, en gardant la possibilité de revenir en arrière
@@ -804,7 +845,7 @@ function creerPostHTML(pub) {
 function afficherFeed() {
   const conteneur = document.getElementById('feedPosts');
 
-  const filtrees = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+  const filtrees = trierParPriorite(listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive));
 
   document.getElementById('feedLoading').style.display = 'none';
 
@@ -1150,6 +1191,7 @@ async function publishPost() {
       auteurMetier: currentUser.metier || '',
       auteurVerifie: !!currentUser.verifie,
       ville: currentUser.ville || '',
+      paysPrefixe: prefixePays(currentUser.telephone),
       createdAt: serverTimestamp(),
       likes: 0,
       partages: 0
@@ -1741,35 +1783,4 @@ async function surChangementAuth(user) {
   currentUser.verifie = false;
   try {
     // Délai maximum de 8s : cette lecture utilise encore l'ancienne méthode (SDK classique),
-    // qui peut rester bloquée indéfiniment sur ce projet. Si elle ne répond pas, on continue
-    // quand même avec les valeurs par défaut plutôt que de bloquer toute la page pour toujours.
-    ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
-    const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
-    ajouterEtape('6. Profil utilisateur lu ✅');
-    if (snap.exists()) {
-      const d = snap.data();
-      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
-      currentUser.metier = d.metier || '';
-      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
-      currentUser.role = d.role || 'visiteur';
-      currentUser.verifie = currentUser.role !== 'visiteur';
-      currentUser.ville = d.ville || '';
-    }
-  } catch(e){ console.error(e); ajouterEtape('6bis. Echec lecture profil (' + (e&&e.message||e) + '), on continue quand meme'); }
-
-  const initiale = (currentUser.displayName||'?')[0].toUpperCase();
-  document.getElementById('cpAvatar').textContent = initiale;
-  document.getElementById('cmAvatar').textContent = initiale;
-  document.getElementById('cmNom').textContent = currentUser.displayName;
-
-  ajouterEtape('7. Appel de chargerPublications()...');
-  chargerPublications();
-  ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
-  chargerSuivis();
-  chargerMesReactionsActu();
-}
-</script>
-
-<!-- FIN_FICHIER_ARTIROYCE_OK -->
-</body>
-</html>
+    // qui peut rester bloquée indéf
