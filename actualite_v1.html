@@ -648,11 +648,45 @@ function tempsDepuis(ms) {
    ══════════════════════════════════════════════════════════════════ */
 
 // Construit l'avatar rond avec initiale + badge ✔ si vérifié
-function creerAvatarHTML(nom, verifie) {
+function creerAvatarHTML(nom, verifie, uid) {
   const initiale = (nom || '?')[0].toUpperCase();
   const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
-  return '<div class="ph-av" style="background:' + couleur + '">' + escapeHtml(initiale)
-    + (verifie ? '<span class="ph-vb">✔</span>' : '') + '</div>';
+  return '<div class="ph-av" style="background:' + couleur + ';position:relative;cursor:pointer" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+    + (verifie ? '<span class="ph-vb">✔</span>' : '')
+    + '<div class="online-dot" data-author="' + (uid || '') + '" style="display:none;position:absolute;bottom:2px;right:2px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>'
+    + '</div>';
+}
+
+// Va sur le profil d'un utilisateur, en gardant la possibilité de revenir en arrière
+// (repris tel quel de fil-presse.html / offre_v1.html pour rester cohérent partout).
+window.__voirProfil = function (uid) {
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.goUserProfile === 'function') {
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  } catch (e) { }
+  window.location.href = 'profil.html?uid=' + uid;
+};
+
+// Affiche le point vert "en ligne" pour les auteurs actifs dans les 2 dernières minutes
+// (repris de fil-presse.html : lit le champ derniereActivite du profil).
+async function marquerAuteursEnLigne() {
+  const dots = document.querySelectorAll('.online-dot[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    try {
+      const uSnap = await getDoc(doc(db, 'utilisateurs', uid));
+      if (!uSnap.exists()) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = '');
+      }
+    } catch (e) { }
+  }
 }
 
 // Construit la grille média (Boutique = cadres avec nom/prix, Galerie = simples photos)
@@ -725,7 +759,7 @@ function creerPostHTML(pub) {
 
   return '<div class="post" data-id="' + pub.id + '">'
     + '<div class="ph" style="position:relative">'
-    + creerAvatarHTML(nom, pub.auteurVerifie)
+    + creerAvatarHTML(nom, pub.auteurVerifie, pub.auteurUid)
     + '<div class="ph-info">'
     +   '<div class="ph-top"><span class="ph-name">' + escapeHtml(nom) + '</span>' + badge + '</div>'
     +   '<div class="ph-meta">' + meta + '</div>'
@@ -794,6 +828,7 @@ function afficherFeed() {
   conteneur.innerHTML = html;
   observerSentinelleFeed();
   if (carouselHTML) wireCoverCarouselActu();
+  marquerAuteursEnLigne();
 }
 
 // Observe la sentinelle en bas du feed : dès qu'elle apparaît à l'écran (on approche du
@@ -1456,11 +1491,13 @@ function ecouterCommentaires(postId) {
       const wrap = document.createElement('div');
       wrap.innerHTML =
         '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
-        + '<div style="width:36px;height:36px;border-radius:50%;background:' + avColor + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">' + escapeHtml(initiale) + '</div>'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + avColor + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;position:relative;cursor:pointer" onclick="window.__voirProfil(\'' + (c.uid || '') + '\')">' + escapeHtml(initiale)
+        + '<div class="online-dot" data-author="' + (c.uid || '') + '" style="display:none;position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #fff"></div>'
+        + '</div>'
         + '<div style="flex:1;min-width:0;position:relative">'
         +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
         +     '<span style="font-size:13px;font-weight:700;color:#757575">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
-        +     '<span style="font-size:11px;font-weight:700;color:' + (isAuteur ? '#1a5276' : (c.verifie ? '#0e93b3' : '#8e8e8e')) + '">· ' + (isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')) + '</span>'
+        +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + (isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')) + '</span>'
         +   '</div>'
         +   '<div style="font-size:14px;color:#1c1e21;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
         +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
@@ -1504,6 +1541,7 @@ function ecouterCommentaires(postId) {
         listEl.appendChild(repZone);
       }
     });
+    marquerAuteursEnLigne();
   });
 }
 
