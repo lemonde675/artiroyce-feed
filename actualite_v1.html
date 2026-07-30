@@ -269,7 +269,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </header>
 
-<div id="panneauDiagnostic" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
+<div id="panneauDiagnostic" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#0f0;font-family:monospace;font-size:11px;padding:8px 10px;max-height:160px;overflow-y:auto;line-height:1.5;border-top:3px solid #0f0">
   <div id="etapeScript">1. Script classique : en attente…</div>
 </div>
 <script>document.getElementById('etapeScript').textContent = '1. Script classique : OK ✅ VERSION-6-CACHEBUSTER (' + new Date().toLocaleTimeString() + ')';
@@ -482,6 +482,11 @@ window.addEventListener('unhandledrejection', function(e){
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
+  // Le panneau reste masqué pour les utilisateurs normaux. Pour le rallumer
+  // (dépannage), ajouter ?debug=1 à la fin de l'adresse de la page.
+  if (new URLSearchParams(window.location.search).get('debug') === '1') {
+    panneau.style.display = 'block';
+  }
   const ligne = document.createElement('div');
   ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
   panneau.appendChild(ligne);
@@ -497,7 +502,8 @@ function avecDelaiMax(promesse, millisecondes){
 // Ces noms seront remplis une fois les bibliothèques Firebase chargées (voir plus bas).
 let initializeApp, getAuth, onAuthStateChanged, getFirestore, initializeFirestore, collection,
     collectionGroup, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc,
-    increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter;
+    increment, onSnapshot, orderBy, query, where, serverTimestamp, Timestamp, limit, startAfter,
+    arrayUnion, arrayRemove;
 let app, auth, db;
 
 (async function demarrerFirebase(){
@@ -520,6 +526,7 @@ let app, auth, db;
     increment = modFs.increment; onSnapshot = modFs.onSnapshot; orderBy = modFs.orderBy; query = modFs.query;
     where = modFs.where; serverTimestamp = modFs.serverTimestamp; Timestamp = modFs.Timestamp;
     limit = modFs.limit; startAfter = modFs.startAfter;
+    arrayUnion = modFs.arrayUnion; arrayRemove = modFs.arrayRemove;
     ajouterEtape('3. Toutes les bibliotheques Firebase chargees ✅');
   } catch(err) {
     ajouterEtape('❌ ECHEC du telechargement Firebase : ' + (err && err.message ? err.message : String(err)));
@@ -595,19 +602,23 @@ function premiereVille(ville) {
 }
 
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et, plus tard, le carrousel)
+// Corrigé le 30/07/2026, précisé le 30/07/2026 : chaque section du site (Actualités,
+// Offres, Demandes...) garde son PROPRE suivi, indépendant des autres — on peut suivre
+// quelqu'un ici sans le suivre ailleurs. Stocké dans une sous-collection dédiée à
+// Actualités (utilisateurs/{moi}/suivisActualite/{auteurUid}).
 window.toggleSuivre = async function (auteurUid, event) {
   if (event) event.stopPropagation();
   if (!currentUser || auteurUid === currentUser.uid) return;
-  const ref = doc(db, 'utilisateurs', currentUser.uid, 'suivis', auteurUid);
+  const ref = doc(db, 'utilisateurs', currentUser.uid, 'suivisActualite', auteurUid);
   try {
     if (followedUids.has(auteurUid)) {
       await deleteDoc(ref);
       followedUids.delete(auteurUid);
-      window.toast && window.toast('Vous ne suivez plus cette personne');
+      window.toast && window.toast('Vous ne suivez plus cette personne (Actualités)');
     } else {
       await setDoc(ref, { depuis: serverTimestamp() });
       followedUids.add(auteurUid);
-      window.toast && window.toast('✅ Abonné(e) !', 'g');
+      window.toast && window.toast('✅ Abonné(e) aux actualités de cette personne !', 'g');
     }
     afficherFeed();
   } catch (e) { console.error(e); window.toast && window.toast('Erreur'); }
@@ -926,11 +937,12 @@ async function ensureSeedActualites() {
   }
 }
 
-// Charge la liste des profils que l'utilisateur suit déjà (pour l'état du bouton "Suivre" plus tard)
+// Charge la liste des profils que l'utilisateur suit déjà DANS ACTUALITÉS (indépendant
+// des autres sections du site) — utilisé pour l'état du bouton "Suivre".
 async function chargerSuivis() {
   try {
     if (!currentUser) return;
-    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivis'));
+    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivisActualite'));
     followedUids = new Set(snap.docs.map(d => d.id));
     ajouterEtape('9. Suivis chargés ✅ (' + followedUids.size + ')');
   } catch (e) {
@@ -1448,7 +1460,7 @@ function ecouterCommentaires(postId) {
         + '<div style="flex:1;min-width:0;position:relative">'
         +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
         +     '<span style="font-size:13px;font-weight:700;color:#757575">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
-        +     '<span style="font-size:11px;font-weight:700;color:' + (isAuteur ? '#1a5276' : '#8e8e8e') + '">· ' + (isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')) + '</span>'
+        +     '<span style="font-size:11px;font-weight:700;color:' + (isAuteur ? '#1a5276' : (c.verifie ? '#0e93b3' : '#8e8e8e')) + '">· ' + (isAuteur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur')) + '</span>'
         +   '</div>'
         +   '<div style="font-size:14px;color:#1c1e21;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
         +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
