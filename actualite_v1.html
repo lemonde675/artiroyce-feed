@@ -817,6 +817,7 @@ function prefixePays(tel) {
 // (query Firestore orderBy createdAt desc).
 function classerParPriorite(liste) {
   if (!currentUser) return liste;
+  if (!(followedUids instanceof Set)) followedUids = new Set();
   const monPrefixe = (currentUser.paysPrefixe || '');
   const palier = (p) => {
     if (p.auteurUid === currentUser.uid) return 0;
@@ -834,7 +835,12 @@ function afficherFeed() {
   const conteneur = document.getElementById('feedPosts');
 
   const filtreesCategorie = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
-  const filtrees = classerParPriorite(filtreesCategorie);
+  let filtrees = filtreesCategorie;
+  try {
+    filtrees = classerParPriorite(filtreesCategorie);
+  } catch (e) {
+    ajouterEtape('⚠️ classerParPriorite a échoué, affichage sans classement : ' + (e && e.message || e));
+  }
 
   document.getElementById('feedLoading').style.display = 'none';
 
@@ -1779,7 +1785,4 @@ async function surChangementAuth(user) {
     ajouterEtape('6. Profil utilisateur lu ✅');
     if (snap.exists()) {
       const d = snap.data();
-      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
-      currentUser.metier = d.metier || '';
-      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
-      currentUser.role = d.role || 'visiteu
+      currentUser.displayName = d.nom || d.pre
