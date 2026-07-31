@@ -14,11 +14,32 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .top-header .logo .arti { color: var(--red); }
 .top-header .logo .royce { color: var(--green); }
 
-.zone-publier { background: #fff; padding: 12px 14px; border-bottom: 8px solid #eee; }
-.zone-publier textarea { width: 100%; min-height: 60px; border: 1px solid #ddd; border-radius: 10px; padding: 10px; font-size: 14px; font-family: inherit; resize: vertical; }
-.zone-publier .ligne-bouton { display: flex; justify-content: flex-end; margin-top: 8px; }
-.zone-publier button { background: var(--red); color: #fff; border: none; border-radius: 20px; padding: 8px 20px; font-size: 14px; font-weight: 700; }
-.zone-publier button:disabled { opacity: 0.6; }
+.zone-publier { background: #fff; padding: 12px 14px; border-bottom: 8px solid #eee; display: flex; align-items: center; gap: 10px; }
+.zone-publier .cp-av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0; cursor: pointer; }
+.zone-publier .cp-input { flex: 1; background: #f5f5f5; border-radius: 22px; padding: 10px 16px; font-size: 14px; color: #888; cursor: pointer; border: none; text-align: left; font-family: inherit; }
+
+.create-modal { position: fixed; inset: 0; z-index: 500; background: #fff; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
+.create-modal.open { transform: translateY(0); }
+.cm-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eee; }
+.cm-cancel { font-size: 14px; font-weight: 700; color: #888; cursor: pointer; padding: 4px; }
+.cm-title { font-size: 16px; font-weight: 900; color: #222; }
+.cm-publish { background: var(--red); color: #fff; font-size: 13px; font-weight: 800; padding: 7px 18px; border-radius: 22px; border: none; cursor: pointer; }
+.cm-publish:disabled { opacity: 0.6; }
+.cm-user { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+.cm-av { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.cm-name { font-size: 14px; font-weight: 800; color: #222; }
+.cm-textarea { flex: 1; border: none; outline: none; padding: 0 16px; font-size: 16px; color: #222; font-family: inherit; resize: none; line-height: 1.6; width: 100%; }
+.cm-textarea::placeholder { color: #bbb; }
+.cm-choix { padding: 6px 16px 16px; overflow-y: auto; flex: 1; }
+.cm-choix-intro { font-size: 12px; color: #888; padding: 2px 0 16px; line-height: 1.5; }
+.cm-choix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cm-choix-tile { background: #fafafa; border: 1.5px solid #eee; border-radius: 16px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 9px; cursor: pointer; text-align: center; }
+.cm-choix-tile.wide { grid-column: 1/-1; flex-direction: row; text-align: left; padding: 16px; }
+.cm-choix-ico { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.cm-choix-nom { font-size: 13.5px; font-weight: 800; color: #222; }
+.cm-choix-sub { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #222; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 9998; transition: transform 0.25s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
 
 #feedZone { padding: 10px; }
 #feedLoading, #feedEmpty { text-align: center; padding: 60px 20px; color: #999; }
@@ -29,6 +50,11 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+.post .media-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.post .media-item { width: calc(50% - 3px); border-radius: 8px; overflow: hidden; background: #f0f0f0; }
+.post .media-item img { width: 100%; height: 140px; object-fit: cover; display: block; }
+.post .media-item .legende { padding: 5px 7px; font-size: 12px; color: #555; }
+.post .media-item .legende .prix { font-weight: 700; color: var(--red); }
 
 #panneauDiagnostic { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px; padding: 8px 10px; max-height: 160px; overflow-y: auto; line-height: 1.5; border-top: 3px solid #0f0; }
 </style>
@@ -40,11 +66,45 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 </header>
 
 <div class="zone-publier">
-  <textarea id="texteAPublier" placeholder="Quoi de neuf ?"></textarea>
-  <div class="ligne-bouton">
-    <button id="btnPublier" onclick="publier()">Publier</button>
-  </div>
+  <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
+  <button class="cp-input" onclick="openCreate()">Publier un produit (mèche, chaussures, broches...)</button>
 </div>
+
+<div class="create-modal" id="createModal">
+  <div class="cm-header">
+    <span class="cm-cancel" id="cmBackOrCancel" onclick="cmBackOrClose()">Annuler</span>
+    <span class="cm-title" id="cmTitleLbl">Créer une publication</span>
+    <button class="cm-publish" id="btnPublish" onclick="publishPost()" style="display:none">Publier</button>
+  </div>
+
+  <!-- ÉTAPE 0 — CHOIX DU MODÈLE (Galerie et Boutique arrivent à l'étape suivante) -->
+  <div class="cm-choix" id="cmStepChoix">
+    <div class="cm-choix-intro">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
+    <div class="cm-choix-grid">
+      <div class="cm-choix-tile wide" onclick="chooseModel('texte')">
+        <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
+        <div><div class="cm-choix-nom">Texte</div><div class="cm-choix-sub">Un message simple, sans photo</div></div>
+      </div>
+      <div class="cm-choix-tile" onclick="toast('Bientôt disponible (prochaine étape)')">
+        <div class="cm-choix-ico" style="background:#e8f5e9">🖼️</div>
+        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">Bientôt disponible</div></div>
+      </div>
+      <div class="cm-choix-tile" onclick="toast('Bientôt disponible (prochaine étape)')">
+        <div class="cm-choix-ico" style="background:#fff0f0">🏪</div>
+        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Bientôt disponible</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE TEXTE -->
+  <div class="cm-user" id="cmStepUser" style="display:none">
+    <div class="cm-av" id="cmAvatar">👤</div>
+    <div class="cm-name" id="cmNom">Mon compte</div>
+  </div>
+  <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
+</div>
+
+<div class="toast" id="toastEl"></div>
 
 <div id="feedZone">
   <div id="feedLoading"><span class="sablier">⏳</span>Chargement des publications…</div>
@@ -66,6 +126,14 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
    ══════════════════════════════════════════════════════════════════ */
 
 // Petit journal visible directement à l'écran (toujours affiché).
+function toast(msg){
+  const el = document.getElementById('toastEl');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show';
+  setTimeout(() => el.className = 'toast', 2200);
+}
+
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
@@ -163,6 +231,11 @@ async function surChangementAuth(user) {
 
   ajouterEtape('7. Appel de chargerPublications()...');
   chargerPublications();
+
+  const initiale = (currentUser.displayName || '?')[0].toUpperCase();
+  document.getElementById('cpAvatar').textContent = initiale;
+  document.getElementById('cmAvatar').textContent = initiale;
+  document.getElementById('cmNom').textContent = currentUser.displayName;
 }
 
 function formatDate(dateFirestore){
@@ -240,6 +313,28 @@ function chargerPublications() {
   }
 }
 
+// Grille de photos simple pour les publications Galerie (simples photos) et
+// Boutique (photo + nom + prix). Pas encore la mise en page "magazine" de
+// l'ancienne version (grille avec zones spéciales) — ce sera affiné plus tard.
+// Pas de carrousel, pas de J'aime pour l'instant, volontairement.
+function creerMediaHTML(p) {
+  if (p.type === 'boutique' && Array.isArray(p.cadres) && p.cadres.length) {
+    return '<div class="media-grid">' + p.cadres.map(c => (
+      '<div class="media-item">'
+      + (c.photo ? '<img src="' + c.photo + '" loading="lazy">' : '')
+      + '<div class="legende">' + escapeHtml(c.nom || 'Article')
+      + (c.prix ? ' <span class="prix">' + escapeHtml(String(c.prix)) + '</span>' : '')
+      + '</div></div>'
+    )).join('') + '</div>';
+  }
+  if (p.type === 'galerie' && Array.isArray(p.images) && p.images.length) {
+    return '<div class="media-grid">' + p.images.map(img => (
+      '<div class="media-item"><img src="' + img + '" loading="lazy"></div>'
+    )).join('') + '</div>';
+  }
+  return '';
+}
+
 function afficherFeed(liste) {
   document.getElementById('feedLoading').style.display = 'none';
   const conteneur = document.getElementById('feedPosts');
@@ -251,16 +346,70 @@ function afficherFeed(liste) {
     + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
     + '<div class="meta">' + formatDate(p.createdAt) + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
+    + creerMediaHTML(p)
     + '</div>'
   )).join('');
 }
 
-window.publier = async function() {
-  const champ = document.getElementById('texteAPublier');
-  const texte = champ.value.trim();
+let cmEtapeActuelle = 'choix';
+
+// Reprend le correctif de l'ancienne version : cette page tourne en iframe dans
+// accueil.html, et le bandeau du parent recouvre le haut de notre modal plein
+// écran. On calcule sa hauteur réelle pour pousser le modal en dessous.
+function getEmbedTopOffsetPx() {
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const topParent = window.parent.document.getElementById('topH');
+      if (topParent) return topParent.getBoundingClientRect().height;
+    }
+  } catch (e) { /* parent inaccessible : offset = 0 */ }
+  return 0;
+}
+
+function cmAfficherChoix() {
+  cmEtapeActuelle = 'choix';
+  document.getElementById('cmStepChoix').style.display = '';
+  document.getElementById('cmStepUser').style.display = 'none';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
+  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
+  document.getElementById('btnPublish').style.display = 'none';
+}
+
+window.openCreate = function() {
+  if (!currentUser) { toast('Connexion requise'); return; }
+  cmAfficherChoix();
+  document.getElementById('cmText').value = '';
+  document.getElementById('createModal').style.paddingTop = getEmbedTopOffsetPx() + 'px';
+  document.getElementById('createModal').classList.add('open');
+};
+
+window.cmBackOrClose = function() {
+  if (cmEtapeActuelle === 'choix') {
+    document.getElementById('createModal').classList.remove('open');
+  } else {
+    cmAfficherChoix();
+  }
+};
+
+window.chooseModel = function(type) {
+  cmEtapeActuelle = type;
+  document.getElementById('cmStepChoix').style.display = 'none';
+  document.getElementById('cmStepUser').style.display = 'flex';
+  document.getElementById('cmBackOrCancel').textContent = 'Retour';
+  document.getElementById('btnPublish').style.display = 'block';
+  if (type === 'texte') {
+    document.getElementById('cmText').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Publication texte';
+    setTimeout(() => document.getElementById('cmText').focus(), 250);
+  }
+};
+
+window.publishPost = async function() {
+  const texte = document.getElementById('cmText').value.trim();
   if (!texte) return;
-  if (!currentUser) { ajouterEtape('❌ Publication refusée : utilisateur non connecté'); return; }
-  const btn = document.getElementById('btnPublier');
+  if (!currentUser) { toast('Connexion requise'); return; }
+  const btn = document.getElementById('btnPublish');
   btn.disabled = true; btn.textContent = 'Publication…';
   try {
     await db.collection('publications').add({
@@ -273,9 +422,12 @@ window.publier = async function() {
       likes: 0,
       partages: 0
     });
-    champ.value = '';
+    toast('Publié ✅');
+    document.getElementById('createModal').classList.remove('open');
+    cmAfficherChoix();
   } catch (e) {
     ajouterEtape('❌ Erreur publication : ' + (e && e.message || e));
+    toast('Erreur : publication impossible');
   } finally {
     btn.disabled = false; btn.textContent = 'Publier';
   }
