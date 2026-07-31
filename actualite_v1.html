@@ -459,9 +459,6 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
-document.title = "MODULE OK";
-console.log("[ACTU] Module démarré");
-alert("MODULE DEMARRE");
 (function(){ const p = document.getElementById('panneauDiagnostic'); if(p){ const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + ' — 1.5 LE BLOC SCRIPT MODULE DEMARRE'; p.appendChild(d); } })();
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
@@ -485,10 +482,10 @@ window.addEventListener('unhandledrejection', function(e){
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
-  // Le panneau reste normalement masqué (rallumable avec ?debug=1 dans l'URL).
-  // TEMPORAIRE (30/07/2026) : forcé visible pour tous, le temps de localiser
-  // le bug du fil bloqué sur "Chargement des publications...". À remettre
-  // caché par défaut une fois le bug trouvé et corrigé.
+  // TEMPORAIRE : panneau forcé visible pour tout le monde (le temps de fiabiliser
+  // les déploiements). Avant, il fallait ajouter ?debug=1 dans l'adresse — trop
+  // facile à oublier ou mal taper sur mobile. À remettre masqué par défaut une
+  // fois qu'on aura confirmé que tout fonctionne normalement.
   panneau.style.display = 'block';
   const ligne = document.createElement('div');
   ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
@@ -602,17 +599,6 @@ function escapeHtml(str){
 function premiereVille(ville) {
   if (!ville) return '';
   return String(ville).split(/[,\s]+/)[0] || '';
-}
-
-// Approximation de l'indicatif pays à partir du numéro de téléphone (pas une vraie
-// base de données des indicatifs : on garde juste les 3 premiers chiffres pour
-// comparer "ça commence pareil que chez moi"). Ajouté le 30/07/2026 pour le
-// classement du fil par priorité (palier "même pays"). La ville, quand elle sera
-// mieux renseignée, pourra affiner ça plus tard.
-function extraireIndicatifTelephone(telephone) {
-  if (!telephone) return '';
-  const chiffres = String(telephone).replace(/\D/g, '');
-  return chiffres.slice(0, 3);
 }
 
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et, plus tard, le carrousel)
@@ -861,61 +847,6 @@ function observerSentinelleFeed() {
   _observateurFeed.observe(sentinelle);
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   CLASSEMENT DU FIL PAR PALIERS DE PRIORITÉ — ajouté le 30/07/2026.
-   Le fil reste basé sur la date (Firestore fournit déjà le plus récent
-   en premier), mais réorganisé en 4 paliers, chacun restant du plus
-   récent au plus ancien à l'intérieur, SAUF le dernier qui est mélangé
-   pour la découverte :
-     1. Mes propres publications (priorité absolue)
-     2. Les personnes que je suis
-     3. Même pays (indicatif téléphonique, approximatif — voir
-        extraireIndicatifTelephone)
-     4. Le reste, mélangé aléatoirement
-   Le "boostage" payant est volontairement laissé de côté (chantier à
-   part, plus tard).
-   Protégé par son propre détecteur d'erreur : en cas de problème, on
-   revient simplement à l'ordre par date (comportement d'avant), le fil
-   ne se bloque jamais à cause de ce tri.
-   ══════════════════════════════════════════════════════════════════ */
-function melangerAleatoirement(liste) {
-  const m = liste.slice();
-  for (let i = m.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [m[i], m[j]] = [m[j], m[i]];
-  }
-  return m;
-}
-
-function trierFeedParPriorite(liste) {
-  try {
-    if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
-
-    const mesPosts = [];
-    const suivis = [];
-    const memePays = [];
-    const reste = [];
-
-    liste.forEach(p => {
-      if (p.auteurUid === currentUser.uid) {
-        mesPosts.push(p);
-      } else if (p.auteurUid && followedUids.has(p.auteurUid)) {
-        suivis.push(p);
-      } else if (currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe) {
-        memePays.push(p);
-      } else {
-        reste.push(p);
-      }
-    });
-
-    return mesPosts.concat(suivis, memePays, melangerAleatoirement(reste));
-  } catch (e) {
-    ajouterEtape('❌ Tri par priorité (classement du fil) : ' + (e && e.message || e) + ' — retour à l\u2019ordre par date');
-    console.error('Erreur trierFeedParPriorite :', e);
-    return liste;
-  }
-}
-
 // Écoute en temps réel TOUTES les publications (comme la version de référence), sépare
 // les publications actives de la corbeille (mes propres publications supprimées), et
 // purge automatiquement (suppression définitive) celles à la corbeille depuis plus de
@@ -927,7 +858,7 @@ function chargerPublications() {
     const q = query(collection(db, 'publications'), orderBy('createdAt', 'desc'));
     onSnapshot(q, snap => {
       const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      listePublications = trierFeedParPriorite(toutes.filter(p => !p.corbeille));
+      listePublications = toutes.filter(p => !p.corbeille);
       listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
 
       const maintenant = Date.now();
@@ -1049,12 +980,6 @@ async function chargerSuivis() {
     const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivisActualite'));
     followedUids = new Set(snap.docs.map(d => d.id));
     ajouterEtape('9. Suivis chargés ✅ (' + followedUids.size + ')');
-    // Les suivis peuvent arriver après un premier affichage du fil : on retrie et
-    // on ré-affiche pour que le palier "suivis" soit correct dès que possible.
-    if (listePublications.length) {
-      listePublications = trierFeedParPriorite(listePublications);
-      afficherFeed();
-    }
   } catch (e) {
     followedUids = new Set();
     ajouterEtape('9. chargerSuivis ignoré : ' + (e && e.message || e));
@@ -1225,7 +1150,6 @@ async function publishPost() {
       auteurMetier: currentUser.metier || '',
       auteurVerifie: !!currentUser.verifie,
       ville: currentUser.ville || '',
-      paysPrefixe: currentUser.paysPrefixe || '',
       createdAt: serverTimestamp(),
       likes: 0,
       partages: 0
@@ -1800,4 +1724,52 @@ function wireCoverCarouselActu() {
     document.querySelectorAll('.cover-carousel-actu').forEach(track => {
       const maxScroll = track.scrollWidth - track.clientWidth;
       if (maxScroll <= 2) return;
-      if (track.scrollLeft >= maxS
+      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+    });
+  }, 3000);
+  document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; }, { passive: true });
+  document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; });
+}
+
+async function surChangementAuth(user) {
+  ajouterEtape('4b. onAuthStateChanged declenche, user = ' + (user ? user.uid : 'AUCUN'));
+  if (!user) { window.location.href = 'connexion.html'; return; }
+  currentUser = user;
+  currentUser.displayName = user.email ? user.email.split('@')[0] : 'Moi';
+  currentUser.metier = '';
+  currentUser.verifie = false;
+  try {
+    // Délai maximum de 8s : cette lecture utilise encore l'ancienne méthode (SDK classique),
+    // qui peut rester bloquée indéfiniment sur ce projet. Si elle ne répond pas, on continue
+    // quand même avec les valeurs par défaut plutôt que de bloquer toute la page pour toujours.
+    ajouterEtape('5. Lecture du profil utilisateur (ancienne methode)...');
+    const snap = await avecDelaiMax(getDoc(doc(db,'utilisateurs', user.uid)), 8000);
+    ajouterEtape('6. Profil utilisateur lu ✅');
+    if (snap.exists()) {
+      const d = snap.data();
+      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.metier = d.metier || '';
+      // Champ réel de la base (identique à cv_pro.html) : role === 'visiteur' => Visiteur, sinon Professionnel
+      currentUser.role = d.role || 'visiteur';
+      currentUser.verifie = currentUser.role !== 'visiteur';
+      currentUser.ville = d.ville || '';
+    }
+  } catch(e){ console.error(e); ajouterEtape('6bis. Echec lecture profil (' + (e&&e.message||e) + '), on continue quand meme'); }
+
+  const initiale = (currentUser.displayName||'?')[0].toUpperCase();
+  document.getElementById('cpAvatar').textContent = initiale;
+  document.getElementById('cmAvatar').textContent = initiale;
+  document.getElementById('cmNom').textContent = currentUser.displayName;
+
+  ajouterEtape('7. Appel de chargerPublications()...');
+  chargerPublications();
+  ensureSeedActualites().catch(e => console.error('Seed actualités impossible :', e));
+  chargerSuivis();
+  chargerMesReactionsActu();
+}
+</script>
+
+<!-- FIN_FICHIER_ARTIROYCE_OK -->
+</body>
+</html>
