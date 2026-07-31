@@ -50,11 +50,17 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
-.post .media-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.post .media-item { width: calc(50% - 3px); border-radius: 8px; overflow: hidden; background: #f0f0f0; }
-.post .media-item img { width: 100%; height: 140px; object-fit: cover; display: block; }
-.post .media-item .legende { padding: 5px 7px; font-size: 12px; color: #555; }
-.post .media-item .legende .prix { font-weight: 700; color: var(--red); }
+
+.p-media-grid { display: grid; gap: 2px; background: #fff; margin-top: 10px; border-radius: 10px; overflow: hidden; }
+.p-media-item { position: relative; overflow: hidden; }
+.p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
+.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin-top: 10px; border-radius: 10px; overflow: hidden; }
+.p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; }
+.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tags-blanc .media-chip { background: #fff; color: #14143a; }
+.tags-vert .media-chip { background: var(--green); color: #fff; }
+.tags-rose .media-chip { background: #ff5c9e; color: #fff; }
 
 #panneauDiagnostic { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px; padding: 8px 10px; max-height: 160px; overflow-y: auto; line-height: 1.5; border-top: 3px solid #0f0; }
 </style>
@@ -67,7 +73,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 <div class="zone-publier">
   <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
-  <button class="cp-input" onclick="openCreate()">Publier un produit (mèche, chaussures, broches...)</button>
+  <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
 </div>
 
 <div class="create-modal" id="createModal">
@@ -337,24 +343,62 @@ function chargerPublications() {
   }
 }
 
-// Grille de photos simple pour les publications Galerie (simples photos) et
-// Boutique (photo + nom + prix). Pas encore la mise en page "magazine" de
-// l'ancienne version (grille avec zones spéciales) — ce sera affiné plus tard.
-// Pas de carrousel, pas de J'aime pour l'instant, volontairement.
+// Dispositions de grille "magazine" — reprises telles quelles de l'ancienne
+// version (les mêmes zones grid-template-areas selon le nombre de photos).
+const MEDIA_LAYOUTS = {
+  1: { template:'1fr', areas:['1 / 1 / 2 / 2'], cRatio:'16/9' },
+  2: { template:'2fr 1fr', areas:['1/1/2/2','1/2/2/3'], cRatio:'3/2' },
+  3: { template:'2fr 1fr / 1fr 1fr', rows:'1fr 1fr', areas:['1/1/3/2','1/2/2/3','2/2/3/3'], cRatio:'4/3' },
+  4: { template:'1fr 1fr', rows:'1fr 1fr', areas:['1/1/2/2','1/2/2/3','2/1/3/2','2/2/3/3'], cRatio:'1/1' },
+  5: { template:'1fr 1fr 1fr', rows:'1.4fr 1fr', areas:['1/1/2/4','2/1/3/2','2/2/3/3','2/3/3/4'], cRatio:'4/3' },
+  6: { template:'1fr 1fr 1fr', rows:'1fr 1fr', areas:null },
+  7: { template:'2fr 1fr 1fr', rows:'1fr 1fr 1fr', areas:['1/1/3/2'], cRatio:'1/1' },
+  8: { template:'1fr 1fr 1fr 1fr', rows:'1fr 1fr', areas:null }
+};
+
+// Grille de photos "magazine" pour Boutique (photo + nom + prix incrustés) et
+// Galerie (simples photos) — reprise fidèlement de l'ancienne version.
 function creerMediaHTML(p) {
+  const tag = p.tagColor || 'blanc';
+
   if (p.type === 'boutique' && Array.isArray(p.cadres) && p.cadres.length) {
-    return '<div class="media-grid">' + p.cadres.map(c => (
-      '<div class="media-item">'
-      + (c.photo ? '<img src="' + c.photo + '" loading="lazy">' : '')
-      + '<div class="legende">' + escapeHtml(c.nom || 'Article')
-      + (c.prix ? ' <span class="prix">' + escapeHtml(String(c.prix)) + '</span>' : '')
-      + '</div></div>'
-    )).join('') + '</div>';
+    const layout = MEDIA_LAYOUTS[p.cadres.length] || MEDIA_LAYOUTS[4];
+    let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+      + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+    p.cadres.forEach((c, i) => {
+      const area = layout.areas ? layout.areas[i] : null;
+      html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+        + 'aspect-ratio:' + (layout.cRatio || '1') + '">'
+        + (c.photo ? '<img src="' + c.photo + '" loading="lazy">' : '')
+        + '<div class="media-tags tags-' + tag + '">'
+        + '<span class="media-chip">' + escapeHtml(c.nom || '') + '</span>'
+        + (c.prix ? '<span class="media-chip">' + escapeHtml(String(c.prix)) + '</span>' : '')
+        + '</div></div>';
+    });
+    html += '</div>';
+    return html;
   }
+
   if (p.type === 'galerie' && Array.isArray(p.images) && p.images.length) {
-    return '<div class="media-grid">' + p.images.map(img => (
-      '<div class="media-item"><img src="' + img + '" loading="lazy"></div>'
-    )).join('') + '</div>';
+    const n = Math.min(p.images.length, 8);
+    const layout = MEDIA_LAYOUTS[n] || null;
+    if (layout) {
+      let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+        + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+      p.images.slice(0, n).forEach((img, i) => {
+        const area = layout.areas ? layout.areas[i] : null;
+        html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+          + 'aspect-ratio:' + (layout.cRatio || '1') + '"><img src="' + img + '" loading="lazy"></div>';
+      });
+      html += '</div>';
+      return html;
+    }
+    let html = '<div class="p-media-free">';
+    p.images.slice(0, 8).forEach(img => {
+      html += '<div class="p-media-item"><img src="' + img + '" loading="lazy"></div>';
+    });
+    html += '</div>';
+    return html;
   }
   return '';
 }
