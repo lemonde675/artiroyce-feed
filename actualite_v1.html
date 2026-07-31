@@ -54,17 +54,18 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 <div id="panneauDiagnostic"></div>
 
-<script type="module">
+<script>
 /* ══════════════════════════════════════════════════════════════════
-   RECONSTRUCTION MINIMALE — 31/07/2026.
-   Objectif : repartir d'une base la plus simple possible qui affiche
-   correctement le fil, avant de rajouter (un par un, en testant à
-   chaque fois) : réactions, commentaires, partage, catégories,
-   galerie/boutique, carrousel, classement par priorité, etc.
+   VERSION "COMPAT" — 31/07/2026.
+   Même logique exacte que la version précédente (classement par
+   paliers inclus), mais Firebase est chargé en scripts CLASSIQUES
+   (firebase-*-compat.js), pas en modules ES avec import(). Objectif :
+   contourner un blocage réseau/proxy observé précisément sur les
+   import() dynamiques de modules (deux fichiers très différents
+   échouaient au même endroit avec la méthode module).
    ══════════════════════════════════════════════════════════════════ */
 
-// Petit journal visible directement à l'écran (toujours affiché, pas besoin
-// de ?debug=1), pour voir où le chargement progresse ou s'arrête.
+// Petit journal visible directement à l'écran (toujours affiché).
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
@@ -72,7 +73,7 @@ function ajouterEtape(texte){
   ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
   panneau.appendChild(ligne);
 }
-ajouterEtape('1. Script module démarré ✅');
+ajouterEtape('1. Script classique démarré ✅');
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle
 // erreur JavaScript, pour voir le vrai problème sans avoir besoin de la console.
@@ -86,6 +87,31 @@ function afficherErreurVisible(msg){
 window.addEventListener('error', e => afficherErreurVisible('Erreur JS : ' + e.message + ' (' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno || '?') + ')'));
 window.addEventListener('unhandledrejection', e => afficherErreurVisible('Erreur async non gérée : ' + ((e.reason && e.reason.message) ? e.reason.message : String(e.reason))));
 
+// Utilisé par les attributs onerror des balises <script> Firebase plus bas.
+function signalerEchecFirebase(nomBibliotheque){
+  ajouterEtape('❌ ÉCHEC du chargement Firebase (' + nomBibliotheque + ')');
+  document.getElementById('feedLoading').innerHTML =
+    '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger Firebase (' + nomBibliotheque + ', depuis gstatic.com).</div>';
+}
+
+ajouterEtape('2. Téléchargement des bibliothèques Firebase (compat)...');
+</script>
+
+<!-- Chargement classique (pas de module, pas d'import()) : plus tolérant pour
+     certains réseaux/proxys mobiles que le chargement en modules ES. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
+        onload="ajouterEtape('2b. Bibliothèque app chargée ✅')"
+        onerror="signalerEchecFirebase('app')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
+        onload="ajouterEtape('2c. Bibliothèque auth chargée ✅')"
+        onerror="signalerEchecFirebase('auth')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
+        onload="ajouterEtape('2d. Bibliothèque firestore chargée ✅')"
+        onerror="signalerEchecFirebase('firestore')"></script>
+
+<script>
+let app, auth, db, currentUser = null;
+
 function avecDelaiMax(promesse, millisecondes){
   return Promise.race([
     promesse,
@@ -93,35 +119,12 @@ function avecDelaiMax(promesse, millisecondes){
   ]);
 }
 
-let initializeApp, getAuth, onAuthStateChanged, getFirestore, initializeFirestore, collection,
-    addDoc, getDoc, doc, onSnapshot, orderBy, query, serverTimestamp;
-let app, auth, db, currentUser = null;
-
-(async function demarrerFirebase(){
-  try {
-    ajouterEtape('2. Téléchargement de la bibliothèque Firebase (app)...');
-    const modApp = await avecDelaiMax(import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'), 12000);
-    initializeApp = modApp.initializeApp;
-    ajouterEtape('2b. Bibliothèque app chargée ✅');
-
-    ajouterEtape('2c. Téléchargement de la bibliothèque Firebase (auth)...');
-    const modAuth = await avecDelaiMax(import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'), 12000);
-    getAuth = modAuth.getAuth; onAuthStateChanged = modAuth.onAuthStateChanged;
-    ajouterEtape('2d. Bibliothèque auth chargée ✅');
-
-    ajouterEtape('2e. Téléchargement de la bibliothèque Firebase (firestore)...');
-    const modFs = await avecDelaiMax(import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'), 12000);
-    getFirestore = modFs.getFirestore; initializeFirestore = modFs.initializeFirestore;
-    collection = modFs.collection; addDoc = modFs.addDoc; getDoc = modFs.getDoc; doc = modFs.doc;
-    onSnapshot = modFs.onSnapshot; orderBy = modFs.orderBy; query = modFs.query; serverTimestamp = modFs.serverTimestamp;
-    ajouterEtape('3. Toutes les bibliothèques Firebase chargées ✅');
-  } catch (err) {
-    ajouterEtape('❌ ÉCHEC du téléchargement Firebase : ' + (err && err.message ? err.message : String(err)));
-    document.getElementById('feedLoading').innerHTML =
-      '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger Firebase (fichiers depuis gstatic.com).<br>'
-      + '<span style="font-family:monospace;font-size:11px">' + (err && err.message ? err.message.replace(/</g,'&lt;') : 'Erreur inconnue') + '</span></div>';
+(function demarrerFirebase(){
+  if (typeof firebase === 'undefined') {
+    ajouterEtape('❌ Firebase (compat) indisponible, impossible de continuer');
     return;
   }
+  ajouterEtape('3. Toutes les bibliothèques Firebase chargées ✅');
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -131,11 +134,12 @@ let app, auth, db, currentUser = null;
     messagingSenderId: "588140774605",
     appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
   };
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = initializeFirestore(app, { experimentalForceLongPolling: true });
+  app = firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  db.settings({ experimentalForceLongPolling: true });
   ajouterEtape('4. Firebase initialisé ✅, démarrage de l\u2019écoute de connexion...');
-  onAuthStateChanged(auth, surChangementAuth);
+  auth.onAuthStateChanged(surChangementAuth);
 })();
 
 async function surChangementAuth(user) {
@@ -146,10 +150,11 @@ async function surChangementAuth(user) {
 
   try {
     ajouterEtape('5. Lecture du profil utilisateur...');
-    const snap = await avecDelaiMax(getDoc(doc(db, 'utilisateurs', user.uid)), 8000);
-    if (snap.exists()) {
+    const snap = await avecDelaiMax(db.collection('utilisateurs').doc(user.uid).get(), 8000);
+    if (snap.exists) {
       const d = snap.data();
       currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
     }
     ajouterEtape('6. Profil utilisateur lu ✅');
   } catch (e) {
@@ -171,12 +176,59 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
+// Approximation de l'indicatif pays à partir du numéro de téléphone (pas une vraie
+// base de données des indicatifs : on garde juste les 3 premiers chiffres pour
+// comparer "ça commence pareil que chez moi"). Utilisé pour le palier "même pays"
+// du classement du fil.
+function extraireIndicatifTelephone(telephone) {
+  if (!telephone) return '';
+  const chiffres = String(telephone).replace(/\D/g, '');
+  return chiffres.slice(0, 3);
+}
+
+// Prêt pour l'étape "Suivre" (pas encore ajoutée) : reste vide pour l'instant,
+// donc le palier "suivis" du classement ne contiendra rien tant que ce bouton
+// n'existe pas dans cette version.
+let followedUids = new Set();
+
+function melangerAleatoirement(liste) {
+  const m = liste.slice();
+  for (let i = m.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [m[i], m[j]] = [m[j], m[i]];
+  }
+  return m;
+}
+
+/* Classement du fil par paliers de priorité :
+   1. Mes propres publications
+   2. Les personnes que je suis (vide tant que "Suivre" n'existe pas ici)
+   3. Même pays (indicatif téléphonique, approximatif)
+   4. Le reste, mélangé aléatoirement (découverte)
+   Protégé par son propre détecteur d'erreur : en cas de souci, on revient
+   simplement à l'ordre par date, le fil ne se bloque jamais à cause de ça. */
+function trierFeedParPriorite(liste) {
+  try {
+    if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
+    const mesPosts = [], suivis = [], memePays = [], reste = [];
+    liste.forEach(p => {
+      if (p.auteurUid === currentUser.uid) mesPosts.push(p);
+      else if (p.auteurUid && followedUids.has(p.auteurUid)) suivis.push(p);
+      else if (currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe) memePays.push(p);
+      else reste.push(p);
+    });
+    return mesPosts.concat(suivis, memePays, melangerAleatoirement(reste));
+  } catch (e) {
+    ajouterEtape('❌ Tri par priorité : ' + (e && e.message || e) + ' — retour à l\u2019ordre par date');
+    return liste;
+  }
+}
+
 function chargerPublications() {
   try {
-    const q = query(collection(db, 'publications'), orderBy('createdAt', 'desc'));
-    onSnapshot(q, snap => {
+    db.collection('publications').orderBy('createdAt', 'desc').onSnapshot(snap => {
       const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.corbeille);
-      afficherFeed(toutes);
+      afficherFeed(trierFeedParPriorite(toutes));
       ajouterEtape('8. Publications chargées ✅ (' + toutes.length + ')');
     }, err => {
       ajouterEtape('❌ Erreur lecture publications : ' + (err && err.message || err));
@@ -211,12 +263,13 @@ window.publier = async function() {
   const btn = document.getElementById('btnPublier');
   btn.disabled = true; btn.textContent = 'Publication…';
   try {
-    await addDoc(collection(db, 'publications'), {
+    await db.collection('publications').add({
       type: 'texte',
       texte: texte,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
-      createdAt: serverTimestamp(),
+      paysPrefixe: currentUser.paysPrefixe || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0,
       partages: 0
     });
