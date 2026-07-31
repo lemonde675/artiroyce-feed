@@ -459,6 +459,9 @@ window.toast=function(m,t){
 </script>
 
 <script type="module">
+document.title = "MODULE OK";
+console.log("[ACTU] Module démarré");
+alert("MODULE DEMARRE");
 (function(){ const p = document.getElementById('panneauDiagnostic'); if(p){ const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + ' — 1.5 LE BLOC SCRIPT MODULE DEMARRE'; p.appendChild(d); } })();
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
@@ -1797,5 +1800,4 @@ function wireCoverCarouselActu() {
     document.querySelectorAll('.cover-carousel-actu').forEach(track => {
       const maxScroll = track.scrollWidth - track.clientWidth;
       if (maxScroll <= 2) return;
-      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
-      else track.scrollTo({ left:
+      if (track.scrollLeft >= maxS
