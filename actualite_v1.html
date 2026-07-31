@@ -9,11 +9,11 @@
 :root { --red:#e63224; --green:#27a945; }
 html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f2f2f2; }
 
-.top-header { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid #eee; padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
-.top-header .logo { font-weight: 800; font-size: 19px; }
-.top-header .logo .arti { color: var(--red); }
-.top-header .logo .royce { color: var(--green); }
-
+.barre-fixe { position: sticky; top: 0; z-index: 50; background: #fff; }
+.cats { display: flex; gap: 6px; padding: 7px 14px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; background: #fff; border-bottom: 1px solid #eee; }
+.cats::-webkit-scrollbar { display: none; }
+.cat-pill { white-space: nowrap; padding: 6px 14px; border-radius: 22px; font-size: 12px; font-weight: 700; border: 1.5px solid #eee; cursor: pointer; flex-shrink: 0; background: #fff; color: #888; }
+.cat-pill.active { background: #222; color: #fff; border-color: #222; }
 .zone-publier { background: #fff; padding: 12px 14px; border-bottom: 8px solid #eee; display: flex; align-items: center; gap: 10px; }
 .zone-publier .cp-av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0; cursor: pointer; }
 .zone-publier .cp-input { flex: 1; background: #f5f5f5; border-radius: 22px; padding: 10px 16px; font-size: 14px; color: #888; cursor: pointer; border: none; text-align: left; font-family: inherit; }
@@ -28,6 +28,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .cm-user { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
 .cm-av { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
 .cm-name { font-size: 14px; font-weight: 800; color: #222; }
+.cm-cat-select { display: inline-flex; align-items: center; gap: 5px; background: #f5f5f5; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; color: #555; margin-top: 3px; border: none; cursor: pointer; }
 .cm-textarea { flex: 1; border: none; outline: none; padding: 0 16px; font-size: 16px; color: #222; font-family: inherit; resize: none; line-height: 1.6; width: 100%; }
 .cm-textarea::placeholder { color: #bbb; }
 .cm-choix { padding: 6px 16px 16px; overflow-y: auto; flex: 1; }
@@ -46,16 +47,16 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 #feedLoading .sablier, #feedEmpty .icone { font-size: 40px; display: block; margin-bottom: 10px; }
 #feedEmpty { display: none; }
 
-.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; overflow: hidden; }
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
 
-.p-media-grid { display: grid; gap: 2px; background: #fff; margin-top: 10px; border-radius: 10px; overflow: hidden; }
-.p-media-item { position: relative; overflow: hidden; }
+.p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px -14px -14px; overflow: hidden; }
+.p-media-item { position: relative; overflow: hidden; min-height: 160px; }
 .p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
-.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin-top: 10px; border-radius: 10px; overflow: hidden; }
-.p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; }
+.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px -14px -14px; overflow: hidden; }
+.p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
 .media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
@@ -67,13 +68,19 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 </head>
 <body>
 
-<header class="top-header">
-  <div class="logo"><span class="arti">Arti</span><span class="royce">Royce</span> — Actualités</div>
-</header>
-
+<div class="barre-fixe">
+<div class="cats">
+  <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)">Tout</div>
+  <div class="cat-pill" data-cat="Vente" onclick="setCat(this)">🛍️ Vente</div>
+  <div class="cat-pill" data-cat="Arts" onclick="setCat(this)">🎨 Arts</div>
+  <div class="cat-pill" data-cat="Mode" onclick="setCat(this)">👗 Mode</div>
+  <div class="cat-pill" data-cat="Événements" onclick="setCat(this)">🎉 Événements</div>
+  <div class="cat-pill" data-cat="Business" onclick="setCat(this)">💼 Business</div>
+</div>
 <div class="zone-publier">
   <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
   <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
+</div>
 </div>
 
 <div class="create-modal" id="createModal">
@@ -105,7 +112,16 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
   <!-- ÉTAPE TEXTE -->
   <div class="cm-user" id="cmStepUser" style="display:none">
     <div class="cm-av" id="cmAvatar">👤</div>
-    <div class="cm-name" id="cmNom">Mon compte</div>
+    <div>
+      <div class="cm-name" id="cmNom">Mon compte</div>
+      <select id="cmCategorie" class="cm-cat-select">
+        <option value="Vente">🛍️ Vente</option>
+        <option value="Arts">🎨 Arts</option>
+        <option value="Mode">👗 Mode</option>
+        <option value="Événements">🎉 Événements</option>
+        <option value="Business">💼 Business</option>
+      </select>
+    </div>
   </div>
   <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
 </div>
@@ -208,6 +224,7 @@ let app, auth, db, currentUser = null;
 const TAILLE_LOT = 6;
 let nombreAffiches = TAILLE_LOT;
 let listePublications = [];
+let categorieActive = 'Tout';
 
 function avecDelaiMax(promesse, millisecondes){
   return Promise.race([
@@ -407,9 +424,10 @@ function afficherFeed() {
   document.getElementById('feedLoading').style.display = 'none';
   const conteneur = document.getElementById('feedPosts');
   const vide = document.getElementById('feedEmpty');
-  if (!listePublications.length) { vide.style.display = 'block'; conteneur.innerHTML = ''; return; }
+  const filtrees = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+  if (!filtrees.length) { vide.style.display = 'block'; conteneur.innerHTML = ''; return; }
   vide.style.display = 'none';
-  const visibles = listePublications.slice(0, nombreAffiches);
+  const visibles = filtrees.slice(0, nombreAffiches);
   let html = visibles.map(p => (
     '<div class="post">'
     + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
@@ -418,11 +436,21 @@ function afficherFeed() {
     + creerMediaHTML(p)
     + '</div>'
   )).join('');
-  if (visibles.length < listePublications.length) {
+  if (visibles.length < filtrees.length) {
     html += '<div id="feedSentinelle" style="height:1px"></div>';
   }
   conteneur.innerHTML = html;
   observerSentinelleFeed();
+}
+
+// Changement de catégorie (repris de l'ancienne version) : on revient au
+// premier lot de publications et on ré-affiche filtré.
+function setCat(pill) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  categorieActive = pill.dataset.cat;
+  nombreAffiches = TAILLE_LOT;
+  afficherFeed();
 }
 
 // Observe la sentinelle en bas du feed : dès qu'elle approche de l'écran, on
@@ -493,6 +521,7 @@ window.publishPost = async function() {
     await db.collection('publications').add({
       type: 'texte',
       texte: texte,
+      categorie: document.getElementById('cmCategorie').value,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
       paysPrefixe: currentUser.paysPrefixe || '',
