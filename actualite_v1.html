@@ -482,11 +482,11 @@ window.addEventListener('unhandledrejection', function(e){
 function ajouterEtape(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
-  // Le panneau reste masqué pour les utilisateurs normaux. Pour le rallumer
-  // (dépannage), ajouter ?debug=1 à la fin de l'adresse de la page.
-  if (new URLSearchParams(window.location.search).get('debug') === '1') {
-    panneau.style.display = 'block';
-  }
+  // Le panneau reste normalement masqué (rallumable avec ?debug=1 dans l'URL).
+  // TEMPORAIRE (30/07/2026) : forcé visible pour tous, le temps de localiser
+  // le bug du fil bloqué sur "Chargement des publications...". À remettre
+  // caché par défaut une fois le bug trouvé et corrigé.
+  panneau.style.display = 'block';
   const ligne = document.createElement('div');
   ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
   panneau.appendChild(ligne);
@@ -1798,6 +1798,4 @@ function wireCoverCarouselActu() {
       const maxScroll = track.scrollWidth - track.clientWidth;
       if (maxScroll <= 2) return;
       if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
-      else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
-    });
-  }, 300
+      else track.scrollTo({ left:
