@@ -29,6 +29,37 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .cm-av { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
 .cm-name { font-size: 14px; font-weight: 800; color: #222; }
 .cm-cat-select { display: inline-flex; align-items: center; gap: 5px; background: #f5f5f5; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; color: #555; margin-top: 3px; border: none; cursor: pointer; }
+
+.cm-gal-wrap { padding: 14px 16px; flex: 1; overflow-y: auto; }
+.cm-gal-textarea { width: 100%; border: none; outline: none; background: #f7f7f9; border-radius: 12px; padding: 12px 14px; font-size: 14px; color: #222; font-family: inherit; resize: none; margin-bottom: 12px; }
+.cm-gal-textarea::placeholder { color: #bbb; }
+.cm-step-boutique { flex: 1; display: none; flex-direction: column; overflow-y: auto; }
+.cad-layout-picker { display: flex; gap: 8px; overflow-x: auto; padding: 2px 16px 14px; scrollbar-width: none; }
+.cad-layout-opt { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; border: 2px solid #e4e6eb; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; font-weight: 900; color: #999; }
+.cad-layout-opt.active { border-color: var(--red); color: var(--red); background: #fff5f4; }
+.cad-titre-wrap { display: flex; align-items: center; gap: 8px; width: calc(100% - 32px); margin: 0 16px 10px; background: #f7f7f9; border: 1.5px dashed #ddd; border-radius: 10px; padding: 9px 12px; }
+.cad-titre-wrap:focus-within { border-color: var(--red); border-style: solid; background: #fff; }
+.cad-titre-ico { font-size: 13px; flex-shrink: 0; color: #aaa; }
+.cad-titre-input { flex: 1; min-width: 0; border: none; background: transparent; padding: 0; font-size: 14px; font-weight: 800; color: #222; outline: none; }
+.cad-color-picker { display: flex; align-items: center; gap: 9px; padding: 0 16px 12px; }
+.cad-tcp-label { font-size: 11px; color: #999; }
+.cad-tcp-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e4e6eb; cursor: pointer; position: relative; flex-shrink: 0; }
+.cad-tcp-dot.active { border-color: #222; }
+.cad-tcp-dot.active::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
+.cad-tcp-blanc { background: #fff; } .cad-tcp-blanc.active::after { color: #14143a; }
+.cad-tcp-vert { background: var(--green); } .cad-tcp-vert.active::after { color: #fff; }
+.cad-tcp-rose { background: #ff5c9e; } .cad-tcp-rose.active::after { color: #fff; }
+.cad-grid-wrap { padding: 0 16px 6px; }
+.cad-note { font-size: 11px; color: #999; text-align: center; padding: 6px 16px 14px; }
+
+.media-grid { display: grid; gap: 2px; }
+.media-slot { position: relative; overflow: hidden; background: #fff; }
+.media-slot img { width: 100%; height: 100%; object-fit: contain; background: #fafafa; position: absolute; inset: 0; }
+.media-slot.editable { border: 2px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; }
+.media-slot.editable.filled { border-style: solid; border-color: #f0f0f0; }
+.media-slot-empty { font-size: 22px; color: #bbb; }
+.media-slot-remove { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 5; cursor: pointer; }
+.media-tags input.media-chip { text-align: left; }
 .cm-textarea { flex: 1; border: none; outline: none; padding: 0 16px; font-size: 16px; color: #222; font-family: inherit; resize: none; line-height: 1.6; width: 100%; }
 .cm-textarea::placeholder { color: #bbb; }
 .cm-choix { padding: 6px 16px 16px; overflow-y: auto; flex: 1; }
@@ -51,6 +82,20 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+
+.pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
+.p-acts { display: flex; border-top: 1px solid #f5f5f5; margin-top: 6px; }
+.pab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px 0; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #999; position: relative; }
+.pab:active { background: #fafafa; }
+.pab.reacted { color: #222; }
+.pab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rpick { position: absolute; bottom: 46px; left: -10px; background: #fff; border-radius: 30px; padding: 10px 16px; display: flex; gap: 19px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 100; opacity: 0; pointer-events: none; transform: scale(0.8) translateY(8px); transition: all 0.2s cubic-bezier(.34,1.56,.64,1); border: 1px solid #f0f0f0; }
+.rpick.show { opacity: 1; pointer-events: all; transform: scale(1) translateY(0); }
+.ro { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; transition: transform 0.15s; padding: 4px; min-width: 30px; }
+.ro:hover { transform: scale(1.25) translateY(-4px); }
+.ro-e { font-size: 24px; line-height: 1; }
+.ro-l { font-size: 9px; font-weight: 700; color: #999; }
+.comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
 
 .p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px -14px -14px; overflow: hidden; }
 .p-media-item { position: relative; overflow: hidden; min-height: 160px; }
@@ -98,13 +143,13 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
         <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
         <div><div class="cm-choix-nom">Texte</div><div class="cm-choix-sub">Un message simple, sans photo</div></div>
       </div>
-      <div class="cm-choix-tile" onclick="toast('Bientôt disponible (prochaine étape)')">
+      <div class="cm-choix-tile" onclick="chooseModel('galerie')">
         <div class="cm-choix-ico" style="background:#e8f5e9">🖼️</div>
-        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">Bientôt disponible</div></div>
+        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">1 à 8 photos</div></div>
       </div>
-      <div class="cm-choix-tile" onclick="toast('Bientôt disponible (prochaine étape)')">
+      <div class="cm-choix-tile" onclick="chooseModel('boutique')">
         <div class="cm-choix-ico" style="background:#fff0f0">🏪</div>
-        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Bientôt disponible</div></div>
+        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Photos + nom + prix</div></div>
       </div>
     </div>
   </div>
@@ -124,6 +169,29 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
     </div>
   </div>
   <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
+
+  <!-- ÉTAPE GALERIE (1 à 8 photos) -->
+  <div class="cm-gal-wrap" id="cmStepGalerie" style="display:none">
+    <textarea class="cm-gal-textarea" id="cmGalText" rows="2" placeholder="Une légende (facultatif)…"></textarea>
+    <div class="media-grid" id="galGrid"></div>
+  </div>
+
+  <!-- ÉTAPE BOUTIQUE (cadres + étiquettes nom/prix) -->
+  <div class="cm-step-boutique" id="cmStepBoutique">
+    <div class="cad-layout-picker" id="cadLayoutPicker"></div>
+    <div class="cad-titre-wrap">
+      <span class="cad-titre-ico">✏️</span>
+      <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique" onfocus="this.select()">
+    </div>
+    <div class="cad-color-picker" id="cadColorPicker">
+      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
+      <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
+      <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
+    </div>
+    <div class="cad-grid-wrap"><div id="cadGrid"></div></div>
+    <div class="cad-note">Touchez un cadre vide pour ajouter une photo, avec son nom et son prix</div>
+  </div>
 </div>
 
 <div class="toast" id="toastEl"></div>
@@ -226,6 +294,17 @@ let nombreAffiches = TAILLE_LOT;
 let listePublications = [];
 let categorieActive = 'Tout';
 
+// Création Galerie/Boutique (repris de l'ancienne version)
+let galImages = [];      // Photo/Galerie : photos en base64, sans cadre ni étiquette
+let cadLayoutActif = 4;  // Boutique : 1 à 8 = disposition à cadres
+let cadSlots = [];       // Boutique : [{photo, nom, prix}]
+let cadTagColor = 'vert';
+
+// Réactions et commentaires (repris de l'ancienne version)
+let mesReactionsActu = {};   // { idPublication: emoji } pour les publications déjà "aimées" par l'utilisateur
+const _reactionEnCours = {}; // verrou anti-double-tap sur le sélecteur d'emojis
+const _replyingTo = {};      // { idPublication: {commentId, nom} } réponse en cours de rédaction
+
 function avecDelaiMax(promesse, millisecondes){
   return Promise.race([
     promesse,
@@ -276,6 +355,7 @@ async function surChangementAuth(user) {
   }
 
   ajouterEtape('7. Appel de chargerPublications()...');
+  await chargerMesReactionsActu();
   chargerPublications();
 
   const initiale = (currentUser.displayName || '?')[0].toUpperCase();
@@ -283,6 +363,264 @@ async function surChangementAuth(user) {
   document.getElementById('cmAvatar').textContent = initiale;
   document.getElementById('cmNom').textContent = currentUser.displayName;
 }
+
+function tempsDepuis(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'il y a peu';
+  if (m < 60) return 'il y a ' + m + 'min';
+  const h = Math.floor(m / 60);
+  if (h < 24) return 'il y a ' + h + 'h';
+  const j = Math.floor(h / 24);
+  if (j < 7) return 'il y a ' + j + 'j';
+  const s = Math.floor(j / 7);
+  if (s < 4) return 'il y a ' + s + ' sem.';
+  return 'il y a ' + Math.floor(j / 30) + ' mois';
+}
+
+/* ── Réactions sur une publication (reprises de l'ancienne version) ── */
+window.__toggleReactPickerActu = function (postId) {
+  document.querySelectorAll('.rpick.show').forEach(rp => { if (rp.id !== 'rp-' + postId) rp.classList.remove('show'); });
+  document.getElementById('rp-' + postId)?.classList.toggle('show');
+};
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.pab')) {
+    document.querySelectorAll('.rpick.show').forEach(rp => rp.classList.remove('show'));
+  }
+});
+
+window.__sendReactionActu = async function (postId, emoji, likesActuels) {
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  if (_reactionEnCours[postId]) return;
+  _reactionEnCours[postId] = true;
+
+  document.getElementById('rp-' + postId)?.classList.remove('show');
+  const prev = mesReactionsActu[postId] || '';
+  const btn = document.getElementById('pb-' + postId);
+  const labelEl = document.getElementById('pblabel-' + postId);
+  const countEl = document.getElementById('likecount-' + postId);
+  const reactRef = db.collection('publications').doc(postId).collection('reactions').doc(currentUser.uid);
+
+  try {
+    if (prev === emoji) {
+      delete mesReactionsActu[postId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      if (btn) btn.classList.remove('reacted');
+      if (labelEl) labelEl.textContent = "J'aime";
+      if (countEl) countEl.textContent = nouveauTotal;
+      await reactRef.delete();
+      await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      mesReactionsActu[postId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      if (btn) btn.classList.add('reacted');
+      if (labelEl) labelEl.textContent = 'Aimé';
+      if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
+      await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      if (delta) {
+        await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(1) });
+        window.__burstHeartsActu(btn, emoji);
+      }
+    }
+  } catch (e) {
+    ajouterEtape('❌ Erreur réaction : ' + (e && e.message || e));
+    toast("Erreur J'aime");
+  } finally {
+    delete _reactionEnCours[postId];
+  }
+};
+
+// Petite explosion d'emojis animée au moment du "J'aime"
+window.__burstHeartsActu = function (btnEl, emoji) {
+  if (!btnEl) return;
+  const rect = btnEl.getBoundingClientRect();
+  const originX = rect.left + rect.width / 2;
+  const originY = rect.top + rect.height / 2;
+  btnEl.style.transition = 'transform .18s cubic-bezier(.34,1.56,.64,1)';
+  btnEl.style.transform = 'scale(1.25)';
+  setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 180);
+
+  const symboles = [emoji || '❤️', emoji || '❤️', emoji || '❤️', '✨'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.textContent = symboles[Math.floor(Math.random() * symboles.length)];
+    const angle = (Math.random() * 100 - 50) - 90;
+    const distance = 55 + Math.random() * 70;
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    const taille = 13 + Math.random() * 15;
+    const duree = 650 + Math.random() * 500;
+    const rotation = (Math.random() * 140 - 70).toFixed(0);
+    p.style.cssText = 'position:fixed;left:' + originX + 'px;top:' + originY + 'px;font-size:' + taille + 'px;pointer-events:none;z-index:900;'
+      + 'transform:translate(-50%,-50%) scale(0.3) rotate(0deg);'
+      + 'transition:transform ' + duree + 'ms cubic-bezier(.17,.67,.34,1), opacity ' + duree + 'ms ease-out;opacity:1';
+    document.body.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(1.1) rotate(' + rotation + 'deg)';
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), duree + 100);
+  }
+};
+
+// Charge les publications déjà "aimées" par l'utilisateur (pour l'état du bouton)
+async function chargerMesReactionsActu() {
+  try {
+    if (!currentUser) return;
+    const snap = await db.collectionGroup('reactions').where('uid', '==', currentUser.uid).get();
+    mesReactionsActu = {};
+    snap.forEach(d => {
+      const refPub = d.ref.parent.parent;
+      if (refPub && refPub.parent && refPub.parent.id === 'publications') {
+        mesReactionsActu[refPub.id] = d.data().emoji || true;
+      }
+    });
+    ajouterEtape('9. Mes réactions chargées ✅ (' + Object.keys(mesReactionsActu).length + ')');
+  } catch (e) {
+    mesReactionsActu = {};
+    ajouterEtape('9. chargerMesReactionsActu ignoré : ' + (e && e.message || e));
+  }
+}
+
+/* ── Partager (version simplifiée : compteur + confirmation) ── */
+window.partagerPub = async function (postId, partagesActuels) {
+  try {
+    await db.collection('publications').doc(postId).update({ partages: firebase.firestore.FieldValue.increment(1) });
+    toast('Partagé ✅');
+  } catch (e) {
+    ajouterEtape('❌ Erreur partage : ' + (e && e.message || e));
+  }
+};
+
+/* ── Commentaires (avec réponses imbriquées, repris de l'ancienne version) ── */
+window.toggleComments = function (postId) {
+  const zone = document.getElementById('commzone-' + postId);
+  if (!zone) return;
+  const ouvert = zone.style.display === 'block';
+  zone.style.display = ouvert ? 'none' : 'block';
+  if (!ouvert && !zone.dataset.init) {
+    zone.dataset.init = '1';
+    construireZoneCommentaires(postId, zone);
+    ecouterCommentaires(postId);
+  }
+};
+
+function construireZoneCommentaires(postId, zone) {
+  zone.innerHTML =
+    '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
+    + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    + (currentUser ? (currentUser.displayName || '?')[0].toUpperCase() : '?') + '</div>'
+    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + '<div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentairePub(\'' + postId + '\')">➤</div>'
+    + '</div>'
+    + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + postId + '">'
+    + '<span id="reply-indicator-text-' + postId + '"></span>'
+    + '<span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px" onclick="annulerReponsePub(\'' + postId + '\')">✕</span>'
+    + '</div>'
+    + '<div id="comm-list-' + postId + '"></div>';
+  document.getElementById('cinput-' + postId).addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.envoyerCommentairePub(postId);
+  });
+}
+
+function ecouterCommentaires(postId) {
+  db.collection('publications').doc(postId).collection('commentaires').orderBy('createdAt', 'asc')
+    .onSnapshot(snap2 => {
+      const total = snap2.size;
+      const compteEl = document.getElementById('commcount-' + postId);
+      const p = listePublications.find(x => x.id === postId);
+      if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (p ? ' · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') : '');
+
+      const listEl = document.getElementById('comm-list-' + postId);
+      if (!listEl) return;
+
+      const tous = [];
+      snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+      const parentDe = {};
+      tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+      function trouverRacine(id) { let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
+      const principaux = tous.filter(c => !c.parentId).sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0, tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+      const reponsesParRacine = {};
+      tous.filter(c => c.parentId).forEach(c => {
+        const racine = trouverRacine(c.id);
+        (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+      });
+
+      function construireCommentaireHTML(c, racineId) {
+        const initiale = (c.nom || '?')[0].toUpperCase();
+        const wrap = document.createElement('div');
+        wrap.innerHTML =
+          '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
+          + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d2b0f,#27a945);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">' + escapeHtml(initiale) + '</div>'
+          + '<div style="flex:1;min-width:0">'
+          +   '<div style="font-size:13px;font-weight:700;color:#555;margin-bottom:3px">' + escapeHtml(c.nom || 'Anonyme') + '</div>'
+          +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
+          +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
+          +     '<span>' + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+          +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
+          +   '</div>'
+          + '</div>'
+          + '</div>';
+        return wrap;
+      }
+
+      listEl.innerHTML = '';
+      principaux.forEach(c => {
+        listEl.appendChild(construireCommentaireHTML(c, c.id));
+        const reponses = reponsesParRacine[c.id] || [];
+        if (reponses.length) {
+          const repZone = document.createElement('div');
+          repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+          const toggle2 = document.createElement('div');
+          toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
+          toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length > 1 ? 's' : '') + ' ▾';
+          toggle2.onclick = () => {
+            const frag = document.createDocumentFragment();
+            reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
+            repZone.appendChild(frag);
+            toggle2.remove();
+          };
+          repZone.appendChild(toggle2);
+          listEl.appendChild(repZone);
+        }
+      });
+    });
+}
+
+window.envoyerCommentairePub = async function (postId) {
+  if (!currentUser) { toast('Connectez-vous pour commenter'); return; }
+  const inp = document.getElementById('cinput-' + postId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  const reponseA = _replyingTo[postId] || null;
+  try {
+    await db.collection('publications').doc(postId).collection('commentaires').add({
+      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid,
+      parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    window.annulerReponsePub(postId);
+  } catch (e) {
+    ajouterEtape('❌ Erreur commentaire : ' + (e && e.message || e));
+  }
+};
+
+window.repondrePub = function (postId, commentId, nom) {
+  _replyingTo[postId] = { commentId, nom };
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  const texteIndic = document.getElementById('reply-indicator-text-' + postId);
+  if (indicateur && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indicateur.style.display = 'flex'; }
+  document.getElementById('cinput-' + postId)?.focus();
+};
+window.annulerReponsePub = function (postId) {
+  delete _replyingTo[postId];
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  if (indicateur) indicateur.style.display = 'none';
+};
 
 function formatDate(dateFirestore){
   try {
@@ -429,11 +767,36 @@ function afficherFeed() {
   vide.style.display = 'none';
   const visibles = filtrees.slice(0, nombreAffiches);
   let html = visibles.map(p => (
-    '<div class="post">'
+    '<div class="post" data-id="' + p.id + '">'
     + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
     + '<div class="meta">' + formatDate(p.createdAt) + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
     + creerMediaHTML(p)
+    + '<div class="pr-row">'
+    +   '<span class="pr-cnt" id="likecount-' + p.id + '">' + (mesReactionsActu[p.id] || '') + ' ' + (p.likes || 0) + '</span>'
+    +   '<span class="pr-r" id="commcount-' + p.id + '">0 commentaire · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') + '</span>'
+    + '</div>'
+    + '<div class="p-acts">'
+    +   '<div class="pab' + (mesReactionsActu[p.id] ? ' reacted' : '') + '" id="pb-' + p.id + '" onclick="window.__toggleReactPickerActu(\'' + p.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
+    +     '<span id="pblabel-' + p.id + '">' + (mesReactionsActu[p.id] ? 'Aimé' : "J'aime") + '</span>'
+    +     '<div class="rpick" id="rp-' + p.id + '">'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'❤️\',' + (p.likes || 0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'👍\',' + (p.likes || 0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😮\',' + (p.likes || 0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😂\',' + (p.likes || 0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'🔥\',' + (p.likes || 0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😢\',' + (p.likes || 0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+    +     '</div>'
+    +   '</div>'
+    +   '<button class="pab" onclick="toggleComments(\'' + p.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+    +   '</button>'
+    +   '<button class="pab" onclick="partagerPub(\'' + p.id + '\',' + (p.partages || 0) + ')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+    +   '</button>'
+    + '</div>'
+    + '<div class="comm-zone" id="commzone-' + p.id + '"></div>'
     + '</div>'
   )).join('');
   if (visibles.length < filtrees.length) {
@@ -477,6 +840,8 @@ function cmAfficherChoix() {
   document.getElementById('cmStepChoix').style.display = '';
   document.getElementById('cmStepUser').style.display = 'none';
   document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
   document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
   document.getElementById('cmBackOrCancel').textContent = 'Annuler';
   document.getElementById('btnPublish').style.display = 'none';
@@ -504,31 +869,189 @@ window.chooseModel = function(type) {
   document.getElementById('cmStepUser').style.display = 'flex';
   document.getElementById('cmBackOrCancel').textContent = 'Retour';
   document.getElementById('btnPublish').style.display = 'block';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+
   if (type === 'texte') {
     document.getElementById('cmText').style.display = 'block';
     document.getElementById('cmTitleLbl').textContent = 'Publication texte';
     setTimeout(() => document.getElementById('cmText').focus(), 250);
+  } else if (type === 'galerie') {
+    galImages = [];
+    document.getElementById('cmGalText').value = '';
+    renderGalGrid();
+    document.getElementById('cmStepGalerie').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
+  } else if (type === 'boutique') {
+    cadLayoutActif = 4; cadTagColor = 'vert';
+    initCadSlots(4);
+    document.getElementById('cadTitreInput').value = 'Boutique';
+    renderCadLayoutPicker();
+    renderCadColorPicker();
+    renderCadGrid();
+    document.getElementById('cmStepBoutique').style.display = 'flex';
+    document.getElementById('cmTitleLbl').textContent = 'Boutique';
   }
 };
 
+function ouvrirSelecteurPhoto(callback) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.position = 'fixed';
+  input.style.left = '-9999px';
+  document.body.appendChild(input);
+  input.onchange = () => {
+    const fichier = input.files && input.files[0];
+    if (fichier) {
+      const lecteur = new FileReader();
+      lecteur.onload = (e) => callback(e.target.result);
+      lecteur.onerror = () => toast('Photo illisible, réessayez');
+      lecteur.readAsDataURL(fichier);
+    }
+    input.remove();
+  };
+  input.click();
+}
+
+/* ── Galerie (1 à 8 photos, disposition magazine automatique, sans étiquette) ── */
+function renderGalGrid() {
+  const grille = document.getElementById('galGrid');
+  grille.className = 'media-grid';
+  if (!galImages.length) {
+    grille.style.gridTemplateColumns = '1fr';
+    grille.style.gridTemplateRows = '';
+    grille.innerHTML = '<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>';
+    return;
+  }
+  const layout = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
+  grille.style.gridTemplateColumns = layout.template;
+  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.aspectRatio = layout.cRatio || '';
+  let html = '';
+  galImages.forEach((photo, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    html += '<div class="media-slot" style="' + area + ratio + '">'
+      + '<img src="' + photo + '">'
+      + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div></div>';
+  });
+  if (galImages.length < 8) {
+    html += '<div class="media-slot editable" style="aspect-ratio:1" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
+  }
+  grille.innerHTML = html;
+}
+window.galAjouterPhoto = function () {
+  ouvrirSelecteurPhoto(base64 => { galImages.push(base64); renderGalGrid(); });
+};
+window.galRetirerPhoto = function (i) {
+  galImages.splice(i, 1);
+  renderGalGrid();
+};
+
+/* ── Boutique (cadres avec nom + prix intégrés dans l'image) ── */
+function initCadSlots(n) {
+  cadSlots = [];
+  for (let i = 0; i < n; i++) cadSlots.push({ photo: '', nom: '', prix: '' });
+}
+
+function renderCadLayoutPicker() {
+  const wrap = document.getElementById('cadLayoutPicker');
+  let html = '';
+  [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+    html += '<div class="cad-layout-opt' + (cadLayoutActif === n ? ' active' : '') + '" onclick="choisirDisposition(' + n + ')">' + n + '</div>';
+  });
+  wrap.innerHTML = html;
+}
+window.choisirDisposition = function (n) {
+  cadLayoutActif = n;
+  initCadSlots(n);
+  renderCadLayoutPicker();
+  renderCadGrid();
+};
+
+function renderCadColorPicker() {
+  document.querySelectorAll('#cadColorPicker .cad-tcp-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.c === cadTagColor);
+    dot.onclick = () => { cadTagColor = dot.dataset.c; renderCadColorPicker(); renderCadGrid(); };
+  });
+}
+
+function renderCadGrid() {
+  const grille = document.getElementById('cadGrid');
+  const layout = MEDIA_LAYOUTS[cadLayoutActif] || MEDIA_LAYOUTS[4];
+  grille.className = 'media-grid tags-' + cadTagColor;
+  grille.style.gridTemplateColumns = layout.template;
+  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.aspectRatio = layout.cRatio || '';
+
+  let html = '';
+  cadSlots.forEach((s, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    if (s.photo) {
+      html += '<div class="media-slot editable filled" style="' + area + ratio + '">'
+        + '<img src="' + s.photo + '">'
+        + '<div class="media-slot-remove" onclick="event.stopPropagation();cadRetirerPhoto(' + i + ')">✕</div>'
+        + '<div class="media-tags">'
+        + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(s.nom) + '" oninput="cadSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(s.prix) + '" oninput="cadSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '</div></div>';
+    } else {
+      html += '<div class="media-slot editable" style="' + area + ratio + '" onclick="cadChoisirPhoto(' + i + ')"><span class="media-slot-empty">📷</span></div>';
+    }
+  });
+  grille.innerHTML = html;
+}
+window.cadChoisirPhoto = function (i) {
+  ouvrirSelecteurPhoto(base64 => { cadSlots[i].photo = base64; renderCadGrid(); });
+};
+window.cadRetirerPhoto = function (i) {
+  cadSlots[i] = { photo: '', nom: '', prix: '' };
+  renderCadGrid();
+};
+window.cadSetNom = function (i, v) { if (cadSlots[i]) cadSlots[i].nom = v; };
+window.cadSetPrix = function (i, v) { if (cadSlots[i]) cadSlots[i].prix = v; };
+
 window.publishPost = async function() {
-  const texte = document.getElementById('cmText').value.trim();
-  if (!texte) return;
   if (!currentUser) { toast('Connexion requise'); return; }
+  const categorie = document.getElementById('cmCategorie').value;
+  let donnees = null;
+
+  if (cmEtapeActuelle === 'texte') {
+    const texte = document.getElementById('cmText').value.trim();
+    if (!texte) { toast('Écrivez un message avant de publier'); return; }
+    donnees = { type: 'texte', texte: texte };
+  } else if (cmEtapeActuelle === 'galerie') {
+    if (!galImages.length) { toast('Ajoutez au moins une photo'); return; }
+    donnees = { type: 'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice(0, 8) };
+  } else if (cmEtapeActuelle === 'boutique') {
+    const cadresRemplis = cadSlots.filter(s => s.photo);
+    if (!cadresRemplis.length) { toast('Ajoutez au moins un article avec photo'); return; }
+    donnees = {
+      type: 'boutique',
+      texte: document.getElementById('cadTitreInput').value.trim() || 'Boutique',
+      disposition: cadresRemplis.length,
+      tagColor: cadTagColor,
+      cadres: cadresRemplis.map(s => ({ photo: s.photo, nom: s.nom || 'Article', prix: s.prix || '' }))
+    };
+  } else {
+    return;
+  }
+
   const btn = document.getElementById('btnPublish');
   btn.disabled = true; btn.textContent = 'Publication…';
   try {
-    await db.collection('publications').add({
-      type: 'texte',
-      texte: texte,
-      categorie: document.getElementById('cmCategorie').value,
+    await db.collection('publications').add(Object.assign({
+      categorie: categorie,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
       paysPrefixe: currentUser.paysPrefixe || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0,
       partages: 0
-    });
+    }, donnees));
     toast('Publié ✅');
     document.getElementById('createModal').classList.remove('open');
     cmAfficherChoix();
