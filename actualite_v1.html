@@ -146,8 +146,8 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
 .media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.p-media-item .media-tags { justify-content: flex-start; }
-.p-media-item .media-chip { max-width: 90%; }
+.p-media-item:nth-child(2) .media-tags { justify-content: flex-start; }
+.p-media-item:nth-child(2) .media-chip { max-width: 90%; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
@@ -1012,7 +1012,6 @@ function creerMediaHTML(p) {
     let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
       + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
     p.cadres.forEach((c, i) => {
-      ajouterEtape('🔎 DIAG cadre ' + i + ' — nom="' + (c.nom || '') + '" prix="' + (c.prix || '') + '" (type prix: ' + typeof c.prix + ')');
       const area = layout.areas ? layout.areas[i] : null;
       html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
         + 'aspect-ratio:' + (layout.cRatio || '1') + '">'
