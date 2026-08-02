@@ -227,6 +227,12 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
   <!-- ÉTAPE GALERIE (1 à 8 photos) -->
   <div class="cm-gal-wrap" id="cmStepGalerie" style="display:none">
     <textarea class="cm-gal-textarea" id="cmGalText" rows="2" placeholder="Une légende (facultatif)…"></textarea>
+    <div class="cad-color-picker" id="galColorPicker" style="padding-left:0">
+      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
+      <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
+      <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
+    </div>
     <div class="media-grid" id="galGrid"></div>
   </div>
 
@@ -361,7 +367,8 @@ const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 let categorieActive = 'Tout';
 
 // Création Galerie/Boutique (repris de l'ancienne version)
-let galImages = [];      // Photo/Galerie : photos en base64, sans cadre ni étiquette
+let galImages = [];      // Photo/Galerie : {photo, nom, prix}
+let galTagColor = 'vert';
 let cadLayoutActif = 4;  // Boutique : 1 à 8 = disposition à cadres
 let cadSlots = [];       // Boutique : [{photo, nom, prix}]
 let cadTagColor = 'vert';
@@ -407,22 +414,22 @@ async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
   if (!user) { window.location.href = 'connexion.html'; return; }
   currentUser = user;
-  currentUser.displayName = user.email ? user.email.split('@')[0] : 'Moi';
+  currentUser.nomAffiche = user.email ? user.email.split('@')[0] : 'Moi';
 
   try {
     ajouterEtape('5. Lecture du profil utilisateur...');
     const snap = await avecDelaiMax(db.collection('utilisateurs').doc(user.uid).get(), 8000);
     if (snap.exists) {
       const d = snap.data();
-      currentUser.displayName = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.displayName || 'Membre ArtiRoyce';
+      currentUser.nomAffiche = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.nomAffiche || 'Membre ArtiRoyce';
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       // Champ réel de la base : role === 'visiteur' => Visiteur, sinon Professionnel
       currentUser.role = d.role || 'visiteur';
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
-      ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.displayName + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
+      ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
     } else {
-      ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.displayName + '"');
+      ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
     }
   } catch (e) {
     ajouterEtape('6bis. Échec lecture profil (' + (e && e.message || e) + '), on continue quand même');
@@ -433,10 +440,10 @@ async function surChangementAuth(user) {
   chargerSuivis();
   chargerPublications();
 
-  const initiale = (currentUser.displayName || '?')[0].toUpperCase();
+  const initiale = (currentUser.nomAffiche || '?')[0].toUpperCase();
   document.getElementById('cpAvatar').textContent = initiale;
   document.getElementById('cmAvatar').textContent = initiale;
-  document.getElementById('cmNom').textContent = currentUser.displayName;
+  document.getElementById('cmNom').textContent = currentUser.nomAffiche;
 }
 
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et le carrousel).
@@ -682,7 +689,7 @@ function construireZoneCommentaires(postId, zone) {
   zone.innerHTML =
     '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
     + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
-    + (currentUser ? (currentUser.displayName || '?')[0].toUpperCase() : '?') + '</div>'
+    + (currentUser ? (currentUser.nomAffiche || '?')[0].toUpperCase() : '?') + '</div>'
     + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
     + '<div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentairePub(\'' + postId + '\')">➤</div>'
     + '</div>'
@@ -782,7 +789,7 @@ window.envoyerCommentairePub = async function (postId) {
   const reponseA = _replyingTo[postId] || null;
   try {
     await db.collection('publications').doc(postId).collection('commentaires').add({
-      texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid,
+      texte, nom: currentUser.nomAffiche || 'Anonyme', uid: currentUser.uid,
       verifie: !!currentUser.verifie, ville: currentUser.ville || '',
       parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0
@@ -1022,7 +1029,7 @@ function creerMediaHTML(p) {
     // Compatibilité : anciennes publications = simples chaînes ; nouvelles = {photo,nom,prix}
     const item = (im) => typeof im === 'string' ? { photo: im, nom: '', prix: '' } : (im || { photo: '', nom: '', prix: '' });
     const tagsHTML = (im) => (im.nom || im.prix)
-      ? '<div class="media-tags tags-vert">'
+      ? '<div class="media-tags tags-' + (p.tagColor || 'vert') + '">'
         + (im.nom ? '<span class="media-chip">' + escapeHtml(im.nom) + '</span>' : '')
         + (im.prix ? '<span class="media-chip">' + escapeHtml(String(im.prix)) + '</span>' : '')
         + '</div>' : '';
@@ -1296,7 +1303,9 @@ window.chooseModel = function(type) {
     setTimeout(() => document.getElementById('cmText').focus(), 250);
   } else if (type === 'galerie') {
     galImages = [];
+    galTagColor = 'vert';
     document.getElementById('cmGalText').value = '';
+    renderGalColorPicker();
     renderGalGrid();
     document.getElementById('cmStepGalerie').style.display = 'block';
     document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
@@ -1356,9 +1365,16 @@ function ouvrirSelecteurPhoto(callback) {
 }
 
 /* ── Galerie (1 à 8 photos, disposition magazine automatique, sans étiquette) ── */
+function renderGalColorPicker() {
+  document.querySelectorAll('#galColorPicker .cad-tcp-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.c === galTagColor);
+    dot.onclick = () => { galTagColor = dot.dataset.c; renderGalColorPicker(); renderGalGrid(); };
+  });
+}
+
 function renderGalGrid() {
   const grille = document.getElementById('galGrid');
-  grille.className = 'media-grid tags-vert';
+  grille.className = 'media-grid tags-' + galTagColor;
   if (!galImages.length) {
     grille.style.gridTemplateColumns = '1fr';
     grille.style.gridTemplateRows = '';
@@ -1474,6 +1490,7 @@ window.publishPost = async function() {
     donnees = {
       type: 'galerie',
       texte: document.getElementById('cmGalText').value.trim(),
+      tagColor: galTagColor,
       images: galImages.slice(0, 8).map(it => ({ photo: it.photo, nom: it.nom || '', prix: it.prix || '' }))
     };
   } else if (cmEtapeActuelle === 'boutique') {
@@ -1495,7 +1512,7 @@ window.publishPost = async function() {
   try {
     await avecDelaiMax(db.collection('publications').add(Object.assign({
       categorie: categorie,
-      auteurNom: currentUser.displayName,
+      auteurNom: currentUser.nomAffiche,
       auteurUid: currentUser.uid,
       auteurVerifie: !!currentUser.verifie,
       ville: currentUser.ville || '',
