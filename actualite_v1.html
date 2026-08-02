@@ -87,7 +87,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; position: relative; }
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
-.ph-follow { font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 99px; cursor: pointer; display: inline-block; border: 1.5px solid var(--red); color: var(--red); background: #fff; margin-top: 5px; }
+.ph-follow { font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 99px; cursor: pointer; position: absolute; top: 26px; right: -2px; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; }
 .ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
 
@@ -137,14 +137,15 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .cca-nom { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
 .cca-snip { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cca-dismiss { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.cca-suivre { position: absolute; left: 8px; bottom: 8px; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 12px; cursor: pointer; color: #fff; }
 
 .p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-item { position: relative; overflow: hidden; min-height: 160px; }
 .p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
 .p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
-.media-tags { position: absolute; left: 6px; bottom: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; z-index: 3; max-width: calc(100% - 12px); }
-.media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
@@ -413,14 +414,16 @@ async function surChangementAuth(user) {
     const snap = await avecDelaiMax(db.collection('utilisateurs').doc(user.uid).get(), 8000);
     if (snap.exists) {
       const d = snap.data();
-      currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
+      currentUser.displayName = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.displayName || 'Membre ArtiRoyce';
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       // Champ réel de la base : role === 'visiteur' => Visiteur, sinon Professionnel
       currentUser.role = d.role || 'visiteur';
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
+      ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.displayName + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
+    } else {
+      ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.displayName + '"');
     }
-    ajouterEtape('6. Profil utilisateur lu ✅');
   } catch (e) {
     ajouterEtape('6bis. Échec lecture profil (' + (e && e.message || e) + '), on continue quand même');
   }
@@ -1056,6 +1059,11 @@ function buildCoverCarouselHTML(toutes) {
   const cards = avecImage.map(({ p, img }) => {
     const titre = escapeHtml(p.auteurNom || 'ArtiRoyce');
     const snippet = escapeHtml((p.texte || '').slice(0, 45));
+    const estMoi = currentUser && p.auteurUid === currentUser.uid;
+    const dejaSuivi = followedUids.has(p.auteurUid);
+    const suivreBtn = (!estMoi && p.auteurUid)
+      ? '<span class="cca-suivre" id="ccaSuivre-' + p.id + '" onclick="event.stopPropagation();window.__toggleSuivreCarousel(\'' + p.auteurUid + '\',\'' + p.id + '\')" style="background:' + (dejaSuivi ? 'rgba(255,255,255,0.28)' : 'var(--red)') + '">' + (dejaSuivi ? '✓ Suivi(e)' : '+ Suivre') + '</span>'
+      : '';
     return '<div class="cca-card" id="ccaCard-' + p.id + '" onclick="window.__scrollToPubActu(\'' + p.id + '\')">'
       + '<img src="' + img + '" loading="lazy">'
       + '<div class="cca-dismiss" onclick="event.stopPropagation();window.__dismissCarouselCard(\'' + p.id + '\')" title="Pas intéressé(e)">✕</div>'
@@ -1063,6 +1071,7 @@ function buildCoverCarouselHTML(toutes) {
       +   '<div class="cca-nom">' + titre + '</div>'
       +   '<div class="cca-snip">' + snippet + '</div>'
       + '</div>'
+      + suivreBtn
       + '</div>';
   }).join('');
 
@@ -1076,6 +1085,15 @@ window.__dismissCarouselCard = function (pubId) {
     card.style.opacity = '0';
     card.style.transform = 'scale(0.85)';
     setTimeout(() => card.remove(), 220);
+  });
+};
+
+window.__toggleSuivreCarousel = async function (auteurUid, pubId) {
+  await window.toggleSuivre(auteurUid);
+  document.querySelectorAll('#ccaSuivre-' + pubId).forEach(btn => {
+    const suivi = followedUids.has(auteurUid);
+    btn.textContent = suivi ? '✓ Suivi(e)' : '+ Suivre';
+    btn.style.background = suivi ? 'rgba(255,255,255,0.28)' : 'var(--red)';
   });
 };
 
@@ -1313,7 +1331,7 @@ function renderGalGrid() {
   }
   const layout = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
   grille.style.gridTemplateColumns = layout.template;
-  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
   let html = '';
   galImages.forEach((photo, i) => {
@@ -1369,7 +1387,7 @@ function renderCadGrid() {
   const layout = MEDIA_LAYOUTS[cadLayoutActif] || MEDIA_LAYOUTS[4];
   grille.className = 'media-grid tags-' + cadTagColor;
   grille.style.gridTemplateColumns = layout.template;
-  grille.style.gridTemplateRows = layout.rows || '';
+  grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
 
   let html = '';
