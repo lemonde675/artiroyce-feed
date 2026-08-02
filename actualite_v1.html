@@ -84,7 +84,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 #feedLoading .sablier, #feedEmpty .icone { font-size: 40px; display: block; margin-bottom: 10px; }
 #feedEmpty { display: none; }
 
-.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; position: relative; }
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .ph-follow { font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 99px; cursor: pointer; display: inline-block; border: 1.5px solid var(--red); color: var(--red); background: #fff; margin-top: 5px; }
@@ -115,7 +115,15 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .btn-restaurer { background: #eafaf0; color: var(--green); border: 1.5px solid var(--green); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .btn-suppr-def { background: #fdecea; color: var(--red); border: 1.5px solid var(--red); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 6px; }
 
-.post { position: relative; }
+.ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ph-av { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; position: relative; overflow: hidden; cursor: pointer; }
+.ph-vb { position: absolute; bottom: -1px; right: -1px; width: 15px; height: 15px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 900; }
+.online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
+.ph-info { flex: 1; min-width: 0; }
+.ph-top { display: flex; align-items: center; gap: 6px; margin-bottom: 1px; flex-wrap: wrap; }
+.ph-name { font-size: 14px; font-weight: 800; color: #222; }
+.ph-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: #f5f5f5; color: #555; }
+.ph-meta { font-size: 12px; color: #999; }
 .ph-more { position: absolute; top: -4px; right: -4px; color: #bbb; font-size: 22px; font-weight: 900; cursor: pointer; padding: 10px 14px; line-height: 1; }
 .post-menu { display: none; position: absolute; top: 30px; right: 8px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 180px; }
 .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
@@ -135,7 +143,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
 .p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
-.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.media-tags { position: absolute; left: 6px; bottom: 6px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; z-index: 3; max-width: calc(100% - 12px); }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
@@ -362,6 +370,7 @@ let mesReactionsActu = {};   // { idPublication: emoji } pour les publications d
 const _reactionEnCours = {}; // verrou anti-double-tap sur le sélecteur d'emojis
 const _replyingTo = {};      // { idPublication: {commentId, nom} } réponse en cours de rédaction
 const mesReactionsCommentaires = {}; // { idCommentaire: true } commentaires déjà aimés (mémoire locale, session en cours)
+const _commentsOuverts = new Set(); // ids des publications dont la zone commentaires est actuellement ouverte
 
 function avecDelaiMax(promesse, millisecondes){
   return Promise.race([
@@ -479,6 +488,48 @@ window.onSearchInput = function () {
   nombreAffiches = TAILLE_LOT;
   afficherFeed();
 };
+
+const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+const BADGES = { 'Vente':'🛍️ Vente', 'Arts':'🎨 Arts', 'Mode':'👗 Mode', 'Événements':'🎉 Événement', 'Business':'💼 Business' };
+
+function creerAvatarHTML(nom, verifie, uid) {
+  const initiale = (nom || '?')[0].toUpperCase();
+  const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
+  return '<div class="ph-av" style="background:' + couleur + '" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+    + (verifie ? '<span class="ph-vb">✔</span>' : '')
+    + '<div class="online-dot" data-author="' + (uid || '') + '"></div>'
+    + '</div>';
+}
+
+window.__voirProfil = function (uid) {
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.goUserProfile === 'function') {
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+};
+
+// Affiche le point vert "en ligne" pour les auteurs actifs dans les 2 dernières minutes
+// (lit le champ derniereActivite du profil).
+async function marquerAuteursEnLigne() {
+  const dots = document.querySelectorAll('.online-dot[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    try {
+      const uSnap = await db.collection('utilisateurs').doc(uid).get();
+      if (!uSnap.exists) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = 'block');
+      }
+    } catch (e) {}
+  }
+}
 
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
@@ -615,6 +666,8 @@ window.toggleComments = function (postId) {
   if (!zone) return;
   const ouvert = zone.style.display === 'block';
   zone.style.display = ouvert ? 'none' : 'block';
+  if (ouvert) { _commentsOuverts.delete(postId); }
+  else { _commentsOuverts.add(postId); }
   if (!ouvert && !zone.dataset.init) {
     zone.dataset.init = '1';
     construireZoneCommentaires(postId, zone);
@@ -676,7 +729,7 @@ function ecouterCommentaires(postId) {
         const wrap = document.createElement('div');
         wrap.innerHTML =
           '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
-          + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d2b0f,#27a945);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">' + escapeHtml(initiale) + '</div>'
+          + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="window.__voirProfil(\'' + (c.uid || '') + '\')">' + escapeHtml(initiale) + '</div>'
           + '<div style="flex:1;min-width:0">'
           +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
           +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
@@ -836,6 +889,13 @@ function formatDate(dateFirestore){
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+// Ne garde que le premier mot de la ville renseignée dans le profil, pour un
+// affichage court et cohérent (ex: "Cotonou Bénin, kpakpa" -> "Cotonou").
+function premiereVille(ville) {
+  if (!ville) return '';
+  return String(ville).split(/[,\s]+/)[0] || '';
 }
 
 // Approximation de l'indicatif pays à partir du numéro de téléphone (pas une vraie
@@ -1060,17 +1120,27 @@ function afficherFeed() {
   const carouselHTML = buildCoverCarouselHTML(listePublications);
   let html = '';
   visibles.forEach((p, i) => {
+    const nomAff = p.auteurNom || 'Utilisateur';
+    const statut = p.auteurVerifie ? 'Professionnel' : 'Visiteur';
+    const villeCourte = premiereVille(p.ville);
+    const metaTxt = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsDepuis(p.createdAt && p.createdAt.toMillis ? p.createdAt.toMillis() : Date.now());
+    const badgeTxt = BADGES[p.categorie] ? '<span class="ph-badge">' + BADGES[p.categorie] + '</span>' : '';
     html += (
     '<div class="post" data-id="' + p.id + '">'
     + (currentUser && p.auteurUid === currentUser.uid
         ? '<span class="ph-more" onclick="toggleMenuPost(\'' + p.id + '\')">⋯</span>'
           + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">🗑️ Mettre à la corbeille</div></div>'
         : '')
-    + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
-    + (currentUser && p.auteurUid && p.auteurUid !== currentUser.uid
+    + '<div class="ph">'
+    +   creerAvatarHTML(nomAff, p.auteurVerifie, p.auteurUid)
+    +   '<div class="ph-info">'
+    +     '<div class="ph-top"><span class="ph-name">' + escapeHtml(nomAff) + '</span>' + badgeTxt + '</div>'
+    +     '<div class="ph-meta">' + metaTxt + '</div>'
+    +   '</div>'
+    +   (currentUser && p.auteurUid && p.auteurUid !== currentUser.uid
         ? '<div class="ph-follow' + (followedUids.has(p.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivre(\'' + p.auteurUid + '\', event)">' + (followedUids.has(p.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
         : '')
-    + '<div class="meta">' + formatDate(p.createdAt) + '</div>'
+    + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
     + creerMediaHTML(p)
     + '<div class="pr-row">'
@@ -1108,6 +1178,18 @@ function afficherFeed() {
   conteneur.innerHTML = html;
   observerSentinelleFeed();
   if (carouselHTML) wireCoverCarouselActu();
+  marquerAuteursEnLigne();
+  // Ré-ouvre les commentaires qui étaient déjà ouverts avant ce rafraîchissement
+  // (sinon un simple "J'aime" ailleurs dans le fil les refermait silencieusement).
+  _commentsOuverts.forEach(postId => {
+    const zone = document.getElementById('commzone-' + postId);
+    if (zone) {
+      zone.style.display = 'block';
+      zone.dataset.init = '1';
+      construireZoneCommentaires(postId, zone);
+      ecouterCommentaires(postId);
+    }
+  });
 }
 
 // Changement de catégorie (repris de l'ancienne version) : on revient au
@@ -1351,6 +1433,8 @@ window.publishPost = async function() {
       categorie: categorie,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
+      auteurVerifie: !!currentUser.verifie,
+      ville: currentUser.ville || '',
       paysPrefixe: currentUser.paysPrefixe || '',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0,
