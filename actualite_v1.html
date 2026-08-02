@@ -78,7 +78,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 #feedLoading .sablier, #feedEmpty .icone { font-size: 40px; display: block; margin-bottom: 10px; }
 #feedEmpty { display: none; }
 
-.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; overflow: hidden; }
+.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
@@ -97,10 +97,35 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .ro-l { font-size: 9px; font-weight: 700; color: #999; }
 .comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
 
-.p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px -14px -14px; overflow: hidden; }
+.corbeille-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; margin: 0 0 8px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #a07a1a; cursor: pointer; }
+.corbeille-liste { display: none; flex-direction: column; gap: 8px; padding: 0 0 4px; }
+.corbeille-liste.open { display: flex; }
+.corbeille-item { display: flex; align-items: center; gap: 10px; background: #fffaf0; border: 1px solid #f5e6c8; border-radius: 12px; padding: 10px 12px; margin: 0 14px 8px; }
+.corbeille-item-info { flex: 1; min-width: 0; }
+.corbeille-item-titre { font-size: 12.5px; font-weight: 700; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.corbeille-item-sub { font-size: 11px; color: #a07a1a; }
+.btn-restaurer { background: #eafaf0; color: var(--green); border: 1.5px solid var(--green); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.btn-suppr-def { background: #fdecea; color: var(--red); border: 1.5px solid var(--red); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 6px; }
+
+.post { position: relative; }
+.ph-more { position: absolute; top: 0; right: 0; color: #ccc; font-size: 20px; cursor: pointer; padding: 4px 8px; }
+.post-menu { display: none; position: absolute; top: 30px; right: 8px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 180px; }
+.post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
+
+.cca-wrap { background: #fff; border-radius: 12px; padding: 14px 0 16px; margin-bottom: 10px; }
+.cca-titre { font-size: 15px; font-weight: 800; color: #222; padding: 0 14px 10px; }
+.cover-carousel-actu { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; scrollbar-width: none; cursor: grab; touch-action: pan-x; }
+.cca-card { position: relative; flex: 0 0 auto; width: 140px; height: 180px; border-radius: 14px; overflow: hidden; scroll-snap-align: start; background: #ddd; cursor: pointer; transition: opacity .25s, transform .25s; }
+.cca-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cca-fade { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 10px 12px; background: linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0)); }
+.cca-nom { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
+.cca-snip { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cca-dismiss { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+.p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-item { position: relative; overflow: hidden; min-height: 160px; }
 .p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
-.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px -14px -14px; overflow: hidden; }
+.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
 .media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -126,6 +151,12 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
   <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
   <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
 </div>
+</div>
+<div style="padding:0 14px">
+  <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
+    <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
+  </div>
+  <div class="corbeille-liste" id="corbeilleListe"></div>
 </div>
 
 <div class="create-modal" id="createModal">
@@ -292,6 +323,8 @@ let app, auth, db, currentUser = null;
 const TAILLE_LOT = 6;
 let nombreAffiches = TAILLE_LOT;
 let listePublications = [];
+let listeCorbeille = [];
+const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 let categorieActive = 'Tout';
 
 // Création Galerie/Boutique (repris de l'ancienne version)
@@ -622,6 +655,70 @@ window.annulerReponsePub = function (postId) {
   if (indicateur) indicateur.style.display = 'none';
 };
 
+/* ══════════════════════════════════════════════════════════════════
+   CORBEILLE (supprimer / restaurer / suppression définitive après 15
+   jours) ET MENU ⋯ PAR PUBLICATION — repris de l'ancienne version.
+   ══════════════════════════════════════════════════════════════════ */
+function afficherCorbeille() {
+  const toggle = document.getElementById('corbeilleToggle');
+  if (!toggle) return;
+  toggle.style.display = listeCorbeille.length ? 'flex' : 'none';
+  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  const liste = document.getElementById('corbeilleListe');
+  liste.innerHTML = listeCorbeille.map(creerLigneCorbeille).join('');
+  if (!listeCorbeille.length) liste.classList.remove('open');
+}
+window.toggleCorbeille = function () {
+  document.getElementById('corbeilleListe').classList.toggle('open');
+};
+
+function creerLigneCorbeille(p) {
+  const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(p.corbeilleDepuis || Date.now()).getTime());
+  const joursRestants = Math.max(0, Math.ceil(restantMs / (24 * 60 * 60 * 1000)));
+  const titre = p.texte ? p.texte.slice(0, 40) : (p.type === 'boutique' ? 'Boutique' : 'Publication');
+  return '<div class="corbeille-item">'
+    + '<div class="corbeille-item-info">'
+    + '<div class="corbeille-item-titre">' + escapeHtml(titre || 'Sans titre') + '</div>'
+    + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants > 1 ? 's' : '') + '</div>'
+    + '</div>'
+    + '<button class="btn-restaurer" onclick="restaurerPublication(\'' + p.id + '\')">Restaurer</button>'
+    + '<button class="btn-suppr-def" onclick="supprimerDefinitivement(\'' + p.id + '\')">Supprimer</button>'
+    + '</div>';
+}
+
+window.toggleMenuPost = function (postId) {
+  document.querySelectorAll('.post-menu').forEach(m => { if (m.id !== 'menu-' + postId) m.style.display = 'none'; });
+  const menu = document.getElementById('menu-' + postId);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ph-more') && !e.target.closest('.post-menu')) {
+    document.querySelectorAll('.post-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerPublication = async function (postId) {
+  if (!confirm('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  try {
+    await db.collection('publications').doc(postId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
+    toast('🗑️ Publication mise à la corbeille');
+  } catch (e) { ajouterEtape('❌ Erreur suppression : ' + (e && e.message || e)); toast('Erreur lors de la suppression'); }
+};
+window.restaurerPublication = async function (postId) {
+  if (!confirm('Restaurer cette publication ? Elle réapparaîtra dans le fil.')) return;
+  try {
+    await db.collection('publications').doc(postId).update({ corbeille: false, corbeilleDepuis: null });
+    toast('♻️ Publication restaurée');
+  } catch (e) { ajouterEtape('❌ Erreur restauration : ' + (e && e.message || e)); toast('Erreur lors de la restauration'); }
+};
+window.supprimerDefinitivement = async function (postId) {
+  if (!confirm('Supprimer définitivement cette publication ? Cette action est irréversible.')) return;
+  try {
+    await db.collection('publications').doc(postId).delete();
+    toast('Publication supprimée définitivement');
+  } catch (e) { ajouterEtape('❌ Erreur suppression définitive : ' + (e && e.message || e)); toast('Erreur lors de la suppression définitive'); }
+};
+
 function formatDate(dateFirestore){
   try {
     const d = dateFirestore && dateFirestore.toDate ? dateFirestore.toDate() : new Date();
@@ -648,13 +745,18 @@ function extraireIndicatifTelephone(telephone) {
 // n'existe pas dans cette version.
 let followedUids = new Set();
 
+// Chaque publication reçoit un nombre aléatoire figé une seule fois (mémorisé
+// ici), au lieu d'être re-mélangée à chaque mise à jour du fil. Sans ça, une
+// action (J'aime, nouveau commentaire...) qui redéclenche le chargement en
+// direct remélangeait tout et donnait l'impression que les publications /
+// photos changeaient de place ou même "changeaient" sous les yeux.
+const _ordreAleatoireStable = {};
+function ordreAleatoireStable(id) {
+  if (!(id in _ordreAleatoireStable)) _ordreAleatoireStable[id] = Math.random();
+  return _ordreAleatoireStable[id];
+}
 function melangerAleatoirement(liste) {
-  const m = liste.slice();
-  for (let i = m.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [m[i], m[j]] = [m[j], m[i]];
-  }
-  return m;
+  return liste.slice().sort((a, b) => ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id));
 }
 
 /* Classement du fil par paliers de priorité :
@@ -684,10 +786,18 @@ function trierFeedParPriorite(liste) {
 function chargerPublications() {
   try {
     db.collection('publications').orderBy('createdAt', 'desc').onSnapshot(snap => {
-      const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(p => !p.corbeille);
-      listePublications = trierFeedParPriorite(toutes);
+      const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      listePublications = trierFeedParPriorite(toutes.filter(p => !p.corbeille));
+      listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
+
+      const maintenant = Date.now();
+      listeCorbeille
+        .filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+        .forEach(p => db.collection('publications').doc(p.id).delete().catch(e => console.error(e)));
+
       afficherFeed();
-      ajouterEtape('8. Publications chargées ✅ (' + toutes.length + ')');
+      afficherCorbeille();
+      ajouterEtape('8. Publications chargées ✅ (' + listePublications.length + ')');
     }, err => {
       ajouterEtape('❌ Erreur lecture publications : ' + (err && err.message || err));
       document.getElementById('feedLoading').style.display = 'none';
@@ -758,6 +868,72 @@ function creerMediaHTML(p) {
   return '';
 }
 
+/* ══════════════════════════════════════════════════════════════════
+   CARROUSEL "Nos coups de cœur" — repris de l'ancienne version.
+   ══════════════════════════════════════════════════════════════════ */
+const _carouselDismissed = new Set(); // publications écartées du carrousel pour cette session
+
+function premiereImageDe(p) {
+  if (p.type === 'galerie' && p.images && p.images[0]) return p.images[0];
+  if (p.type === 'boutique' && p.cadres && p.cadres[0] && p.cadres[0].photo) return p.cadres[0].photo;
+  return '';
+}
+
+function buildCoverCarouselHTML(toutes) {
+  const avecImage = toutes.map(p => ({ p, img: premiereImageDe(p) }))
+    .filter(x => x.img && !_carouselDismissed.has(x.p.id))
+    .slice(0, 12);
+  if (!avecImage.length) return '';
+
+  const cards = avecImage.map(({ p, img }) => {
+    const titre = escapeHtml(p.auteurNom || 'ArtiRoyce');
+    const snippet = escapeHtml((p.texte || '').slice(0, 45));
+    return '<div class="cca-card" id="ccaCard-' + p.id + '" onclick="window.__scrollToPubActu(\'' + p.id + '\')">'
+      + '<img src="' + img + '" loading="lazy">'
+      + '<div class="cca-dismiss" onclick="event.stopPropagation();window.__dismissCarouselCard(\'' + p.id + '\')" title="Pas intéressé(e)">✕</div>'
+      + '<div class="cca-fade">'
+      +   '<div class="cca-nom">' + titre + '</div>'
+      +   '<div class="cca-snip">' + snippet + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+
+  return '<div class="cca-wrap"><div class="cca-titre">Nos coups de cœur</div>'
+    + '<div class="cover-carousel-actu">' + cards + '</div></div>';
+}
+
+window.__dismissCarouselCard = function (pubId) {
+  _carouselDismissed.add(pubId);
+  document.querySelectorAll('#ccaCard-' + pubId).forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.85)';
+    setTimeout(() => card.remove(), 220);
+  });
+};
+
+window.__scrollToPubActu = function (id) {
+  const el = document.querySelector('.post[data-id="' + id + '"]');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+let _coverPausedUntilActu = 0;
+let _coverIntervalActuStarted = false;
+function wireCoverCarouselActu() {
+  if (_coverIntervalActuStarted) return;
+  _coverIntervalActuStarted = true;
+  setInterval(() => {
+    if (Date.now() < _coverPausedUntilActu) return;
+    document.querySelectorAll('.cover-carousel-actu').forEach(track => {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (maxScroll <= 2) return;
+      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+    });
+  }, 3000);
+  document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; }, { passive: true });
+  document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; });
+}
+
 function afficherFeed() {
   document.getElementById('feedLoading').style.display = 'none';
   const conteneur = document.getElementById('feedPosts');
@@ -766,8 +942,15 @@ function afficherFeed() {
   if (!filtrees.length) { vide.style.display = 'block'; conteneur.innerHTML = ''; return; }
   vide.style.display = 'none';
   const visibles = filtrees.slice(0, nombreAffiches);
-  let html = visibles.map(p => (
+  const carouselHTML = buildCoverCarouselHTML(listePublications);
+  let html = '';
+  visibles.forEach((p, i) => {
+    html += (
     '<div class="post" data-id="' + p.id + '">'
+    + (currentUser && p.auteurUid === currentUser.uid
+        ? '<span class="ph-more" onclick="toggleMenuPost(\'' + p.id + '\')">⋯</span>'
+          + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">🗑️ Mettre à la corbeille</div></div>'
+        : '')
     + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
     + '<div class="meta">' + formatDate(p.createdAt) + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
@@ -798,12 +981,15 @@ function afficherFeed() {
     + '</div>'
     + '<div class="comm-zone" id="commzone-' + p.id + '"></div>'
     + '</div>'
-  )).join('');
+    );
+    if (carouselHTML && (i + 1) % 5 === 0) html += carouselHTML;
+  });
   if (visibles.length < filtrees.length) {
     html += '<div id="feedSentinelle" style="height:1px"></div>';
   }
   conteneur.innerHTML = html;
   observerSentinelleFeed();
+  if (carouselHTML) wireCoverCarouselActu();
 }
 
 // Changement de catégorie (repris de l'ancienne version) : on revient au
