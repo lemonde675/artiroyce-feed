@@ -137,7 +137,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .cca-nom { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
 .cca-snip { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cca-dismiss { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.cca-suivre { position: absolute; left: 8px; bottom: 8px; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 12px; cursor: pointer; color: #fff; }
+.cca-suivre { position: absolute; left: 6px; top: 6px; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 12px; cursor: pointer; color: #fff; }
 
 .p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-item { position: relative; overflow: hidden; min-height: 160px; }
@@ -741,8 +741,9 @@ function ecouterCommentaires(postId) {
           +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
           +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
           +     '<span>' + (villeCourte ? escapeHtml(villeCourte) + ' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
-          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + (c.likes ? ' · ❤️' + c.likes : '') + '</span>'
+          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + '</span>'
           +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
+          +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
           +   '</div>'
           + '</div>'
           + '</div>';
@@ -1018,20 +1019,29 @@ function creerMediaHTML(p) {
   if (p.type === 'galerie' && Array.isArray(p.images) && p.images.length) {
     const n = Math.min(p.images.length, 8);
     const layout = MEDIA_LAYOUTS[n] || null;
+    // Compatibilité : anciennes publications = simples chaînes ; nouvelles = {photo,nom,prix}
+    const item = (im) => typeof im === 'string' ? { photo: im, nom: '', prix: '' } : (im || { photo: '', nom: '', prix: '' });
+    const tagsHTML = (im) => (im.nom || im.prix)
+      ? '<div class="media-tags tags-vert">'
+        + (im.nom ? '<span class="media-chip">' + escapeHtml(im.nom) + '</span>' : '')
+        + (im.prix ? '<span class="media-chip">' + escapeHtml(String(im.prix)) + '</span>' : '')
+        + '</div>' : '';
     if (layout) {
       let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
         + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
-      p.images.slice(0, n).forEach((img, i) => {
+      p.images.slice(0, n).forEach((raw, i) => {
+        const im = item(raw);
         const area = layout.areas ? layout.areas[i] : null;
         html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
-          + 'aspect-ratio:' + (layout.cRatio || '1') + '"><img src="' + img + '" loading="lazy"></div>';
+          + 'aspect-ratio:' + (layout.cRatio || '1') + '"><img src="' + im.photo + '" loading="lazy">' + tagsHTML(im) + '</div>';
       });
       html += '</div>';
       return html;
     }
     let html = '<div class="p-media-free">';
-    p.images.slice(0, 8).forEach(img => {
-      html += '<div class="p-media-item"><img src="' + img + '" loading="lazy"></div>';
+    p.images.slice(0, 8).forEach(raw => {
+      const im = item(raw);
+      html += '<div class="p-media-item"><img src="' + im.photo + '" loading="lazy">' + tagsHTML(im) + '</div>';
     });
     html += '</div>';
     return html;
@@ -1045,7 +1055,10 @@ function creerMediaHTML(p) {
 const _carouselDismissed = new Set(); // publications écartées du carrousel pour cette session
 
 function premiereImageDe(p) {
-  if (p.type === 'galerie' && p.images && p.images[0]) return p.images[0];
+  if (p.type === 'galerie' && p.images && p.images[0]) {
+    const im = p.images[0];
+    return typeof im === 'string' ? im : (im.photo || '');
+  }
   if (p.type === 'boutique' && p.cadres && p.cadres[0] && p.cadres[0].photo) return p.cadres[0].photo;
   return '';
 }
@@ -1299,6 +1312,26 @@ window.chooseModel = function(type) {
   }
 };
 
+// Redimensionne et compresse une photo avant de la garder (sinon plusieurs photos en
+// pleine résolution dépassent la limite de 1 Mo par publication sur Firebase, et
+// l'envoi reste bloqué indéfiniment sans jamais afficher d'erreur).
+function redimensionnerImage(dataUrl, maxDim, qualite) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+      else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', qualite));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function ouvrirSelecteurPhoto(callback) {
   const input = document.createElement('input');
   input.type = 'file';
@@ -1310,7 +1343,10 @@ function ouvrirSelecteurPhoto(callback) {
     const fichier = input.files && input.files[0];
     if (fichier) {
       const lecteur = new FileReader();
-      lecteur.onload = (e) => callback(e.target.result);
+      lecteur.onload = async (e) => {
+        const compressee = await redimensionnerImage(e.target.result, 1000, 0.72);
+        callback(compressee);
+      };
       lecteur.onerror = () => toast('Photo illisible, réessayez');
       lecteur.readAsDataURL(fichier);
     }
@@ -1322,7 +1358,7 @@ function ouvrirSelecteurPhoto(callback) {
 /* ── Galerie (1 à 8 photos, disposition magazine automatique, sans étiquette) ── */
 function renderGalGrid() {
   const grille = document.getElementById('galGrid');
-  grille.className = 'media-grid';
+  grille.className = 'media-grid tags-vert';
   if (!galImages.length) {
     grille.style.gridTemplateColumns = '1fr';
     grille.style.gridTemplateRows = '';
@@ -1334,12 +1370,16 @@ function renderGalGrid() {
   grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
   let html = '';
-  galImages.forEach((photo, i) => {
+  galImages.forEach((item, i) => {
     const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
     const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
     html += '<div class="media-slot" style="' + area + ratio + '">'
-      + '<img src="' + photo + '">'
-      + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div></div>';
+      + '<img src="' + item.photo + '">'
+      + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div>'
+      + '<div class="media-tags">'
+      + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(item.nom) + '" oninput="galSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(item.prix) + '" oninput="galSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '</div></div>';
   });
   if (galImages.length < 8) {
     html += '<div class="media-slot editable" style="aspect-ratio:1" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
@@ -1347,12 +1387,14 @@ function renderGalGrid() {
   grille.innerHTML = html;
 }
 window.galAjouterPhoto = function () {
-  ouvrirSelecteurPhoto(base64 => { galImages.push(base64); renderGalGrid(); });
+  ouvrirSelecteurPhoto(base64 => { galImages.push({ photo: base64, nom: '', prix: '' }); renderGalGrid(); });
 };
 window.galRetirerPhoto = function (i) {
   galImages.splice(i, 1);
   renderGalGrid();
 };
+window.galSetNom = function (i, v) { if (galImages[i]) galImages[i].nom = v; };
+window.galSetPrix = function (i, v) { if (galImages[i]) galImages[i].prix = v; };
 
 /* ── Boutique (cadres avec nom + prix intégrés dans l'image) ── */
 function initCadSlots(n) {
@@ -1429,7 +1471,11 @@ window.publishPost = async function() {
     donnees = { type: 'texte', texte: texte };
   } else if (cmEtapeActuelle === 'galerie') {
     if (!galImages.length) { toast('Ajoutez au moins une photo'); return; }
-    donnees = { type: 'galerie', texte: document.getElementById('cmGalText').value.trim(), images: galImages.slice(0, 8) };
+    donnees = {
+      type: 'galerie',
+      texte: document.getElementById('cmGalText').value.trim(),
+      images: galImages.slice(0, 8).map(it => ({ photo: it.photo, nom: it.nom || '', prix: it.prix || '' }))
+    };
   } else if (cmEtapeActuelle === 'boutique') {
     const cadresRemplis = cadSlots.filter(s => s.photo);
     if (!cadresRemplis.length) { toast('Ajoutez au moins un article avec photo'); return; }
@@ -1447,7 +1493,7 @@ window.publishPost = async function() {
   const btn = document.getElementById('btnPublish');
   btn.disabled = true; btn.textContent = 'Publication…';
   try {
-    await db.collection('publications').add(Object.assign({
+    await avecDelaiMax(db.collection('publications').add(Object.assign({
       categorie: categorie,
       auteurNom: currentUser.displayName,
       auteurUid: currentUser.uid,
@@ -1457,7 +1503,7 @@ window.publishPost = async function() {
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0,
       partages: 0
-    }, donnees));
+    }, donnees)), 20000);
     toast('Publié ✅');
     document.getElementById('createModal').classList.remove('open');
     cmAfficherChoix();
