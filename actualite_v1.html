@@ -1012,6 +1012,7 @@ function creerMediaHTML(p) {
     let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
       + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
     p.cadres.forEach((c, i) => {
+      ajouterEtape('🔎 DIAG cadre ' + i + ' — nom="' + (c.nom || '') + '" prix="' + (c.prix || '') + '" (type prix: ' + typeof c.prix + ')');
       const area = layout.areas ? layout.areas[i] : null;
       html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
         + 'aspect-ratio:' + (layout.cRatio || '1') + '">'
