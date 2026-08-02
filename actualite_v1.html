@@ -9,14 +9,20 @@
 :root { --red:#e63224; --green:#27a945; }
 html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f2f2f2; }
 
-.barre-fixe { position: sticky; top: 0; z-index: 50; background: #fff; }
-.cats { display: flex; gap: 6px; padding: 7px 14px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; background: #fff; border-bottom: 1px solid #eee; }
+.barre-fixe { position: fixed; left: 0; right: 0; z-index: 50; background: #fff; }
+#barreSpacer { flex-shrink: 0; }
+.cats { display: flex; gap: 6px; padding: 6px 14px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; background: #fff; border-bottom: 1px solid #eee; }
 .cats::-webkit-scrollbar { display: none; }
 .cat-pill { white-space: nowrap; padding: 6px 14px; border-radius: 22px; font-size: 12px; font-weight: 700; border: 1.5px solid #eee; cursor: pointer; flex-shrink: 0; background: #fff; color: #888; }
 .cat-pill.active { background: #222; color: #fff; border-color: #222; }
-.zone-publier { background: #fff; padding: 12px 14px; border-bottom: 8px solid #eee; display: flex; align-items: center; gap: 10px; }
-.zone-publier .cp-av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #fff; flex-shrink: 0; cursor: pointer; }
-.zone-publier .cp-input { flex: 1; background: #f5f5f5; border-radius: 22px; padding: 10px 16px; font-size: 14px; color: #888; cursor: pointer; border: none; text-align: left; font-family: inherit; }
+.zone-publier { background: #fff; padding: 8px 14px; border-bottom: 8px solid #eee; display: flex; align-items: center; gap: 8px; }
+.zone-publier .cp-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; cursor: pointer; }
+.zone-publier .cp-input { flex: 1; background: #f5f5f5; border-radius: 20px; padding: 8px 14px; font-size: 13.5px; color: #888; cursor: pointer; border: none; text-align: left; font-family: inherit; }
+.zone-publier .cp-search-btn { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #f5f5f5; border: none; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.search-bar { display: none; align-items: center; gap: 8px; padding: 8px 14px; background: #fff; border-bottom: 1px solid #eee; }
+.search-bar.open { display: flex; }
+.search-bar input { flex: 1; border: 1px solid #e8ecf0; border-radius: 20px; padding: 8px 14px; font-size: 13px; background: #f2f4f7; color: #222; font-family: inherit; }
+.search-bar .search-close { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; padding: 4px; }
 
 .create-modal { position: fixed; inset: 0; z-index: 500; background: #fff; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
 .create-modal.open { transform: translateY(0); }
@@ -81,6 +87,8 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
 .post .auteur { font-weight: 700; font-size: 14.5px; }
 .post .meta { font-size: 12px; color: #999; margin-top: 1px; }
+.ph-follow { font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 99px; cursor: pointer; display: inline-block; border: 1.5px solid var(--red); color: var(--red); background: #fff; margin-top: 5px; }
+.ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
 .post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
 
 .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
@@ -108,7 +116,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .btn-suppr-def { background: #fdecea; color: var(--red); border: 1.5px solid var(--red); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 6px; }
 
 .post { position: relative; }
-.ph-more { position: absolute; top: 0; right: 0; color: #ccc; font-size: 20px; cursor: pointer; padding: 4px 8px; }
+.ph-more { position: absolute; top: -4px; right: -4px; color: #bbb; font-size: 22px; font-weight: 900; cursor: pointer; padding: 10px 14px; line-height: 1; }
 .post-menu { display: none; position: absolute; top: 30px; right: 8px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 180px; }
 .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
 
@@ -150,8 +158,14 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 <div class="zone-publier">
   <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
   <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
+  <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
+</div>
+<div class="search-bar" id="searchBar">
+  <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" oninput="onSearchInput()">
+  <span class="search-close" onclick="toggleSearch()">Fermer</span>
 </div>
 </div>
+<div id="barreSpacer"></div>
 <div style="padding:0 14px">
   <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
     <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
@@ -278,7 +292,17 @@ function getEmbedTopOffsetPx() {
   } catch (e) { /* parent inaccessible : offset = 0 */ }
   return 0;
 }
-document.body.style.paddingTop = getEmbedTopOffsetPx() + 'px';
+function ajusterBarreFixe() {
+  const decalage = getEmbedTopOffsetPx();
+  const barre = document.querySelector('.barre-fixe');
+  if (!barre) return;
+  barre.style.top = decalage + 'px';
+  const spacer = document.getElementById('barreSpacer');
+  if (spacer) spacer.style.height = (decalage + barre.offsetHeight) + 'px';
+}
+window.addEventListener('load', ajusterBarreFixe);
+setTimeout(ajusterBarreFixe, 100);
+setTimeout(ajusterBarreFixe, 600);
 
 // Attrape-erreur global : affiche directement sur la page n'importe quelle
 // erreur JavaScript, pour voir le vrai problème sans avoir besoin de la console.
@@ -337,6 +361,7 @@ let cadTagColor = 'vert';
 let mesReactionsActu = {};   // { idPublication: emoji } pour les publications déjà "aimées" par l'utilisateur
 const _reactionEnCours = {}; // verrou anti-double-tap sur le sélecteur d'emojis
 const _replyingTo = {};      // { idPublication: {commentId, nom} } réponse en cours de rédaction
+const mesReactionsCommentaires = {}; // { idCommentaire: true } commentaires déjà aimés (mémoire locale, session en cours)
 
 function avecDelaiMax(promesse, millisecondes){
   return Promise.race([
@@ -381,6 +406,10 @@ async function surChangementAuth(user) {
       const d = snap.data();
       currentUser.displayName = d.nom || d.prenom || currentUser.displayName;
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
+      // Champ réel de la base : role === 'visiteur' => Visiteur, sinon Professionnel
+      currentUser.role = d.role || 'visiteur';
+      currentUser.verifie = currentUser.role !== 'visiteur';
+      currentUser.ville = d.ville || '';
     }
     ajouterEtape('6. Profil utilisateur lu ✅');
   } catch (e) {
@@ -389,6 +418,7 @@ async function surChangementAuth(user) {
 
   ajouterEtape('7. Appel de chargerPublications()...');
   await chargerMesReactionsActu();
+  chargerSuivis();
   chargerPublications();
 
   const initiale = (currentUser.displayName || '?')[0].toUpperCase();
@@ -396,6 +426,59 @@ async function surChangementAuth(user) {
   document.getElementById('cmAvatar').textContent = initiale;
   document.getElementById('cmNom').textContent = currentUser.displayName;
 }
+
+// Suivre / ne plus suivre un auteur (utilisé sur les publications et le carrousel).
+// Chaque section du site garde son propre suivi (indépendant des autres) : stocké
+// dans utilisateurs/{moi}/suivisActualite/{auteurUid}.
+window.toggleSuivre = async function (auteurUid, event) {
+  if (event) event.stopPropagation();
+  if (!currentUser || auteurUid === currentUser.uid) return;
+  const ref = db.collection('utilisateurs').doc(currentUser.uid).collection('suivisActualite').doc(auteurUid);
+  try {
+    if (followedUids.has(auteurUid)) {
+      await ref.delete();
+      followedUids.delete(auteurUid);
+      toast('Vous ne suivez plus cette personne (Actualités)');
+    } else {
+      await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
+      followedUids.add(auteurUid);
+      toast('✅ Abonné(e) aux actualités de cette personne !');
+    }
+    afficherFeed();
+  } catch (e) { ajouterEtape('❌ Erreur suivi : ' + (e && e.message || e)); toast('Erreur'); }
+};
+
+async function chargerSuivis() {
+  try {
+    if (!currentUser) return;
+    const snap = await db.collection('utilisateurs').doc(currentUser.uid).collection('suivisActualite').get();
+    followedUids = new Set(snap.docs.map(d => d.id));
+    ajouterEtape('Suivis chargés ✅ (' + followedUids.size + ')');
+    listePublications = trierFeedParPriorite(listePublications);
+    afficherFeed();
+  } catch (e) {
+    ajouterEtape('Suivis ignorés : ' + (e && e.message || e));
+  }
+}
+
+let termeRecherche = '';
+window.toggleSearch = function () {
+  const barre = document.getElementById('searchBar');
+  const ouvert = barre.classList.toggle('open');
+  if (ouvert) {
+    setTimeout(() => document.getElementById('searchInput').focus(), 150);
+  } else {
+    document.getElementById('searchInput').value = '';
+    termeRecherche = '';
+    afficherFeed();
+  }
+  setTimeout(ajusterBarreFixe, 20);
+};
+window.onSearchInput = function () {
+  termeRecherche = document.getElementById('searchInput').value.trim().toLowerCase();
+  nombreAffiches = TAILLE_LOT;
+  afficherFeed();
+};
 
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
@@ -584,16 +667,25 @@ function ecouterCommentaires(postId) {
       });
 
       function construireCommentaireHTML(c, racineId) {
+        const auteurPub = (listePublications.find(x => x.id === postId) || {}).auteurUid;
+        const estCreateurPub = c.uid === auteurPub;
+        const statut = estCreateurPub ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
         const initiale = (c.nom || '?')[0].toUpperCase();
+        const villeCourte = premiereVille(c.ville);
+        const dejaAime = mesReactionsCommentaires[c.id];
         const wrap = document.createElement('div');
         wrap.innerHTML =
           '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
           + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0d2b0f,#27a945);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">' + escapeHtml(initiale) + '</div>'
           + '<div style="flex:1;min-width:0">'
-          +   '<div style="font-size:13px;font-weight:700;color:#555;margin-bottom:3px">' + escapeHtml(c.nom || 'Anonyme') + '</div>'
+          +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
+          +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
+          +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
+          +   '</div>'
           +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
           +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
-          +     '<span>' + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+          +     '<span>' + (villeCourte ? escapeHtml(villeCourte) + ' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + (c.likes ? ' · ❤️' + c.likes : '') + '</span>'
           +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
           +   '</div>'
           + '</div>'
@@ -634,12 +726,28 @@ window.envoyerCommentairePub = async function (postId) {
   try {
     await db.collection('publications').doc(postId).collection('commentaires').add({
       texte, nom: currentUser.displayName || 'Anonyme', uid: currentUser.uid,
-      parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      verifie: !!currentUser.verifie, ville: currentUser.ville || '',
+      parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: 0
     });
     window.annulerReponsePub(postId);
   } catch (e) {
     ajouterEtape('❌ Erreur commentaire : ' + (e && e.message || e));
   }
+};
+
+window.toggleAimeCommentaire = async function (postId, commentId, likesActuels) {
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  const ref = db.collection('publications').doc(postId).collection('commentaires').doc(commentId);
+  try {
+    if (mesReactionsCommentaires[commentId]) {
+      delete mesReactionsCommentaires[commentId];
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      mesReactionsCommentaires[commentId] = true;
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+    }
+  } catch (e) { ajouterEtape('❌ Erreur J\u2019aime commentaire : ' + (e && e.message || e)); }
 };
 
 window.repondrePub = function (postId, commentId, nom) {
@@ -813,7 +921,7 @@ function chargerPublications() {
 const MEDIA_LAYOUTS = {
   1: { template:'1fr', areas:['1 / 1 / 2 / 2'], cRatio:'16/9' },
   2: { template:'2fr 1fr', areas:['1/1/2/2','1/2/2/3'], cRatio:'3/2' },
-  3: { template:'2fr 1fr / 1fr 1fr', rows:'1fr 1fr', areas:['1/1/3/2','1/2/2/3','2/2/3/3'], cRatio:'4/3' },
+  3: { template:'2fr 1fr', rows:'1fr 1fr', areas:['1/1/3/2','1/2/2/3','2/2/3/3'], cRatio:'4/3' },
   4: { template:'1fr 1fr', rows:'1fr 1fr', areas:['1/1/2/2','1/2/2/3','2/1/3/2','2/2/3/3'], cRatio:'1/1' },
   5: { template:'1fr 1fr 1fr', rows:'1.4fr 1fr', areas:['1/1/2/4','2/1/3/2','2/2/3/3','2/3/3/4'], cRatio:'4/3' },
   6: { template:'1fr 1fr 1fr', rows:'1fr 1fr', areas:null },
@@ -938,7 +1046,14 @@ function afficherFeed() {
   document.getElementById('feedLoading').style.display = 'none';
   const conteneur = document.getElementById('feedPosts');
   const vide = document.getElementById('feedEmpty');
-  const filtrees = listePublications.filter(p => categorieActive === 'Tout' || p.categorie === categorieActive);
+  const filtrees = listePublications.filter(p => {
+    if (categorieActive !== 'Tout' && p.categorie !== categorieActive) return false;
+    if (termeRecherche) {
+      const hay = ((p.texte || '') + ' ' + (p.ville || '') + ' ' + (p.categorie || '') + ' ' + (p.auteurNom || '')).toLowerCase();
+      if (!hay.includes(termeRecherche)) return false;
+    }
+    return true;
+  });
   if (!filtrees.length) { vide.style.display = 'block'; conteneur.innerHTML = ''; return; }
   vide.style.display = 'none';
   const visibles = filtrees.slice(0, nombreAffiches);
@@ -952,6 +1067,9 @@ function afficherFeed() {
           + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">🗑️ Mettre à la corbeille</div></div>'
         : '')
     + '<div class="auteur">' + escapeHtml(p.auteurNom || 'Anonyme') + '</div>'
+    + (currentUser && p.auteurUid && p.auteurUid !== currentUser.uid
+        ? '<div class="ph-follow' + (followedUids.has(p.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivre(\'' + p.auteurUid + '\', event)">' + (followedUids.has(p.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+        : '')
     + '<div class="meta">' + formatDate(p.createdAt) + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
     + creerMediaHTML(p)
