@@ -776,7 +776,7 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 </div>
 
 <!-- FIREBASE -->
-<script type="module">
+<script>
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
 // JavaScript (même celles survenant très tôt, avant Firebase), pour qu'on voie le
 // vrai problème sans avoir besoin d'ouvrir la console du navigateur.
@@ -809,11 +809,30 @@ window.addEventListener('unhandledrejection', function(e){
   __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
 });
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, increment, onSnapshot, orderBy, query, serverTimestamp, where, getDoc, setDoc, Timestamp, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getStorage, ref, uploadString, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+function signalerEchecFirebaseOffre(nomBibliotheque){
+  ajouterEtapeOffre('❌ ÉCHEC du chargement Firebase (' + nomBibliotheque + ')');
+  const loading = document.getElementById('feed-loading');
+  if (loading) loading.innerHTML = '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger Firebase (' + nomBibliotheque + ', depuis gstatic.com).</div>';
+}
+ajouterEtapeOffre('2. Téléchargement des bibliothèques Firebase (compat)...');
+</script>
 
+<!-- Chargement classique (pas de module) : plus tolérant pour certains réseaux/proxys
+     mobiles que le chargement en modules ES — même principe qu'Actualités. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
+        onload="ajouterEtapeOffre('2b. Bibliothèque app chargée ✅')"
+        onerror="signalerEchecFirebaseOffre('app')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
+        onload="ajouterEtapeOffre('2c. Bibliothèque auth chargée ✅')"
+        onerror="signalerEchecFirebaseOffre('auth')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
+        onload="ajouterEtapeOffre('2d. Bibliothèque firestore chargée ✅')"
+        onerror="signalerEchecFirebaseOffre('firestore')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"
+        onload="ajouterEtapeOffre('2e. Bibliothèque storage chargée ✅')"
+        onerror="signalerEchecFirebaseOffre('storage')"></script>
+
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
   authDomain: "artiroyce-f42e4.firebaseapp.com",
@@ -823,10 +842,17 @@ const firebaseConfig = {
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-const stor = getStorage(app);
+let app, auth, db, stor;
+if (typeof firebase === 'undefined') {
+  ajouterEtapeOffre('❌ Firebase (compat) indisponible, impossible de continuer');
+} else {
+  ajouterEtapeOffre('3. Toutes les bibliothèques Firebase chargées ✅');
+  app  = firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db   = firebase.firestore();
+  stor = firebase.storage();
+  ajouterEtapeOffre('4. Firebase initialisé ✅');
+}
 
 /* ── Traduction : fonction T() locale (textes dynamiques JS) ──
    TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
@@ -849,14 +875,14 @@ let filtreActif  = 'tout';
 let searchTerm   = '';
 
 /* ── AUTH ── */
-onAuthStateChanged(auth, async user => {
-  ajouterEtapeOffre('2. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
+auth.onAuthStateChanged(async user => {
+  ajouterEtapeOffre('5. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
   if (user) {
     currentUser = user;
     // Charger infos profil depuis Firestore
     try {
-      ajouterEtapeOffre('3. Lecture du profil utilisateur...');
-      const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      ajouterEtapeOffre('6. Lecture du profil utilisateur...');
+      const snap = await db.collection('utilisateurs').doc(user.uid).get();
       if (snap.exists()) {
         const d = snap.data();
         currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
@@ -866,8 +892,8 @@ onAuthStateChanged(auth, async user => {
         currentUser.ville = d.ville || '';
         currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       }
-      ajouterEtapeOffre('4. Profil lu ✅');
-    } catch(e){ ajouterEtapeOffre('4bis. Échec lecture profil : ' + (e && e.message || e)); }
+      ajouterEtapeOffre('7. Profil lu ✅');
+    } catch(e){ ajouterEtapeOffre('7bis. Échec lecture profil : ' + (e && e.message || e)); }
     // Mettre à jour avatar dans zone commentaire
     document.querySelectorAll('.user-ava').forEach(el => {
       el.textContent = (currentUser.displayName||'?')[0].toUpperCase();
@@ -875,11 +901,11 @@ onAuthStateChanged(auth, async user => {
     // Charger le fil immédiatement — ne pas attendre le seed, qui peut prendre du
     // temps. Le seed tourne en arrière-plan ; l'écoute en direct (onSnapshot)
     // rafraîchira le fil dès qu'il termine.
-    ajouterEtapeOffre('5. Appel chargerSuivisOffre()...');
-    chargerSuivisOffre().finally(() => { ajouterEtapeOffre('6. chargerSuivisOffre terminé, appel chargerOffres()...'); chargerOffres(); });
+    ajouterEtapeOffre('8. Appel chargerSuivisOffre()...');
+    chargerSuivisOffre().finally(() => { ajouterEtapeOffre('9. chargerSuivisOffre terminé, appel chargerOffres()...'); chargerOffres(); });
     ensureSeedOffres().catch(e => ajouterEtapeOffre('❌ Seed offres impossible : ' + (e && e.message || e)));
   } else {
-    ajouterEtapeOffre('2bis. Aucun utilisateur — redirection vers connexion');
+    ajouterEtapeOffre('5bis. Aucun utilisateur — redirection vers connexion');
     window.location.href = 'connexion.html';
   }
 });
@@ -896,21 +922,21 @@ let followedUidsOffre = new Set();
 async function chargerSuivisOffre() {
   try {
     if (!currentUser) return;
-    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivisOffre'));
+    const snap = await db.collection('utilisateurs').doc(currentUser.uid).collection('suivisOffre').get();
     followedUidsOffre = new Set(snap.docs.map(d => d.id));
-    ajouterEtapeOffre('5b. Suivis offre chargés ✅ (' + followedUidsOffre.size + ')');
-  } catch (e) { ajouterEtapeOffre('5c. Suivis offre ignorés : ' + (e && e.message || e)); }
+    ajouterEtapeOffre('8b. Suivis offre chargés ✅ (' + followedUidsOffre.size + ')');
+  } catch (e) { ajouterEtapeOffre('8c. Suivis offre ignorés : ' + (e && e.message || e)); }
 }
 window.toggleSuivreOffre = async function (auteurUid, event) {
   if (event) event.stopPropagation();
   if (!currentUser || auteurUid === currentUser.uid) return;
-  const ref = doc(db, 'utilisateurs', currentUser.uid, 'suivisOffre', auteurUid);
+  const ref = db.collection('utilisateurs').doc(currentUser.uid).collection('suivisOffre').doc(auteurUid);
   try {
     if (followedUidsOffre.has(auteurUid)) {
-      await deleteDoc(ref);
+      await ref.delete();
       followedUidsOffre.delete(auteurUid);
     } else {
-      await setDoc(ref, { depuis: serverTimestamp() });
+      await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
       followedUidsOffre.add(auteurUid);
     }
     chargerOffres();
@@ -984,7 +1010,7 @@ async function markAuthorsOnlineOffre(){
   for (const uid of uids) {
     if (uid.indexOf('mt_') === 0) continue;
     try {
-      const uSnap = await getDoc(doc(db, 'utilisateurs', uid));
+      const uSnap = await db.collection('utilisateurs').doc(uid).get();
       if (!uSnap.exists()) continue;
       const da = uSnap.data().derniereActivite;
       if (!da) continue;
@@ -1090,8 +1116,8 @@ function wireCoverCarousel(){
    métier, pas de faux profils individuels. Nettoyage + création en parallèle pour
    rester rapide et ne jamais bloquer le chargement du fil. ── */
 async function ensureSeedOffres(){
-  const metaRef = doc(db, 'offres_meta', 'seed_v3');
-  const metaSnap = await getDoc(metaRef);
+  const metaRef = db.collection('offres_meta').doc('seed_v3');
+  const metaSnap = await metaRef.get();
   if (metaSnap.exists()) return;
 
   const metiers = [
@@ -1133,7 +1159,7 @@ async function ensureSeedOffres(){
   try {
     await Promise.all(items.map((it, i) => {
       const mt = metiers[it.mt];
-      return addDoc(collection(db, 'offres'), {
+      return db.collection('offres').add({
         auteurUid: mt.id,
         auteurNom: mt.nom,
         auteurVerifie: true,
@@ -1150,10 +1176,10 @@ async function ensureSeedOffres(){
         candidatures: 0,
         likes: 0,
         imageUrl: 'https://picsum.photos/seed/artiroyce_offre' + i + '/900/700',
-        createdAt: Timestamp.fromDate(new Date(Date.now() - i * 3 * 3600 * 1000))
+        createdAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() - i * 3 * 3600 * 1000))
       });
     }));
-    await setDoc(metaRef, { seededAt: serverTimestamp() });
+    await metaRef.set({ seededAt: firebase.firestore.FieldValue.serverTimestamp() });
   } catch(e){ console.error('Création du seed impossible :', e); }
 }
 
@@ -1173,9 +1199,9 @@ function chargerOffres() {
   // le comptage des "J'aime" en boucle à chaque changement.)
   if (_unsubscribeOffres) { _unsubscribeOffres(); _unsubscribeOffres = null; }
 
-  let q = query(collection(db, 'offres'), orderBy('createdAt', 'desc'));
-  _unsubscribeOffres = onSnapshot(q, snap => {
-    ajouterEtapeOffre('7. Snapshot reçu ✅ (' + snap.size + ' document(s))');
+  let q = db.collection('offres').orderBy('createdAt', 'desc');
+  _unsubscribeOffres = q.onSnapshot(snap => {
+    ajouterEtapeOffre('10. Snapshot reçu ✅ (' + snap.size + ' document(s))');
     dernierSnapshotOffres = snap;
     nombreAffichesOffre = TAILLE_LOT_OFFRE;
     rendreOffresDepuisSnapshot();
@@ -1309,7 +1335,7 @@ function rendreOffresDepuisSnapshot() {
       feedEl.appendChild(note);
     }
     observerSentinelleOffres();
-    ajouterEtapeOffre('8. Rendu terminé ✅ (' + autresOffresActives.length + '/' + autresOffresActivesTotal.length + ' offres communauté affichées, ' + expirees.length + ' expirée(s))');
+    ajouterEtapeOffre('11. Rendu terminé ✅ (' + autresOffresActives.length + '/' + autresOffresActivesTotal.length + ' offres communauté affichées, ' + expirees.length + ' expirée(s))');
   } catch (eRendu) {
     ajouterEtapeOffre('❌ Erreur pendant le rendu : ' + (eRendu && eRendu.message || eRendu) + (eRendu && eRendu.stack ? ('\n' + eRendu.stack) : ''));
   }
@@ -1489,7 +1515,7 @@ function buildCard(o, expiree) {
 
   // Charger reaction existante de l'utilisateur
   if (currentUser) {
-    getDoc(doc(db,'offres',o.id,'reactions',currentUser.uid)).then(rs => {
+    db.collection('offres').doc(o.id).collection('reactions').doc(currentUser.uid).get().then(rs => {
       if (rs.exists()) {
         const emoji = rs.data().emoji;
         if (emoji) {
@@ -1504,8 +1530,8 @@ function buildCard(o, expiree) {
 
   // Écouter commentaires temps réel — fermer l'écouteur précédent pour cette offre s'il existe déjà
   if (_unsubscribeCommentaires[o.id]) { _unsubscribeCommentaires[o.id](); }
-  const qc = query(collection(db,'offres',o.id,'commentaires'), orderBy('createdAt','asc'));
-  _unsubscribeCommentaires[o.id] = onSnapshot(qc, snap2 => {
+  const qc = db.collection('offres').doc(o.id).collection('commentaires').orderBy('createdAt','asc');
+  _unsubscribeCommentaires[o.id] = qc.onSnapshot(snap2 => {
     const listEl = document.getElementById('comm-list-'+o.id);
     const countEl = document.getElementById('comm-count-'+o.id);
     if (!listEl) return;
@@ -1652,14 +1678,14 @@ window.choisirReactionCommentaire = async (offreId, commentId, emoji, likesActue
     delete _commentairesReactions[commentId];
     const nouveauTotal = Math.max(0, likesActuels - 1);
     majAffichage(nouveauTotal, false, '❤️');
-    try { await updateDoc(doc(db,'offres',offreId,'commentaires',commentId), { likes: increment(-1) }); } catch(e){ console.error(e); }
+    try { await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).update({ likes: firebase.firestore.FieldValue.increment(-1) }); } catch(e){ console.error(e); }
   } else {
     const delta = prev ? 0 : 1;
     _commentairesReactions[commentId] = emoji;
     const nouveauTotal = likesActuels + delta;
     majAffichage(nouveauTotal, true, emoji);
     if (delta) {
-      try { await updateDoc(doc(db,'offres',offreId,'commentaires',commentId), { likes: increment(1) }); } catch(e){ console.error(e); }
+      try { await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).update({ likes: firebase.firestore.FieldValue.increment(1) }); } catch(e){ console.error(e); }
     }
   }
 };
@@ -1743,13 +1769,13 @@ window.envoyerComm = async (offreId) => {
   inp.value = '';
   const reponseA = _replyingTo[offreId] || null;
   try {
-    await addDoc(collection(db,'offres',offreId,'commentaires'), {
+    await db.collection('offres').doc(offreId).collection('commentaires').add({
       texte,
       nom: currentUser.displayName || 'Anonyme',
       uid: currentUser.uid,
       ville: currentUser.ville || '',
       parentId: reponseA ? reponseA.commentId : null,
-      createdAt: serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     window.annulerReponse(offreId);
   } catch(e){ console.error(e); }
@@ -1814,13 +1840,13 @@ window.choisirPostuler = async (choix) => {
     postuler: '📩 A postulé à cette offre'
   };
   try {
-    await updateDoc(doc(db,'offres',offreId), { candidatures: increment(1) });
-    await addDoc(collection(db,'offres',offreId,'commentaires'), {
+    await db.collection('offres').doc(offreId).update({ candidatures: firebase.firestore.FieldValue.increment(1) });
+    await db.collection('offres').doc(offreId).collection('commentaires').add({
       texte: messages[choix] || messages.postuler,
       nom: currentUser.displayName || 'Anonyme',
       uid: currentUser.uid,
       ville: currentUser.ville || '',
-      createdAt: serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     showToast('Candidature envoyée !');
   } catch(e){ console.error(e); }
@@ -1867,14 +1893,14 @@ window.choisirReaction = async (offreId, emoji, likesActuels) => {
       const nouveauTotal = Math.max(0, likesActuels - 1);
       majAffichage(nouveauTotal, false, '👍');
       if (btn) btn.dataset.reaction = '';
-      await updateDoc(doc(db,'offres',offreId), { likes: increment(-1) });
+      await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
     } else {
       const delta = prev ? 0 : 1;
       _offreReactions[offreId] = emoji;
       const nouveauTotal = likesActuels + delta;
       majAffichage(nouveauTotal, true, emoji);
       if (btn) btn.dataset.reaction = emoji;
-      if (delta) await updateDoc(doc(db,'offres',offreId), { likes: increment(1) });
+      if (delta) await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(1) });
     }
   } catch(e) {
     console.error('reaction:', e);
@@ -1900,7 +1926,7 @@ window.publierOffre = async () => {
     auteurVerifie: currentUser.verifie || false,
     auteurRole: currentUser.role || 'Professionnel',
     paysPrefixe: currentUser.paysPrefixe || '',
-    createdAt: serverTimestamp(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     likes: 0,
     candidatures: 0
   };
@@ -1949,7 +1975,7 @@ window.publierOffre = async () => {
 
   try {
     document.querySelector('.btn-modal-pub').textContent = '⏳ Publication…';
-    await addDoc(collection(db,'offres'), data);
+    await db.collection('offres').add(data);
     document.getElementById('overlay').classList.remove('open');
     showToast('✅ Offre publiée !');
     // Reset
@@ -2022,50 +2048,3 @@ window.previewImg = e => {
 };
 
 // Correctif : cet input n'avait aucun gestionnaire — choisir une image ne faisait
-// rien. Utilise la même variable imgBase64 que le modèle "Avec photo" (déjà lue à
-// la publication), donc aucun autre changement nécessaire côté soumission.
-window.previewImgSimple = e => {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    imgBase64 = ev.target.result;
-    const i = document.getElementById('imgPrevSimple');
-    if (i) { i.src = ev.target.result; i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;'; }
-  };
-  r.readAsDataURL(f);
-};
-
-window.toggleImg = () => {
-  imgOn = !imgOn;
-  document.getElementById('togImg').classList.toggle('on', imgOn);
-  document.getElementById('uploadZone').style.display = imgOn ? 'block' : 'none';
-};
-
-let urgentOn = false;
-window.toggleUrgent = () => {
-  urgentOn = !urgentOn;
-  document.getElementById('togUrgent').classList.toggle('on', urgentOn);
-};
-
-window.toggleImgTexte = () => {
-  imgOnTexte = !imgOnTexte;
-  document.getElementById('togImgTexte').classList.toggle('on', imgOnTexte);
-  document.getElementById('uploadZoneTexte').style.display = imgOnTexte ? 'block' : 'none';
-};
-
-window.previewImgTexte = e => {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    imgBase64Txt = ev.target.result;
-    const i = document.getElementById('imgPrevTexte');
-    i.src = ev.target.result;
-    i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;';
-  };
-  r.readAsDataURL(f);
-};
-
-/* ── SUPPRIMER OFFRE ── */
-window.toggleMenuSuppr = (id) => {
-  const menu = document.getElementById('menu-suppr-'+id);
-  if (menu) menu.style.di
