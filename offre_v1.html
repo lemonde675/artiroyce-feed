@@ -257,7 +257,7 @@ auth.onAuthStateChanged(async user => {
     try {
       ajouterEtapeOffre('6. Lecture du profil utilisateur...');
       const snap = await avecDelaiMaxOffre(db.collection('utilisateurs').doc(user.uid).get(), 8000);
-      if (snap.exists()) {
+      if (snap.exists) {
         const d = snap.data();
         currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
         currentUser.photoURL = d.photoURL || null;
@@ -385,7 +385,7 @@ async function markAuthorsOnlineOffre(){
     if (uid.indexOf('mt_') === 0) continue;
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
-      if (!uSnap.exists()) continue;
+      if (!uSnap.exists) continue;
       const da = uSnap.data().derniereActivite;
       if (!da) continue;
       const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
@@ -492,7 +492,7 @@ function wireCoverCarousel(){
 async function ensureSeedOffres(){
   const metaRef = db.collection('offres_meta').doc('seed_v3');
   const metaSnap = await metaRef.get();
-  if (metaSnap.exists()) return;
+  if (metaSnap.exists) return;
 
   const metiers = [
     { id:'mt_maconnerie_01', nom:'Cotonou Bâtiment Pro', emoji:'🧱', categorie:'🧱 Maçonnerie', ville:'Cotonou' },
