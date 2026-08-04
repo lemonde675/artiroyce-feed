@@ -78,6 +78,7 @@ if (typeof firebase === 'undefined') {
   app  = firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db   = firebase.firestore();
+  db.settings({ experimentalForceLongPolling: true });
   ajouterEtapeOffre('4. Firebase initialisé ✅');
 }
 
@@ -88,6 +89,13 @@ function wireCoverCarousel(){}
 function markAuthorsOnlineOffre(){}
 function ensureSeedOffres(){ return Promise.resolve(); }
 function openModal(){ ajouterEtapeOffre('(clic) openModal appelé — non testé ici'); }
+
+function avecDelaiMaxOffre(promesse, millisecondes){
+  return Promise.race([
+    promesse,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
+  ]);
+}
 
 function T(key){
   const lang = (typeof currentLang !== 'undefined') ? currentLang : 'FR';
@@ -115,7 +123,7 @@ auth.onAuthStateChanged(async user => {
     // Charger infos profil depuis Firestore
     try {
       ajouterEtapeOffre('6. Lecture du profil utilisateur...');
-      const snap = await db.collection('utilisateurs').doc(user.uid).get();
+      const snap = await avecDelaiMaxOffre(db.collection('utilisateurs').doc(user.uid).get(), 8000);
       if (snap.exists()) {
         const d = snap.data();
         currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
