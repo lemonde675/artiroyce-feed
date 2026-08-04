@@ -423,6 +423,21 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 /* ── MODAL ── */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-end; justify-content: center; }
 .overlay.open { display: flex; }
+
+/* Panneau de publication léger, inspiré d'Actualités (glissement animé) */
+.create-modal { position: fixed; inset: 0; z-index: 500; background: #fff; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
+.create-modal.open { transform: translateY(0); }
+.cm-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eee; }
+.cm-cancel { font-size: 14px; color: #65676b; cursor: pointer; }
+.cm-title { font-size: 15px; font-weight: 800; }
+.cm-publish { background: var(--red); color: #fff; border: none; border-radius: 20px; padding: 8px 18px; font-weight: 800; font-size: 13.5px; cursor: pointer; }
+.cm-choix { padding: 6px 16px 16px; overflow-y: auto; flex: 1; }
+.cm-choix-intro { font-size: 12px; color: #888; padding: 2px 0 16px; line-height: 1.5; }
+.cm-choix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cm-choix-tile { background: #fafafa; border: 1.5px solid #eee; border-radius: 16px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 9px; cursor: pointer; text-align: center; }
+.cm-choix-ico { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.cm-choix-nom { font-size: 13.5px; font-weight: 800; color: #222; }
+.cm-choix-sub { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
 .modal {
   background: #fff; border-radius: 20px 20px 0 0;
   width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
@@ -566,6 +581,29 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 </style>
 </head>
 <body>
+
+<button class="btn-pub" onclick="document.getElementById('createModalOffre').classList.add('open')">＋ Publier une offre</button>
+
+<div class="create-modal" id="createModalOffre">
+  <div class="cm-header">
+    <span class="cm-cancel" onclick="document.getElementById('createModalOffre').classList.remove('open')">Annuler</span>
+    <span class="cm-title">Publier une offre</span>
+    <span style="width:60px;"></span>
+  </div>
+  <div class="cm-choix">
+    <div class="cm-choix-intro">Choisissez comment partager votre offre.</div>
+    <div class="cm-choix-grid">
+      <div class="cm-choix-tile" onclick="alert('Étape suivante à venir')">
+        <div class="cm-choix-ico" style="background:#fdeceb">🔎</div>
+        <div><div class="cm-choix-nom">Demande</div><div class="cm-choix-sub">Je cherche un artisan</div></div>
+      </div>
+      <div class="cm-choix-tile" onclick="alert('Étape suivante à venir')">
+        <div class="cm-choix-ico" style="background:#eef8ee">💼</div>
+        <div><div class="cm-choix-nom">Mes services</div><div class="cm-choix-sub">Je propose un service</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="feedOffres">
   <div id="feed-loading" style="text-align:center;padding:40px 20px;color:#aaa;">
