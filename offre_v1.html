@@ -849,6 +849,7 @@ onAuthStateChanged(auth, async user => {
         currentUser.verifie = d.statut === 'verifie';
         currentUser.role = d.role === 'visiteur' ? 'Visiteur' : 'Professionnel';
         currentUser.ville = d.ville || '';
+        currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       }
     } catch(e){}
     // Mettre à jour avatar dans zone commentaire
@@ -858,12 +859,76 @@ onAuthStateChanged(auth, async user => {
     // Charger le fil immédiatement — ne pas attendre le seed, qui peut prendre du
     // temps. Le seed tourne en arrière-plan ; l'écoute en direct (onSnapshot)
     // rafraîchira le fil dès qu'il termine.
-    chargerOffres();
+    chargerSuivisOffre().finally(() => chargerOffres());
     ensureSeedOffres().catch(e => console.error('Seed offres impossible :', e));
   } else {
     window.location.href = 'connexion.html';
   }
 });
+
+/* ── Indicatif téléphonique (approximation de pays), comme dans Actualités ── */
+function extraireIndicatifTelephone(telephone) {
+  if (!telephone) return '';
+  const chiffres = String(telephone).replace(/\D/g, '');
+  return chiffres.slice(0, 3);
+}
+
+/* ── Suivi (Suivre) — propre à Offres, indépendant des autres sections ── */
+let followedUidsOffre = new Set();
+async function chargerSuivisOffre() {
+  try {
+    if (!currentUser) return;
+    const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivisOffre'));
+    followedUidsOffre = new Set(snap.docs.map(d => d.id));
+  } catch (e) { console.error('Suivis offre ignorés :', e); }
+}
+window.toggleSuivreOffre = async function (auteurUid, event) {
+  if (event) event.stopPropagation();
+  if (!currentUser || auteurUid === currentUser.uid) return;
+  const ref = doc(db, 'utilisateurs', currentUser.uid, 'suivisOffre', auteurUid);
+  try {
+    if (followedUidsOffre.has(auteurUid)) {
+      await deleteDoc(ref);
+      followedUidsOffre.delete(auteurUid);
+    } else {
+      await setDoc(ref, { depuis: serverTimestamp() });
+      followedUidsOffre.add(auteurUid);
+    }
+    chargerOffres();
+  } catch (e) { console.error('Erreur suivi offre :', e); }
+};
+
+/* ── Mélange aléatoire stable (ne rebrasse pas à chaque rafraîchissement) ── */
+const _ordreAleatoireStableOffre = {};
+function ordreAleatoireStableOffre(id) {
+  if (!(id in _ordreAleatoireStableOffre)) _ordreAleatoireStableOffre[id] = Math.random();
+  return _ordreAleatoireStableOffre[id];
+}
+function melangerAleatoirementOffre(liste) {
+  return liste.slice().sort((a, b) => ordreAleatoireStableOffre(a.id) - ordreAleatoireStableOffre(b.id));
+}
+
+/* Classement par paliers, identique au principe d'Actualités :
+   1. Mes propres offres
+   2. Les personnes que je suis
+   3. Même pays (indicatif téléphonique, approximatif)
+   4. Le reste, mélangé aléatoirement de façon stable */
+function trierOffresParPriorite(liste) {
+  try {
+    if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
+    const mesOffres = [], suivis = [], memePays = [], reste = [];
+    liste.forEach(o => {
+      if (o.auteurUid === currentUser.uid) mesOffres.push(o);
+      else if (o.auteurUid && followedUidsOffre.has(o.auteurUid)) suivis.push(o);
+      else if (currentUser.paysPrefixe && o.paysPrefixe && o.paysPrefixe === currentUser.paysPrefixe) memePays.push(o);
+      else reste.push(o);
+    });
+    return mesOffres.concat(suivis, memePays, melangerAleatoirementOffre(reste));
+  } catch (e) {
+    console.error('Tri par priorité offres :', e);
+    return liste;
+  }
+}
 
 /* ── CHARGER OFFRES ── */
 let _unsubscribeOffres = null;
@@ -1128,9 +1193,10 @@ function chargerOffres() {
       return r.filter(matchesSearch);
     };
 
-    // Afficher actives : mes offres d'abord, puis celles de la communauté
-    const mesOffresActives = filtrer(actives).filter(o => currentUser && o.auteurUid === currentUser.uid);
-    const autresOffresActives = filtrer(actives).filter(o => !(currentUser && o.auteurUid === currentUser.uid));
+    // Afficher actives : mes offres d'abord, puis celles de la communauté (classées par palier)
+    const activesTriees = trierOffresParPriorite(filtrer(actives));
+    const mesOffresActives = activesTriees.filter(o => currentUser && o.auteurUid === currentUser.uid);
+    const autresOffresActives = activesTriees.filter(o => !(currentUser && o.auteurUid === currentUser.uid));
 
     if (mesOffresActives.length > 0) {
       const lblMoi = document.createElement('div');
@@ -1282,6 +1348,8 @@ function buildCard(o, expiree) {
         <div onclick="supprimerOffre('${o.id}','30j')" style="padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#555;">${'⏳ Expirer dans 30 jours'}</div>
       </div>
     </div>` : '';
+  const suivi = followedUidsOffre.has(o.auteurUid);
+  const suivreBtn = (!isAuteur && o.auteurUid) ? `<div onclick="event.stopPropagation();toggleSuivreOffre('${o.auteurUid}')" style="background:${suivi?'rgba(0,0,0,0.06)':'var(--red)'};color:${suivi?'#555':'#fff'};font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;">${suivi?'✓ Suivi(e)':'+ Suivre'}</div>` : '';
 
   div.innerHTML = `
     <div class="card-body">
@@ -1299,6 +1367,7 @@ function buildCard(o, expiree) {
           <div style="font-size:11px;color:#65676b;">${o.auteurRole||'Professionnel'} · ${o.ville||''} · ${tempsAgo}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
+          ${suivreBtn}
           <div class="bdg-type ${typeCls}">${o.categEmoji||'💼'} ${typeLabel}</div>
           ${menuSuppr}
         </div>
@@ -1763,6 +1832,7 @@ window.publierOffre = async () => {
     auteurPhoto: currentUser.photoURL || '',
     auteurVerifie: currentUser.verifie || false,
     auteurRole: currentUser.role || 'Professionnel',
+    paysPrefixe: currentUser.paysPrefixe || '',
     createdAt: serverTimestamp(),
     likes: 0,
     candidatures: 0
@@ -2001,88 +2071,4 @@ window.supprimerOffre = (offreId, mode) => {
       } else {
         const jours = mode === '15j' ? 15 : 30;
         await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
-        showToast('Offre expirera dans '+jours+' jours.');
-      }
-    } catch(e){ console.error(e); showToast('Erreur : '+e.message); }
-  };
-};
-
-
-/* ── TOAST ── */
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity='1';
-  setTimeout(() => t.style.opacity='0', 2500);
-}
-
-/* ── TEMPS DEPUIS ── */
-function tempsDepuis(ms) {
-  const diff = Date.now() - ms;
-  const m = Math.floor(diff/60000);
-  if (m < 1)  return 'il y a peu';
-  if (m < 60) return 'il y a {n}min'.replace('{n}', m);
-  const h = Math.floor(m/60);
-  if (h < 24) return 'il y a {n}h'.replace('{n}', h);
-  const j = Math.floor(h/24);
-  if (j < 7)  return 'il y a {n}j'.replace('{n}', j);
-  const s = Math.floor(j/7);
-  if (s < 4)  return 'il y a {n} sem.'.replace('{n}', s);
-  return 'il y a {n} mois'.replace('{n}', Math.floor(j/30));
-}
-
-/* ── DÉMARRAGE ── */
-// Bouton publier connecté
-document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
-
-/* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
-function refreshDynamicTexts(){
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    el.placeholder = T(el.dataset.i18nPh);
-  });
-  // Redessiner le fil pour re-traduire les cartes déjà affichées (dates, boutons, badges…)
-  if (typeof chargerOffres === 'function') chargerOffres();
-}
-
-function accrocherRafraichissementLangue(){
-  if (typeof window.setLang === 'function' && !window.__offresSetLangAccroche) {
-    const original = window.setLang;
-    window.setLang = function(code, flag, el){
-      original(code, flag, el);
-      refreshDynamicTexts();
-    };
-    window.__offresSetLangAccroche = true;
-    refreshDynamicTexts();
-  } else if (!window.__offresSetLangAccroche) {
-    setTimeout(accrocherRafraichissementLangue, 50);
-  }
-}
-accrocherRafraichissementLangue();
-
-</script>
-
-<!-- SHEET POSTULER -->
-<div class="postuler-overlay" id="postulerOverlay">
-  <div class="postuler-sheet">
-    <div class="postuler-title" data-i18n="off_postuler_titre">📋 Comment postuler ?</div>
-    <button class="postuler-opt" onclick="choisirPostuler('interesse')">
-      <span class="opt-icon">🙋</span>
-      <div>
-        <div data-i18n="off_postuler_interesse">Je suis intéressé, on se contacte en privé</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_interesse_sub">Un message sera posté + inbox ouvert</div>
-      </div>
-    </button>
-    <button class="postuler-opt" onclick="choisirPostuler('retenu')">
-      <span class="opt-icon">✅</span>
-      <div>
-        <div data-i18n="off_postuler_retenu">Comptez-moi parmi les retenus</div>
-        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
-      </div>
-    </button>
-    <button class="postul
+        showToast(
