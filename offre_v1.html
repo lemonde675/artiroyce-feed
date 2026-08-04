@@ -828,9 +828,6 @@ ajouterEtapeOffre('2. Téléchargement des bibliothèques Firebase (compat)...')
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
         onload="ajouterEtapeOffre('2d. Bibliothèque firestore chargée ✅')"
         onerror="signalerEchecFirebaseOffre('firestore')"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"
-        onload="ajouterEtapeOffre('2e. Bibliothèque storage chargée ✅')"
-        onerror="signalerEchecFirebaseOffre('storage')"></script>
 
 <script>
 const firebaseConfig = {
@@ -842,7 +839,7 @@ const firebaseConfig = {
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
 
-let app, auth, db, stor;
+let app, auth, db;
 if (typeof firebase === 'undefined') {
   ajouterEtapeOffre('❌ Firebase (compat) indisponible, impossible de continuer');
 } else {
@@ -850,7 +847,6 @@ if (typeof firebase === 'undefined') {
   app  = firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db   = firebase.firestore();
-  stor = firebase.storage();
   ajouterEtapeOffre('4. Firebase initialisé ✅');
 }
 
@@ -2048,3 +2044,8 @@ window.previewImg = e => {
 };
 
 // Correctif : cet input n'avait aucun gestionnaire — choisir une image ne faisait
+// rien. Utilise la même variable imgBase64 que le modèle "Avec photo" (déjà lue à
+// la publication), donc aucun autre changement nécessaire côté soumission.
+window.previewImgSimple = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new Fil
