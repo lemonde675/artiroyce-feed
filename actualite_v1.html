@@ -144,11 +144,12 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
 .p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
 .p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
-.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.p-media-item .media-tags { flex-wrap: wrap; }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .p-media-item:nth-child(2) .media-tags { justify-content: flex-start; }
 .p-media-item:nth-child(2) .media-chip { max-width: 90%; }
-.p-media-item:nth-child(1) .media-tags { right: 70px; }
+.p-media-item:nth-child(1) .media-tags { right: 35px; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
@@ -413,9 +414,22 @@ function avecDelaiMax(promesse, millisecondes){
   auth.onAuthStateChanged(surChangementAuth);
 })();
 
+let premierCheckAuth = true;
 async function surChangementAuth(user) {
   ajouterEtape('4b. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
-  if (!user) { window.location.href = 'connexion.html'; return; }
+  if (!user) {
+    if (premierCheckAuth) {
+      premierCheckAuth = false;
+      ajouterEtape('4c. Aucun utilisateur au 1er contrôle — nouvelle vérification dans 900ms avant redirection...');
+      setTimeout(() => {
+        if (!auth.currentUser) { window.location.href = 'connexion.html'; }
+      }, 900);
+      return;
+    }
+    window.location.href = 'connexion.html';
+    return;
+  }
+  premierCheckAuth = false;
   currentUser = user;
   currentUser.nomAffiche = user.email ? user.email.split('@')[0] : 'Moi';
 
@@ -1377,6 +1391,7 @@ function renderGalColorPicker() {
 
 function renderGalGrid() {
   const grille = document.getElementById('galGrid');
+  ajouterEtape('🔎 DIAG galerie — galImages.length=' + galImages.length + ', grille trouvée=' + (!!grille));
   grille.className = 'media-grid tags-' + galTagColor;
   if (!galImages.length) {
     grille.style.gridTemplateColumns = '1fr';
@@ -1385,6 +1400,7 @@ function renderGalGrid() {
     return;
   }
   const layout = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
+  ajouterEtape('🔎 DIAG galerie — disposition choisie pour ' + galImages.length + ' photo(s): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
   grille.style.gridTemplateColumns = layout.template;
   grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
