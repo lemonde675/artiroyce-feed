@@ -830,6 +830,7 @@ ajouterEtapeOffre('2. Téléchargement des bibliothèques Firebase (compat)...')
         onerror="signalerEchecFirebaseOffre('firestore')"></script>
 
 <script>
+ajouterEtapeOffre('2f. Dernier bloc de script atteint ✅');
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
   authDomain: "artiroyce-f42e4.firebaseapp.com",
@@ -2047,5 +2048,4 @@ window.previewImg = e => {
 // rien. Utilise la même variable imgBase64 que le modèle "Avec photo" (déjà lue à
 // la publication), donc aucun autre changement nécessaire côté soumission.
 window.previewImgSimple = e => {
-  const f = e.target.files[0]; if(!f) return;
-  const r = new Fil
+  cons
