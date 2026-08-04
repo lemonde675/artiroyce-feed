@@ -862,8 +862,8 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   let authChecked = false;
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      if (authChecked) { window.location.href = 'connexion.html'; }
-      else { setTimeout(() => { if (!auth.currentUser) window.location.href = 'connexion.html'; }, 7000); }
+      if (authChecked) { window.location.replace('connexion.html'); }
+      else { setTimeout(() => { if (!auth.currentUser) window.location.replace('connexion.html'); }, 7000); }
       authChecked = true;
       return;
     }
