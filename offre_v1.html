@@ -666,6 +666,8 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
   </div>
 </div>
 
+<div id="panneauDiagnostic" style="position:fixed;left:0;right:0;bottom:0;max-height:32vh;overflow-y:auto;background:#0b1b0f;color:#7CFC98;font:11px/1.5 monospace;padding:8px 10px;z-index:9999;white-space:pre-wrap;"></div>
+
 <!-- ═══ MODAL ═══ -->
 <div class="overlay" id="overlay" onclick="closeSiDehors(event)">
   <div class="modal" id="modal">
@@ -778,7 +780,18 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 // Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
 // JavaScript (même celles survenant très tôt, avant Firebase), pour qu'on voie le
 // vrai problème sans avoir besoin d'ouvrir la console du navigateur.
+function ajouterEtapeOffre(texte){
+  const panneau = document.getElementById('panneauDiagnostic');
+  if (!panneau) return;
+  const ligne = document.createElement('div');
+  ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
+  panneau.appendChild(ligne);
+  panneau.scrollTop = panneau.scrollHeight;
+}
+ajouterEtapeOffre('1. Script module démarré ✅');
+
 function __afficherErreurDiagnostic(msg){
+  ajouterEtapeOffre('❌ ' + msg);
   const loading = document.getElementById('feed-loading');
   const feedEl = document.getElementById('feedOffres');
   const target = loading || feedEl || document.body;
@@ -837,10 +850,12 @@ let searchTerm   = '';
 
 /* ── AUTH ── */
 onAuthStateChanged(auth, async user => {
+  ajouterEtapeOffre('2. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
   if (user) {
     currentUser = user;
     // Charger infos profil depuis Firestore
     try {
+      ajouterEtapeOffre('3. Lecture du profil utilisateur...');
       const snap = await getDoc(doc(db, 'utilisateurs', user.uid));
       if (snap.exists()) {
         const d = snap.data();
@@ -851,7 +866,8 @@ onAuthStateChanged(auth, async user => {
         currentUser.ville = d.ville || '';
         currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       }
-    } catch(e){}
+      ajouterEtapeOffre('4. Profil lu ✅');
+    } catch(e){ ajouterEtapeOffre('4bis. Échec lecture profil : ' + (e && e.message || e)); }
     // Mettre à jour avatar dans zone commentaire
     document.querySelectorAll('.user-ava').forEach(el => {
       el.textContent = (currentUser.displayName||'?')[0].toUpperCase();
@@ -859,9 +875,11 @@ onAuthStateChanged(auth, async user => {
     // Charger le fil immédiatement — ne pas attendre le seed, qui peut prendre du
     // temps. Le seed tourne en arrière-plan ; l'écoute en direct (onSnapshot)
     // rafraîchira le fil dès qu'il termine.
-    chargerSuivisOffre().finally(() => chargerOffres());
-    ensureSeedOffres().catch(e => console.error('Seed offres impossible :', e));
+    ajouterEtapeOffre('5. Appel chargerSuivisOffre()...');
+    chargerSuivisOffre().finally(() => { ajouterEtapeOffre('6. chargerSuivisOffre terminé, appel chargerOffres()...'); chargerOffres(); });
+    ensureSeedOffres().catch(e => ajouterEtapeOffre('❌ Seed offres impossible : ' + (e && e.message || e)));
   } else {
+    ajouterEtapeOffre('2bis. Aucun utilisateur — redirection vers connexion');
     window.location.href = 'connexion.html';
   }
 });
@@ -880,7 +898,8 @@ async function chargerSuivisOffre() {
     if (!currentUser) return;
     const snap = await getDocs(collection(db, 'utilisateurs', currentUser.uid, 'suivisOffre'));
     followedUidsOffre = new Set(snap.docs.map(d => d.id));
-  } catch (e) { console.error('Suivis offre ignorés :', e); }
+    ajouterEtapeOffre('5b. Suivis offre chargés ✅ (' + followedUidsOffre.size + ')');
+  } catch (e) { ajouterEtapeOffre('5c. Suivis offre ignorés : ' + (e && e.message || e)); }
 }
 window.toggleSuivreOffre = async function (auteurUid, event) {
   if (event) event.stopPropagation();
@@ -933,6 +952,10 @@ function trierOffresParPriorite(liste) {
 /* ── CHARGER OFFRES ── */
 let _unsubscribeOffres = null;
 const _unsubscribeCommentaires = {}; // { [offreId]: fonction de désabonnement }
+// Affichage progressif : comme Actualités, on ne montre pas tout d'un coup.
+const TAILLE_LOT_OFFRE = 6;
+let nombreAffichesOffre = TAILLE_LOT_OFFRE;
+let dernierSnapshotOffres = null;
 
 /* ── Recherche ── */
 window.__toggleSearch = function(){
@@ -1152,10 +1175,32 @@ function chargerOffres() {
 
   let q = query(collection(db, 'offres'), orderBy('createdAt', 'desc'));
   _unsubscribeOffres = onSnapshot(q, snap => {
+    ajouterEtapeOffre('7. Snapshot reçu ✅ (' + snap.size + ' document(s))');
+    dernierSnapshotOffres = snap;
+    nombreAffichesOffre = TAILLE_LOT_OFFRE;
+    rendreOffresDepuisSnapshot();
+  }, err => {
+    ajouterEtapeOffre('❌ Erreur Firestore (onSnapshot) : ' + (err && err.message || err));
+    console.error('Erreur de chargement des offres :', err);
+    const loading = document.getElementById('feed-loading');
+    if (loading) {
+      loading.innerHTML = '<div style="font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
+    } else if (feedEl) {
+      feedEl.innerHTML = '<div style="text-align:center;padding:40px 20px;font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
+    }
+  });
+}
+
+// Rendu à partir du dernier snapshot reçu — séparé de chargerOffres() pour pouvoir
+// révéler un lot de plus (scroll) sans re-télécharger la collection à chaque fois.
+function rendreOffresDepuisSnapshot() {
+  const feedEl = document.getElementById('feedOffres');
+  const snap = dernierSnapshotOffres;
+  if (!feedEl || !snap) return;
+  try {
     feedEl.innerHTML = '';
     const now = Date.now();
     let actives = [], expirees = [];
-    // Supprimer spinner
     const loading = document.getElementById('feed-loading');
     if (loading) loading.remove();
 
@@ -1196,7 +1241,9 @@ function chargerOffres() {
     // Afficher actives : mes offres d'abord, puis celles de la communauté (classées par palier)
     const activesTriees = trierOffresParPriorite(filtrer(actives));
     const mesOffresActives = activesTriees.filter(o => currentUser && o.auteurUid === currentUser.uid);
-    const autresOffresActives = activesTriees.filter(o => !(currentUser && o.auteurUid === currentUser.uid));
+    const autresOffresActivesTotal = activesTriees.filter(o => !(currentUser && o.auteurUid === currentUser.uid));
+    // Affichage progressif : seulement un lot à la fois, comme Actualités
+    const autresOffresActives = autresOffresActivesTotal.slice(0, nombreAffichesOffre);
 
     if (mesOffresActives.length > 0) {
       const lblMoi = document.createElement('div');
@@ -1225,6 +1272,14 @@ function chargerOffres() {
       });
       if (carouselNode) wireCoverCarousel();
       markAuthorsOnlineOffre();
+
+      // Sentinelle : dès qu'elle approche de l'écran, on révèle un lot de plus
+      if (nombreAffichesOffre < autresOffresActivesTotal.length) {
+        const sentinelle = document.createElement('div');
+        sentinelle.id = 'offresSentinelle';
+        sentinelle.style.cssText = 'height:1px;';
+        feedEl.appendChild(sentinelle);
+      }
     }
 
     // Afficher expirées
@@ -1253,15 +1308,27 @@ function chargerOffres() {
       note.textContent = 'Publiez la première vraie offre !';
       feedEl.appendChild(note);
     }
-  }, err => {
-    console.error('Erreur de chargement des offres :', err);
-    const loading = document.getElementById('feed-loading');
-    if (loading) {
-      loading.innerHTML = '<div style="font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
-    } else if (feedEl) {
-      feedEl.innerHTML = '<div style="text-align:center;padding:40px 20px;font-size:13px;color:#e63224;">⚠️ Erreur de chargement. Vérifiez votre connexion et rechargez la page.</div>';
+    observerSentinelleOffres();
+    ajouterEtapeOffre('8. Rendu terminé ✅ (' + autresOffresActives.length + '/' + autresOffresActivesTotal.length + ' offres communauté affichées, ' + expirees.length + ' expirée(s))');
+  } catch (eRendu) {
+    ajouterEtapeOffre('❌ Erreur pendant le rendu : ' + (eRendu && eRendu.message || eRendu) + (eRendu && eRendu.stack ? ('\n' + eRendu.stack) : ''));
+  }
+}
+
+// Observe la sentinelle en bas du fil : dès qu'elle approche de l'écran, on
+// révèle un lot supplémentaire d'offres (comme Actualités).
+let _observateurOffres = null;
+function observerSentinelleOffres() {
+  const sentinelle = document.getElementById('offresSentinelle');
+  if (_observateurOffres) _observateurOffres.disconnect();
+  if (!sentinelle) return;
+  _observateurOffres = new IntersectionObserver((entrees) => {
+    if (entrees[0].isIntersecting) {
+      nombreAffichesOffre += TAILLE_LOT_OFFRE;
+      rendreOffresDepuisSnapshot();
     }
-  });
+  }, { rootMargin: '400px' });
+  _observateurOffres.observe(sentinelle);
 }
 
 /* ── CONSTRUIRE CARD ── */
@@ -2001,74 +2068,4 @@ window.previewImgTexte = e => {
 /* ── SUPPRIMER OFFRE ── */
 window.toggleMenuSuppr = (id) => {
   const menu = document.getElementById('menu-suppr-'+id);
-  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-  // Fermer si clic ailleurs
-  setTimeout(() => {
-    document.addEventListener('click', function closeMenu(e) {
-      if (!e.target.closest('#menu-suppr-'+id)) {
-        if (menu) menu.style.display = 'none';
-        document.removeEventListener('click', closeMenu);
-      }
-    });
-  }, 100);
-};
-
-window.supprimerOffre = (offreId, mode) => {
-  // Fermer menu
-  const menu = document.getElementById('menu-suppr-'+offreId);
-  if (menu) menu.style.display = 'none';
-
-  // Afficher dialog confirmation
-  const messages = {
-    definitif: 'Cette offre sera supprimée définitivement. Cette action est irréversible.',
-    '15j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '15'),
-    '30j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '30')
-  };
-
-  const dialog = document.createElement('div');
-  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;';
-  const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
-  const icon = mode === 'definitif' ? '🗑️' : '⏳';
-  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
-  const desc = mode === 'definitif'
-    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
-    : 'Cette offre expirera dans {n} jours.'.replace('{n}', mode === '15j' ? '15' : '30');
-
-  const iconDiv = document.createElement('div');
-  iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
-  iconDiv.textContent = icon;
-  const titreDiv = document.createElement('div');
-  titreDiv.style.cssText = 'font-size:16px;font-weight:800;color:#1c1e21;margin-bottom:8px;text-align:center;';
-  titreDiv.textContent = titre;
-  const descDiv = document.createElement('div');
-  descDiv.style.cssText = 'font-size:13px;color:#65676b;text-align:center;margin-bottom:20px;line-height:1.5;';
-  descDiv.textContent = desc;
-  const btnsDiv = document.createElement('div');
-  btnsDiv.style.cssText = 'display:flex;gap:10px;';
-  const btnNon = document.createElement('button');
-  btnNon.id = 'btn-non';
-  btnNon.textContent = 'Non, annuler';
-  btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
-  const btnOui = document.createElement('button');
-  btnOui.id = 'btn-oui';
-  btnOui.textContent = 'Oui, confirmer';
-  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
-  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
-  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
-
-  dialog.appendChild(box);
-  document.body.appendChild(dialog);
-
-  dialog.querySelector('#btn-non').onclick = () => dialog.remove();
-  dialog.querySelector('#btn-oui').onclick = async () => {
-    dialog.remove();
-    try {
-      if (mode === 'definitif') {
-        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-        await dd(doc(db,'offres',offreId));
-        showToast('Offre supprimée définitivement.');
-      } else {
-        const jours = mode === '15j' ? 15 : 30;
-        await updateDoc(doc(db,'offres',offreId), { dureeDays: jours, createdAt: serverTimestamp() });
-        showToast(
+  if (menu) menu.style.di
