@@ -1,672 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Offres – ArtiRoyce</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-:root { --red: #e63224; --green: #27a945; --blue: #1877f2; }
-html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; color: #1c1e21; max-width: 480px; margin: 0 auto; overscroll-behavior-x: none; touch-action: pan-y; }
-
-/* ── HEADER — copie exacte accueil.html ── */
-.top-header {
-  position: fixed; top: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px; z-index: 200;
-  background: #fff; border-bottom: 1px solid #e8e8e8;
-}
-.h-row1 { display: flex; align-items: center; padding: 6px 12px 4px; gap: 6px; }
-.h-house { font-size: 24px; flex-shrink: 0; }
-.h-logo { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.h-logo-text { font-size: 22px; font-weight: 900; line-height: 1; letter-spacing: -0.5px; }
-.h-logo-text .arti  { color: var(--red); }
-.h-logo-text .royce { color: var(--green); }
-.h-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.h-ico {
-  position: relative; width: 34px; height: 34px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; cursor: pointer; flex-shrink: 0;
-}
-.h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
-.h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
-.h-ico .bdot {
-  position: absolute; top: -3px; right: -3px;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--red); color: #fff;
-  font-size: 9px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid #fff;
-}
-.h-ico.chat .bdot { background: var(--green); }
-.h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
-
-/* ── SÉLECTEUR DE LANGUE — pilule standard ArtiRoyce ── */
-#langSel{ position:relative; }
-.lang-pill{
-  display:flex; align-items:center; gap:3px; background:#f5f5f5; border:1.5px solid #ddd;
-  border-radius:16px; padding:5px 8px; font-size:12px; cursor:pointer; white-space:nowrap;
-}
-.lang-dropdown{
-  display:none; position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid #e4e6eb;
-  border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.12); z-index:400; min-width:150px; max-height:280px;
-  overflow-y:auto; padding:6px;
-}
-#langSel.open .lang-dropdown{ display:block; }
-.lang-option{
-  padding:8px 10px; font-size:13px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:8px;
-}
-.lang-option:hover{ background:#f5f5f5; }
-.lang-option.active{ background:#eef1fb; font-weight:700; color:var(--blue); }
-.h-tabs {
-  display: flex; align-items: center; overflow-x: auto; scrollbar-width: none;
-  padding: 0 10px 7px; gap: 6px;
-}
-.h-tabs::-webkit-scrollbar { display: none; }
-.h-tab {
-  white-space: nowrap; padding: 5px 14px; border-radius: 22px;
-  font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
-  color: #555; background: transparent; border: none;
-  display: flex; align-items: center; gap: 5px;
-}
-.h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
-
-/* ── CONTENU ── */
-.content { padding-top: 108px; padding-bottom: 28px; background: #FFFFFF; }
-
-/* Hero */
-.hero {
-  position: sticky; top: 108px; z-index: 50;
-  margin: 14px 12px 0;
-  background: #FFFFFF; border-radius: 24px;
-  border: 1px solid #E8ECF0;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.07);
-  padding: 24px 22px 24px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.hero-left h2 { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
-.hero-left p  { font-size: 13px; color: #65676b; margin-bottom: 14px; }
-.btn-pub {
-  display: inline-flex; align-items: center; gap: 5px;
-  background: #F05545; color: #fff; border: none; border-radius: 22px;
-  padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
-}
-
-/* Panneau — OFFRE D'EMPLOI seulement */
-.panneau-outer { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 72px; }
-.ficelle { width: 50px; height: 16px; position: relative; }
-.ficelle::before, .ficelle::after {
-  content: ''; position: absolute; bottom: 0;
-  width: 23px; height: 1.5px; background: #bbb;
-}
-.ficelle::before { left: 0; transform-origin: 100% 100%; transform: rotate(-20deg); }
-.ficelle::after  { right: 0; transform-origin: 0 100%; transform: rotate(20deg); }
-.ficelle .crochet {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 7px; height: 7px; border: 1.5px solid #aaa; border-radius: 50%;
-}
-.panneau-box {
-  background: #fff; border: 1.5px solid #e4e6eb;
-  border-radius: 8px; padding: 7px 8px; text-align: center;
-  box-shadow: 2px 3px 8px rgba(0,0,0,.10); transform: rotate(-1.5deg);
-}
-.panneau-box .pt { font-size: 10px; font-weight: 900; color: #1c1e21; }
-.panneau-box .ps { font-size: 10px; font-weight: 900; color: var(--red); }
-
-/* Stats — simples, chiffres en noir */
-.stats { display: flex; gap: 8px; margin: 8px 10px 0; }
-.stat {
-  flex: 1; background: #fff; border-radius: 12px;
-  padding: 10px 6px 8px; text-align: center;
-  border: 1px solid #e4e6eb;
-}
-.stat .sv { font-size: 20px; font-weight: 900; color: #1c1e21; }
-.stat .sl { font-size: 11px; color: #65676b; margin-top: 1px; }
-
-/* Filtres */
-.filtres {
-  display: flex; gap: 7px; overflow-x: auto; padding: 8px 10px 2px;
-  scrollbar-width: none;
-}
-.filtres::-webkit-scrollbar { display: none; }
-.filtre {
-  flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
-  font-size: 12px; font-weight: 600; border: 1px solid #e4e6eb;
-  background: #fff; cursor: pointer; color: #444; white-space: nowrap;
-}
-.filtre.on { background: var(--red); color: #fff; border-color: var(--red); }
-
-/* Label section */
-.sec-label {
-  font-size: 11.5px; font-weight: 700; color: #65676b;
-  padding: 10px 12px 3px; text-transform: uppercase; letter-spacing: .3px;
-}
-
-/* ── CARD ── */
-.card {
-  background: #FFFFFF; border-radius: 20px;
-  margin: 0 12px 12px 12px; overflow: hidden;
-  border: 1px solid #E8ECF0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-}
-.card-body { padding: 18px 18px 0; }
-
-/* En-tête */
-.card-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-.ava {
-  width: 44px; height: 44px; border-radius: 14px;
-  font-size: 21px; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; background: #F2F4F7;
-}
-.card-info { flex: 1; }
-.card-info h3 { font-size: 14px; font-weight: 700; line-height: 1.35; margin-bottom: 2px; color: #1c1e21; }
-.card-info .meta { font-size: 11.5px; color: #65676b; }
-.bdg-type {
-  flex-shrink: 0; padding: 2px 8px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
-  display: flex; align-items: center; gap: 3px;
-}
-.bdg-type.demande { background: #ffeeed; color: var(--red); }
-.bdg-type.offre   { background: #edfff2; color: var(--green); }
-
-/* Image pleine largeur */
-.card-hero-img {
-  width: 100%; max-height: 320px; object-fit: contain;
-  display: block; margin-bottom: 0; background: #f0f0f0;
-}
-
-/* Tags */
-.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-.tag { padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; color: #444; background: #f0f2f5; }
-.tag.urgent { background: #fff3e0; color: #e65100; }
-.tag.prix   { background: #e8f5e9; color: #1b5e20; }
-.tag.lieu   { background: #e8f0ff; color: #1a237e; }
-.tag.date   { background: #f3e5f5; color: #4a148c; }
-
-/* Validité */
-.valid-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; margin-bottom: 8px; }
-.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.dot.on  { background: var(--green); }
-.dot.off { background: #bbb; }
-.vs { font-weight: 700; }
-.vs.active { color: var(--green); }
-.vs.expire { color: #999; }
-.vt { color: #65676b; margin-left: auto; font-size: 11px; }
-
-.cand { font-size: 12px; color: #65676b; margin-bottom: 10px; }
-
-/* Actions — style Facebook */
-.card-actions {
-  display: flex; gap: 0;
-  border-top: 1px solid #e4e6eb;
-  border-bottom: 1px solid #e4e6eb;
-}
-.btn-c, .btn-a {
-  flex: 1; padding: 10px 4px; border: none; background: #fff;
-  font-size: 13px; font-weight: 700; cursor: pointer; color: #65676b;
-  display: flex; align-items: center; justify-content: center; gap: 5px;
-  border-right: 1px solid #e4e6eb;
-}
-.btn-c:last-child, .btn-a:last-child { border-right: none; }
-.btn-a.rouge { color: var(--red); }
-.btn-a.vert  { color: var(--green); }
-
-/* Expirée */
-.card.expiree { opacity: .6; }
-.expired-banner {
-  background: #f5f5f5; border-radius: 8px; padding: 7px 12px;
-  font-size: 12px; color: #999; text-align: center; margin-bottom: 10px;
-  border: 1px dashed #ddd;
-}
-
-/* ════════════════════════════════════
-   COMMENTAIRES — style TikTok propre
-════════════════════════════════════ */
-.comm-section { padding: 12px 14px 14px; }
-
-.comm-reactions {
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 12px; color: #65676b; margin-bottom: 8px;
-  padding-bottom: 8px; border-bottom: 1px solid #f0f0f0;
-}
-.like-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e4e6eb;
-  background: #fff; font-size: 13px; cursor: pointer; font-weight: 600;
-  color: #65676b; transition: all .15s; position: relative;
-  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation;
-}
-.like-btn.liked { background: #fff8f7; border-color: var(--red); color: var(--red); }
-/* Panoplie réactions */
-.reactions-panel {
-  display: none; position: absolute; bottom: 40px; left: 0;
-  background: #fff; border-radius: 40px; padding: 8px 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e4e6eb;
-  z-index: 50; white-space: nowrap;
-}
-.reactions-panel.open { display: flex; gap: 8px; align-items: center; }
-.reaction-item {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  cursor: pointer; padding: 4px 6px; border-radius: 12px; transition: background .15s;
-}
-.reaction-item:hover { background: #f0f2f5; }
-.reaction-item .r-emoji { font-size: 28px; transition: transform .15s; }
-.reaction-item:hover .r-emoji { transform: scale(1.25); }
-.reaction-item .r-label { font-size: 10px; color: #65676b; font-weight: 600; }
-
-/* Panoplie de réactions sur chaque commentaire — même principe, en plus compact */
-.comm-reactions-panel {
-  display: none; position: absolute; bottom: 24px; left: 40px;
-  background: #fff; border-radius: 30px; padding: 6px 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e4e6eb;
-  z-index: 60; white-space: nowrap;
-}
-.comm-reactions-panel.open { display: flex; gap: 4px; align-items: center; }
-.comm-reaction-item { cursor: pointer; padding: 3px 4px; border-radius: 10px; transition: background .15s; }
-.comm-reaction-item:hover { background: #f0f2f5; transform: scale(1.2); }
-.comm-reaction-item .r-emoji { font-size: 20px; }
-/* Modal postuler */
-.postuler-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  z-index: 400; align-items: flex-end; justify-content: center;
-}
-.postuler-overlay.open { display: flex; }
-.postuler-sheet {
-  background: #fff; border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 480px; padding: 16px 16px 40px;
-  animation: up .25s ease;
-}
-.postuler-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; text-align: center; }
-.postuler-opt {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; border-radius: 14px; margin-bottom: 8px;
-  border: 1.5px solid #e4e6eb; cursor: pointer; background: #fff;
-  font-size: 14px; font-weight: 600; color: #1c1e21;
-  transition: all .15s; width: 100%; text-align: left;
-}
-.postuler-opt:hover { background: #f9f9f9; border-color: var(--red); }
-.postuler-opt .opt-icon { font-size: 22px; flex-shrink: 0; }
-.postuler-cancel {
-  width: 100%; padding: 13px; border-radius: 12px; border: none;
-  background: #f0f2f5; font-size: 14px; font-weight: 700;
-  color: #65676b; cursor: pointer; margin-top: 4px;
-}
-
-.comm-title {
-  font-size: 13px; font-weight: 700; color: #1c1e21; margin-bottom: 10px;
-}
-
-/* Saisie */
-.comm-input-row {
-  display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
-}
-.user-ava {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg,#1a5276,#2e86c1); color:#fff; font-size:13px; font-weight:800;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; overflow: hidden;
-}
-.user-ava img { width: 100%; height: 100%; object-fit: cover; }
-.comm-input-box {
-  flex: 1; background: #f0f2f5; border-radius: 22px;
-  padding: 8px 14px; font-size: 13px; color: #65676b;
-  cursor: text; border: none; outline: none;
-  font-family: inherit;
-}
-.comm-input-icons { display: flex; gap: 8px; align-items: center; font-size: 18px; }
-
-/* UN COMMENTAIRE — style TikTok */
-.comm-item { display: flex; gap: 10px; margin-bottom: 16px; align-items: flex-start; }
-
-.comm-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: #e4e6eb; flex-shrink: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: #fff;
-}
-.comm-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-.comm-right { flex: 1; min-width: 0; position: relative; }
-
-/* Nom + badge Créateur */
-.comm-name-row {
-  display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap;
-}
-.comm-name {
-  font-size: 13px; font-weight: 700; color: #757575;
-}
-/* Badge Créateur — style TikTok : bleu inline */
-.badge-createur {
-  font-size: 11px; font-weight: 700; color: var(--blue);
-  background: none; padding: 0;
-}
-
-/* Texte commentaire */
-.comm-text {
-  font-size: 14px; color: #1c1e21; line-height: 1.45; margin-bottom: 5px; word-break: break-word;
-}
-.voir-traduction {
-  font-size: 12px; color: #8e8e8e; cursor: pointer; margin-bottom: 5px; display: inline-block;
-}
-.voir-traduction:hover { text-decoration: underline; }
-
-/* Méta : date · Répondre (le cœur est sorti de cette ligne, façon TikTok) */
-.comm-meta {
-  display: flex; align-items: center; gap: 14px;
-  font-size: 12px; color: #8e8e8e; position: relative;
-}
-.comm-meta .date { color: #8e8e8e; }
-.comm-meta .rep  { font-weight: 700; color: #8e8e8e; cursor: pointer; }
-.comm-meta-spacer { flex: 1; }
-
-/* "J'aime" cliquable dans la ligne méta, comme TikTok/Facebook */
-.rep-jaime { font-weight: 700; color: #8e8e8e; cursor: pointer; user-select: none; -webkit-touch-callout: none; -webkit-user-select: none; touch-action: manipulation; }
-.rep-jaime.liked { color: var(--red); }
-
-/* Compteur de réactions aligné à droite, sur la même ligne que Répondre */
-.comm-meta-count {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 11px; color: #8e8e8e; font-weight: 700; flex-shrink: 0;
-}
-
-/* Réponses imbriquées sous leur commentaire parent — façon Facebook */
-.comm-replies-zone { margin-left: 30px; padding-left: 14px; border-left: 2px solid #eceef1; margin-bottom: 10px; }
-.comm-replies-zone .comm-item { margin-bottom: 12px; }
-.comm-replies-zone .comm-avatar { width: 28px; height: 28px; font-size: 11px; }
-.voir-plus-reponses {
-  font-size: 12px; font-weight: 700; color: #65676b; cursor: pointer; margin-bottom: 10px;
-  padding: 4px 0;
-}
-.voir-plus-reponses:hover { color: #1c1e21; text-decoration: underline; }
-
-/* Bandeau "réponse à …" au-dessus de la saisie */
-.reply-indicator {
-  display: none; align-items: center; justify-content: space-between;
-  background: #f0f2f5; border-radius: 10px; padding: 6px 10px; margin-bottom: 8px; font-size: 12px; color: #555;
-}
-.reply-indicator.active { display: flex; }
-.reply-indicator .cancel-reply { cursor: pointer; font-weight: 800; color: #8e8e8e; padding: 0 4px; }
-
-/* Ligne verticale réponses imbriquées */
-.replies-toggle {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: #8e8e8e; font-weight: 600;
-  cursor: pointer; margin-top: 6px; margin-left: 0;
-}
-.replies-toggle::before {
-  content: ''; display: inline-block;
-  width: 20px; height: 1px; background: #c0c0c0;
-}
-
-/* Réponses imbriquées */
-.replies-list { margin-top: 10px; padding-left: 0; }
-.reply-item { display: flex; gap: 10px; margin-bottom: 12px; }
-.reply-avatar {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #e4e6eb; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; color: #555;
-}
-.reply-right { flex: 1; }
-.reply-name-row {
-  display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
-}
-.reply-name { font-size: 12px; font-weight: 700; color: #757575; }
-.reply-text { font-size: 13px; color: #1c1e21; line-height: 1.4; margin-bottom: 4px; }
-.reply-meta {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 11px; color: #8e8e8e;
-}
-.reply-meta .likes { margin-left: auto; display: flex; align-items: center; gap: 3px; }
-
-
-/* ── MODAL ── */
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: flex-end; justify-content: center; }
-.overlay.open { display: flex; }
-.modal {
-  background: #fff; border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
-  padding: 0 16px env(safe-area-inset-bottom, 20px); animation: up .3s ease;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-}
-@keyframes up { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.m-handle { width: 36px; height: 4px; background: #ddd; border-radius: 4px; margin: 10px auto 14px; }
-.modal h3 { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
-.modal-sub { font-size: 13px; color: #65676b; margin-bottom: 14px; }
-
-/* 4 modèles — simples */
-.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-.m-card {
-  border: 2px solid #e4e6eb; border-radius: 12px;
-  padding: 14px 6px 10px; text-align: center; cursor: pointer;
-  background: #fff; transition: border-color .15s;
-}
-.m-card.sel { border-color: var(--red); }
-.m-icon { font-size: 26px; margin-bottom: 6px; }
-.m-name { font-size: 12px; font-weight: 700; color: #1c1e21; }
-.m-desc { font-size: 10px; color: #65676b; margin-top: 2px; }
-
-/* Zone image carré */
-.m2-preview {
-  display: none; width: 100%; aspect-ratio: 1/1;
-  border: 2px dashed #e4e6eb; border-radius: 10px;
-  background: #f0f2f5; align-items: center; justify-content: center;
-  flex-direction: column; color: #bbb; margin-bottom: 12px; cursor: pointer; font-size: 30px;
-}
-.m2-preview.show { display: flex; }
-.m2-preview span { font-size: 12px; margin-top: 6px; color: #bbb; font-weight: 600; }
-
-/* Formulaire */
-.fg { margin-bottom: 12px; }
-.fg label { display: block; font-size: 12px; font-weight: 700; color: #65676b; margin-bottom: 4px; }
-.fg input, .fg textarea, .fg select {
-  width: 100%; padding: 10px 12px; border: 1.5px solid #e4e6eb;
-  border-radius: 10px; font-size: 14px; font-family: inherit;
-  outline: none; background: #fff; color: #1c1e21; transition: border .2s;
-}
-.fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--red); }
-.fg textarea { resize: vertical; min-height: 70px; }
-.row2 { display: flex; gap: 8px; }
-.row2 .fg { flex: 1; }
-
-.tog-row {
-  display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700;
-  color: #1c1e21; cursor: pointer; margin-bottom: 10px; padding: 10px 12px;
-  border: 1px solid #e4e6eb; border-radius: 10px;
-}
-.tog {
-  width: 38px; height: 21px; border-radius: 20px; background: #e4e6eb;
-  position: relative; transition: background .2s; flex-shrink: 0;
-}
-.tog.on { background: var(--green); }
-.tog::after {
-  content: ''; position: absolute; top: 3px; left: 3px;
-  width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: left .2s;
-}
-.tog.on::after { left: 20px; }
-
-.upload-zone {
-  border: 2px dashed #e4e6eb; border-radius: 10px;
-  padding: 20px; text-align: center; cursor: pointer; margin-bottom: 12px;
-  color: #bbb; background: #f9f9f9;
-}
-.uz-icon { font-size: 30px; margin-bottom: 5px; }
-.uz-txt  { font-size: 13px; font-weight: 600; }
-.uz-sub  { font-size: 11px; margin-top: 2px; opacity: .7; }
-
-.duree { display: flex; gap: 8px; }
-.duree input, .duree select { flex: 1; }
-
-.btn-modal-pub {
-  width: 100%; padding: 13px; border-radius: 12px;
-  background: var(--red); color: #fff; border: none;
-  font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 6px;
-}
-/* ═══════════════════════════════════════════════════════
-   VERSION PC (≥768px) — plein écran, pas de cadre étroit,
-   grille de cartes, curseur cliquable + effets hover
-   ═══════════════════════════════════════════════════════ */
-@media (min-width: 768px) {
-  html, body { max-width: 100%; }
-  .top-header { max-width: 100%; }
-  .content { max-width: 1100px; margin: 0 auto; }
-
-  .modal { max-width: 600px; border-radius: 20px; margin-bottom: 5vh; }
-  .overlay { align-items: center; }
-
-  /* Le libellé de section ("Mes offres" / communauté) occupe toute la largeur */
-  .sec-label { grid-column: 1 / -1; padding-left: 0; margin-top: 4px; }
-
-  /* Grille de cartes à partir de la tablette */
-  #feedOffres {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    align-items: start;
-    padding: 0 12px;
-  }
-  .card { margin: 0; }
-
-  @media (min-width: 1200px) {
-    #feedOffres { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  /* Curseur cliquable + petits effets :hover sur les éléments interactifs */
-  .btn-pub, .filtre, .card, .btn-c, .btn-a, .like-btn, .h-tab, .h-ico,
-  .reaction-item, .comm-input-icons, .m-card, .fi-card {
-    cursor: pointer;
-  }
-  .btn-pub:hover { filter: brightness(1.06); transform: translateY(-1px); }
-  .filtre:hover { border-color: var(--red); }
-  .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 14px 34px rgba(0,0,0,0.10); transform: translateY(-2px); transition: all .15s ease; }
-  .btn-c:hover, .btn-a:hover { background: #f7f8fa; }
-  .h-tab:hover { background: #f0f2f5; }
-
-  * { scrollbar-width: thin; }
-  ::-webkit-scrollbar { width: 10px; }
-  ::-webkit-scrollbar-thumb { background: #c8cbe0; border-radius: 10px; }
-}
-/* ── Carrousel "Offres en vedette" (même principe que Fil Presse) ── */
-.cover-carousel-wrap{background:#fff;padding:14px 0 16px;margin-bottom:8px}
-.cover-carousel-title{font-size:15px;font-weight:800;color:#222;padding:0 14px 10px}
-.cover-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x}
-.cover-carousel::-webkit-scrollbar{display:none}
-.cover-card{position:relative;flex:0 0 auto;width:130px;height:160px;border-radius:14px;overflow:hidden;scroll-snap-align:start;background:#ddd;cursor:pointer}
-.cover-card img{width:100%;height:100%;object-fit:cover;display:block}
-.cover-card-overlay{position:absolute;left:0;right:0;bottom:0;padding:10px 10px 8px;background:linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0))}
-.cover-card-journal{color:#fff;font-size:12.5px;font-weight:800;margin-bottom:2px}
-.cover-card-txt{color:#eee;font-size:10.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
-/* ── Barre de recherche ── */
-.search-bar{display:none;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee}
-.search-bar.show{display:flex}
-.search-bar input{flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13.5px;background:#F2F4F7;color:#222}
-.search-close{font-size:16px;color:#999;cursor:pointer;padding:4px 6px;flex-shrink:0}
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test intermédiaire Offres</title>
 </head>
-<body>
+<body style="font-family:sans-serif;">
 
-<!-- ═══ HEADER ═══ -->
-<header class="top-header">
-  <div class="h-row1">
-    <span class="h-house">🏠</span>
-    <div class="h-logo">
-      <svg width="26" height="19" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
-        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
-        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
-        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
-        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
-        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
-      </svg>
-      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
-    </div>
-    <div class="h-icons">
-      <div class="h-ico bell">🔔<div class="bdot">3</div></div>
-      <div style="display:flex;align-items:center;gap:3px">
-        <div class="h-ico chat" style="margin:0">💬<div class="bdot">1</div></div>
-        <span style="font-size:20px;cursor:pointer;padding:2px 0" id="searchToggle" onclick="window.__toggleSearch()">🔍</span>
-        <div id="langSel">
-          <div class="lang-pill" onclick="toggleLang()">
-            🌍 <span id="activFlag">🇫🇷</span><span id="activCode">FR</span>
-          </div>
-          <div class="lang-dropdown">
-            <div class="lang-option active" data-lang="FR" onclick="setLang('FR','🇫🇷',this)">🇫🇷 Français</div>
-            <div class="lang-option" data-lang="EN" onclick="setLang('EN','🇬🇧',this)">🇬🇧 English</div>
-            <div class="lang-option" data-lang="ES" onclick="setLang('ES','🇪🇸',this)">🇪🇸 Español</div>
-            <div class="lang-option" data-lang="PT" onclick="setLang('PT','🇧🇷',this)">🇧🇷 Português</div>
-            <div class="lang-option" data-lang="AR" onclick="setLang('AR','🇸🇦',this)">🇸🇦 العربية</div>
-            <div class="lang-option" data-lang="ZH" onclick="setLang('ZH','🇨🇳',this)">🇨🇳 中文</div>
-            <div class="lang-option" data-lang="RU" onclick="setLang('RU','🇷🇺',this)">🇷🇺 Русский</div>
-            <div class="lang-option" data-lang="DE" onclick="setLang('DE','🇩🇪',this)">🇩🇪 Deutsch</div>
-            <div class="lang-option" data-lang="JA" onclick="setLang('JA','🇯🇵',this)">🇯🇵 日本語</div>
-            <div class="lang-option" data-lang="HI" onclick="setLang('HI','🇮🇳',this)">🇮🇳 हिन्दी</div>
-          </div>
-        </div>
-        <span class="h-dots">⋮</span>
-      </div>
-    </div>
-  </div>
-  <div class="h-tabs">
-    <div class="h-tab">🏠 Accueil</div>
-    <div class="h-tab">📰 Actualités</div>
-    <div class="h-tab">● Statuts</div>
-    <div class="h-tab">⭐ Élites</div>
-    <div class="h-tab active">💼 Offres</div>
-    <div class="h-tab">📄 CV Pro</div>
-    <div class="h-tab">💬 Répert-Discussion</div>
-    <div class="h-tab">📖 FAQ</div>
-  </div>
-</header>
-
-<div class="content">
-
-<div class="search-bar" id="searchBar">
-  <input type="text" id="searchInput" placeholder="Rechercher une offre, une ville, une catégorie…">
-  <span class="search-close" onclick="window.__closeSearch()">✕</span>
-</div>
-
-<!-- Hero -->
 <div class="hero">
-  <div class="hero-left" style="text-align:center;">
-    <p data-i18n="off_hero_text">Trouvez ou proposez vos services</p>
-    <button class="btn-pub" onclick="openModal()" data-i18n="off_btn_publier">＋ Publier une offre</button>
-  </div>
-  <div class="panneau-outer">
-    <div class="ficelle"><div class="crochet"></div></div>
-    <div class="panneau-box">
-      <div class="pt" data-i18n="off_panneau_offre">OFFRE</div>
-      <div class="ps" data-i18n="off_panneau_emploi">D'EMPLOI</div>
-    </div>
-  </div>
+  <button class="btn-pub" onclick="openModal()">＋ Publier une offre</button>
 </div>
-
-<!-- Stats — simples, noir -->
-<div class="stats">
-  <div class="stat"><div class="sv" id="stat-demandes">—</div><div class="sl" data-i18n="off_stat_demandes">Demandes</div></div>
-  <div class="stat"><div class="sv" id="stat-offres">—</div><div class="sl" data-i18n="off_stat_offres">Offres</div></div>
-  <div class="stat"><div class="sv" id="stat-urgentes">—</div><div class="sl" data-i18n="off_stat_urgentes">Urgentes</div></div>
-</div>
-
-<!-- Filtres -->
-<div class="filtres">
-  <span class="filtre on" data-i18n="off_filtre_tout">Tout</span>
-  <span class="filtre" data-i18n="off_filtre_urgent">⚡ Urgent</span>
-  <span class="filtre" data-i18n="off_filtre_offres">🟢 Offres</span>
-  <span class="filtre" data-i18n="off_filtre_demandes">🔴 Demandes</span>
-  <span class="filtre" data-i18n="off_filtre_annonces">📣 Annonces</span>
-  <span class="filtre" data-i18n="off_filtre_cotonou">🏙️ Cotonou</span>
-  <span class="filtre" data-i18n="off_filtre_couture">✂️ Couture</span>
-  <span class="filtre" data-i18n="off_filtre_maconnerie">🧱 Maçonnerie</span>
-</div>
+<div id="stat-demandes">—</div>
+<div id="stat-offres">—</div>
+<div id="stat-urgentes">—</div>
 
 <div id="feedOffres">
   <div id="feed-loading" style="text-align:center;padding:40px 20px;color:#aaa;">
     <div style="font-size:32px;margin-bottom:10px;">⏳</div>
-    <div style="font-size:14px;font-weight:600;" data-i18n="off_chargement">Chargement des offres…</div>
+    <div style="font-size:14px;font-weight:600;">Chargement des offres…</div>
   </div>
 </div>
 
-<div id="panneauDiagnostic" style="position:fixed;left:0;right:0;bottom:0;max-height:32vh;overflow-y:auto;background:#0b1b0f;color:#7CFC98;font:11px/1.5 monospace;padding:8px 10px;z-index:9999;white-space:pre-wrap;"></div>
+<div id="panneauDiagnostic" style="position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow-y:auto;background:#0b1b0f;color:#7CFC98;font:11px/1.5 monospace;padding:8px 10px;z-index:9999;white-space:pre-wrap;"></div>
 
 <!-- ═══ MODAL ═══ -->
 <div class="overlay" id="overlay" onclick="closeSiDehors(event)">
@@ -775,11 +130,34 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
   </div>
 </div>
 
+<!-- SHEET POSTULER -->
+<div class="postuler-overlay" id="postulerOverlay">
+  <div class="postuler-sheet">
+    <div class="postuler-title" data-i18n="off_postuler_titre">📋 Comment postuler ?</div>
+    <button class="postuler-opt" onclick="choisirPostuler('interesse')">
+      <span class="opt-icon">🙋</span>
+      <div>
+        <div data-i18n="off_postuler_interesse">Je suis intéressé, on se contacte en privé</div>
+        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_interesse_sub">Un message sera posté + inbox ouvert</div>
+      </div>
+    </button>
+    <button class="postuler-opt" onclick="choisirPostuler('retenu')">
+      <span class="opt-icon">✅</span>
+      <div>
+        <div data-i18n="off_postuler_retenu">Comptez-moi parmi les retenus</div>
+        <div style="font-size:11px;color:#65676b;font-weight:400;margin-top:2px;" data-i18n="off_postuler_retenu_sub">Votre candidature sera enregistrée</div>
+      </div>
+    </button>
+    <button class="postuler-opt" onclick="document.getElementById('postulerOverlay').classList.remove('open')">
+      <span class="opt-icon">✕</span>
+      <div>
+        <div data-i18n="off_postuler_annuler">Annuler</div>
+      </div>
+    </button>
+  </div>
+
 <!-- FIREBASE -->
 <script>
-// Attrape-erreur global : affiche directement sur la page n'importe quelle erreur
-// JavaScript (même celles survenant très tôt, avant Firebase), pour qu'on voie le
-// vrai problème sans avoir besoin d'ouvrir la console du navigateur.
 function ajouterEtapeOffre(texte){
   const panneau = document.getElementById('panneauDiagnostic');
   if (!panneau) return;
@@ -788,37 +166,23 @@ function ajouterEtapeOffre(texte){
   panneau.appendChild(ligne);
   panneau.scrollTop = panneau.scrollHeight;
 }
-ajouterEtapeOffre('1. Script module démarré ✅');
-
+ajouterEtapeOffre('1. Script démarré ✅');
 function __afficherErreurDiagnostic(msg){
   ajouterEtapeOffre('❌ ' + msg);
-  const loading = document.getElementById('feed-loading');
-  const feedEl = document.getElementById('feedOffres');
-  const target = loading || feedEl || document.body;
-  const bloc = document.createElement('div');
-  bloc.style.cssText = 'text-align:left;padding:14px 16px;margin:10px;font-size:12px;color:#e63224;background:#fff3f0;border:1px solid #f5c6bb;border-radius:12px;word-break:break-word;white-space:pre-wrap;font-family:monospace;';
-  bloc.textContent = '⚠️ ' + msg;
-  target.innerHTML = '';
-  target.appendChild(bloc);
 }
 window.addEventListener('error', function(e){
-  __afficherErreurDiagnostic('Erreur JS : ' + e.message + '\n(' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
+  __afficherErreurDiagnostic('Erreur JS : ' + e.message + ' (' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno||'?') + ')');
 });
 window.addEventListener('unhandledrejection', function(e){
   const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
   __afficherErreurDiagnostic('Erreur async non gérée : ' + m);
 });
-
 function signalerEchecFirebaseOffre(nomBibliotheque){
   ajouterEtapeOffre('❌ ÉCHEC du chargement Firebase (' + nomBibliotheque + ')');
-  const loading = document.getElementById('feed-loading');
-  if (loading) loading.innerHTML = '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger Firebase (' + nomBibliotheque + ', depuis gstatic.com).</div>';
 }
 ajouterEtapeOffre('2. Téléchargement des bibliothèques Firebase (compat)...');
 </script>
 
-<!-- Chargement classique (pas de module) : plus tolérant pour certains réseaux/proxys
-     mobiles que le chargement en modules ES — même principe qu'Actualités. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
         onload="ajouterEtapeOffre('2b. Bibliothèque app chargée ✅')"
         onerror="signalerEchecFirebaseOffre('app')"></script>
@@ -839,7 +203,6 @@ const firebaseConfig = {
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
-
 let app, auth, db;
 if (typeof firebase === 'undefined') {
   ajouterEtapeOffre('❌ Firebase (compat) indisponible, impossible de continuer');
@@ -852,8 +215,21 @@ if (typeof firebase === 'undefined') {
   ajouterEtapeOffre('4. Firebase initialisé ✅');
 }
 
-/* ── Traduction : fonction T() locale (textes dynamiques JS) ──
-   TRANSLATIONS et currentLang viennent de translations.js, chargé en fin de body. */
+// Fonctions de secours minimales (le vrai code sera remis après le diagnostic)
+function buildCard(o, expiree){ const d=document.createElement('div'); d.textContent=(o.titre||'(sans titre)'); d.style.padding='8px'; d.style.borderBottom='1px solid #eee'; return d; }
+function buildCoverCarouselOffres(){ return null; }
+function wireCoverCarousel(){}
+function markAuthorsOnlineOffre(){}
+function ensureSeedOffres(){ return Promise.resolve(); }
+function openModal(){ ajouterEtapeOffre('(clic) openModal appelé — non testé ici'); }
+
+function avecDelaiMaxOffre(promesse, millisecondes){
+  return Promise.race([
+    promesse,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
+  ]);
+}
+
 function T(key){
   const lang = (typeof currentLang !== 'undefined') ? currentLang : 'FR';
   const dict = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : null;
@@ -881,7 +257,7 @@ auth.onAuthStateChanged(async user => {
     try {
       ajouterEtapeOffre('6. Lecture du profil utilisateur...');
       const snap = await avecDelaiMaxOffre(db.collection('utilisateurs').doc(user.uid).get(), 8000);
-      if (snap.exists) {
+      if (snap.exists()) {
         const d = snap.data();
         currentUser.displayName = d.nom || d.prenom || user.email.split('@')[0];
         currentUser.photoURL = d.photoURL || null;
@@ -917,13 +293,6 @@ function extraireIndicatifTelephone(telephone) {
 
 /* ── Suivi (Suivre) — propre à Offres, indépendant des autres sections ── */
 let followedUidsOffre = new Set();
-function avecDelaiMaxOffre(promesse, millisecondes){
-  return Promise.race([
-    promesse,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
-  ]);
-}
-
 async function chargerSuivisOffre() {
   try {
     if (!currentUser) return;
@@ -1016,7 +385,7 @@ async function markAuthorsOnlineOffre(){
     if (uid.indexOf('mt_') === 0) continue;
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
-      if (!uSnap.exists) continue;
+      if (!uSnap.exists()) continue;
       const da = uSnap.data().derniereActivite;
       if (!da) continue;
       const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
@@ -1123,7 +492,7 @@ function wireCoverCarousel(){
 async function ensureSeedOffres(){
   const metaRef = db.collection('offres_meta').doc('seed_v3');
   const metaSnap = await metaRef.get();
-  if (metaSnap.exists) return;
+  if (metaSnap.exists()) return;
 
   const metiers = [
     { id:'mt_maconnerie_01', nom:'Cotonou Bâtiment Pro', emoji:'🧱', categorie:'🧱 Maçonnerie', ville:'Cotonou' },
@@ -2049,4 +1418,189 @@ window.previewImg = e => {
     imgPrev.style.cssText = 'display:block;width:100%;max-height:280px;object-fit:contain;border-radius:10px;margin-top:8px;';
     document.getElementById('m2preview').style.display = 'none';
   };
-  r
+  r.readAsDataURL(f);
+};
+
+// Correctif : cet input n'avait aucun gestionnaire — choisir une image ne faisait
+// rien. Utilise la même variable imgBase64 que le modèle "Avec photo" (déjà lue à
+// la publication), donc aucun autre changement nécessaire côté soumission.
+window.previewImgSimple = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64 = ev.target.result;
+    const i = document.getElementById('imgPrevSimple');
+    if (i) { i.src = ev.target.result; i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;'; }
+  };
+  r.readAsDataURL(f);
+};
+
+window.toggleImg = () => {
+  imgOn = !imgOn;
+  document.getElementById('togImg').classList.toggle('on', imgOn);
+  document.getElementById('uploadZone').style.display = imgOn ? 'block' : 'none';
+};
+
+let urgentOn = false;
+window.toggleUrgent = () => {
+  urgentOn = !urgentOn;
+  document.getElementById('togUrgent').classList.toggle('on', urgentOn);
+};
+
+window.toggleImgTexte = () => {
+  imgOnTexte = !imgOnTexte;
+  document.getElementById('togImgTexte').classList.toggle('on', imgOnTexte);
+  document.getElementById('uploadZoneTexte').style.display = imgOnTexte ? 'block' : 'none';
+};
+
+window.previewImgTexte = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64Txt = ev.target.result;
+    const i = document.getElementById('imgPrevTexte');
+    i.src = ev.target.result;
+    i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;';
+  };
+  r.readAsDataURL(f);
+};
+
+/* ── SUPPRIMER OFFRE ── */
+window.toggleMenuSuppr = (id) => {
+  const menu = document.getElementById('menu-suppr-'+id);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  // Fermer si clic ailleurs
+  setTimeout(() => {
+    document.addEventListener('click', function closeMenu(e) {
+      if (!e.target.closest('#menu-suppr-'+id)) {
+        if (menu) menu.style.display = 'none';
+        document.removeEventListener('click', closeMenu);
+      }
+    });
+  }, 100);
+};
+
+window.supprimerOffre = (offreId, mode) => {
+  // Fermer menu
+  const menu = document.getElementById('menu-suppr-'+offreId);
+  if (menu) menu.style.display = 'none';
+
+  // Afficher dialog confirmation
+  const messages = {
+    definitif: 'Cette offre sera supprimée définitivement. Cette action est irréversible.',
+    '15j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '15'),
+    '30j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '30')
+  };
+
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;';
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
+  const icon = mode === 'definitif' ? '🗑️' : '⏳';
+  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
+  const desc = mode === 'definitif'
+    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
+    : 'Cette offre expirera dans {n} jours.'.replace('{n}', mode === '15j' ? '15' : '30');
+
+  const iconDiv = document.createElement('div');
+  iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
+  iconDiv.textContent = icon;
+  const titreDiv = document.createElement('div');
+  titreDiv.style.cssText = 'font-size:16px;font-weight:800;color:#1c1e21;margin-bottom:8px;text-align:center;';
+  titreDiv.textContent = titre;
+  const descDiv = document.createElement('div');
+  descDiv.style.cssText = 'font-size:13px;color:#65676b;text-align:center;margin-bottom:20px;line-height:1.5;';
+  descDiv.textContent = desc;
+  const btnsDiv = document.createElement('div');
+  btnsDiv.style.cssText = 'display:flex;gap:10px;';
+  const btnNon = document.createElement('button');
+  btnNon.id = 'btn-non';
+  btnNon.textContent = 'Non, annuler';
+  btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
+  const btnOui = document.createElement('button');
+  btnOui.id = 'btn-oui';
+  btnOui.textContent = 'Oui, confirmer';
+  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
+  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
+  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
+
+  dialog.appendChild(box);
+  document.body.appendChild(dialog);
+
+  dialog.querySelector('#btn-non').onclick = () => dialog.remove();
+  dialog.querySelector('#btn-oui').onclick = async () => {
+    dialog.remove();
+    try {
+      if (mode === 'definitif') {
+        await db.collection('offres').doc(offreId).delete();
+        showToast('Offre supprimée définitivement.');
+      } else {
+        const jours = mode === '15j' ? 15 : 30;
+        await db.collection('offres').doc(offreId).update({ dureeDays: jours, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        showToast('Offre expirera dans '+jours+' jours.');
+      }
+    } catch(e){ console.error(e); showToast('Erreur : '+e.message); }
+  };
+};
+
+
+/* ── TOAST ── */
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity='1';
+  setTimeout(() => t.style.opacity='0', 2500);
+}
+
+/* ── TEMPS DEPUIS ── */
+function tempsDepuis(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff/60000);
+  if (m < 1)  return 'il y a peu';
+  if (m < 60) return 'il y a {n}min'.replace('{n}', m);
+  const h = Math.floor(m/60);
+  if (h < 24) return 'il y a {n}h'.replace('{n}', h);
+  const j = Math.floor(h/24);
+  if (j < 7)  return 'il y a {n}j'.replace('{n}', j);
+  const s = Math.floor(j/7);
+  if (s < 4)  return 'il y a {n} sem.'.replace('{n}', s);
+  return 'il y a {n} mois'.replace('{n}', Math.floor(j/30));
+}
+
+/* ── DÉMARRAGE ── */
+// Bouton publier connecté
+document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
+
+/* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
+function refreshDynamicTexts(){
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = T(el.dataset.i18nPh);
+  });
+  // Redessiner le fil pour re-traduire les cartes déjà affichées (dates, boutons, badges…)
+  if (typeof chargerOffres === 'function') chargerOffres();
+}
+
+function accrocherRafraichissementLangue(){
+  if (typeof window.setLang === 'function' && !window.__offresSetLangAccroche) {
+    const original = window.setLang;
+    window.setLang = function(code, flag, el){
+      original(code, flag, el);
+      refreshDynamicTexts();
+    };
+    window.__offresSetLangAccroche = true;
+    refreshDynamicTexts();
+  } else if (!window.__offresSetLangAccroche) {
+    setTimeout(accrocherRafraichissementLangue, 50);
+  }
+}
+accrocherRafraichissementLangue();
+
+</script>
+</body>
+</html>
