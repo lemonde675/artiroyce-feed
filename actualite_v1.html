@@ -116,7 +116,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .btn-suppr-def { background: #fdecea; color: var(--red); border: 1.5px solid var(--red); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 6px; }
 
 .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.ph-av { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; position: relative; overflow: hidden; cursor: pointer; }
+.ph-av { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
 .ph-vb { position: absolute; bottom: -1px; right: -1px; width: 15px; height: 15px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 900; }
 .online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
 .ph-info { flex: 1; min-width: 0; }
@@ -444,6 +444,7 @@ async function surChangementAuth(user) {
       currentUser.role = d.role || 'visiteur';
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
+      currentUser.photoAvatar = d.photoAvatar || '';
       ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
     } else {
       ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
@@ -458,8 +459,12 @@ async function surChangementAuth(user) {
   chargerPublications();
 
   const initiale = (currentUser.nomAffiche || '?')[0].toUpperCase();
-  document.getElementById('cpAvatar').textContent = initiale;
-  document.getElementById('cmAvatar').textContent = initiale;
+  const cpAv = document.getElementById('cpAvatar');
+  const cmAv = document.getElementById('cmAvatar');
+  const photo = currentUser.photoAvatar;
+  cpAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
+  cmAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
+  cpAv.onclick = () => window.__voirProfil(currentUser.uid);
   document.getElementById('cmNom').textContent = currentUser.nomAffiche;
 }
 
