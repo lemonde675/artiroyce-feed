@@ -776,12 +776,7 @@ if (typeof firebase === 'undefined') {
 }
 
 // Fonctions de secours minimales (le vrai code sera remis après le diagnostic)
-function buildCard(o, expiree){ const d=document.createElement('div'); d.textContent=(o.titre||'(sans titre)'); d.style.padding='8px'; d.style.borderBottom='1px solid #eee'; return d; }
-function buildCoverCarouselOffres(){ return null; }
-function wireCoverCarousel(){}
-function markAuthorsOnlineOffre(){}
-function ensureSeedOffres(){ return Promise.resolve(); }
-function openModal(){ ajouterEtapeOffre('(clic) openModal appelé — non testé ici'); }
+// buildCard réel défini plus bas
 
 function avecDelaiMaxOffre(promesse, millisecondes){
   return Promise.race([
@@ -2078,4 +2073,10 @@ window.supprimerOffre = (offreId, mode) => {
   btnNon.textContent = 'Non, annuler';
   btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
   const btnOui = document.createElement('button');
-  btnOui.id = 'btn
+  btnOui.id = 'btn-oui';
+  btnOui.textContent = 'Oui, confirmer';
+  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
+  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
+  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
+
+  dia
