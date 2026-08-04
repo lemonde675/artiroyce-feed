@@ -149,7 +149,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .p-media-item:nth-child(2) .media-tags { justify-content: flex-start; }
 .p-media-item:nth-child(2) .media-chip { max-width: 90%; }
-.p-media-item:nth-child(1) .media-tags { right: 35px; }
+.p-media-item:nth-child(1) .media-tags { right: 50px; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
@@ -1399,8 +1399,9 @@ function renderGalGrid() {
     grille.innerHTML = '<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>';
     return;
   }
-  const layout = MEDIA_LAYOUTS[Math.min(galImages.length, 8)];
-  ajouterEtape('🔎 DIAG galerie — disposition choisie pour ' + galImages.length + ' photo(s): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
+  const layoutIndex = galImages.length < 8 ? galImages.length + 1 : 8;
+  const layout = MEDIA_LAYOUTS[layoutIndex] || MEDIA_LAYOUTS[8];
+  ajouterEtape('🔎 DIAG galerie — disposition choisie pour ' + galImages.length + ' photo(s) (+1 case bouton): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
   grille.style.gridTemplateColumns = layout.template;
   grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
@@ -1417,7 +1418,9 @@ function renderGalGrid() {
       + '</div></div>';
   });
   if (galImages.length < 8) {
-    html += '<div class="media-slot editable" style="aspect-ratio:1" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
+    const addArea = (layout.areas && layout.areas[galImages.length]) ? 'grid-area:' + layout.areas[galImages.length] + ';' : '';
+    const addRatio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    html += '<div class="media-slot editable" style="' + addArea + addRatio + '" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
   }
   grille.innerHTML = html;
 }
