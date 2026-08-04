@@ -147,9 +147,9 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
 .p-media-item .media-tags { flex-wrap: wrap; }
 .media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.p-media-item:nth-child(2) .media-tags { justify-content: flex-start; }
+.p-media-item:nth-child(2) .media-tags { justify-content: flex-start; gap: 20px; }
 .p-media-item:nth-child(2) .media-chip { max-width: 90%; }
-.p-media-item:nth-child(1) .media-tags { right: 50px; }
+.p-media-item:nth-child(1) .media-tags { right: 40px; }
 .tags-blanc .media-chip { background: #fff; color: #14143a; }
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
@@ -422,11 +422,11 @@ async function surChangementAuth(user) {
       premierCheckAuth = false;
       ajouterEtape('4c. Aucun utilisateur au 1er contrôle — nouvelle vérification dans 900ms avant redirection...');
       setTimeout(() => {
-        if (!auth.currentUser) { window.location.href = 'connexion.html'; }
+        if (!auth.currentUser) { window.location.replace('connexion.html'); }
       }, 900);
       return;
     }
-    window.location.href = 'connexion.html';
+    window.location.replace('connexion.html');
     return;
   }
   premierCheckAuth = false;
