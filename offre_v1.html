@@ -2059,7 +2059,8 @@ function tempsDepuis(ms) {
 
 /* ── DÉMARRAGE ── */
 // Bouton publier connecté
-document.querySelector('.btn-modal-pub').addEventListener('click', publierOffre);
+const btnModalPub = document.querySelector('.btn-modal-pub');
+if (btnModalPub) btnModalPub.addEventListener('click', publierOffre);
 
 /* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
 function refreshDynamicTexts(){
