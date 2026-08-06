@@ -77,6 +77,8 @@
   .ph-info { flex: 1; min-width: 0; cursor: pointer; }
   .ph-name { font-size: 13.5px; font-weight: 800; color: #222; }
   .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; }
+  .ph-follow { font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 99px; cursor: pointer; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; flex-shrink: 0; }
+  .ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
 </style>
 </head>
 <body>
@@ -262,13 +264,89 @@ auth.onAuthStateChanged(async user => {
       currentUser.role = d.role || 'visiteur';
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
+      currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       log('7b. Profil lu ✅ — ' + currentUser.nomAffiche + ' (' + currentUser.role + ')');
     }
   } catch (e) {
     log('7bis. Échec lecture profil : ' + e.message);
   }
+  await chargerSuivisOffres();
   chargerOffres();
 });
+
+// Approximation de l'indicatif pays à partir du numéro de téléphone (3 premiers
+// chiffres), utilisé pour le palier "même pays" du classement du fil.
+function extraireIndicatifTelephone(telephone){
+  if (!telephone) return '';
+  const chiffres = String(telephone).replace(/\D/g, '');
+  return chiffres.slice(0, 3);
+}
+
+// Suivi propre à Offres, indépendant des autres sections (Actualités a le sien).
+// Stocké dans utilisateurs/{moi}/suivisOffres/{auteurUid}.
+let followedUidsOffres = new Set();
+async function chargerSuivisOffres(){
+  try {
+    if (!currentUser) return;
+    const snap = await db.collection('utilisateurs').doc(currentUser.uid).collection('suivisOffres').get();
+    followedUidsOffres = new Set(snap.docs.map(d => d.id));
+    log('7c. Suivis (Offres) chargés ✅ (' + followedUidsOffres.size + ')');
+  } catch (e) {
+    log('❌ Erreur chargement suivis : ' + e.message);
+  }
+}
+async function toggleSuivreOffre(auteurUid, event){
+  if (event) event.stopPropagation();
+  if (!currentUser || auteurUid === currentUser.uid) return;
+  const ref = db.collection('utilisateurs').doc(currentUser.uid).collection('suivisOffres').doc(auteurUid);
+  try {
+    if (followedUidsOffres.has(auteurUid)) {
+      await ref.delete();
+      followedUidsOffres.delete(auteurUid);
+    } else {
+      await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
+      followedUidsOffres.add(auteurUid);
+    }
+    afficherOffres();
+  } catch (e) {
+    log('❌ Erreur suivi : ' + e.message);
+  }
+}
+
+// Chaque offre reçoit un nombre aléatoire figé une seule fois (mémorisé ici),
+// au lieu d'être re-mélangée à chaque rafraîchissement du fil.
+const _ordreAleatoireStable = {};
+function ordreAleatoireStable(id){
+  if (!(id in _ordreAleatoireStable)) _ordreAleatoireStable[id] = Math.random();
+  return _ordreAleatoireStable[id];
+}
+function melangerAleatoirement(liste){
+  return liste.slice().sort((a, b) => ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id));
+}
+
+/* Classement du fil par paliers de priorité :
+   1. Mes propres offres/demandes
+   2. Les personnes que je suis (Suivre, propre à Offres)
+   3. Même pays (indicatif téléphonique, approximatif)
+   4. Le reste, mélangé aléatoirement de façon stable
+   Protégé par son propre détecteur d'erreur : en cas de souci, on revient
+   simplement à l'ordre par date, le fil ne se bloque jamais à cause de ça. */
+function trierOffresParPriorite(liste){
+  try {
+    if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
+    const mesOffres = [], suivis = [], memePays = [], reste = [];
+    liste.forEach(o => {
+      if (o.auteurUid === currentUser.uid) mesOffres.push(o);
+      else if (o.auteurUid && followedUidsOffres.has(o.auteurUid)) suivis.push(o);
+      else if (currentUser.paysPrefixe && o.paysPrefixe && o.paysPrefixe === currentUser.paysPrefixe) memePays.push(o);
+      else reste.push(o);
+    });
+    return mesOffres.concat(suivis, memePays, melangerAleatoirement(reste));
+  } catch (e) {
+    log('❌ Tri par priorité : ' + e.message + ' — retour à l\'ordre par date');
+    return liste;
+  }
+}
 
 const TAILLE_LOT = 6;
 let nombreAffiches = TAILLE_LOT;
@@ -457,7 +535,8 @@ function choisirFiltre(el){
 function chargerOffres(){
   log('8. Chargement des offres depuis Firestore…');
   db.collection('offres').orderBy('createdAt','desc').limit(30).onSnapshot(snap => {
-    toutesLesOffres = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const brut = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    toutesLesOffres = trierOffresParPriorite(brut);
     log('9. Offres reçues ✅ (' + toutesLesOffres.length + ')');
     nombreAffiches = TAILLE_LOT;
     afficherOffres();
@@ -502,7 +581,11 @@ function afficherOffres(){
       + '<div class="ph-info" onclick="__voirProfil(\'' + (o.auteurUid||'') + '\')">'
       +   '<div class="ph-name">' + escapeHtml(nomAff) + '</div>'
       +   '<div class="ph-meta">' + metaAuteur + '</div>'
-      + '</div></div>';
+      + '</div>'
+      + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
+          ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+          : '')
+      + '</div>';
     div.innerHTML = enTeteAuteur + imgHtml + '<div>' + badgeType + badgeUrgent + '</div>'
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
       + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>';
@@ -528,6 +611,7 @@ function publierOffre(){
     auteurUid: currentUser.uid,
     auteurNom: currentUser.nomAffiche || 'Anonyme',
     auteurVerifie: !!currentUser.verifie,
+    paysPrefixe: currentUser.paysPrefixe || '',
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   if (currentModele === 'texte') {
