@@ -93,7 +93,7 @@
   .ro-e { font-size: 24px; line-height: 1; }
   .ro-l { font-size: 9px; font-weight: 700; color: #999; }
   .comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
-  .comm-menu { display: none; position: absolute; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 90; overflow: hidden; min-width: 150px; }
+  .comm-menu { display: none; position: absolute; top: 22px; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 90; overflow: hidden; min-width: 150px; }
   .comm-menu div { padding: 9px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
   .comm-menu .cmm-suppr { color: var(--red); }
   .corbeille-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; margin: 18px 0 8px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #a07a1a; cursor: pointer; }
@@ -106,6 +106,18 @@
   .corbeille-item button { border: none; background: #fff; border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #222; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 9998; transition: transform .25s; max-width: 90%; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .valid-row { display: flex; align-items: center; gap: 6px; font-size: 12.5px; margin-top: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot.on { background: var(--green); }
+  .dot.off { background: #ccc; }
+  .vs.active { color: var(--green); font-weight: 700; }
+  .vs.expire { color: #999; font-weight: 700; }
+  .cand { font-size: 12.5px; color: #65676b; margin-top: 6px; }
+  .card-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-c, .btn-a { flex: 1; border: none; border-radius: 10px; padding: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-c { background: #f0f2f5; color: #333; }
+  .btn-a.vert { background: var(--green); color: #fff; }
+  .btn-a.rouge { background: var(--red); color: #fff; }
 </style>
 </head>
 <body>
@@ -341,6 +353,7 @@ async function toggleSuivreOffre(auteurUid, event){
       await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
       followedUidsOffres.add(auteurUid);
     }
+    toutesLesOffres = trierOffresParPriorite(toutesLesOffres);
     afficherOffres();
   } catch (e) {
     log('❌ Erreur suivi : ' + e.message);
@@ -602,6 +615,7 @@ function chargerOffres(){
 }
 
 function afficherOffres(){
+  const scrollAvant = window.scrollY;
   const zone = document.getElementById('feedOffres');
   zone.innerHTML = '';
   let liste = toutesLesOffres;
@@ -633,6 +647,19 @@ function afficherOffres(){
     const villeCourte = premiereVille(o.ville);
     const tempsTxt = o.createdAt && o.createdAt.toMillis ? tempsDepuis(o.createdAt.toMillis()) : 'à l\'instant';
     const metaAuteur = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsTxt;
+    const createdMs = o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : Date.now();
+    const expireMs = createdMs + (o.dureeDays || 30) * 24 * 3600 * 1000;
+    const joursRest = Math.ceil((expireMs - Date.now()) / (1000*3600*24));
+    const expiree = joursRest <= 0;
+    const estMoiOffre = currentUser && o.auteurUid === currentUser.uid;
+    const validHtml = o.type === 'texte' ? '' : (expiree
+      ? '<div class="valid-row"><span class="dot off"></span><span class="vs expire">Expirée</span></div>'
+      : '<div class="valid-row"><span class="dot on"></span><span class="vs active">Active</span><span style="color:#65676b"> · ' + joursRest + ' jour' + (joursRest>1?'s':'') + ' restant' + (joursRest>1?'s':'') + '</span></div>');
+    const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand">👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature') + '</div>';
+    const actionsHtml = (o.type === 'texte' || expiree || estMoiOffre) ? '' : '<div class="card-actions">'
+      + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\')">📞 Contacter</button>'
+      + '<button class="btn-a ' + (o.type==='offre'?'vert':'rouge') + '" onclick="postulerOffre(\'' + o.id + '\',' + (o.candidatures||0) + ')">' + (o.type==='offre'?"✋ Je veux":'✅ Postuler') + '</button>'
+      + '</div>';
     const menuSuppr = (currentUser && o.auteurUid === currentUser.uid)
       ? '<span class="ph-more" onclick="toggleMenuPost(\'' + o.id + '\')">⋯</span>'
         + '<div class="post-menu" id="menu-' + o.id + '"><div onclick="supprimerPublicationOffre(\'' + o.id + '\')">🗑️ Mettre à la corbeille</div></div>'
@@ -677,11 +704,13 @@ function afficherOffres(){
     div.innerHTML = enTeteAuteur + imgHtml + '<div>' + badgeType + badgeUrgent + '</div>'
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
       + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>'
+      + validHtml + candHtml + actionsHtml
       + lignesActions;
     zone.appendChild(div);
   });
   log('10. Rendu terminé ✅ (' + visibles.length + '/' + liste.length + ' affichées)');
   marquerAuteursEnLigne();
+  window.scrollTo(0, scrollAvant);
   visibles.forEach(o => { if (_commentsOuverts.has(o.id)) { const z = document.getElementById('commzone-'+o.id); if (z) { z.style.display='block'; z.dataset.init='1'; construireZoneCommentaires(o.id, z); ecouterCommentaires(o.id); } } });
   if (observateur) observateur.disconnect();
   if (nombreAffiches < liste.length) {
@@ -847,13 +876,14 @@ function ecouterCommentaires(offreId){
         +     '<span>' + (villeCourte ? escapeHtml(villeCourte)+' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + (c.modifie ? ' · modifié' : '') + '</span>'
         +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime?'#e63224':'#8e8e8e') + '" onclick="toggleAimeCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\',' + (c.likes||0) + ')">' + (dejaAime?'Aimé':"J'aime") + '</span>'
         +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondreOffre(\'' + offreId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom||'').replace(/'/g,"\\'") + '\')">Répondre</span>'
-        +     (estMoi ? '<span style="cursor:pointer;font-weight:900;color:#8e8e8e;margin-left:auto" onclick="toggleMenuComm(\'' + c.id + '\')">⋯</span>' : (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : ''))
+        +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
+        +     (estMoi ? '<span style="position:relative;display:inline-block;margin-left:' + (c.likes?'8px':'auto') + '"><span style="cursor:pointer;font-weight:900;color:#8e8e8e;padding:0 4px" onclick="toggleMenuComm(\'' + c.id + '\')">⋯</span>'
+              + '<div class="comm-menu" id="cmenu-' + c.id + '">'
+              + '<div onclick="commencerEditionCommentaire(\'' + offreId + '\',\'' + c.id + '\')">✏️ Modifier</div>'
+              + '<div class="cmm-suppr" onclick="supprimerCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\')">🗑️ Supprimer</div>'
+              + '</div></span>' : '')
         +   '</div>'
         + '</div>'
-        + (estMoi ? '<div class="comm-menu" id="cmenu-' + c.id + '">'
-            + '<div onclick="commencerEditionCommentaire(\'' + offreId + '\',\'' + c.id + '\')">✏️ Modifier</div>'
-            + '<div class="cmm-suppr" onclick="supprimerCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\')">🗑️ Supprimer</div>'
-            + '</div>' : '')
         + '</div>';
       return wrap;
     }
@@ -1012,7 +1042,7 @@ window.toggleCorbeille = function (){
 };
 function afficherCorbeilleOffres(){
   const toggle = document.getElementById('corbeilleToggle');
-  if (!listeCorbeille.length) { toggle.style.display = 'none'; return; }
+  if (!listeCorbeille.length) { toggle.style.display = 'none'; document.getElementById('corbeilleListe').innerHTML = ''; return; }
   toggle.style.display = 'flex';
   document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
   const liste = document.getElementById('corbeilleListe');
@@ -1030,6 +1060,32 @@ function afficherCorbeilleOffres(){
     liste.appendChild(item);
   });
 }
+
+/* ── Contacter / Postuler (repris de l'ancien code, adapté en mode compat) ── */
+window.contacterOffre = function (offreId, nomAuteur){
+  toast('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment');
+};
+
+window.postulerOffre = async function (offreId, candidaturesActuelles){
+  if (!currentUser) { toast('Connectez-vous pour postuler'); return; }
+  try {
+    await db.collection('offres').doc(offreId).update({ candidatures: firebase.firestore.FieldValue.increment(1) });
+    await db.collection('offres').doc(offreId).collection('commentaires').add({
+      texte: '📩 A postulé à cette offre',
+      nom: currentUser.nomAffiche || 'Anonyme',
+      uid: currentUser.uid,
+      verifie: !!currentUser.verifie,
+      ville: currentUser.ville || '',
+      parentId: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: 0
+    });
+    toast('✅ Candidature envoyée !');
+  } catch (e) {
+    log('❌ Erreur candidature : ' + e.message);
+    toast('Erreur candidature');
+  }
+};
 
 function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
@@ -1076,7 +1132,6 @@ function publierOffre(){
     fermerPanneau();
     btn.disabled = false; btn.textContent = '📢 Publier maintenant';
     imgBase64 = ''; imgBase64Txt = '';
-    chargerOffres();
   }).catch(err => {
     log('❌ Erreur publication : ' + err.message);
     btn.disabled = false; btn.textContent = '📢 Publier maintenant';
