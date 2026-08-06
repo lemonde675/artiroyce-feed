@@ -10,7 +10,9 @@
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6f8; color: #1c1e21; max-width: 480px; margin: 0 auto; }
   .page { padding: 16px; }
   .btn-pub { display: inline-flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
-  .card { background: #fff; border-radius: 14px; padding: 16px; margin-top: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .card { background: #fff; border-radius: 14px; padding: 0; margin-top: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .card-body { padding: 16px 16px 0; }
+  .card-body.bas { padding: 0 16px 16px; }
   .card h3 { font-size: 15px; margin-bottom: 6px; }
   .card p { font-size: 13px; color: #65676b; }
   .panel-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 500; align-items: flex-end; justify-content: center; }
@@ -24,6 +26,7 @@
   .panel textarea { resize: vertical; min-height: 80px; }
   .btn-envoyer { width: 100%; margin-top: 18px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; margin-right: 6px; }
+  .ph-badges .badge { margin-right: 0; }
   .badge.demande { background: #fdeceb; color: var(--red); }
   .badge.offre { background: #eef8ee; color: var(--green); }
   .badge.urgent { background: #fff4e0; color: #e68a00; }
@@ -70,18 +73,19 @@
   .duree { display: flex; gap: 8px; }
   .panel select { width: 100%; border: 1.5px solid #e4e6eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; background: #fff; }
   .m2preview { display: none; border: 1.5px dashed #d8dbe0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 12px; color: #888; font-size: 13px; }
-  .ph { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .ph { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
   .ph-av { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
   .ph-vb { position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; font-weight: 900; }
   .online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
-  .ph-info { flex: 1 1 120px; min-width: 0; cursor: pointer; }
-  .ph-name { font-size: 13.5px; font-weight: 800; color: #222; }
-  .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; }
-  .ph-follow { font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 99px; cursor: pointer; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; flex-shrink: 0; }
+  .ph-info { flex: 1 1 auto; min-width: 0; cursor: pointer; overflow: hidden; }
+  .ph-name { font-size: 13.5px; font-weight: 800; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ph-follow { font-size: 10.5px; font-weight: 800; padding: 4px 9px; border-radius: 99px; cursor: pointer; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; flex-shrink: 0; }
   .ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
-  .ph-more { color: #bbb; font-size: 20px; font-weight: 900; cursor: pointer; padding: 6px 8px; margin-left: -4px; flex-shrink: 0; }
-  .ph-side { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-basis: 100%; margin-left: 48px; }
-  .post-menu { display: none; position: absolute; margin-top: 30px; margin-left: -60px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 190px; }
+  .ph-more { color: #bbb; font-size: 18px; font-weight: 900; cursor: pointer; padding: 4px 4px; flex-shrink: 0; }
+  .ph-side { display: flex; align-items: flex-start; gap: 5px; flex-shrink: 0; }
+  .ph-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .post-menu { display: none; position: absolute; margin-top: 26px; margin-left: -160px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 190px; }
   .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
   .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
   .pr-cnt { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e4e6eb; background: #fff; font-size: 13px; font-weight: 700; color: #65676b; }
@@ -101,7 +105,7 @@
   .corbeille-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; margin: 18px 0 8px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #a07a1a; cursor: pointer; }
   .corbeille-liste { display: none; flex-direction: column; gap: 8px; padding: 0 0 4px; }
   .corbeille-liste.open { display: flex; }
-  .corbeille-item { display: flex; align-items: center; gap: 10px; background: #fffaf0; border: 1px solid #f5e6c8; border-radius: 12px; padding: 10px 12px; }
+  .corbeille-item { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #fffaf0; border: 1px solid #f5e6c8; border-radius: 12px; padding: 10px 12px; }
   .corbeille-item-info { flex: 1; min-width: 0; }
   .corbeille-item-titre { font-size: 12.5px; font-weight: 700; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .corbeille-item-sub { font-size: 11px; color: #a07a1a; }
@@ -120,6 +124,15 @@
   .btn-c:last-child, .btn-a:last-child { border-right: none; }
   .btn-a.rouge { color: var(--red); }
   .btn-a.vert { color: var(--green); }
+  .cover-carousel-wrap { background: #fff; border-radius: 14px; padding: 14px 0 16px; margin-top: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .cover-carousel-title { font-size: 15px; font-weight: 800; color: #222; padding: 0 14px 10px; }
+  .cover-carousel { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; scrollbar-width: none; cursor: grab; touch-action: pan-x; }
+  .cover-carousel::-webkit-scrollbar { display: none; }
+  .cover-card { position: relative; flex: 0 0 auto; width: 130px; height: 160px; border-radius: 14px; overflow: hidden; scroll-snap-align: start; background: #ddd; cursor: pointer; }
+  .cover-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover-card-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 10px 8px; background: linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,0)); }
+  .cover-card-journal { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
+  .cover-card-txt { color: #eee; font-size: 10.5px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -606,13 +619,39 @@ function chargerOffres(){
     listeCorbeille
       .filter(o => o.corbeilleDepuis && (maintenant - new Date(o.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
       .forEach(o => db.collection('offres').doc(o.id).delete().catch(e => log('❌ Purge corbeille : ' + e.message)));
+
+    // On ne reconstruit tout le fil (perte de position, clignotement) que si la
+    // LISTE elle-même a changé (nouvelle offre, suppression). Si seuls des
+    // compteurs ont bougé (J'aime, partages, candidatures d'une offre déjà
+    // affichée), on patche juste ces chiffres sur place, sans rien reconstruire.
+    const nouveauxIds = brut.map(o => o.id).join(',');
+    const ancienIds = toutesLesOffres.map(o => o.id).join(',');
+    const structurel = nouveauxIds !== ancienIds;
+
     toutesLesOffres = trierOffresParPriorite(brut);
     log('9. Offres reçues ✅ (' + toutesLesOffres.length + ')');
-    nombreAffiches = TAILLE_LOT;
-    afficherOffres();
+
+    if (structurel) {
+      nombreAffiches = TAILLE_LOT;
+      afficherOffres();
+    } else {
+      patcherCompteursOffres(brut);
+    }
     afficherCorbeilleOffres();
   }, err => {
     log('❌ Erreur Firestore : ' + err.message);
+  });
+}
+
+// Met à jour les chiffres (J'aime, candidatures) directement dans le DOM,
+// sans reconstruire les cartes — évite tout saut ou changement d'apparence
+// d'une autre publication pendant qu'on interagit avec celle-ci.
+function patcherCompteursOffres(brut){
+  brut.forEach(o => {
+    const likeEl = document.getElementById('likecount-' + o.id);
+    if (likeEl) likeEl.textContent = (mesReactionsOffres[o.id] || '👍') + ' ' + (o.likes || 0);
+    const candEl = document.getElementById('cand-' + o.id);
+    if (candEl) candEl.textContent = '👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature');
   });
 }
 
@@ -635,15 +674,20 @@ function afficherOffres(){
     return;
   }
   const visibles = liste.slice(0, nombreAffiches);
-  visibles.forEach(o => {
+  const carouselNode = buildCoverCarouselOffres(liste);
+  const totalVisibles = visibles.length;
+  const useEveryFive = totalVisibles >= 5;
+  const midPoint = Math.max(1, Math.floor(totalVisibles / 2));
+  visibles.forEach((o, indexCarte) => {
     const div = document.createElement('div');
     div.className = 'card';
+    div.id = 'card-' + o.id;
     div.style.position = 'relative';
     const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>'
       : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
       : '<span class="badge offre">🟢 Offre</span>';
     const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
-    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:calc(100% + 32px);margin:8px -16px;max-height:280px;object-fit:cover;object-position:center;">' : '';
+    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;background:#f0f0f0;">' : '';
     const nomAff = o.auteurNom || 'Utilisateur';
     const statut = o.auteurVerifie ? 'Professionnel' : 'Visiteur';
     const villeCourte = premiereVille(o.ville);
@@ -653,12 +697,12 @@ function afficherOffres(){
     const expireMs = createdMs + (o.dureeDays || 30) * 24 * 3600 * 1000;
     const joursRest = Math.ceil((expireMs - Date.now()) / (1000*3600*24));
     const expiree = joursRest <= 0;
-    const estMoiOffre = currentUser && o.auteurUid === currentUser.uid;
     const validHtml = o.type === 'texte' ? '' : (expiree
       ? '<div class="valid-row"><span class="dot off"></span><span class="vs expire">Expirée</span></div>'
       : '<div class="valid-row"><span class="dot on"></span><span class="vs active">Active</span><span style="color:#65676b"> · ' + joursRest + ' jour' + (joursRest>1?'s':'') + ' restant' + (joursRest>1?'s':'') + '</span></div>');
-    const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand">👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature') + '</div>';
-    const actionsHtml = (o.type === 'texte' || expiree || estMoiOffre) ? '' : '<div class="card-actions">'
+    const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand" id="cand-' + o.id + '">👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature') + '</div>';
+    // Même affichage pour tout le monde, y compris l'auteur de l'offre lui-même.
+    const actionsHtml = (o.type === 'texte' || expiree) ? '' : '<div class="card-actions">'
       + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\')">📞 Contacter</button>'
       + '<button class="btn-a ' + (o.type==='offre'?'vert':'rouge') + '" onclick="postulerOffre(\'' + o.id + '\',' + (o.candidatures||0) + ')">' + (o.type==='offre'?"✋ Je veux":'✅ Postuler') + '</button>'
       + '</div>';
@@ -676,7 +720,7 @@ function afficherOffres(){
       + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
           ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" data-uid="' + o.auteurUid + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
           : '')
-      + badgeType + badgeUrgent
+      + '<div class="ph-badges">' + badgeType + badgeUrgent + '</div>'
       + menuSuppr
       + '</div>'
       + '</div>';
@@ -706,15 +750,23 @@ function afficherOffres(){
       +   '</button>'
       + '</div>'
       + '<div class="comm-zone" id="commzone-' + o.id + '"></div>';
-    div.innerHTML = enTeteAuteur
+    div.innerHTML = '<div class="card-body">' + enTeteAuteur
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
+      + '</div>'
       + imgHtml
+      + '<div class="card-body bas">'
       + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>'
       + validHtml + candHtml + actionsHtml
-      + lignesActions;
+      + lignesActions
+      + '</div>';
     zone.appendChild(div);
+    if (carouselNode) {
+      if (useEveryFive) { if ((indexCarte+1) % 5 === 0) zone.appendChild(carouselNode.cloneNode(true)); }
+      else if ((indexCarte+1) === midPoint) { zone.appendChild(carouselNode); }
+    }
   });
   log('10. Rendu terminé ✅ (' + visibles.length + '/' + liste.length + ' affichées)');
+  if (carouselNode) wireCoverCarousel();
   marquerAuteursEnLigne();
   window.scrollTo(0, scrollAvant);
   visibles.forEach(o => { if (_commentsOuverts.has(o.id)) { const z = document.getElementById('commzone-'+o.id); if (z) { z.style.display='block'; z.dataset.init='1'; construireZoneCommentaires(o.id, z); ecouterCommentaires(o.id); } } });
@@ -1043,6 +1095,16 @@ window.restaurerPublicationOffre = async function (offreId){
   }
 };
 
+window.supprimerDefinitivementOffre = async function (offreId){
+  if (!confirm('Supprimer définitivement cette offre ? Cette action est irréversible.')) return;
+  try {
+    await db.collection('offres').doc(offreId).delete();
+    toast('🗑️ Offre supprimée définitivement');
+  } catch (e) {
+    log('❌ Erreur suppression définitive : ' + e.message);
+  }
+};
+
 window.toggleCorbeille = function (){
   document.getElementById('corbeilleListe').classList.toggle('open');
 };
@@ -1062,7 +1124,8 @@ function afficherCorbeilleOffres(){
       + '<div class="corbeille-item-titre">' + escapeHtml(o.titre||'Sans titre') + '</div>'
       + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants>1?'s':'') + '</div>'
       + '</div>'
-      + '<button onclick="restaurerPublicationOffre(\'' + o.id + '\')">Restaurer</button>';
+      + '<button onclick="restaurerPublicationOffre(\'' + o.id + '\')">Restaurer</button>'
+      + '<button style="color:var(--red);" onclick="supprimerDefinitivementOffre(\'' + o.id + '\')">Supprimer définitivement</button>';
     liste.appendChild(item);
   });
 }
@@ -1088,11 +1151,62 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
       likes: 0
     });
     toast('✅ Candidature envoyée !');
+    const zone = document.getElementById('commzone-' + offreId);
+    if (zone && zone.style.display !== 'block') {
+      zone.style.display = 'block';
+      _commentsOuverts.add(offreId);
+      if (!zone.dataset.init) {
+        zone.dataset.init = '1';
+        construireZoneCommentaires(offreId, zone);
+        ecouterCommentaires(offreId);
+      }
+    }
   } catch (e) {
     log('❌ Erreur candidature : ' + e.message);
     toast('Erreur candidature');
   }
 };
+
+/* ── Carrousel "Offres en vedette" (repris de l'ancien code) ── */
+function buildCoverCarouselOffres(offresActives){
+  const avecImage = offresActives.filter(o => o.imageUrl).slice(0, 12);
+  if (!avecImage.length) return null;
+  const div = document.createElement('div');
+  div.className = 'cover-carousel-wrap';
+  const cards = avecImage.map(o => {
+    const titre = escapeHtml(o.titre || o.categorie || 'Offre');
+    const snippet = escapeHtml((o.description || o.ville || '').slice(0, 55));
+    return '<div class="cover-card" onclick="__scrollToOffre(\'' + o.id + '\')">'
+      + '<img src="' + o.imageUrl + '" loading="lazy">'
+      + '<div class="cover-card-overlay"><div class="cover-card-journal">' + titre + '</div><div class="cover-card-txt">' + snippet + '</div></div>'
+      + '</div>';
+  }).join('');
+  div.innerHTML = '<div class="cover-carousel-title">💼 Offres en vedette</div><div class="cover-carousel">' + cards + '</div>';
+  return div;
+}
+
+window.__scrollToOffre = function (id){
+  const el = document.getElementById('card-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+let _coverPausedUntil = 0;
+let _coverIntervalStarted = false;
+function wireCoverCarousel(){
+  if (_coverIntervalStarted) return;
+  _coverIntervalStarted = true;
+  setInterval(() => {
+    if (Date.now() < _coverPausedUntil) return;
+    document.querySelectorAll('.cover-carousel').forEach(track => {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (maxScroll <= 2) return;
+      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+    });
+  }, 3000);
+  document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel')) _coverPausedUntil = Date.now() + 4000; }, { passive: true });
+  document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel')) _coverPausedUntil = Date.now() + 4000; });
+}
 
 function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
