@@ -8,7 +8,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root { --red: #e63224; --green: #27a945; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6f8; color: #1c1e21; max-width: 480px; margin: 0 auto; }
-  .page { padding: 16px; }
+  .page { padding: 16px; padding-top: 124px; }
   .btn-pub { display: inline-flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .card { background: #fff; border-radius: 14px; padding: 16px; margin-top: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
   .card h3 { font-size: 15px; margin-bottom: 6px; }
@@ -23,7 +23,12 @@
   .panel input, .panel textarea { width: 100%; border: 1.5px solid #e4e6eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; }
   .panel textarea { resize: vertical; min-height: 80px; }
   .btn-envoyer { width: 100%; margin-top: 18px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; }
-  .btn-envoyer:disabled { opacity: .6; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px; margin-right: 6px; }
+  .badge.demande { background: #fdeceb; color: var(--red); }
+  .badge.offre { background: #eef8ee; color: var(--green); }
+  .badge.urgent { background: #fff4e0; color: #e68a00; }
+  .card .meta { font-size: 12px; color: #999; margin-top: 8px; }
+  .sec-label { font-size: 12.5px; font-weight: 800; color: #65676b; margin: 20px 0 6px; text-transform: uppercase; letter-spacing: .3px; }
 </style>
 </head>
 <body>
@@ -31,7 +36,9 @@
 <div class="page">
   <button class="btn-pub" onclick="document.getElementById('panelDemande').classList.add('open')">＋ Publier une demande</button>
   <div id="zoneDemande">
-    <div class="card"><p>⏳ Chargement d'une demande depuis la base…</p></div>
+    <div class="sec-label">Offres et demandes</div>
+    <div id="feedOffres"><div class="card"><p>⏳ Chargement…</p></div></div>
+    <div id="sentinelle" style="height:1px"></div>
   </div>
 </div>
 
@@ -94,25 +101,55 @@ auth.onAuthStateChanged(user => {
   log('7. Connexion : ' + (user ? user.uid : 'AUCUN'));
   if (!user) { log('❌ Pas connecté — impossible de charger le profil'); return; }
   currentUser = user;
-  chargerUneDemande();
+  chargerOffres();
 });
 
-function chargerUneDemande(){
-  log('8. Recherche d\'une demande dans Firestore…');
-  db.collection('offres').where('type','==','demande').limit(1).get()
-    .then(snap => {
-      const zone = document.getElementById('zoneDemande');
-      if (snap.empty) {
-        log('8b. Aucune demande trouvée');
-        zone.innerHTML = '<div class="card"><p>Aucune demande dans la base pour l\'instant.</p></div>';
-        return;
+const TAILLE_LOT = 6;
+let nombreAffiches = TAILLE_LOT;
+let toutesLesOffres = [];
+let observateur = null;
+
+function chargerOffres(){
+  log('8. Chargement des offres depuis Firestore…');
+  db.collection('offres').orderBy('createdAt','desc').limit(30).onSnapshot(snap => {
+    toutesLesOffres = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    log('9. Offres reçues ✅ (' + toutesLesOffres.length + ')');
+    nombreAffiches = TAILLE_LOT;
+    afficherOffres();
+  }, err => {
+    log('❌ Erreur Firestore : ' + err.message);
+  });
+}
+
+function afficherOffres(){
+  const zone = document.getElementById('feedOffres');
+  zone.innerHTML = '';
+  if (!toutesLesOffres.length) {
+    zone.innerHTML = '<div class="card"><p>Aucune offre pour l\'instant.</p></div>';
+    return;
+  }
+  const visibles = toutesLesOffres.slice(0, nombreAffiches);
+  visibles.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>' : '<span class="badge offre">🟢 Offre</span>';
+    const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
+    div.innerHTML = '<div>' + badgeType + badgeUrgent + '</div>'
+      + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
+      + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>';
+    zone.appendChild(div);
+  });
+  log('10. Rendu terminé ✅ (' + visibles.length + '/' + toutesLesOffres.length + ' affichées)');
+  if (observateur) observateur.disconnect();
+  if (nombreAffiches < toutesLesOffres.length) {
+    observateur = new IntersectionObserver(entrees => {
+      if (entrees[0].isIntersecting) {
+        nombreAffiches += TAILLE_LOT;
+        afficherOffres();
       }
-      const d = snap.docs[0].data();
-      log('9. Demande reçue ✅ : ' + (d.titre || '(sans titre)'));
-      zone.innerHTML = '<div class="card"><h3>' + (d.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
-        + '<p>' + (d.ville||'') + (d.budget ? ' · '+d.budget : '') + '</p></div>';
-    })
-    .catch(err => log('❌ Erreur Firestore : ' + err.message));
+    }, { rootMargin: '400px' });
+    observateur.observe(document.getElementById('sentinelle'));
+  }
 }
 
 function publierDemande(){
@@ -134,7 +171,7 @@ function publierDemande(){
     log('10. Demande publiée ✅');
     document.getElementById('panelDemande').classList.remove('open');
     btn.disabled = false; btn.textContent = 'Publier';
-    chargerUneDemande();
+    chargerOffres();
   }).catch(err => {
     log('❌ Erreur publication : ' + err.message);
     btn.disabled = false; btn.textContent = 'Publier';
