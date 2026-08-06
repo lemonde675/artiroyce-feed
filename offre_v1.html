@@ -79,6 +79,33 @@
   .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; }
   .ph-follow { font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 99px; cursor: pointer; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; flex-shrink: 0; }
   .ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
+  .ph-more { color: #bbb; font-size: 20px; font-weight: 900; cursor: pointer; padding: 6px 8px; margin-left: -4px; flex-shrink: 0; }
+  .post-menu { display: none; position: absolute; margin-top: 30px; margin-left: -60px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 190px; }
+  .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
+  .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
+  .p-acts { display: flex; border-top: 1px solid #f5f5f5; margin-top: 6px; }
+  .pab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px 0; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #999; position: relative; font-family: inherit; }
+  .pab.reacted { color: #222; }
+  .pab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .rpick { position: absolute; bottom: 46px; left: -10px; background: #fff; border-radius: 30px; padding: 10px 16px; display: flex; gap: 19px; box-shadow: 0 8px 30px rgba(0,0,0,.15); z-index: 100; opacity: 0; pointer-events: none; transform: scale(.8) translateY(8px); transition: all .2s cubic-bezier(.34,1.56,.64,1); border: 1px solid #f0f0f0; }
+  .rpick.show { opacity: 1; pointer-events: all; transform: scale(1) translateY(0); }
+  .ro { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px; min-width: 30px; }
+  .ro-e { font-size: 24px; line-height: 1; }
+  .ro-l { font-size: 9px; font-weight: 700; color: #999; }
+  .comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
+  .comm-menu { display: none; position: absolute; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 90; overflow: hidden; min-width: 150px; }
+  .comm-menu div { padding: 9px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .comm-menu .cmm-suppr { color: var(--red); }
+  .corbeille-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; margin: 18px 0 8px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #a07a1a; cursor: pointer; }
+  .corbeille-liste { display: none; flex-direction: column; gap: 8px; padding: 0 0 4px; }
+  .corbeille-liste.open { display: flex; }
+  .corbeille-item { display: flex; align-items: center; gap: 10px; background: #fffaf0; border: 1px solid #f5e6c8; border-radius: 12px; padding: 10px 12px; }
+  .corbeille-item-info { flex: 1; min-width: 0; }
+  .corbeille-item-titre { font-size: 12.5px; font-weight: 700; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .corbeille-item-sub { font-size: 11px; color: #a07a1a; }
+  .corbeille-item button { border: none; background: #fff; border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #222; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 9998; transition: transform .25s; max-width: 90%; text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -106,10 +133,16 @@
   <div id="barreSpacer"></div>
   <div id="zoneDemande">
     <div class="sec-label">Offres et demandes</div>
+    <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
+      <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
+    </div>
+    <div class="corbeille-liste" id="corbeilleListe"></div>
     <div id="feedOffres"><div class="card"><p>⏳ Chargement…</p></div></div>
     <div id="sentinelle" style="height:1px"></div>
   </div>
 </div>
+
+<div class="toast" id="toastEl"></div>
 
 <!-- Panneau -->
 <div class="panel-overlay" id="panelPublier" onclick="if(event.target===this) fermerPanneau()">
@@ -271,6 +304,7 @@ auth.onAuthStateChanged(async user => {
     log('7bis. Échec lecture profil : ' + e.message);
   }
   await chargerSuivisOffres();
+  await chargerMesReactionsOffres();
   chargerOffres();
 });
 
@@ -349,6 +383,21 @@ function trierOffresParPriorite(liste){
 }
 
 const TAILLE_LOT = 6;
+let mesReactionsOffres = {};
+let mesReactionsCommentaires = {};
+let _commentsOuverts = new Set();
+let _replyingTo = {};
+let _reactionEnCours = {};
+let listeCorbeille = [];
+const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+
+function toast(msg){
+  const el = document.getElementById('toastEl');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show';
+  setTimeout(() => el.className = 'toast', 2200);
+}
 let nombreAffiches = TAILLE_LOT;
 let toutesLesOffres = [];
 let observateur = null;
@@ -535,11 +584,18 @@ function choisirFiltre(el){
 function chargerOffres(){
   log('8. Chargement des offres depuis Firestore…');
   db.collection('offres').orderBy('createdAt','desc').limit(30).onSnapshot(snap => {
-    const brut = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const brut = toutes.filter(o => !o.corbeille);
+    listeCorbeille = toutes.filter(o => o.corbeille && currentUser && o.auteurUid === currentUser.uid);
+    const maintenant = Date.now();
+    listeCorbeille
+      .filter(o => o.corbeilleDepuis && (maintenant - new Date(o.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+      .forEach(o => db.collection('offres').doc(o.id).delete().catch(e => log('❌ Purge corbeille : ' + e.message)));
     toutesLesOffres = trierOffresParPriorite(brut);
     log('9. Offres reçues ✅ (' + toutesLesOffres.length + ')');
     nombreAffiches = TAILLE_LOT;
     afficherOffres();
+    afficherCorbeilleOffres();
   }, err => {
     log('❌ Erreur Firestore : ' + err.message);
   });
@@ -566,6 +622,7 @@ function afficherOffres(){
   visibles.forEach(o => {
     const div = document.createElement('div');
     div.className = 'card';
+    div.style.position = 'relative';
     const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>'
       : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
       : '<span class="badge offre">🟢 Offre</span>';
@@ -576,6 +633,10 @@ function afficherOffres(){
     const villeCourte = premiereVille(o.ville);
     const tempsTxt = o.createdAt && o.createdAt.toMillis ? tempsDepuis(o.createdAt.toMillis()) : 'à l\'instant';
     const metaAuteur = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsTxt;
+    const menuSuppr = (currentUser && o.auteurUid === currentUser.uid)
+      ? '<span class="ph-more" onclick="toggleMenuPost(\'' + o.id + '\')">⋯</span>'
+        + '<div class="post-menu" id="menu-' + o.id + '"><div onclick="supprimerPublicationOffre(\'' + o.id + '\')">🗑️ Mettre à la corbeille</div></div>'
+      : '';
     const enTeteAuteur = '<div class="ph">'
       + creerAvatarHTML(nomAff, o.auteurVerifie, o.auteurUid)
       + '<div class="ph-info" onclick="__voirProfil(\'' + (o.auteurUid||'') + '\')">'
@@ -585,14 +646,43 @@ function afficherOffres(){
       + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
           ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
           : '')
+      + menuSuppr
       + '</div>';
+    const dejaAimeOffre = mesReactionsOffres[o.id];
+    const lignesActions = '<div class="pr-row">'
+      +   '<span class="pr-cnt" id="likecount-' + o.id + '">' + (dejaAimeOffre||'') + ' ' + (o.likes||0) + '</span>'
+      +   '<span class="pr-r" id="commcount-' + o.id + '">0 commentaire · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') + '</span>'
+      + '</div>'
+      + '<div class="p-acts">'
+      +   '<div class="pab' + (dejaAimeOffre?' reacted':'') + '" id="pb-' + o.id + '" onclick="window.__toggleReactPickerOffre(\'' + o.id + '\')">'
+      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
+      +     '<span id="pblabel-' + o.id + '">' + (dejaAimeOffre?'Aimé':"J'aime") + '</span>'
+      +     '<div class="rpick" id="rp-' + o.id + '">'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'❤️\',' + (o.likes||0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'👍\',' + (o.likes||0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😮\',' + (o.likes||0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😂\',' + (o.likes||0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'🔥\',' + (o.likes||0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
+      +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😢\',' + (o.likes||0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+      +     '</div>'
+      +   '</div>'
+      +   '<button class="pab" onclick="toggleComments(\'' + o.id + '\')">'
+      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+      +   '</button>'
+      +   '<button class="pab" onclick="partagerOffre(\'' + o.id + '\',' + (o.partages||0) + ')">'
+      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+      +   '</button>'
+      + '</div>'
+      + '<div class="comm-zone" id="commzone-' + o.id + '"></div>';
     div.innerHTML = enTeteAuteur + imgHtml + '<div>' + badgeType + badgeUrgent + '</div>'
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
-      + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>';
+      + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>'
+      + lignesActions;
     zone.appendChild(div);
   });
   log('10. Rendu terminé ✅ (' + visibles.length + '/' + liste.length + ' affichées)');
   marquerAuteursEnLigne();
+  visibles.forEach(o => { if (_commentsOuverts.has(o.id)) { const z = document.getElementById('commzone-'+o.id); if (z) { z.style.display='block'; z.dataset.init='1'; construireZoneCommentaires(o.id, z); ecouterCommentaires(o.id); } } });
   if (observateur) observateur.disconnect();
   if (nombreAffiches < liste.length) {
     observateur = new IntersectionObserver(entrees => {
@@ -605,6 +695,342 @@ function afficherOffres(){
   }
 }
 
+/* ── Réactions (J'aime avec 6 émojis) ── */
+window.__toggleReactPickerOffre = function (offreId){
+  document.querySelectorAll('.rpick.show').forEach(rp => { if (rp.id !== 'rp-' + offreId) rp.classList.remove('show'); });
+  document.getElementById('rp-' + offreId)?.classList.toggle('show');
+};
+document.addEventListener('click', function (e){
+  if (!e.target.closest('.pab')) document.querySelectorAll('.rpick.show').forEach(rp => rp.classList.remove('show'));
+});
+
+window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  if (_reactionEnCours[offreId]) return;
+  _reactionEnCours[offreId] = true;
+  document.getElementById('rp-' + offreId)?.classList.remove('show');
+  const prev = mesReactionsOffres[offreId] || '';
+  const btn = document.getElementById('pb-' + offreId);
+  const labelEl = document.getElementById('pblabel-' + offreId);
+  const countEl = document.getElementById('likecount-' + offreId);
+  const reactRef = db.collection('offres').doc(offreId).collection('reactions').doc(currentUser.uid);
+  try {
+    if (prev === emoji) {
+      delete mesReactionsOffres[offreId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      if (btn) btn.classList.remove('reacted');
+      if (labelEl) labelEl.textContent = "J'aime";
+      if (countEl) countEl.textContent = nouveauTotal;
+      await reactRef.delete();
+      await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      mesReactionsOffres[offreId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      if (btn) btn.classList.add('reacted');
+      if (labelEl) labelEl.textContent = 'Aimé';
+      if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
+      await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      if (delta) await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(1) });
+    }
+  } catch (e) {
+    log('❌ Erreur réaction : ' + e.message);
+    toast("Erreur J'aime");
+  } finally {
+    delete _reactionEnCours[offreId];
+  }
+};
+
+async function chargerMesReactionsOffres(){
+  try {
+    if (!currentUser) return;
+    const snap = await db.collectionGroup('reactions').where('uid','==',currentUser.uid).get();
+    mesReactionsOffres = {};
+    snap.forEach(d => {
+      const refOffre = d.ref.parent.parent;
+      if (refOffre && refOffre.parent && refOffre.parent.id === 'offres') {
+        mesReactionsOffres[refOffre.id] = d.data().emoji || true;
+      }
+    });
+    log('7d. Mes réactions chargées ✅ (' + Object.keys(mesReactionsOffres).length + ')');
+  } catch (e) {
+    mesReactionsOffres = {};
+  }
+}
+
+/* ── Partager ── */
+window.partagerOffre = async function (offreId, partagesActuels){
+  try {
+    await db.collection('offres').doc(offreId).update({ partages: firebase.firestore.FieldValue.increment(1) });
+    toast('Partagé ✅');
+  } catch (e) {
+    log('❌ Erreur partage : ' + e.message);
+  }
+};
+
+/* ── Commentaires (réponses imbriquées + suppression + modification) ── */
+window.toggleComments = function (offreId){
+  const zone = document.getElementById('commzone-' + offreId);
+  if (!zone) return;
+  const ouvert = zone.style.display === 'block';
+  zone.style.display = ouvert ? 'none' : 'block';
+  if (ouvert) _commentsOuverts.delete(offreId); else _commentsOuverts.add(offreId);
+  if (!ouvert && !zone.dataset.init) {
+    zone.dataset.init = '1';
+    construireZoneCommentaires(offreId, zone);
+    ecouterCommentaires(offreId);
+  }
+};
+
+function construireZoneCommentaires(offreId, zone){
+  zone.innerHTML =
+    '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
+    + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7a1a12,var(--red));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    + (currentUser ? (currentUser.nomAffiche||'?')[0].toUpperCase() : '?') + '</div>'
+    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + offreId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + '<div style="cursor:pointer;font-size:17px;background:var(--red);color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentaireOffre(\'' + offreId + '\')">➤</div>'
+    + '</div>'
+    + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + offreId + '">'
+    + '<span id="reply-indicator-text-' + offreId + '"></span>'
+    + '<span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px" onclick="annulerReponseOffre(\'' + offreId + '\')">✕</span>'
+    + '</div>'
+    + '<div id="comm-list-' + offreId + '"></div>';
+  document.getElementById('cinput-' + offreId).addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.envoyerCommentaireOffre(offreId);
+  });
+}
+
+function ecouterCommentaires(offreId){
+  db.collection('offres').doc(offreId).collection('commentaires').orderBy('createdAt','asc').onSnapshot(snap2 => {
+    const total = snap2.size;
+    const compteEl = document.getElementById('commcount-' + offreId);
+    const o = toutesLesOffres.find(x => x.id === offreId);
+    if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (o ? ' · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') : '');
+
+    const listEl = document.getElementById('comm-list-' + offreId);
+    if (!listEl) return;
+
+    const tous = [];
+    snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+    const parentDe = {};
+    tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+    function trouverRacine(id){ let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
+    const principaux = tous.filter(c => !c.parentId).sort((a,b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0, tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    const reponsesParRacine = {};
+    tous.filter(c => c.parentId).forEach(c => {
+      const racine = trouverRacine(c.id);
+      (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+    });
+
+    function construireCommentaireHTML(c, racineId){
+      const auteurOffre = (toutesLesOffres.find(x => x.id === offreId) || {}).auteurUid;
+      const estCreateur = c.uid === auteurOffre;
+      const estMoi = currentUser && c.uid === currentUser.uid;
+      const statut = estCreateur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
+      const initiale = (c.nom||'?')[0].toUpperCase();
+      const villeCourte = premiereVille(c.ville);
+      const dejaAime = mesReactionsCommentaires[c.id];
+      const wrap = document.createElement('div');
+      wrap.innerHTML =
+        '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start;position:relative" id="crow-' + c.id + '">'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="__voirProfil(\'' + (c.uid||'') + '\')">' + escapeHtml(initiale) + '</div>'
+        + '<div style="flex:1;min-width:0">'
+        +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
+        +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom||'Anonyme') + '</span>'
+        +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
+        +   '</div>'
+        +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word" id="ctxt-' + c.id + '">' + escapeHtml(c.texte) + '</div>'
+        +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
+        +     '<span>' + (villeCourte ? escapeHtml(villeCourte)+' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + (c.modifie ? ' · modifié' : '') + '</span>'
+        +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime?'#e63224':'#8e8e8e') + '" onclick="toggleAimeCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\',' + (c.likes||0) + ')">' + (dejaAime?'Aimé':"J'aime") + '</span>'
+        +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondreOffre(\'' + offreId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom||'').replace(/'/g,"\\'") + '\')">Répondre</span>'
+        +     (estMoi ? '<span style="cursor:pointer;font-weight:900;color:#8e8e8e;margin-left:auto" onclick="toggleMenuComm(\'' + c.id + '\')">⋯</span>' : (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : ''))
+        +   '</div>'
+        + '</div>'
+        + (estMoi ? '<div class="comm-menu" id="cmenu-' + c.id + '">'
+            + '<div onclick="commencerEditionCommentaire(\'' + offreId + '\',\'' + c.id + '\')">✏️ Modifier</div>'
+            + '<div class="cmm-suppr" onclick="supprimerCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\')">🗑️ Supprimer</div>'
+            + '</div>' : '')
+        + '</div>';
+      return wrap;
+    }
+
+    listEl.innerHTML = '';
+    principaux.forEach(c => {
+      listEl.appendChild(construireCommentaireHTML(c, c.id));
+      const reponses = reponsesParRacine[c.id] || [];
+      if (reponses.length) {
+        const repZone = document.createElement('div');
+        repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+        const toggle2 = document.createElement('div');
+        toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
+        toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length>1?'s':'') + ' ▾';
+        toggle2.onclick = () => {
+          const frag = document.createDocumentFragment();
+          reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
+          repZone.appendChild(frag);
+          toggle2.remove();
+        };
+        repZone.appendChild(toggle2);
+        listEl.appendChild(repZone);
+      }
+    });
+  });
+}
+
+window.envoyerCommentaireOffre = async function (offreId){
+  if (!currentUser) { toast('Connectez-vous pour commenter'); return; }
+  const inp = document.getElementById('cinput-' + offreId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  const reponseA = _replyingTo[offreId] || null;
+  try {
+    await db.collection('offres').doc(offreId).collection('commentaires').add({
+      texte, nom: currentUser.nomAffiche||'Anonyme', uid: currentUser.uid,
+      verifie: !!currentUser.verifie, ville: currentUser.ville||'',
+      parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: 0
+    });
+    window.annulerReponseOffre(offreId);
+  } catch (e) {
+    log('❌ Erreur commentaire : ' + e.message);
+  }
+};
+
+window.repondreOffre = function (offreId, racineId, nom){
+  _replyingTo[offreId] = { commentId: racineId, nom };
+  const ind = document.getElementById('reply-indicator-' + offreId);
+  const txt = document.getElementById('reply-indicator-text-' + offreId);
+  if (ind && txt) { txt.textContent = 'Réponse à ' + nom; ind.style.display = 'flex'; }
+  document.getElementById('cinput-' + offreId)?.focus();
+};
+window.annulerReponseOffre = function (offreId){
+  delete _replyingTo[offreId];
+  const ind = document.getElementById('reply-indicator-' + offreId);
+  if (ind) ind.style.display = 'none';
+};
+
+window.toggleAimeCommentaireOffre = async function (offreId, commentId, likesActuels){
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  const ref = db.collection('offres').doc(offreId).collection('commentaires').doc(commentId);
+  try {
+    if (mesReactionsCommentaires[commentId]) {
+      delete mesReactionsCommentaires[commentId];
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      mesReactionsCommentaires[commentId] = true;
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+    }
+  } catch (e) {
+    log('❌ Erreur J\'aime commentaire : ' + e.message);
+  }
+};
+
+window.toggleMenuComm = function (commentId){
+  document.querySelectorAll('.comm-menu').forEach(m => { if (m.id !== 'cmenu-'+commentId) m.style.display = 'none'; });
+  const m = document.getElementById('cmenu-' + commentId);
+  if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block';
+};
+document.addEventListener('click', function (e){
+  if (!e.target.closest('.comm-menu') && e.target.textContent !== '⋯') {
+    document.querySelectorAll('.comm-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerCommentaireOffre = async function (offreId, commentId){
+  if (!confirm('Supprimer ce commentaire ?')) return;
+  try {
+    await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).delete();
+    toast('🗑️ Commentaire supprimé');
+  } catch (e) {
+    log('❌ Erreur suppression commentaire : ' + e.message);
+    toast('Erreur suppression');
+  }
+};
+
+window.commencerEditionCommentaire = function (offreId, commentId){
+  document.getElementById('cmenu-' + commentId).style.display = 'none';
+  const zoneTexte = document.getElementById('ctxt-' + commentId);
+  if (!zoneTexte) return;
+  const ancien = zoneTexte.textContent;
+  zoneTexte.innerHTML = '<textarea id="cedit-' + commentId + '" style="width:100%;border:1.5px solid #e4e6eb;border-radius:8px;padding:6px 8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:50px;">' + ancien + '</textarea>'
+    + '<div style="margin-top:6px;display:flex;gap:8px;">'
+    + '<span style="font-size:12px;font-weight:700;color:var(--red);cursor:pointer" onclick="validerEditionCommentaire(\'' + offreId + '\',\'' + commentId + '\')">Enregistrer</span>'
+    + '<span style="font-size:12px;font-weight:700;color:#8e8e8e;cursor:pointer" onclick="ecouterCommentaires(\'' + offreId + '\')">Annuler</span>'
+    + '</div>';
+};
+
+window.validerEditionCommentaire = async function (offreId, commentId){
+  const zoneEdit = document.getElementById('cedit-' + commentId);
+  const nouveauTexte = zoneEdit?.value?.trim();
+  if (!nouveauTexte) return;
+  try {
+    await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).update({ texte: nouveauTexte, modifie: true });
+    toast('✅ Commentaire modifié');
+  } catch (e) {
+    log('❌ Erreur modification commentaire : ' + e.message);
+    toast('Erreur modification');
+  }
+};
+
+/* ── Suppression / corbeille des publications ── */
+window.toggleMenuPost = function (offreId){
+  document.querySelectorAll('.post-menu').forEach(m => { if (m.id !== 'menu-'+offreId) m.style.display = 'none'; });
+  const m = document.getElementById('menu-' + offreId);
+  if (m) m.style.display = m.style.display === 'block' ? 'none' : 'block';
+};
+document.addEventListener('click', function (e){
+  if (!e.target.closest('.ph-more') && !e.target.closest('.post-menu')) {
+    document.querySelectorAll('.post-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerPublicationOffre = async function (offreId){
+  if (!confirm('Mettre cette offre à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  try {
+    await db.collection('offres').doc(offreId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
+    toast('🗑️ Offre mise à la corbeille');
+  } catch (e) {
+    log('❌ Erreur suppression : ' + e.message);
+  }
+};
+window.restaurerPublicationOffre = async function (offreId){
+  try {
+    await db.collection('offres').doc(offreId).update({ corbeille: false, corbeilleDepuis: null });
+    toast('✅ Offre restaurée');
+  } catch (e) {
+    log('❌ Erreur restauration : ' + e.message);
+  }
+};
+
+window.toggleCorbeille = function (){
+  document.getElementById('corbeilleListe').classList.toggle('open');
+};
+function afficherCorbeilleOffres(){
+  const toggle = document.getElementById('corbeilleToggle');
+  if (!listeCorbeille.length) { toggle.style.display = 'none'; return; }
+  toggle.style.display = 'flex';
+  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  const liste = document.getElementById('corbeilleListe');
+  liste.innerHTML = '';
+  listeCorbeille.forEach(o => {
+    const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(o.corbeilleDepuis || Date.now()).getTime());
+    const joursRestants = Math.max(1, Math.ceil(restantMs / (24*60*60*1000)));
+    const item = document.createElement('div');
+    item.className = 'corbeille-item';
+    item.innerHTML = '<div class="corbeille-item-info">'
+      + '<div class="corbeille-item-titre">' + escapeHtml(o.titre||'Sans titre') + '</div>'
+      + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants>1?'s':'') + '</div>'
+      + '</div>'
+      + '<button onclick="restaurerPublicationOffre(\'' + o.id + '\')">Restaurer</button>';
+    liste.appendChild(item);
+  });
+}
+
 function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
   let data = {
@@ -612,7 +1038,9 @@ function publierOffre(){
     auteurNom: currentUser.nomAffiche || 'Anonyme',
     auteurVerifie: !!currentUser.verifie,
     paysPrefixe: currentUser.paysPrefixe || '',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    likes: 0,
+    partages: 0
   };
   if (currentModele === 'texte') {
     const texte = document.getElementById('texteSimple').value.trim();
