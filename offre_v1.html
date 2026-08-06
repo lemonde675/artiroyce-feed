@@ -83,6 +83,7 @@
   .post-menu { display: none; position: absolute; margin-top: 30px; margin-left: -60px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 190px; }
   .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
   .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
+  .pr-cnt { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 20px; border: 1.5px solid #e4e6eb; background: #fff; font-size: 13px; font-weight: 700; color: #65676b; }
   .p-acts { display: flex; border-top: 1px solid #f5f5f5; margin-top: 6px; }
   .pab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px 0; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #999; position: relative; font-family: inherit; }
   .pab.reacted { color: #222; }
@@ -234,15 +235,9 @@
   </div>
 </div>
 
-<div id="panneauDiagnostic" style="position:fixed;left:0;right:0;bottom:0;max-height:40vh;overflow-y:auto;background:#0b1b0f;color:#7CFC98;font:11px/1.5 monospace;padding:8px 10px;z-index:9999;white-space:pre-wrap;"></div>
-
 <script>
 function log(t){
-  const p = document.getElementById('panneauDiagnostic');
-  const l = document.createElement('div');
-  l.textContent = new Date().toLocaleTimeString() + ' — ' + t;
-  p.appendChild(l);
-  p.scrollTop = p.scrollHeight;
+  console.log(new Date().toLocaleTimeString() + ' — ' + t);
 }
 log('1. Script démarré ✅');
 window.addEventListener('error', e => log('❌ Erreur JS : ' + e.message + ' (' + (e.filename||'').split('/').pop() + ':' + e.lineno + ')'));
@@ -673,11 +668,12 @@ function afficherOffres(){
       + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
           ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
           : '')
+      + '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' + badgeType + badgeUrgent + '</div>'
       + menuSuppr
       + '</div>';
     const dejaAimeOffre = mesReactionsOffres[o.id];
     const lignesActions = '<div class="pr-row">'
-      +   '<span class="pr-cnt" id="likecount-' + o.id + '">' + (dejaAimeOffre||'') + ' ' + (o.likes||0) + '</span>'
+      +   '<span class="pr-cnt" id="likecount-' + o.id + '">' + (dejaAimeOffre||'👍') + ' ' + (o.likes||0) + '</span>'
       +   '<span class="pr-r" id="commcount-' + o.id + '">0 commentaire · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') + '</span>'
       + '</div>'
       + '<div class="p-acts">'
@@ -701,8 +697,9 @@ function afficherOffres(){
       +   '</button>'
       + '</div>'
       + '<div class="comm-zone" id="commzone-' + o.id + '"></div>';
-    div.innerHTML = enTeteAuteur + imgHtml + '<div>' + badgeType + badgeUrgent + '</div>'
+    div.innerHTML = enTeteAuteur
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
+      + imgHtml
       + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>'
       + validHtml + candHtml + actionsHtml
       + lignesActions;
@@ -749,7 +746,7 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
       const nouveauTotal = Math.max(0, likesActuels - 1);
       if (btn) btn.classList.remove('reacted');
       if (labelEl) labelEl.textContent = "J'aime";
-      if (countEl) countEl.textContent = nouveauTotal;
+      if (countEl) countEl.textContent = '👍 ' + nouveauTotal;
       await reactRef.delete();
       await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
     } else {
