@@ -583,29 +583,155 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 <body>
 
 <div style="padding-top:108px">
-<button class="btn-pub" onclick="document.getElementById('createModalOffre').classList.add('open')">＋ Publier une offre</button>
+
+<div class="search-bar" id="searchBar">
+  <input type="text" id="searchInput" placeholder="Rechercher une offre, une ville, une catégorie…">
+  <span class="search-close" onclick="window.__closeSearch()">✕</span>
 </div>
 
-<div class="create-modal" id="createModalOffre">
-  <div class="cm-header">
-    <span class="cm-cancel" onclick="document.getElementById('createModalOffre').classList.remove('open')">Annuler</span>
-    <span class="cm-title">Publier une offre</span>
-    <span style="width:60px;"></span>
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-left" style="text-align:center;">
+    <p>Trouvez ou proposez vos services</p>
+    <button class="btn-pub" onclick="openModal()">＋ Publier une offre</button>
   </div>
-  <div class="cm-choix">
-    <div class="cm-choix-intro">Choisissez comment partager votre offre.</div>
-    <div class="cm-choix-grid">
-      <div class="cm-choix-tile" onclick="alert('Étape suivante à venir')">
-        <div class="cm-choix-ico" style="background:#fdeceb">🔎</div>
-        <div><div class="cm-choix-nom">Demande</div><div class="cm-choix-sub">Je cherche un artisan</div></div>
-      </div>
-      <div class="cm-choix-tile" onclick="alert('Étape suivante à venir')">
-        <div class="cm-choix-ico" style="background:#eef8ee">💼</div>
-        <div><div class="cm-choix-nom">Mes services</div><div class="cm-choix-sub">Je propose un service</div></div>
-      </div>
+  <div class="panneau-outer">
+    <div class="ficelle"><div class="crochet"></div></div>
+    <div class="panneau-box">
+      <div class="pt">OFFRE</div>
+      <div class="ps">D'EMPLOI</div>
     </div>
   </div>
 </div>
+
+<!-- Stats — simples, noir -->
+<div class="stats">
+  <div class="stat"><div class="sv" id="stat-demandes">—</div><div class="sl">Demandes</div></div>
+  <div class="stat"><div class="sv" id="stat-offres">—</div><div class="sl">Offres</div></div>
+  <div class="stat"><div class="sv" id="stat-urgentes">—</div><div class="sl">Urgentes</div></div>
+</div>
+
+<!-- Filtres -->
+<div class="filtres">
+  <span class="filtre on">Tout</span>
+  <span class="filtre">⚡ Urgent</span>
+  <span class="filtre">🟢 Offres</span>
+  <span class="filtre">🔴 Demandes</span>
+  <span class="filtre">📣 Annonces</span>
+  <span class="filtre">🏙️ Cotonou</span>
+  <span class="filtre">✂️ Couture</span>
+  <span class="filtre">🧱 Maçonnerie</span>
+</div>
+
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="overlay" id="overlay" onclick="closeSiDehors(event)">
+  <div class="modal" id="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;">
+      <button onclick="fermerModal()" style="width:34px;height:34px;border-radius:50%;border:none;background:#f0f2f5;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">✕</button>
+      <div style="width:36px;height:4px;background:#ddd;border-radius:4px;"></div>
+      <div style="width:32px;"></div>
+    </div>
+    <h3 data-i18n="off_modal_titre">📢 Publier une offre</h3>
+    <p class="modal-sub" data-i18n="off_modal_sous_titre">Choisissez un modèle</p>
+    <div class="m-grid">
+      <div class="m-card sel" onclick="selModele(this,'demande')">
+        <div class="m-icon">🔍</div>
+        <div class="m-name" data-i18n="off_card_demande">Demande</div>
+        <div class="m-desc" data-i18n="off_card_demande_desc">Je cherche un artisan</div>
+      </div>
+      <div class="m-card" onclick="selModele(this,'photo')">
+        <div class="m-icon">🖼️</div>
+        <div class="m-name" data-i18n="off_card_photo">Avec photo</div>
+        <div class="m-desc" data-i18n="off_card_photo_desc">Image au centre</div>
+      </div>
+      <div class="m-card" onclick="selModele(this,'offre')">
+        <div class="m-icon">💼</div>
+        <div class="m-name" data-i18n="off_card_service">Mes services</div>
+        <div class="m-desc" data-i18n="off_card_service_desc">Je propose un service</div>
+      </div>
+      <div class="m-card" onclick="selModele(this,'texte')">
+        <div class="m-icon">✏️</div>
+        <div class="m-name" data-i18n="off_card_texte">Publication simple</div>
+        <div class="m-desc" data-i18n="off_card_texte_desc">Texte + image optionnelle</div>
+      </div>
+    </div>
+
+    <!-- Zone texte simple visible si modèle texte -->
+    <div id="zoneTexte" style="display:none;margin-bottom:12px;">
+      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" data-i18n-ph="off_ph_annonce" style="width:100%;min-height:120px;border:1.5px solid #e4e6eb;border-radius:12px;padding:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      <div style="margin-top:8px;">
+        <div class="tog-row" onclick="toggleImgTexte()" style="margin-bottom:8px;">
+          <div class="tog" id="togImgTexte"></div>
+          <span data-i18n="off_ajouter_image">Ajouter une image (optionnel)</span>
+        </div>
+        <div id="uploadZoneTexte" style="display:none">
+          <div class="upload-zone" onclick="document.getElementById('fi3').click()">
+            <div class="uz-icon">🖼️</div>
+            <div class="uz-txt" data-i18n="off_choisir_image">Choisir une image</div>
+            <div class="uz-sub" data-i18n="off_max_3mo">JPG · PNG · max 3 Mo</div>
+          </div>
+          <input type="file" id="fi3" accept="image/*" style="display:none" onchange="previewImgTexte(event)"/>
+          <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:200px;object-fit:cover;"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="m2-preview" id="m2preview" onclick="document.getElementById('fi').click()">
+      🖼️<span data-i18n="off_appuyer_photo">Appuyer pour ajouter une photo</span>
+    </div>
+    <input type="file" id="fi" accept="image/*" style="display:none" onchange="previewImg(event)"/>
+    <img id="imgPrev" style="display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:12px;"/>
+
+    <div id="formZone">
+    <div class="fg"><label data-i18n="off_lbl_titre">Titre *</label><input type="text" id="inp-titre" placeholder="Ex : Recherche 5 peintres qualifiés" data-i18n-ph="off_ph_titre"/></div>
+    <div class="fg"><label data-i18n="off_lbl_description">Description</label><textarea id="inp-desc" placeholder="Décrivez votre offre…" data-i18n-ph="off_ph_description"></textarea></div>
+    <div class="row2">
+      <div class="fg">
+        <label data-i18n="off_lbl_categorie">Catégorie *</label>
+        <select>
+          <option data-i18n="off_cat_maconnerie">🧱 Maçonnerie</option><option data-i18n="off_cat_couture">✂️ Couture</option>
+          <option data-i18n="off_cat_electricite">⚡ Électricité</option><option data-i18n="off_cat_plomberie">🔧 Plomberie</option>
+          <option data-i18n="off_cat_dj">🎧 DJ / Musique</option><option data-i18n="off_cat_cuisine">🍳 Cuisine</option>
+          <option data-i18n="off_cat_info">📱 Informatique</option><option data-i18n="off_cat_autre">Autre…</option>
+        </select>
+      </div>
+      <div class="fg"><label data-i18n="off_lbl_ville">Ville *</label><input type="text" id="inp-ville" placeholder="Cotonou" data-i18n-ph="off_ph_ville"/></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label data-i18n="off_lbl_budget">Budget / Tarif</label><input type="text" id="inp-budget" placeholder="50 000 FCFA/j" data-i18n-ph="off_ph_budget"/></div>
+      <div class="fg"><label data-i18n="off_lbl_dispo">Disponibilité</label><input type="text" id="inp-dispo" placeholder="Dès lundi" data-i18n-ph="off_ph_dispo"/></div>
+    </div>
+    <div class="fg">
+      <label data-i18n="off_lbl_duree">⏳ Durée de validité</label>
+      <div class="duree">
+        <input type="number" placeholder="30" min="1" id="inp-duree"/>
+        <select id="inp-duree-unit"><option data-i18n="off_unite_jours">jours</option><option data-i18n="off_unite_semaines">semaines</option><option data-i18n="off_unite_mois">mois</option></select>
+      </div>
+    </div>
+    <div id="togRow2" class="tog-row" onclick="toggleUrgent()" style="margin-bottom:10px;">
+      <div class="tog" id="togUrgent"></div>
+      <span data-i18n="off_marquer_urgent">⚡ Marquer comme urgent</span>
+    </div>
+    <div id="togRow" class="tog-row" onclick="toggleImg()">
+      <div class="tog" id="togImg"></div>
+      <span data-i18n="off_ajouter_image">Ajouter une image (optionnel)</span>
+    </div>
+    <div id="uploadZone" style="display:none">
+      <div class="upload-zone" onclick="document.getElementById('fi2').click()">
+        <div class="uz-icon">🖼️</div>
+        <div class="uz-txt" data-i18n="off_choisir_image">Choisir une image</div>
+        <div class="uz-sub" data-i18n="off_max_3mo">JPG · PNG · max 3 Mo</div>
+      </div>
+      <img id="imgPrevSimple" style="display:none">
+      <input type="file" id="fi2" accept="image/*" style="display:none" onchange="previewImgSimple(event)"/>
+    </div>
+    </div><!-- /formZone -->
+    <button class="btn-modal-pub" data-i18n="off_publier_maintenant">📢 Publier maintenant</button>
+  </div>
+</div>
+
 
 <div id="feedOffres">
   <div id="feed-loading" style="text-align:center;padding:40px 20px;color:#aaa;">
@@ -1864,6 +1990,7 @@ document.querySelectorAll('.filtre').forEach(f => {
 
 /* ── MODAL ── */
 window.openModal = () => document.getElementById('overlay').classList.add('open');
+window.fermerModal = () => document.getElementById('overlay').classList.remove('open');
 window.closeSiDehors = e => {
   if (e.target === document.getElementById('overlay'))
     document.getElementById('overlay').classList.remove('open');
@@ -1946,148 +2073,4 @@ window.previewImgTexte = e => {
     imgBase64Txt = ev.target.result;
     const i = document.getElementById('imgPrevTexte');
     i.src = ev.target.result;
-    i.style.cssText = 'display:block;width:100%;max-height:260px;object-fit:contain;border-radius:10px;margin-top:8px;';
-  };
-  r.readAsDataURL(f);
-};
-
-/* ── SUPPRIMER OFFRE ── */
-window.toggleMenuSuppr = (id) => {
-  const menu = document.getElementById('menu-suppr-'+id);
-  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-  // Fermer si clic ailleurs
-  setTimeout(() => {
-    document.addEventListener('click', function closeMenu(e) {
-      if (!e.target.closest('#menu-suppr-'+id)) {
-        if (menu) menu.style.display = 'none';
-        document.removeEventListener('click', closeMenu);
-      }
-    });
-  }, 100);
-};
-
-window.supprimerOffre = (offreId, mode) => {
-  // Fermer menu
-  const menu = document.getElementById('menu-suppr-'+offreId);
-  if (menu) menu.style.display = 'none';
-
-  // Afficher dialog confirmation
-  const messages = {
-    definitif: 'Cette offre sera supprimée définitivement. Cette action est irréversible.',
-    '15j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '15'),
-    '30j': 'Cette offre expirera dans {n} jours.'.replace('{n}', '30')
-  };
-
-  const dialog = document.createElement('div');
-  dialog.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;';
-  const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border-radius:20px;padding:24px;width:100%;max-width:360px;';
-  const icon = mode === 'definitif' ? '🗑️' : '⏳';
-  const titre = mode === 'definitif' ? 'Supprimer definitivement' : 'Faire expirer';
-  const desc = mode === 'definitif'
-    ? 'Cette offre sera supprimée définitivement. Cette action est irréversible.'
-    : 'Cette offre expirera dans {n} jours.'.replace('{n}', mode === '15j' ? '15' : '30');
-
-  const iconDiv = document.createElement('div');
-  iconDiv.style.cssText = 'text-align:center;font-size:40px;margin-bottom:12px;';
-  iconDiv.textContent = icon;
-  const titreDiv = document.createElement('div');
-  titreDiv.style.cssText = 'font-size:16px;font-weight:800;color:#1c1e21;margin-bottom:8px;text-align:center;';
-  titreDiv.textContent = titre;
-  const descDiv = document.createElement('div');
-  descDiv.style.cssText = 'font-size:13px;color:#65676b;text-align:center;margin-bottom:20px;line-height:1.5;';
-  descDiv.textContent = desc;
-  const btnsDiv = document.createElement('div');
-  btnsDiv.style.cssText = 'display:flex;gap:10px;';
-  const btnNon = document.createElement('button');
-  btnNon.id = 'btn-non';
-  btnNon.textContent = 'Non, annuler';
-  btnNon.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:1.5px solid #e4e6eb;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:#1c1e21;';
-  const btnOui = document.createElement('button');
-  btnOui.id = 'btn-oui';
-  btnOui.textContent = 'Oui, confirmer';
-  btnOui.style.cssText = 'flex:1;padding:12px;border-radius:12px;border:none;background:'+(mode==='definitif'?'#e63224':'#e65100')+';color:#fff;font-size:14px;font-weight:700;cursor:pointer;';
-  btnsDiv.appendChild(btnNon); btnsDiv.appendChild(btnOui);
-  box.appendChild(iconDiv); box.appendChild(titreDiv); box.appendChild(descDiv); box.appendChild(btnsDiv);
-
-  dialog.appendChild(box);
-  document.body.appendChild(dialog);
-
-  dialog.querySelector('#btn-non').onclick = () => dialog.remove();
-  dialog.querySelector('#btn-oui').onclick = async () => {
-    dialog.remove();
-    try {
-      if (mode === 'definitif') {
-        await db.collection('offres').doc(offreId).delete();
-        showToast('Offre supprimée définitivement.');
-      } else {
-        const jours = mode === '15j' ? 15 : 30;
-        await db.collection('offres').doc(offreId).update({ dureeDays: jours, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        showToast('Offre expirera dans '+jours+' jours.');
-      }
-    } catch(e){ console.error(e); showToast('Erreur : '+e.message); }
-  };
-};
-
-
-/* ── TOAST ── */
-function showToast(msg) {
-  let t = document.getElementById('toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast';
-    t.style.cssText='position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity='1';
-  setTimeout(() => t.style.opacity='0', 2500);
-}
-
-/* ── TEMPS DEPUIS ── */
-function tempsDepuis(ms) {
-  const diff = Date.now() - ms;
-  const m = Math.floor(diff/60000);
-  if (m < 1)  return 'il y a peu';
-  if (m < 60) return 'il y a {n}min'.replace('{n}', m);
-  const h = Math.floor(m/60);
-  if (h < 24) return 'il y a {n}h'.replace('{n}', h);
-  const j = Math.floor(h/24);
-  if (j < 7)  return 'il y a {n}j'.replace('{n}', j);
-  const s = Math.floor(j/7);
-  if (s < 4)  return 'il y a {n} sem.'.replace('{n}', s);
-  return 'il y a {n} mois'.replace('{n}', Math.floor(j/30));
-}
-
-/* ── DÉMARRAGE ── */
-// Bouton publier connecté
-const btnModalPub = document.querySelector('.btn-modal-pub');
-if (btnModalPub) btnModalPub.addEventListener('click', publierOffre);
-
-/* ── Traduction : placeholders (non gérés par applyTranslations) + rafraîchissement dynamique ── */
-function refreshDynamicTexts(){
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    el.placeholder = T(el.dataset.i18nPh);
-  });
-  // Redessiner le fil pour re-traduire les cartes déjà affichées (dates, boutons, badges…)
-  if (typeof chargerOffres === 'function') chargerOffres();
-}
-
-function accrocherRafraichissementLangue(){
-  if (typeof window.setLang === 'function' && !window.__offresSetLangAccroche) {
-    const original = window.setLang;
-    window.setLang = function(code, flag, el){
-      original(code, flag, el);
-      refreshDynamicTexts();
-    };
-    window.__offresSetLangAccroche = true;
-    refreshDynamicTexts();
-  } else if (!window.__offresSetLangAccroche) {
-    setTimeout(accrocherRafraichissementLangue, 50);
-  }
-}
-accrocherRafraichissementLangue();
-
-</script>
-</body>
-</html>
+    i
