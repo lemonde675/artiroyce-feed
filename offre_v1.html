@@ -43,6 +43,8 @@
   .zone-publier .cp-input:hover { background: #eef0f2; }
   .zone-publier .cp-search-btn { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: #f5f6f8; border: 1px solid #ececec; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
   .zone-publier .cp-search-btn:hover { background: #eef0f2; }
+  .zone-publier .btn-emploi { flex-shrink: 0; background: #fff; border: 1px solid #e4e6eb; border-radius: 12px; padding: 6px 10px; font-size: 10.5px; font-weight: 800; line-height: 1.25; text-align: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); color: #1c1e21; font-family: inherit; }
+  .zone-publier .btn-emploi span { display: block; color: var(--red); }
   .search-bar { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: #fff; border-radius: 16px; margin-top: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
   .search-bar.open { display: flex; }
   .search-bar input { flex: 1; border: 1px solid #e8ecf0; border-radius: 20px; padding: 9px 14px; font-size: 13px; background: #f2f4f7; color: #222; font-family: inherit; }
@@ -62,7 +64,8 @@
 
     <div class="zone-publier">
       <div class="cp-av">A</div>
-      <button class="cp-input" onclick="document.getElementById('panelDemande').classList.add('open')">Publier une offre ou une demande…</button>
+      <button class="cp-input" onclick="ouvrirPanneau('demande')">Publier une offre ou une demande…</button>
+      <button class="btn-emploi" onclick="ouvrirPanneau('offre')">OFFRE<span>D'EMPLOI</span></button>
       <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
     </div>
     <div class="search-bar" id="searchBar">
@@ -145,6 +148,12 @@ let toutesLesOffres = [];
 let observateur = null;
 let filtreActif = 'tout';
 let termeRecherche = '';
+let typePublicationActuelle = 'demande';
+
+function ouvrirPanneau(type){
+  typePublicationActuelle = type;
+  document.getElementById('panelDemande').classList.add('open');
+}
 
 function toggleSearch(){
   const barre = document.getElementById('searchBar');
@@ -232,7 +241,7 @@ function publierDemande(){
   const btn = document.getElementById('btnEnvoyer');
   btn.disabled = true; btn.textContent = 'Publication…';
   db.collection('offres').add({
-    type: 'demande',
+    type: typePublicationActuelle,
     titre: titre,
     description: document.getElementById('champDesc').value.trim(),
     ville: document.getElementById('champVille').value.trim(),
