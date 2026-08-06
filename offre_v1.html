@@ -70,16 +70,17 @@
   .duree { display: flex; gap: 8px; }
   .panel select { width: 100%; border: 1.5px solid #e4e6eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; background: #fff; }
   .m2preview { display: none; border: 1.5px dashed #d8dbe0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 12px; color: #888; font-size: 13px; }
-  .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ph { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
   .ph-av { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
   .ph-vb { position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; font-weight: 900; }
   .online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
-  .ph-info { flex: 1; min-width: 0; cursor: pointer; }
+  .ph-info { flex: 1 1 120px; min-width: 0; cursor: pointer; }
   .ph-name { font-size: 13.5px; font-weight: 800; color: #222; }
   .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; }
   .ph-follow { font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 99px; cursor: pointer; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; flex-shrink: 0; }
   .ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
   .ph-more { color: #bbb; font-size: 20px; font-weight: 900; cursor: pointer; padding: 6px 8px; margin-left: -4px; flex-shrink: 0; }
+  .ph-side { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-basis: 100%; margin-left: 48px; }
   .post-menu { display: none; position: absolute; margin-top: 30px; margin-left: -60px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 190px; }
   .post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
   .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
@@ -114,11 +115,11 @@
   .vs.active { color: var(--green); font-weight: 700; }
   .vs.expire { color: #999; font-weight: 700; }
   .cand { font-size: 12.5px; color: #65676b; margin-top: 6px; }
-  .card-actions { display: flex; gap: 8px; margin-top: 12px; }
-  .btn-c, .btn-a { flex: 1; border: none; border-radius: 10px; padding: 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
-  .btn-c { background: #f0f2f5; color: #333; }
-  .btn-a.vert { background: var(--green); color: #fff; }
-  .btn-a.rouge { background: var(--red); color: #fff; }
+  .card-actions { display: flex; gap: 0; border-top: 1px solid #e4e6eb; border-bottom: 1px solid #e4e6eb; margin-top: 12px; }
+  .btn-c, .btn-a { flex: 1; padding: 10px 4px; border: none; background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: #65676b; display: flex; align-items: center; justify-content: center; gap: 5px; border-right: 1px solid #e4e6eb; font-family: inherit; }
+  .btn-c:last-child, .btn-a:last-child { border-right: none; }
+  .btn-a.rouge { color: var(--red); }
+  .btn-a.vert { color: var(--green); }
 </style>
 </head>
 <body>
@@ -348,8 +349,14 @@ async function toggleSuivreOffre(auteurUid, event){
       await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
       followedUidsOffres.add(auteurUid);
     }
-    toutesLesOffres = trierOffresParPriorite(toutesLesOffres);
-    afficherOffres();
+    // On ne re-trie pas le fil tout de suite : ça bougerait les publications sous les
+    // doigts pendant qu'on lit. Le nouveau classement s'appliquera au prochain
+    // rafraîchissement naturel du fil. On se contente de mettre à jour ce bouton.
+    document.querySelectorAll('.ph-follow[data-uid="' + auteurUid + '"]').forEach(btn => {
+      const suivi = followedUidsOffres.has(auteurUid);
+      btn.classList.toggle('suivi', suivi);
+      btn.textContent = suivi ? 'Suivi(e)' : '+ Suivre';
+    });
   } catch (e) {
     log('❌ Erreur suivi : ' + e.message);
   }
@@ -636,7 +643,7 @@ function afficherOffres(){
       : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
       : '<span class="badge offre">🟢 Offre</span>';
     const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
-    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="width:100%;border-radius:10px;margin-bottom:8px;max-height:220px;object-fit:cover;">' : '';
+    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:calc(100% + 32px);margin:8px -16px;max-height:280px;object-fit:cover;object-position:center;">' : '';
     const nomAff = o.auteurNom || 'Utilisateur';
     const statut = o.auteurVerifie ? 'Professionnel' : 'Visiteur';
     const villeCourte = premiereVille(o.ville);
@@ -665,11 +672,13 @@ function afficherOffres(){
       +   '<div class="ph-name">' + escapeHtml(nomAff) + '</div>'
       +   '<div class="ph-meta">' + metaAuteur + '</div>'
       + '</div>'
+      + '<div class="ph-side">'
       + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
-          ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+          ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" data-uid="' + o.auteurUid + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
           : '')
-      + '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' + badgeType + badgeUrgent + '</div>'
+      + badgeType + badgeUrgent
       + menuSuppr
+      + '</div>'
       + '</div>';
     const dejaAimeOffre = mesReactionsOffres[o.id];
     const lignesActions = '<div class="pr-row">'
@@ -1065,6 +1074,7 @@ window.contacterOffre = function (offreId, nomAuteur){
 
 window.postulerOffre = async function (offreId, candidaturesActuelles){
   if (!currentUser) { toast('Connectez-vous pour postuler'); return; }
+  if (!confirm('Envoyer votre candidature pour cette offre ?')) return;
   try {
     await db.collection('offres').doc(offreId).update({ candidatures: firebase.firestore.FieldValue.increment(1) });
     await db.collection('offres').doc(offreId).collection('commentaires').add({
