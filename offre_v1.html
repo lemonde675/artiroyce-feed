@@ -50,6 +50,33 @@
   .search-bar.open { display: flex; }
   .search-bar input { flex: 1; border: 1px solid #e8ecf0; border-radius: 20px; padding: 9px 14px; font-size: 13px; background: #f2f4f7; color: #222; font-family: inherit; }
   .search-bar .search-close { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; padding: 4px; }
+  .modal-sub { font-size: 13px; color: #65676b; margin: 2px 0 14px; }
+  .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .m-card { border: 1.5px solid #e4e6eb; border-radius: 12px; padding: 12px 10px; text-align: center; cursor: pointer; }
+  .m-card.sel { border-color: var(--red); background: #fdeceb; }
+  .m-icon { font-size: 22px; margin-bottom: 4px; }
+  .m-name { font-size: 12.5px; font-weight: 700; }
+  .m-desc { font-size: 10.5px; color: #888; margin-top: 2px; }
+  .tog-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 12px 0; cursor: pointer; }
+  .tog { width: 38px; height: 22px; border-radius: 12px; background: #ddd; position: relative; flex-shrink: 0; transition: background .15s; }
+  .tog::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: left .15s; }
+  .tog.on { background: var(--green); }
+  .tog.on::after { left: 18px; }
+  .upload-zone { border: 1.5px dashed #d8dbe0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; margin-top: 8px; }
+  .uz-icon { font-size: 26px; }
+  .uz-txt { font-size: 13px; font-weight: 700; margin-top: 4px; }
+  .uz-sub { font-size: 11px; color: #999; margin-top: 2px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duree { display: flex; gap: 8px; }
+  .panel select { width: 100%; border: 1.5px solid #e4e6eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; outline: none; background: #fff; }
+  .m2preview { display: none; border: 1.5px dashed #d8dbe0; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 12px; color: #888; font-size: 13px; }
+  .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ph-av { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
+  .ph-vb { position: absolute; bottom: -1px; right: -1px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; font-weight: 900; }
+  .online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
+  .ph-info { flex: 1; min-width: 0; cursor: pointer; }
+  .ph-name { font-size: 13.5px; font-weight: 800; color: #222; }
+  .ph-meta { font-size: 11.5px; color: #999; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -83,21 +110,80 @@
 </div>
 
 <!-- Panneau -->
-<div class="panel-overlay" id="panelDemande" onclick="if(event.target===this) this.classList.remove('open')">
+<div class="panel-overlay" id="panelPublier" onclick="if(event.target===this) fermerPanneau()">
   <div class="panel">
     <div class="panel-header">
-      <h2>Publier une demande</h2>
-      <button class="panel-close" onclick="document.getElementById('panelDemande').classList.remove('open')">✕</button>
+      <h2>📢 Publier une offre</h2>
+      <button class="panel-close" onclick="fermerPanneau()">✕</button>
     </div>
-    <label>Titre</label>
-    <input type="text" id="champTitre" placeholder="Ex : Recherche 5 peintres qualifiés">
-    <label>Description</label>
-    <textarea id="champDesc" placeholder="Décrivez votre demande…"></textarea>
-    <label>Ville</label>
-    <input type="text" id="champVille" placeholder="Cotonou">
-    <label>Budget</label>
-    <input type="text" id="champBudget" placeholder="50 000 FCFA/j">
-    <button class="btn-envoyer" id="btnEnvoyer" onclick="publierDemande()">Publier</button>
+    <p class="modal-sub">Choisissez un modèle</p>
+    <div class="m-grid">
+      <div class="m-card" data-m="demande" onclick="selModele(this,'demande')">
+        <div class="m-icon">🔍</div><div class="m-name">Demande</div><div class="m-desc">Je cherche un artisan</div>
+      </div>
+      <div class="m-card" data-m="photo" onclick="selModele(this,'photo')">
+        <div class="m-icon">🖼️</div><div class="m-name">Avec photo</div><div class="m-desc">Image au centre</div>
+      </div>
+      <div class="m-card" data-m="offre" onclick="selModele(this,'offre')">
+        <div class="m-icon">💼</div><div class="m-name">Mes services</div><div class="m-desc">Je propose un service</div>
+      </div>
+      <div class="m-card" data-m="texte" onclick="selModele(this,'texte')">
+        <div class="m-icon">✏️</div><div class="m-name">Publication simple</div><div class="m-desc">Texte + image optionnelle</div>
+      </div>
+    </div>
+
+    <div id="zoneTexte" style="display:none;">
+      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" style="width:100%;min-height:110px;border:1.5px solid #e4e6eb;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      <div class="tog-row" onclick="toggleImgTexte()"><div class="tog" id="togImgTexte"></div><span>Ajouter une image (optionnel)</span></div>
+      <div id="uploadZoneTexte" style="display:none">
+        <div class="upload-zone" onclick="document.getElementById('fiTexte').click()">
+          <div class="uz-icon">🖼️</div><div class="uz-txt">Choisir une image</div><div class="uz-sub">JPG · PNG · max 3 Mo</div>
+        </div>
+        <input type="file" id="fiTexte" accept="image/*" style="display:none" onchange="previewImgTexte(event)">
+        <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover;">
+      </div>
+    </div>
+
+    <div id="m2preview" class="m2preview" onclick="document.getElementById('fiPhoto').click()">🖼️ Appuyer pour ajouter une photo</div>
+    <input type="file" id="fiPhoto" accept="image/*" style="display:none" onchange="previewImg(event)">
+    <img id="imgPrev" style="display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:12px;">
+
+    <div id="formZone" style="display:none;">
+      <label>Titre *</label>
+      <input type="text" id="inpTitre" placeholder="Ex : Recherche 5 peintres qualifiés">
+      <label>Description</label>
+      <textarea id="inpDesc" placeholder="Décrivez votre offre…"></textarea>
+      <div class="row2">
+        <div><label>Catégorie</label>
+          <select id="inpCateg">
+            <option>🧱 Maçonnerie</option><option>✂️ Couture</option><option>⚡ Électricité</option>
+            <option>🔧 Plomberie</option><option>🎧 DJ / Musique</option><option>🍳 Cuisine</option>
+            <option>📱 Informatique</option><option>Autre…</option>
+          </select>
+        </div>
+        <div><label>Ville</label><input type="text" id="inpVille" placeholder="Cotonou"></div>
+      </div>
+      <div class="row2">
+        <div><label>Budget / Tarif</label><input type="text" id="inpBudget" placeholder="50 000 FCFA/j"></div>
+        <div><label>Disponibilité</label><input type="text" id="inpDispo" placeholder="Dès lundi"></div>
+      </div>
+      <label>⏳ Durée de validité</label>
+      <div class="duree">
+        <input type="number" id="inpDureeVal" placeholder="30" min="1">
+        <select id="inpDureeUnite"><option>jours</option><option>semaines</option><option>mois</option></select>
+      </div>
+      <div class="tog-row" onclick="toggleUrgent()"><div class="tog" id="togUrgent"></div><span>⚡ Marquer comme urgent</span></div>
+      <div class="tog-row" id="togRowImg" onclick="toggleImg()"><div class="tog" id="togImg"></div><span>Ajouter une image (optionnel)</span></div>
+      <div id="uploadZone" style="display:none">
+        <div class="upload-zone" onclick="document.getElementById('fiForm').click()">
+          <div class="uz-icon">🖼️</div><div class="uz-txt">Choisir une image</div><div class="uz-sub">JPG · PNG · max 3 Mo</div>
+        </div>
+        <input type="file" id="fiForm" accept="image/*" style="display:none" onchange="previewImgSimple(event)">
+        <img id="imgPrevSimple" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover;">
+      </div>
+    </div>
+
+    <button class="btn-envoyer" id="btnEnvoyer" onclick="publierOffre()" style="display:none;">📢 Publier maintenant</button>
   </div>
 </div>
 
@@ -163,10 +249,24 @@ setTimeout(ajusterBarreFixe, 600);
 
 let currentUser = null;
 
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async user => {
   log('7. Connexion : ' + (user ? user.uid : 'AUCUN'));
   if (!user) { log('❌ Pas connecté — impossible de charger le profil'); return; }
   currentUser = user;
+  currentUser.nomAffiche = user.email ? user.email.split('@')[0] : 'Moi';
+  try {
+    const snap = await db.collection('utilisateurs').doc(user.uid).get();
+    if (snap.exists) {
+      const d = snap.data();
+      currentUser.nomAffiche = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.nomAffiche || 'Membre ArtiRoyce';
+      currentUser.role = d.role || 'visiteur';
+      currentUser.verifie = currentUser.role !== 'visiteur';
+      currentUser.ville = d.ville || '';
+      log('7b. Profil lu ✅ — ' + currentUser.nomAffiche + ' (' + currentUser.role + ')');
+    }
+  } catch (e) {
+    log('7bis. Échec lecture profil : ' + e.message);
+  }
   chargerOffres();
 });
 
@@ -176,11 +276,156 @@ let toutesLesOffres = [];
 let observateur = null;
 let filtreActif = 'tout';
 let termeRecherche = '';
-let typePublicationActuelle = 'demande';
+
+const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+
+function escapeHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function creerAvatarHTML(nom, verifie, uid){
+  const initiale = (nom || '?')[0].toUpperCase();
+  const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
+  return '<div class="ph-av" style="background:' + couleur + '" onclick="__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+    + (verifie ? '<span class="ph-vb">✔</span>' : '')
+    + '<div class="online-dot" data-author="' + (uid || '') + '"></div>'
+    + '</div>';
+}
+
+function __voirProfil(uid){
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && window.parent.goUserProfile) {
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+}
+
+function tempsDepuis(ms){
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'il y a peu';
+  if (m < 60) return 'il y a ' + m + 'min';
+  const h = Math.floor(m / 60);
+  if (h < 24) return 'il y a ' + h + 'h';
+  const j = Math.floor(h / 24);
+  if (j < 7) return 'il y a ' + j + 'j';
+  const s = Math.floor(j / 7);
+  if (s < 4) return 'il y a ' + s + ' sem.';
+  return 'il y a ' + Math.floor(j / 30) + ' mois';
+}
+
+function premiereVille(ville){
+  if (!ville) return '';
+  return String(ville).split(/[,\s]+/)[0] || '';
+}
+
+// Affiche le point vert "en ligne" pour les auteurs actifs dans les 2 dernières minutes
+async function marquerAuteursEnLigne(){
+  const dots = document.querySelectorAll('.online-dot[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    try {
+      const uSnap = await db.collection('utilisateurs').doc(uid).get();
+      if (!uSnap.exists) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = 'block');
+      }
+    } catch (e) {}
+  }
+}
+let currentModele = 'demande';
+let urgentOn = false;
+let imgOn = false;
+let imgOnTexte = false;
+let imgBase64 = '';
+let imgBase64Txt = '';
 
 function ouvrirPanneau(type){
-  typePublicationActuelle = type;
-  document.getElementById('panelDemande').classList.add('open');
+  document.getElementById('panelPublier').classList.add('open');
+  const carte = document.querySelector('.m-card[data-m="' + type + '"]');
+  if (carte) selModele(carte, type);
+}
+function fermerPanneau(){
+  document.getElementById('panelPublier').classList.remove('open');
+}
+
+function selModele(el, type){
+  document.querySelectorAll('.m-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  currentModele = type;
+  document.getElementById('btnEnvoyer').style.display = 'block';
+  const m2 = document.getElementById('m2preview');
+  const formZone = document.getElementById('formZone');
+  const zoneTexte = document.getElementById('zoneTexte');
+  const togRowImg = document.getElementById('togRowImg');
+  m2.style.display = 'none';
+  document.getElementById('imgPrev').style.display = 'none';
+  zoneTexte.style.display = 'none';
+  formZone.style.display = 'block';
+  togRowImg.style.display = 'flex';
+  if (type === 'photo') {
+    m2.style.display = 'block';
+    togRowImg.style.display = 'none';
+    document.getElementById('uploadZone').style.display = 'none';
+  } else if (type === 'texte') {
+    formZone.style.display = 'none';
+    zoneTexte.style.display = 'block';
+  }
+}
+
+function toggleUrgent(){
+  urgentOn = !urgentOn;
+  document.getElementById('togUrgent').classList.toggle('on', urgentOn);
+}
+function toggleImg(){
+  imgOn = !imgOn;
+  document.getElementById('togImg').classList.toggle('on', imgOn);
+  document.getElementById('uploadZone').style.display = imgOn ? 'block' : 'none';
+}
+function toggleImgTexte(){
+  imgOnTexte = !imgOnTexte;
+  document.getElementById('togImgTexte').classList.toggle('on', imgOnTexte);
+  document.getElementById('uploadZoneTexte').style.display = imgOnTexte ? 'block' : 'none';
+}
+function previewImg(e){
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64 = ev.target.result;
+    const imgPrev = document.getElementById('imgPrev');
+    imgPrev.src = ev.target.result;
+    imgPrev.style.display = 'block';
+    document.getElementById('m2preview').style.display = 'none';
+  };
+  r.readAsDataURL(f);
+}
+function previewImgSimple(e){
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64 = ev.target.result;
+    const i = document.getElementById('imgPrevSimple');
+    i.src = ev.target.result;
+    i.style.display = 'block';
+  };
+  r.readAsDataURL(f);
+}
+function previewImgTexte(e){
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    imgBase64Txt = ev.target.result;
+    const i = document.getElementById('imgPrevTexte');
+    i.src = ev.target.result;
+    i.style.display = 'block';
+  };
+  r.readAsDataURL(f);
 }
 
 function toggleSearch(){
@@ -226,7 +471,7 @@ function afficherOffres(){
   zone.innerHTML = '';
   let liste = toutesLesOffres;
   if (filtreActif === 'urgent') liste = liste.filter(o => o.urgent);
-  else if (filtreActif === 'offre') liste = liste.filter(o => o.type === 'offre');
+  else if (filtreActif === 'offre') liste = liste.filter(o => o.type === 'offre' || o.type === 'texte' || o.type === 'photo');
   else if (filtreActif === 'demande') liste = liste.filter(o => o.type === 'demande');
   if (termeRecherche) {
     liste = liste.filter(o => {
@@ -242,14 +487,29 @@ function afficherOffres(){
   visibles.forEach(o => {
     const div = document.createElement('div');
     div.className = 'card';
-    const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>' : '<span class="badge offre">🟢 Offre</span>';
+    const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>'
+      : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
+      : '<span class="badge offre">🟢 Offre</span>';
     const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
-    div.innerHTML = '<div>' + badgeType + badgeUrgent + '</div>'
+    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="width:100%;border-radius:10px;margin-bottom:8px;max-height:220px;object-fit:cover;">' : '';
+    const nomAff = o.auteurNom || 'Utilisateur';
+    const statut = o.auteurVerifie ? 'Professionnel' : 'Visiteur';
+    const villeCourte = premiereVille(o.ville);
+    const tempsTxt = o.createdAt && o.createdAt.toMillis ? tempsDepuis(o.createdAt.toMillis()) : 'à l\'instant';
+    const metaAuteur = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsTxt;
+    const enTeteAuteur = '<div class="ph">'
+      + creerAvatarHTML(nomAff, o.auteurVerifie, o.auteurUid)
+      + '<div class="ph-info" onclick="__voirProfil(\'' + (o.auteurUid||'') + '\')">'
+      +   '<div class="ph-name">' + escapeHtml(nomAff) + '</div>'
+      +   '<div class="ph-meta">' + metaAuteur + '</div>'
+      + '</div></div>';
+    div.innerHTML = enTeteAuteur + imgHtml + '<div>' + badgeType + badgeUrgent + '</div>'
       + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
       + '<p class="meta">' + (o.ville||'') + (o.budget ? ' · '+o.budget : '') + '</p>';
     zone.appendChild(div);
   });
   log('10. Rendu terminé ✅ (' + visibles.length + '/' + liste.length + ' affichées)');
+  marquerAuteursEnLigne();
   if (observateur) observateur.disconnect();
   if (nombreAffiches < liste.length) {
     observateur = new IntersectionObserver(entrees => {
@@ -262,29 +522,52 @@ function afficherOffres(){
   }
 }
 
-function publierDemande(){
+function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
-  const titre = document.getElementById('champTitre').value.trim();
-  if (!titre) { alert('Le titre est obligatoire.'); return; }
+  let data = {
+    auteurUid: currentUser.uid,
+    auteurNom: currentUser.nomAffiche || 'Anonyme',
+    auteurVerifie: !!currentUser.verifie,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (currentModele === 'texte') {
+    const texte = document.getElementById('texteSimple').value.trim();
+    if (!texte) { alert('Écrivez votre annonce.'); return; }
+    data.type = 'texte';
+    data.texte = texte;
+    data.titre = texte.substring(0,60);
+    data.dureeDays = 30;
+    data.ville = currentUser.ville || '';
+    if (imgBase64Txt) data.imageUrl = imgBase64Txt;
+  } else {
+    const titre = document.getElementById('inpTitre').value.trim();
+    if (!titre) { alert('Le titre est obligatoire.'); return; }
+    let dureeVal = parseInt(document.getElementById('inpDureeVal').value) || 30;
+    const dureeUnite = document.getElementById('inpDureeUnite').value;
+    if (dureeUnite === 'semaines') dureeVal *= 7;
+    if (dureeUnite === 'mois') dureeVal *= 30;
+    data.type = currentModele;
+    data.titre = titre;
+    data.description = document.getElementById('inpDesc').value.trim();
+    data.categorie = document.getElementById('inpCateg').value;
+    data.ville = document.getElementById('inpVille').value.trim() || currentUser.ville || '';
+    data.budget = document.getElementById('inpBudget').value.trim();
+    data.dispo = document.getElementById('inpDispo').value.trim();
+    data.urgent = urgentOn;
+    data.dureeDays = dureeVal;
+    if (imgBase64) data.imageUrl = imgBase64;
+  }
   const btn = document.getElementById('btnEnvoyer');
   btn.disabled = true; btn.textContent = 'Publication…';
-  db.collection('offres').add({
-    type: typePublicationActuelle,
-    titre: titre,
-    description: document.getElementById('champDesc').value.trim(),
-    ville: document.getElementById('champVille').value.trim(),
-    budget: document.getElementById('champBudget').value.trim(),
-    auteurUid: currentUser.uid,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    dureeDays: 30
-  }).then(() => {
-    log('10. Demande publiée ✅');
-    document.getElementById('panelDemande').classList.remove('open');
-    btn.disabled = false; btn.textContent = 'Publier';
+  db.collection('offres').add(data).then(() => {
+    log('11. Offre publiée ✅ (modèle : ' + currentModele + ')');
+    fermerPanneau();
+    btn.disabled = false; btn.textContent = '📢 Publier maintenant';
+    imgBase64 = ''; imgBase64Txt = '';
     chargerOffres();
   }).catch(err => {
     log('❌ Erreur publication : ' + err.message);
-    btn.disabled = false; btn.textContent = 'Publier';
+    btn.disabled = false; btn.textContent = '📢 Publier maintenant';
   });
 }
 </script>
