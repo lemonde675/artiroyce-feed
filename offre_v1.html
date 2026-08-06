@@ -199,16 +199,16 @@
       <div class="tog-row" onclick="toggleImgTexte()"><div class="tog" id="togImgTexte"></div><span>Ajouter une image (optionnel)</span></div>
       <div id="uploadZoneTexte" style="display:none">
         <div class="upload-zone" onclick="document.getElementById('fiTexte').click()">
-          <div class="uz-icon">🖼️</div><div class="uz-txt">Choisir une image</div><div class="uz-sub">JPG · PNG · max 3 Mo</div>
+          <div class="uz-icon">🖼️🎥</div><div class="uz-txt">Choisir une photo ou une vidéo</div><div class="uz-sub">JPG · PNG · MP4 · max ~700 Ko</div>
         </div>
-        <input type="file" id="fiTexte" accept="image/*" style="display:none" onchange="previewImgTexte(event)">
-        <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover;">
+        <input type="file" id="fiTexte" accept="image/*,video/*" style="display:none" onchange="previewImgTexte(event)">
+        <img id="imgPrevTexte" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:300px;object-fit:contain;background:#f2f2f2;">
       </div>
     </div>
 
-    <div id="m2preview" class="m2preview" onclick="document.getElementById('fiPhoto').click()">🖼️ Appuyer pour ajouter une photo</div>
-    <input type="file" id="fiPhoto" accept="image/*" style="display:none" onchange="previewImg(event)">
-    <img id="imgPrev" style="display:none;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:12px;">
+    <div id="m2preview" class="m2preview" onclick="document.getElementById('fiPhoto').click()">🖼️🎥 Appuyer pour ajouter une photo ou une vidéo</div>
+    <input type="file" id="fiPhoto" accept="image/*,video/*" style="display:none" onchange="previewImg(event)">
+    <img id="imgPrev" style="display:none;width:100%;max-height:300px;object-fit:contain;background:#f2f2f2;border-radius:10px;margin-bottom:12px;">
 
     <div id="formZone" style="display:none;">
       <label>Titre *</label>
@@ -238,10 +238,10 @@
       <div class="tog-row" id="togRowImg" onclick="toggleImg()"><div class="tog" id="togImg"></div><span>Ajouter une image (optionnel)</span></div>
       <div id="uploadZone" style="display:none">
         <div class="upload-zone" onclick="document.getElementById('fiForm').click()">
-          <div class="uz-icon">🖼️</div><div class="uz-txt">Choisir une image</div><div class="uz-sub">JPG · PNG · max 3 Mo</div>
+          <div class="uz-icon">🖼️🎥</div><div class="uz-txt">Choisir une photo ou une vidéo</div><div class="uz-sub">JPG · PNG · MP4 · max ~700 Ko</div>
         </div>
-        <input type="file" id="fiForm" accept="image/*" style="display:none" onchange="previewImgSimple(event)">
-        <img id="imgPrevSimple" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:220px;object-fit:cover;">
+        <input type="file" id="fiForm" accept="image/*,video/*" style="display:none" onchange="previewImgSimple(event)">
+        <img id="imgPrevSimple" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:300px;object-fit:contain;background:#f2f2f2;">
       </div>
     </div>
 
@@ -548,39 +548,45 @@ function toggleImgTexte(){
   document.getElementById('togImgTexte').classList.toggle('on', imgOnTexte);
   document.getElementById('uploadZoneTexte').style.display = imgOnTexte ? 'block' : 'none';
 }
-function previewImg(e){
-  const f = e.target.files[0]; if (!f) return;
+// Gère aussi bien une photo qu'une vidéo choisie. Tout est stocké en base64
+// directement dans Firestore (pas de vrai serveur de stockage) — donc une
+// limite de taille est nécessaire, sinon la publication échouerait en
+// silence. Une vidéo ne peut pas être prévisualisée dans une balise <img>,
+// on affiche donc juste une confirmation textuelle pour elle.
+function gererFichierMedia(file, previewElId, callbackBase64){
+  if (!file) return;
+  const estVideo = file.type.startsWith('video/');
+  const limiteOctets = 700 * 1024;
+  if (file.size > limiteOctets) {
+    alert((estVideo ? 'Cette vidéo' : 'Cette image') + ' est trop lourde (' + Math.round(file.size/1024) + ' Ko). Elle est enregistrée directement dans la base de données, donc elle doit rester sous ~700 Ko — choisissez un fichier plus léger ou plus court.');
+    return;
+  }
   const r = new FileReader();
   r.onload = ev => {
-    imgBase64 = ev.target.result;
-    const imgPrev = document.getElementById('imgPrev');
-    imgPrev.src = ev.target.result;
-    imgPrev.style.display = 'block';
-    document.getElementById('m2preview').style.display = 'none';
+    callbackBase64(ev.target.result);
+    const el = document.getElementById(previewElId);
+    if (!el) return;
+    if (estVideo) {
+      el.style.display = 'none';
+      toast('🎥 Vidéo sélectionnée (' + file.name + ')');
+    } else {
+      el.src = ev.target.result;
+      el.style.display = 'block';
+    }
   };
-  r.readAsDataURL(f);
+  r.readAsDataURL(file);
+}
+function previewImg(e){
+  gererFichierMedia(e.target.files[0], 'imgPrev', v => {
+    imgBase64 = v;
+    document.getElementById('m2preview').style.display = 'none';
+  });
 }
 function previewImgSimple(e){
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    imgBase64 = ev.target.result;
-    const i = document.getElementById('imgPrevSimple');
-    i.src = ev.target.result;
-    i.style.display = 'block';
-  };
-  r.readAsDataURL(f);
+  gererFichierMedia(e.target.files[0], 'imgPrevSimple', v => { imgBase64 = v; });
 }
 function previewImgTexte(e){
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    imgBase64Txt = ev.target.result;
-    const i = document.getElementById('imgPrevTexte');
-    i.src = ev.target.result;
-    i.style.display = 'block';
-  };
-  r.readAsDataURL(f);
+  gererFichierMedia(e.target.files[0], 'imgPrevTexte', v => { imgBase64Txt = v; });
 }
 
 function toggleSearch(){
@@ -687,7 +693,7 @@ function afficherOffres(){
       : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
       : '<span class="badge offre">🟢 Offre</span>';
     const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
-    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:100%;aspect-ratio:16/9;object-fit:cover;object-position:center;background:#f0f0f0;">' : '';
+    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:100%;max-height:420px;object-fit:contain;background:#f2f2f2;">' : '';
     const nomAff = o.auteurNom || 'Utilisateur';
     const statut = o.auteurVerifie ? 'Professionnel' : 'Visiteur';
     const villeCourte = premiereVille(o.ville);
