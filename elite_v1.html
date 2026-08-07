@@ -129,14 +129,14 @@
 <div id="scoreList">
   <!-- rempli dynamiquement -->
 </div>
+<div id="sentinelleElite" style="height:1px"></div>
 
-<div class="footer-note">Les rangs Diamant / Or / Argent affichés ici sont des scores de démonstration, en attendant l'activation du vrai calcul (avis, ventes, ancienneté).</div>
+<div class="footer-note">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
   authDomain: "artiroyce-f42e4.firebaseapp.com",
@@ -145,9 +145,9 @@ const firebaseConfig = {
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 function adj(){
   var localH=document.getElementById('topH').offsetHeight;
@@ -168,16 +168,12 @@ window.addEventListener('load',adj);window.addEventListener('resize',adj);
 setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);setTimeout(adj,2000);
 window.goAccueil=function(){if(window.parent!==window)window.parent.postMessage({type:'goPanel',panel:0},'*');else window.location.href='accueil.html';};
 
-// Scores de démonstration : tant que le vrai calcul (avis/ventes/ancienneté) n'existe pas,
-// on lie ces scores fictifs à de VRAIS comptes existants (par nom), pour ne pas inventer de faux profils isolés.
-const SCORES_DEMO = {
-  'brunelle': { abo:30, perf:38, admin:24, tier:'diamant' },
-  'abrissette': { abo:18, perf:25, admin:18, tier:'argent' },
-  'libertrek': { abo:22, perf:30, admin:20, tier:'or' },
-  'mria': { abo:10, perf:14, admin:10, tier:null }
-};
 const TIER_LABEL = { diamant:{icon:'💎', label:'DIAMANT'}, or:{icon:'🥇', label:'OR'}, argent:{icon:'🥈', label:'ARGENT'} };
 const TIER_COLOR = { diamant:'#7dd3fc', or:'#f5b301', argent:'#9aa5b1' };
+const TAILLE_LOT = 6;
+let tousLesClasses = [];
+let tousLesNonClasses = [];
+let nombreAffiches = TAILLE_LOT;
 
 function initialesCouleur(nom){
   const palette=['#234','#3a3a7a','#7a4a2a','#2a6a5a','#5a2a6a'];
@@ -185,38 +181,84 @@ function initialesCouleur(nom){
   return palette[h];
 }
 
+/* ── Calcul du score, uniquement à partir de données réelles ──
+   Répartition sur 100 points :
+   - Ancienneté (/20) : date de création du compte via Firebase Auth
+     (creationTime), garantie réelle, jamais inventée.
+   - Vues (/20) : PRÊT mais pas encore actif — lira u.vuesProfilTotal une fois
+     que profil.html comptera les vraies vues (avec protection anti-triche :
+     jamais sa propre vue, une fois par visiteur/24h). Tant que ce champ
+     n'existe pas dans Firestore, vaut 0 pour tout le monde, honnêtement.
+   - Statut Professionnel/Vérifié (/30) : champ "role" déjà utilisé partout
+     ailleurs sur le site (role !== 'visiteur').
+   - Abonnement (/30) : reste à 0 pour tout le monde — aucun champ
+     d'abonnement n'existe encore dans la base, donc pas de simulation. */
+const VUES_POUR_20_PTS = 200; // 200 vues de profil = les 20 points max (ajustable plus tard)
+
+function calculerScore(u, creationTime){
+  const estPro = u.role && u.role !== 'visiteur';
+  const admin = estPro ? 22 : 0; // statut Professionnel/Vérifié
+
+  const abo = 0; // pas encore de vrai champ abonnement dans la base
+
+  let anciennete = 0;
+  if (creationTime) {
+    const moisAnciennete = Math.max(0, (Date.now() - new Date(creationTime).getTime()) / (1000*3600*24*30));
+    anciennete = Math.round(Math.min(20, moisAnciennete * 1.5));
+  }
+
+  const vuesReelles = u.vuesProfilTotal || 0; // 0 tant que profil.html ne les compte pas encore
+  const vues = Math.round(Math.min(20, (vuesReelles / VUES_POUR_20_PTS) * 20));
+
+  const perf = anciennete + vues; // "Performance" affichée = ancienneté + vues, sur 40
+  const total = admin + abo + perf;
+  let tier = null;
+  if (total >= 50) tier = 'diamant';
+  else if (total >= 30) tier = 'or';
+  else if (total >= 15) tier = 'argent';
+
+  return { abo, anciennete, vues, perf, admin, total, tier };
+}
+
 async function chargerElite(){
-  let professionnels=[];
-  try{
-    const snap = await getDocs(collection(db,'utilisateurs'));
-    snap.forEach(d=>{
-      const u=d.data();
-      if(!u || u.role==='visiteur') return; // rôle 'visiteur' = Visiteur, tout le reste = Professionnel
+  let professionnels = [];
+  try {
+    // Limite raisonnable (comme Actualités/Offres) : on ne charge jamais tout
+    // d'un coup sans borne, mais on affiche ensuite progressivement.
+    const snap = await db.collection('utilisateurs').limit(60).get();
+    snap.forEach(d => {
+      const u = d.data();
+      if (!u || u.role === 'visiteur') return;
       professionnels.push({
-        uid:d.id,
-        nom:(u.nom||u.prenom||'Pro'),
-        metier:u.metier||'Professionnel ArtiRoyce',
-        photoAvatar:u.photoAvatar||null
+        uid: d.id,
+        nom: (u.nom || u.prenom || 'Pro'),
+        metier: u.metier || 'Professionnel ArtiRoyce',
+        photoAvatar: u.photoAvatar || null,
+        role: u.role,
+        vuesProfilTotal: u.vuesProfilTotal || 0
       });
     });
-  }catch(e){
+  } catch (e) {
     console.error('Chargement utilisateurs Firestore impossible :', e);
   }
 
-  // Associer chaque compte réel à un score démo si son nom correspond, sinon "pas encore classé"
-  const enrichis = professionnels.map(p=>{
-    const cle = p.nom.trim().toLowerCase();
-    const demo = SCORES_DEMO[cle];
-    if(!demo) return {...p, classe:false};
-    const total = demo.abo+demo.perf+demo.admin;
-    return {...p, classe:true, ...demo, total};
+  const enrichis = professionnels.map(p => {
+    // La date de création réelle du compte (Auth) n'est disponible que pour
+    // l'utilisateur actuellement connecté, pas pour la liste des autres —
+    // limite technique de Firebase Auth. Pour les autres comptes, on retombe
+    // sur une ancienneté neutre (0) tant qu'aucun champ "createdAt" n'existe
+    // dans leur document Firestore.
+    const creationTime = (auth.currentUser && auth.currentUser.uid === p.uid) ? auth.currentUser.metadata.creationTime : null;
+    const score = calculerScore(p, creationTime);
+    return Object.assign({}, p, score, { classe: !!score.tier });
   });
 
-  const classes = enrichis.filter(p=>p.classe && p.tier).sort((a,b)=>b.total-a.total);
-  const nonClasses = enrichis.filter(p=>!p.classe || !p.tier);
+  tousLesClasses = enrichis.filter(p => p.classe).sort((a,b) => b.total - a.total);
+  tousLesNonClasses = enrichis.filter(p => !p.classe);
+  nombreAffiches = TAILLE_LOT;
 
-  renderSpotlight(classes);
-  renderScoreList(classes, nonClasses);
+  renderSpotlight(tousLesClasses);
+  renderScoreList();
 }
 
 function renderSpotlight(classes){
@@ -237,9 +279,13 @@ function renderSpotlight(classes){
   }).join('');
 }
 
-function renderScoreList(classes, nonClasses){
+// Rendu progressif : on ajoute TAILLE_LOT cartes à chaque appel, comme
+// Actualités et Offres, au lieu de tout afficher d'un coup.
+function renderScoreList(){
   const el = document.getElementById('scoreList');
-  let html = classes.map(p=>{
+  const visibles = tousLesClasses.slice(0, nombreAffiches);
+
+  let html = visibles.map(p=>{
     const color = TIER_COLOR[p.tier];
     const t = TIER_LABEL[p.tier];
     const circ = 2*Math.PI*36;
@@ -258,37 +304,45 @@ function renderScoreList(classes, nonClasses){
         </div>
       </div>
       <div class="gauge-info">
-        <div class="gauge-nom">${escHtml(p.nom)} <span class="badge-demo">démo</span></div>
+        <div class="gauge-nom">${escHtml(p.nom)}</div>
         <div class="gauge-metier">Rang ${t.label.charAt(0)+t.label.slice(1).toLowerCase()} · ${escHtml(p.metier)}</div>
         <div class="gauge-legend">
           <span><i style="background:#27a945"></i>Abonnement ${p.abo}/30</span>
-          <span><i style="background:#f5b301"></i>Performance ${p.perf}/40</span>
-          <span><i style="background:#3b82f6"></i>Admin ${p.admin}/30</span>
+          <span><i style="background:#8e44ad"></i>Ancienneté ${p.anciennete}/20</span>
+          <span><i style="background:#3498db"></i>Vues ${p.vues}/20</span>
+          <span><i style="background:#f5b301"></i>Admin ${p.admin}/30</span>
         </div>
       </div>
       <button class="btn-voir" onclick='alert(${jsAttr('Profil de '+p.nom+' — à relier au CV Pro')})'>Voir</button>
     </div>`;
   }).join('');
 
-  if(nonClasses.length){
-    html += `<div class="non-classe-card">🕒 ${nonClasses.length} professionnel(s) pas encore classé(s) — le classement s'activera automatiquement dès que les avis, ventes et validations seront en place.</div>`;
+  // La carte "pas encore classé" n'apparaît que sur le dernier lot affiché.
+  if (tousLesNonClasses.length && nombreAffiches >= tousLesClasses.length) {
+    html += `<div class="non-classe-card">🕒 ${tousLesNonClasses.length} professionnel(s) pas encore classé(s) — le classement se précisera automatiquement avec l'ancienneté du compte et les futurs avis/ventes.</div>`;
   }
   el.innerHTML = html || '<div class="non-classe-card">Aucun professionnel pour l’instant.</div>';
 }
 
+// Chargement progressif au défilement, comme Actualités et Offres.
+const observateurElite = new IntersectionObserver(entrees => {
+  entrees.forEach(entree => {
+    if (entree.isIntersecting && nombreAffiches < tousLesClasses.length) {
+      nombreAffiches += TAILLE_LOT;
+      renderScoreList();
+    }
+  });
+}, { rootMargin: '300px' });
+setTimeout(() => {
+  const sentinelle = document.getElementById('sentinelleElite');
+  if (sentinelle) observateurElite.observe(sentinelle);
+}, 500);
+
 function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-// Construit un attribut onclick='...' sûr même si le nom contient une apostrophe (ex: "N'Guessan") :
-// JSON.stringify échappe correctement pour le JS, puis on échappe l'apostrophe restante pour l'attribut HTML.
 function jsAttr(str){ return JSON.stringify(str).replace(/'/g,"&#39;"); }
 
-// Exposer pour les tests / débogage
-window.chargerElite = chargerElite;
-window.SCORES_DEMO = SCORES_DEMO;
-window.renderSpotlight = renderSpotlight;
-window.renderScoreList = renderScoreList;
-
-onAuthStateChanged(auth, ()=>{ chargerElite(); });
-chargerElite(); // premier chargement même sans attendre l'auth (lecture publique)
+auth.onAuthStateChanged(()=>{ chargerElite(); });
+chargerElite();
 </script>
 
 </body>
