@@ -182,6 +182,23 @@
       </div>
     </div>
 
+    <!-- MUSIQUE (optionnel) -->
+    <div class="section">
+      <div class="section-title">🎵 Musique <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel)</span></div>
+      <div style="padding:12px 16px">
+        <div id="musicAttachedPub" style="display:none;align-items:center;gap:10px;background:#f0fdf0;border:1.5px solid var(--green);border-radius:14px;padding:10px 12px;margin-bottom:10px">
+          <span style="font-size:18px">🎵</span>
+          <span id="musicAttachedNamePub" style="flex:1;font-size:12.5px;font-weight:700;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          <button onclick="retirerMusiquePub()" style="background:none;border:none;color:#e63224;font-size:16px;cursor:pointer;font-weight:800">✕</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="musicSearchInp" placeholder="Chercher un titre ou un artiste…" style="flex:1;border:1px solid #e8e8e8;border-radius:14px;padding:10px 14px;font-size:13px;outline:none" onkeydown="if(event.key==='Enter')searchMusicPub()">
+          <button onclick="searchMusicPub()" style="background:var(--green);color:#fff;border:none;border-radius:14px;padding:0 16px;font-size:15px;cursor:pointer">🔍</button>
+        </div>
+        <div id="musicResultsPub" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
+      </div>
+    </div>
+
     <!-- SUBMIT -->
     <button class="btn-submit" id="mainBtn" onclick="submitPub()" disabled>
       <span id="btnLabel">📤 Ajouter au portfolio</span>
@@ -284,6 +301,7 @@ window.submitPub = async function() {
       const f = photos[i];
       const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
       const task = uploadBytesResumable(ref(storage, path), f);
+      const failSafe = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -291,13 +309,15 @@ window.submitPub = async function() {
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
-          }, rej,
-          async () => res(await getDownloadURL(task.snapshot.ref))
+          },
+          err => { clearTimeout(failSafe); rej(err); },
+          async () => { clearTimeout(failSafe); res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       fichiersEnvoyes++;
       await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'photo', url, titre, corbeille: false, corbeilleDepuis: null,
+        type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -306,6 +326,7 @@ window.submitPub = async function() {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
+      const failSafeV = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -313,12 +334,14 @@ window.submitPub = async function() {
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = 'Envoi vidéo…';
-          }, rej,
-          async () => res(await getDownloadURL(task.snapshot.ref))
+          },
+          err => { clearTimeout(failSafeV); rej(err); },
+          async () => { clearTimeout(failSafeV); res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'video', url, titre, corbeille: false, corbeilleDepuis: null,
+        type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     }
@@ -329,7 +352,11 @@ window.submitPub = async function() {
 
   } catch(err) {
     setLoading(false);
-    showToast('❌ ' + err.message, 'r');
+    if (err && err.code === 'storage/canceled') {
+      showToast('⏱️ Envoi trop long, réessayez (connexion instable ?)', 'r');
+    } else {
+      showToast('❌ ' + err.message, 'r');
+    }
     console.error(err);
   }
 };
@@ -345,6 +372,75 @@ function setLoading(on) {
 window._photos = [];
 window._videoFile = null;
 window._uid = null;
+window._musicNom = null;
+window._musicUrl = null;
+let audioPreviewPub = null;
+let idxEnCoursPub = null;
+
+function searchMusicPub(){
+  const q = document.getElementById('musicSearchInp').value.trim();
+  if (!q) return;
+  const res = document.getElementById('musicResultsPub');
+  res.innerHTML = '<div style="text-align:center;padding:14px;color:#aaa;font-size:12.5px">Recherche…</div>';
+  if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
+  fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(q) + '&media=music&limit=12&entity=song')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.results || !data.results.length) {
+        res.innerHTML = '<div style="text-align:center;padding:14px;color:#aaa;font-size:12.5px">Aucun résultat.</div>';
+        return;
+      }
+      res.innerHTML = data.results.map((t,i) => {
+        const nom = (t.trackName + ' — ' + t.artistName).replace(/'/g,"\\'").replace(/"/g,'');
+        return `<div style="display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;background:#fafafa">
+          <img src="${t.artworkUrl60||''}" style="width:38px;height:38px;border-radius:8px;background:#eee;flex-shrink:0">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.trackName||'').replace(/</g,'')}</div>
+            <div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.artistName||'').replace(/</g,'')}</div>
+          </div>
+          <button id="mppub-${i}" onclick="ecouterMusicPub(${i},'${(t.previewUrl||'').replace(/'/g,"\\'")}')" style="background:#eee;border:none;width:32px;height:32px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0">▶</button>
+          <button onclick="attacherMusiquePub('${nom}')" style="background:var(--green);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
+        </div>`;
+      }).join('');
+      window._dernierResultatsMusicPub = data.results;
+    })
+    .catch(() => { res.innerHTML = '<div style="text-align:center;padding:14px;color:#e63224;font-size:12.5px">Erreur réseau.</div>'; });
+}
+
+function ecouterMusicPub(idx, url){
+  if (idxEnCoursPub === idx && audioPreviewPub && !audioPreviewPub.paused) {
+    audioPreviewPub.pause();
+    document.getElementById('mppub-'+idx).textContent = '▶';
+    return;
+  }
+  if (audioPreviewPub) audioPreviewPub.pause();
+  if (idxEnCoursPub !== null) { const prev = document.getElementById('mppub-'+idxEnCoursPub); if (prev) prev.textContent = '▶'; }
+  if (!url) return;
+  audioPreviewPub = new Audio(url);
+  audioPreviewPub.volume = 0.8;
+  audioPreviewPub.play().catch(()=>{});
+  idxEnCoursPub = idx;
+  document.getElementById('mppub-'+idx).textContent = '⏸';
+  audioPreviewPub.onended = () => { document.getElementById('mppub-'+idx).textContent = '▶'; };
+}
+
+window.attacherMusiquePub = function(nom){
+  window._musicNom = nom;
+  window._musicUrl = window._dernierResultatsMusicPub
+    ? (window._dernierResultatsMusicPub.find(t => (t.trackName+' — '+t.artistName) === nom) || {}).previewUrl
+    : null;
+  document.getElementById('musicAttachedNamePub').textContent = '🎵 ' + nom;
+  document.getElementById('musicAttachedPub').style.display = 'flex';
+  document.getElementById('musicResultsPub').innerHTML = '';
+  document.getElementById('musicSearchInp').value = '';
+  if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
+};
+
+window.retirerMusiquePub = function(){
+  window._musicNom = null;
+  window._musicUrl = null;
+  document.getElementById('musicAttachedPub').style.display = 'none';
+};
 
 // PHOTOS
 function triggerPhoto() { document.getElementById('filePhoto').click(); }
@@ -435,6 +531,10 @@ function resetForm() {
   document.getElementById('mainBtn').disabled = true;
   document.getElementById('headBtn').classList.remove('ready');
   document.getElementById('successScreen').style.display = 'none';
+  window.retirerMusiquePub();
+  document.getElementById('musicResultsPub').innerHTML = '';
+  document.getElementById('musicSearchInp').value = '';
+  if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
 }
 
 // TOAST
