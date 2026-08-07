@@ -346,6 +346,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <div class="sec-hdr" id="secContacts" style="display:none"><span class="sec-lbl">Vos contacts</span></div>
     <div id="contactsListe"></div>
+    <div id="sentinelleContacts" style="height:1px"></div>
     <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="toast('👥 Créer bientôt !','g')">+ Créer</span></div>
     <div class="conv-card" data-mode="group" onclick="openChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
       <div class="cc-inner">
@@ -1024,10 +1025,10 @@ window.launchConfCall=function(type){
      Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
      tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
      on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -1037,9 +1038,9 @@ const firebaseConfig = {
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 const GRADIENTS=[
   'linear-gradient(135deg,#0d2b0f,#27a945)','linear-gradient(135deg,#0a0a2e,#1a1a6e)',
@@ -1058,29 +1059,36 @@ function initialesDe(prenom,nom){
 }
 
 let currentUid=null;
-onAuthStateChanged(auth,(u)=>{currentUid=u?u.uid:null;chargerContactsReels();});
+auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;chargerContactsReels();});
+
+const TAILLE_LOT_CONTACTS = 6;
+let tousLesContacts = [];
+let nombreContactsAffiches = TAILLE_LOT_CONTACTS;
 
 async function chargerContactsReels(){
   const wrap=document.getElementById('contactsListe');
   const secEl=document.getElementById('secContacts');
   try{
-    const snap=await getDocs(collection(db,'utilisateurs'));
+    const snap=await db.collection('utilisateurs').get();
     const users=snap.docs
       .map(d=>({id:d.id,...d.data()}))
       .filter(u=>u.id!==currentUid && (u.prenom||u.nomFamille));
     if(users.length===0){ wrap.innerHTML='';secEl.style.display='none';return; }
-    wrap.innerHTML=users.map(u=>{
-      const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'');
-      const ini=initialesDe(u.prenom,u.nomFamille);
-      const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
-      const bg=gradientPourId(u.id);
-      return '<div class="conv-card" data-mode="conv" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false)">'
-        +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+'">'+ini+'</div></div>'
-        +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(nom)+'</span></div>'
-        +'<div class="cc-preview" style="color:#bbb;font-style:italic">Aucun message — démarrer la discussion</div>'
-        +'<div class="cc-status off">'+escAttr(roleLbl)+'</div></div></div></div>';
-    }).join('');
+
+    // Triés par dernière activité (le même champ réel qui alimente déjà le
+    // point vert "en ligne" ailleurs sur le site) — c'est la seule vraie
+    // notion de "récent" disponible tant qu'il n'existe pas de vraies
+    // conversations. Ceux sans activité connue passent en dernier.
+    users.sort(function(a,b){
+      const ta = a.derniereActivite ? (a.derniereActivite.toDate ? a.derniereActivite.toDate().getTime() : new Date(a.derniereActivite).getTime()) : 0;
+      const tb = b.derniereActivite ? (b.derniereActivite.toDate ? b.derniereActivite.toDate().getTime() : new Date(b.derniereActivite).getTime()) : 0;
+      return tb - ta;
+    });
+
+    tousLesContacts = users;
+    nombreContactsAffiches = TAILLE_LOT_CONTACTS;
     secEl.style.display='';
+    afficherContacts();
   }catch(err){
     console.error('Chargement des contacts Firebase impossible :', err);
     wrap.innerHTML='';secEl.style.display='none';
@@ -1089,6 +1097,37 @@ async function chargerContactsReels(){
     // appeler manuellement seedDemoContacts() depuis la console.
   }
 }
+
+// Rendu progressif : par lots de 6, comme sur le reste du site — jamais
+// toute la liste des contacts d'un coup.
+function afficherContacts(){
+  const wrap=document.getElementById('contactsListe');
+  const visibles = tousLesContacts.slice(0, nombreContactsAffiches);
+  wrap.innerHTML=visibles.map(u=>{
+    const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'');
+    const ini=initialesDe(u.prenom,u.nomFamille);
+    const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
+    const bg=gradientPourId(u.id);
+    return '<div class="conv-card" data-mode="conv" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false)">'
+      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+'">'+ini+'</div></div>'
+      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(nom)+'</span></div>'
+      +'<div class="cc-preview" style="color:#bbb;font-style:italic">Aucun message — démarrer la discussion</div>'
+      +'<div class="cc-status off">'+escAttr(roleLbl)+'</div></div></div></div>';
+  }).join('');
+}
+
+const observateurContacts = new IntersectionObserver(function(entrees){
+  entrees.forEach(function(entree){
+    if(entree.isIntersecting && nombreContactsAffiches < tousLesContacts.length){
+      nombreContactsAffiches += TAILLE_LOT_CONTACTS;
+      afficherContacts();
+    }
+  });
+}, { rootMargin: '300px' });
+setTimeout(function(){
+  const sentinelle = document.getElementById('sentinelleContacts');
+  if(sentinelle) observateurContacts.observe(sentinelle);
+}, 500);
 window.seedDemoContacts=function(){
   const demo=[{id:'demo1',prenom:'Fatou',nomFamille:'Adjovi',metier:'Décoratrice',role:'artisan'},
               {id:'demo2',prenom:'Ibrahim',nomFamille:'Sanni',metier:'Vidéaste',role:'artisan'}];
