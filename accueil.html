@@ -720,6 +720,16 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   let mesSuivisAccueil = new Set();
   let mesSauvegardesAccueil = new Set();
 
+  function extraireIndicatifTelephoneAcc(telephone){
+    if (!telephone) return '';
+    return String(telephone).replace(/\D/g, '').slice(0, 3);
+  }
+  const _ordreAleatoireStableAcc = {};
+  function ordreAleatoireStableAcc(id){
+    if (!(id in _ordreAleatoireStableAcc)) _ordreAleatoireStableAcc[id] = Math.random();
+    return _ordreAleatoireStableAcc[id];
+  }
+
   async function chargerMesEtatsAccueil(){
     if (!auth.currentUser) return;
     const moi = auth.currentUser.uid;
@@ -874,7 +884,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       overlay = document.createElement('div');
       overlay.className = 'moverlay';
       overlay.id = 'galerieOverlayAccueil';
-      overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('open'); };
+      overlay.onclick = (e) => { if (e.target === overlay) { overlay.classList.remove('open'); if (audioGalerieAccueil) audioGalerieAccueil.pause(); } };
       overlay.innerHTML = '<div class="lsheet" style="max-height:75vh;display:flex;flex-direction:column">'
         + '<div class="lhandle"></div>'
         + '<div class="ltitle" id="galerieTitreAccueil">Réalisations</div>'
@@ -894,16 +904,36 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;font-size:12px;padding:20px">Aucune réalisation publiée pour l\'instant.</div>';
         return;
       }
-      grille.innerHTML = portfolio.map(item => {
-        if (item.type === 'video') {
-          return '<video src="'+item.url+'" muted style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#000" onclick="this.paused?this.play():this.pause()"></video>';
-        }
-        return '<img src="'+item.url+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#eee">';
+      grille.innerHTML = portfolio.map((item, i) => {
+        const badgeMusique = item.musicUrl
+          ? '<div onclick="event.stopPropagation();toggleMusiqueGalerie('+i+',\''+String(item.musicUrl).replace(/'/g,"\\'")+'\')" id="badgeMusiqueGal-'+i+'" style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 7px;border-radius:20px;display:flex;align-items:center;gap:3px;z-index:2">🎵 ' + (item.musicNom ? item.musicNom.split(' — ')[0].slice(0,10) : '') + '</div>'
+          : '';
+        const inner = item.type === 'video'
+          ? '<video src="'+item.url+'" muted style="width:100%;height:100%;object-fit:cover" onclick="this.paused?this.play():this.pause()"></video>'
+          : '<img src="'+item.url+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;background:#eee">';
+        return '<div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#000">' + inner + badgeMusique + '</div>';
       }).join('');
     } catch(e) {
       console.error(e);
       grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#e63224;font-size:12px;padding:20px">Impossible de charger les réalisations.</div>';
     }
+  };
+
+  // Lecture de la musique attachée à une réalisation — un seul morceau à la
+  // fois (comme partout), permanent (pas d'expiration, contrairement à Statut).
+  let audioGalerieAccueil = null;
+  let idxAudioGalerieAccueil = null;
+  window.toggleMusiqueGalerie = function(idx, url){
+    if (idxAudioGalerieAccueil === idx && audioGalerieAccueil && !audioGalerieAccueil.paused) {
+      audioGalerieAccueil.pause();
+      return;
+    }
+    if (audioGalerieAccueil) audioGalerieAccueil.pause();
+    if (!url) return;
+    audioGalerieAccueil = new Audio(url);
+    audioGalerieAccueil.volume = 0.8;
+    audioGalerieAccueil.play().catch(()=>{});
+    idxAudioGalerieAccueil = idx;
   };
 
   window.ouvrirCommentairesAccueil = async function(cibleUid, pseudo){
@@ -1167,10 +1197,18 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       return;
     }
     authChecked = true;
+    let monPaysPrefixeAccueil = '';
     try {
       const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      if (ownSnap.exists) { currentUserRole = ownSnap.data().role || 'artisan'; }
+      if (ownSnap.exists) {
+        currentUserRole = ownSnap.data().role || 'artisan';
+        monPaysPrefixeAccueil = extraireIndicatifTelephoneAcc(ownSnap.data().telephone);
+      }
     } catch(e) { console.error('rôle utilisateur:', e); }
+    try {
+      const snapSuivis = await db.collection('abonnements').where('follower','==',user.uid).get();
+      mesSuivisAccueil = new Set(snapSuivis.docs.map(d => d.data().followed));
+    } catch(e) { console.error('suivis:', e); }
 
     // Présence en ligne : on touche derniereActivite pendant que l'utilisateur
     // est réellement présent (onglet visible), pour permettre aux autres pages
@@ -1188,12 +1226,55 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     try {
       const q = query(collection(db, 'utilisateurs'), where('statut', '==', 'verifie'));
       const snap = await getDocs(q);
-      let index = 0;
+      const brut = [];
       snap.forEach(doc => {
-        feed.innerHTML += creerCard(doc.id, doc.data(), index++);
+        if (doc.id === user.uid) return; // je ne me vois pas moi-même dans mon propre fil
+        brut.push({ id: doc.id, data: doc.data() });
       });
-      adjustLayout();
-      await chargerMesEtatsAccueil();
+
+      // Classement par palier, comme sur Offres/Fil Presse : suivis → même
+      // pays (indicatif tél.) → reste mélangé de façon stable.
+      const suivisP = [], memePaysP = [], resteP = [];
+      brut.forEach(p => {
+        const dataTel = extraireIndicatifTelephoneAcc(p.data.telephone);
+        if (mesSuivisAccueil.has(p.id)) suivisP.push(p);
+        else if (monPaysPrefixeAccueil && dataTel && dataTel === monPaysPrefixeAccueil) memePaysP.push(p);
+        else resteP.push(p);
+      });
+      resteP.sort((a,b) => ordreAleatoireStableAcc(a.id) - ordreAleatoireStableAcc(b.id));
+      const tousLesPros = suivisP.concat(memePaysP, resteP);
+
+      // Chargement progressif — par lots de 6, comme sur Actualités/Offres/Élite —
+      // au lieu de charger tous les professionnels d'un coup.
+      const TAILLE_LOT_ACC = 6;
+      let nombreAffichesAcc = 0;
+      let indexRendu = 0;
+
+      function rendreLotSuivant() {
+        const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
+        if (!lot.length) return;
+        const sentinelleActuelle = document.getElementById('sentinelleAccueil');
+        if (sentinelleActuelle) sentinelleActuelle.remove();
+        lot.forEach(p => { feed.innerHTML += creerCard(p.id, p.data, indexRendu++); });
+        nombreAffichesAcc += lot.length;
+        if (nombreAffichesAcc < tousLesPros.length) {
+          const sentinelle = document.createElement('div');
+          sentinelle.id = 'sentinelleAccueil';
+          sentinelle.style.cssText = 'height:1px;flex-shrink:0';
+          feed.appendChild(sentinelle);
+          observateurAccueil.disconnect();
+          observateurAccueil.observe(sentinelle);
+        }
+        adjustLayout();
+        if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
+        else appliquerEtatsSurCartes();
+      }
+
+      const observateurAccueil = new IntersectionObserver((entrees) => {
+        entrees.forEach(entree => { if (entree.isIntersecting) rendreLotSuivant(); });
+      }, { root: feed, rootMargin: '600px' });
+
+      rendreLotSuivant();
     } catch(e) { console.error(e); }
   });
 </script>
