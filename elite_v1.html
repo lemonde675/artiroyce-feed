@@ -27,10 +27,10 @@
   .h-tabs::-webkit-scrollbar { display: none; }
   .h-tab { white-space: nowrap; padding: 5px 14px; border-radius: 22px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; color: #555; background: transparent; border: none; display: flex; align-items: center; gap: 5px; text-decoration:none }
   .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
-  .spacer{flex-shrink:0;min-height:92px}
 
-  /* ═══ HERO — fond blanc neige (demandé), plus de dégradé bleu nuit ═══ */
-  .hero{background:#fdfdfe;padding:18px 16px 14px;border-bottom:1px solid #f0f0f3}
+  /* ═══ HERO — fixe, juste sous le header, ne défile plus avec le reste ═══ */
+  .hero{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:150;background:#fdfdfe;padding:18px 16px 14px;border-bottom:1px solid #f0f0f3}
+  .hero-spacer{flex-shrink:0}
   .eyebrow{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:4px}
   .titre-elite{font-size:26px;font-weight:800;margin:0 0 6px;color:#16163a;display:flex;align-items:center;gap:8px}
   .sous-titre{font-size:13.5px;color:#6b6f85;margin:0;max-width:560px;line-height:1.5}
@@ -113,13 +113,12 @@
     </div>
   </div>
 </header>
-<div class="spacer" id="spacer"></div>
-
-<div class="hero">
+<div class="hero" id="heroFixe">
   <div class="eyebrow">Classement</div>
   <h1 class="titre-elite">💎 Élite</h1>
   <p class="sous-titre">Les professionnels les plus reconnus d'ArtiRoyce. Le rang combine l'abonnement, la performance réelle (avis, ventes, ancienneté) et une validation admin.</p>
 </div>
+<div class="hero-spacer" id="heroSpacer"></div>
 
 <div class="spotlight-scroll" id="spotlightScroll">
   <!-- rempli dynamiquement -->
@@ -153,7 +152,12 @@ function adj(){
   var localH=document.getElementById('topH').offsetHeight;
   var embedH=getEmbedTopOffsetPx();
   var h=Math.max(localH,embedH);
-  document.getElementById('spacer').style.height=Math.max(h,60)+'px';
+  var decalage=Math.max(h,60);
+  var hero=document.getElementById('heroFixe');
+  if(hero){
+    hero.style.top=decalage+'px';
+    document.getElementById('heroSpacer').style.height=(decalage+hero.offsetHeight)+'px';
+  }
 }
 function getEmbedTopOffsetPx(){
   try {
@@ -269,7 +273,7 @@ function renderSpotlight(classes){
   }
   el.innerHTML = classes.map(p=>{
     const t = TIER_LABEL[p.tier];
-    return `<div class="spot-card ${p.tier}" onclick='alert(${jsAttr('Profil de '+p.nom+' — à relier au CV Pro')})'>
+    return `<div class="spot-card ${p.tier}" onclick="__voirProfil('${p.uid}')">
       <div class="spot-badge">${t.icon}</div>
       <div class="spot-av" style="background:${initialesCouleur(p.nom)}">${p.nom[0].toUpperCase()}</div>
       <div class="spot-nom">${escHtml(p.nom)}</div>
@@ -313,7 +317,7 @@ function renderScoreList(){
           <span><i style="background:#f5b301"></i>Admin ${p.admin}/30</span>
         </div>
       </div>
-      <button class="btn-voir" onclick='alert(${jsAttr('Profil de '+p.nom+' — à relier au CV Pro')})'>Voir</button>
+      <button class="btn-voir" onclick="__voirProfil('${p.uid}')">Voir</button>
     </div>`;
   }).join('');
 
@@ -339,7 +343,22 @@ setTimeout(() => {
 }, 500);
 
 function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function jsAttr(str){ return JSON.stringify(str).replace(/'/g,"&#39;"); }
+
+// Navigation vers le vrai profil de l'auteur, reprise à l'identique
+// d'Actualités et Offres : passe par le parent si intégré dans accueil.html
+// (le retour se fait alors via son propre historique), sinon ouvre
+// profil.html directement — dans les deux cas, le bouton retour du
+// téléphone ramène naturellement à la page précédente.
+function __voirProfil(uid){
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && window.parent.goUserProfile) {
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+}
 
 auth.onAuthStateChanged(()=>{ chargerElite(); });
 chargerElite();
