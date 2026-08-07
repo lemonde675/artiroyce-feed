@@ -479,6 +479,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <p id="communauteErreurTech" style="display:none;color:#e63224;font-size:11.5px;margin-top:10px;word-break:break-word"></p>
     </div>
     <div class="cv-cards" id="cvCardsCommunaute"></div>
+    <div id="sentinelleCvCommunaute" style="height:1px"></div>
   </div>
 
   <!-- CV IMPORTÉ -->
@@ -863,12 +864,10 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -878,9 +877,32 @@ const firebaseConfig = {
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ── Couche de compatibilité (même principe que fil-presse.html) ──
+// Le corps du fichier utilise la syntaxe des modules Firebase. Plutôt que
+// de réécrire chaque appel, ces fonctions portent les mêmes noms et font
+// le même travail avec le SDK compat en dessous. Résultat final 100% compat.
+function fsRef(){
+  var args = Array.prototype.slice.call(arguments);
+  var r = db, i = 0;
+  while(i < args.length){
+    r = r.collection(args[i]); i++;
+    if(i < args.length){ r = r.doc(String(args[i])); i++; }
+  }
+  return r;
+}
+function doc(){ var a = Array.prototype.slice.call(arguments, 1); return fsRef.apply(null, a); }
+function collection(){ var a = Array.prototype.slice.call(arguments, 1); return fsRef.apply(null, a); }
+function getDoc(ref){ return ref.get(); }
+function getDocs(ref){ return ref.get(); }
+function addDoc(colRef, data){ return colRef.add(data); }
+function updateDoc(ref, data){ return ref.update(data); }
+function deleteDoc(ref){ return ref.delete(); }
+function setDoc(ref, data, opts){ return opts ? ref.set(data, opts) : ref.set(data); }
+function serverTimestamp(){ return firebase.firestore.FieldValue.serverTimestamp(); }
 
 /* ── Traduction : fonction T() locale ── */
 function T(key){
@@ -902,6 +924,8 @@ let listeCommunaute = [];
 let listeToutes = [];
 const authorInfoCache = {};
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+const TAILLE_LOT_CV = 6;
+let nombreCvCommunauteAffiches = TAILLE_LOT_CV;
 
 function blankCvData(){
   return {
@@ -963,7 +987,7 @@ async function getAuthorInfo(uid){
   const info = { prenom: '', role: 'artisan' };
   try {
     const snap = await getDoc(doc(db, 'utilisateurs', uid));
-    if (snap.exists()) {
+    if (snap.exists) {
       info.prenom = snap.data().prenom || '';
       info.role = snap.data().role || 'artisan';
     }
@@ -1012,6 +1036,7 @@ async function chargerListe(){
   listeMesCv = listeToutes.filter(c => estAMoi(c) && c.publie && !c.corbeille);
   listeCorbeille = listeToutes.filter(c => estAMoi(c) && c.corbeille);
   listeCommunaute = listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille);
+  nombreCvCommunauteAffiches = TAILLE_LOT_CV;
 
   await renderListeCards();
 }
@@ -1043,11 +1068,15 @@ async function renderListeCards(){
   const cardsCommu = document.getElementById('cvCardsCommunaute');
   cardsCommu.innerHTML = '';
 
+  // Chargement progressif, comme partout ailleurs sur le site : par lots de
+  // 6, pas tout le fil d'un coup.
+  const visiblesCommunaute = listeCommunaute.slice(0, nombreCvCommunauteAffiches);
+
   // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
   // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
   // Aucune génération automatique de profils : uniquement les CV déjà en base.
   const avecCarrousel = listeCommunaute.length > 4;
-  listeCommunaute.forEach((c, i) => {
+  visiblesCommunaute.forEach((c, i) => {
     cardsCommu.appendChild(construireInstance(c, false));
     if (avecCarrousel && (i + 1) % 4 === 0) {
       try {
@@ -1059,6 +1088,19 @@ async function renderListeCards(){
     }
   });
 }
+
+const observateurCvCommunaute = new IntersectionObserver((entrees) => {
+  entrees.forEach((entree) => {
+    if (entree.isIntersecting && nombreCvCommunauteAffiches < listeCommunaute.length) {
+      nombreCvCommunauteAffiches += TAILLE_LOT_CV;
+      renderListeCards();
+    }
+  });
+}, { rootMargin: '400px' });
+setTimeout(() => {
+  const sentinelle = document.getElementById('sentinelleCvCommunaute');
+  if (sentinelle) observateurCvCommunaute.observe(sentinelle);
+}, 500);
 
 // Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
 // le carrousel de Fil Presse (130×160). Clic -> défile jusqu'à la grande carte correspondante.
@@ -1378,7 +1420,7 @@ function ouvrirEdition(c){
   render();
 }
 
-onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged(async (user) => {
   currentUser = user;
   await chargerListe();
   refreshDynamicTexts();
