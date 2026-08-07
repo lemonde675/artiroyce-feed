@@ -605,6 +605,13 @@ function roleTexte(p){return p.role==='visiteur'?'Visiteur':'Professionnel';}
 // Ordre façon WhatsApp : les statuts non-vus (triés du plus récent au plus ancien) passent TOUJOURS
 // devant les statuts déjà vus (également triés par récence). Un nouveau contenu ajouté par une personne
 // déjà "vue" la fait automatiquement repasser en tête du groupe "non-vus" — jamais en dernière position.
+// Chargement progressif — par lots de 6, comme sur Discussions/Élite — dans
+// les deux sens : la liste verticale "Récents" (qui a son propre scroll
+// interne, pas celui de la page) ET le bandeau horizontal du haut.
+const TAILLE_LOT_ST = 6;
+let nombreListeAffiches = TAILLE_LOT_ST;
+let nombreStripAffiches = TAILLE_LOT_ST;
+
 function listeOrdonnee(){
   S.forEach(function(p){p.items=p.items.filter(itemNonExpire);});
   var actifs=S.filter(function(p){return p.id!==MOI_ID&&personneVisible(p);});
@@ -621,7 +628,8 @@ function renderList(){
   var nbNonVus=ordonnee.filter(function(p){return !personneEstVue(p);}).length;
   var countEl=document.querySelector('.list-count');
   if(countEl)countEl.textContent=nbNonVus+' nouveau'+(nbNonVus>1?'x':'');
-  ordonnee.forEach(function(p){
+  var visibles=ordonnee.slice(0,nombreListeAffiches);
+  visibles.forEach(function(p){
     var vu=personneEstVue(p);
     var cnt=p.items.filter(function(it){return !it.vu;}).length;
     var dernier=p.items[p.items.length-1];
@@ -644,15 +652,32 @@ function renderList(){
       +'</div>';
     list.appendChild(row);
   });
+  var sentinelleListe=document.createElement('div');
+  sentinelleListe.id='sentinelleListeStatuts';
+  sentinelleListe.style.height='1px';
+  list.appendChild(sentinelleListe);
+  observateurListeStatuts.disconnect();
+  observateurListeStatuts.observe(sentinelleListe);
   renderStrip();
 }
+
+const observateurListeStatuts=new IntersectionObserver(function(entrees){
+  entrees.forEach(function(entree){
+    if(entree.isIntersecting&&nombreListeAffiches<listeOrdonnee().length){
+      nombreListeAffiches+=TAILLE_LOT_ST;
+      renderList();
+    }
+  });
+},{root:document.getElementById('stList'),rootMargin:'200px'});
 
 // RENDER STRIP (bandeau du haut) — reconstruit dynamiquement selon le même ordre WhatsApp
 function renderStrip(){
   var strip=document.querySelector('.strip');
   var mine=strip.querySelector('.strip-item'); // 1ère carte = "Mon statut", toujours conservée telle quelle
   Array.from(strip.querySelectorAll('.strip-item')).forEach(function(el,i){if(i>0)el.remove();});
-  listeOrdonnee().forEach(function(p){
+  var ordonnee=listeOrdonnee();
+  var visibles=ordonnee.slice(0,nombreStripAffiches);
+  visibles.forEach(function(p){
     var vu=personneEstVue(p);
     var dernier=p.items[p.items.length-1];
     var div=document.createElement('div');
@@ -671,7 +696,23 @@ function renderStrip(){
       +'<span class="s-card-time">'+tempsDepuis(dernier.postedAt)+(vu?' · Vu':'')+'</span>';
     strip.appendChild(div);
   });
+  var sentinelleStrip=document.createElement('div');
+  sentinelleStrip.id='sentinelleStripStatuts';
+  sentinelleStrip.style.cssText='width:1px;flex-shrink:0';
+  strip.appendChild(sentinelleStrip);
+  observateurStripStatuts.disconnect();
+  observateurStripStatuts.observe(sentinelleStrip);
 }
+
+const observateurStripStatuts=new IntersectionObserver(function(entrees){
+  entrees.forEach(function(entree){
+    if(entree.isIntersecting&&nombreStripAffiches<listeOrdonnee().length){
+      nombreStripAffiches+=TAILLE_LOT_ST;
+      renderStrip();
+    }
+  });
+},{root:document.querySelector('.strip'),rootMargin:'200px'});
+
 renderList();
 renderMyCard();
 
@@ -1430,21 +1471,39 @@ function attachMusic(){
 }
 </script>
 
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getStorage,ref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import{
-  getFirestore,doc,getDoc,collection,addDoc,onSnapshot,orderBy,query,
-  updateDoc,deleteDoc,arrayUnion,serverTimestamp
-}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
 const cfg={apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",authDomain:"artiroyce-f42e4.firebaseapp.com",projectId:"artiroyce-f42e4",storageBucket:"artiroyce-f42e4.firebasestorage.app",messagingSenderId:"588140774605",appId:"1:588140774605:web:b69cf8740c2fe5f1d59584"};
-const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const storage=getStorage(app);
+firebase.initializeApp(cfg);
+const auth=firebase.auth();const db=firebase.firestore();const storage=firebase.storage();
+
+// ── Couche de compatibilité (même principe que fil-presse.html / cv_pro.html) ──
+function fsRef(){var args=Array.prototype.slice.call(arguments);var r=db,i=0;while(i<args.length){r=r.collection(args[i]);i++;if(i<args.length){r=r.doc(String(args[i]));i++;}}return r;}
+function doc(){var a=Array.prototype.slice.call(arguments,1);return fsRef.apply(null,a);}
+function collection(){var a=Array.prototype.slice.call(arguments,1);return fsRef.apply(null,a);}
+function getDoc(ref){return ref.get();}
+function getDocs(ref){return ref.get();}
+function addDoc(colRef,data){return colRef.add(data);}
+function updateDoc(ref,data){return ref.update(data);}
+function deleteDoc(ref){return ref.delete();}
+function setDoc(ref,data,opts){return opts?ref.set(data,opts):ref.set(data);}
+function orderBy(field,dir){return function(r){return r.orderBy(field,dir);};}
+function query(baseRef){var fns=Array.prototype.slice.call(arguments,1);var r=baseRef;fns.forEach(function(fn){r=fn(r);});return r;}
+function onSnapshot(ref,cb,errCb){return ref.onSnapshot(cb,errCb);}
+function serverTimestamp(){return firebase.firestore.FieldValue.serverTimestamp();}
+function arrayUnion(){return firebase.firestore.FieldValue.arrayUnion.apply(null,arguments);}
+function storageRefFn(storageInstance,path){return storageInstance.ref(path);}
+function uploadBytesFn(sRef,file){return sRef.put(file);}
+function getDownloadURLFn(sRef){return sRef.getDownloadURL();}
+
 // Exposés au script classique (non-module) qui gère l'affichage et le lecteur —
 // même précaution que pour "toast" sur actualite_v1 : un module ne partage pas ses
 // variables globalement, donc on les attache explicitement à window.
 window.db=db;
-window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,arrayUnion,serverTimestamp,getDoc,storageRef:ref,uploadBytes,getDownloadURL};
+window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,arrayUnion,serverTimestamp,getDoc,storageRef:storageRefFn,uploadBytes:uploadBytesFn,getDownloadURL:getDownloadURLFn};
 window.storage=storage;
 window.ME={prenom:'Moi',initiale:'M',photo:null,metier:'',role:'visiteur'};
 window.rendreCardDefaut=function(){
@@ -1463,11 +1522,11 @@ window.rendreCardDefaut=function(){
   }
 };
 
-onAuthStateChanged(auth,async(user)=>{
+auth.onAuthStateChanged(async(user)=>{
   if(!user)return;
   try{
     const snap=await getDoc(doc(db,'utilisateurs',user.uid));
-    const d=snap.exists()?snap.data():{};
+    const d=snap.exists?snap.data():{};
     window.ME.prenom=d.prenom||d.nom||user.displayName||'Moi';
     window.ME.photo=d.photoAvatar||user.photoURL||null;
     window.ME.metier=d.metier||'';
