@@ -130,12 +130,9 @@
 <div id="mainForm">
   <div class="scroll-area">
 
-    <!-- TYPE TABS -->
+    <!-- ZONES UPLOAD (photos ET vidéo peuvent être ajoutées ensemble) -->
     <div class="section">
-      <div class="type-tabs">
-        <div class="type-tab active" id="tabPhoto" onclick="switchType('photo')">📸 Photos</div>
-        <div class="type-tab" id="tabVideo" onclick="switchType('video')">🎬 Vidéo</div>
-      </div>
+      <div class="section-title">📸 Photos <span style="font-weight:600;color:#bbb;text-transform:none;">(jusqu'à 10)</span></div>
 
       <!-- ZONE UPLOAD PHOTO -->
       <div id="zonePhoto">
@@ -153,8 +150,10 @@
         </div>
       </div>
 
+      <div class="section-title" style="border-top:1px solid #f0f0f0;margin-top:6px">🎬 Vidéo <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel, 1 seule)</span></div>
+
       <!-- ZONE UPLOAD VIDEO -->
-      <div id="zoneVideo" style="display:none">
+      <div id="zoneVideo">
         <div class="upload-zone" id="uploadZoneVideo" onclick="triggerVideo()" ondragover="onDrag(event,'video',true)" ondragleave="onDrag(event,'video',false)" ondrop="onDropVideo(event)">
           <input type="file" id="fileVideo" accept="video/mp4,video/webm,video/quicktime" onchange="onVideoSel(event)"/>
           <div class="uz-icon">🎬</div>
@@ -189,6 +188,16 @@
       <div class="spinner" id="spinner"></div>
     </button>
 
+    <!-- MON PORTFOLIO -->
+    <div class="section" id="secMonPortfolio" style="display:none">
+      <div class="section-title">🖼️ Mon portfolio</div>
+      <div id="corbeilleTogglePub" style="display:none;margin:10px 16px;background:#fff8f0;border:1px solid #f0dfc2;border-radius:14px;padding:10px 14px;font-size:12.5px;font-weight:700;color:#8a6d1a;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleCorbeillePub()">
+        <span>🗑️ Corbeille</span><span id="corbeilleCountPub">(0)</span>
+      </div>
+      <div id="corbeilleListePub" style="display:none;flex-direction:column;gap:8px;margin:8px 16px"></div>
+      <div id="grillePortfolio" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px"></div>
+    </div>
+
   </div>
 </div>
 
@@ -214,11 +223,11 @@
 <div class="toast" id="toastEl"></div>
 
 <!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -229,64 +238,78 @@ const firebaseConfig = {
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-onAuthStateChanged(auth, async (user) => {
+// ── Couche de compatibilité (même principe que les autres fichiers) ──
+function fsRef(){var args=Array.prototype.slice.call(arguments);var r=db,i=0;while(i<args.length){r=r.collection(args[i]);i++;if(i<args.length){r=r.doc(String(args[i]));i++;}}return r;}
+function doc(){var a=Array.prototype.slice.call(arguments,1);return fsRef.apply(null,a);}
+function updateDoc(ref,data){return ref.update(data);}
+function getDoc(ref){return ref.get();}
+function arrayUnion(){return firebase.firestore.FieldValue.arrayUnion.apply(null,arguments);}
+function ref(storageInstance,path){return storageInstance.ref(path);}
+function uploadBytesResumable(sRef,file){return sRef.put(file);}
+function getDownloadURL(sRef){return sRef.getDownloadURL();}
+
+auth.onAuthStateChanged(async (user) => {
   if (!user) {
     document.getElementById('mainForm').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     return;
   }
   window._uid = user.uid;
+  chargerMonPortfolio();
 });
 
 window.submitPub = async function() {
   const uid = window._uid;
   if (!uid) { showToast('🔐 Connectez-vous', 'r'); return; }
 
-  const type = window._mediaType || 'photo';
   const photos = window._photos || [];
   const videoFile = window._videoFile || null;
   const titre = document.getElementById('titreInp').value.trim();
 
-  if (type === 'photo' && photos.length === 0) { showToast('⚠️ Choisissez au moins une photo', 'r'); return; }
-  if (type === 'video' && !videoFile) { showToast('⚠️ Choisissez une vidéo', 'r'); return; }
+  if (photos.length === 0 && !videoFile) { showToast('⚠️ Choisissez au moins une photo ou une vidéo', 'r'); return; }
 
   setLoading(true);
   document.getElementById('progWrap').style.display = 'block';
 
   try {
-    const items = [];
+    const totalFichiers = photos.length + (videoFile ? 1 : 0);
+    let fichiersEnvoyes = 0;
 
-    if (type === 'photo') {
-      for (let i = 0; i < photos.length; i++) {
-        const f = photos[i];
-        const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
-        const task = uploadBytesResumable(ref(storage, path), f);
-        const url = await new Promise((res, rej) => {
-          task.on('state_changed',
-            snap => {
-              const pct = Math.round(((i + snap.bytesTransferred/snap.totalBytes) / photos.length) * 100);
-              document.getElementById('progFill').style.width = pct + '%';
-              document.getElementById('progPct').textContent = pct + '%';
-              document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
-            }, rej,
-            async () => res(await getDownloadURL(task.snapshot.ref))
-          );
-        });
-        items.push({ type: 'photo', url, titre, date: new Date().toISOString() });
-      }
-    } else {
+    for (let i = 0; i < photos.length; i++) {
+      const f = photos[i];
+      const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
+      const task = uploadBytesResumable(ref(storage, path), f);
+      const url = await new Promise((res, rej) => {
+        task.on('state_changed',
+          snap => {
+            const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
+            document.getElementById('progFill').style.width = pct + '%';
+            document.getElementById('progPct').textContent = pct + '%';
+            document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
+          }, rej,
+          async () => res(await getDownloadURL(task.snapshot.ref))
+        );
+      });
+      fichiersEnvoyes++;
+      await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
+        type: 'photo', url, titre, corbeille: false, corbeilleDepuis: null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    if (videoFile) {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
-            const pct = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+            const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = 'Envoi vidéo…';
@@ -294,16 +317,15 @@ window.submitPub = async function() {
           async () => res(await getDownloadURL(task.snapshot.ref))
         );
       });
-      items.push({ type: 'video', url, titre, date: new Date().toISOString() });
+      await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
+        type: 'video', url, titre, corbeille: false, corbeilleDepuis: null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
-
-    // Sauvegarder dans utilisateurs/{uid}.portfolio
-    await updateDoc(doc(db, 'utilisateurs', uid), {
-      portfolio: arrayUnion(...items)
-    });
 
     setLoading(false);
     document.getElementById('successScreen').style.display = 'flex';
+    chargerMonPortfolio();
 
   } catch(err) {
     setLoading(false);
@@ -322,17 +344,7 @@ function setLoading(on) {
 <script>
 window._photos = [];
 window._videoFile = null;
-window._mediaType = 'photo';
 window._uid = null;
-
-function switchType(type) {
-  window._mediaType = type;
-  document.getElementById('tabPhoto').classList.toggle('active', type === 'photo');
-  document.getElementById('tabVideo').classList.toggle('active', type === 'video');
-  document.getElementById('zonePhoto').style.display = type === 'photo' ? 'block' : 'none';
-  document.getElementById('zoneVideo').style.display = type === 'video' ? 'block' : 'none';
-  checkReady();
-}
 
 // PHOTOS
 function triggerPhoto() { document.getElementById('filePhoto').click(); }
@@ -401,8 +413,7 @@ function onTitre() {
 
 // CHECK READY
 function checkReady() {
-  const type = window._mediaType;
-  const hasMedia = (type === 'photo' && window._photos.length > 0) || (type === 'video' && !!window._videoFile);
+  const hasMedia = window._photos.length > 0 || !!window._videoFile;
   document.getElementById('mainBtn').disabled = !hasMedia;
   document.getElementById('headBtn').classList.toggle('ready', hasMedia);
 }
@@ -424,7 +435,6 @@ function resetForm() {
   document.getElementById('mainBtn').disabled = true;
   document.getElementById('headBtn').classList.remove('ready');
   document.getElementById('successScreen').style.display = 'none';
-  switchType('photo');
 }
 
 // TOAST
@@ -434,6 +444,100 @@ function showToast(msg, type) {
   el.className = 'toast show' + (type ? ' ' + type : '');
   setTimeout(() => el.className = 'toast', 2500);
 }
+
+// ── Mon portfolio : liste, suppression → corbeille, restauration ──
+const QUINZE_JOURS_MS_PUB = 15 * 24 * 60 * 60 * 1000;
+let monPortfolio = [];
+let corbeillePortfolio = [];
+
+window.chargerMonPortfolio = async function() {
+  const uid = window._uid;
+  if (!uid) return;
+  try {
+    const snap = await db.collection('utilisateurs').doc(uid).collection('portfolio').orderBy('createdAt','desc').get();
+    const tous = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const maintenant = Date.now();
+    const aPurger = tous.filter(it => it.corbeille && it.corbeilleDepuis &&
+      (maintenant - new Date(it.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS_PUB);
+    for (const it of aPurger) {
+      try { await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(it.id).delete(); } catch(e){}
+    }
+    const idsAPurger = new Set(aPurger.map(it => it.id));
+    monPortfolio = tous.filter(it => !it.corbeille && !idsAPurger.has(it.id));
+    corbeillePortfolio = tous.filter(it => it.corbeille && !idsAPurger.has(it.id));
+    afficherMonPortfolio();
+  } catch(e) { console.error('Chargement portfolio impossible :', e); }
+};
+
+function afficherMonPortfolio() {
+  const sec = document.getElementById('secMonPortfolio');
+  sec.style.display = (monPortfolio.length || corbeillePortfolio.length) ? 'block' : 'none';
+
+  const grille = document.getElementById('grillePortfolio');
+  grille.innerHTML = monPortfolio.map(it => `
+    <div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1;background:#eee">
+      ${it.type === 'video'
+        ? `<video src="${it.url}" muted style="width:100%;height:100%;object-fit:cover"></video>`
+        : `<img src="${it.url}" style="width:100%;height:100%;object-fit:cover">`}
+      <button onclick="supprimerItemPortfolio('${it.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.65);border:none;color:#fff;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;font-weight:800">✕</button>
+    </div>`).join('');
+
+  const toggle = document.getElementById('corbeilleTogglePub');
+  toggle.style.display = corbeillePortfolio.length ? 'flex' : 'none';
+  document.getElementById('corbeilleCountPub').textContent = '(' + corbeillePortfolio.length + ')';
+
+  const listeCorb = document.getElementById('corbeilleListePub');
+  listeCorb.innerHTML = corbeillePortfolio.map(it => {
+    const restantMs = QUINZE_JOURS_MS_PUB - (Date.now() - new Date(it.corbeilleDepuis || Date.now()).getTime());
+    const joursRestants = Math.max(1, Math.ceil(restantMs / (24*60*60*1000)));
+    return `<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f0dfc2;border-radius:12px;padding:10px 12px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12.5px;font-weight:700;color:#333">${it.titre || (it.type==='video'?'Vidéo':'Photo')}</div>
+        <div style="font-size:11px;color:#a07a1a">Supprimée définitivement dans ${joursRestants} jour${joursRestants>1?'s':''}</div>
+      </div>
+      <button onclick="restaurerItemPortfolio('${it.id}')" style="background:#eafaf0;color:var(--green);border:1.5px solid var(--green);border-radius:12px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap">Restaurer</button>
+      <button onclick="supprimerDefinitivementPortfolio('${it.id}')" style="background:#fff0ef;color:var(--red);border:1.5px solid #f5c9c5;border-radius:12px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap">Suppr. déf.</button>
+    </div>`;
+  }).join('');
+}
+
+window.toggleCorbeillePub = function() {
+  const el = document.getElementById('corbeilleListePub');
+  el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
+};
+
+window.supprimerItemPortfolio = async function(itemId) {
+  if (!confirm('Mettre cet élément à la corbeille ? Il sera restaurable pendant 15 jours.')) return;
+  const uid = window._uid;
+  try {
+    await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).update({
+      corbeille: true, corbeilleDepuis: new Date().toISOString()
+    });
+    showToast('🗑️ Mis à la corbeille', 'g');
+    chargerMonPortfolio();
+  } catch(e) { console.error(e); showToast('❌ Erreur suppression', 'r'); }
+};
+
+window.restaurerItemPortfolio = async function(itemId) {
+  const uid = window._uid;
+  try {
+    await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).update({
+      corbeille: false, corbeilleDepuis: null
+    });
+    showToast('✅ Restauré', 'g');
+    chargerMonPortfolio();
+  } catch(e) { console.error(e); showToast('❌ Erreur restauration', 'r'); }
+};
+
+window.supprimerDefinitivementPortfolio = async function(itemId) {
+  if (!confirm('Supprimer définitivement ? Cette action est irréversible.')) return;
+  const uid = window._uid;
+  try {
+    await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).delete();
+    showToast('🗑️ Supprimé définitivement', 'g');
+    chargerMonPortfolio();
+  } catch(e) { console.error(e); showToast('❌ Erreur', 'r'); }
+};
 
 function goBack() { window.history.back(); }
 </script>
