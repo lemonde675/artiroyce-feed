@@ -174,7 +174,7 @@
     <div class="h-tab" data-i18n="acc_tab_news">📰 Actualités</div>
     <div class="h-tab"><span class="tab-green-dot"></span> <span data-i18n="acc_tab_status">Statuts</span></div>
     <div class="h-tab" data-i18n="acc_tab_elite">⭐ Élites</div>
-    <div class="h-tab" data-i18n="acc_tab_offers">💼 Offres</div>
+    <div class="h-tab" data-i18n="acc_tab_offers"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><rect x="2" y="7" width="20" height="14" rx="2.5"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="2" y1="13" x2="22" y2="13"/></svg> Offres</div>
     <div class="h-tab" data-i18n="acc_tab_cv">📄 CV Pro</div>
     <div class="h-tab" data-i18n="acc_tab_discussion">💬 Répert-Discussion</div>
     <div class="h-tab" data-i18n="acc_tab_presse">📰 Fil Presse</div>
@@ -280,7 +280,7 @@
   <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
     <div class="nav-plus">+</div>
   </div>
-  <div class="nav-i" onclick="toast('▶ Live','')">
+  <div class="nav-i" onclick="toast('▶ Live — bientôt disponible','')">
     <svg class="nav-ico" viewBox="0 0 24 24">
       <rect x="2" y="3" width="20" height="18" rx="3" fill="var(--red)"/>
       <polygon points="10,8 10,16 17,12" fill="#fff"/>
@@ -288,7 +288,7 @@
     <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
   </div>
   <!-- Messages à droite -->
-  <div class="nav-i" onclick="toast('📩 Messages','')">
+  <div class="nav-i" onclick="goToPanel(6)">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
       <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
@@ -334,11 +334,10 @@ if(window.visualViewport){
 }
 setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 </script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
     authDomain: "artiroyce-f42e4.firebaseapp.com",
@@ -347,14 +346,30 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     messagingSenderId: "588140774605",
     appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
   };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  // ── Couche de compatibilité (même principe que fil-presse.html / cv_pro.html / statut_v1.html) ──
+  function fsRef(){var args=Array.prototype.slice.call(arguments);var r=db,i=0;while(i<args.length){r=r.collection(args[i]);i++;if(i<args.length){r=r.doc(String(args[i]));i++;}}return r;}
+  function doc(){var a=Array.prototype.slice.call(arguments,1);return fsRef.apply(null,a);}
+  function collection(){var a=Array.prototype.slice.call(arguments,1);return fsRef.apply(null,a);}
+  function getDoc(ref){return ref.get();}
+  function getDocs(ref){return ref.get();}
+  function addDoc(colRef,data){return colRef.add(data);}
+  function updateDoc(ref,data){return ref.update(data);}
+  function setDoc(ref,data,opts){return opts?ref.set(data,opts):ref.set(data);}
+  function deleteDoc(ref){return ref.delete();}
+  function where(field,op,val){return function(r){return r.where(field,op,val);};}
+  function query(baseRef){var fns=Array.prototype.slice.call(arguments,1);var r=baseRef;fns.forEach(function(fn){r=fn(r);});return r;}
+  function onSnapshot(ref,cb,errCb){return ref.onSnapshot(cb,errCb);}
+  function serverTimestamp(){return firebase.firestore.FieldValue.serverTimestamp();}
+  function increment(n){return firebase.firestore.FieldValue.increment(n);}
 
   const wmSVG = `<svg width="13" height="9" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>`;
 
   const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
+
 
   function creerCard(uid, data, index) {
     const metier  = data.metier  || 'Professionnel';
@@ -398,35 +413,35 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       <div class="vcard-overlay"></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
       <div class="btn-suivre-wrap">
-        <button class="btn-suivre" onclick="toast('✅ Suivi !','g')">+ Suivre</button>
-        <button class="btn-contacter" onclick="toast('💬 Contacter','g')">Contacter</button>
+        <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
+        <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}')">Contacter</button>
       </div>
       <div class="actions-r">
-        <div class="act-btn" onclick="toast('🖼️ Réalisations','g')">
+        <div class="act-btn" onclick="ouvrirGalerieAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
           <span class="act-lbl">Réalisation</span>
         </div>
-        <div class="act-btn" onclick="likeC(this,${index})">
+        <div class="act-btn" id="like-btn-${uid}" onclick="reagirAccueil('${uid}','like')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-          <span class="act-n">0</span>
+          <span class="act-n" id="like-n-${uid}">${data.likesAccueil||0}</span>
         </div>
-        <div class="act-btn">
+        <div class="act-btn" id="dislike-btn-${uid}" onclick="reagirAccueil('${uid}','dislike')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-          <span class="act-n">0</span>
+          <span class="act-n" id="dislike-n-${uid}">${data.dislikesAccueil||0}</span>
         </div>
-        <div class="act-btn" onclick="toast('💬 ${pseudo}','')">
+        <div class="act-btn" onclick="ouvrirCommentairesAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <span class="act-n">0</span>
+          <span class="act-n" id="comment-n-${uid}">${data.commentsAccueil||0}</span>
         </div>
-        <div class="act-btn" onclick="toast('💾 Sauvegardé !','g')">
+        <div class="act-btn" id="save-btn-${uid}" onclick="toggleSauverAccueil('${uid}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
           <span class="act-lbl">Sauver</span>
         </div>
-        <div class="act-btn" onclick="toast('📆 Réservation ${pseudo}','g')">
+        <div class="act-btn" onclick="ouvrirReservationAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <span class="act-lbl">Réserver</span>
         </div>
-        <div class="act-btn" onclick="toast('🔗 Partager ${pseudo}','g')">
+        <div class="act-btn" onclick="partagerAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
           <span class="act-lbl">Partager</span>
         </div>
@@ -437,15 +452,15 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         <span class="info-globe-small">🌍</span>
         <div class="info-user">${pseudo}</div>
         <div class="info-desc">Vérifié(e) sur ArtiRoyce.</div>
-        <div class="info-stars">⭐⭐ <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;">4.8 (10k avis)</span></div>
+        <div class="info-stars" id="stats-${uid}"><span style="font-size:12px;color:rgba(255,255,255,0.75);font-weight:600;">👍 ${data.likesAccueil||0} · 💬 ${data.commentsAccueil||0}</span></div>
       </div>
       <div class="info-bot">
         <div class="info-metier">${getEmoji(metier)} ${metier}</div>
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
         <div class="info-btns">
-          <button class="btn-disc" onclick="window.location.href='discussion_v1.html'">💬 Discussion</button>
-          <button class="btn-lv" onclick="toast('🔴 Live Pro','')">+ Live Pro</button>
+          <button class="btn-disc" onclick="goToPanel(6)">💬 Discussion</button>
+          <button class="btn-lv" onclick="toast('🔴 Live Pro — bientôt disponible','')">+ Live Pro</button>
           <span class="wm-inline">
             <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
             <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
@@ -699,20 +714,304 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   addSwipeBand(document.getElementById('swipeLeftFq'));
   addSwipeBand(document.getElementById('swipeRightFq'));
 
-  window.likeC = function(btn, idx) {
-    const circle = btn.querySelector('.act-circle');
-    const num = btn.querySelector('.act-n');
-    const liked = circle.classList.contains('liked');
-    circle.classList.toggle('liked', !liked);
-    num.textContent = parseInt(num.textContent) + (liked ? -1 : 1);
+  // ── États réels de l'utilisateur connecté sur le fil Accueil ──
+  // Chargés une seule fois par lots (comme sur Offres), pas un par un par carte.
+  let mesReactionsAccueil = {};   // uid -> 'like' | 'dislike'
+  let mesSuivisAccueil = new Set();
+  let mesSauvegardesAccueil = new Set();
+
+  async function chargerMesEtatsAccueil(){
+    if (!auth.currentUser) return;
+    const moi = auth.currentUser.uid;
+    try {
+      const [snapReactions, snapSuivis, snapSauv] = await Promise.all([
+        db.collectionGroup('reactionsAccueil').where('uid','==',moi).get(),
+        db.collection('abonnements').where('follower','==',moi).get(),
+        db.collectionGroup('sauvegardesAccueil').where('uid','==',moi).get()
+      ]);
+      mesReactionsAccueil = {};
+      snapReactions.forEach(d => {
+        const cible = d.ref.parent.parent ? d.ref.parent.parent.id : null;
+        if (cible) mesReactionsAccueil[cible] = d.data().type;
+      });
+      mesSuivisAccueil = new Set(snapSuivis.docs.map(d => d.data().followed));
+      mesSauvegardesAccueil = new Set();
+      snapSauv.forEach(d => {
+        const cible = d.ref.parent.parent ? d.ref.parent.parent.id : null;
+        if (cible) mesSauvegardesAccueil.add(cible);
+      });
+    } catch(e) { console.error('États Accueil impossibles à charger :', e); }
+    appliquerEtatsSurCartes();
   }
+
+  function appliquerEtatsSurCartes(){
+    document.querySelectorAll('.vcard').forEach(card => {
+      const btnSuivre = card.querySelector('.btn-suivre');
+      if (btnSuivre) {
+        const uid = btnSuivre.id.replace('suivre-','');
+        const suivi = mesSuivisAccueil.has(uid);
+        btnSuivre.textContent = suivi ? 'Suivi(e)' : '+ Suivre';
+        btnSuivre.style.opacity = suivi ? '0.7' : '1';
+      }
+    });
+    Object.keys(mesReactionsAccueil).forEach(uid => {
+      const type = mesReactionsAccueil[uid];
+      const likeBtn = document.getElementById('like-btn-'+uid);
+      const dislikeBtn = document.getElementById('dislike-btn-'+uid);
+      if (likeBtn) likeBtn.querySelector('.act-circle').classList.toggle('liked', type==='like');
+      if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.toggle('liked', type==='dislike');
+    });
+    mesSauvegardesAccueil.forEach(uid => {
+      const saveBtn = document.getElementById('save-btn-'+uid);
+      if (saveBtn) saveBtn.querySelector('.act-circle').classList.add('liked');
+    });
+  }
+
+  window.toggleSuivreAccueil = async function(cibleUid){
+    if (!auth.currentUser) { toast('Connecte-toi pour suivre', ''); return; }
+    const moi = auth.currentUser.uid;
+    if (moi === cibleUid) return;
+    const relId = moi + '_' + cibleUid;
+    const relRef = doc(db, 'abonnements', relId);
+    const btn = document.getElementById('suivre-'+cibleUid);
+    try {
+      if (mesSuivisAccueil.has(cibleUid)) {
+        await deleteDoc(relRef);
+        mesSuivisAccueil.delete(cibleUid);
+        if (btn) { btn.textContent = '+ Suivre'; btn.style.opacity = '1'; }
+      } else {
+        await setDoc(relRef, { follower: moi, followed: cibleUid, createdAt: serverTimestamp() });
+        mesSuivisAccueil.add(cibleUid);
+        if (btn) { btn.textContent = 'Suivi(e)'; btn.style.opacity = '0.7'; }
+        toast('✅ Suivi !', 'g');
+      }
+    } catch(e) { console.error(e); toast('Erreur', ''); }
+  };
+
+  window.contacterDepuisAccueil = function(cibleUid, pseudo){
+    toast('💬 Ouvre la discussion pour écrire à ' + pseudo, 'g');
+    goToPanel(6);
+  };
+
+  // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
+  // document utilisateurs/{cible} (pas de lecture supplémentaire nécessaire
+  // pour les afficher dans le fil), et ma propre réaction dans une petite
+  // sous-collection pour savoir ce que j'ai déjà choisi et pouvoir basculer.
+  window.reagirAccueil = async function(cibleUid, type){
+    if (!auth.currentUser) { toast('Connecte-toi pour réagir', ''); return; }
+    const moi = auth.currentUser.uid;
+    if (moi === cibleUid) { toast('Tu ne peux pas réagir à ton propre profil', ''); return; }
+    const reactRef = doc(db, 'utilisateurs', cibleUid, 'reactionsAccueil', moi);
+    const cibleRef = doc(db, 'utilisateurs', cibleUid);
+    const ancien = mesReactionsAccueil[cibleUid];
+    const likeN = document.getElementById('like-n-'+cibleUid);
+    const dislikeN = document.getElementById('dislike-n-'+cibleUid);
+    const likeBtn = document.getElementById('like-btn-'+cibleUid);
+    const dislikeBtn = document.getElementById('dislike-btn-'+cibleUid);
+    try {
+      if (ancien === type) {
+        // On retire sa réaction
+        await deleteDoc(reactRef);
+        await updateDoc(cibleRef, { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(-1) });
+        delete mesReactionsAccueil[cibleUid];
+        if (likeBtn) likeBtn.querySelector('.act-circle').classList.remove('liked');
+        if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.remove('liked');
+        if (type==='like' && likeN) likeN.textContent = Math.max(0, parseInt(likeN.textContent||'0')-1);
+        if (type==='dislike' && dislikeN) dislikeN.textContent = Math.max(0, parseInt(dislikeN.textContent||'0')-1);
+      } else {
+        await setDoc(reactRef, { uid: moi, type: type, createdAt: serverTimestamp() });
+        const maj = { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(1) };
+        if (ancien) maj[ancien==='like'?'likesAccueil':'dislikesAccueil'] = increment(-1);
+        await updateDoc(cibleRef, maj);
+        mesReactionsAccueil[cibleUid] = type;
+        if (likeBtn) likeBtn.querySelector('.act-circle').classList.toggle('liked', type==='like');
+        if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.toggle('liked', type==='dislike');
+        if (type==='like' && likeN) likeN.textContent = parseInt(likeN.textContent||'0')+1;
+        if (type==='dislike' && dislikeN) dislikeN.textContent = parseInt(dislikeN.textContent||'0')+1;
+        if (ancien==='like' && likeN) likeN.textContent = Math.max(0, parseInt(likeN.textContent||'0')-1);
+        if (ancien==='dislike' && dislikeN) dislikeN.textContent = Math.max(0, parseInt(dislikeN.textContent||'0')-1);
+      }
+    } catch(e) { console.error(e); toast('Erreur', ''); }
+  };
+
+  window.toggleSauverAccueil = async function(cibleUid){
+    if (!auth.currentUser) { toast('Connecte-toi pour sauvegarder', ''); return; }
+    const moi = auth.currentUser.uid;
+    const saveRef = doc(db, 'utilisateurs', moi, 'sauvegardesAccueil', cibleUid);
+    const btn = document.getElementById('save-btn-'+cibleUid);
+    try {
+      if (mesSauvegardesAccueil.has(cibleUid)) {
+        await deleteDoc(saveRef);
+        mesSauvegardesAccueil.delete(cibleUid);
+        if (btn) btn.querySelector('.act-circle').classList.remove('liked');
+        toast('Retiré des favoris', '');
+      } else {
+        await setDoc(saveRef, { uid: moi, createdAt: serverTimestamp() });
+        mesSauvegardesAccueil.add(cibleUid);
+        if (btn) btn.querySelector('.act-circle').classList.add('liked');
+        toast('💾 Sauvegardé !', 'g');
+      }
+    } catch(e) { console.error(e); toast('Erreur', ''); }
+  };
+
+  window.partagerAccueil = async function(cibleUid, pseudo){
+    const url = window.location.origin + window.location.pathname.replace('accueil.html','') + 'profil.html?uid=' + cibleUid;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'ArtiRoyce — ' + pseudo, url: url }); }
+      catch(e) { /* partage annulé, rien à faire */ }
+    } else {
+      try { await navigator.clipboard.writeText(url); toast('🔗 Lien copié !', 'g'); }
+      catch(e) { toast('🔗 ' + url, ''); }
+    }
+  };
+
+  // ── Commentaires (petite fiche, même esprit que le sélecteur de langue déjà présent) ──
+  // ── Galerie "Réalisation" — la vraie galerie portfolio de la personne
+  // (alimentée par publication_v1.html), affichée sans quitter le fil. ──
+  window.ouvrirGalerieAccueil = async function(cibleUid, pseudo){
+    let overlay = document.getElementById('galerieOverlayAccueil');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'moverlay';
+      overlay.id = 'galerieOverlayAccueil';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('open'); };
+      overlay.innerHTML = '<div class="lsheet" style="max-height:75vh;display:flex;flex-direction:column">'
+        + '<div class="lhandle"></div>'
+        + '<div class="ltitle" id="galerieTitreAccueil">Réalisations</div>'
+        + '<div id="galerieGrilleAccueil" style="overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>'
+        + '</div>';
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('galerieTitreAccueil').textContent = '🖼️ Réalisations — ' + pseudo;
+    overlay.classList.add('open');
+    const grille = document.getElementById('galerieGrilleAccueil');
+    grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;font-size:12px;padding:20px">Chargement…</div>';
+    try {
+      const snap = await db.collection('utilisateurs').doc(cibleUid).collection('portfolio')
+        .orderBy('createdAt','desc').get();
+      const portfolio = snap.docs.map(d => d.data()).filter(it => !it.corbeille);
+      if (!portfolio.length) {
+        grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;font-size:12px;padding:20px">Aucune réalisation publiée pour l\'instant.</div>';
+        return;
+      }
+      grille.innerHTML = portfolio.map(item => {
+        if (item.type === 'video') {
+          return '<video src="'+item.url+'" muted style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#000" onclick="this.paused?this.play():this.pause()"></video>';
+        }
+        return '<img src="'+item.url+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#eee">';
+      }).join('');
+    } catch(e) {
+      console.error(e);
+      grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#e63224;font-size:12px;padding:20px">Impossible de charger les réalisations.</div>';
+    }
+  };
+
+  window.ouvrirCommentairesAccueil = async function(cibleUid, pseudo){
+    let overlay = document.getElementById('commentsOverlayAccueil');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'moverlay';
+      overlay.id = 'commentsOverlayAccueil';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('open'); };
+      overlay.innerHTML = '<div class="lsheet" style="max-height:70vh;display:flex;flex-direction:column">'
+        + '<div class="lhandle"></div>'
+        + '<div class="ltitle" id="commentsTitreAccueil">Commentaires</div>'
+        + '<div id="commentsListeAccueil" style="overflow-y:auto;padding:10px 16px;flex:1"></div>'
+        + '<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid #eee">'
+        + '<input id="commentsInputAccueil" placeholder="Ajouter un commentaire…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13px;outline:none">'
+        + '<button onclick="envoyerCommentaireAccueil()" style="background:var(--red);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer">➤</button>'
+        + '</div></div>';
+      document.body.appendChild(overlay);
+    }
+    overlay.dataset.cible = cibleUid;
+    document.getElementById('commentsTitreAccueil').textContent = '💬 Commentaires — ' + pseudo;
+    overlay.classList.add('open');
+    const liste = document.getElementById('commentsListeAccueil');
+    liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">Chargement…</div>';
+    try {
+      const snap = await db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').orderBy('createdAt','desc').limit(30).get();
+      if (snap.empty) {
+        liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">Aucun commentaire pour l\'instant.</div>';
+      } else {
+        liste.innerHTML = snap.docs.map(d => {
+          const c = d.data();
+          const nom = (c.nom||'Anonyme').replace(/</g,'&lt;');
+          const texte = (c.texte||'').replace(/</g,'&lt;');
+          return '<div style="margin-bottom:12px"><b style="font-size:13px">'+nom+'</b><div style="font-size:13px;color:#333">'+texte+'</div></div>';
+        }).join('');
+      }
+    } catch(e) {
+      liste.innerHTML = '<div style="text-align:center;color:#e63224;font-size:12px;padding:20px">Impossible de charger les commentaires.</div>';
+    }
+  };
+
+  window.envoyerCommentaireAccueil = async function(){
+    if (!auth.currentUser) { toast('Connecte-toi pour commenter', ''); return; }
+    const overlay = document.getElementById('commentsOverlayAccueil');
+    const cibleUid = overlay.dataset.cible;
+    const input = document.getElementById('commentsInputAccueil');
+    const texte = input.value.trim();
+    if (!texte) return;
+    input.value = '';
+    try {
+      const moiSnap = await getDoc(doc(db, 'utilisateurs', auth.currentUser.uid));
+      const monNom = (moiSnap.exists ? moiSnap.data().prenom : '') || 'Anonyme';
+      await db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').add({
+        uid: auth.currentUser.uid, nom: monNom, texte: texte, createdAt: serverTimestamp()
+      });
+      await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
+      const compteEl = document.getElementById('comment-n-'+cibleUid);
+      if (compteEl) compteEl.textContent = parseInt(compteEl.textContent||'0')+1;
+      window.ouvrirCommentairesAccueil(cibleUid, document.getElementById('commentsTitreAccueil').textContent.replace('💬 Commentaires — ',''));
+    } catch(e) { console.error(e); toast('Erreur envoi commentaire', ''); }
+  };
+
+  // ── Réservation — version simplifiée honnête : une demande écrite, pas un
+  // vrai calendrier de disponibilités (qui reste à construire séparément). ──
+  window.ouvrirReservationAccueil = function(cibleUid, pseudo){
+    let overlay = document.getElementById('reservationOverlayAccueil');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'moverlay';
+      overlay.id = 'reservationOverlayAccueil';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('open'); };
+      overlay.innerHTML = '<div class="lsheet">'
+        + '<div class="lhandle"></div>'
+        + '<div class="ltitle" id="reservationTitreAccueil">Demande de rendez-vous</div>'
+        + '<div style="padding:14px 20px">'
+        + '<textarea id="reservationMsgAccueil" placeholder="Décris ta demande (date souhaitée, besoin...)" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:12px;padding:10px 12px;font-size:13px;outline:none;resize:vertical;font-family:inherit"></textarea>'
+        + '<button onclick="envoyerReservationAccueil()" style="width:100%;margin-top:12px;background:var(--red);color:#fff;border:none;border-radius:20px;padding:11px;font-size:14px;font-weight:700;cursor:pointer">Envoyer la demande</button>'
+        + '</div></div>';
+      document.body.appendChild(overlay);
+    }
+    overlay.dataset.cible = cibleUid;
+    document.getElementById('reservationTitreAccueil').textContent = '📆 Demande de rendez-vous — ' + pseudo;
+    document.getElementById('reservationMsgAccueil').value = '';
+    overlay.classList.add('open');
+  };
+
+  window.envoyerReservationAccueil = async function(){
+    if (!auth.currentUser) { toast('Connecte-toi pour réserver', ''); return; }
+    const overlay = document.getElementById('reservationOverlayAccueil');
+    const cibleUid = overlay.dataset.cible;
+    const msg = document.getElementById('reservationMsgAccueil').value.trim();
+    if (!msg) { toast('Écris un message', ''); return; }
+    try {
+      await db.collection('demandesRdv').add({
+        demandeurUid: auth.currentUser.uid, professionnelUid: cibleUid,
+        message: msg, statut: 'en_attente', createdAt: serverTimestamp()
+      });
+      overlay.classList.remove('open');
+      toast('📆 Demande envoyée !', 'g');
+    } catch(e) { console.error(e); toast('Erreur envoi demande', ''); }
+  };
 
   let currentUserRole = 'artisan';
   window.goProfile = async function() {
     try {
       if (auth.currentUser) {
         const ownSnap = await getDoc(doc(db, 'utilisateurs', auth.currentUser.uid));
-        if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
+        if (ownSnap.exists) { currentUserRole = ownSnap.data().role || 'artisan'; }
       }
     } catch(e) { console.error('vérification rôle avant redirection:', e); }
     window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html';
@@ -860,7 +1159,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
 
   let authChecked = false;
-  onAuthStateChanged(auth, async (user) => {
+  auth.onAuthStateChanged(async (user) => {
     if (!user) {
       if (authChecked) { window.location.replace('connexion.html'); }
       else { setTimeout(() => { if (!auth.currentUser) window.location.replace('connexion.html'); }, 7000); }
@@ -870,7 +1169,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     authChecked = true;
     try {
       const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
-      if (ownSnap.exists()) { currentUserRole = ownSnap.data().role || 'artisan'; }
+      if (ownSnap.exists) { currentUserRole = ownSnap.data().role || 'artisan'; }
     } catch(e) { console.error('rôle utilisateur:', e); }
 
     // Présence en ligne : on touche derniereActivite pendant que l'utilisateur
@@ -894,6 +1193,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         feed.innerHTML += creerCard(doc.id, doc.data(), index++);
       });
       adjustLayout();
+      await chargerMesEtatsAccueil();
     } catch(e) { console.error(e); }
   });
 </script>
