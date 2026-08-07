@@ -38,16 +38,20 @@
   /* ═══ BANDE HORIZONTALE — même comportement que les Statuts (scroll natif façon WhatsApp) ═══ */
   .spotlight-scroll{display:flex;gap:12px;overflow-x:auto;padding:14px 16px 6px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .spotlight-scroll::-webkit-scrollbar{display:none}
-  .spot-card{flex-shrink:0;width:140px;scroll-snap-align:start;border-radius:20px;padding:14px 10px;background:#fff;border:1.5px solid #eef0f6;text-align:center;position:relative;box-shadow:0 2px 10px rgba(0,0,0,0.05);cursor:pointer}
-  .spot-card.diamant{border-color:#bfe8ff;box-shadow:0 4px 16px rgba(125,211,252,0.25)}
-  .spot-badge{position:absolute;top:8px;right:8px;font-size:15px}
-  .spot-av{width:54px;height:54px;border-radius:50%;margin:6px auto 8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
-  .spot-nom{font-weight:800;font-size:13px;color:#16163a}
-  .spot-metier{font-size:10.5px;color:#9296a8;margin-top:2px}
-  .spot-tier-label{margin-top:8px;font-size:9.5px;font-weight:800;letter-spacing:.5px;padding:3px 10px;border-radius:20px;display:inline-block}
-  .spot-tier-label.diamant{background:#eaf8ff;color:#1c9fd8}
-  .spot-tier-label.or{background:#fff6e0;color:#b8860b}
-  .spot-tier-label.argent{background:#f0f1f4;color:#6c7280}
+  .spot-card{flex-shrink:0;width:132px;height:168px;scroll-snap-align:start;border-radius:18px;background:#eef0f4;
+      text-align:center;position:relative;box-shadow:0 3px 14px rgba(0,0,0,0.12);cursor:pointer;overflow:hidden}
+  .spot-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .spot-card-noPhoto{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:34px;color:#fff}
+  .spot-card-overlay{position:absolute;left:0;right:0;bottom:0;padding:28px 10px 10px;
+      background:linear-gradient(to top, rgba(10,10,46,.92), rgba(10,10,46,.35) 65%, transparent)}
+  .spot-badge{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);
+      display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
+  .spot-nom{font-weight:800;font-size:12.5px;color:#fff}
+  .spot-metier{font-size:9.5px;color:rgba(255,255,255,.75);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .spot-tier-label{margin-top:6px;font-size:9px;font-weight:800;letter-spacing:.5px;padding:2px 9px;border-radius:20px;display:inline-block}
+  .spot-tier-label.diamant{background:rgba(56,189,248,.28);color:#dff5ff}
+  .spot-tier-label.or{background:rgba(247,207,94,.28);color:#fff3d6}
+  .spot-tier-label.argent{background:rgba(199,205,214,.3);color:#f3f4f6}
   .spot-empty{flex-shrink:0;width:140px;display:flex;align-items:center;justify-content:center;color:#c7cad6;font-size:12px;text-align:center;padding:14px}
 
   .section-title{font-size:12.5px;font-weight:800;color:#9a9fb3;text-transform:uppercase;letter-spacing:.6px;margin:22px 16px 10px}
@@ -75,11 +79,14 @@
   .plaque-tier-badge.diamant{background:rgba(14,165,233,.12);color:#0ea5e9}
   .plaque-tier-badge.or{background:rgba(212,147,10,.12);color:#d4930a}
   .plaque-tier-badge.argent{background:rgba(139,147,161,.15);color:#8b93a1}
-  .plaque-stats{display:flex;flex-direction:column;gap:4px;text-align:left;margin-bottom:14px;padding:0 4px}
-  .plaque-stats span{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#7a7f92}
+  .plaque-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+  .plaque-stats span{display:flex;align-items:center;gap:5px;font-size:10px;color:#7a7f92;background:#f7f5f0;
+      border-radius:9px;padding:5px 7px}
   .plaque-stats i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
   .plaque-acts{display:flex;gap:8px}
-  .plaque-acts button{flex:1;border-radius:30px;border:none;padding:9px 4px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit}
+  .plaque-acts button,.plaque-acts a{flex:1;box-sizing:border-box;border-radius:30px;border:none;padding:10px 4px;
+      font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      gap:5px;font-family:inherit;line-height:1;text-decoration:none}
   .plaque-acts .appeler{background:var(--green);color:#fff}
   .plaque-acts .contacter{background:var(--red);color:#fff}
 
@@ -286,12 +293,17 @@ function renderSpotlight(classes){
   }
   el.innerHTML = classes.map(p=>{
     const t = TIER_LABEL[p.tier];
+    const fond = p.photoAvatar
+      ? `<img src="${p.photoAvatar}" alt="">`
+      : `<div class="spot-card-noPhoto" style="background:${initialesCouleur(p.nom)}">${escHtml(p.nom[0].toUpperCase())}</div>`;
     return `<div class="spot-card ${p.tier}" onclick="__voirProfil('${p.uid}')">
+      ${fond}
       <div class="spot-badge">${t.icon}</div>
-      <div class="spot-av" style="background:${initialesCouleur(p.nom)}">${p.nom[0].toUpperCase()}</div>
-      <div class="spot-nom">${escHtml(p.nom)}</div>
-      <div class="spot-metier">${escHtml(p.metier)}</div>
-      <div class="spot-tier-label ${p.tier}">${t.label}</div>
+      <div class="spot-card-overlay">
+        <div class="spot-nom">${escHtml(p.nom)}</div>
+        <div class="spot-metier">${escHtml(p.metier)}</div>
+        <div class="spot-tier-label ${p.tier}">${t.label}</div>
+      </div>
     </div>`;
   }).join('');
 }
