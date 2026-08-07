@@ -194,6 +194,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 
     <div class="sec-title" data-i18n="presse_fil">Fil Presse</div>
     <div id="feedList"><div class="empty-msg" data-i18n="presse_chargement">Chargement…</div></div>
+    <div id="sentinelleFP" style="height:1px"></div>
   </div>
 </div>
 
@@ -243,14 +244,11 @@ window.addEventListener('message',(e)=>{
 });
 </script>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getFirestore, collection, query, where, orderBy, getDocs, getDoc, doc,
-  addDoc, updateDoc, deleteDoc, setDoc, serverTimestamp, Timestamp, increment
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -260,10 +258,48 @@ const firebaseConfig = {
   messagingSenderId: "588140774605",
   appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// ── Couche de compatibilité ──────────────────────────────────────────
+// Le reste du fichier a été écrit avec la syntaxe des modules Firebase
+// (doc(db,...), getDocs(...), etc.). Plutôt que de réécrire ~90 appels
+// dispersés dans tout le fichier (risque élevé d'erreur), on fournit ici
+// des fonctions du même nom qui font le même travail avec le SDK compat
+// en dessous. Le résultat final est 100% compat (aucun import ES nulle
+// part) — seule la façon d'écrire les appels plus bas dans le fichier
+// n'a pas changé.
+function fsRef(){
+  var args = Array.prototype.slice.call(arguments);
+  var r = db, i = 0;
+  while(i < args.length){
+    r = r.collection(args[i]); i++;
+    if(i < args.length){ r = r.doc(String(args[i])); i++; }
+  }
+  return r;
+}
+function doc(){ var a = Array.prototype.slice.call(arguments, 1); return fsRef.apply(null, a); }
+function collection(){ var a = Array.prototype.slice.call(arguments, 1); return fsRef.apply(null, a); }
+function getDoc(ref){ return ref.get(); }
+function getDocs(ref){ return ref.get(); }
+function addDoc(colRef, data){ return colRef.add(data); }
+function updateDoc(ref, data){ return ref.update(data); }
+function deleteDoc(ref){ return ref.delete(); }
+function setDoc(ref, data, opts){ return opts ? ref.set(data, opts) : ref.set(data); }
+function where(field, op, val){ return function(r){ return r.where(field, op, val); }; }
+function orderBy(field, dir){ return function(r){ return r.orderBy(field, dir); }; }
+function query(baseRef){
+  var fns = Array.prototype.slice.call(arguments, 1);
+  var r = baseRef;
+  fns.forEach(function(fn){ r = fn(r); });
+  return r;
+}
+function serverTimestamp(){ return firebase.firestore.FieldValue.serverTimestamp(); }
+function increment(n){ return firebase.firestore.FieldValue.increment(n); }
+const Timestamp = firebase.firestore.Timestamp;
+
 
 const FIFTEEN_DAYS_MS = 15*24*60*60*1000;
 let currentUid = null;
@@ -358,6 +394,52 @@ let allMineActive = [];
 let allOthers = [];
 let searchTerm = '';
 
+const TAILLE_LOT_FP = 6;
+let nombreAffichesAutres = TAILLE_LOT_FP;
+let followedUidsFilPresse = new Set();
+let monPaysPrefixe = '';
+const _ordreAleatoireStableFP = {};
+
+// Approximation de l'indicatif pays à partir du numéro de téléphone (3
+// premiers chiffres), même principe que sur Actualités/Offres.
+function extraireIndicatifTelephone(telephone){
+  if(!telephone) return '';
+  const chiffres = String(telephone).replace(/\D/g, '');
+  return chiffres.slice(0, 3);
+}
+
+function ordreAleatoireStableFP(id){
+  if(!(id in _ordreAleatoireStableFP)) _ordreAleatoireStableFP[id] = Math.random();
+  return _ordreAleatoireStableFP[id];
+}
+function melangerAleatoirementFP(liste){
+  return liste.slice().sort(function(a,b){ return ordreAleatoireStableFP(a[0]) - ordreAleatoireStableFP(b[0]); });
+}
+
+/* Classement des publications des autres, par palier :
+   1. Les personnes que je suis
+   2. Même pays (indicatif téléphonique, approximatif)
+   3. Le reste, mélangé de façon stable (pas remélangé à chaque rafraîchissement)
+   "Mes publications" a déjà sa propre section séparée en haut, donc pas de
+   palier "moi" ici. Protégé par son propre filet de sécurité : en cas de
+   souci, on revient à l'ordre par date. */
+function trierAutresParPriorite(liste){
+  try{
+    if(!Array.isArray(liste) || liste.length < 2) return liste;
+    const suivis = [], memePays = [], reste = [];
+    liste.forEach(function(x){
+      const p = x[1];
+      if(p.uid && followedUidsFilPresse.has(p.uid)) suivis.push(x);
+      else if(monPaysPrefixe && p.paysPrefixe && p.paysPrefixe === monPaysPrefixe) memePays.push(x);
+      else reste.push(x);
+    });
+    return suivis.concat(memePays, melangerAleatoirementFP(reste));
+  }catch(e){
+    console.error('Tri par priorité Fil Presse impossible, retour à l\'ordre par date :', e);
+    return liste;
+  }
+}
+
 function matchesSearch(p){
   if(!searchTerm) return true;
   const hay = ((p.journalNom||'') + ' ' + (p.prenom||'') + ' ' + (p.texte||'') + ' ' + (p.ville||'')).toLowerCase();
@@ -366,18 +448,20 @@ function matchesSearch(p){
 
 function renderFilteredFeed(){
   const mineFiltered = allMineActive.filter(function(x){ return matchesSearch(x[1]); });
-  const othersFiltered = allOthers.filter(function(x){ return matchesSearch(x[1]); });
+  const othersFilteredBrut = allOthers.filter(function(x){ return matchesSearch(x[1]); });
+  const othersFiltered = trierAutresParPriorite(othersFilteredBrut);
+  const visibles = othersFiltered.slice(0, nombreAffichesAutres);
 
   document.getElementById('mineList').innerHTML = mineFiltered.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
   document.getElementById('secMineTitle').style.display = mineFiltered.length ? '' : 'none';
 
   const carouselBlock = buildCoverCarouselBlock();
   let feedHTML = '';
-  if(othersFiltered.length){
-    const total = othersFiltered.length;
+  if(visibles.length){
+    const total = visibles.length;
     const useEveryFive = total >= 5;
     const midPoint = Math.max(1, Math.floor(total / 2));
-    othersFiltered.forEach(function(x, i){
+    visibles.forEach(function(x, i){
       feedHTML += renderPost(x[0], x[1], {mine:false});
       if(carouselBlock){
         if(useEveryFive){
@@ -394,8 +478,26 @@ function renderFilteredFeed(){
 
   markFollowedButtons();
   markAuthorsOnline();
-  mineFiltered.concat(othersFiltered).forEach(function(x){ refreshReactionCount(x[0]); });
+  mineFiltered.concat(visibles).forEach(function(x){ refreshReactionCount(x[0]); });
 }
+
+// Chargement progressif au défilement, comme Actualités/Offres/Élite —
+// jamais tout le fil d'un coup.
+const observateurFP = new IntersectionObserver(function(entrees){
+  entrees.forEach(function(entree){
+    if(entree.isIntersecting){
+      const othersFiltered = trierAutresParPriorite(allOthers.filter(function(x){ return matchesSearch(x[1]); }));
+      if(nombreAffichesAutres < othersFiltered.length){
+        nombreAffichesAutres += TAILLE_LOT_FP;
+        renderFilteredFeed();
+      }
+    }
+  });
+}, { rootMargin: '400px' });
+setTimeout(function(){
+  const sentinelle = document.getElementById('sentinelleFP');
+  if(sentinelle) observateurFP.observe(sentinelle);
+}, 500);
 
 // Auto-défilement partagé : fait avancer TOUTES les instances de carrousel
 // présentes dans le fil (il peut y en avoir plusieurs, une toutes les 10 pubs).
@@ -498,6 +600,7 @@ async function loadFeed(){
 
     allMineActive = mineActive;
     allOthers = others;
+    nombreAffichesAutres = TAILLE_LOT_FP;
     renderFilteredFeed();
 
     const trashToggle = document.getElementById('trashToggle');
@@ -521,7 +624,7 @@ async function markAuthorsOnline(){
     if(uid === 'artiroyce_presse') continue;
     try{
       const uSnap = await getDoc(doc(db,'utilisateurs', uid));
-      if(!uSnap.exists()) continue;
+      if(!uSnap.exists) continue;
       const da = uSnap.data().derniereActivite;
       if(!da) continue;
       const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
@@ -626,17 +729,19 @@ window.__closeSearch = function(){
   bar.classList.remove('show');
   if(input) input.value = '';
   searchTerm = '';
+  nombreAffichesAutres = TAILLE_LOT_FP;
   renderFilteredFeed();
 };
 
 document.getElementById('searchInput').addEventListener('input', function(e){
   searchTerm = e.target.value.trim().toLowerCase();
+  nombreAffichesAutres = TAILLE_LOT_FP;
   renderFilteredFeed();
 });
 
 window.__editPost = async function(id){
   const snap = await getDoc(doc(db,'fil_presse', id));
-  if(!snap.exists()) return;
+  if(!snap.exists) return;
   const p = snap.data();
   editingPostId = id;
   document.getElementById('composerTxt').value = p.texte || '';
@@ -687,7 +792,7 @@ window.__hardDelete = async function(id, el){
 async function ensureSeed(){
   const metaRef = doc(db, 'fil_presse_meta', 'seed_v1');
   const metaSnap = await getDoc(metaRef);
-  if(metaSnap.exists()) return;
+  if(metaSnap.exists) return;
 
   const marques = [
     "Une marque de streetwear new-yorkaise lance sa première collection capsule à Los Angeles.",
@@ -724,7 +829,7 @@ async function ensureSeed(){
 async function ensureSeedImages(){
   const metaRef = doc(db, 'fil_presse_meta', 'seed_img_v1');
   const metaSnap = await getDoc(metaRef);
-  if(metaSnap.exists()) return;
+  if(metaSnap.exists) return;
 
   const items = [
     { texte:"Le Bénouto explore la nouvelle vague de créateurs ouest-africains à l'international.", journalNom:"Le Bénouto", type:"actu", img:11 },
@@ -761,7 +866,7 @@ async function ensureSeedImages(){
 async function ensureSeedMore(){
   const metaRef = doc(db, 'fil_presse_meta', 'seed_img_v2');
   const metaSnap = await getDoc(metaRef);
-  if(metaSnap.exists()) return;
+  if(metaSnap.exists) return;
 
   const journaux = ['Le Bénouto','Wesli','Binétus','Benitus','Oxygène Style','La Vitrine Cotonou','Le Zou Mag','Flash Bénin','Cocotiers Mag','Wémè Actu','Porto Style','Golfe Presse'];
   const types = ['actu','lancement','partenariat','innovation'];
@@ -883,8 +988,8 @@ function resizeImageToBase64(file, maxDim, quality){
 function uploaderVideo(file, btnEl){
   return new Promise(function(resolve, reject){
     const path = 'fil_presse/' + currentUid + '_' + Date.now() + '_' + file.name;
-    const r = ref(storage, path);
-    const task = uploadBytesResumable(r, file);
+    const r = storage.ref(path);
+    const task = r.put(file);
     const progressWrap = document.getElementById('uploadProgressWrap');
     const progressBar = document.getElementById('uploadProgressBar');
     progressWrap.style.display = 'block';
@@ -901,7 +1006,7 @@ function uploaderVideo(file, btnEl){
     }, function(){
       clearTimeout(failSafe);
       progressWrap.style.display = 'none';
-      getDownloadURL(task.snapshot.ref).then(resolve).catch(reject);
+      task.snapshot.ref.getDownloadURL().then(resolve).catch(reject);
     });
   });
 }
@@ -992,6 +1097,7 @@ function wireComposerModal(){
           roleLbl: roleLbl,
           journalNom: journalNom,
           ville: ville,
+          paysPrefixe: monPaysPrefixe || '',
           official: false,
           verifie: true,
           type: selectedType,
@@ -1027,7 +1133,7 @@ window.__toggleFollow = async function(targetUid){
   const relRef = doc(db, 'abonnements', relId);
   const snap = await getDoc(relRef);
   const btn = document.getElementById('follow-'+targetUid);
-  if(snap.exists()){
+  if(snap.exists){
     await deleteDoc(relRef);
     if(btn){ btn.classList.remove('on'); btn.textContent = '+ Suivre'; }
   } else {
@@ -1039,8 +1145,10 @@ window.__toggleFollow = async function(targetUid){
 async function markFollowedButtons(){
   if(!currentUid) return;
   const snap = await getDocs(query(collection(db,'abonnements'), where('follower','==',currentUid)));
+  followedUidsFilPresse = new Set();
   snap.forEach(function(d){
     const followed = d.data().followed;
+    followedUidsFilPresse.add(followed);
     const btn = document.getElementById('follow-'+followed);
     if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   });
@@ -1057,7 +1165,7 @@ window.__sendReaction = async function(postId, emoji){
   if(!currentUid){ alert('Connecte-toi pour réagir.'); return; }
   const reactRef = doc(db, 'fil_presse', postId, 'reactions', currentUid);
   const snap = await getDoc(reactRef);
-  if(snap.exists() && snap.data().emoji === emoji){
+  if(snap.exists && snap.data().emoji === emoji){
     await deleteDoc(reactRef);
   } else {
     await setDoc(reactRef, { emoji: emoji, uid: currentUid, createdAt: serverTimestamp() });
@@ -1118,7 +1226,7 @@ window.__toggleCommentLike = async function(postId, commentId, likeEl, countWrap
   const commentRef = doc(db, 'fil_presse', postId, 'comments', commentId);
   try{
     const likeSnap = await getDoc(likeRef);
-    if(likeSnap.exists()){
+    if(likeSnap.exists){
       await deleteDoc(likeRef);
       await updateDoc(commentRef, { likes: increment(-1) });
       likeEl.classList.remove('liked');
@@ -1130,7 +1238,7 @@ window.__toggleCommentLike = async function(postId, commentId, likeEl, countWrap
       likeEl.textContent = 'Aimé';
     }
     const freshSnap = await getDoc(commentRef);
-    const likes = freshSnap.exists() ? (freshSnap.data().likes || 0) : 0;
+    const likes = freshSnap.exists ? (freshSnap.data().likes || 0) : 0;
     if(countWrapEl) countWrapEl.style.display = likes > 0 ? 'inline-flex' : 'none';
     if(numEl) numEl.textContent = likes;
   }catch(e){ console.error('Like commentaire impossible :', e); }
@@ -1178,7 +1286,7 @@ async function loadComments(postId){
       try{
         const likeRef = doc(db, 'fil_presse', postId, 'comments', c.id, 'likes', currentUid);
         const likeSnap = await getDoc(likeRef);
-        likedMap[c.id] = likeSnap.exists();
+        likedMap[c.id] = likeSnap.exists;
       }catch(e){ likedMap[c.id] = false; }
     }));
   }
@@ -1274,12 +1382,13 @@ async function initComposer(){
   };
 }
 
-onAuthStateChanged(auth, async function(user){
+auth.onAuthStateChanged(async function(user){
   currentUid = user ? user.uid : null;
   if(user){
     try{
       const uSnap = await getDoc(doc(db,'utilisateurs', user.uid));
-      currentUserData = uSnap.exists() ? uSnap.data() : {};
+      currentUserData = uSnap.exists ? uSnap.data() : {};
+      monPaysPrefixe = extraireIndicatifTelephone(currentUserData.telephone);
     }catch(e){ currentUserData = {}; }
     const av = document.getElementById('myAvatar');
     av.innerHTML = currentUserData.photoAvatar
@@ -1290,8 +1399,8 @@ onAuthStateChanged(auth, async function(user){
   try{ await ensureSeed(); }catch(e){ console.error('Seed Fil Presse impossible :', e); }
   try{ await ensureSeedImages(); }catch(e){ console.error('Seed illustré impossible :', e); }
   try{ await ensureSeedMore(); }catch(e){ console.error('Seed supplémentaire impossible :', e); }
-  await loadFeed();
   await markFollowedButtons();
+  await loadFeed();
 });
 </script>
 <script src="translations.js"></script>
