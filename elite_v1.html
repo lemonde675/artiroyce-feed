@@ -52,21 +52,36 @@
 
   .section-title{font-size:12.5px;font-weight:800;color:#9a9fb3;text-transform:uppercase;letter-spacing:.6px;margin:22px 16px 10px}
 
-  /* ═══ SCORE ÉLITE — on garde tel quel ═══ */
-  .gauge-card{background:#fff;border-radius:20px;padding:16px;margin:0 16px 12px;display:flex;gap:16px;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #f2f2f6}
-  .gauge-wrap{width:80px;height:80px;flex-shrink:0;position:relative}
-  .gauge-wrap svg{transform:rotate(-90deg)}
-  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .gauge-total{font-weight:800;font-size:16px;font-family:Consolas,monospace;color:#16163a}
-  .gauge-tier-icon{font-size:11px}
-  .gauge-info{flex:1;min-width:0}
-  .gauge-nom{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;color:#16163a}
-  .gauge-metier{font-size:12px;color:#9296a8;margin-bottom:6px}
-  .gauge-legend{display:flex;gap:10px;font-size:10px;color:#7a7f92;flex-wrap:wrap}
-  .gauge-legend span{display:flex;align-items:center;gap:4px}
-  .gauge-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
-  .badge-demo{font-size:9px;background:#fff3cd;color:#8a6d00;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:4px}
-  .btn-voir{background:var(--red);color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0}
+  /* ═══ SCORE ÉLITE — modèle "Plaque Artisan" retenu ═══ */
+  #scoreList{display:flex;flex-direction:column;gap:12px;padding:0 16px}
+  .plaque{background:#fffdf9;border-radius:20px;padding:22px 18px 16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #f0ece1;cursor:pointer}
+  .plaque-ring{width:76px;height:76px;border-radius:50%;margin:0 auto 8px;padding:4px}
+  .plaque.diamant .plaque-ring{background:conic-gradient(#38bdf8,#0ea5e9,#38bdf8)}
+  .plaque.or .plaque-ring{background:conic-gradient(#f7cf5e,#d4930a,#f7cf5e)}
+  .plaque.argent .plaque-ring{background:conic-gradient(#c7cdd6,#8b93a1,#c7cdd6)}
+  .plaque-photo{width:100%;height:100%;border-radius:50%;overflow:hidden;background:#fff;padding:3px;display:flex;align-items:center;justify-content:center}
+  .plaque-photo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+  .plaque-photo .plaque-initiale{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px}
+  .plaque-pin{width:24px;height:24px;border-radius:50%;margin:-16px auto 8px;position:relative;z-index:2;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.25);border:2px solid #fffdf9}
+  .plaque.diamant .plaque-pin{background:#0ea5e9}
+  .plaque.or .plaque-pin{background:#d4930a}
+  .plaque.argent .plaque-pin{background:#8b93a1}
+  .plaque-nom{font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:700;color:#16163a;margin:0 0 2px}
+  .plaque-metier{font-size:11px;color:#9a9484;margin:0 0 8px}
+  .plaque-divider{display:flex;align-items:center;gap:6px;margin:0 0 8px;opacity:.5}
+  .plaque-divider span{flex:1;height:1px;background:#e2ddd0}
+  .plaque-divider i{width:4px;height:4px;border-radius:50%;background:#c9c2b0}
+  .plaque-tier-badge{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.6px;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+  .plaque-tier-badge.diamant{background:rgba(14,165,233,.12);color:#0ea5e9}
+  .plaque-tier-badge.or{background:rgba(212,147,10,.12);color:#d4930a}
+  .plaque-tier-badge.argent{background:rgba(139,147,161,.15);color:#8b93a1}
+  .plaque-stats{display:flex;flex-direction:column;gap:4px;text-align:left;margin-bottom:14px;padding:0 4px}
+  .plaque-stats span{display:flex;align-items:center;gap:6px;font-size:10.5px;color:#7a7f92}
+  .plaque-stats i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .plaque-acts{display:flex;gap:8px}
+  .plaque-acts button{flex:1;border-radius:30px;border:none;padding:9px 4px;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit}
+  .plaque-acts .appeler{background:var(--green);color:#fff}
+  .plaque-acts .contacter{background:var(--red);color:#fff}
 
   .non-classe-card{margin:0 16px 12px;padding:14px 16px;border-radius:20px;border:1.5px dashed #e2e4ee;color:#9a9fb3;font-size:12.5px;display:flex;align-items:center;gap:10px}
 
@@ -78,11 +93,9 @@
     .section-title{margin-left:0;margin-right:0}
     .spotlight-scroll{padding-left:24px;padding-right:24px}
     #scoreList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 24px;align-items:start}
-    .gauge-card{margin:0}
+    .plaque{margin:0}
     .non-classe-card{margin:0;grid-column:1/-1}
-    .gauge-card,.non-classe-card{cursor:pointer}
-    .gauge-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.1)}
-    .btn-voir:hover{background:#c8291d}
+    .plaque:hover{box-shadow:0 6px 20px rgba(0,0,0,0.1)}
     .spot-card:hover{transform:translateY(-3px)}
     .h-tab:hover{background:#f2f2f6}
     .h-house:hover{opacity:0.75}
@@ -173,7 +186,6 @@ setTimeout(adj,50);setTimeout(adj,200);setTimeout(adj,500);setTimeout(adj,1000);
 window.goAccueil=function(){if(window.parent!==window)window.parent.postMessage({type:'goPanel',panel:0},'*');else window.location.href='accueil.html';};
 
 const TIER_LABEL = { diamant:{icon:'💎', label:'DIAMANT'}, or:{icon:'🥇', label:'OR'}, argent:{icon:'🥈', label:'ARGENT'} };
-const TIER_COLOR = { diamant:'#7dd3fc', or:'#f5b301', argent:'#9aa5b1' };
 const TAILLE_LOT = 6;
 let tousLesClasses = [];
 let tousLesNonClasses = [];
@@ -238,6 +250,7 @@ async function chargerElite(){
         nom: (u.nom || u.prenom || 'Pro'),
         metier: u.metier || 'Professionnel ArtiRoyce',
         photoAvatar: u.photoAvatar || null,
+        telephone: u.telephone || null,
         role: u.role,
         vuesProfilTotal: u.vuesProfilTotal || 0
       });
@@ -290,34 +303,30 @@ function renderScoreList(){
   const visibles = tousLesClasses.slice(0, nombreAffiches);
 
   let html = visibles.map(p=>{
-    const color = TIER_COLOR[p.tier];
     const t = TIER_LABEL[p.tier];
-    const circ = 2*Math.PI*36;
-    const pct = Math.min(100, Math.round((p.total/100)*100));
-    const offset = circ - (circ*pct/100);
-    return `<div class="gauge-card">
-      <div class="gauge-wrap">
-        <svg width="80" height="80" viewBox="0 0 84 84">
-          <circle cx="42" cy="42" r="36" fill="none" stroke="#eee" stroke-width="9"/>
-          <circle cx="42" cy="42" r="36" fill="none" stroke="${color}" stroke-width="9"
-            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
-        </svg>
-        <div class="gauge-center">
-          <div class="gauge-tier-icon">${t.icon}</div>
-          <div class="gauge-total">${p.total}</div>
-        </div>
+    const photoHtml = p.photoAvatar
+      ? `<img src="${p.photoAvatar}" alt="">`
+      : `<div class="plaque-initiale" style="background:${initialesCouleur(p.nom)}">${escHtml(p.nom[0].toUpperCase())}</div>`;
+    const telHref = p.telephone ? `tel:${String(p.telephone).replace(/[^\d+]/g,'')}` : null;
+    return `<div class="plaque ${p.tier}" onclick="__voirProfil('${p.uid}')">
+      <div class="plaque-ring"><div class="plaque-photo">${photoHtml}</div></div>
+      <div class="plaque-pin">${t.icon}</div>
+      <div class="plaque-nom">${escHtml(p.nom)}</div>
+      <div class="plaque-metier">${escHtml(p.metier)}</div>
+      <div class="plaque-divider"><span></span><i></i><span></span></div>
+      <div class="plaque-tier-badge ${p.tier}">RANG ${t.label}</div>
+      <div class="plaque-stats">
+        <span><i style="background:#27a945"></i>Abonnement ${p.abo}/30</span>
+        <span><i style="background:#8e44ad"></i>Ancienneté ${p.anciennete}/20</span>
+        <span><i style="background:#3498db"></i>Vues ${p.vues}/20</span>
+        <span><i style="background:#f5b301"></i>Admin ${p.admin}/30</span>
       </div>
-      <div class="gauge-info">
-        <div class="gauge-nom">${escHtml(p.nom)}</div>
-        <div class="gauge-metier">Rang ${t.label.charAt(0)+t.label.slice(1).toLowerCase()} · ${escHtml(p.metier)}</div>
-        <div class="gauge-legend">
-          <span><i style="background:#27a945"></i>Abonnement ${p.abo}/30</span>
-          <span><i style="background:#8e44ad"></i>Ancienneté ${p.anciennete}/20</span>
-          <span><i style="background:#3498db"></i>Vues ${p.vues}/20</span>
-          <span><i style="background:#f5b301"></i>Admin ${p.admin}/30</span>
-        </div>
+      <div class="plaque-acts">
+        ${telHref
+          ? `<a href="${telHref}" class="appeler" style="text-decoration:none" onclick="event.stopPropagation()">📞 Appeler</a>`
+          : `<button class="appeler" onclick="event.stopPropagation();toastPasDeNumero()">📞 Appeler</button>`}
+        <button class="contacter" onclick="event.stopPropagation();__voirProfil('${p.uid}')">💬 Contacter</button>
       </div>
-      <button class="btn-voir" onclick="__voirProfil('${p.uid}')">Voir</button>
     </div>`;
   }).join('');
 
@@ -343,6 +352,15 @@ setTimeout(() => {
 }, 500);
 
 function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function toastPasDeNumero(){
+  const t = document.createElement('div');
+  t.textContent = 'Numéro non renseigné par ce professionnel';
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;max-width:85%;text-align:center';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+window.toastPasDeNumero = toastPasDeNumero;
 
 // Navigation vers le vrai profil de l'auteur, reprise à l'identique
 // d'Actualités et Offres : passe par le parent si intégré dans accueil.html
