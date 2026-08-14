@@ -248,6 +248,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .call-ctrl{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.13);border:none;color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .call-ctrl.active{background:#fff;color:#111}
 .call-ctrl.end{background:var(--red)}
+
+/* ── Panneau de diagnostic (temporaire, pour voir en direct ce qui bloque) ── */
+#panneauDiagnostic{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;max-height:150px;overflow-y:auto;background:rgba(10,10,10,0.94);color:#8dff9a;font-family:'Courier New',monospace;font-size:10px;line-height:1.5;padding:6px 10px;z-index:9999;white-space:pre-wrap;word-break:break-word;box-shadow:0 -2px 10px rgba(0,0,0,0.4)}
+#panneauDiagnostic div.err{color:#ff8080}
 </style>
 </head>
 <body>
@@ -775,10 +779,12 @@ function obtenirMonInfo(){
 async function startRealConversation(otherUid,name,role,ini,bg){
   currentOtherUid=otherUid;
   currentConvId=convIdFor(currentUid,otherUid);
+  ajouterEtape('Ouverture conversation '+currentConvId+'...');
   const convRef=db.collection('conversations').doc(currentConvId);
   const mienne = await obtenirMonInfo();
   try{
     const convSnap=await convRef.get();
+    ajouterEtape('Lecture conversation OK (existe : '+convSnap.exists+')');
     if(!convSnap.exists){
       await convRef.set({
         participants:[currentUid,otherUid],
@@ -801,15 +807,19 @@ async function startRealConversation(otherUid,name,role,ini,bg){
     }
   }catch(err){
     console.error('Conversation réelle inaccessible :',err);
+    ajouterEtape('ÉCHEC conversation — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     alert('DIAGNOSTIC — Conversation Firestore inaccessible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
     toast('⚠️ Connexion impossible pour cette discussion','r');
     document.getElementById('emptyMsgsState').style.display='flex';
     return;
   }
+  ajouterEtape('Écoute des messages démarrée (onSnapshot)...');
   unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot(function(snap){
+    ajouterEtape('onSnapshot reçu : '+snap.size+' message(s)');
     renderRealMessages(snap);
   }, function(err){
     console.error('Écoute des messages réels impossible :',err);
+    ajouterEtape('ÉCHEC écoute messages — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
   });
 }
 
@@ -834,6 +844,7 @@ function renderRealMessages(snap){
 }
 
 async function envoyerMessageReel(txt){
+  ajouterEtape('Envoi du message "'+txt+'"...');
   const convRef=db.collection('conversations').doc(currentConvId);
   try{
     await convRef.collection('messages').add({
@@ -846,8 +857,10 @@ async function envoyerMessageReel(txt){
       dernierMessage: txt,
       dernierEmetteur: currentUid
     },{merge:true});
+    ajouterEtape('Message écrit sur Firestore ✅');
   }catch(err){
     console.error('Envoi du message réel impossible :',err);
+    ajouterEtape('ÉCHEC envoi — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     alert('DIAGNOSTIC — Envoi du message impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
     toast('⚠️ Message non envoyé (connexion)','r');
   }
@@ -1205,14 +1218,43 @@ window.launchConfCall=function(type){
 }
 </script>
 
+<div id="panneauDiagnostic"></div>
+
+<!-- ══════════════ PANNEAU DE DIAGNOSTIC (temporaire) ══════════════
+     Même principe que celui déjà en place sur actualite_v1.html : un journal
+     visible directement à l'écran, sans avoir besoin de la console technique,
+     pour voir en direct chaque étape (chargement Firebase, connexion,
+     création de conversation, envoi de message). -->
+<script>
+function ajouterEtape(texte, estErreur){
+  const panneau=document.getElementById('panneauDiagnostic');
+  if(!panneau) return;
+  const ligne=document.createElement('div');
+  if(estErreur) ligne.className='err';
+  ligne.textContent=new Date().toLocaleTimeString('fr-FR')+' — '+texte;
+  panneau.appendChild(ligne);
+  panneau.scrollTop=panneau.scrollHeight;
+}
+ajouterEtape('1. Script de discussion démarré ✅');
+window.addEventListener('error', function(e){ ajouterEtape('Erreur JS : '+e.message+' ('+(e.filename?e.filename.split('/').pop():'?')+':'+(e.lineno||'?')+')', true); });
+window.addEventListener('unhandledrejection', function(e){ ajouterEtape('Erreur async non gérée : '+((e.reason&&e.reason.message)?e.reason.message:String(e.reason)), true); });
+ajouterEtape('2. Téléchargement des bibliothèques Firebase...');
+</script>
+
 <!-- ══════════════ VRAIS AUTEURS DEPUIS FIREBASE ══════════════
      Même projet et même collection que cv_pro.html : 'utilisateurs'.
      Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
      tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
      on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
+        onload="ajouterEtape('2a. Bibliothèque app chargée ✅')"
+        onerror="ajouterEtape('ÉCHEC chargement app', true)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+        onload="ajouterEtape('2b. Bibliothèque auth chargée ✅')"
+        onerror="ajouterEtape('ÉCHEC chargement auth', true)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
+        onload="ajouterEtape('2c. Bibliothèque firestore chargée ✅')"
+        onerror="ajouterEtape('ÉCHEC chargement firestore', true)"></script>
 <script>
 
 const firebaseConfig = {
@@ -1226,6 +1268,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+db.settings({ experimentalForceLongPolling: true });
+ajouterEtape('3. Firebase initialisé ✅ (long polling forcé)');
 
 const GRADIENTS=[
   'linear-gradient(135deg,#0d2b0f,#27a945)','linear-gradient(135deg,#0a0a2e,#1a1a6e)',
@@ -1244,7 +1288,7 @@ function initialesDe(prenom,nom){
 }
 
 let currentUid=null;
-auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;monInfo=null;monInfoPromise=null;chargerContactsReels();chargerConversationsReelles();});
+auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;monInfo=null;monInfoPromise=null;ajouterEtape('4. Connexion détectée, uid = '+(u?u.uid:'AUCUN'));chargerContactsReels();chargerConversationsReelles();});
 
 const TAILLE_LOT_CONTACTS = 6;
 let tousLesContacts = [];
