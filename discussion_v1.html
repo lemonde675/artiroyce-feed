@@ -729,6 +729,7 @@ function quoteHtml(){
 
 window.doSend=function(){
   const ta=document.getElementById('mTa');const txt=ta.value.trim();if(!txt)return;
+  ajouterEtape('doSend() appelé — txt="'+txt+'" currentOtherUid='+currentOtherUid+' currentConvId='+currentConvId);
   if(currentOtherUid && currentConvId){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
     envoyerMessageReel(txt);
