@@ -254,6 +254,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 #panneauDiagnostic{position:fixed;left:50%;transform:translateX(-50%);top:50px;width:calc(100% - 16px);max-width:464px;max-height:0;overflow:hidden;background:rgba(10,10,10,0.96);color:#8dff9a;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;padding:0 10px;z-index:9999;white-space:pre-wrap;word-break:break-word;border-radius:10px;transition:max-height 0.25s}
 #panneauDiagnostic.open{max-height:55vh;overflow-y:auto;padding:8px 10px}
 #panneauDiagnostic div.err{color:#ff8080}
+.voice-bbl-real{background:var(--red);color:#fff;border-radius:16px;padding:8px 10px;max-width:240px}
+.voice-bbl-real audio{width:220px;height:32px}
+.voice-bbl-real .bbl-ft{display:flex;justify-content:flex-end;gap:4px;margin-top:2px}
+.voice-bbl-real .bbl-t{font-size:10px;color:rgba(255,255,255,0.8)}
 </style>
 </head>
 <body>
@@ -470,7 +474,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <textarea id="mTa" rows="1" placeholder="Répondre…" oninput="onTa()" onkeydown="onKey(event)"></textarea>
     </div>
     <button class="ib" id="micBtn" onclick="toggleRecording()" style="width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(230,50,36,0.35)">🎤</button>
-    <button class="sb" id="sb" onclick="doSend()">
+    <button class="sb" id="sb" onclick="doSend()" style="margin-left:6px">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
@@ -650,6 +654,7 @@ function hideView(name){
   if(name==='chat'){
     document.getElementById('chatPanel').classList.remove('open'); cancelReply();
     if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+    if(currentOtherUid) ajouterEtape('hideView(chat) — réinitialisation de la conversation (était : '+currentOtherUid+')');
     currentOtherUid=null; currentConvId=null;
   }
   else if(name==='conf'){ document.getElementById('confPanel').classList.remove('open'); }
@@ -691,10 +696,12 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid){
     currentOtherUid=null;currentConvId=null;
     seed.style.display='none';empty.style.display='flex';
   } else if(isDemo){
+    if(currentOtherUid) ajouterEtape('openChat(mode démo) — réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
     currentOtherUid=null;currentConvId=null;
     seed.style.display='';empty.style.display='none';
     ['mAv1','mAv2','mAv3','mAv4'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=ini;el.style.background=bg}});
   } else {
+    if(currentOtherUid) ajouterEtape('openChat(aucun mode) — réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
     currentOtherUid=null;currentConvId=null;
     seed.style.display='none';empty.style.display='flex';
   }
@@ -839,13 +846,104 @@ function renderRealMessages(snap){
     const t = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
     const d=document.createElement('div');
     d.className='mrow '+dir;
-    d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;d.dataset.txt=m.texte||'';
+    d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;
     const tickHtml = dir==='out' ? '<span class="tick rd">✓✓</span>' : '';
-    d.innerHTML='<div class="bbl">'+escapeHtml(m.texte||'')+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span>'+tickHtml+'</div></div>';
+    if(m.type==='image'){
+      d.dataset.txt='📷 Photo';
+      d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><img src="'+m.url+'"/><div class="img-ft">'+t+(dir==='out'?' ✓✓':'')+'</div></div>';
+    } else if(m.type==='file'){
+      const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
+      d.dataset.txt='📄 '+(m.nom||'Fichier');
+      d.innerHTML='<div class="file-bbl" onclick="window.open(\''+m.url+'\',\'_blank\')"><div class="file-ico-w">📄</div><div><div class="file-name">'+escapeHtml(m.nom||'Fichier')+'</div><div class="file-size">'+sizeKb+' Ko · '+t+'</div></div></div>';
+    } else if(m.type==='audio'){
+      d.dataset.txt='🎤 Message vocal';
+      d.innerHTML='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft"><span class="bbl-t">'+t+'</span>'+tickHtml+'</div></div>';
+    } else {
+      d.dataset.txt=m.texte||'';
+      d.innerHTML='<div class="bbl">'+escapeHtml(m.texte||'')+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span>'+tickHtml+'</div></div>';
+    }
     frag.appendChild(d);
   });
   area.appendChild(frag);
   area.scrollTop=area.scrollHeight;
+}
+
+/* ══════════════ ENVOI RÉEL DE MÉDIAS (photos, fichiers, vocaux) ══════════════
+   Un seul mécanisme d'upload réutilisé pour les trois cas : upload vers Firebase
+   Storage, puis écriture d'un message Firestore pointant vers le vrai fichier. */
+async function uploaderVersStorage(blob, sousDossier, extension, typeContenu){
+  if(!currentConvId) throw new Error('Aucune conversation réelle ouverte');
+  const nomFichier = Date.now()+'_'+Math.random().toString(36).slice(2,8)+(extension?('.'+extension):'');
+  const chemin = 'conversations/'+currentConvId+'/'+sousDossier+'/'+nomFichier;
+  ajouterEtape('Upload vers Storage : '+chemin+'...');
+  const ref = storage.ref().child(chemin);
+  const tache = await ref.put(blob, typeContenu?{contentType:typeContenu}:undefined);
+  const url = await tache.ref.getDownloadURL();
+  ajouterEtape('Upload terminé ✅ : '+chemin);
+  return url;
+}
+async function envoyerMessageMedia(type, url, extra){
+  const convRef=db.collection('conversations').doc(currentConvId);
+  const data=Object.assign({type:type,url:url,emetteur:currentUid,horodatage:firebase.firestore.FieldValue.serverTimestamp()},extra||{});
+  await convRef.collection('messages').add(data);
+  const apercu = type==='image' ? '📷 Photo' : type==='file' ? '📄 '+(extra&&extra.nom||'Fichier') : type==='audio' ? '🎤 Message vocal' : '';
+  await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:apercu,dernierEmetteur:currentUid},{merge:true});
+  ajouterEtape('Message média écrit sur Firestore ✅ (type='+type+')');
+}
+function compresserImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxW=1280;const scale=Math.min(1,maxW/img.width);
+        const canvas=document.createElement('canvas');
+        canvas.width=img.width*scale;canvas.height=img.height*scale;
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        canvas.toBlob((blob)=>blob?resolve(blob):reject(new Error('Compression échouée')),'image/jpeg',0.72);
+      };
+      img.onerror=()=>reject(new Error('Image illisible'));
+      img.src=ev.target.result;
+    };
+    reader.onerror=()=>reject(new Error('Lecture du fichier échouée'));
+    reader.readAsDataURL(file);
+  });
+}
+async function envoyerImageReelle(file){
+  try{
+    ajouterEtape('Compression de la photo...');
+    const blob = await compresserImage(file);
+    const url = await uploaderVersStorage(blob,'images','jpg','image/jpeg');
+    await envoyerMessageMedia('image', url, {});
+  }catch(err){
+    console.error('Envoi image réelle impossible :',err);
+    ajouterEtape('ÉCHEC upload image — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC — Envoi de la photo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('⚠️ Photo non envoyée','r');
+  }
+}
+async function envoyerFichierReel(file){
+  try{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    const url = await uploaderVersStorage(file,'fichiers',ext,file.type||undefined);
+    await envoyerMessageMedia('file', url, {nom:file.name, taille:file.size});
+  }catch(err){
+    console.error('Envoi fichier réel impossible :',err);
+    ajouterEtape('ÉCHEC upload fichier — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC — Envoi du fichier impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('⚠️ Fichier non envoyé','r');
+  }
+}
+async function envoyerVocalReel(blob,durSec){
+  try{
+    const url = await uploaderVersStorage(blob,'vocaux','webm','audio/webm');
+    await envoyerMessageMedia('audio', url, {duree:durSec});
+  }catch(err){
+    console.error('Envoi vocal réel impossible :',err);
+    ajouterEtape('ÉCHEC upload vocal — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC — Envoi du message vocal impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('⚠️ Message vocal non envoyé','r');
+  }
 }
 
 async function envoyerMessageReel(txt){
@@ -970,7 +1068,11 @@ window.ctxDeleteAll=function(){
 window.pickFile=function(){document.getElementById('fileIn').click()}
 window.onFilePicked=function(e){
   const f=e.target.files[0];if(!f)return;
-  if(f.type.startsWith('image/')) compressAndSendImage(f); else sendFileBubble(f);
+  if(currentOtherUid && currentConvId){
+    if(f.type.startsWith('image/')) envoyerImageReelle(f); else envoyerFichierReel(f);
+  } else {
+    if(f.type.startsWith('image/')) compressAndSendImage(f); else sendFileBubble(f);
+  }
   e.target.value='';
 }
 function compressAndSendImage(file){
@@ -1091,7 +1193,11 @@ function stopRecordingInternal(shouldSend){
     if(stream._audioCtx)stream._audioCtx.close();
     if(!shouldSend||durSec<1)return;
     const blob=new Blob(recChunks,{type:mediaRecorder.mimeType});
-    await appendVoiceMessage(blob,durSec);
+    if(currentOtherUid && currentConvId){
+      await envoyerVocalReel(blob,durSec);
+    } else {
+      await appendVoiceMessage(blob,durSec);
+    }
   };
   mediaRecorder.stop();
 }
@@ -1267,6 +1373,9 @@ ajouterEtape('2. Téléchargement des bibliothèques Firebase...');
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
         onload="ajouterEtape('2c. Bibliothèque firestore chargée ✅')"
         onerror="ajouterEtape('ÉCHEC chargement firestore', true)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"
+        onload="ajouterEtape('2d. Bibliothèque storage chargée ✅')"
+        onerror="ajouterEtape('ÉCHEC chargement storage', true)"></script>
 <script>
 
 const firebaseConfig = {
@@ -1281,7 +1390,8 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 db.settings({ experimentalForceLongPolling: true });
-ajouterEtape('3. Firebase initialisé ✅ (long polling forcé)');
+const storage = firebase.storage();
+ajouterEtape('3. Firebase initialisé ✅ (long polling forcé, storage prêt)');
 
 const GRADIENTS=[
   'linear-gradient(135deg,#0d2b0f,#27a945)','linear-gradient(135deg,#0a0a2e,#1a1a6e)',
