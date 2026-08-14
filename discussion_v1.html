@@ -62,7 +62,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .cc-status.on{color:var(--green)}.cc-status.off{color:#ccc}
 .cc-tag{display:inline-flex;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:3px;background:#f5f5f5;color:#888}
 .ubadge{min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0}
-.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:flex;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
+.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #eee;display:none;z-index:200;box-shadow:0 -2px 14px rgba(0,0,0,0.08)}
 .nav-i{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;gap:2px}
 .nav-lb{font-size:10px;font-weight:700;color:#aaa}
 .nav-i.active .nav-lb{color:var(--green)}
@@ -302,6 +302,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
   <div class="conv-scroll" id="convList">
     <div class="sec-hdr"><span class="sec-lbl">Récentes</span></div>
+    <div id="recentesReelles"></div>
     <div class="conv-card" data-mode="conv" data-unread="1" data-online="1" onclick="openChat('Mariama Kouyaté','Coiffeuse','MK','linear-gradient(135deg,#0d2b0f,#27a945)',true,'',true)">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="online-dot"></div><div class="v-icon">✔</div></div>
@@ -638,7 +639,11 @@ window.addEventListener('popstate',(e)=>{
   while(viewStack.length>target){ hideView(viewStack.pop()); }
 });
 function hideView(name){
-  if(name==='chat'){ document.getElementById('chatPanel').classList.remove('open'); cancelReply(); }
+  if(name==='chat'){
+    document.getElementById('chatPanel').classList.remove('open'); cancelReply();
+    if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+    currentOtherUid=null; currentConvId=null;
+  }
   else if(name==='conf'){ document.getElementById('confPanel').classList.remove('open'); }
   else if(name==='call'){
     clearInterval(callTimerInt);
@@ -650,7 +655,9 @@ function hideView(name){
 }
 
 let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
-window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo){
+/* ══ Messagerie réelle (Firestore) — variables d'état de la conversation ouverte ══ */
+let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversations=null;
+window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid){
   currentChatName=name;currentChatIni=ini;currentChatBg=bg;
   document.getElementById('chaNm').innerHTML=name+' <span class="vb">&#10004;</span>';
   const st=document.getElementById('chaSt');
@@ -660,11 +667,21 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo){
   // Les messages ajoutés pendant une session précédente (data-mid commençant par "m") ne sont pas persistés :
   // sans schéma de conversations réel côté Firebase, on les efface pour ne pas les faire "fuiter" vers un autre contact.
   document.querySelectorAll('#msgsArea > .mrow[data-mid^="m"], #msgsArea > .reacts').forEach(el=>el.remove());
+  // Messages réels d'une conversation précédemment ouverte : on les retire aussi, et on
+  // coupe l'écoute Firestore en cours avant d'en démarrer une autre (ou aucune, en mode démo).
+  document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(el=>el.remove());
+  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
   const seed=document.getElementById('demoMsgsSeed'), empty=document.getElementById('emptyMsgsState');
-  if(isDemo){
+  if(otherUid && currentUid){
+    // ══ Mode réel : vraie conversation Firestore avec cette personne ══
+    seed.style.display='none';empty.style.display='none';
+    startRealConversation(otherUid,name,sub,ini,bg);
+  } else if(isDemo){
+    currentOtherUid=null;currentConvId=null;
     seed.style.display='';empty.style.display='none';
     ['mAv1','mAv2','mAv3','mAv4'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=ini;el.style.background=bg}});
   } else {
+    currentOtherUid=null;currentConvId=null;
     seed.style.display='none';empty.style.display='flex';
   }
   document.getElementById('chatPanel').classList.add('open');
@@ -698,6 +715,13 @@ function quoteHtml(){
 
 window.doSend=function(){
   const ta=document.getElementById('mTa');const txt=ta.value.trim();if(!txt)return;
+  if(currentOtherUid && currentConvId){
+    // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
+    envoyerMessageReel(txt);
+    ta.value='';ta.style.height='auto';document.getElementById('sb').disabled=true;
+    cancelReply();closeEmoji();
+    return;
+  }
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt=txt;
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
@@ -706,6 +730,123 @@ window.doSend=function(){
   cancelReply();closeEmoji();
 }
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+/* ══════════════ MESSAGERIE RÉELLE (Firestore) ══════════════
+   Une conversation = id déterministe (les deux uid triés et joints), pour que les
+   deux personnes retrouvent toujours le même document sans recherche préalable.
+   Sous-collection "messages" écoutée en temps réel tant que le chat est ouvert. */
+function convIdFor(uidA,uidB){ return [uidA,uidB].sort().join('_'); }
+
+async function startRealConversation(otherUid,name,role,ini,bg){
+  currentOtherUid=otherUid;
+  currentConvId=convIdFor(currentUid,otherUid);
+  const convRef=db.collection('conversations').doc(currentConvId);
+  try{
+    const convSnap=await convRef.get();
+    if(!convSnap.exists){
+      await convRef.set({
+        participants:[currentUid,otherUid],
+        creeLe: firebase.firestore.FieldValue.serverTimestamp(),
+        derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
+        dernierMessage:'',
+        dernierEmetteur:'',
+        infos:{ [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''} }
+      });
+    } else {
+      // Met à jour uniquement les infos affichées de ce correspondant (nom/rôle à jour),
+      // sans toucher au reste de la conversation déjà existante.
+      await convRef.set({infos:{ [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''} }},{merge:true});
+    }
+  }catch(err){
+    console.error('Conversation réelle inaccessible :',err);
+    toast('⚠️ Connexion impossible pour cette discussion','r');
+    document.getElementById('emptyMsgsState').style.display='flex';
+    return;
+  }
+  unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot(function(snap){
+    renderRealMessages(snap);
+  }, function(err){
+    console.error('Écoute des messages réels impossible :',err);
+  });
+}
+
+function renderRealMessages(snap){
+  const area=document.getElementById('msgsArea');
+  document.getElementById('emptyMsgsState').style.display = snap.empty ? 'flex' : 'none';
+  document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(el=>el.remove());
+  const frag=document.createDocumentFragment();
+  snap.forEach(function(doc){
+    const m=doc.data();
+    const dir = m.emetteur===currentUid ? 'out' : 'in';
+    const t = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const d=document.createElement('div');
+    d.className='mrow '+dir;
+    d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;d.dataset.txt=m.texte||'';
+    const tickHtml = dir==='out' ? '<span class="tick rd">✓✓</span>' : '';
+    d.innerHTML='<div class="bbl">'+escapeHtml(m.texte||'')+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span>'+tickHtml+'</div></div>';
+    frag.appendChild(d);
+  });
+  area.appendChild(frag);
+  area.scrollTop=area.scrollHeight;
+}
+
+async function envoyerMessageReel(txt){
+  const convRef=db.collection('conversations').doc(currentConvId);
+  try{
+    await convRef.collection('messages').add({
+      texte: txt,
+      emetteur: currentUid,
+      horodatage: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await convRef.set({
+      derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
+      dernierMessage: txt,
+      dernierEmetteur: currentUid
+    },{merge:true});
+  }catch(err){
+    console.error('Envoi du message réel impossible :',err);
+    toast('⚠️ Message non envoyé (connexion)','r');
+  }
+}
+
+/* ══ Liste "Récentes" réelle : les vraies conversations de l'utilisateur, triées
+   par dernière activité, affichées au-dessus des cartes de démonstration existantes
+   sans jamais les supprimer. ══ */
+function chargerConversationsReelles(){
+  if(unsubConversations){ unsubConversations(); unsubConversations=null; }
+  const wrap=document.getElementById('recentesReelles');
+  if(!currentUid){ if(wrap) wrap.innerHTML=''; return; }
+  unsubConversations = db.collection('conversations')
+    .where('participants','array-contains',currentUid)
+    .onSnapshot(function(snap){
+      let convs = snap.docs.map(d=>({id:d.id,...d.data()}));
+      convs.sort(function(a,b){
+        const ta=(a.derniereActivite&&a.derniereActivite.toDate)?a.derniereActivite.toDate().getTime():0;
+        const tb=(b.derniereActivite&&b.derniereActivite.toDate)?b.derniereActivite.toDate().getTime():0;
+        return tb-ta;
+      });
+      renderConversationsReelles(convs);
+    }, function(err){
+      console.error('Écoute des conversations réelles impossible :',err);
+    });
+}
+
+function renderConversationsReelles(convs){
+  const wrap=document.getElementById('recentesReelles');
+  if(!wrap) return;
+  wrap.innerHTML = convs.map(function(c){
+    const otherUid = (c.participants||[]).find(id=>id!==currentUid);
+    if(!otherUid) return '';
+    const info = (c.infos && c.infos[otherUid]) || {nom:'Utilisateur',ini:'?',bg:'#999',role:''};
+    const t = (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
+    return '<div class="conv-card" data-mode="conv" data-online="0" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\')">'
+      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+info.ini+'</div></div>'
+      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+t+'</span></div>'
+      +'<div class="cc-preview">'+apercu+'</div>'
+      +'<div class="cc-status off">'+escAttr(info.role||'')+'</div></div></div></div>';
+  }).join('');
+}
 
 /* ══════════════ MENU CONTEXTUEL (long-press / clic droit) ══════════════ */
 let ctxRow=null, pressTimer=null, pressMoved=false, pressStartX=0, pressStartY=0;
@@ -1059,7 +1200,7 @@ function initialesDe(prenom,nom){
 }
 
 let currentUid=null;
-auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;chargerContactsReels();});
+auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;chargerContactsReels();chargerConversationsReelles();});
 
 const TAILLE_LOT_CONTACTS = 6;
 let tousLesContacts = [];
@@ -1108,7 +1249,7 @@ function afficherContacts(){
     const ini=initialesDe(u.prenom,u.nomFamille);
     const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
     const bg=gradientPourId(u.id);
-    return '<div class="conv-card" data-mode="conv" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false)">'
+    return '<div class="conv-card" data-mode="conv" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false,\''+u.id+'\')">'
       +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+'">'+ini+'</div></div>'
       +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(nom)+'</span></div>'
       +'<div class="cc-preview" style="color:#bbb;font-style:italic">Aucun message — démarrer la discussion</div>'
