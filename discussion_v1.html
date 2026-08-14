@@ -470,7 +470,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <textarea id="mTa" rows="1" placeholder="Répondre…" oninput="onTa()" onkeydown="onKey(event)"></textarea>
     </div>
     <button class="ib" id="micBtn" onclick="toggleRecording()" style="width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(230,50,36,0.35)">🎤</button>
-    <button class="sb" id="sb" onclick="doSend()" disabled>
+    <button class="sb" id="sb" onclick="doSend()">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
@@ -707,7 +707,7 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid){
 window.closeChat=function(){requestClose()}
 
 /* ══════════════ ENVOI TEXTE + RÉPONSE ══════════════ */
-window.onTa=function(){const ta=document.getElementById('mTa');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px';document.getElementById('sb').disabled=!ta.value.trim()}
+window.onTa=function(){const ta=document.getElementById('mTa');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px'}
 window.onKey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}}
 
 let replyState=null;
@@ -733,7 +733,7 @@ window.doSend=function(){
   if(currentOtherUid && currentConvId){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
     envoyerMessageReel(txt);
-    ta.value='';ta.style.height='auto';document.getElementById('sb').disabled=true;
+    ta.value='';ta.style.height='auto';
     cancelReply();closeEmoji();
     return;
   }
@@ -741,7 +741,7 @@ window.doSend=function(){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt=txt;
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   d.innerHTML='<div class="bbl">'+quoteHtml()+escapeHtml(txt)+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span><span class="tick">✓</span></div></div>';
-  area.appendChild(d);ta.value='';ta.style.height='auto';document.getElementById('sb').disabled=true;area.scrollTop=area.scrollHeight;
+  area.appendChild(d);ta.value='';ta.style.height='auto';area.scrollTop=area.scrollHeight;
   cancelReply();closeEmoji();
 }
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
