@@ -737,10 +737,40 @@ function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').repla
    Sous-collection "messages" écoutée en temps réel tant que le chat est ouvert. */
 function convIdFor(uidA,uidB){ return [uidA,uidB].sort().join('_'); }
 
+/* On stockait jusqu'ici, dans chaque conversation, uniquement les infos de la personne
+   en face — jamais les siennes. Résultat : le correspondant voyait "Utilisateur ?" à
+   la place de votre vrai nom. Cette fonction va chercher (une seule fois, mise en cache)
+   vos propres infos réelles dans Firestore pour qu'elles soient aussi enregistrées. */
+let monInfo=null, monInfoPromise=null;
+function obtenirMonInfo(){
+  if(monInfo) return Promise.resolve(monInfo);
+  if(monInfoPromise) return monInfoPromise;
+  monInfoPromise = db.collection('utilisateurs').doc(currentUid).get().then(function(doc){
+    if(doc.exists){
+      const u=doc.data();
+      monInfo={
+        nom:(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'') || 'Utilisateur',
+        ini:initialesDe(u.prenom,u.nomFamille),
+        bg:gradientPourId(currentUid),
+        role:u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel')
+      };
+    } else {
+      monInfo={nom:'Utilisateur',ini:'?',bg:'#999',role:''};
+    }
+    return monInfo;
+  }).catch(function(err){
+    console.error('Mes propres infos utilisateur introuvables :',err);
+    monInfo={nom:'Utilisateur',ini:'?',bg:'#999',role:''};
+    return monInfo;
+  });
+  return monInfoPromise;
+}
+
 async function startRealConversation(otherUid,name,role,ini,bg){
   currentOtherUid=otherUid;
   currentConvId=convIdFor(currentUid,otherUid);
   const convRef=db.collection('conversations').doc(currentConvId);
+  const mienne = await obtenirMonInfo();
   try{
     const convSnap=await convRef.get();
     if(!convSnap.exists){
@@ -750,12 +780,18 @@ async function startRealConversation(otherUid,name,role,ini,bg){
         derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
         dernierMessage:'',
         dernierEmetteur:'',
-        infos:{ [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''} }
+        infos:{
+          [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''},
+          [currentUid]:mienne
+        }
       });
     } else {
-      // Met à jour uniquement les infos affichées de ce correspondant (nom/rôle à jour),
-      // sans toucher au reste de la conversation déjà existante.
-      await convRef.set({infos:{ [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''} }},{merge:true});
+      // Met à jour les infos affichées des DEUX côtés (nom/rôle à jour), sans toucher
+      // au reste de la conversation déjà existante.
+      await convRef.set({infos:{
+        [otherUid]:{nom:name,ini:ini,bg:bg,role:role||''},
+        [currentUid]:mienne
+      }},{merge:true});
     }
   }catch(err){
     console.error('Conversation réelle inaccessible :',err);
@@ -1200,7 +1236,7 @@ function initialesDe(prenom,nom){
 }
 
 let currentUid=null;
-auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;chargerContactsReels();chargerConversationsReelles();});
+auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;monInfo=null;monInfoPromise=null;chargerContactsReels();chargerConversationsReelles();});
 
 const TAILLE_LOT_CONTACTS = 6;
 let tousLesContacts = [];
