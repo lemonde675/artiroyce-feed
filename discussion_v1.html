@@ -249,9 +249,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .call-ctrl.active{background:#fff;color:#111}
 .call-ctrl.end{background:var(--red)}
 
-/* ── Panneau de diagnostic (temporaire) : caché par défaut, ouvert via le petit
-   bouton 🛠️, ancré en haut de l'écran — ne recouvre JAMAIS la zone de saisie. ── */
-#panneauToggleBtn{position:fixed;top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:rgba(10,10,10,0.85);color:#8dff9a;display:flex;align-items:center;justify-content:center;font-size:16px;z-index:10000;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:none}
+/* ── Panneau de diagnostic (temporaire) : caché par défaut, ouvert via un petit
+   bouton 🛠️ intégré aux en-têtes existantes — ne recouvre JAMAIS la zone de saisie. ── */
 #panneauDiagnostic{position:fixed;left:50%;transform:translateX(-50%);top:50px;width:calc(100% - 16px);max-width:464px;max-height:0;overflow:hidden;background:rgba(10,10,10,0.96);color:#8dff9a;font-family:'Courier New',monospace;font-size:10px;line-height:1.6;padding:0 10px;z-index:9999;white-space:pre-wrap;word-break:break-word;border-radius:10px;transition:max-height 0.25s}
 #panneauDiagnostic.open{max-height:55vh;overflow-y:auto;padding:8px 10px}
 #panneauDiagnostic div.err{color:#ff8080}
@@ -290,6 +289,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="top-bar-title">💬 Discussions</span>
     <div class="top-bar-right">
       <button class="tbr-btn" onclick="toggleSearch()">🔍</button>
+      <button class="tbr-btn" onclick="toggleDiagnostic()" title="Diagnostic" style="background:#222;color:#8dff9a">🛠️</button>
       <button class="tbr-btn red" onclick="toast('✏️ Nouveau message bientôt !','g')">✏️</button>
     </div>
   </div>
@@ -426,6 +426,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="cha-btns">
       <button class="cha-btn" onclick="addCall('audio')">&#128222;</button>
       <button class="cha-btn gr" onclick="addCall('video')">&#128249;</button>
+      <button class="cha-btn" style="background:#222;color:#8dff9a" onclick="toggleDiagnostic()">&#128736;</button>
       <button class="cha-btn" style="background:#f0f0f0;color:#333;box-shadow:none" onclick="toast('Options','')">&#8942;</button>
     </div>
   </div>
@@ -1221,7 +1222,6 @@ window.launchConfCall=function(type){
 }
 </script>
 
-<button id="panneauToggleBtn" onclick="toggleDiagnostic()">🛠️</button>
 <div id="panneauDiagnostic"></div>
 
 <!-- ══════════════ PANNEAU DE DIAGNOSTIC (temporaire) ══════════════
@@ -1229,13 +1229,12 @@ window.launchConfCall=function(type){
      visible directement à l'écran, sans avoir besoin de la console technique,
      pour voir en direct chaque étape (chargement Firebase, connexion,
      création de conversation, envoi de message). Caché par défaut, ouvert
-     via le bouton 🛠️, pour ne jamais gêner la saisie de messages. -->
+     via le bouton 🛠️ intégré aux en-têtes existantes (liste + chat), pour
+     ne jamais gêner la saisie de messages. -->
 <script>
 window.toggleDiagnostic=function(){
   const p=document.getElementById('panneauDiagnostic');
-  const b=document.getElementById('panneauToggleBtn');
   const estOuvert=p.classList.toggle('open');
-  b.textContent = estOuvert ? '✕' : '🛠️';
   if(estOuvert) p.scrollTop=p.scrollHeight;
 }
 function ajouterEtape(texte, estErreur){
