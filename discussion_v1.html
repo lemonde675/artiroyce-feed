@@ -676,6 +676,12 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid){
     // ══ Mode réel : vraie conversation Firestore avec cette personne ══
     seed.style.display='none';empty.style.display='none';
     startRealConversation(otherUid,name,sub,ini,bg);
+  } else if(otherUid && !currentUid){
+    // Diagnostic temporaire : si otherUid est fourni mais currentUid absent,
+    // c'est que l'identité du compte connecté n'a pas été détectée par Firebase Auth.
+    alert('DIAGNOSTIC — Compte connecté non détecté par Firebase Auth (currentUid manquant). La messagerie réelle ne peut pas fonctionner tant que ceci n\'est pas résolu.');
+    currentOtherUid=null;currentConvId=null;
+    seed.style.display='none';empty.style.display='flex';
   } else if(isDemo){
     currentOtherUid=null;currentConvId=null;
     seed.style.display='';empty.style.display='none';
@@ -795,6 +801,7 @@ async function startRealConversation(otherUid,name,role,ini,bg){
     }
   }catch(err){
     console.error('Conversation réelle inaccessible :',err);
+    alert('DIAGNOSTIC — Conversation Firestore inaccessible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
     toast('⚠️ Connexion impossible pour cette discussion','r');
     document.getElementById('emptyMsgsState').style.display='flex';
     return;
@@ -841,6 +848,7 @@ async function envoyerMessageReel(txt){
     },{merge:true});
   }catch(err){
     console.error('Envoi du message réel impossible :',err);
+    alert('DIAGNOSTIC — Envoi du message impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
     toast('⚠️ Message non envoyé (connexion)','r');
   }
 }
