@@ -71,6 +71,43 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .nav-ico{width:24px;height:24px}
 .chat-panel{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:300;display:flex;flex-direction:column;transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
 .chat-panel.open{transform:translateX(-50%)}
+/* ══ Profil contact + galerie médias réutilisables ══ */
+.profil-contact-panel{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:310;display:flex;flex-direction:column;background:#f4f4f4;transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
+.profil-contact-panel.open{transform:translateX(-50%)}
+.pc-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px}
+.pc-av{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:#fff;margin-bottom:12px}
+.pc-name{font-size:19px;font-weight:800;color:#111}
+.pc-st{font-size:12px;font-weight:700;color:#999;margin-top:2px}
+.pc-role{font-size:12px;color:#777;margin-top:6px;text-align:center}
+.pc-tabs{width:100%;margin-top:22px;border-bottom:1px solid #e2e2e2}
+.pc-tab{display:inline-block;padding:8px 4px;font-size:13px;font-weight:700;color:#111;border-bottom:2px solid var(--red)}
+.pc-grid{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:10px}
+.pc-grid-item{position:relative;aspect-ratio:1;background:#000;border-radius:4px;overflow:hidden;cursor:pointer}
+.pc-grid-item img,.pc-grid-item video{width:100%;height:100%;object-fit:cover}
+.pc-grid-item .pc-vid-badge{position:absolute;top:4px;right:4px;font-size:12px}
+.pc-empty{margin-top:30px;font-size:13px;color:#999;text-align:center}
+.pc-viewer{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column}
+.pc-viewer.show{display:flex}
+.pc-viewer-close{position:absolute;top:16px;right:16px;color:#fff;font-size:22px;cursor:pointer;z-index:2}
+.pc-viewer-media{max-width:100%;max-height:82vh;display:flex;align-items:center;justify-content:center}
+.pc-viewer-media img,.pc-viewer-media video{max-width:100%;max-height:82vh;object-fit:contain}
+.pc-viewer-resend{position:absolute;bottom:26px;background:var(--red);color:#fff;border:none;padding:12px 22px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(230,50,36,0.4)}
+/* ══ Aperçu avant envoi (photo/vidéo) : légende + recadrage simple ══ */
+.apercu-overlay{position:fixed;inset:0;background:#000;z-index:9998;display:none;flex-direction:column}
+.apercu-overlay.show{display:flex}
+.apercu-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;flex-shrink:0}
+.apercu-cancel{color:#fff;font-size:24px;cursor:pointer}
+.apercu-crop-toggle{color:#fff;font-size:13px;font-weight:700;background:rgba(255,255,255,0.15);padding:7px 14px;border-radius:99px;cursor:pointer}
+.apercu-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#apercuImgPlein,#apercuVideoPlein{max-width:100%;max-height:100%;object-fit:contain}
+.apercu-frame{width:min(78vw,320px);height:min(78vw,320px);border-radius:10px;overflow:hidden;position:relative;touch-action:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.55)}
+.apercu-frame img{position:absolute;top:0;left:0;user-select:none;-webkit-user-drag:none}
+.apercu-zoom-row{display:flex;align-items:center;gap:10px;padding:6px 24px;color:#fff;flex-shrink:0}
+.apercu-zoom-row input{flex:1}
+.apercu-bottom{display:flex;align-items:center;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));flex-shrink:0}
+.apercu-bottom input{flex:1;background:rgba(255,255,255,0.12);border:none;border-radius:22px;padding:11px 16px;color:#fff;font-size:14px}
+.apercu-bottom input::placeholder{color:rgba(255,255,255,0.6)}
+.apercu-send{width:44px;height:44px;border-radius:50%;border:none;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .chat-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
 .back-btn{font-size:26px;cursor:pointer;color:#333;flex-shrink:0}
 .cha-av-wrap{position:relative;flex-shrink:0}
@@ -89,7 +126,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .msgs-area::-webkit-scrollbar{display:none}
 .day-sep{display:flex;align-items:center;justify-content:center;margin:4px 0}
 .day-sep span{font-size:11px;color:#888;background:rgba(255,255,255,0.82);padding:3px 12px;border-radius:99px;font-weight:600}
-.mrow{display:flex;gap:8px;align-items:flex-end}
+.mrow{display:flex;gap:8px;align-items:flex-end;position:relative}
+.mrow.swipe-armed::before{content:'↩️';position:absolute;left:-30px;top:50%;transform:translateY(-50%);font-size:16px;opacity:0.85}
+.mrow.system{justify-content:center;margin:6px 0}
+.sys-msg{background:rgba(0,0,0,0.06);color:#666;font-size:11px;padding:5px 12px;border-radius:12px;text-align:center;max-width:80%}
 .mrow.out{flex-direction:row-reverse}
 .m-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
 .bbl{max-width:72%;padding:10px 13px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
@@ -186,11 +226,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
 /* ── Pièces jointes ── */
 .img-bbl{max-width:68%;border-radius:16px;overflow:hidden;cursor:pointer;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.16)}
+.cap-txt{font-size:12px;color:#333;background:#fff;padding:6px 10px;line-height:1.3}
 .img-bbl img{display:block;width:100%;max-height:280px;object-fit:cover}
 .img-bbl .img-ft{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:99px;font-size:10px;color:#fff}
 .video-bbl{max-width:68%;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.16);background:#000}
 .video-bbl video{display:block;width:100%;max-height:320px;background:#000}
 .video-bbl .img-ft{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:99px;font-size:10px;color:#fff}
+.vid-expand{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;display:flex;align-items:center;justify-content:center}
+.video-bbl.expanded video{max-height:100vh;height:100%;object-fit:contain}
+.video-bbl.expanded .vid-expand{top:16px;right:16px;width:36px;height:36px;font-size:18px}
 .file-bbl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;max-width:230px;cursor:pointer}
 .mrow.in .file-bbl{background:#fff;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 .mrow.out .file-bbl{background:var(--red);border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(230,50,36,0.25)}
@@ -434,11 +479,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="chat-panel" id="chatPanel">
   <div class="chat-hdr">
     <span class="back-btn" onclick="closeChat()">&#8249;</span>
-    <div class="cha-av-wrap">
+    <div class="cha-av-wrap" onclick="ouvrirProfilContact()">
       <div class="cha-av" id="chaAv">?</div>
       <div class="cha-online" id="chaOnline" style="display:none"></div>
     </div>
-    <div class="cha-info">
+    <div class="cha-info" onclick="ouvrirProfilContact()">
       <div class="cha-name" id="chaNm">&#8212; <span class="vb">&#10004;</span></div>
       <div class="cha-st on" id="chaSt">&#9679; En ligne</div>
     </div>
@@ -495,6 +540,48 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </button>
   </div>
   <input type="file" id="fileIn" accept="image/*,.pdf,.doc,.docx,.xlsx,.zip,.mp3,.mp4" style="display:none" onchange="onFilePicked(event)"/>
+</div>
+<div class="profil-contact-panel" id="profilContactPanel">
+  <div class="chat-hdr">
+    <span class="back-btn" onclick="fermerProfilContact()">&#8249;</span>
+    <div class="cha-info"><div class="cha-name">Profil</div></div>
+  </div>
+  <div class="pc-body">
+    <div class="pc-av" id="pcAv">?</div>
+    <div class="pc-name" id="pcNom">—</div>
+    <div class="pc-st" id="pcSt">—</div>
+    <div class="pc-role" id="pcRole"></div>
+    <div class="pc-tabs">
+      <span class="pc-tab active">📷 Médias partagés</span>
+    </div>
+    <div class="pc-grid" id="pcGrid"></div>
+    <div class="pc-empty" id="pcEmpty" style="display:none">Aucune photo ou vidéo échangée pour le moment.</div>
+  </div>
+</div>
+<div class="pc-viewer" id="pcViewer">
+  <span class="pc-viewer-close" onclick="fermerVisionneuseMedia()">✕</span>
+  <div class="pc-viewer-media" id="pcViewerMedia"></div>
+  <button class="pc-viewer-resend" id="pcViewerResend" onclick="renvoyerMediaCourant()">↗️ Renvoyer dans cette conversation</button>
+</div>
+<div class="apercu-overlay" id="apercuOverlay">
+  <div class="apercu-top">
+    <span class="apercu-cancel" onclick="annulerApercuMedia()">✕</span>
+    <span class="apercu-crop-toggle" id="apercuCropToggle" onclick="toggleRecadrage()" style="display:none">✂️ Recadrer</span>
+  </div>
+  <div class="apercu-body">
+    <div class="apercu-frame" id="apercuFrame" style="display:none">
+      <img id="apercuImg" draggable="false"/>
+    </div>
+    <img id="apercuImgPlein" style="display:none"/>
+    <video id="apercuVideoPlein" controls playsinline style="display:none"></video>
+  </div>
+  <div class="apercu-zoom-row" id="apercuZoomRow" style="display:none">
+    <span>🔍</span><input type="range" id="apercuZoom" min="100" max="300" value="100" oninput="onApercuZoom(this.value)"/>
+  </div>
+  <div class="apercu-bottom">
+    <input type="text" id="apercuLegende" placeholder="Ajouter une légende…" maxlength="300"/>
+    <button class="apercu-send" onclick="confirmerEnvoiApercu()">➤</button>
+  </div>
 </div>
 <div class="ctx-overlay" id="ctxOverlay" onclick="closeCtx()"></div>
 <div class="ctx-menu" id="ctxMenu">
@@ -728,6 +815,11 @@ let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversat
 let currentChatRole='', unsubConvDoc=null, currentConvLuPar={}, dernierSnapMessages=null;
 let sourceVilleLive=false, villeLiveActuelle=null;
 let currentConvInfos={};
+/* ══ Présence réelle : chaque personne signale périodiquement qu'elle est active
+   (heartbeat écrit sur son propre document 'utilisateurs'), et on lit celui de la
+   personne en face pour savoir si elle est vraiment en ligne, sans donnée factice. */
+let unsubPresence=null, presenceRecheckTimer=null, monHeartbeatTimer=null;
+const SEUIL_EN_LIGNE_MS = 45000; // pas de battement depuis 45s → considéré hors ligne
 
 /* ══ Bascule profil / position réelle pour la ville affichée sur les messages ══
    Jamais les deux en même temps : soit la ville déclarée dans le profil (défaut),
@@ -748,6 +840,18 @@ function toggleVilleSource(){
       sourceVilleLive=true; villeLiveActuelle=ville;
       btn.classList.add('actif');
       toast(ville ? ('✅ Position activée : '+ville) : '✅ Position activée','g');
+      // Signal visible par l'autre personne dans la conversation, pour qu'elle sache
+      // que l'activation est bien faite sans avoir à le demander à l'oral.
+      if(currentConvId){
+        try{
+          await db.collection('conversations').doc(currentConvId).collection('messages').add({
+            type:'system',
+            texte:'📍 a activé le partage de sa position en direct',
+            emetteur:currentUid,
+            horodatage: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }catch(e){ console.error('Signal position impossible :',e); }
+      }
     },(err)=>{
       console.error('Géolocalisation refusée :',err);
       toast('⚠️ Position refusée','r');
@@ -778,6 +882,8 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
   document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(el=>el.remove());
   if(unsubMessages){ unsubMessages(); unsubMessages=null; }
   if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
+  if(unsubPresence){ unsubPresence(); unsubPresence=null; }
+  if(presenceRecheckTimer){ clearInterval(presenceRecheckTimer); presenceRecheckTimer=null; }
   dernierSnapMessages=null;
   const seed=document.getElementById('demoMsgsSeed'), empty=document.getElementById('emptyMsgsState');
   if(otherUid && currentUid){
@@ -809,19 +915,30 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
 window.closeChat=function(){requestClose()}
 
 /* ══════════════ ENVOI TEXTE + RÉPONSE ══════════════ */
-window.onTa=function(){const ta=document.getElementById('mTa');ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px'}
+window.onTa=function(){
+  const ta=document.getElementById('mTa');
+  ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,100)+'px';
+  // Comme WhatsApp : le micro ne sert qu'à démarrer un vocal quand le champ est vide.
+  // Dès qu'on tape du texte, il s'efface pour laisser toute la place au bouton Envoyer.
+  const mic=document.getElementById('micBtn');
+  if(mic) mic.style.display = ta.value.trim() ? 'none' : 'flex';
+}
 window.onKey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}}
 
 let replyState=null;
 window.cancelReply=function(){replyState=null;document.getElementById('replyBar').classList.remove('show')}
 window.ctxReply=function(){
   if(!ctxRow)return;
-  const dir=ctxRow.dataset.dir;
-  replyState={name:dir==='out'?'Vous':currentChatName, text:ctxRow.dataset.txt};
+  declencherReponse(ctxRow);
+  closeCtx();
+}
+function declencherReponse(row){
+  const dir=row.dataset.dir;
+  replyState={name:dir==='out'?'Vous':currentChatName, text:row.dataset.txt};
   document.getElementById('replyName').textContent=replyState.name;
   document.getElementById('replyTxt').textContent=replyState.text;
   document.getElementById('replyBar').classList.add('show');
-  closeCtx();document.getElementById('mTa').focus();
+  document.getElementById('mTa').focus();
 }
 
 function quoteHtml(){
@@ -835,7 +952,7 @@ window.doSend=function(){
   if(currentOtherUid && currentConvId){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
     envoyerMessageReel(txt);
-    ta.value='';ta.style.height='auto';
+    ta.value='';ta.style.height='auto';onTa();
     cancelReply();closeEmoji();
     return;
   }
@@ -843,7 +960,7 @@ window.doSend=function(){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt=txt;
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   d.innerHTML='<div class="bbl">'+quoteHtml()+escapeHtml(txt)+'<div class="bbl-ft"><span class="bbl-t">'+t+'</span><span class="tick">✓</span></div></div>';
-  area.appendChild(d);ta.value='';ta.style.height='auto';area.scrollTop=area.scrollHeight;
+  area.appendChild(d);ta.value='';ta.style.height='auto';onTa();area.scrollTop=area.scrollHeight;
   cancelReply();closeEmoji();
 }
 function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
@@ -937,6 +1054,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
   }, function(err){
     console.error('Écoute du document de conversation impossible :',err);
   });
+  ecouterPresenceReelle(otherUid);
   marquerConversationCommeLue();
   ajouterEtape('Écoute des messages démarrée (onSnapshot)...');
   if(unsubMessages){ unsubMessages(); unsubMessages=null; }
@@ -950,6 +1068,34 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
     ajouterEtape('ÉCHEC écoute messages — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
   });
 }
+/* ── Vraie présence de la personne en face : on lit son heartbeat (voir
+   demarrerHeartbeatPresence), et on réévalue nous-mêmes toutes les 15s si elle est
+   toujours dans le seuil « en ligne », au cas où son heartbeat se soit arrêté sans
+   qu'un nouveau document n'arrive (fermeture d'app, perte réseau...). ── */
+function ecouterPresenceReelle(otherUid){
+  if(unsubPresence){ unsubPresence(); unsubPresence=null; }
+  if(presenceRecheckTimer){ clearInterval(presenceRecheckTimer); presenceRecheckTimer=null; }
+  let derniereVueMillis=0;
+  function appliquerAffichage(){
+    const st=document.getElementById('chaSt');
+    if(!st || currentOtherUid!==otherUid) return;
+    const enLigne = derniereVueMillis>0 && (Date.now()-derniereVueMillis)<SEUIL_EN_LIGNE_MS;
+    if(enLigne){
+      st.textContent='● En ligne'; st.className='cha-st on';
+      document.getElementById('chaOnline').style.display='';
+    } else {
+      const vu = derniereVueMillis>0 ? new Date(derniereVueMillis).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '—';
+      st.textContent='⊙ vu à '+vu; st.className='cha-st off';
+      document.getElementById('chaOnline').style.display='none';
+    }
+  }
+  unsubPresence=db.collection('utilisateurs').doc(otherUid).onSnapshot(function(doc){
+    const dv=doc.data()&&doc.data().derniereVue;
+    derniereVueMillis=(dv&&dv.toDate)?dv.toDate().getTime():0;
+    appliquerAffichage();
+  }, function(err){ console.error('Écoute présence impossible :',err); });
+  presenceRecheckTimer=setInterval(appliquerAffichage, 15000);
+}
 async function marquerConversationCommeLue(){
   if(!currentConvId || !currentUid) return;
   try{
@@ -961,62 +1107,123 @@ async function marquerConversationCommeLue(){
   }
 }
 
+/* ══ Rendu incrémental des messages ══
+   Avant : chaque snapshot (y compris un simple accusé de lecture reçu, sans nouveau
+   message) effaçait puis redessinait TOUS les messages — recréant à chaque fois les
+   balises <video>, qui redémarraient leur chargement. C'était la cause du problème
+   « la vidéo se retélécharge à chaque connexion ».
+   Maintenant : on ne touche qu'aux messages réellement ajoutés/supprimés, et pour un
+   message juste modifié (ex: passage de ✓✓ gris à ✓✓ doré), on ne met à jour que le
+   petit pied de message (l'heure + les coches) — jamais le contenu média lui-même. */
+function calculerTickEtLecture(doc, m, dir){
+  let tickHtml='', statutLecture='envoyé';
+  if(dir==='out'){
+    const enCours = doc.metadata && doc.metadata.hasPendingWrites;
+    const luTs = currentConvLuPar[currentOtherUid];
+    const luMillis = (luTs && luTs.toDate) ? luTs.toDate().getTime() : 0;
+    const msgMillis = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().getTime() : 0;
+    if(enCours){
+      tickHtml='<span class="tick">✓</span>'; statutLecture='en cours d\'envoi';
+    } else if(luMillis && luMillis>=msgMillis && msgMillis>0){
+      tickHtml='<span class="tick lu">✓✓</span>'; statutLecture='lu';
+    } else {
+      tickHtml='<span class="tick rd">✓✓</span>'; statutLecture='remis, pas encore lu';
+    }
+  }
+  return {tickHtml:tickHtml, statutLecture:statutLecture};
+}
+function construireFooterHtml(doc){
+  const m=doc.data();
+  const dir = m.emetteur===currentUid ? 'out' : 'in';
+  const t = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+  const villeHtml = m.ville ? ' · <span class="ville-tag">depuis '+escapeHtml(m.ville)+'</span>' : '';
+  const {tickHtml} = calculerTickEtLecture(doc, m, dir);
+  return {t:t, villeHtml:villeHtml, tickHtml:tickHtml, dir:dir};
+}
+function creerElementMessage(doc){
+  const m=doc.data();
+  const {t, villeHtml, tickHtml, dir} = construireFooterHtml(doc);
+  const infoEm = currentConvInfos[m.emetteur] || {ini:'?',bg:'#999',nom:''};
+  const d=document.createElement('div');
+  d.className='mrow '+dir;
+  d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;
+  const {statutLecture} = calculerTickEtLecture(doc, m, dir);
+  d.dataset.lecture=statutLecture;
+  const miniAv='<div class="mini-av" style="background:'+infoEm.bg+'" onclick="event.stopPropagation();toast(\''+escAttr(infoEm.nom||'Profil')+'\',\'g\')">'+infoEm.ini+'</div>';
+  let interieur;
+  if(m.type==='system'){
+    d.className='mrow system';
+    d.dataset.txt=m.texte||'';
+    const nomEm = infoEm.nom || 'Quelqu\'un';
+    d.innerHTML='<div class="sys-msg">'+escapeHtml(nomEm+' '+(m.texte||''))+'</div>';
+    return d;
+  }
+  if(m.type==='image'){
+    d.dataset.txt='📷 Photo';
+    const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
+    interieur='<div class="img-bbl" onclick="viewImage(this)">'+capHtml+'<img src="'+m.url+'"/><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+  } else if(m.type==='video'){
+    d.dataset.txt='🎬 Vidéo';
+    const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
+    interieur='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button>'+capHtml+'<video src="'+m.url+'" controls playsinline></video><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+  } else if(m.type==='file'){
+    const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
+    d.dataset.txt='📄 '+(m.nom||'Fichier');
+    interieur='<div class="file-bbl" onclick="window.open(\''+m.url+'\',\'_blank\')"><div class="file-ico-w">📄</div><div><div class="file-name">'+escapeHtml(m.nom||'Fichier')+'</div><div class="file-size" data-ft="1">'+sizeKb+' Ko · '+t+villeHtml+'</div></div></div>';
+  } else if(m.type==='audio'){
+    d.dataset.txt='🎤 Message vocal';
+    interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
+  } else {
+    d.dataset.txt=m.texte||'';
+    interieur='<div class="bbl">'+escapeHtml(m.texte||'')+'<div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
+  }
+  d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
+  return d;
+}
+function mettreAJourFooter(el, doc){
+  const m=doc.data();
+  const ft = el.querySelector('[data-ft]');
+  if(!ft) return;
+  const {t, villeHtml, tickHtml, dir} = construireFooterHtml(doc);
+  if(ft.classList.contains('bbl-ft')){
+    ft.innerHTML='<span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml;
+  } else if(ft.classList.contains('img-ft')){
+    ft.innerHTML=t+(dir==='out'?' '+tickHtml:'')+villeHtml;
+  } else if(ft.classList.contains('file-size')){
+    const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
+    ft.innerHTML=sizeKb+' Ko · '+t+villeHtml;
+  }
+}
+window.toggleVideoExpand=function(e, btn){
+  e.stopPropagation();
+  const wrap=btn.closest('.video-bbl');
+  if(!wrap) return;
+  const estAgrandie=wrap.classList.toggle('expanded');
+  btn.textContent = estAgrandie ? '⤡' : '⤢';
+  btn.title = estAgrandie ? 'Réduire' : 'Agrandir';
+}
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
   document.getElementById('emptyMsgsState').style.display = snap.empty ? 'flex' : 'none';
-  document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(el=>el.remove());
-  const frag=document.createDocumentFragment();
-  snap.forEach(function(doc){
-    const m=doc.data();
-    const dir = m.emetteur===currentUid ? 'out' : 'in';
-    const t = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-    const infoEm = currentConvInfos[m.emetteur] || {ini:'?',bg:'#999',nom:''};
-    const villeHtml = m.ville ? ' · <span class="ville-tag">'+escapeHtml(m.ville)+'</span>' : '';
-    const d=document.createElement('div');
-    d.className='mrow '+dir;
-    d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;
-    // Trois vrais états, basés sur les métadonnées Firestore (écriture confirmée ou non)
-    // et sur luPar (horodatage de dernière lecture par l'autre personne) :
-    // ✓ gris = en cours d'envoi · ✓✓ gris = remis · ✓✓ doré = lu.
-    let tickHtml='', statutLecture='envoyé';
-    if(dir==='out'){
-      const enCours = doc.metadata && doc.metadata.hasPendingWrites;
-      const luTs = currentConvLuPar[currentOtherUid];
-      const luMillis = (luTs && luTs.toDate) ? luTs.toDate().getTime() : 0;
-      const msgMillis = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().getTime() : 0;
-      if(enCours){
-        tickHtml='<span class="tick">✓</span>'; statutLecture='en cours d\'envoi';
-      } else if(luMillis && luMillis>=msgMillis && msgMillis>0){
-        tickHtml='<span class="tick lu">✓✓</span>'; statutLecture='lu';
-      } else {
-        tickHtml='<span class="tick rd">✓✓</span>'; statutLecture='remis, pas encore lu';
-      }
+  let ajoutEnBas=false;
+  snap.docChanges().forEach(function(change){
+    const id='r'+change.doc.id;
+    if(change.type==='removed'){
+      const el=area.querySelector('[data-mid="'+id+'"]');
+      if(el) el.remove();
+      return;
     }
-    d.dataset.lecture=statutLecture;
-    const miniAv='<div class="mini-av" style="background:'+infoEm.bg+'" onclick="event.stopPropagation();toast(\''+escAttr(infoEm.nom||'Profil')+'\',\'g\')">'+infoEm.ini+'</div>';
-    let interieur;
-    if(m.type==='image'){
-      d.dataset.txt='📷 Photo';
-      interieur='<div class="img-bbl" onclick="viewImage(this)"><img src="'+m.url+'"/><div class="img-ft">'+t+(dir==='out'?' '+ (statutLecture==='lu'?'<span class="tick lu">✓✓</span>':'✓✓') :'')+villeHtml+'</div></div>';
-    } else if(m.type==='video'){
-      d.dataset.txt='🎬 Vidéo';
-      interieur='<div class="video-bbl"><video src="'+m.url+'" controls playsinline></video><div class="img-ft">'+t+(dir==='out'?' '+ (statutLecture==='lu'?'<span class="tick lu">✓✓</span>':'✓✓') :'')+villeHtml+'</div></div>';
-    } else if(m.type==='file'){
-      const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
-      d.dataset.txt='📄 '+(m.nom||'Fichier');
-      interieur='<div class="file-bbl" onclick="window.open(\''+m.url+'\',\'_blank\')"><div class="file-ico-w">📄</div><div><div class="file-name">'+escapeHtml(m.nom||'Fichier')+'</div><div class="file-size">'+sizeKb+' Ko · '+t+villeHtml+'</div></div></div>';
-    } else if(m.type==='audio'){
-      d.dataset.txt='🎤 Message vocal';
-      interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
-    } else {
-      d.dataset.txt=m.texte||'';
-      interieur='<div class="bbl">'+escapeHtml(m.texte||'')+'<div class="bbl-ft"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
+    const existant=area.querySelector('[data-mid="'+id+'"]');
+    if(existant){
+      // Message déjà affiché (ex: passage de « remis » à « lu ») : on ne touche
+      // qu'au petit pied de message, jamais au contenu média (photo/vidéo/audio).
+      mettreAJourFooter(existant, change.doc);
+      return;
     }
-    d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
-    frag.appendChild(d);
+    area.appendChild(creerElementMessage(change.doc));
+    ajoutEnBas=true;
   });
-  area.appendChild(frag);
-  area.scrollTop=area.scrollHeight;
+  if(ajoutEnBas) area.scrollTop=area.scrollHeight;
 }
 
 /* ══════════════ ENVOI RÉEL DE MÉDIAS (photos, fichiers, vocaux) ══════════════
@@ -1060,16 +1267,28 @@ function compresserImage(file){
     reader.readAsDataURL(file);
   });
 }
-async function envoyerImageReelle(file){
+async function envoyerImageReelle(file, legende){
   try{
     ajouterEtape('Compression de la photo...');
     const blob = await compresserImage(file);
     const url = await uploaderVersStorage(blob,'images','jpg','image/jpeg');
-    await envoyerMessageMedia('image', url, {});
+    await envoyerMessageMedia('image', url, legende?{legende:legende}:{});
   }catch(err){
     console.error('Envoi image réelle impossible :',err);
     ajouterEtape('ÉCHEC upload image — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     alert('DIAGNOSTIC — Envoi de la photo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('⚠️ Photo non envoyée','r');
+  }
+}
+async function envoyerImageBlobReelle(blob, legende){
+  // Comme envoyerImageReelle, mais le blob est déjà recadré/redimensionné (écran d'aperçu) :
+  // pas de nouvelle compression, juste l'upload direct.
+  try{
+    const url = await uploaderVersStorage(blob,'images','jpg','image/jpeg');
+    await envoyerMessageMedia('image', url, legende?{legende:legende}:{});
+  }catch(err){
+    console.error('Envoi image (recadrée) impossible :',err);
+    ajouterEtape('ÉCHEC upload image recadrée — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     toast('⚠️ Photo non envoyée','r');
   }
 }
@@ -1085,11 +1304,11 @@ async function envoyerFichierReel(file){
     toast('⚠️ Fichier non envoyé','r');
   }
 }
-async function envoyerVideoReelle(file){
+async function envoyerVideoReelle(file, legende){
   try{
     const ext=(file.name.split('.').pop()||'mp4').toLowerCase();
     const url = await uploaderVersStorage(file,'videos',ext,file.type||'video/mp4');
-    await envoyerMessageMedia('video', url, {});
+    await envoyerMessageMedia('video', url, legende?{legende:legende}:{});
   }catch(err){
     console.error('Envoi vidéo réelle impossible :',err);
     ajouterEtape('ÉCHEC upload vidéo — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
@@ -1174,6 +1393,8 @@ function renderConversationsReelles(convs){
 
 /* ══════════════ MENU CONTEXTUEL (long-press / clic droit) ══════════════ */
 let ctxRow=null, pressTimer=null, pressMoved=false, pressStartX=0, pressStartY=0;
+let swipeRow=null, swipeDx=0, swipeActive=false;
+const SWIPE_TRIGGER=64;
 const REACT_EMOJIS=['❤️','😂','👍','😮','😢','🙏'];
 document.getElementById('ctxEmoRow').innerHTML=REACT_EMOJIS.map(e=>'<span class="ctx-emo" onclick="ctxReact(\''+e+'\')">'+e+'</span>').join('');
 
@@ -1181,11 +1402,31 @@ document.getElementById('msgsArea').addEventListener('touchstart',(e)=>{
   const row=e.target.closest('.mrow');if(!row)return;
   pressMoved=false;pressStartX=e.touches[0].clientX;pressStartY=e.touches[0].clientY;
   pressTimer=setTimeout(()=>{if(!pressMoved)openCtx(row,e.touches[0].clientX,e.touches[0].clientY)},430);
+  swipeRow=row;swipeDx=0;swipeActive=false;
 },{passive:true});
 document.getElementById('msgsArea').addEventListener('touchmove',(e)=>{
-  if(Math.abs(e.touches[0].clientX-pressStartX)>8||Math.abs(e.touches[0].clientY-pressStartY)>8){pressMoved=true;clearTimeout(pressTimer)}
+  const dx=e.touches[0].clientX-pressStartX, dy=e.touches[0].clientY-pressStartY;
+  if(Math.abs(dx)>8||Math.abs(dy)>8){pressMoved=true;clearTimeout(pressTimer)}
+  // Glissement vers la droite façon WhatsApp pour répondre (ignoré si le geste est
+  // surtout vertical, pour ne jamais gêner le défilement normal de la liste).
+  if(swipeRow && dx>0 && Math.abs(dx)>Math.abs(dy)){
+    swipeActive=true;
+    swipeDx=Math.min(dx,90);
+    swipeRow.style.transition='none';
+    swipeRow.style.transform='translateX('+swipeDx+'px)';
+    swipeRow.classList.toggle('swipe-armed', swipeDx>SWIPE_TRIGGER);
+  }
 },{passive:true});
-document.getElementById('msgsArea').addEventListener('touchend',()=>clearTimeout(pressTimer));
+document.getElementById('msgsArea').addEventListener('touchend',()=>{
+  clearTimeout(pressTimer);
+  if(swipeRow){
+    swipeRow.style.transition='transform .18s';
+    swipeRow.style.transform='';
+    if(swipeActive && swipeDx>SWIPE_TRIGGER) declencherReponse(swipeRow);
+    swipeRow.classList.remove('swipe-armed');
+  }
+  swipeRow=null;swipeActive=false;swipeDx=0;
+});
 document.getElementById('msgsArea').addEventListener('contextmenu',(e)=>{
   const row=e.target.closest('.mrow');if(!row)return;e.preventDefault();openCtx(row,e.clientX,e.clientY);
 });
@@ -1240,18 +1481,139 @@ window.ctxDeleteAll=function(){
 window.pickFile=function(){document.getElementById('fileIn').click()}
 window.onFilePicked=function(e){
   const f=e.target.files[0];if(!f)return;
-  if(currentOtherUid && currentConvId){
-    if(f.type.startsWith('image/')) envoyerImageReelle(f);
-    else if(f.type.startsWith('video/')) envoyerVideoReelle(f);
-    else envoyerFichierReel(f);
+  if(f.type.startsWith('image/') || f.type.startsWith('video/')){
+    ouvrirApercuMedia(f, f.type.startsWith('image/') ? 'image' : 'video');
+  } else if(currentOtherUid && currentConvId){
+    envoyerFichierReel(f);
   } else {
-    if(f.type.startsWith('image/')) compressAndSendImage(f);
-    else if(f.type.startsWith('video/')) appendVideoMessage(f);
-    else sendFileBubble(f);
+    sendFileBubble(f);
   }
   e.target.value='';
 }
-function compressAndSendImage(file){
+
+/* ══════════════ APERÇU AVANT ENVOI (photo/vidéo) ══════════════
+   Légende + recadrage carré simple (glisser pour repositionner, curseur pour zoomer),
+   avant confirmation d'envoi — au lieu de partir automatiquement comme avant. */
+let apercuFichierCourant=null, apercuTypeCourant=null, apercuUrlObjet=null;
+let apercuModeRecadrage=false, apercuBaseScale=1, apercuZoomVal=1, apercuOffsetX=0, apercuOffsetY=0;
+let apercuDrag=null;
+const APERCU_FRAME=280; // doit rester cohérent avec la taille CSS de .apercu-frame
+
+function ouvrirApercuMedia(file, type){
+  apercuFichierCourant=file; apercuTypeCourant=type; apercuModeRecadrage=false;
+  document.getElementById('apercuLegende').value='';
+  if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); }
+  apercuUrlObjet=URL.createObjectURL(file);
+  const imgPlein=document.getElementById('apercuImgPlein'), vidPlein=document.getElementById('apercuVideoPlein');
+  const frame=document.getElementById('apercuFrame'), zoomRow=document.getElementById('apercuZoomRow'), toggle=document.getElementById('apercuCropToggle');
+  frame.style.display='none'; zoomRow.style.display='none';
+  if(type==='video'){
+    vidPlein.src=apercuUrlObjet; vidPlein.style.display='';
+    imgPlein.style.display='none'; toggle.style.display='none';
+  } else {
+    imgPlein.src=apercuUrlObjet; imgPlein.style.display='';
+    vidPlein.style.display='none'; vidPlein.removeAttribute('src');
+    toggle.style.display=''; toggle.textContent='✂️ Recadrer';
+  }
+  document.getElementById('apercuOverlay').classList.add('show');
+}
+window.annulerApercuMedia=function(){
+  document.getElementById('apercuOverlay').classList.remove('show');
+  if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); apercuUrlObjet=null; }
+  apercuFichierCourant=null; apercuTypeCourant=null;
+}
+window.toggleRecadrage=function(){
+  const frame=document.getElementById('apercuFrame'), zoomRow=document.getElementById('apercuZoomRow');
+  const imgPlein=document.getElementById('apercuImgPlein'), toggle=document.getElementById('apercuCropToggle');
+  apercuModeRecadrage=!apercuModeRecadrage;
+  if(apercuModeRecadrage){
+    imgPlein.style.display='none'; frame.style.display=''; zoomRow.style.display='';
+    toggle.textContent='🖼️ Image entière';
+    const img=document.getElementById('apercuImg');
+    img.onload=function(){
+      apercuBaseScale=APERCU_FRAME/Math.min(img.naturalWidth,img.naturalHeight);
+      apercuZoomVal=1; document.getElementById('apercuZoom').value=100;
+      apercuOffsetX=Math.min(0,(APERCU_FRAME-img.naturalWidth*apercuBaseScale)/2);
+      apercuOffsetY=Math.min(0,(APERCU_FRAME-img.naturalHeight*apercuBaseScale)/2);
+      appliquerTransformApercu();
+    };
+    img.src=apercuUrlObjet;
+  } else {
+    frame.style.display='none'; zoomRow.style.display='none'; imgPlein.style.display='';
+    toggle.textContent='✂️ Recadrer';
+  }
+}
+function appliquerTransformApercu(){
+  const img=document.getElementById('apercuImg');
+  const s=apercuBaseScale*apercuZoomVal;
+  img.style.width=(img.naturalWidth*s)+'px';
+  img.style.height=(img.naturalHeight*s)+'px';
+  img.style.left=apercuOffsetX+'px';
+  img.style.top=apercuOffsetY+'px';
+}
+function clamperOffsetsApercu(){
+  const img=document.getElementById('apercuImg');
+  const dispW=img.naturalWidth*apercuBaseScale*apercuZoomVal, dispH=img.naturalHeight*apercuBaseScale*apercuZoomVal;
+  apercuOffsetX=Math.min(0,Math.max(APERCU_FRAME-dispW,apercuOffsetX));
+  apercuOffsetY=Math.min(0,Math.max(APERCU_FRAME-dispH,apercuOffsetY));
+}
+window.onApercuZoom=function(val){
+  apercuZoomVal=val/100;
+  clamperOffsetsApercu();
+  appliquerTransformApercu();
+}
+(function(){
+  const frame=document.getElementById('apercuFrame');
+  frame.addEventListener('touchstart',(e)=>{
+    if(!apercuModeRecadrage)return;
+    apercuDrag={x:e.touches[0].clientX,y:e.touches[0].clientY,ox:apercuOffsetX,oy:apercuOffsetY};
+  },{passive:true});
+  frame.addEventListener('touchmove',(e)=>{
+    if(!apercuDrag)return;
+    apercuOffsetX=apercuDrag.ox+(e.touches[0].clientX-apercuDrag.x);
+    apercuOffsetY=apercuDrag.oy+(e.touches[0].clientY-apercuDrag.y);
+    clamperOffsetsApercu();
+    appliquerTransformApercu();
+  },{passive:true});
+  frame.addEventListener('touchend',()=>{apercuDrag=null});
+})();
+function recupererBlobRecadre(){
+  return new Promise((resolve)=>{
+    const img=document.getElementById('apercuImg');
+    const sortie=800;
+    const s=apercuBaseScale*apercuZoomVal;
+    const srcX=(-apercuOffsetX)/s, srcY=(-apercuOffsetY)/s, srcSize=APERCU_FRAME/s;
+    const canvas=document.createElement('canvas');
+    canvas.width=sortie;canvas.height=sortie;
+    const im=new Image();
+    im.onload=function(){
+      canvas.getContext('2d').drawImage(im,srcX,srcY,srcSize,srcSize,0,0,sortie,sortie);
+      canvas.toBlob((b)=>resolve(b),'image/jpeg',0.82);
+    };
+    im.src=apercuUrlObjet;
+  });
+}
+window.confirmerEnvoiApercu=function(){
+  const legende=document.getElementById('apercuLegende').value.trim();
+  const type=apercuTypeCourant, file=apercuFichierCourant, recadre=apercuModeRecadrage;
+  document.getElementById('apercuOverlay').classList.remove('show');
+  if(!file){ return; }
+  if(type==='video'){
+    if(currentOtherUid && currentConvId) envoyerVideoReelle(file, legende);
+    else appendVideoMessage(file, legende);
+  } else if(recadre){
+    recupererBlobRecadre().then(function(blob){
+      if(currentOtherUid && currentConvId) envoyerImageBlobReelle(blob, legende);
+      else compressAndSendImage(blob, legende);
+    });
+  } else {
+    if(currentOtherUid && currentConvId) envoyerImageReelle(file, legende);
+    else compressAndSendImage(file, legende);
+  }
+  if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); apercuUrlObjet=null; }
+  apercuFichierCourant=null; apercuTypeCourant=null;
+}
+function compressAndSendImage(fileOuBlob, legende){
   const reader=new FileReader();
   reader.onload=(ev)=>{
     const img=new Image();
@@ -1261,17 +1623,18 @@ function compressAndSendImage(file){
       canvas.width=img.width*scale;canvas.height=img.height*scale;
       canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
       const dataUrl=canvas.toDataURL('image/jpeg',0.72);
-      appendImageMessage(dataUrl);
+      appendImageMessage(dataUrl, legende);
     };
     img.src=ev.target.result;
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(fileOuBlob);
 }
-function appendImageMessage(dataUrl){
+function appendImageMessage(dataUrl, legende){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='📷 Photo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><img src="'+dataUrl+'"/><div class="img-ft">'+t+' ✓</div></div>';
+  const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
+  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)">'+capHtml+'<img src="'+dataUrl+'"/><div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('📷 Photo compressée et envoyée (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -1283,12 +1646,80 @@ window.viewImage=function(el){
   ov.onclick=()=>ov.remove();
   document.body.appendChild(ov);
 }
-function appendVideoMessage(file){
+
+/* ══ Profil du contact + galerie des médias déjà échangés, réutilisables ══
+   La galerie est construite à partir des messages déjà en mémoire (dernierSnapMessages),
+   sans requête Firestore supplémentaire — aucun risque d'index composite manquant. */
+let mediaGalerieCourante=[], indexMediaViewer=-1;
+window.ouvrirProfilContact=function(){
+  if(!currentOtherUid){ toast('Profil indisponible pour une conversation démo','r'); return; }
+  const infos = currentConvInfos[currentOtherUid] || {};
+  const av=document.getElementById('pcAv');
+  av.style.background = currentChatBg || infos.bg || '#999';
+  av.textContent = currentChatIni || infos.ini || '?';
+  document.getElementById('pcNom').textContent = currentChatName || infos.nom || 'Utilisateur';
+  const stSrc=document.getElementById('chaSt');
+  const stDst=document.getElementById('pcSt');
+  if(stSrc){ stDst.textContent=stSrc.textContent; stDst.style.color = stSrc.classList.contains('on') ? 'var(--green)' : '#999'; }
+  document.getElementById('pcRole').textContent = infos.role || currentChatRole || '';
+  renderGalerieMedias();
+  document.getElementById('profilContactPanel').classList.add('open');
+}
+window.fermerProfilContact=function(){
+  document.getElementById('profilContactPanel').classList.remove('open');
+}
+function renderGalerieMedias(){
+  const grid=document.getElementById('pcGrid'), empty=document.getElementById('pcEmpty');
+  grid.innerHTML='';
+  mediaGalerieCourante=[];
+  if(dernierSnapMessages){
+    dernierSnapMessages.forEach(function(doc){
+      const m=doc.data();
+      if(m.type==='image' || m.type==='video'){ mediaGalerieCourante.push({type:m.type, url:m.url}); }
+    });
+    mediaGalerieCourante.reverse(); // le plus récent en premier, comme Telegram/WhatsApp
+  }
+  empty.style.display = mediaGalerieCourante.length ? 'none' : 'block';
+  mediaGalerieCourante.forEach(function(media, i){
+    const item=document.createElement('div');
+    item.className='pc-grid-item';
+    item.onclick=function(){ voirMediaGalerie(i); };
+    item.innerHTML = media.type==='video'
+      ? '<video src="'+media.url+'"></video><span class="pc-vid-badge">🎬</span>'
+      : '<img src="'+media.url+'"/>';
+    grid.appendChild(item);
+  });
+}
+function voirMediaGalerie(i){
+  indexMediaViewer=i;
+  const media=mediaGalerieCourante[i];
+  document.getElementById('pcViewerMedia').innerHTML = media.type==='video'
+    ? '<video src="'+media.url+'" controls playsinline autoplay></video>'
+    : '<img src="'+media.url+'"/>';
+  document.getElementById('pcViewer').classList.add('show');
+}
+window.fermerVisionneuseMedia=function(){
+  document.getElementById('pcViewer').classList.remove('show');
+  document.getElementById('pcViewerMedia').innerHTML='';
+  indexMediaViewer=-1;
+}
+window.renvoyerMediaCourant=function(){
+  const media=mediaGalerieCourante[indexMediaViewer];
+  if(!media || !currentConvId){ toast('Impossible de renvoyer ce média','r'); return; }
+  // Réutilise directement l'URL déjà stockée sur Firebase Storage : pas de nouvel upload.
+  envoyerMessageMedia(media.type, media.url);
+  toast('↗️ Renvoyé dans la conversation','g');
+  fermerVisionneuseMedia();
+  fermerProfilContact();
+}
+
+function appendVideoMessage(file, legende){
   const url=URL.createObjectURL(file);
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🎬 Vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  d.innerHTML='<div class="video-bbl"><video src="'+url+'" controls playsinline></video><div class="img-ft">'+t+' ✓</div></div>';
+  const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
+  d.innerHTML='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button>'+capHtml+'<video src="'+url+'" controls playsinline></video><div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -1617,6 +2048,7 @@ function demarrerFirebase(){
     ajouterEtape('6. État de connexion : '+(currentUid?('connecté ('+currentUid+')'):'non connecté'));
     chargerConversationsReelles();
     chargerTousLesContacts();
+    demarrerHeartbeatPresence();
     if(currentUid && window._chatEnAttente){
       const p = window._chatEnAttente;
       window._chatEnAttente = null;
@@ -1625,6 +2057,20 @@ function demarrerFirebase(){
       window.openChat(p.nom, '', ini, bg, false, '', false, p.uid, !!p.verifie);
     }
   });
+}
+/* ── Signale que JE suis actif(ve), pour que les autres personnes voient mon vrai
+   statut « en ligne ». Écrit tout de suite, puis toutes les 25 secondes tant que la
+   page reste ouverte. Aucun signal en temps réel à la fermeture (Firestore ne le
+   permet pas comme Realtime Database), mais le seuil de 45s en tient compte. ── */
+function demarrerHeartbeatPresence(){
+  if(!currentUid || monHeartbeatTimer) return;
+  const battement = function(){
+    db.collection('utilisateurs').doc(currentUid).set(
+      { derniereVue: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }
+    ).catch(function(e){ console.error('Heartbeat présence impossible :', e); });
+  };
+  battement();
+  monHeartbeatTimer = setInterval(battement, 25000);
 }
 
 // ── Réception du pont Offre → Discussion (depuis accueil.html) ──
