@@ -724,7 +724,7 @@ function hideView(name){
 
 let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
 /* ══ Messagerie réelle (Firestore) — variables d'état de la conversation ouverte ══ */
-let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversations=null;
+let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversations=null, currentUid=null;
 let currentChatRole='', unsubConvDoc=null, currentConvLuPar={}, dernierSnapMessages=null;
 let sourceVilleLive=false, villeLiveActuelle=null;
 let currentConvInfos={};
@@ -1544,10 +1544,10 @@ window.addEventListener('unhandledrejection', function(e){ ajouterEtape('Erreur 
 ajouterEtape('2. Téléchargement des bibliothèques Firebase...');
 </script>
 
-<!-- ══════════════ VRAIS AUTEURS DEPUIS FIREBASE ══════════════
-     Même projet et même collection que cv_pro.html : 'utilisateurs'.
-     Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
-     tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
-     on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
-        onload="ajouterEtape('2a. Bibliothèque app c
+        onload="ajouterEtape('2a. Bibliothèque app chargée ✅')"
+        onerror="ajouterEtape('❌ Échec chargement firebase-app', true)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
+        onload="ajouterEtape('2b. Bibliothèque auth chargée ✅')"
+        onerror="ajouterEtape('❌ Échec chargement firebase-auth', true)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/fi
