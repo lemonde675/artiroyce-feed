@@ -105,6 +105,13 @@
   .ro[data-e="😂"] .ro-e { background: radial-gradient(circle at 35% 30%, #ffe066, #f7b928); }
   .ro[data-e="🔥"] .ro-e { background: radial-gradient(circle at 35% 30%, #ffb066, #f0651e); }
   .ro[data-e="😢"] .ro-e { background: radial-gradient(circle at 35% 30%, #ffe066, #f7b928); }
+  .pab.reacted-coeur { color: #e0245e; }
+  .pab.reacted-super { color: #1877f2; }
+  .pab.reacted-wow, .pab.reacted-haha, .pab.reacted-triste { color: #f7b928; }
+  .pab.reacted-feu { color: #f0651e; }
+  .pab .pb-ico-emoji { font-size: 16px; line-height: 1; display: none; }
+  .pab.reacted .pb-ico-svg { display: none; }
+  .pab.reacted .pb-ico-emoji { display: inline; }
   .comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
   .comm-menu { display: none; position: absolute; top: 22px; right: 0; background: #fff; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.15); border: 1px solid #eee; z-index: 90; overflow: hidden; min-width: 150px; }
   .comm-menu div { padding: 9px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
@@ -668,6 +675,20 @@ function patcherCompteursOffres(brut){
   });
 }
 
+/* ── Correspondance emoji → couleur/label façon Facebook ── */
+function _reactionMeta(emoji){
+  const map = {
+    '❤️': { cls: 'reacted-coeur',  label: "J'aime", icon: '❤️' },
+    '👍': { cls: 'reacted-super',  label: 'Super',  icon: '👍' },
+    '😮': { cls: 'reacted-wow',    label: 'Wow',    icon: '😮' },
+    '😂': { cls: 'reacted-haha',   label: 'Haha',   icon: '😂' },
+    '🔥': { cls: 'reacted-feu',    label: 'Feu',    icon: '🔥' },
+    '😢': { cls: 'reacted-triste', label: 'Triste', icon: '😢' }
+  };
+  return map[emoji] || { cls: '', label: 'Aimé', icon: emoji };
+}
+const _reactedClasses = ['reacted-coeur','reacted-super','reacted-wow','reacted-haha','reacted-triste','reacted-feu'];
+
 function afficherOffres(){
   const scrollAvant = window.scrollY;
   const zone = document.getElementById('feedOffres');
@@ -743,9 +764,10 @@ function afficherOffres(){
       +   '<span class="pr-r" id="commcount-' + o.id + '">0 commentaire · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') + '</span>'
       + '</div>'
       + '<div class="p-acts">'
-      +   '<div class="pab' + (dejaAimeOffre?' reacted':'') + '" id="pb-' + o.id + '" onclick="window.__toggleReactPickerOffre(\'' + o.id + '\')">'
-      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
-      +     '<span id="pblabel-' + o.id + '">' + (dejaAimeOffre?'Aimé':"J'aime") + '</span>'
+      +   '<div class="pab' + (dejaAimeOffre?' reacted ' + _reactionMeta(dejaAimeOffre).cls:'') + '" id="pb-' + o.id + '" onclick="window.__toggleReactPickerOffre(\'' + o.id + '\')">'
+      +     '<svg class="pb-ico-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
+      +     '<span class="pb-ico-emoji" id="pbicon-' + o.id + '">' + (dejaAimeOffre?_reactionMeta(dejaAimeOffre).icon:'') + '</span>'
+      +     '<span id="pblabel-' + o.id + '">' + (dejaAimeOffre?_reactionMeta(dejaAimeOffre).label:"J'aime") + '</span>'
       +     '<div class="rpick" id="rp-' + o.id + '">'
       +       '<div class="ro" data-e="❤️" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'❤️\',' + (o.likes||0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
       +       '<div class="ro" data-e="👍" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'👍\',' + (o.likes||0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
@@ -812,14 +834,16 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
   const prev = mesReactionsOffres[offreId] || '';
   const btn = document.getElementById('pb-' + offreId);
   const labelEl = document.getElementById('pblabel-' + offreId);
+  const iconEl = document.getElementById('pbicon-' + offreId);
   const countEl = document.getElementById('likecount-' + offreId);
   const reactRef = db.collection('offres').doc(offreId).collection('reactions').doc(currentUser.uid);
   try {
     if (prev === emoji) {
       delete mesReactionsOffres[offreId];
       const nouveauTotal = Math.max(0, likesActuels - 1);
-      if (btn) btn.classList.remove('reacted');
+      if (btn) { btn.classList.remove('reacted', ..._reactedClasses); }
       if (labelEl) labelEl.textContent = "J'aime";
+      if (iconEl) iconEl.textContent = '';
       if (countEl) countEl.textContent = '👍 ' + nouveauTotal;
       await reactRef.delete();
       await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
@@ -827,8 +851,10 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
       const delta = prev ? 0 : 1;
       mesReactionsOffres[offreId] = emoji;
       const nouveauTotal = likesActuels + delta;
-      if (btn) btn.classList.add('reacted');
-      if (labelEl) labelEl.textContent = 'Aimé';
+      const meta = _reactionMeta(emoji);
+      if (btn) { btn.classList.remove(..._reactedClasses); btn.classList.add('reacted', meta.cls); }
+      if (labelEl) labelEl.textContent = meta.label;
+      if (iconEl) iconEl.textContent = meta.icon;
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
       await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       if (delta) await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(1) });
