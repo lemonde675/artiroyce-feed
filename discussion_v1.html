@@ -1549,4 +1549,110 @@ ajouterEtape('2. Téléchargement des bibliothèques Firebase...');
      d'un événement onload qui peut ne pas se déclencher sur une connexion instable. -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
+ajouterEtape('2. Bibliothèques Firebase chargées ✅');
+function demarrerFirebase(){
+  ajouterEtape('3. Initialisation Firebase...');
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+  try{
+    firebase.initializeApp(firebaseConfig);
+    window.db = firebase.firestore();
+    db.settings({ experimentalForceLongPolling: true });
+    window.auth = firebase.auth();
+    window.storage = firebase.storage();
+    ajouterEtape('4. Firebase initialisé ✅');
+  }catch(err){
+    ajouterEtape('❌ Échec initialisation Firebase : '+(err&&err.message), true);
+    return;
+  }
+
+  // ── Couleur d'avatar à partir d'un uid (même palette que offre_v1.html/cv_pro.html,
+  // pour que la même personne ait toujours la même couleur partout dans l'app) ──
+  window.gradientPourId = window.gradientPourId || function(id){
+    const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+    let h = 0;
+    const s = String(id||'?');
+    for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
+    const c = palettes[h % palettes.length];
+    return 'linear-gradient(135deg,'+c+',#0a0a2e)';
+  };
+  // Texte sûr à insérer dans un attribut onclick="...'texte'..." (échappe aussi les apostrophes).
+  window.escAttr = window.escAttr || function(s){
+    return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  };
+  // Initiale(s) à partir du prénom/nom (ex: "Jean","Paul" → "JP", "Marie",'' → "M").
+  window.initialesDe = window.initialesDe || function(prenom, nomFamille){
+    const a=(prenom||'').trim()[0]||'';
+    const b=(nomFamille||'').trim()[0]||'';
+    return ((a+b)||'?').toUpperCase();
+  };
+
+  // ── Tous les comptes réels (pour la recherche façon WhatsApp) ──
+  window.tousLesContacts = [];
+  function chargerTousLesContacts(){
+    db.collection('utilisateurs').get().then(function(snap){
+      window.tousLesContacts = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      ajouterEtape('5. Contacts réels chargés ✅ ('+tousLesContacts.length+')');
+    }).catch(function(err){
+      ajouterEtape('❌ Échec chargement contacts : '+(err&&err.message), true);
+    });
+  }
+
+  // ── Demande d'ouverture de discussion reçue avant que l'authentification soit prête ──
+  // (ex: on tape "Message" sur une offre juste après le chargement de la page) : on la
+  // met en attente et on l'ouvre dès que currentUid est disponible, au lieu d'échouer.
+  window._chatEnAttente = window._chatEnAttente || null;
+
+  auth.onAuthStateChanged(function(u){
+    currentUid = u ? u.uid : null;
+    ajouterEtape('6. État de connexion : '+(currentUid?('connecté ('+currentUid+')'):'non connecté'));
+    chargerConversationsReelles();
+    chargerTousLesContacts();
+    if(currentUid && window._chatEnAttente){
+      const p = window._chatEnAttente;
+      window._chatEnAttente = null;
+      const ini=(p.nom||'?')[0].toUpperCase();
+      const bg=(typeof gradientPourId==='function') ? gradientPourId(p.uid) : 'linear-gradient(135deg,#333,#555)';
+      window.openChat(p.nom, '', ini, bg, false, '', false, p.uid, !!p.verifie);
+    }
+  });
+}
+
+// ── Réception du pont Offre → Discussion (depuis accueil.html) ──
+// Ouvre directement la conversation avec la personne, au lieu de rester sur la liste.
+window.addEventListener('message', function(e){
+  if(!e.data || e.data.type!=='ouvrirChatUid' || !e.data.uid) return;
+  const payload = { uid:e.data.uid, nom:e.data.nom||'Utilisateur', verifie:!!e.data.verifie };
+  if(typeof currentUid!=='undefined' && currentUid){
+    const ini=(payload.nom||'?')[0].toUpperCase();
+    const bg=(typeof gradientPourId==='function') ? gradientPourId(payload.uid) : 'linear-gradient(135deg,#333,#555)';
+    window.openChat(payload.nom, '', ini, bg, false, '', false, payload.uid, payload.verifie);
+  } else {
+    window._chatEnAttente = payload;
+  }
+});
+
+// Les 4 bibliothèques Firebase (script src ci-dessus) sont chargées de façon synchrone
+// et bloquante, dans l'ordre — au moment où ce bloc <script> s'exécute, elles sont donc
+// déjà toutes disponibles. On démarre ici, jamais depuis un onload="" (qui s'exécute
+// avant que demarrerFirebase() soit définie plus bas dans le document).
+demarrerFirebase();
+</script>
+
+<!-- ══════════════ VRAIS AUTEURS DEPUIS FIREBASE ══════════════
+     Même projet et même collection que cv_pro.html : 'utilisateurs'.
+     Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
+     tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
+     on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
+</body>
+</html>
+
