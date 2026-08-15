@@ -651,6 +651,20 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         window.goToPanel(currentPanel);
       }
     }
+
+    // ══ Liaison CV Pro → Répert-Discussion : bascule sur le panneau Discussion
+    // et transmet l'identité réelle de la personne à contacter (uid Firebase). ══
+    if (e.data.type === 'ouvrirChat' && e.data.uid) {
+      const discFrame = document.getElementById('discFrame');
+      const dejaCharge = !!discFrame.getAttribute('src');
+      window.goToPanel(6);
+      const envoyerUid = () => discFrame.contentWindow.postMessage({type:'ouvrirChatAvecUid', uid:e.data.uid}, '*');
+      if (dejaCharge) {
+        setTimeout(envoyerUid, 350);
+      } else {
+        discFrame.addEventListener('load', () => setTimeout(envoyerUid, 300), {once:true});
+      }
+    }
   });
 
   // ══ BANDES LATÉRALES — swipe depuis bord gauche/droit ══
