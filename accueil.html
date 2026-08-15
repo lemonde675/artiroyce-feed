@@ -40,11 +40,9 @@
     /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
     .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: #fff; color: #111; box-shadow: 0 1px 5px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
-    .act-circle .ico { stroke: #111; }
+    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
-    .act-circle.liked { background: #e63224; }
-    .act-circle.liked .ico { stroke: #fff; }
+    .act-circle.liked { background: rgba(230,50,36,0.85); }
     .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -654,6 +652,28 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       }
     }
   });
+
+  // ══ PONT OFFRE → DISCUSSION ══
+  // Appelée depuis offre_v1.html (bouton "💬 Message") via window.parent.ouvrirChatDepuisOffre(...).
+  // Fonction dédiée, indépendante de tout pont CV Pro existant — aucun autre code touché ici.
+  window.ouvrirChatDepuisOffre = function (info) {
+    if (!info || !info.uid) return;
+    window.goToPanel(6);
+    const ifr = document.getElementById('discFrame');
+    if (!ifr) return;
+    const payload = { type: 'ouvrirChatUid', uid: info.uid, nom: info.nom || 'Utilisateur', verifie: !!info.verifie };
+    const envoyer = function () {
+      try { ifr.contentWindow.postMessage(payload, '*'); } catch (e) {}
+    };
+    if (ifr.getAttribute('src')) {
+      setTimeout(envoyer, 150);
+    } else {
+      ifr.addEventListener('load', function onLoad () {
+        ifr.removeEventListener('load', onLoad);
+        setTimeout(envoyer, 150);
+      });
+    }
+  };
 
   // ══ BANDES LATÉRALES — swipe depuis bord gauche/droit ══
   const swipeLeft = document.getElementById('swipeLeft');
