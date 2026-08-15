@@ -180,6 +180,19 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .ctx-item:active{background:#f5f5f5}
 .ctx-item.danger{color:var(--red)}
 
+/* ══ Transfert de message vers un autre contact ══ */
+.fwd-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;display:none;align-items:flex-end}
+.fwd-overlay.show{display:flex}
+.fwd-sheet{background:#fff;width:100%;max-width:480px;margin:0 auto;border-radius:18px 18px 0 0;max-height:70vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.fwd-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;font-weight:800;font-size:15px;border-bottom:1px solid #eee}
+.fwd-sheet input{margin:10px 16px;padding:10px 14px;border-radius:99px;border:1px solid #eee;background:#f7f7f7;font-size:13.5px}
+#fwdListe{overflow-y:auto;padding:4px 8px 16px}
+.fwd-item{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:12px;cursor:pointer}
+.fwd-item:active{background:#f5f5f5}
+.fwd-av{width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.fwd-nom{font-size:13.5px;font-weight:700;color:#222}
+.fwd-vide{padding:20px;text-align:center;color:#999;font-size:13px}
+
 /* ── Message supprimé ── */
 .msg-deleted{font-style:italic;color:#999!important;display:flex;align-items:center;gap:5px}
 .mrow.out .msg-deleted{color:rgba(255,255,255,0.8)!important}
@@ -372,6 +385,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <div class="sec-hdr" id="secContacts" style="display:none"><span class="sec-lbl">Vos contacts</span></div>
     <div id="contactsListe"></div>
+    <div id="resultatsRechercheReels" style="display:none"></div>
     <div id="sentinelleContacts" style="height:1px"></div>
     <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="toast('👥 Créer bientôt !','g')">+ Créer</span></div>
     <div class="conv-card" data-mode="group" onclick="openChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
@@ -501,8 +515,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="ctx-item" onclick="ctxReply()">↩️ Répondre</div>
   <div class="ctx-item" onclick="ctxCopy()">📋 Copier</div>
   <div class="ctx-item" id="ctxInfos" onclick="ctxInfosLecture()">ℹ️ Infos (lu / pas lu)</div>
+  <div class="ctx-item" onclick="ctxTransferer()">↪️ Transférer</div>
   <div class="ctx-item" onclick="ctxDeleteMe()">🙈 Supprimer pour moi</div>
   <div class="ctx-item danger" id="ctxDelAll" onclick="ctxDeleteAll()">🗑️ Supprimer pour tout le monde</div>
+</div>
+<div class="fwd-overlay" id="fwdOverlay" onclick="if(event.target===this) closeForward()">
+  <div class="fwd-sheet">
+    <div class="fwd-hdr"><span>Transférer à…</span><span onclick="closeForward()" style="cursor:pointer">✕</span></div>
+    <input type="text" id="fwdSearch" placeholder="Rechercher un contact…" oninput="renderFwdList()"/>
+    <div id="fwdListe"></div>
+  </div>
 </div>
 <div class="call-screen" id="callScreen">
   <div class="call-top">
@@ -585,6 +607,38 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 })();
 </script>
 
+<!-- ══ Liaison réelle depuis CV Pro (ou tout autre écran) : ouvre directement la
+     vraie conversation avec la personne demandée, dès que l'identité du compte
+     connecté est disponible. ══ -->
+<script>
+window.addEventListener('message', function(e){
+  if(!e.data || e.data.type!=='ouvrirChatAvecUid' || !e.data.uid) return;
+  ouvrirChatDepuisUidExterne(e.data.uid, 0);
+});
+async function ouvrirChatDepuisUidExterne(uid, tentative){
+  if(!currentUid){
+    if(tentative>10) return;
+    setTimeout(()=>ouvrirChatDepuisUidExterne(uid, tentative+1), 300);
+    return;
+  }
+  ajouterEtape('Ouverture demandée depuis un autre écran (uid='+uid+')');
+  try{
+    const doc = await db.collection('utilisateurs').doc(uid).get();
+    if(!doc.exists){ toast('⚠️ Profil introuvable','r'); return; }
+    const u=doc.data();
+    const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'');
+    const ini=initialesDe(u.prenom,u.nomFamille);
+    const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
+    const bg=gradientPourId(uid);
+    const verifie=u.verifie===true;
+    openChat(nom, roleLbl, ini, bg, false, '', false, uid, verifie);
+  }catch(err){
+    console.error('Ouverture depuis uid externe impossible :',err);
+    toast('⚠️ Impossible d\'ouvrir cette discussion','r');
+  }
+}
+</script>
+
 <script>
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
@@ -637,8 +691,44 @@ window.addEventListener('message',(e)=>{
   }
 });
 window.toggleSearch=function(){const w=document.getElementById('searchWrap');w.style.display=w.style.display==='none'?'':'none';if(w.style.display==='')document.getElementById('sq').focus()}
-window.closeSearch=function(){const w=document.getElementById('searchWrap');w.style.display='none';const sq=document.getElementById('sq');sq.value='';doSearch()}
-window.doSearch=function(){const q=document.getElementById('sq').value.toLowerCase();document.querySelectorAll('.conv-card').forEach(c=>{c.style.display=c.textContent.toLowerCase().includes(q)?'':'none'})}
+window.closeSearch=function(){const w=document.getElementById('searchWrap');w.style.display='none';const sq=document.getElementById('sq');sq.value='';doSearch();const zr=document.getElementById('resultatsRechercheReels');if(zr){zr.innerHTML='';zr.style.display='none'}}
+window.doSearch=function(){
+  const qRaw=document.getElementById('sq').value;
+  const q=qRaw.toLowerCase().trim();
+  const qDigits=qRaw.replace(/\D/g,'');
+  // Filtre local existant : conversations démo + déjà affichées à l'écran
+  document.querySelectorAll('.conv-card').forEach(c=>{c.style.display=c.textContent.toLowerCase().includes(q)?'':'none'});
+  // Recherche réelle façon WhatsApp : nom OU téléphone, sur TOUS les comptes Firebase
+  // connus (pas seulement les 6 premiers déjà chargés) — pour retrouver quelqu'un
+  // même si sa conversation n'existe pas encore et qu'il n'est pas encore affiché.
+  const zoneRes=document.getElementById('resultatsRechercheReels');
+  if(!zoneRes) return;
+  if(!q){ zoneRes.innerHTML=''; zoneRes.style.display='none'; return; }
+  const dejaVisibles=new Set(Array.from(document.querySelectorAll('.conv-card[data-uid]')).filter(c=>c.style.display!=='none').map(c=>c.getAttribute('data-uid')));
+  const matches=(tousLesContacts||[]).filter(function(u){
+    if(dejaVisibles.has(u.id)) return false;
+    const nom=((u.prenom||'')+' '+(u.nomFamille||'')).toLowerCase();
+    const tel=(u.telephone||'').replace(/\D/g,'');
+    const matchNom = q.length>=2 && nom.includes(q);
+    const matchTel = qDigits.length>=3 && tel.includes(qDigits);
+    return matchNom||matchTel;
+  });
+  if(matches.length===0){ zoneRes.innerHTML=''; zoneRes.style.display='none'; return; }
+  zoneRes.style.display='';
+  zoneRes.innerHTML='<div class="sec-hdr"><span class="sec-lbl">Autres résultats</span></div>' + matches.map(function(u){
+    const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'');
+    const ini=initialesDe(u.prenom,u.nomFamille);
+    const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
+    const bg=gradientPourId(u.id);
+    const verifie=u.verifie===true;
+    const apercu=u.telephone ? escAttr(u.telephone) : 'Aucun message — démarrer la discussion';
+    return '<div class="conv-card" data-mode="conv" data-uid="'+u.id+'" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false,\''+u.id+'\','+verifie+')">'
+      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+'">'+ini+'</div></div>'
+      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(nom)+'</span></div>'
+      +'<div class="cc-preview" style="color:#bbb;font-style:italic">'+apercu+'</div>'
+      +'<div class="cc-status off">'+escAttr(roleLbl)+'</div></div></div></div>';
+  }).join('');
+}
 window.setMode=function(mode,el){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');
   document.querySelectorAll('.conv-card').forEach(c=>{
@@ -938,6 +1028,7 @@ function renderRealMessages(snap){
     const d=document.createElement('div');
     d.className='mrow '+dir;
     d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;
+    d.dataset.msgtype=m.type||'texte';d.dataset.url=m.url||'';d.dataset.nom=m.nom||'';d.dataset.duree=m.duree||'';
     // Trois vrais états, basés sur les métadonnées Firestore (écriture confirmée ou non)
     // et sur luPar (horodatage de dernière lecture par l'autre personne) :
     // ✓ gris = en cours d'envoi · ✓✓ gris = remis · ✓✓ doré = lu.
@@ -1127,7 +1218,7 @@ function renderConversationsReelles(convs){
     const info = (c.infos && c.infos[otherUid]) || {nom:'Utilisateur',ini:'?',bg:'#999',role:''};
     const t = (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
     const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
-    return '<div class="conv-card" data-mode="conv" data-online="0" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
+    return '<div class="conv-card" data-mode="conv" data-online="0" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
       +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+info.ini+'</div></div>'
       +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+t+'</span></div>'
       +'<div class="cc-preview">'+apercu+'</div>'
@@ -1183,6 +1274,85 @@ window.ctxInfosLecture=function(){
   const libelles={'en cours d\'envoi':'⏳ En cours d\'envoi…','remis, pas encore lu':'✓✓ Remis, pas encore lu','lu':'✓✓ Lu par le destinataire'};
   toast(libelles[statut]||('Statut : '+statut),'g');
   closeCtx();
+}
+/* ══ Transfert d'un vrai message vers un autre contact réel ══ */
+let fwdMessageData=null;
+window.ctxTransferer=function(){
+  if(!ctxRow) return;
+  if(ctxRow.dataset.real!=='1'){ toast('⚠️ Le transfert n\'est possible que pour de vrais messages','r'); closeCtx(); return; }
+  fwdMessageData={
+    type: ctxRow.dataset.msgtype||'texte',
+    texte: ctxRow.dataset.txt||'',
+    url: ctxRow.dataset.url||'',
+    nom: ctxRow.dataset.nom||'',
+    duree: ctxRow.dataset.duree||''
+  };
+  closeCtx();
+  document.getElementById('fwdSearch').value='';
+  renderFwdList();
+  document.getElementById('fwdOverlay').classList.add('show');
+}
+window.closeForward=function(){
+  document.getElementById('fwdOverlay').classList.remove('show');
+  fwdMessageData=null;
+}
+window.renderFwdList=function(){
+  const q=(document.getElementById('fwdSearch').value||'').toLowerCase().trim();
+  const wrap=document.getElementById('fwdListe');
+  const liste=(tousLesContacts||[]).filter(function(u){
+    if(!q) return true;
+    const nom=((u.prenom||'')+' '+(u.nomFamille||'')).toLowerCase();
+    return nom.includes(q) || (u.telephone||'').toLowerCase().includes(q);
+  });
+  if(liste.length===0){ wrap.innerHTML='<div class="fwd-vide">Aucun contact trouvé</div>'; return; }
+  wrap.innerHTML=liste.map(function(u){
+    const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'');
+    const ini=initialesDe(u.prenom,u.nomFamille);
+    const bg=gradientPourId(u.id);
+    return '<div class="fwd-item" onclick="transfererVers(\''+u.id+'\')"><div class="fwd-av" style="background:'+bg+'">'+ini+'</div><div class="fwd-nom">'+escAttr(nom)+'</div></div>';
+  }).join('');
+}
+function apercuPourType(type,nom){
+  return type==='image'?'📷 Photo':type==='video'?'🎬 Vidéo':type==='audio'?'🎤 Message vocal':type==='file'?'📄 '+(nom||'Fichier'):'';
+}
+window.transfererVers=async function(uidCible){
+  if(!fwdMessageData || !currentUid) return;
+  const convId = convIdFor(currentUid, uidCible);
+  const convRef = db.collection('conversations').doc(convId);
+  try{
+    const mienne = await obtenirMonInfo();
+    const convSnap = await convRef.get();
+    if(!convSnap.exists){
+      await convRef.set({
+        participants:[currentUid,uidCible],
+        creeLe: firebase.firestore.FieldValue.serverTimestamp(),
+        derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
+        dernierMessage:'', dernierEmetteur:'',
+        infos:{ [currentUid]: mienne }
+      });
+    } else {
+      await convRef.set({infos:{ [currentUid]: mienne }},{merge:true});
+    }
+    const data={emetteur:currentUid, ville: villeAEnvoyer(), horodatage: firebase.firestore.FieldValue.serverTimestamp()};
+    let apercu;
+    if(!fwdMessageData.type || fwdMessageData.type==='texte'){
+      data.texte=fwdMessageData.texte;
+      apercu=fwdMessageData.texte;
+    } else {
+      data.type=fwdMessageData.type;
+      data.url=fwdMessageData.url;
+      if(fwdMessageData.nom) data.nom=fwdMessageData.nom;
+      if(fwdMessageData.duree) data.duree=Number(fwdMessageData.duree);
+      apercu=apercuPourType(fwdMessageData.type, fwdMessageData.nom);
+    }
+    await convRef.collection('messages').add(data);
+    await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(), dernierMessage:apercu, dernierEmetteur:currentUid},{merge:true});
+    toast('↪️ Message transféré','g');
+    closeForward();
+  }catch(err){
+    console.error('Transfert impossible :',err);
+    toast('⚠️ Transfert impossible','r');
+  }
 }
 window.ctxDeleteMe=function(){
   if(!ctxRow)return;
@@ -1400,166 +1570,4 @@ window.seekVoice=function(e,wave){
 }
 window.cycleSpeed=function(btn){
   const wrap=btn.parentElement;if(!currentAudio||currentAudioBtn!==wrap.querySelector('.vb-play'))return;
-  const speeds=[1,1.5,2];const cur=parseFloat(currentAudio.playbackRate)||1;
-  const next=speeds[(speeds.indexOf(cur)+1)%speeds.length];
-  currentAudio.playbackRate=next;btn.textContent=next+'×';
-}
-
-/* ══════════════ APPELS (aperçu caméra/micro réel, en attente de signalisation) ══════════════ */
-let callStream=null, callTimerInt=null, callSeconds=0, callType='audio', callMuted=false, callCamOff=false;
-window.addCall=function(type){startCall(type)} // compat rétro
-window.startCall=async function(type){startCallReal(type)}
-async function startCallReal(type){
-  callType=type;callSeconds=0;callMuted=false;callCamOff=false;
-  document.getElementById('callName').textContent=currentChatName;
-  document.getElementById('callAvatarBig').textContent=currentChatIni;
-  document.getElementById('callAvatarBig').style.background=currentChatBg;
-  document.getElementById('callStatus').textContent='Connexion du micro/caméra…';
-  document.getElementById('callCamBtn').style.display=type==='video'?'':'none';
-  document.getElementById('callLocalWrap').classList.remove('show');
-  document.getElementById('callScreen').classList.add('open');
-  pushView('call');
-  try{
-    callStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});
-  }catch(err){
-    document.getElementById('callStatus').textContent='Micro/caméra refusés — appel impossible';
-    logCallBubble(type,'Échec — accès refusé');
-    setTimeout(requestClose,1600);
-    return;
-  }
-  if(type==='video'){
-    const v=document.getElementById('callLocalVideo');v.srcObject=callStream;
-    document.getElementById('callLocalWrap').classList.add('show');
-  }
-  document.getElementById('callStatus').textContent='En attente de connexion…';
-  callTimerInt=setInterval(()=>{
-    callSeconds++;
-    document.getElementById('callStatus').textContent=Math.floor(callSeconds/60)+':'+String(callSeconds%60).padStart(2,'0')+' · en attente du correspondant';
-  },1000);
-}
-window.toggleMute=function(){
-  if(!callStream)return;callMuted=!callMuted;
-  callStream.getAudioTracks().forEach(t=>t.enabled=!callMuted);
-  document.getElementById('callMuteBtn').classList.toggle('active',callMuted);
-  document.getElementById('callMuteBtn').textContent=callMuted?'🔇':'🎙️';
-}
-window.toggleCam=function(){
-  if(!callStream)return;callCamOff=!callCamOff;
-  callStream.getVideoTracks().forEach(t=>t.enabled=!callCamOff);
-  document.getElementById('callCamBtn').classList.toggle('active',callCamOff);
-  document.getElementById('callCamBtn').textContent=callCamOff?'🚫':'📷';
-}
-window.toggleSpk=function(){
-  const b=document.getElementById('callSpkBtn');b.classList.toggle('active');
-  toast('🔊 Haut-parleur (contrôle système du téléphone)','')
-}
-window.endCall=function(){requestClose()}
-function logCallBubble(type,label){
-  const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
-  const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';
-  const ic=type==='audio'?'📞':'📹';const lb=type==='audio'?'Appel vocal':'Appel vidéo';
-  d.dataset.txt=ic+' '+lb+' — '+label;
-  const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  d.innerHTML='<div class="call-bbl"><div class="call-ico-w">'+ic+'</div><div class="call-det"><div class="call-type">'+lb+'</div><div class="call-sub2">'+label+'</div><div class="call-ft"><span class="call-t">'+t+'</span><span class="tick">✓</span></div></div></div>';
-  area.appendChild(d);area.scrollTop=area.scrollHeight;
-}
-
-/* ══════════════ CONFÉRENCE ══════════════ */
-window.openConf=function(){document.getElementById('confPanel').classList.add('open');pushView('conf')}
-window.closeConf=function(){requestClose()}
-let confGen=false;
-window.genLink=function(){const c=Math.random().toString(36).substr(2,8).toUpperCase();document.getElementById('confLink').textContent='artiroyce.app/conf/'+c;confGen=true;toast('🔗 Lien généré !','g')}
-window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Copié !','g')).catch(()=>toast('📋 Copié !','g'))}
-window.launchConfCall=function(type){
-  currentChatName='Conférence';currentChatIni='🎙️';currentChatBg='linear-gradient(135deg,#003d00,#007a00)';
-  document.getElementById('confPanel').classList.remove('open');
-  startCallReal(type);
-}
-</script>
-
-<div id="panneauDiagnostic"></div>
-
-<!-- ══════════════ PANNEAU DE DIAGNOSTIC (temporaire) ══════════════
-     Même principe que celui déjà en place sur actualite_v1.html : un journal
-     visible directement à l'écran, sans avoir besoin de la console technique,
-     pour voir en direct chaque étape (chargement Firebase, connexion,
-     création de conversation, envoi de message). Caché par défaut, ouvert
-     via le bouton 🛠️ intégré aux en-têtes existantes (liste + chat), pour
-     ne jamais gêner la saisie de messages. -->
-<script>
-window.toggleDiagnostic=function(){
-  const p=document.getElementById('panneauDiagnostic');
-  const estOuvert=p.classList.toggle('open');
-  if(estOuvert) p.scrollTop=p.scrollHeight;
-}
-function ajouterEtape(texte, estErreur){
-  const panneau=document.getElementById('panneauDiagnostic');
-  if(!panneau) return;
-  const ligne=document.createElement('div');
-  if(estErreur) ligne.className='err';
-  ligne.textContent=new Date().toLocaleTimeString('fr-FR')+' — '+texte;
-  panneau.appendChild(ligne);
-  panneau.scrollTop=panneau.scrollHeight;
-}
-ajouterEtape('1. Script de discussion démarré ✅');
-window.addEventListener('error', function(e){ ajouterEtape('Erreur JS : '+e.message+' ('+(e.filename?e.filename.split('/').pop():'?')+':'+(e.lineno||'?')+')', true); });
-window.addEventListener('unhandledrejection', function(e){ ajouterEtape('Erreur async non gérée : '+((e.reason&&e.reason.message)?e.reason.message:String(e.reason)), true); });
-ajouterEtape('2. Téléchargement des bibliothèques Firebase...');
-</script>
-
-<!-- ══════════════ VRAIS AUTEURS DEPUIS FIREBASE ══════════════
-     Même projet et même collection que cv_pro.html : 'utilisateurs'.
-     Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
-     tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
-     on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"
-        onload="ajouterEtape('2a. Bibliothèque app chargée ✅')"
-        onerror="ajouterEtape('ÉCHEC chargement app', true)"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"
-        onload="ajouterEtape('2b. Bibliothèque auth chargée ✅')"
-        onerror="ajouterEtape('ÉCHEC chargement auth', true)"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"
-        onload="ajouterEtape('2c. Bibliothèque firestore chargée ✅')"
-        onerror="ajouterEtape('ÉCHEC chargement firestore', true)"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"
-        onload="ajouterEtape('2d. Bibliothèque storage chargée ✅')"
-        onerror="ajouterEtape('ÉCHEC chargement storage', true)"></script>
-<script>
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
-  authDomain: "artiroyce-f42e4.firebaseapp.com",
-  projectId: "artiroyce-f42e4",
-  storageBucket: "artiroyce-f42e4.firebasestorage.app",
-  messagingSenderId: "588140774605",
-  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-db.settings({ experimentalForceLongPolling: true });
-const storage = firebase.storage();
-ajouterEtape('3. Firebase initialisé ✅ (long polling forcé, storage prêt)');
-
-const GRADIENTS=[
-  'linear-gradient(135deg,#0d2b0f,#27a945)','linear-gradient(135deg,#0a0a2e,#1a1a6e)',
-  'linear-gradient(135deg,#4a1a00,#c0392b)','linear-gradient(135deg,#001030,#002060)',
-  'linear-gradient(135deg,#2c0060,#6a0dad)','linear-gradient(135deg,#003d00,#007a00)',
-  'linear-gradient(135deg,#5a1a1a,#e63224)','linear-gradient(135deg,#0a2a3a,#1a6e8a)'
-];
-function gradientPourId(id){
-  let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;
-  return GRADIENTS[h%GRADIENTS.length];
-}
-function escAttr(s){return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
-function initialesDe(prenom,nom){
-  const a=(prenom||'?').trim()[0]||'?';const b=(nom||'').trim()[0]||'';
-  return (a+b).toUpperCase();
-}
-
-let currentUid=null;
-auth.onAuthStateChanged((u)=>{currentUid=u?u.uid:null;monInfo=null;monInfoPromise=null;ajouterEtape('4. Connexion détectée, uid = '+(u?u.uid:'AUCUN'));chargerContactsReels();chargerConversationsReelles();});
-
-/* ══ Reprise automatique après mise en veille / coupure réseau ══
-   Sur mobile, l'onglet mis en arrière-plan peut geler la connexion Firestore en
-   long polling sans jamais déclencher d'erreur — d'où l'im
+ 
