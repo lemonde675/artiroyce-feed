@@ -1246,9 +1246,11 @@ function creerInstanceImport(c, estMoi){
     const contact = document.createElement('div');
     contact.className = 'contact-row import-contact-row';
     contact.innerHTML = `
-      <button class="cbtn appel" onclick="alerterAppel()">${T('cv_btn_appeler')}</button>
-      <button class="cbtn msg" onclick="alerterDiscuter()">${T('cv_btn_discuter')}</button>
+      <button class="cbtn appel">${T('cv_btn_appeler')}</button>
+      <button class="cbtn msg">${T('cv_btn_discuter')}</button>
     `;
+    contact.querySelector('.cbtn.appel').onclick = () => window.ouvrirDiscussionAvec(c.auteurUid);
+    contact.querySelector('.cbtn.msg').onclick = () => window.ouvrirDiscussionAvec(c.auteurUid);
     wrapper.appendChild(contact);
   }
 
@@ -1346,6 +1348,10 @@ function remplirLectureSeule(el, c, estMoi){
 
   const contactRow = el.querySelector('.js-contact-row');
   if (contactRow) contactRow.style.display = estMoi ? 'none' : 'flex';
+  const btnAppelCv = el.querySelector('.cbtn.appel');
+  const btnMsgCv = el.querySelector('.cbtn.msg');
+  if (btnAppelCv) btnAppelCv.onclick = () => window.ouvrirDiscussionAvec(c.auteurUid);
+  if (btnMsgCv) btnMsgCv.onclick = () => window.ouvrirDiscussionAvec(c.auteurUid);
 
   getAuthorInfo(c.auteurUid).then(info => {
     const roleEl = el.querySelector('.acct-role');
@@ -1468,8 +1474,19 @@ window.continuerVersModele = () => {
   render();
 };
 
-window.alerterAppel = () => alert(T('cv_alert_appel'));
-window.alerterDiscuter = () => alert(T('cv_alert_discuter'));
+/* ══ Liaison réelle vers Répert-Discussion ══
+   cv_pro.html vit dans une iframe d'accueil.html : on prévient la page parente
+   (qui bascule sur le panneau Discussion et transmet l'identité réelle de la
+   personne à l'iframe de discussion). Si le fichier est ouvert seul (hors
+   accueil.html), on le dit clairement plutôt que de faire semblant. */
+window.ouvrirDiscussionAvec = function(uid){
+  if(!uid){ alert(T('cv_alert_discuter')); return; }
+  if(window.parent && window.parent !== window){
+    window.parent.postMessage({type:'ouvrirChat', uid:uid}, '*');
+  } else {
+    alert('Ouvrez ArtiRoyce depuis Accueil pour discuter directement.');
+  }
+};
 
 let importDataURL = '';
 let importEstImage = true;
@@ -1776,15 +1793,4 @@ function accrocherRafraichissementLangue(){
     window.__cvProSetLangAccroche = true;
     refreshDynamicTexts();
   } else if (!window.__cvProSetLangAccroche) {
-    setTimeout(accrocherRafraichissementLangue, 50);
-  }
-}
-accrocherRafraichissementLangue();
-</script>
-
-
-
-<script src="translations.js?v=20250705c"></script>
-
-</body>
-</html>
+    setTime
