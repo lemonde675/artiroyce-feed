@@ -1429,9 +1429,14 @@ function ouvrirEdition(c){
 
 auth.onAuthStateChanged(async (user) => {
   currentUser = user;
-  await chargerListe();
-  refreshDynamicTexts();
-  afficherEtat('liste');
+  try {
+    await chargerListe();
+    refreshDynamicTexts();
+    afficherEtat('liste');
+  } catch (err) {
+    console.error('Chargement de CV Pro impossible :', err);
+    loading.textContent = '⚠️ Chargement impossible : ' + (err && (err.code || err.message) || String(err));
+  }
 });
 
 /* ── MODAL ── */
@@ -1786,11 +1791,4 @@ function refreshDynamicTexts(){
 
 function accrocherRafraichissementLangue(){
   if (typeof window.setLang === 'function' && !window.__cvProSetLangAccroche) {
-    const original = window.setLang;
-    window.setLang = function(code, flag, el){
-      original(code, flag, el);
-      refreshDynamicTexts();
-    };
-    window.__cvProSetLangAccroche = true;
-    refreshDynamicTexts();
-  } e
+    const original =
