@@ -880,6 +880,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+db.settings({ experimentalForceLongPolling: true });
 
 // ── Couche de compatibilité (même principe que fil-presse.html) ──
 // Le corps du fichier utilise la syntaxe des modules Firebase. Plutôt que
@@ -1792,5 +1793,4 @@ function accrocherRafraichissementLangue(){
     };
     window.__cvProSetLangAccroche = true;
     refreshDynamicTexts();
-  } else if (!window.__cvProSetLangAccroche) {
-    setTime
+  } e
