@@ -709,7 +709,7 @@ function afficherOffres(){
     const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand" id="cand-' + o.id + '">👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature') + '</div>';
     // Même affichage pour tout le monde, y compris l'auteur de l'offre lui-même.
     const actionsHtml = (o.type === 'texte' || expiree) ? '' : '<div class="card-actions">'
-      + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\')">📞 Contacter</button>'
+      + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + (o.auteurUid||'') + '\',' + (o.auteurVerifie?true:false) + ')">📞 Contacter</button>'
       + '<button class="btn-a ' + (o.type==='offre'?'vert':'rouge') + '" onclick="postulerOffre(\'' + o.id + '\',' + (o.candidatures||0) + ')">' + (o.type==='offre'?"✋ Je veux":'✅ Postuler') + '</button>'
       + '</div>';
     const menuSuppr = (currentUser && o.auteurUid === currentUser.uid)
@@ -1137,7 +1137,16 @@ function afficherCorbeilleOffres(){
 }
 
 /* ── Contacter / Postuler (repris de l'ancien code, adapté en mode compat) ── */
-window.contacterOffre = function (offreId, nomAuteur){
+window.contacterOffre = function (offreId, nomAuteur, auteurUid, auteurVerifie){
+  if (!currentUser) { toast('Connectez-vous pour contacter'); return; }
+  if (!auteurUid) { toast('Contact indisponible pour cette offre'); return; }
+  if (auteurUid === currentUser.uid) { toast('Vous êtes l’auteur de cette offre'); return; }
+  try {
+    if (window.parent && window.parent !== window && window.parent.ouvrirChatDepuisOffre) {
+      window.parent.ouvrirChatDepuisOffre({ uid: auteurUid, nom: nomAuteur || 'Utilisateur', verifie: !!auteurVerifie });
+      return;
+    }
+  } catch (e) {}
   toast('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment');
 };
 
