@@ -658,14 +658,18 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   // Fonction dédiée, indépendante de tout pont CV Pro existant — aucun autre code touché ici.
   window.ouvrirChatDepuisOffre = function (info) {
     if (!info || !info.uid) return;
-    window.goToPanel(6);
     const ifr = document.getElementById('discFrame');
     if (!ifr) return;
+    // Important : on vérifie l'état AVANT d'appeler goToPanel(6), car c'est justement
+    // goToPanel(6) qui déclenche le chargement (chargement paresseux) — vérifier après
+    // donnerait toujours "déjà chargée" à tort, même au tout premier chargement.
+    const dejaChargee = !!ifr.getAttribute('src');
+    window.goToPanel(6);
     const payload = { type: 'ouvrirChatUid', uid: info.uid, nom: info.nom || 'Utilisateur', verifie: !!info.verifie };
     const envoyer = function () {
       try { ifr.contentWindow.postMessage(payload, '*'); } catch (e) {}
     };
-    if (ifr.getAttribute('src')) {
+    if (dejaChargee) {
       setTimeout(envoyer, 150);
     } else {
       ifr.addEventListener('load', function onLoad () {
