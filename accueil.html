@@ -228,7 +228,7 @@
 
   <!-- PANEL 6 : Discussion (tab 6) -->
   <div class="panel-slide" id="panel-6" style="position:relative;">
-    <iframe data-src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
+    <iframe data-src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame" allow="microphone; camera"></iframe>
     <div id="swipeLeft" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRight" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
@@ -414,7 +414,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
-        <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}')">Contacter</button>
+        <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}','${(prenom+(data.nomFamille?' '+data.nomFamille:'')).replace(/'/g, "\\'")}')">Contacter</button>
       </div>
       <div class="actions-r">
         <div class="act-btn" onclick="ouvrirGalerieAccueil('${uid}','${pseudo}')">
@@ -824,9 +824,9 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
 
-  window.contacterDepuisAccueil = function(cibleUid, pseudo){
-    toast('💬 Ouvre la discussion pour écrire à ' + pseudo, 'g');
-    goToPanel(6);
+  window.contacterDepuisAccueil = function(cibleUid, pseudo, nomComplet){
+    if (!cibleUid) return;
+    window.ouvrirChatDepuisOffre({ uid: cibleUid, nom: nomComplet || pseudo || 'Utilisateur', verifie: true });
   };
 
   // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
