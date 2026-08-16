@@ -98,7 +98,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .apercu-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;flex-shrink:0}
 .apercu-cancel{color:#fff;font-size:24px;cursor:pointer}
 .apercu-crop-toggle{color:#fff;font-size:13px;font-weight:700;background:rgba(255,255,255,0.15);padding:7px 14px;border-radius:99px;cursor:pointer}
-.apercu-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.apercu-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 #apercuImgPlein,#apercuVideoPlein{max-width:100%;max-height:100%;object-fit:contain}
 .apercu-frame{width:min(78vw,320px);height:min(78vw,320px);border-radius:10px;overflow:hidden;position:relative;touch-action:none;box-shadow:0 0 0 2000px rgba(0,0,0,0.55)}
 .apercu-frame img{position:absolute;top:0;left:0;user-select:none;-webkit-user-drag:none}
@@ -273,13 +273,38 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .rec-send{width:38px;height:38px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 
 /* ── Emoji picker ── */
-.emo-panel{display:none;grid-template-columns:repeat(8,1fr);gap:4px;padding:0 10px 10px;background:#fff;border-top:1px solid #eee;flex-shrink:0;max-height:170px;overflow-y:auto}
-.emo-panel.show{display:grid}
-.emo-hdr{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:8px 2px 4px;position:sticky;top:0;background:#fff}
-.emo-hdr span:first-child{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px}
-.emo-hdr span:last-child{font-size:16px;color:#ccc;cursor:pointer}
-.emo-panel>span{font-size:21px;text-align:center;cursor:pointer;padding:4px 0;border-radius:8px}
-.emo-panel>span:active{background:#f2f2f2}
+.emo-panel{display:none;background:#fff;border-top:1px solid #eee;flex-shrink:0;max-height:220px;overflow:hidden;flex-direction:column}
+.emo-panel.show{display:flex}
+.emo-hdr{display:flex;align-items:center;gap:16px;padding:8px 12px 6px;flex-shrink:0}
+.emo-tab{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;cursor:pointer;padding:2px 0}
+.emo-tab.actif{color:var(--red);border-bottom:2px solid var(--red)}
+.emo-hdr .emo-close{margin-left:auto;font-size:16px;color:#ccc;cursor:pointer}
+.emo-body{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:4px 10px 10px;overflow-y:auto}
+.emo-body>span{font-size:21px;text-align:center;cursor:pointer;padding:4px 0;border-radius:8px}
+.emo-body>span:active{background:#f2f2f2}
+.stk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px 10px 10px;overflow-y:auto}
+.stk-add{width:100%;aspect-ratio:1/1;border-radius:12px;background:#f7f7f7;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:26px;color:#bbb;cursor:pointer}
+.stk-item{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;cursor:pointer;background:#f5f5f5}
+.stk-item img{width:100%;height:100%;object-fit:cover}
+.stk-bbl{background:none;box-shadow:none;max-width:150px}
+.stk-bbl img{width:130px;height:130px;object-fit:contain;display:block}
+.stk-ft{font-size:10px;color:#999;margin-top:2px;display:flex;align-items:center;gap:4px}
+.mrow.out .stk-ft{justify-content:flex-end}
+.apercu-sticker-layer{position:absolute;pointer-events:none;z-index:3}
+.apercu-draw-canvas{position:absolute;pointer-events:none;z-index:4;touch-action:none}
+.apercu-draw-canvas.actif{pointer-events:auto}
+.apercu-color-bar{position:absolute;left:10px;right:10px;bottom:14px;display:none;align-items:center;gap:9px;background:rgba(0,0,0,0.55);border-radius:30px;padding:9px 12px;z-index:6;overflow-x:auto}
+.apercu-color-bar.show{display:flex}
+.acb-swatch{width:24px;height:24px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,0.5);cursor:pointer}
+.acb-swatch.actif{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.4)}
+.acb-undo{margin-left:auto;flex-shrink:0;color:#fff;font-size:19px;cursor:pointer;background:none;border:none;padding:0 4px}
+.apercu-sticker-layer .aps-item{position:absolute;width:70px;height:70px;pointer-events:auto;touch-action:none}
+.apercu-sticker-layer .aps-item img{width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}
+.apercu-sticker-layer .aps-del{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;align-items:center;justify-content:center;display:none;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+.apercu-sticker-layer .aps-item.selected .aps-del{display:flex}
+.apercu-sticker-picker{position:absolute;left:10px;right:10px;bottom:76px;background:#fff;border-radius:14px;max-height:200px;overflow-y:auto;padding:10px;display:none;grid-template-columns:repeat(4,1fr);gap:8px;z-index:6;box-shadow:0 4px 20px rgba(0,0,0,0.25)}
+.apercu-sticker-picker.show{display:grid}
+.apercu-sticker-picker .stk-add,.apercu-sticker-picker .stk-item{aspect-ratio:1/1;border-radius:10px}
 
 /* ── Écran d'appel ── */
 .call-screen{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:600;background:linear-gradient(180deg,#0a1220,#141c2e 45%,#0a1220);display:flex;flex-direction:column;transition:transform 0.32s cubic-bezier(.4,0,.2,1);color:#fff}
@@ -313,8 +338,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mini-av{position:absolute;bottom:-2px;width:20px;height:20px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;cursor:pointer;z-index:2}
 .mrow.in .mini-av{left:-8px}
 .mrow.out .mini-av{right:-8px}
-.ville-tag{color:#666}
-.mrow.out .ville-tag{color:#666}
+.ville-tag{color:#3aa860}
+.mrow.out .ville-tag{color:#8fd6a8}
 #posToggle{background:#ddd!important;color:#888!important;font-size:14px!important}
 #posToggle.actif{background:var(--green)!important;color:#fff!important}
 </style>
@@ -535,12 +560,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <button class="ib" onclick="pickFile()">📷</button>
       <textarea id="mTa" rows="1" placeholder="Répondre…" oninput="onTa()" onkeydown="onKey(event)"></textarea>
     </div>
-    <button class="ib" id="micBtn" onclick="toggleRecording()" style="width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(230,50,36,0.35)">🎤</button>
+    <button class="ib" id="micBtn" onclick="toggleRecording()" style="width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;box-shadow:0 3px 10px rgba(230,50,36,0.35);display:flex;align-items:center;justify-content:center">🎤</button>
     <button class="sb" id="sb" onclick="doSend()">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
   <input type="file" id="fileIn" accept="image/*,.pdf,.doc,.docx,.xlsx,.zip,.mp3,.mp4" style="display:none" onchange="onFilePicked(event)"/>
+  <input type="file" id="stickerFileIn" accept="image/*" style="display:none" onchange="onStickerFilePicked(event)"/>
 </div>
 <div class="profil-contact-panel" id="profilContactPanel">
   <div class="chat-hdr">
@@ -567,6 +593,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="apercu-overlay" id="apercuOverlay">
   <div class="apercu-top">
     <span class="apercu-cancel" onclick="annulerApercuMedia()">✕</span>
+    <span class="apercu-titre" id="apercuTitre" style="display:none;color:#fff;font-weight:700;font-size:14px">🧩 Créer un sticker</span>
+    <span class="apercu-crop-toggle" id="apercuStickerToggle" onclick="ouvrirApercuStickerPicker()" style="display:none">🧩 Sticker</span>
+    <span class="apercu-crop-toggle" id="apercuDrawToggle" onclick="toggleApercuDessin()" style="display:none">✏️ Dessiner</span>
     <span class="apercu-crop-toggle" id="apercuCropToggle" onclick="toggleRecadrage()" style="display:none">✂️ Recadrer</span>
   </div>
   <div class="apercu-body">
@@ -575,6 +604,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <img id="apercuImgPlein" style="display:none"/>
     <video id="apercuVideoPlein" controls playsinline style="display:none"></video>
+    <div class="apercu-sticker-layer" id="apercuStickerLayer"></div>
+    <canvas class="apercu-draw-canvas" id="apercuDrawCanvas"></canvas>
+    <div class="apercu-sticker-picker" id="apercuStickerPicker"></div>
+    <div class="apercu-color-bar" id="apercuColorBar"></div>
   </div>
   <div class="apercu-zoom-row" id="apercuZoomRow" style="display:none">
     <span>🔍</span><input type="range" id="apercuZoom" min="100" max="300" value="100" oninput="onApercuZoom(this.value)"/>
@@ -724,8 +757,11 @@ function getEmbedTopOffsetPx(){
 }
 let embedTopOffsetPx=0;
 function appliquerDecalageChat(){
-  const cp=document.getElementById('chatPanel');
-  if(cp) cp.style.paddingTop=embedTopOffsetPx+'px';
+  const px=embedTopOffsetPx+'px';
+  ['chatPanel','profilContactPanel','confPanel','groupCreatePanel','groupMembersPanel'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.style.paddingTop=px;
+  });
 }
 window.addEventListener('resize',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); });
 // Calcul direct au chargement, SANS dépendre d'un message envoyé par accueil.html
@@ -1202,15 +1238,18 @@ function creerElementMessage(doc){
   if(m.type==='image'){
     d.dataset.txt='📷 Photo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="img-bbl" onclick="viewImage(this)">'+capHtml+'<img src="'+m.url+'"/><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+    interieur='<div class="img-bbl" onclick="viewImage(this)"><img src="'+m.url+'"/>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='video'){
     d.dataset.txt='🎬 Vidéo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button>'+capHtml+'<video src="'+m.url+'" controls playsinline></video><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+    interieur='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='file'){
     const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
     d.dataset.txt='📄 '+(m.nom||'Fichier');
     interieur='<div class="file-bbl" onclick="window.open(\''+m.url+'\',\'_blank\')"><div class="file-ico-w">📄</div><div><div class="file-name">'+escapeHtml(m.nom||'Fichier')+'</div><div class="file-size" data-ft="1">'+sizeKb+' Ko · '+t+villeHtml+'</div></div></div>';
+  } else if(m.type==='sticker'){
+    d.dataset.txt='🧩 Sticker';
+    interieur='<div class="stk-bbl"><img src="'+m.url+'"/><div class="stk-ft">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='audio'){
     d.dataset.txt='🎤 Message vocal';
     interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
@@ -1285,7 +1324,7 @@ async function envoyerMessageMedia(type, url, extra){
   const convRef=db.collection('conversations').doc(currentConvId);
   const data=Object.assign({type:type,url:url,emetteur:currentUid,ville:villeAEnvoyer(),horodatage:firebase.firestore.FieldValue.serverTimestamp()},extra||{});
   await convRef.collection('messages').add(data);
-  const apercu = type==='image' ? '📷 Photo' : type==='video' ? '🎬 Vidéo' : type==='file' ? '📄 '+(extra&&extra.nom||'Fichier') : type==='audio' ? '🎤 Message vocal' : '';
+  const apercu = type==='image' ? '📷 Photo' : type==='video' ? '🎬 Vidéo' : type==='file' ? '📄 '+(extra&&extra.nom||'Fichier') : type==='audio' ? '🎤 Message vocal' : type==='sticker' ? '🧩 Sticker' : '';
   await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:apercu,dernierEmetteur:currentUid},{merge:true});
   ajouterEtape('Message média écrit sur Firestore ✅ (type='+type+')');
 }
@@ -1738,37 +1777,102 @@ window.onFilePicked=function(e){
    avant confirmation d'envoi — au lieu de partir automatiquement comme avant. */
 let apercuFichierCourant=null, apercuTypeCourant=null, apercuUrlObjet=null;
 let apercuModeRecadrage=false, apercuBaseScale=1, apercuZoomVal=1, apercuOffsetX=0, apercuOffsetY=0;
+let apercuModeSticker=false;
+let apercuStickersPoses=[];
+let apercuModeDessin=false, apercuCouleurDessin='#ffffff', apercuTraits=[], apercuTraitEnCours=null;
+const APERCU_COULEURS=['#ffffff','#000000','#e63224','#27a945','#2f6fed','#ffd84d','#ff8ac2','#8a4fff'];
 let apercuDrag=null;
 const APERCU_FRAME=280; // doit rester cohérent avec la taille CSS de .apercu-frame
 
+function reinitialiserApercu(){
+  apercuModeRecadrage=false;
+  apercuZoomVal=1;
+  apercuOffsetX=0;
+  apercuOffsetY=0;
+  apercuModeSticker=false;
+  apercuStickersPoses=[];
+  apercuModeDessin=false;
+  apercuTraits=[];
+  apercuTraitEnCours=null;
+  const zoomSlider=document.getElementById('apercuZoom'); if(zoomSlider) zoomSlider.value=100;
+  const legendeInput=document.getElementById('apercuLegende'); if(legendeInput){ legendeInput.value=''; legendeInput.style.display=''; }
+  const titre=document.getElementById('apercuTitre'); if(titre) titre.style.display='none';
+  const frame=document.getElementById('apercuFrame'); if(frame) frame.style.display='none';
+  const zoomRow=document.getElementById('apercuZoomRow'); if(zoomRow) zoomRow.style.display='none';
+  const layer=document.getElementById('apercuStickerLayer'); if(layer) layer.innerHTML='';
+  const picker=document.getElementById('apercuStickerPicker'); if(picker) picker.classList.remove('show');
+  const drawCanvas=document.getElementById('apercuDrawCanvas');
+  if(drawCanvas){ drawCanvas.classList.remove('actif'); const ctx=drawCanvas.getContext('2d'); if(ctx) ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height); }
+  const colorBar=document.getElementById('apercuColorBar'); if(colorBar) colorBar.classList.remove('show');
+}
 function ouvrirApercuMedia(file, type){
-  apercuFichierCourant=file; apercuTypeCourant=type; apercuModeRecadrage=false;
-  document.getElementById('apercuLegende').value='';
+  reinitialiserApercu();
+  apercuFichierCourant=file; apercuTypeCourant=type;
   if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); }
   apercuUrlObjet=URL.createObjectURL(file);
   const imgPlein=document.getElementById('apercuImgPlein'), vidPlein=document.getElementById('apercuVideoPlein');
   const frame=document.getElementById('apercuFrame'), zoomRow=document.getElementById('apercuZoomRow'), toggle=document.getElementById('apercuCropToggle');
+  const stickerToggle=document.getElementById('apercuStickerToggle');
+  const drawToggle=document.getElementById('apercuDrawToggle');
   frame.style.display='none'; zoomRow.style.display='none';
   if(type==='video'){
     vidPlein.src=apercuUrlObjet; vidPlein.style.display='';
     imgPlein.style.display='none'; toggle.style.display='none';
+    if(stickerToggle) stickerToggle.style.display='none';
+    if(drawToggle) drawToggle.style.display='none';
   } else {
+    imgPlein.onload=function(){ ajusterCouchesApercuSurImage(); };
     imgPlein.src=apercuUrlObjet; imgPlein.style.display='';
     vidPlein.style.display='none'; vidPlein.removeAttribute('src');
     toggle.style.display=''; toggle.textContent='✂️ Recadrer';
+    if(stickerToggle) stickerToggle.style.display='';
+    if(drawToggle) drawToggle.style.display='';
   }
   document.getElementById('apercuOverlay').classList.add('show');
+}
+/* Aligne exactement la couche stickers et le canvas de dessin sur la zone réellement
+   occupée par l'image affichée (celle-ci peut être plus petite que la zone apercu-body
+   à cause de object-fit:contain — sans ça, les positions calculées en % seraient
+   décalées par rapport à la vraie photo). */
+function ajusterCouchesApercuSurImage(){
+  const imgPlein=document.getElementById('apercuImgPlein');
+  const body=imgPlein ? imgPlein.closest('.apercu-body') : null;
+  const layer=document.getElementById('apercuStickerLayer');
+  const canvas=document.getElementById('apercuDrawCanvas');
+  if(!imgPlein || !body) return;
+  const rectImg=imgPlein.getBoundingClientRect();
+  const rectBody=body.getBoundingClientRect();
+  const left=(rectImg.left-rectBody.left), top=(rectImg.top-rectBody.top);
+  const w=rectImg.width, h=rectImg.height;
+  [layer,canvas].forEach(function(el){
+    if(!el) return;
+    el.style.left=left+'px'; el.style.top=top+'px';
+    el.style.width=w+'px'; el.style.height=h+'px';
+  });
+  if(canvas && w>0 && h>0){ canvas.width=w; canvas.height=h; redessinerTraitsApercu(); }
 }
 window.annulerApercuMedia=function(){
   document.getElementById('apercuOverlay').classList.remove('show');
   if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); apercuUrlObjet=null; }
   apercuFichierCourant=null; apercuTypeCourant=null;
+  reinitialiserApercu();
 }
 window.toggleRecadrage=function(){
   const frame=document.getElementById('apercuFrame'), zoomRow=document.getElementById('apercuZoomRow');
   const imgPlein=document.getElementById('apercuImgPlein'), toggle=document.getElementById('apercuCropToggle');
   apercuModeRecadrage=!apercuModeRecadrage;
+  const stickerToggle=document.getElementById('apercuStickerToggle');
+  const drawToggle=document.getElementById('apercuDrawToggle');
   if(apercuModeRecadrage){
+    if(apercuStickersPoses.length || apercuTraits.length){
+      apercuStickersPoses=[]; apercuTraits=[];
+      const layer=document.getElementById('apercuStickerLayer'); if(layer) layer.innerHTML='';
+      redessinerTraitsApercu();
+      if(apercuModeDessin) toggleApercuDessin();
+      toast('🧩 Stickers et dessins retirés (pas encore compatibles avec le recadrage)','r');
+    }
+    if(stickerToggle) stickerToggle.style.display='none';
+    if(drawToggle) drawToggle.style.display='none';
     imgPlein.style.display='none'; frame.style.display=''; zoomRow.style.display='';
     toggle.textContent='🖼️ Image entière';
     const img=document.getElementById('apercuImg');
@@ -1781,8 +1885,11 @@ window.toggleRecadrage=function(){
     };
     img.src=apercuUrlObjet;
   } else {
+    if(stickerToggle) stickerToggle.style.display='';
+    if(drawToggle) drawToggle.style.display='';
     frame.style.display='none'; zoomRow.style.display='none'; imgPlein.style.display='';
     toggle.textContent='✂️ Recadrer';
+    setTimeout(ajusterCouchesApercuSurImage,30);
   }
 }
 function appliquerTransformApercu(){
@@ -1835,16 +1942,214 @@ function recupererBlobRecadre(){
     im.src=apercuUrlObjet;
   });
 }
+
+/* ── Stickers posés sur la photo (aperçu avant envoi) ── */
+window.ouvrirApercuStickerPicker=async function(){
+  const picker=document.getElementById('apercuStickerPicker');
+  if(!picker) return;
+  if(apercuModeDessin) toggleApercuDessin();
+  if(!mesStickers || mesStickers.length===0){ await chargerMesStickers(); }
+  picker.innerHTML = (mesStickers||[]).length===0
+    ? '<div style="grid-column:1/-1;padding:14px;text-align:center;color:#999;font-size:13px">Aucun sticker — crée-en un depuis 😊</div>'
+    : mesStickers.map(function(s){ return '<div class="stk-item" onclick="poserStickerSurApercu(\''+(s.url||'').replace(/'/g,"\\'")+'\')"><img src="'+s.url+'"/></div>'; }).join('');
+  picker.classList.add('show');
+}
+window.fermerApercuStickerPicker=function(){
+  const picker=document.getElementById('apercuStickerPicker');
+  if(picker) picker.classList.remove('show');
+}
+window.poserStickerSurApercu=function(url){
+  const id='aps'+Date.now()+Math.random().toString(36).slice(2,6);
+  apercuStickersPoses.push({id:id,url:url,xPct:50,yPct:50});
+  renderApercuStickerLayer();
+  fermerApercuStickerPicker();
+}
+window.retirerStickerApercu=function(id){
+  apercuStickersPoses=apercuStickersPoses.filter(function(s){ return s.id!==id; });
+  renderApercuStickerLayer();
+}
+function renderApercuStickerLayer(){
+  const layer=document.getElementById('apercuStickerLayer');
+  if(!layer) return;
+  layer.innerHTML=apercuStickersPoses.map(function(s){
+    return '<div class="aps-item" data-id="'+s.id+'" style="left:'+s.xPct+'%;top:'+s.yPct+'%;transform:translate(-50%,-50%)">'
+      +'<img src="'+s.url+'" draggable="false"/>'
+      +'<div class="aps-del" onclick="event.stopPropagation();retirerStickerApercu(\''+s.id+'\')">✕</div></div>';
+  }).join('');
+  attacherDragStickersApercu();
+}
+function attacherDragStickersApercu(){
+  const layer=document.getElementById('apercuStickerLayer');
+  if(!layer) return;
+  layer.querySelectorAll('.aps-item').forEach(function(el){
+    let drag=null;
+    el.addEventListener('touchstart',function(){
+      layer.querySelectorAll('.aps-item.selected').forEach(function(o){ o.classList.remove('selected'); });
+      el.classList.add('selected');
+      drag={rect:layer.getBoundingClientRect(),moved:false,xPct:null,yPct:null};
+    },{passive:true});
+    el.addEventListener('touchmove',function(e){
+      if(!drag) return;
+      drag.moved=true;
+      const id=el.dataset.id;
+      const item=apercuStickersPoses.find(function(s){ return s.id===id; });
+      if(!item) return;
+      const t=e.touches[0];
+      let xPct=((t.clientX-drag.rect.left)/drag.rect.width)*100;
+      let yPct=((t.clientY-drag.rect.top)/drag.rect.height)*100;
+      xPct=Math.max(0,Math.min(100,xPct));
+      yPct=Math.max(0,Math.min(100,yPct));
+      el.style.left=xPct+'%'; el.style.top=yPct+'%';
+      drag.xPct=xPct; drag.yPct=yPct;
+    },{passive:true});
+    el.addEventListener('touchend',function(){
+      if(drag && drag.moved && drag.xPct!==null){
+        const id=el.dataset.id;
+        const item=apercuStickersPoses.find(function(s){ return s.id===id; });
+        if(item){ item.xPct=drag.xPct; item.yPct=drag.yPct; }
+      }
+      drag=null;
+    },{passive:true});
+  });
+}
+/* ── Dessin à main levée sur la photo (aperçu avant envoi) ── */
+window.toggleApercuDessin=function(){
+  apercuModeDessin=!apercuModeDessin;
+  const canvas=document.getElementById('apercuDrawCanvas');
+  const bar=document.getElementById('apercuColorBar');
+  const drawToggle=document.getElementById('apercuDrawToggle');
+  if(apercuModeDessin){
+    fermerApercuStickerPicker();
+    ajusterCouchesApercuSurImage();
+    if(canvas) canvas.classList.add('actif');
+    if(bar){ rendreBarreCouleursApercu(); bar.classList.add('show'); }
+    if(drawToggle){ drawToggle.style.background='var(--red)'; drawToggle.style.color='#fff'; }
+  } else {
+    if(canvas) canvas.classList.remove('actif');
+    if(bar) bar.classList.remove('show');
+    if(drawToggle){ drawToggle.style.background=''; drawToggle.style.color=''; }
+  }
+}
+function rendreBarreCouleursApercu(){
+  const bar=document.getElementById('apercuColorBar');
+  if(!bar) return;
+  bar.innerHTML = APERCU_COULEURS.map(function(c){
+    return '<div class="acb-swatch'+(c===apercuCouleurDessin?' actif':'')+'" style="background:'+c+'" onclick="choisirCouleurApercu(\''+c+'\')"></div>';
+  }).join('') + '<button class="acb-undo" onclick="annulerDernierTraitApercu()" title="Annuler le dernier trait">↩️</button>';
+}
+window.choisirCouleurApercu=function(c){
+  apercuCouleurDessin=c;
+  rendreBarreCouleursApercu();
+}
+window.annulerDernierTraitApercu=function(){
+  apercuTraits.pop();
+  redessinerTraitsApercu();
+}
+function redessinerTraitsApercu(){
+  const canvas=document.getElementById('apercuDrawCanvas');
+  if(!canvas || !canvas.width || !canvas.height) return;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  apercuTraits.forEach(function(trait){
+    if(trait.points.length<2) return;
+    ctx.strokeStyle=trait.color;
+    ctx.lineWidth=Math.max(3,canvas.width*0.012);
+    ctx.beginPath();
+    trait.points.forEach(function(p,i){
+      const x=(p.xPct/100)*canvas.width, y=(p.yPct/100)*canvas.height;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  });
+}
+(function(){
+  const canvas=document.getElementById('apercuDrawCanvas');
+  if(!canvas) return;
+  let rectCanvas=null;
+  canvas.addEventListener('touchstart',function(e){
+    if(!apercuModeDessin) return;
+    rectCanvas=canvas.getBoundingClientRect();
+    const t=e.touches[0];
+    const xPct=((t.clientX-rectCanvas.left)/rectCanvas.width)*100;
+    const yPct=((t.clientY-rectCanvas.top)/rectCanvas.height)*100;
+    apercuTraitEnCours={color:apercuCouleurDessin, points:[{xPct:xPct,yPct:yPct}]};
+    apercuTraits.push(apercuTraitEnCours);
+  },{passive:true});
+  canvas.addEventListener('touchmove',function(e){
+    if(!apercuModeDessin || !apercuTraitEnCours || !rectCanvas) return;
+    const t=e.touches[0];
+    const xPct=Math.max(0,Math.min(100,((t.clientX-rectCanvas.left)/rectCanvas.width)*100));
+    const yPct=Math.max(0,Math.min(100,((t.clientY-rectCanvas.top)/rectCanvas.height)*100));
+    apercuTraitEnCours.points.push({xPct:xPct,yPct:yPct});
+    redessinerTraitsApercu();
+  },{passive:true});
+  canvas.addEventListener('touchend',function(){
+    apercuTraitEnCours=null;
+  },{passive:true});
+})();
+function composerImageFinale(file, stickers, traits){
+  return new Promise(function(resolve){
+    const im=new Image();
+    im.onload=function(){
+      const canvas=document.createElement('canvas');
+      canvas.width=im.naturalWidth; canvas.height=im.naturalHeight;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(im,0,0);
+      function dessinerTraits(){
+        ctx.lineCap='round'; ctx.lineJoin='round';
+        (traits||[]).forEach(function(trait){
+          if(trait.points.length<2) return;
+          ctx.strokeStyle=trait.color;
+          ctx.lineWidth=Math.max(4,canvas.width*0.012);
+          ctx.beginPath();
+          trait.points.forEach(function(p,i){
+            const x=(p.xPct/100)*canvas.width, y=(p.yPct/100)*canvas.height;
+            if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          });
+          ctx.stroke();
+        });
+      }
+      function terminer(){ dessinerTraits(); canvas.toBlob(function(b){ resolve(b); },'image/jpeg',0.9); }
+      let restants=(stickers||[]).length;
+      if(restants===0){ terminer(); return; }
+      stickers.forEach(function(s){
+        const sim=new Image();
+        sim.crossOrigin='anonymous';
+        sim.onload=function(){
+          const taille=canvas.width*0.22;
+          const cx=(s.xPct/100)*canvas.width, cy=(s.yPct/100)*canvas.height;
+          ctx.drawImage(sim, cx-taille/2, cy-taille/2, taille, taille);
+          restants--; if(restants===0) terminer();
+        };
+        sim.onerror=function(){ restants--; if(restants===0) terminer(); };
+        sim.src=s.url;
+      });
+    };
+    im.src=URL.createObjectURL(file);
+  });
+}
 window.confirmerEnvoiApercu=function(){
   const legende=document.getElementById('apercuLegende').value.trim();
-  const type=apercuTypeCourant, file=apercuFichierCourant, recadre=apercuModeRecadrage;
+  const type=apercuTypeCourant, file=apercuFichierCourant, recadre=apercuModeRecadrage, modeSticker=apercuModeSticker;
+  const stickersPoses=apercuStickersPoses.slice();
+  const traitsPoses=apercuTraits.filter(function(t){ return t.points.length>1; }).slice();
   document.getElementById('apercuOverlay').classList.remove('show');
-  if(!file){ return; }
-  if(type==='video'){
+  if(!file){ apercuModeSticker=false; return; }
+  if(modeSticker){
+    recupererBlobRecadre().then(function(blob){
+      enregistrerNouveauSticker(blob);
+    });
+  } else if(type==='video'){
     if(currentOtherUid && currentConvId) envoyerVideoReelle(file, legende);
     else appendVideoMessage(file, legende);
   } else if(recadre){
     recupererBlobRecadre().then(function(blob){
+      if(currentOtherUid && currentConvId) envoyerImageBlobReelle(blob, legende);
+      else compressAndSendImage(blob, legende);
+    });
+  } else if(stickersPoses.length>0 || traitsPoses.length>0){
+    composerImageFinale(file, stickersPoses, traitsPoses).then(function(blob){
       if(currentOtherUid && currentConvId) envoyerImageBlobReelle(blob, legende);
       else compressAndSendImage(blob, legende);
     });
@@ -1854,6 +2159,7 @@ window.confirmerEnvoiApercu=function(){
   }
   if(apercuUrlObjet){ URL.revokeObjectURL(apercuUrlObjet); apercuUrlObjet=null; }
   apercuFichierCourant=null; apercuTypeCourant=null;
+  reinitialiserApercu();
 }
 function compressAndSendImage(fileOuBlob, legende){
   const reader=new FileReader();
@@ -1876,7 +2182,7 @@ function appendImageMessage(dataUrl, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='📷 Photo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)">'+capHtml+'<img src="'+dataUrl+'"/><div class="img-ft">'+t+' ✓</div></div>';
+  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><img src="'+dataUrl+'"/>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('📷 Photo compressée et envoyée (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -1962,7 +2268,7 @@ function appendVideoMessage(file, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🎬 Vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button>'+capHtml+'<video src="'+url+'" controls playsinline></video><div class="img-ft">'+t+' ✓</div></div>';
+  d.innerHTML='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -1979,7 +2285,104 @@ function sendFileBubble(file){
 
 /* ══════════════ EMOJI PICKER ══════════════ */
 const EMOJIS=['😀','😂','😊','😍','😉','😘','🤗','🤔','😎','😢','😭','😡','👍','👎','🙏','👏','💪','✌️','🔥','🎉','❤️','💯','✅','⭐','📸','🎨','💇','💄','🎵','🎬'];
-document.getElementById('emoPanel').innerHTML='<div class="emo-hdr"><span>Emojis</span><span onclick="closeEmoji()">✕</span></div>'+EMOJIS.map(e=>'<span onclick="insertEmoji(\''+e+'\')">'+e+'</span>').join('');
+let emoTabActif='emojis';
+let mesStickers=[];
+function renderEmoPanel(){
+  const zone=document.getElementById('emoPanel');
+  zone.innerHTML='<div class="emo-hdr">'
+    +'<span class="emo-tab'+(emoTabActif==='emojis'?' actif':'')+'" onclick="basculerEmoTab(\'emojis\')">Emojis</span>'
+    +'<span class="emo-tab'+(emoTabActif==='stickers'?' actif':'')+'" onclick="basculerEmoTab(\'stickers\')">Stickers</span>'
+    +'<span class="emo-close" onclick="closeEmoji()">✕</span></div>'
+    +'<div class="'+(emoTabActif==='emojis'?'emo-body':'stk-grid')+'" id="emoBody"></div>';
+  if(emoTabActif==='emojis'){
+    document.getElementById('emoBody').innerHTML=EMOJIS.map(function(e){ return '<span onclick="insertEmoji(\''+e+'\')">'+e+'</span>'; }).join('');
+  } else {
+    renderStickerGrille();
+  }
+}
+renderEmoPanel();
+window.basculerEmoTab=function(tab){
+  emoTabActif=tab;
+  renderEmoPanel();
+  if(tab==='stickers') chargerMesStickers();
+};
+async function chargerMesStickers(){
+  const zone=document.getElementById('emoBody');
+  if(!zone) return;
+  if(!currentUid){ zone.innerHTML='<div style="grid-column:1/-1;padding:16px;text-align:center;color:#999;font-size:13px">Connexion requise</div>'; return; }
+  try{
+    const snap=await db.collection('stickers').where('proprietaire','==',currentUid).orderBy('creeLe','desc').get();
+    mesStickers=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+  }catch(err){
+    console.error('Chargement des stickers impossible :',err);
+    mesStickers=[];
+  }
+  renderStickerGrille();
+}
+function renderStickerGrille(){
+  const zone=document.getElementById('emoBody');
+  if(!zone) return;
+  let html='<div class="stk-add" onclick="pickStickerFile()" title="Créer un sticker">➕</div>';
+  html += mesStickers.map(function(s){
+    return '<div class="stk-item" onclick="envoyerSticker(\''+(s.url||'').replace(/'/g,"\\'")+'\')"><img src="'+s.url+'"/></div>';
+  }).join('');
+  zone.innerHTML=html;
+}
+window.pickStickerFile=function(){ document.getElementById('stickerFileIn').click(); };
+window.onStickerFilePicked=function(e){
+  const file=e.target.files[0];
+  e.target.value='';
+  if(!file) return;
+  apercuModeSticker=true;
+  ouvrirApercuMedia(file,'image');
+  document.getElementById('apercuCropToggle').style.display='none';
+  document.getElementById('apercuLegende').style.display='none';
+  const titre=document.getElementById('apercuTitre'); if(titre) titre.style.display='';
+  toggleRecadrage();
+};
+async function uploaderStickerVersStorage(blob){
+  const nomFichier = Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
+  const chemin = 'stickers/'+currentUid+'/'+nomFichier;
+  const ref = storage.ref().child(chemin);
+  await ref.put(blob, {contentType:'image/jpeg'});
+  return await ref.getDownloadURL();
+}
+async function enregistrerNouveauSticker(blob){
+  if(!currentUid){ toast('⚠️ Connexion requise','r'); return; }
+  try{
+    const url = await uploaderStickerVersStorage(blob);
+    await db.collection('stickers').add({
+      proprietaire:currentUid,
+      url:url,
+      creeLe:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toast('✅ Sticker créé','g');
+    if(emoTabActif==='stickers') chargerMesStickers();
+  }catch(err){
+    console.error('Création du sticker impossible :',err);
+    toast('⚠️ Création du sticker impossible','r');
+  }
+}
+window.envoyerSticker=async function(url){
+  closeEmoji();
+  if(currentConvId){
+    try{
+      await envoyerMessageMedia('sticker', url, {});
+    }catch(err){
+      console.error('Envoi du sticker impossible :',err);
+      toast('⚠️ Sticker non envoyé','r');
+    }
+  } else {
+    appendStickerMessageDemo(url);
+  }
+};
+function appendStickerMessageDemo(url){
+  const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
+  const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🧩 Sticker';
+  const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML='<div class="stk-bbl"><img src="'+url+'"/><div class="stk-ft">'+t+' ✓</div></div>';
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+}
 window.toggleEmoji=function(){document.getElementById('emoPanel').classList.toggle('show')}
 window.closeEmoji=function(){document.getElementById('emoPanel').classList.remove('show')}
 window.insertEmoji=function(e){
