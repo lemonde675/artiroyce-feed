@@ -313,8 +313,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mini-av{position:absolute;bottom:-2px;width:20px;height:20px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;cursor:pointer;z-index:2}
 .mrow.in .mini-av{left:-8px}
 .mrow.out .mini-av{right:-8px}
-.ville-tag{color:var(--green)}
-.mrow.out .ville-tag{color:#a8f0c0}
+.ville-tag{color:#666}
+.mrow.out .ville-tag{color:#666}
 #posToggle{background:#ddd!important;color:#888!important;font-size:14px!important}
 #posToggle.actif{background:var(--green)!important;color:#fff!important}
 </style>
@@ -419,7 +419,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div id="contactsListe"></div>
     <div id="resultatsRechercheReels" style="display:none"></div>
     <div id="sentinelleContacts" style="height:1px"></div>
-    <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="toast('👥 Créer bientôt !','g')">+ Créer</span></div>
+    <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="ouvrirCreationGroupe()">+ Créer</span></div>
+    <div id="groupesReels"></div>
     <div class="conv-card" data-mode="group" onclick="openChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
       <div class="cc-inner">
         <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#2c0060,#6a0dad);font-size:22px">👥</div><div class="g-count">12</div></div>
@@ -492,7 +493,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <button class="cha-btn" onclick="addCall('audio')">&#128222;</button>
       <button class="cha-btn gr" onclick="addCall('video')">&#128249;</button>
       <button class="cha-btn" style="background:#222;color:#8dff9a" onclick="toggleDiagnostic()">&#128736;</button>
-      <button class="cha-btn" style="background:#f0f0f0;color:#333;box-shadow:none" onclick="toast('Options','')">&#8942;</button>
+      <button class="cha-btn" style="background:#f0f0f0;color:#333;box-shadow:none" onclick="ouvrirOptionsChat()">&#8942;</button>
     </div>
   </div>
   <div class="msgs-area" id="msgsArea">
@@ -634,6 +635,38 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="conf-part-name">Mariama Kouyaté</div><div class="conf-part-role" style="color:var(--green)">Hôte</div></div>
     <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div><div class="conf-part-name">Jean-Paul Mensah</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
     <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div><div class="conf-part-name">Aminata Traoré</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
+  </div>
+</div>
+<div class="conf-panel" id="groupCreatePanel">
+  <div class="conf-hdr">
+    <span class="back-btn" onclick="closeGroupCreate()">&#8249;</span>
+    <span style="font-size:16px;font-weight:800;color:#111">Nouveau groupe</span>
+  </div>
+  <div class="conf-body">
+    <div class="conf-title">👥 Créer un groupe</div>
+    <div class="conf-sub">Choisissez un nom et les membres à ajouter</div>
+    <div class="search-inner" style="margin-bottom:16px">
+      <input type="text" id="grpNomInput" placeholder="Nom du groupe"/>
+    </div>
+    <div class="conf-part-title">Membres</div>
+    <div id="grpContactsListe"></div>
+    <div style="height:14px"></div>
+    <button class="conf-btn green" style="width:100%" onclick="creerGroupeFinal()">✅ Créer le groupe</button>
+  </div>
+</div>
+<div class="conf-panel" id="groupMembersPanel">
+  <div class="conf-hdr">
+    <span class="back-btn" onclick="closeGroupMembers()">&#8249;</span>
+    <span style="font-size:16px;font-weight:800;color:#111" id="gmTitre">Groupe</span>
+  </div>
+  <div class="conf-body">
+    <div class="conf-part-title">Membres actuels</div>
+    <div id="gmMembresActuels"></div>
+    <div style="height:18px"></div>
+    <div class="conf-part-title">Ajouter des membres</div>
+    <div id="gmAjoutListe"></div>
+    <div style="height:14px"></div>
+    <button class="conf-btn green" style="width:100%" onclick="ajouterMembresFinal()">➕ Ajouter la sélection</button>
   </div>
 </div>
 <div class="toast" id="toastEl"></div>
@@ -797,9 +830,11 @@ function hideView(name){
     if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
     dernierSnapMessages=null;
     if(currentOtherUid) ajouterEtape('hideView(chat) — réinitialisation de la conversation (était : '+currentOtherUid+')');
-    currentOtherUid=null; currentConvId=null;
+    currentOtherUid=null; currentConvId=null; currentEstGroupe=false; currentGroupParticipants=[];
   }
   else if(name==='conf'){ document.getElementById('confPanel').classList.remove('open'); }
+  else if(name==='groupcreate'){ document.getElementById('groupCreatePanel').classList.remove('open'); }
+  else if(name==='groupmembers'){ document.getElementById('groupMembersPanel').classList.remove('open'); }
   else if(name==='call'){
     clearInterval(callTimerInt);
     const dur=callSeconds;
@@ -812,6 +847,7 @@ function hideView(name){
 let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
 /* ══ Messagerie réelle (Firestore) — variables d'état de la conversation ouverte ══ */
 let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversations=null, currentUid=null;
+let currentEstGroupe=false, currentGroupParticipants=[], groupesCache={};
 let currentChatRole='', unsubConvDoc=null, currentConvLuPar={}, dernierSnapMessages=null;
 let sourceVilleLive=false, villeLiveActuelle=null;
 let currentConvInfos={};
@@ -867,6 +903,7 @@ function villeAEnvoyer(){
   return (monInfo && monInfo.ville) || null;
 }
 window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie){
+  currentEstGroupe=false; currentGroupParticipants=[];
   currentChatName=name;currentChatIni=ini;currentChatBg=bg;currentChatRole=sub||'';
   const badgeHtml = verifie===false ? '' : ' <span class="vb">&#10004;</span>';
   document.getElementById('chaNm').innerHTML=name+badgeHtml;
@@ -913,6 +950,10 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
   setTimeout(()=>{const a=document.getElementById('msgsArea');a.scrollTop=a.scrollHeight},100);
 }
 window.closeChat=function(){requestClose()}
+window.ouvrirOptionsChat=function(){
+  if(currentEstGroupe){ ouvrirMembresGroupe(); return; }
+  toast('Options','');
+}
 
 /* ══════════════ ENVOI TEXTE + RÉPONSE ══════════════ */
 window.onTa=function(){
@@ -1362,13 +1403,20 @@ function chargerConversationsReelles(){
   unsubConversations = db.collection('conversations')
     .where('participants','array-contains',currentUid)
     .onSnapshot(function(snap){
-      let convs = snap.docs.map(d=>({id:d.id,...d.data()}));
-      convs.sort(function(a,b){
+      let convs = [], groupes = [];
+      snap.docs.forEach(function(d){
+        const data=Object.assign({id:d.id},d.data());
+        if(data.type==='groupe') groupes.push(data); else convs.push(data);
+      });
+      function parDateDesc(a,b){
         const ta=(a.derniereActivite&&a.derniereActivite.toDate)?a.derniereActivite.toDate().getTime():0;
         const tb=(b.derniereActivite&&b.derniereActivite.toDate)?b.derniereActivite.toDate().getTime():0;
         return tb-ta;
-      });
+      }
+      convs.sort(parDateDesc);
+      groupes.sort(parDateDesc);
       renderConversationsReelles(convs);
+      renderGroupesReels(groupes);
     }, function(err){
       console.error('Écoute des conversations réelles impossible :',err);
     });
@@ -1389,6 +1437,200 @@ function renderConversationsReelles(convs){
       +'<div class="cc-preview">'+apercu+'</div>'
       +'<div class="cc-status off">'+escAttr(info.role||'')+'</div></div></div></div>';
   }).join('');
+}
+
+/* ══════════════ VRAIS GROUPES (Firestore) ══════════════
+   Un groupe est un document de la même collection "conversations", avec
+   type:'groupe', un champ "nom" et "participants" (comme pour une conv à 2).
+   Ça permet de réutiliser tel quel l'envoi/l'écoute des messages déjà en place. */
+function renderGroupesReels(list){
+  const wrap=document.getElementById('groupesReels');
+  if(!wrap) return;
+  groupesCache={};
+  wrap.innerHTML = list.map(function(g){
+    groupesCache[g.id]={nom:g.nom||'Groupe', participants:g.participants||[]};
+    const bg=gradientPourId(g.id);
+    const t=(g.derniereActivite&&g.derniereActivite.toDate)?g.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const apercu=g.dernierMessage?escapeHtml(g.dernierMessage):'Aucun message — démarrer la discussion';
+    const n=(g.participants||[]).length;
+    return '<div class="conv-card" data-mode="group" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
+      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">👥</div><div class="g-count">'+n+'</div></div>'
+      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(g.nom||'Groupe')+'</span><span class="cc-time">'+t+'</span></div>'
+      +'<div class="cc-preview">'+apercu+'</div>'
+      +'<span class="cc-tag">👥 Groupe · '+n+' membres</span></div></div></div>';
+  }).join('');
+}
+
+function ligneContactCoche(u, classeChk){
+  const nom=(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')||'Utilisateur';
+  const ini=initialesDe(u.prenom,u.nomFamille);
+  const bg=gradientPourId(u.id);
+  const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
+  return '<label class="conf-part-item" style="cursor:pointer">'
+    +'<input type="checkbox" class="'+classeChk+'" value="'+u.id+'" style="margin-right:2px;width:18px;height:18px;accent-color:var(--red)"/>'
+    +'<div class="conf-part-av" style="background:'+bg+'">'+ini+'</div>'
+    +'<div class="conf-part-name">'+escAttr(nom)+'</div>'
+    +'<div class="conf-part-role" style="color:#aaa">'+escAttr(roleLbl)+'</div></label>';
+}
+
+window.ouvrirCreationGroupe=function(){
+  const zone=document.getElementById('grpContactsListe');
+  const contacts=(window.tousLesContacts||[]).filter(function(u){return u.id!==currentUid;});
+  zone.innerHTML = contacts.length===0
+    ? '<div style="padding:16px;color:#999;font-size:13px;text-align:center">Aucun contact disponible pour le moment.</div>'
+    : contacts.map(function(u){ return ligneContactCoche(u,'grp-chk'); }).join('');
+  document.getElementById('grpNomInput').value='';
+  document.getElementById('groupCreatePanel').classList.add('open');
+  pushView('groupcreate');
+}
+window.closeGroupCreate=function(){ requestClose(); }
+
+window.creerGroupeFinal=async function(){
+  const nom=document.getElementById('grpNomInput').value.trim();
+  if(!nom){ toast('⚠️ Donnez un nom au groupe','r'); return; }
+  const checked=Array.from(document.querySelectorAll('#grpContactsListe .grp-chk:checked')).map(function(c){return c.value;});
+  if(checked.length===0){ toast('⚠️ Choisissez au moins un membre','r'); return; }
+  if(!currentUid){ toast('⚠️ Connexion requise','r'); return; }
+  const participants=[currentUid].concat(checked);
+  try{
+    const docRef=await db.collection('conversations').add({
+      type:'groupe',
+      nom:nom,
+      participants:participants,
+      creePar:currentUid,
+      creeLe:firebase.firestore.FieldValue.serverTimestamp(),
+      derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),
+      dernierMessage:'',
+      dernierEmetteur:''
+    });
+    toast('✅ Groupe créé','g');
+    requestClose();
+    setTimeout(function(){ openGroupChat(docRef.id,{nom:nom,participants:participants}); },150);
+  }catch(err){
+    console.error('Création du groupe impossible :',err);
+    toast('⚠️ Création du groupe impossible','r');
+  }
+}
+
+function construireInfosGroupe(participants){
+  const infos={};
+  (participants||[]).forEach(function(uid){
+    if(uid===currentUid && monInfo){ infos[uid]=monInfo; return; }
+    const u=(window.tousLesContacts||[]).find(function(c){ return c.id===uid; });
+    infos[uid] = u
+      ? { nom:(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')||'Utilisateur', ini:initialesDe(u.prenom,u.nomFamille), bg:gradientPourId(uid) }
+      : { nom:'Utilisateur', ini:'?', bg:'#999' };
+  });
+  return infos;
+}
+
+window.openGroupChat=function(convId, data){
+  currentEstGroupe=true;
+  currentOtherUid=null;
+  currentConvId=convId;
+  currentGroupParticipants=(data&&data.participants)||[];
+  currentChatName=(data&&data.nom)||'Groupe';
+  currentChatIni='👥';
+  currentChatBg=gradientPourId(convId);
+  currentChatRole=currentGroupParticipants.length+' membres';
+  document.getElementById('chaNm').innerHTML=escAttr(currentChatName);
+  const st=document.getElementById('chaSt');
+  st.textContent=currentGroupParticipants.length+' membres';
+  st.className='cha-st off';
+  document.getElementById('chaOnline').style.display='none';
+  const av=document.getElementById('chaAv'); av.style.background=currentChatBg; av.textContent='👥';
+  document.querySelectorAll('#msgsArea > .mrow[data-mid^="m"], #msgsArea > .reacts').forEach(function(el){ el.remove(); });
+  document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(function(el){ el.remove(); });
+  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+  if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
+  if(unsubPresence){ unsubPresence(); unsubPresence=null; }
+  if(presenceRecheckTimer){ clearInterval(presenceRecheckTimer); presenceRecheckTimer=null; }
+  dernierSnapMessages=null;
+  document.getElementById('demoMsgsSeed').style.display='none';
+  document.getElementById('emptyMsgsState').style.display='none';
+  demarrerConversationGroupe(convId);
+  document.getElementById('chatPanel').classList.add('open');
+  appliquerDecalageChat();
+  if(viewStack[viewStack.length-1]!=='chat') pushView('chat');
+  cancelReply();
+  setTimeout(function(){ const a=document.getElementById('msgsArea'); a.scrollTop=a.scrollHeight; },100);
+}
+
+async function demarrerConversationGroupe(convId){
+  const convRef=db.collection('conversations').doc(convId);
+  await obtenirMonInfo();
+  currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+  try{
+    const snap=await convRef.get();
+    if(snap.exists){
+      const d=snap.data();
+      if(d.participants) currentGroupParticipants=d.participants;
+      if(d.nom) currentChatName=d.nom;
+      currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+      document.getElementById('chaNm').innerHTML=escAttr(currentChatName);
+      document.getElementById('chaSt').textContent=currentGroupParticipants.length+' membres';
+      currentConvLuPar=d.luPar||{};
+    }
+  }catch(err){ console.error('Lecture du groupe impossible :',err); }
+  if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
+  unsubConvDoc=convRef.onSnapshot(function(docSnap){
+    const d=docSnap.data()||{};
+    currentConvLuPar=d.luPar||{};
+    if(d.participants){
+      currentGroupParticipants=d.participants;
+      currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+      const stEl=document.getElementById('chaSt');
+      if(stEl) stEl.textContent=currentGroupParticipants.length+' membres';
+    }
+    if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
+  }, function(err){ console.error('Écoute du groupe impossible :',err); });
+  marquerConversationCommeLue();
+  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+  unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot({includeMetadataChanges:true}, function(snap){
+    dernierSnapMessages=snap;
+    renderRealMessages(snap);
+    marquerConversationCommeLue();
+  }, function(err){ console.error('Écoute des messages du groupe impossible :',err); });
+}
+
+window.ouvrirMembresGroupe=function(){
+  if(!currentEstGroupe || !currentConvId){ toast('Options',''); return; }
+  document.getElementById('gmTitre').textContent=currentChatName;
+  renderListeMembresActuels();
+  renderAjoutMembresListe();
+  document.getElementById('groupMembersPanel').classList.add('open');
+  pushView('groupmembers');
+}
+window.closeGroupMembers=function(){ requestClose(); }
+
+function renderListeMembresActuels(){
+  const zone=document.getElementById('gmMembresActuels');
+  zone.innerHTML=currentGroupParticipants.map(function(uid){
+    const info=currentConvInfos[uid]||{nom:'Utilisateur',ini:'?',bg:'#999'};
+    const suffixe = uid===currentUid ? ' (vous)' : '';
+    return '<div class="conf-part-item"><div class="conf-part-av" style="background:'+info.bg+'">'+info.ini+'</div><div class="conf-part-name">'+escAttr(info.nom)+suffixe+'</div></div>';
+  }).join('');
+}
+function renderAjoutMembresListe(){
+  const zone=document.getElementById('gmAjoutListe');
+  const dispo=(window.tousLesContacts||[]).filter(function(u){ return currentGroupParticipants.indexOf(u.id)===-1; });
+  zone.innerHTML = dispo.length===0
+    ? '<div style="padding:12px;color:#999;font-size:13px;text-align:center">Tous vos contacts sont déjà dans ce groupe.</div>'
+    : dispo.map(function(u){ return ligneContactCoche(u,'gm-chk'); }).join('');
+}
+window.ajouterMembresFinal=async function(){
+  const checked=Array.from(document.querySelectorAll('#gmAjoutListe .gm-chk:checked')).map(function(c){return c.value;});
+  if(checked.length===0){ toast('⚠️ Choisissez au moins un contact','r'); return; }
+  if(!currentConvId){ return; }
+  try{
+    await db.collection('conversations').doc(currentConvId).update({
+      participants: firebase.firestore.FieldValue.arrayUnion.apply(null, checked)
+    });
+    toast('✅ Membre(s) ajouté(s)','g');
+  }catch(err){
+    console.error('Ajout de membre(s) impossible :',err);
+    toast('⚠️ Ajout impossible','r');
+  }
 }
 
 /* ══════════════ MENU CONTEXTUEL (long-press / clic droit) ══════════════ */
@@ -1561,7 +1803,7 @@ window.onApercuZoom=function(val){
   apercuZoomVal=val/100;
   clamperOffsetsApercu();
   appliquerTransformApercu();
-}
+};
 (function(){
   const frame=document.getElementById('apercuFrame');
   frame.addEventListener('touchstart',(e)=>{
@@ -1652,6 +1894,7 @@ window.viewImage=function(el){
    sans requête Firestore supplémentaire — aucun risque d'index composite manquant. */
 let mediaGalerieCourante=[], indexMediaViewer=-1;
 window.ouvrirProfilContact=function(){
+  if(currentEstGroupe){ ouvrirMembresGroupe(); return; }
   if(!currentOtherUid){ toast('Profil indisponible pour une conversation démo','r'); return; }
   const infos = currentConvInfos[currentOtherUid] || {};
   const av=document.getElementById('pcAv');
