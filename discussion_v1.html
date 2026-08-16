@@ -225,14 +225,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.out .msg-deleted{color:rgba(255,255,255,0.8)!important}
 
 /* ── Pièces jointes ── */
-.img-bbl{max-width:68%;border-radius:16px;overflow:hidden;cursor:pointer;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.16)}
-.cap-txt{font-size:12px;color:#333;background:#fff;padding:6px 10px;line-height:1.3}
-.img-media-wrap,.video-media-wrap{position:relative}
+.img-bbl{max-width:68%;border-radius:16px;overflow:hidden;cursor:pointer;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.16);background:#fff}
+.cap-txt{font-size:12px;color:#333;background:#fff;padding:6px 10px 2px;line-height:1.3}
 .img-bbl img{display:block;width:100%;max-height:280px;object-fit:cover}
-.img-media-wrap .img-ft{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:99px;font-size:10px;color:#fff}
+.img-bbl .img-ft{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 10px;font-size:10px;color:#999;background:#fff}
 .video-bbl{max-width:68%;border-radius:16px;overflow:hidden;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.16);background:#000}
 .video-bbl video{display:block;width:100%;max-height:320px;background:#000}
-.video-media-wrap .img-ft{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,0.4);padding:2px 7px;border-radius:99px;font-size:10px;color:#fff}
+.video-bbl .img-ft{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 10px;font-size:10px;color:#ccc;background:#000}
 .vid-expand{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;display:flex;align-items:center;justify-content:center}
 .video-bbl.expanded video{max-height:100vh;height:100%;object-fit:contain}
@@ -1244,11 +1243,11 @@ function creerElementMessage(doc){
   if(m.type==='image'){
     d.dataset.txt='📷 Photo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="img-bbl" onclick="viewImage(this)"><div class="img-media-wrap"><img src="'+m.url+'"/><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>'+capHtml+'</div>';
+    interieur='<div class="img-bbl" onclick="viewImage(this)"><img src="'+m.url+'"/>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='video'){
     d.dataset.txt='🎬 Vidéo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="video-bbl"><div class="video-media-wrap"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls playsinline></video><div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>'+capHtml+'</div>';
+    interieur='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='file'){
     const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
     d.dataset.txt='📄 '+(m.nom||'Fichier');
@@ -2188,7 +2187,7 @@ function appendImageMessage(dataUrl, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='📷 Photo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><div class="img-media-wrap"><img src="'+dataUrl+'"/><div class="img-ft">'+t+' ✓</div></div>'+capHtml+'</div>';
+  d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><img src="'+dataUrl+'"/>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('📷 Photo compressée et envoyée (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -2274,7 +2273,7 @@ function appendVideoMessage(file, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🎬 Vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="video-bbl"><div class="video-media-wrap"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls playsinline></video><div class="img-ft">'+t+' ✓</div></div>'+capHtml+'</div>';
+  d.innerHTML='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -2308,19 +2307,23 @@ function renderEmoPanel(){
 }
 renderEmoPanel();
 window.basculerEmoTab=function(tab){
+  ajouterEtape('😊 Onglet emoji → '+tab);
   emoTabActif=tab;
   renderEmoPanel();
   if(tab==='stickers') chargerMesStickers();
 };
 async function chargerMesStickers(){
+  ajouterEtape('🧩 Chargement de mes stickers...');
   const zone=document.getElementById('emoBody');
-  if(!zone) return;
-  if(!currentUid){ zone.innerHTML='<div style="grid-column:1/-1;padding:16px;text-align:center;color:#999;font-size:13px">Connexion requise</div>'; return; }
+  if(!zone){ ajouterEtape('🧩 ÉCHEC : élément #emoBody introuvable', true); return; }
+  if(!currentUid){ ajouterEtape('🧩 ÉCHEC : currentUid non défini (pas connecté ?)', true); zone.innerHTML='<div style="grid-column:1/-1;padding:16px;text-align:center;color:#999;font-size:13px">Connexion requise</div>'; return; }
   try{
     const snap=await db.collection('stickers').where('proprietaire','==',currentUid).orderBy('creeLe','desc').get();
     mesStickers=snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    ajouterEtape('🧩 Stickers chargés ✅ ('+mesStickers.length+')');
   }catch(err){
     console.error('Chargement des stickers impossible :',err);
+    ajouterEtape('🧩 ÉCHEC chargement — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     mesStickers=[];
   }
   renderStickerGrille();
@@ -2334,10 +2337,16 @@ function renderStickerGrille(){
   }).join('');
   zone.innerHTML=html;
 }
-window.pickStickerFile=function(){ document.getElementById('stickerFileIn').click(); };
+window.pickStickerFile=function(){
+  ajouterEtape('🧩 Bouton + Créer sticker touché');
+  const input=document.getElementById('stickerFileIn');
+  if(!input){ ajouterEtape('🧩 ÉCHEC : #stickerFileIn introuvable', true); return; }
+  input.click();
+};
 window.onStickerFilePicked=function(e){
   const file=e.target.files[0];
   e.target.value='';
+  ajouterEtape('🧩 Photo choisie pour sticker : '+(file?file.name:'aucune'));
   if(!file) return;
   apercuModeSticker=true;
   ouvrirApercuMedia(file,'image');
@@ -2349,12 +2358,15 @@ window.onStickerFilePicked=function(e){
 async function uploaderStickerVersStorage(blob){
   const nomFichier = Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
   const chemin = 'stickers/'+currentUid+'/'+nomFichier;
+  ajouterEtape('🧩 Upload sticker vers Storage : '+chemin+'...');
   const ref = storage.ref().child(chemin);
   await ref.put(blob, {contentType:'image/jpeg'});
-  return await ref.getDownloadURL();
+  const url = await ref.getDownloadURL();
+  ajouterEtape('🧩 Upload sticker terminé ✅');
+  return url;
 }
 async function enregistrerNouveauSticker(blob){
-  if(!currentUid){ toast('⚠️ Connexion requise','r'); return; }
+  if(!currentUid){ ajouterEtape('🧩 ÉCHEC création : pas connecté', true); toast('⚠️ Connexion requise','r'); return; }
   try{
     const url = await uploaderStickerVersStorage(blob);
     await db.collection('stickers').add({
@@ -2362,23 +2374,29 @@ async function enregistrerNouveauSticker(blob){
       url:url,
       creeLe:firebase.firestore.FieldValue.serverTimestamp()
     });
+    ajouterEtape('🧩 Sticker enregistré sur Firestore ✅');
     toast('✅ Sticker créé','g');
     if(emoTabActif==='stickers') chargerMesStickers();
   }catch(err){
     console.error('Création du sticker impossible :',err);
+    ajouterEtape('🧩 ÉCHEC création sticker — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     toast('⚠️ Création du sticker impossible','r');
   }
 }
 window.envoyerSticker=async function(url){
+  ajouterEtape('🧩 Sticker touché pour envoi');
   closeEmoji();
   if(currentConvId){
     try{
       await envoyerMessageMedia('sticker', url, {});
+      ajouterEtape('🧩 Sticker envoyé ✅');
     }catch(err){
       console.error('Envoi du sticker impossible :',err);
+      ajouterEtape('🧩 ÉCHEC envoi sticker — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
       toast('⚠️ Sticker non envoyé','r');
     }
   } else {
+    ajouterEtape('🧩 Pas de conversation réelle ouverte — ajout local (démo)');
     appendStickerMessageDemo(url);
   }
 };
