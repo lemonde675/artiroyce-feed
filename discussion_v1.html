@@ -135,7 +135,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .bbl{max-width:72%;padding:10px 13px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
 .mrow.in .bbl{background:#fff;color:#111;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 .mrow.out .bbl{background:var(--red);color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(230,50,36,0.25)}
-.bbl-ft{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px}
+.bbl-ft{display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:6px}
 .bbl-t{font-size:10px;color:rgba(0,0,0,0.3)}
 .mrow.out .bbl-t{color:rgba(255,255,255,0.6)}
 .tick{font-size:10px;color:rgba(255,255,255,0.55)}
@@ -707,15 +707,20 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <script>
 // ══ SWIPE HORIZONTAL → signal vers accueil.html ══
 (function(){
-  let startX=0, startY=0, swiping=false;
+  let startX=0, startY=0, swiping=false, ignorerCeGeste=false;
 
   document.addEventListener('touchstart', (e)=>{
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     swiping = false;
+    // Sur ces écrans (aperçu photo/vidéo, menu contextuel, panneaux plein écran), le geste
+    // de glissement doit rester local (déplacer un sticker, dessiner, recadrer...) —
+    // il ne doit jamais être interprété comme "changer d'onglet Accueil/Discussion".
+    ignorerCeGeste = !!e.target.closest('.apercu-overlay, .ctx-menu, .conf-panel, .profil-contact-panel, .emo-panel, .call-screen');
   }, {passive:true});
 
   document.addEventListener('touchmove', (e)=>{
+    if(ignorerCeGeste) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
     if(!swiping && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6){
@@ -730,7 +735,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   }, {passive:true});
 
   document.addEventListener('touchend', (e)=>{
-    if(!swiping) return;
+    if(ignorerCeGeste || !swiping) return;
     const dx = e.changedTouches[0].clientX - startX;
     if(window.parent !== window){
       window.parent.postMessage({type:'swipeEnd', dx:dx}, '*');
