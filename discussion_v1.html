@@ -306,22 +306,83 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .apercu-sticker-picker.show{display:grid}
 .apercu-sticker-picker .stk-add,.apercu-sticker-picker .stk-item{aspect-ratio:1/1;border-radius:10px}
 
-/* ── Écran d'appel ── */
-.call-screen{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:600;background:linear-gradient(180deg,#0a1220,#141c2e 45%,#0a1220);display:flex;flex-direction:column;transition:transform 0.32s cubic-bezier(.4,0,.2,1);color:#fff}
+/* ── Écran d'appel (style "Chaleureux" — cohérent avec le fond du chat) ── */
+.call-screen{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:600;
+  background:linear-gradient(160deg,#efe3c8 0%,#e8d9b8 55%,#ddc99e 100%);
+  display:flex;flex-direction:column;transition:transform 0.32s cubic-bezier(.4,0,.2,1);color:#2b2013;overflow:hidden}
 .call-screen.open{transform:translateX(-50%)}
-.call-top{padding:52px 20px 6px;text-align:center;flex-shrink:0}
-.call-name{font-size:21px;font-weight:800}
-.call-status{font-size:13px;color:rgba(255,255,255,0.55);margin-top:6px}
-.call-avatar-big{width:104px;height:104px;border-radius:50%;margin:22px auto 0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff;flex-shrink:0}
-.call-mid{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.call-local-video{position:absolute;top:14px;right:14px;width:96px;height:132px;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:5;border:2px solid rgba(255,255,255,0.15);display:none}
+.call-screen::before{
+  content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(230,50,36,.05) 0 40px, transparent 41px),
+    radial-gradient(circle at 85% 15%, rgba(39,169,69,.05) 0 46px, transparent 47px),
+    radial-gradient(circle at 75% 70%, rgba(230,50,36,.04) 0 55px, transparent 56px),
+    radial-gradient(circle at 20% 80%, rgba(39,169,69,.04) 0 38px, transparent 39px),
+    radial-gradient(circle at 50% 45%, rgba(10,10,46,.03) 0 60px, transparent 61px);
+}
+.call-top{padding:52px 20px 6px;text-align:center;flex-shrink:0;position:relative;z-index:2}
+.call-name{font-size:21px;font-weight:800;color:#2b2013;letter-spacing:-.3px}
+.call-status{font-size:13px;color:#8a7550;margin-top:6px;font-weight:600}
+.call-avatar-big{width:104px;height:104px;border-radius:50%;margin:30px auto 0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff;flex-shrink:0;
+  position:relative;z-index:1;box-shadow:0 12px 30px rgba(10,10,46,.18),0 0 0 5px rgba(255,255,255,.5)}
+.call-avatar-big::before,.call-avatar-big::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  border:2px solid rgba(230,50,36,.25);
+  animation:callRipple 2.4s ease-out infinite;
+}
+.call-avatar-big::after{animation-delay:1.2s}
+@keyframes callRipple{
+  0%{transform:scale(1);opacity:.9}
+  100%{transform:scale(1.55);opacity:0}
+}
+.call-mid{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1}
+.call-local-video{position:absolute;top:14px;right:14px;width:88px;height:120px;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 22px rgba(10,10,46,.25);z-index:5;border:2.5px solid rgba(255,255,255,.7);display:none}
 .call-local-video.show{display:block}
 .call-local-video video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-.call-pending-note{font-size:11.5px;color:rgba(255,255,255,0.4);text-align:center;padding:0 34px;line-height:1.6}
-.call-ctrls{display:flex;justify-content:center;gap:15px;padding:22px 20px calc(46px + env(safe-area-inset-bottom, 0px));flex-shrink:0}
-.call-ctrl{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.13);border:none;color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.call-pending-note{font-size:11.5px;color:#9a8760;text-align:center;padding:0 34px;line-height:1.6;position:relative;z-index:2}
+.call-ctrls{display:flex;justify-content:center;gap:16px;padding:22px 20px calc(46px + env(safe-area-inset-bottom, 0px));flex-shrink:0;position:relative;z-index:2}
+.call-ctrl{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65);border:none;color:#2b2013;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 6px 16px rgba(43,32,19,.1);backdrop-filter:blur(6px);transition:transform .15s}
+.call-ctrl:active{transform:scale(.92)}
 .call-ctrl.active{background:#fff;color:#111}
-.call-ctrl.end{background:var(--red)}
+.call-ctrl.end{background:linear-gradient(135deg,var(--red),#b8271b);color:#fff;box-shadow:0 8px 22px rgba(230,50,36,.4);width:64px;height:64px;font-size:25px}
+.call-remote-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:0;display:none}
+
+/* ── Écran d'appel entrant (même identité visuelle "Chaleureux") ── */
+.incoming-call-screen{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:650;
+  background:linear-gradient(160deg,#efe3c8 0%,#e8d9b8 55%,#ddc99e 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  transition:transform 0.32s cubic-bezier(.4,0,.2,1);color:#2b2013;overflow:hidden;text-align:center;
+  padding:60px 20px calc(50px + env(safe-area-inset-bottom, 0px))}
+.incoming-call-screen.open{transform:translateX(-50%)}
+.incoming-call-screen::before{
+  content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(230,50,36,.05) 0 40px, transparent 41px),
+    radial-gradient(circle at 85% 15%, rgba(39,169,69,.05) 0 46px, transparent 47px),
+    radial-gradient(circle at 75% 70%, rgba(230,50,36,.04) 0 55px, transparent 56px),
+    radial-gradient(circle at 20% 80%, rgba(39,169,69,.04) 0 38px, transparent 39px);
+}
+.ic-top{position:relative;z-index:2}
+.ic-eyebrow{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#b3a074}
+.ic-name{font-size:24px;font-weight:800;margin-top:10px;color:#2b2013;letter-spacing:-.3px}
+.ic-sub{font-size:13px;color:#8a7550;margin-top:6px;font-weight:600}
+.ic-avatar-wrap{position:relative;width:150px;height:150px;margin:34px auto;display:flex;align-items:center;justify-content:center;z-index:2}
+.ic-avatar-wrap::before,.ic-avatar-wrap::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  border:2px solid rgba(39,169,69,.3);animation:callRipple 1.7s ease-out infinite;
+}
+.ic-avatar-wrap::after{animation-delay:.85s}
+.ic-avatar{width:118px;height:118px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:44px;font-weight:900;color:#fff;box-shadow:0 12px 30px rgba(10,10,46,.18),0 0 0 5px rgba(255,255,255,.5)}
+.ic-actions{display:flex;justify-content:center;gap:46px;position:relative;z-index:2;width:100%}
+.ic-actions>div{display:flex;flex-direction:column;align-items:center}
+.ic-btn{width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;font-size:26px;color:#fff;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(43,32,19,.18);transition:transform .15s}
+.ic-btn:active{transform:scale(.92)}
+.ic-btn.decline{background:linear-gradient(135deg,var(--red),#b8271b)}
+.ic-btn.accept{background:linear-gradient(135deg,var(--green),#1c7a33)}
+.ic-btn-label{display:block;font-size:10.5px;margin-top:8px;font-weight:700;color:#8a7550}
 
 /* ── Panneau de diagnostic (temporaire) : caché par défaut, ouvert via un petit
    bouton 🛠️ intégré aux en-têtes existantes — ne recouvre JAMAIS la zone de saisie. ── */
@@ -632,15 +693,36 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="call-status" id="callStatus">Appel en cours…</div>
   </div>
   <div class="call-mid" id="callMid">
+    <video class="call-remote-video" id="callRemoteVideo" autoplay playsinline></video>
     <div class="call-avatar-big" id="callAvatarBig">?</div>
     <div class="call-local-video" id="callLocalWrap"><video id="callLocalVideo" autoplay muted playsinline></video></div>
   </div>
-  <div class="call-pending-note">ℹ️ Aperçu caméra/micro réel de votre côté. La connexion avec l'autre personne nécessite un serveur de signalisation à activer côté serveur — pas encore branché ici.</div>
+  <div class="call-pending-note" id="callPendingNote">ℹ️ La connexion audio/vidéo est directe avec votre correspondant, sans passer par nos serveurs.</div>
   <div class="call-ctrls">
     <button class="call-ctrl" id="callMuteBtn" onclick="toggleMute()">🎙️</button>
     <button class="call-ctrl" id="callCamBtn" onclick="toggleCam()">📷</button>
     <button class="call-ctrl" id="callSpkBtn" onclick="toggleSpk()">🔊</button>
     <button class="call-ctrl end" onclick="endCall()">📵</button>
+  </div>
+</div>
+<div class="incoming-call-screen" id="incomingCallScreen">
+  <div class="ic-top">
+    <div class="ic-eyebrow">ArtiRoyce</div>
+    <div class="ic-name" id="icName">—</div>
+    <div class="ic-sub" id="icSub">Appel entrant…</div>
+  </div>
+  <div class="ic-avatar-wrap">
+    <div class="ic-avatar" id="icAvatar">?</div>
+  </div>
+  <div class="ic-actions">
+    <div>
+      <button class="ic-btn decline" onclick="appelRefuser()">📵</button>
+      <span class="ic-btn-label">Refuser</span>
+    </div>
+    <div>
+      <button class="ic-btn accept" onclick="appelAccepter()">📞</button>
+      <span class="ic-btn-label">Accepter</span>
+    </div>
   </div>
 </div>
 <div class="conf-panel" id="confPanel">
@@ -877,11 +959,20 @@ function hideView(name){
   else if(name==='groupcreate'){ document.getElementById('groupCreatePanel').classList.remove('open'); }
   else if(name==='groupmembers'){ document.getElementById('groupMembersPanel').classList.remove('open'); }
   else if(name==='call'){
+    // Si un appel réel (WebRTC) était en cours, on prévient l'autre personne et on
+    // nettoie la connexion — sans effet si c'était juste l'aperçu local (démo/conférence).
+    if(window.appelRaccrocher) window.appelRaccrocher();
     clearInterval(callTimerInt);
     const dur=callSeconds;
     if(callStream){ callStream.getTracks().forEach(t=>t.stop()); callStream=null; }
     document.getElementById('callScreen').classList.remove('open');
     if(dur>0) logCallBubble(callType,fmtTime(dur));
+  }
+  else if(name==='incall'){
+    document.getElementById('incomingCallScreen').classList.remove('open');
+    // Si on ferme cet écran (retour arrière) sans avoir répondu, ça compte comme un refus —
+    // mais sans redéclencher de navigation (on est déjà dans le traitement du retour).
+    if(window.appelAnnulerSiSonne) window.appelAnnulerSiSonne();
   }
 }
 
@@ -2543,18 +2634,28 @@ window.cycleSpeed=function(btn){
   currentAudio.playbackRate=next;btn.textContent=next+'×';
 }
 
-/* ══════════════ APPELS (aperçu caméra/micro réel, en attente de signalisation) ══════════════ */
+/* ══════════════ APPELS ══════════════
+   Ouverture de l'écran et accès micro/caméra : ici (inchangé dans son fonctionnement).
+   Connexion réelle entre les deux personnes (WebRTC) : voir appels.js,
+   chargé en fin de page — ce fichier réutilise les variables
+   et fonctions ci-dessous (partagées, car scripts classiques sur la même page). */
 let callStream=null, callTimerInt=null, callSeconds=0, callType='audio', callMuted=false, callCamOff=false;
 window.addCall=function(type){startCall(type)} // compat rétro
 window.startCall=async function(type){startCallReal(type)}
-async function startCallReal(type){
+
+/* Prépare l'écran d'appel et demande micro/caméra — utilisé aussi bien pour un appel
+   que je lance (nom/avatar = mon correspondant) que pour un appel entrant que j'accepte
+   (nom/avatar = l'appelant). Renvoie le flux local, ou null si micro/caméra refusés. */
+async function prepareCallScreen(type,nom,ini,bg){
   callType=type;callSeconds=0;callMuted=false;callCamOff=false;
-  document.getElementById('callName').textContent=currentChatName;
-  document.getElementById('callAvatarBig').textContent=currentChatIni;
-  document.getElementById('callAvatarBig').style.background=currentChatBg;
+  document.getElementById('callName').textContent=nom;
+  document.getElementById('callAvatarBig').textContent=ini;
+  document.getElementById('callAvatarBig').style.background=bg;
+  document.getElementById('callAvatarBig').style.display='flex';
   document.getElementById('callStatus').textContent='Connexion du micro/caméra…';
   document.getElementById('callCamBtn').style.display=type==='video'?'':'none';
   document.getElementById('callLocalWrap').classList.remove('show');
+  const rv=document.getElementById('callRemoteVideo'); rv.srcObject=null; rv.style.display='none';
   document.getElementById('callScreen').classList.add('open');
   pushView('call');
   try{
@@ -2563,17 +2664,31 @@ async function startCallReal(type){
     document.getElementById('callStatus').textContent='Micro/caméra refusés — appel impossible';
     logCallBubble(type,'Échec — accès refusé');
     setTimeout(requestClose,1600);
-    return;
+    return null;
   }
   if(type==='video'){
     const v=document.getElementById('callLocalVideo');v.srcObject=callStream;
     document.getElementById('callLocalWrap').classList.add('show');
   }
-  document.getElementById('callStatus').textContent='En attente de connexion…';
-  callTimerInt=setInterval(()=>{
-    callSeconds++;
-    document.getElementById('callStatus').textContent=Math.floor(callSeconds/60)+':'+String(callSeconds%60).padStart(2,'0')+' · en attente du correspondant';
-  },1000);
+  return callStream;
+}
+window.prepareCallScreen=prepareCallScreen;
+
+async function startCallReal(type){
+  const stream=await prepareCallScreen(type,currentChatName,currentChatIni,currentChatBg);
+  if(!stream) return;
+  if(currentOtherUid && currentConvId && window.appelSortant){
+    // ══ Conversation réelle avec cette personne : vraie connexion (WebRTC) ══
+    window.appelSortant(type);
+  } else {
+    // ══ Mode démo / conférence (pas de correspondant réel identifié) : aperçu local seul,
+    //     comportement strictement inchangé par rapport à avant. ══
+    document.getElementById('callStatus').textContent='En attente de connexion…';
+    callTimerInt=setInterval(()=>{
+      callSeconds++;
+      document.getElementById('callStatus').textContent=Math.floor(callSeconds/60)+':'+String(callSeconds%60).padStart(2,'0')+' · en attente du correspondant';
+    },1000);
+  }
 }
 window.toggleMute=function(){
   if(!callStream)return;callMuted=!callMuted;
@@ -2719,6 +2834,10 @@ function demarrerFirebase(){
     chargerConversationsReelles();
     chargerTousLesContacts();
     demarrerHeartbeatPresence();
+    // Écoute des appels entrants (audio/vidéo) : démarrée une seule fois, dès que
+    // l'identité réelle est connue, pour recevoir un appel même si aucune conversation
+    // n'est ouverte à ce moment-là.
+    if(currentUid && window.appelEcouteEntrants) window.appelEcouteEntrants();
     if(currentUid && window._chatEnAttente){
       const p = window._chatEnAttente;
       window._chatEnAttente = null;
@@ -2769,6 +2888,11 @@ demarrerFirebase();
      Ici on charge des CONTACTS réels (nom, rôle, métier) — pas de fausses conversations :
      tant qu'il n'existe pas de collection "conversations/messages" dans Firebase,
      on ne fabrique aucun historique ni statut en ligne pour ces vraies personnes. -->
+<!-- ══════════════ APPELS AUDIO/VIDÉO RÉELS (WebRTC) ══════════════
+     Fichier séparé, chargé en dernier pour réutiliser les variables et fonctions
+     déjà déclarées plus haut sur cette même page (db, currentUid, currentOtherUid,
+     callStream, pushView, requestClose, logCallBubble, obtenirMonInfo, etc.). -->
+<script src="appels.js"></script>
 </body>
 </html>
 
