@@ -268,9 +268,10 @@
   }
   .section-sub { font-size:14px; color:var(--muted); max-width:400px; line-height:1.65; margin-bottom:36px; }
 
-  /* ── CAROUSEL PROFESSIONNELS (photos réelles, défilement automatique) ──
-     Même mécanique que le carousel "Offres en vedette" de offre_v1.html :
-     scroll horizontal avec snap, avance automatique, pause au toucher. */
+  /* ── CAROUSEL PROFESSIONNELS (photos réelles, défilement manuel) ──
+     Scroll horizontal avec snap — l'utilisateur parcourt à son rythme
+     (glissement tactile sur mobile, clic-glisser ou molette sur PC),
+     aucun défilement automatique. */
   .pros-carousel {
     display:flex; gap:12px; overflow-x:auto;
     scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
@@ -954,24 +955,6 @@ new IntersectionObserver(entries=>{
 document.querySelectorAll('.reveal').forEach(el=>{
   new IntersectionObserver(entries=>{ if(entries[0].isIntersecting)el.classList.add('visible'); },{threshold:0.1}).observe(el);
 });
-
-/* ── CAROUSEL PROFESSIONNELS : défilement automatique ──
-   Même mécanique que le carousel "Offres en vedette" de offre_v1.html :
-   avance toutes les 3s, revient au début en fin de course, pause 4s au toucher. */
-(function(){
-  const track = document.getElementById('prosCarousel');
-  if(!track) return;
-  let pausedUntil = 0;
-  setInterval(()=>{
-    if(Date.now() < pausedUntil) return;
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    if(maxScroll <= 2) return;
-    if(track.scrollLeft >= maxScroll - 2) track.scrollTo({left:0,behavior:'smooth'});
-    else track.scrollTo({left:track.scrollLeft + 162,behavior:'smooth'});
-  },3000);
-  track.addEventListener('touchstart',()=>{ pausedUntil = Date.now()+4000; },{passive:true});
-  track.addEventListener('mousedown',()=>{ pausedUntil = Date.now()+4000; });
-})();
 
 </script>
 
