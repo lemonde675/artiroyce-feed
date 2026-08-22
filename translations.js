@@ -110,6 +110,18 @@ const TRANSLATIONS = {
     label_ville:              'VILLE',
     js_err_pays:              '⚠ Sélectionnez ou entrez votre pays.',
     js_err_ville:             '⚠ Sélectionnez ou entrez votre ville.',
+    /* INSCRIPTION VISITEUR */
+    dp_visitor_title:         'Rejoignez la communauté',
+    dp_visitor_sub:           'Contactez les meilleurs professionnels, échangez et suivez leur travail — en quelques secondes, sans engagement.',
+    reg_visitor_title:        'Inscription Visiteur',
+    reg_visitor_subtitle:     'Créez votre compte visiteur pour contacter, échanger et suivre les professionnels ArtiRoyce',
+    hint_to_pro:              'Professionnel ? Créez un compte vérifié',
+    visitor_info_html:        '<strong>Visiteur :</strong> vous pouvez contacter et appeler les professionnels, commenter (identifié comme <strong>Visiteur</strong>), discuter et poster des statuts. Vous ne pouvez pas publier de vidéos ni publier dans le fil d\'actualité, hormis la modification de votre <strong>photo de profil</strong> et de votre <strong>bio</strong> (limitée en caractères).',
+    pill_visitor:              '👤 Page visiteurs',
+    pill_professional:        '👔 Page professionnel',
+    pays_choisir:              '— Choisissez votre pays —',
+    pays_autre:                'Autre (non listé)',
+    verif_retour:              '← Retour',
   },
 
   EN: {
@@ -210,6 +222,18 @@ const TRANSLATIONS = {
     label_ville:              'CITY',
     js_err_pays:              '⚠ Select or enter your country.',
     js_err_ville:             '⚠ Select or enter your city.',
+    /* VISITOR REGISTRATION */
+    dp_visitor_title:         'Join the community',
+    dp_visitor_sub:           'Contact top professionals, chat and follow their work — in seconds, no commitment.',
+    reg_visitor_title:        'Visitor Registration',
+    reg_visitor_subtitle:     'Create your visitor account to contact, chat with, and follow ArtiRoyce professionals',
+    hint_to_pro:              'Professional? Create a verified account',
+    visitor_info_html:        '<strong>Visitor:</strong> you can contact and call professionals, comment (shown as <strong>Visitor</strong>), chat and post statuses. You cannot publish videos or post to the news feed, except for changing your <strong>profile photo</strong> and <strong>bio</strong> (character-limited).',
+    pill_visitor:              '👤 Visitor page',
+    pill_professional:        '👔 Professional page',
+    pays_choisir:              '— Select your country —',
+    pays_autre:                'Other (not listed)',
+    verif_retour:              '← Back',
   },
 
   ES: {
@@ -310,6 +334,18 @@ const TRANSLATIONS = {
     label_ville:              'CIUDAD',
     js_err_pays:              '⚠ Selecciona o ingresa tu país.',
     js_err_ville:             '⚠ Selecciona o ingresa tu ciudad.',
+    /* REGISTRO DE VISITANTE */
+    dp_visitor_title:         'Únete a la comunidad',
+    dp_visitor_sub:           'Contacta a los mejores profesionales, conversa y sigue su trabajo — en segundos, sin compromiso.',
+    reg_visitor_title:        'Registro de Visitante',
+    reg_visitor_subtitle:     'Crea tu cuenta de visitante para contactar, conversar y seguir a los profesionales de ArtiRoyce',
+    hint_to_pro:              '¿Profesional? Crea una cuenta verificada',
+    visitor_info_html:        '<strong>Visitante:</strong> puedes contactar y llamar a los profesionales, comentar (identificado como <strong>Visitante</strong>), chatear y publicar estados. No puedes publicar videos ni publicar en el feed de noticias, excepto cambiar tu <strong>foto de perfil</strong> y tu <strong>biografía</strong> (con límite de caracteres).',
+    pill_visitor:              '👤 Página de visitantes',
+    pill_professional:        '👔 Página profesional',
+    pays_choisir:              '— Selecciona tu país —',
+    pays_autre:                'Otro (no listado)',
+    verif_retour:              '← Volver',
   },
 
   PT: {
@@ -410,6 +446,18 @@ const TRANSLATIONS = {
     label_ville:              'CIDADE',
     js_err_pays:              '⚠ Selecione ou digite seu país.',
     js_err_ville:             '⚠ Selecione ou digite sua cidade.',
+    /* CADASTRO DE VISITANTE */
+    dp_visitor_title:         'Junte-se à comunidade',
+    dp_visitor_sub:           'Contate os melhores profissionais, converse e acompanhe o trabalho deles — em segundos, sem compromisso.',
+    reg_visitor_title:        'Cadastro de Visitante',
+    reg_visitor_subtitle:     'Crie sua conta de visitante para contatar, conversar e seguir os profissionais do ArtiRoyce',
+    hint_to_pro:              'Profissional? Crie uma conta verificada',
+    visitor_info_html:        '<strong>Visitante:</strong> você pode contatar e ligar para profissionais, comentar (identificado como <strong>Visitante</strong>), conversar e publicar status. Você não pode publicar vídeos nem publicar no feed de notícias, exceto alterar sua <strong>foto de perfil</strong> e sua <strong>bio</strong> (com limite de caracteres).',
+    pill_visitor:              '👤 Página de visitantes',
+    pill_professional:        '👔 Página profissional',
+    pays_choisir:              '— Selecione seu país —',
+    pays_autre:                'Outro (não listado)',
+    verif_retour:              '← Voltar',
   },
 
   AR: {
@@ -510,6 +558,18 @@ const TRANSLATIONS = {
     label_ville:              'المدينة',
     js_err_pays:              '⚠ اختر بلدك أو أدخله.',
     js_err_ville:             '⚠ اختر مدينتك أو أدخلها.',
+    /* تسجيل الزائر */
+    dp_visitor_title:         'انضم إلى المجتمع',
+    dp_visitor_sub:           'تواصل مع أفضل المحترفين، تحدث وتابع أعمالهم — في ثوانٍ، بدون التزام.',
+    reg_visitor_title:        'تسجيل الزائر',
+    reg_visitor_subtitle:     'أنشئ حساب زائر للتواصل والدردشة ومتابعة محترفي ArtiRoyce',
+    hint_to_pro:              'محترف؟ أنشئ حسابًا موثقًا',
+    visitor_info_html:        '<strong>زائر:</strong> يمكنك التواصل والاتصال بالمحترفين، والتعليق (يظهر باسم <strong>زائر</strong>)، والدردشة ونشر الحالات. لا يمكنك نشر مقاطع فيديو أو النشر في الخلاصة الإخبارية، باستثناء تغيير <strong>صورة ملفك الشخصي</strong> و<strong>نبذتك</strong> (بعدد أحرف محدود).',
+    pill_visitor:              '👤 صفحة الزوار',
+    pill_professional:        '👔 صفحة المحترفين',
+    pays_choisir:              '— اختر بلدك —',
+    pays_autre:                'آخر (غير مدرج)',
+    verif_retour:              '← رجوع',
   },
 
   ZH: {
@@ -610,6 +670,18 @@ const TRANSLATIONS = {
     label_ville:              '城市',
     js_err_pays:              '⚠ 请选择或输入您的国家。',
     js_err_ville:             '⚠ 请选择或输入您的城市。',
+    /* 访客注册 */
+    dp_visitor_title:         '加入社区',
+    dp_visitor_sub:           '联系顶尖专业人士，聊天并关注他们的工作——几秒钟内完成，无需承诺。',
+    reg_visitor_title:        '访客注册',
+    reg_visitor_subtitle:     '创建您的访客账户，联系、聊天并关注ArtiRoyce的专业人士',
+    hint_to_pro:              '专业人士？创建认证账户',
+    visitor_info_html:        '<strong>访客：</strong>您可以联系并致电专业人士，发表评论（显示为<strong>访客</strong>），聊天并发布状态。除了更改您的<strong>头像</strong>和<strong>简介</strong>（字数受限）外，您不能发布视频或在动态中发布内容。',
+    pill_visitor:              '👤 访客页面',
+    pill_professional:        '👔 专业页面',
+    pays_choisir:              '— 选择您的国家 —',
+    pays_autre:                '其他（未列出）',
+    verif_retour:              '← 返回',
   },
 
   RU: {
@@ -710,6 +782,18 @@ const TRANSLATIONS = {
     label_ville:              'ГОРОД',
     js_err_pays:              '⚠ Выберите или введите вашу страну.',
     js_err_ville:             '⚠ Выберите или введите ваш город.',
+    /* РЕГИСТРАЦИЯ ПОСЕТИТЕЛЯ */
+    dp_visitor_title:         'Присоединяйтесь к сообществу',
+    dp_visitor_sub:           'Связывайтесь с лучшими профессионалами, общайтесь и следите за их работой — за секунды, без обязательств.',
+    reg_visitor_title:        'Регистрация посетителя',
+    reg_visitor_subtitle:     'Создайте аккаунт посетителя, чтобы связываться, общаться и следить за профессионалами ArtiRoyce',
+    hint_to_pro:              'Профессионал? Создайте проверенный аккаунт',
+    visitor_info_html:        '<strong>Посетитель:</strong> вы можете связываться и звонить профессионалам, комментировать (отображается как <strong>Посетитель</strong>), общаться в чате и публиковать статусы. Вы не можете публиковать видео или посты в ленте новостей, кроме изменения своей <strong>фотографии профиля</strong> и <strong>биографии</strong> (с ограничением по символам).',
+    pill_visitor:              '👤 Страница посетителя',
+    pill_professional:        '👔 Страница профессионала',
+    pays_choisir:              '— Выберите вашу страну —',
+    pays_autre:                'Другое (не указано)',
+    verif_retour:              '← Назад',
   },
 
   DE: {
@@ -810,6 +894,18 @@ const TRANSLATIONS = {
     label_ville:              'STADT',
     js_err_pays:              '⚠ Wählen oder geben Sie Ihr Land ein.',
     js_err_ville:             '⚠ Wählen oder geben Sie Ihre Stadt ein.',
+    /* BESUCHERREGISTRIERUNG */
+    dp_visitor_title:         'Der Community beitreten',
+    dp_visitor_sub:           'Kontaktieren Sie Top-Fachleute, chatten Sie und verfolgen Sie ihre Arbeit — in Sekunden, unverbindlich.',
+    reg_visitor_title:        'Besucherregistrierung',
+    reg_visitor_subtitle:     'Erstellen Sie Ihr Besucherkonto, um ArtiRoyce-Fachleute zu kontaktieren, mit ihnen zu chatten und ihnen zu folgen',
+    hint_to_pro:              'Fachmann? Erstellen Sie ein verifiziertes Konto',
+    visitor_info_html:        '<strong>Besucher:</strong> Sie können Fachleute kontaktieren und anrufen, kommentieren (angezeigt als <strong>Besucher</strong>), chatten und Status posten. Sie können keine Videos veröffentlichen oder im Newsfeed posten, außer Ihr <strong>Profilbild</strong> und Ihre <strong>Bio</strong> zu ändern (mit Zeichenbegrenzung).',
+    pill_visitor:              '👤 Besucherseite',
+    pill_professional:        '👔 Fachleute-Seite',
+    pays_choisir:              '— Wählen Sie Ihr Land —',
+    pays_autre:                'Andere (nicht aufgeführt)',
+    verif_retour:              '← Zurück',
   },
 
   JA: {
@@ -910,6 +1006,18 @@ const TRANSLATIONS = {
     label_ville:              '都市',
     js_err_pays:              '⚠ 国を選択または入力してください。',
     js_err_ville:             '⚠ 都市を選択または入力してください。',
+    /* 訪問者登録 */
+    dp_visitor_title:         'コミュニティに参加',
+    dp_visitor_sub:           '優秀なプロフェッショナルに連絡し、チャットしてその仕事をフォローしましょう——数秒で、義務なし。',
+    reg_visitor_title:        '訪問者登録',
+    reg_visitor_subtitle:     'ArtiRoyceのプロフェッショナルに連絡、チャット、フォローするための訪問者アカウントを作成',
+    hint_to_pro:              'プロフェッショナルですか？認証済みアカウントを作成',
+    visitor_info_html:        '<strong>訪問者：</strong>プロフェッショナルに連絡・通話したり、コメント（<strong>訪問者</strong>として表示）したり、チャットやステータスの投稿ができます。動画の投稿やニュースフィードへの投稿はできませんが、<strong>プロフィール写真</strong>と<strong>自己紹介</strong>（文字数制限あり）の変更は可能です。',
+    pill_visitor:              '👤 訪問者ページ',
+    pill_professional:        '👔 プロフェッショナルページ',
+    pays_choisir:              '— 国を選択してください —',
+    pays_autre:                'その他（リストにない）',
+    verif_retour:              '← 戻る',
   },
 
   HI: {
@@ -1010,6 +1118,18 @@ const TRANSLATIONS = {
     label_ville:              'शहर',
     js_err_pays:              '⚠ अपना देश चुनें या दर्ज करें।',
     js_err_ville:             '⚠ अपना शहर चुनें या दर्ज करें।',
+    /* विज़िटर पंजीकरण */
+    dp_visitor_title:         'समुदाय से जुड़ें',
+    dp_visitor_sub:           'शीर्ष पेशेवरों से संपर्क करें, चैट करें और उनके काम को फॉलो करें — कुछ ही सेकंड में, बिना किसी प्रतिबद्धता के।',
+    reg_visitor_title:        'विज़िटर पंजीकरण',
+    reg_visitor_subtitle:     'ArtiRoyce पेशेवरों से संपर्क करने, चैट करने और फॉलो करने के लिए अपना विज़िटर खाता बनाएं',
+    hint_to_pro:              'पेशेवर हैं? सत्यापित खाता बनाएं',
+    visitor_info_html:        '<strong>विज़िटर:</strong> आप पेशेवरों से संपर्क और कॉल कर सकते हैं, टिप्पणी कर सकते हैं (<strong>विज़िटर</strong> के रूप में दिखाया गया), चैट कर सकते हैं और स्टेटस पोस्ट कर सकते हैं। आप वीडियो पोस्ट नहीं कर सकते या न्यूज़ फ़ीड में पोस्ट नहीं कर सकते, सिवाय अपनी <strong>प्रोफ़ाइल फ़ोटो</strong> और <strong>बायो</strong> (सीमित अक्षरों के साथ) बदलने के।',
+    pill_visitor:              '👤 विज़िटर पेज',
+    pill_professional:        '👔 पेशेवर पेज',
+    pays_choisir:              '— अपना देश चुनें —',
+    pays_autre:                'अन्य (सूचीबद्ध नहीं)',
+    verif_retour:              '← वापस',
   },
 
 };
