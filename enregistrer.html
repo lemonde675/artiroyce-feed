@@ -472,6 +472,7 @@
 
       <!-- ===== ÉTAPE 2 : SAISIE DU CODE DE VÉRIFICATION (cachée au départ) ===== -->
       <div id="codeVerifWrap" style="display:none;">
+        <a href="#" id="btnRetourCode" data-i18n="verif_retour" style="display:inline-flex;align-items:center;gap:5px;color:#888;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:16px;">← Retour</a>
         <h1 data-i18n="verif_title">Vérifiez votre email</h1>
         <p class="subtitle" id="codeVerifSubtitle">Un code à 6 chiffres a été envoyé à votre adresse email.</p>
         <label for="codeInput" data-i18n="verif_label">CODE À 6 CHIFFRES</label>
@@ -514,6 +515,32 @@
       fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
     };
     function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+
+    /* ===== NAVIGATION ENTRE ÉTAPES + BOUTON RETOUR DU TÉLÉPHONE ===== */
+    function afficherEtapeCode(emailSaisi) {
+      const t = T();
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginLinkWrap').style.display = 'none';
+      document.getElementById('codeVerifSubtitle').textContent =
+        (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailSaisi;
+      document.getElementById('codeVerifWrap').style.display = 'block';
+      document.getElementById('codeInput').focus();
+      history.pushState({ etape: 'code' }, '', '');
+    }
+    function revenirAuFormulaire() {
+      document.getElementById('codeVerifWrap').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginLinkWrap').style.display = 'block';
+    }
+    window.addEventListener('popstate', function() {
+      if (document.getElementById('codeVerifWrap').style.display === 'block') {
+        revenirAuFormulaire();
+      }
+    });
+    document.getElementById('btnRetourCode').addEventListener('click', function(e) {
+      e.preventDefault();
+      history.back();
+    });
 
     /* ===== PAYS : select statique (déjà rempli en HTML) — gère juste l'affichage du champ "Autre" ===== */
     document.getElementById('pays').addEventListener('change', function() {
@@ -573,12 +600,7 @@
         btn.textContent=t.js_creating||'Envoi du code…';
         await appelEnvoyerCode({ email: emailSaisi, contexte: 'inscription' });
 
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('loginLinkWrap').style.display = 'none';
-        document.getElementById('codeVerifSubtitle').textContent =
-          (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailSaisi;
-        document.getElementById('codeVerifWrap').style.display = 'block';
-        document.getElementById('codeInput').focus();
+        afficherEtapeCode(emailSaisi);
       } catch(err) {
         btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
         const errMap = {
