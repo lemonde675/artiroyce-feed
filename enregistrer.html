@@ -492,7 +492,7 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
     const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
@@ -502,7 +502,7 @@
     const functions = getFunctions(app);
     const appelEnvoyerCode = httpsCallable(functions, 'envoyerCodeVerification');
     const appelVerifierCode = httpsCallable(functions, 'verifierCodeVerification');
-    let emailEnAttenteDeVerif = '';
+    let inscriptionEnAttente = null;
     const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
     window.togglePass = id => { const p = document.getElementById(id); p.type = p.type==='password'?'text':'password'; };
     window.checkStrength = val => {
@@ -548,50 +548,51 @@
       if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
       if (!valid){showToast(t.js_err_fix||'⚠ Corrigez les erreurs.','error-toast');return;}
       const btn=document.getElementById('btnRegister');
-      btn.disabled=true;btn.textContent=t.js_creating||'Création du compte…';
+      const emailSaisi = f.email.el.value.trim();
+      btn.disabled=true;btn.textContent=t.js_checking_email||'Vérification…';
       try {
-        const cred = await createUserWithEmailAndPassword(auth, f.email.el.value.trim(), f.password.el.value);
-        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+        // ✅ VÉRIFICATION PRÉALABLE : cet email est-il déjà utilisé ?
+        const methodes = await fetchSignInMethodsForEmail(auth, emailSaisi);
+        if (methodes.length > 0) {
+          btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
+          f.email.el.className='error';
+          f.email.err.textContent = t.js_toast_email_used || '⚠ Cet email est déjà utilisé.';
+          showToast(t.js_toast_email_used||'⚠ Cet email est déjà utilisé.','error-toast');
+          return;
+        }
+
+        // ✅ AUCUN COMPTE CRÉÉ POUR L'INSTANT — on garde tout en mémoire et on envoie le code
+        inscriptionEnAttente = {
           nom: f.nom.el.value.trim(), prenom: f.prenom.el.value.trim(),
-          email: f.email.el.value.trim(), telephone: f.tel.el.value.trim(),
+          email: emailSaisi, motDePasse: f.password.el.value,
+          telephone: f.tel.el.value.trim(),
           pays: f.pays.el.value==='Autre' ? document.getElementById('paysAutre').value.trim() : f.pays.el.value,
           villeInscription: f.villeInscription.el.value.trim(),
-          statut:'en_attente', kycStatut:'non_soumis', role:'artisan',
-          verifie:false, dateInscription:serverTimestamp(),
-        });
-        emailEnAttenteDeVerif = f.email.el.value.trim();
-        showToast(t.js_toast_success_pro||'✅ Compte créé ! Vérifiez votre email.','success');
+        };
 
-        // ✅ ENVOI DU CODE DE VÉRIFICATION, PUIS AFFICHAGE DE L'ÉTAPE 2
-        try {
-          await appelEnvoyerCode({ email: emailEnAttenteDeVerif, contexte: 'inscription' });
-        } catch (errEnvoi) {
-          console.error('Envoi du code impossible :', errEnvoi);
-        }
+        btn.textContent=t.js_creating||'Envoi du code…';
+        await appelEnvoyerCode({ email: emailSaisi, contexte: 'inscription' });
+
         document.getElementById('registerForm').style.display = 'none';
         document.getElementById('loginLinkWrap').style.display = 'none';
         document.getElementById('codeVerifSubtitle').textContent =
-          (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailEnAttenteDeVerif;
+          (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailSaisi;
         document.getElementById('codeVerifWrap').style.display = 'block';
         document.getElementById('codeInput').focus();
       } catch(err) {
         btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
         const errMap = {
-          'auth/email-already-in-use': t.js_toast_email_used,
-          'auth/weak-password': t.js_err_weak_password,
           'auth/network-request-failed': t.js_err_network,
           'auth/too-many-requests': t.js_err_too_many,
           'auth/invalid-email': t.js_err_invalid_email,
-          'auth/user-disabled': t.js_err_user_disabled,
         };
-        if (err.code==='auth/email-already-in-use') { f.email.el.className='error'; }
         const mapped = errMap[err.code];
         if (mapped) { showToast(mapped, 'error-toast'); }
         else { showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast'); }
       }
     });
 
-    /* ===== ÉTAPE 2 : VÉRIFICATION DU CODE ===== */
+    /* ===== ÉTAPE 2 : VÉRIFICATION DU CODE + CRÉATION RÉELLE DU COMPTE ===== */
     document.getElementById('btnVerifCode').addEventListener('click', async function() {
       const t = T();
       const btn = this;
@@ -605,11 +606,26 @@
         champCode.className = 'error';
         return;
       }
+      if (!inscriptionEnAttente) {
+        erreurCode.textContent = t.verif_err_generic || '⚠ Erreur de vérification.';
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = t.verif_checking || 'Vérification…';
       try {
-        await appelVerifierCode({ email: emailEnAttenteDeVerif, code: code });
+        await appelVerifierCode({ email: inscriptionEnAttente.email, code: code });
+
+        // ✅ CODE VALIDÉ — LE COMPTE EST CRÉÉ MAINTENANT, PAS AVANT
+        const cred = await createUserWithEmailAndPassword(auth, inscriptionEnAttente.email, inscriptionEnAttente.motDePasse);
+        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+          nom: inscriptionEnAttente.nom, prenom: inscriptionEnAttente.prenom,
+          email: inscriptionEnAttente.email, telephone: inscriptionEnAttente.telephone,
+          pays: inscriptionEnAttente.pays, villeInscription: inscriptionEnAttente.villeInscription,
+          statut:'en_attente', kycStatut:'non_soumis', role:'artisan',
+          verifie:true, dateInscription:serverTimestamp(),
+        });
+
         champCode.className = 'valid';
         showToast(t.verif_success || '✅ Email vérifié ! Connectez-vous maintenant.', 'success');
         setTimeout(() => { window.location.href = 'connexion.html'; }, 1200);
@@ -620,6 +636,7 @@
           'deadline-exceeded': t.verif_err_expired || '⚠ Ce code a expiré. Renvoyez-en un.',
           'resource-exhausted': t.verif_err_too_many || '⚠ Trop de tentatives. Renvoyez un nouveau code.',
           'not-found': t.verif_err_not_found || '⚠ Aucun code trouvé. Renvoyez-en un.',
+          'auth/email-already-in-use': t.js_toast_email_used || '⚠ Cet email est déjà utilisé.',
         };
         erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || '⚠ Erreur de vérification.');
         btn.disabled = false;
@@ -633,8 +650,9 @@
       const t = T();
       const erreurCode = document.getElementById('codeError');
       erreurCode.textContent = '';
+      if (!inscriptionEnAttente) return;
       try {
-        await appelEnvoyerCode({ email: emailEnAttenteDeVerif, contexte: 'inscription' });
+        await appelEnvoyerCode({ email: inscriptionEnAttente.email, contexte: 'inscription' });
         showToast(t.verif_resent || '✅ Nouveau code envoyé.', 'success');
       } catch (err) {
         if (err.code === 'resource-exhausted') {
