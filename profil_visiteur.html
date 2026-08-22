@@ -246,7 +246,19 @@
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
-        <div class="field-label"><span data-i18n="pv_ville_label">VILLE</span></div>
+        <div class="field-label"><span style="color:#999;">🔒 PAYS (VERROUILLÉ)</span></div>
+        <div style="background:#f0f0f0;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:16px;">🔒</span>
+          <span id="editPaysVerrouille" style="font-size:14px;color:#999;font-style:italic;flex:1;"></span>
+        </div>
+        <div style="font-size:10.5px;color:#aaa;margin-bottom:14px;">Lié à votre inscription — inchangeable pour éviter les fraudes</div>
+        <div class="field-label"><span style="color:#999;">🔒 VILLE (VERROUILLÉ)</span></div>
+        <div style="background:#f0f0f0;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:16px;">🔒</span>
+          <span id="editVilleVerrouillee" style="font-size:14px;color:#999;font-style:italic;flex:1;"></span>
+        </div>
+        <div style="font-size:10.5px;color:#aaa;margin-bottom:14px;">Lié à votre inscription — inchangeable pour éviter les fraudes</div>
+        <div class="field-label"><span data-i18n="pv_ville_label">VILLE ACTUELLE</span></div>
         <input class="field-input" id="villeInput" type="text" maxlength="60" placeholder="Ex: Cotonou">
         <div class="field-label" style="margin-top:12px"><span data-i18n="pv_bio_label">BIO</span> <span id="bioCount">0/300</span></div>
         <textarea class="field-input" id="bioInput" rows="3" maxlength="300" oninput="updateBioCount()" placeholder="Parlez un peu de vous…"></textarea>
@@ -393,6 +405,8 @@
 
     window.openModal = () => {
       if (!isOwnProfile) return; // sécurité : jamais modifier le profil de quelqu'un d'autre
+      document.getElementById('editPaysVerrouille').textContent = (userData && userData.pays) || '—';
+      document.getElementById('editVilleVerrouillee').textContent = (userData && userData.villeInscription) || '—';
       document.getElementById('bioInput').value = (userData && userData.bio) || '';
       document.getElementById('villeInput').value = (userData && userData.ville) || '';
       updateBioCount();
