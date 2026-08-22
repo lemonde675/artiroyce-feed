@@ -261,6 +261,14 @@
         <label for="tel" data-i18n="label_tel">NUMÉRO DE TÉLÉPHONE</label>
         <input type="tel" id="tel" placeholder="+33 6 12 34 56 78" autocomplete="tel"/>
         <span class="error-msg" id="telError"></span>
+        <label for="pays" data-i18n="label_pays">PAYS</label>
+        <input type="text" id="pays" list="paysDatalist" placeholder="Ex: France" autocomplete="country-name"/>
+        <datalist id="paysDatalist"></datalist>
+        <span class="error-msg" id="paysError"></span>
+        <label for="villeInscription" data-i18n="label_ville">VILLE</label>
+        <input type="text" id="villeInscription" list="villeDatalist" placeholder="Ex: Paris" autocomplete="address-level2"/>
+        <datalist id="villeDatalist"></datalist>
+        <span class="error-msg" id="villeError"></span>
         <label for="password" data-i18n="label_password">MOT DE PASSE</label>
         <div class="password-wrap">
           <input type="password" id="password" placeholder="Minimum 8 caractères" autocomplete="new-password" oninput="checkStrength(this.value)"/>
@@ -281,7 +289,22 @@
         <span class="error-msg" id="password2Error"></span>
         <button type="submit" class="btn-register" id="btnRegister" data-i18n="btn_create_account">CRÉER MON COMPTE &nbsp;→</button>
       </form>
-      <div class="login-link"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
+
+      <!-- ===== ÉTAPE 2 : SAISIE DU CODE DE VÉRIFICATION (cachée au départ) ===== -->
+      <div id="codeVerifWrap" style="display:none;">
+        <h1 data-i18n="verif_title">Vérifiez votre email</h1>
+        <p class="subtitle" id="codeVerifSubtitle">Un code à 6 chiffres a été envoyé à votre adresse email.</p>
+        <label for="codeInput" data-i18n="verif_label">CODE À 6 CHIFFRES</label>
+        <input type="text" id="codeInput" placeholder="123456" maxlength="6" inputmode="numeric" autocomplete="one-time-code"/>
+        <span class="error-msg" id="codeError"></span>
+        <button type="button" class="btn-register" id="btnVerifCode" data-i18n="btn_verify_code">VÉRIFIER LE CODE</button>
+        <div class="login-link" style="margin-top:14px;">
+          <span data-i18n="verif_no_code">Pas reçu ?</span>
+          <a href="#" id="btnResendCode" data-i18n="verif_resend">Renvoyer le code</a>
+        </div>
+      </div>
+
+      <div class="login-link" id="loginLinkWrap"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
     </div>
     <div class="bottom-bar"></div>
   </div>
@@ -291,10 +314,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
     const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const functions = getFunctions(app);
+    const appelEnvoyerCode = httpsCallable(functions, 'envoyerCodeVerification');
+    const appelVerifierCode = httpsCallable(functions, 'verifierCodeVerification');
+    let emailEnAttenteDeVerif = '';
     const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
     window.togglePass = id => { const p = document.getElementById(id); p.type = p.type==='password'?'text':'password'; };
     window.checkStrength = val => {
@@ -306,6 +334,51 @@
       fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
     };
     function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+
+    /* ===== PAYS / VILLE : liste réelle via service gratuit, avec repli en saisie libre ===== */
+    (async function chargerListePays() {
+      try {
+        const rep = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
+        const json = await rep.json();
+        if (json && json.data) {
+          const dl = document.getElementById('paysDatalist');
+          json.data
+            .map(p => p.name)
+            .sort((a, b) => a.localeCompare(b))
+            .forEach(nom => {
+              const opt = document.createElement('option');
+              opt.value = nom;
+              dl.appendChild(opt);
+            });
+        }
+      } catch (e) {
+        console.error('Liste des pays indisponible, saisie libre conservée :', e);
+      }
+    })();
+
+    document.getElementById('pays').addEventListener('change', async function() {
+      const nomPays = this.value.trim();
+      const dlVille = document.getElementById('villeDatalist');
+      dlVille.innerHTML = '';
+      if (!nomPays) return;
+      try {
+        const rep = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ country: nomPays })
+        });
+        const json = await rep.json();
+        if (json && json.data && Array.isArray(json.data)) {
+          json.data.slice(0, 500).forEach(ville => {
+            const opt = document.createElement('option');
+            opt.value = ville;
+            dlVille.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.error('Liste des villes indisponible, saisie libre conservée :', e);
+      }
+    });
     const vEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
     const vPhone = p => /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim());
     const vName  = n => /^[a-zA-ZÀ-ÿ\s\-\']{2,50}$/.test(n.trim());
@@ -317,6 +390,8 @@
         prenom:{el:document.getElementById('prenom'),err:document.getElementById('prenomError')},
         email:{el:document.getElementById('email'),err:document.getElementById('emailError')},
         tel:{el:document.getElementById('tel'),err:document.getElementById('telError')},
+        pays:{el:document.getElementById('pays'),err:document.getElementById('paysError')},
+        villeInscription:{el:document.getElementById('villeInscription'),err:document.getElementById('villeError')},
         password:{el:document.getElementById('password'),err:document.getElementById('passwordError')},
         password2:{el:document.getElementById('password2'),err:document.getElementById('password2Error')},
       };
@@ -325,6 +400,8 @@
       if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent=t.js_err_prenom||'⚠ Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
       if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent=t.js_err_email||'⚠ Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
       if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent=t.js_err_tel||'⚠ Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
+      if (!f.pays.el.value.trim()||f.pays.el.value.trim().length<2){f.pays.err.textContent=t.js_err_pays||'⚠ Sélectionnez ou entrez votre pays.';f.pays.el.className='error';valid=false;}else{f.pays.el.className='valid';}
+      if (!f.villeInscription.el.value.trim()||f.villeInscription.el.value.trim().length<2){f.villeInscription.err.textContent=t.js_err_ville||'⚠ Sélectionnez ou entrez votre ville.';f.villeInscription.el.className='error';valid=false;}else{f.villeInscription.el.className='valid';}
       if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'⚠ Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
       if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
       if (!valid){showToast(t.js_err_fix||'⚠ Corrigez les erreurs.','error-toast');return;}
@@ -335,12 +412,25 @@
         await setDoc(doc(db,'utilisateurs',cred.user.uid),{
           nom: f.nom.el.value.trim(), prenom: f.prenom.el.value.trim(),
           email: f.email.el.value.trim(), telephone: f.tel.el.value.trim(),
+          pays: f.pays.el.value.trim(), villeInscription: f.villeInscription.el.value.trim(),
           statut:'en_attente', kycStatut:'non_soumis', role:'artisan',
           verifie:false, dateInscription:serverTimestamp(),
         });
-        showToast(t.js_toast_success_pro||'✅ Compte créé ! Connectez-vous maintenant.','success');
-        // ✅ REDIRECTION VERS CONNEXION
-        setTimeout(()=>{ window.location.href='connexion.html'; },1500);
+        emailEnAttenteDeVerif = f.email.el.value.trim();
+        showToast(t.js_toast_success_pro||'✅ Compte créé ! Vérifiez votre email.','success');
+
+        // ✅ ENVOI DU CODE DE VÉRIFICATION, PUIS AFFICHAGE DE L'ÉTAPE 2
+        try {
+          await appelEnvoyerCode({ email: emailEnAttenteDeVerif, contexte: 'inscription' });
+        } catch (errEnvoi) {
+          console.error('Envoi du code impossible :', errEnvoi);
+        }
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('loginLinkWrap').style.display = 'none';
+        document.getElementById('codeVerifSubtitle').textContent =
+          (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailEnAttenteDeVerif;
+        document.getElementById('codeVerifWrap').style.display = 'block';
+        document.getElementById('codeInput').focus();
       } catch(err) {
         btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
         const errMap = {
@@ -355,6 +445,60 @@
         const mapped = errMap[err.code];
         if (mapped) { showToast(mapped, 'error-toast'); }
         else { showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast'); }
+      }
+    });
+
+    /* ===== ÉTAPE 2 : VÉRIFICATION DU CODE ===== */
+    document.getElementById('btnVerifCode').addEventListener('click', async function() {
+      const t = T();
+      const btn = this;
+      const champCode = document.getElementById('codeInput');
+      const erreurCode = document.getElementById('codeError');
+      erreurCode.textContent = '';
+      const code = champCode.value.trim();
+
+      if (!/^\d{6}$/.test(code)) {
+        erreurCode.textContent = t.verif_err_format || '⚠ Entrez les 6 chiffres du code.';
+        champCode.className = 'error';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = t.verif_checking || 'Vérification…';
+      try {
+        await appelVerifierCode({ email: emailEnAttenteDeVerif, code: code });
+        champCode.className = 'valid';
+        showToast(t.verif_success || '✅ Email vérifié ! Connectez-vous maintenant.', 'success');
+        setTimeout(() => { window.location.href = 'connexion.html'; }, 1200);
+      } catch (err) {
+        champCode.className = 'error';
+        const messagesErreur = {
+          'invalid-argument': t.verif_err_wrong || '⚠ Code incorrect.',
+          'deadline-exceeded': t.verif_err_expired || '⚠ Ce code a expiré. Renvoyez-en un.',
+          'resource-exhausted': t.verif_err_too_many || '⚠ Trop de tentatives. Renvoyez un nouveau code.',
+          'not-found': t.verif_err_not_found || '⚠ Aucun code trouvé. Renvoyez-en un.',
+        };
+        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || '⚠ Erreur de vérification.');
+        btn.disabled = false;
+        btn.textContent = t.btn_verify_code || 'VÉRIFIER LE CODE';
+      }
+    });
+
+    /* ===== ÉTAPE 2 : RENVOYER LE CODE ===== */
+    document.getElementById('btnResendCode').addEventListener('click', async function(e) {
+      e.preventDefault();
+      const t = T();
+      const erreurCode = document.getElementById('codeError');
+      erreurCode.textContent = '';
+      try {
+        await appelEnvoyerCode({ email: emailEnAttenteDeVerif, contexte: 'inscription' });
+        showToast(t.verif_resent || '✅ Nouveau code envoyé.', 'success');
+      } catch (err) {
+        if (err.code === 'resource-exhausted') {
+          erreurCode.textContent = err.message || (t.verif_err_wait || '⚠ Veuillez patienter avant de redemander un code.');
+        } else {
+          erreurCode.textContent = t.verif_err_generic || '⚠ Erreur lors du renvoi du code.';
+        }
       }
     });
   </script>
