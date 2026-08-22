@@ -24,10 +24,11 @@
     h1 { font-size: 24px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; }
     .subtitle { font-size: 13px; color: #888; margin-bottom: 22px; }
     label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 5px; }
-    input[type="text"], input[type="email"], input[type="password"], input[type="tel"] { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; color: #333; outline: none; background: #fafafa; transition: border-color 0.2s; margin-bottom: 2px; }
-    input:focus { border-color: #e63224; background: #fff; }
-    input.error { border-color: #e63224 !important; background: #fff5f5; }
-    input.valid { border-color: #27a945 !important; background: #f5fff7; }
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; color: #333; outline: none; background: #fafafa; transition: border-color 0.2s; margin-bottom: 2px; }
+    select { cursor: pointer; }
+    input:focus, select:focus { border-color: #e63224; background: #fff; }
+    input.error, select.error { border-color: #e63224 !important; background: #fff5f5; }
+    input.valid, select.valid { border-color: #27a945 !important; background: #f5fff7; }
     input::placeholder { color: #bbb; }
     .error-msg { font-size: 11px; color: #e63224; min-height: 16px; display: block; margin-bottom: 10px; }
     .password-wrap { position: relative; }
@@ -41,13 +42,14 @@
     .btn-register:disabled { background: #ccc; cursor: not-allowed; }
     .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
     .login-link a { color: #e63224; text-decoration: none; font-weight: 600; }
+    .visitor-info { background: #f4f8fc; border: 1px solid #d8e6f5; border-left: 3px solid #0d1b3e; border-radius: 8px; padding: 12px 14px; font-size: 12px; line-height: 1.55; color: #33465f; margin-bottom: 18px; }
+    .visitor-info strong { color: #0d1b3e; }
     .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; }
     .toast.success { background: #27a945; }
     .toast.error-toast { background: #e63224; }
 
-    /* ===== SÉLECTEUR PROFESSIONNEL / VISITEURS (identique à enregistrer.html) ===== */
-    .mode-switcher-wrap { margin-bottom: 22px; }
+    /* ===== NOUVEAU BLOC : SÉLECTEUR PROFESSIONNEL / VISITEURS ===== */
     .mode-switcher {
       position: relative;
       display: flex;
@@ -107,24 +109,25 @@
       justify-content: center;
       gap: 6px;
     }
-    .mode-hint svg { flex-shrink: 0; animation: arrowPulse 1.8s ease-in-out infinite; }
-    .mode-hint .draw-path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: drawArrow 0.6s ease forwards 0.3s; }
-    @keyframes drawArrow { to { stroke-dashoffset: 0; } }
-    @keyframes arrowPulse { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
-
-    /* ===== BLOC DROITS VISITEUR — sobre, sans badge ===== */
-    .visitor-info {
-      background: #f4f8fc;
-      border: 1px solid #d8e6f5;
-      border-left: 3px solid #0d1b3e;
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #33465f;
-      margin-bottom: 18px;
+    .mode-hint svg {
+      flex-shrink: 0;
+      animation: arrowPulse 1.8s ease-in-out infinite;
     }
-    .visitor-info strong { color: #0d1b3e; }
+    .mode-hint .draw-path {
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+      animation: drawArrow 0.6s ease forwards 0.3s;
+    }
+    @keyframes drawArrow {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes arrowPulse {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(3px); }
+    }
+    .mode-switcher-wrap {
+      margin-bottom: 22px;
+    }
 
     /* ===== SÉLECTEUR DE LANGUE 🌍 ===== */
     .lang-selector { position: relative; font-size: 13px; }
@@ -227,7 +230,7 @@
       <h1 data-i18n="reg_visitor_title">Inscription Visiteur</h1>
       <p class="subtitle" data-i18n="reg_visitor_subtitle">Créez votre compte visiteur pour contacter, échanger et suivre les professionnels ArtiRoyce</p>
 
-      <!-- ===== SÉLECTEUR VISITEURS / PROFESSIONNEL ===== -->
+      <!-- ===== SÉLECTEUR PROFESSIONNEL / VISITEURS ===== -->
       <div class="mode-switcher-wrap">
         <div class="mode-switcher">
           <span class="mode-pill active" data-i18n="pill_visitor">👤 Page visiteurs</span>
@@ -245,7 +248,6 @@
       <div class="visitor-info" data-i18n="visitor_info_html">
         <strong>Visiteur :</strong> vous pouvez contacter et appeler les professionnels, commenter (identifié comme <strong>Visiteur</strong>), discuter et poster des statuts. Vous ne pouvez pas publier de vidéos ni publier dans le fil d'actualité, hormis la modification de votre <strong>photo de profil</strong> et de votre <strong>bio</strong> (limitée en caractères).
       </div>
-
       <form id="registerForm" novalidate>
         <label for="nom" data-i18n="label_nom">NOM</label>
         <input type="text" id="nom" placeholder="DULER" autocomplete="family-name"/>
@@ -259,6 +261,193 @@
         <label for="tel" data-i18n="label_tel">NUMÉRO DE TÉLÉPHONE</label>
         <input type="tel" id="tel" placeholder="+33 6 12 34 56 78" autocomplete="tel"/>
         <span class="error-msg" id="telError"></span>
+        <label for="pays" data-i18n="label_pays">PAYS</label>
+        <select id="pays" autocomplete="country-name">
+          <option value="" data-i18n="pays_choisir">— Choisissez votre pays —</option>
+          <option value="Afghanistan">Afghanistan</option>
+          <option value="Afrique du Sud">Afrique du Sud</option>
+          <option value="Albanie">Albanie</option>
+          <option value="Algérie">Algérie</option>
+          <option value="Allemagne">Allemagne</option>
+          <option value="Andorre">Andorre</option>
+          <option value="Angola">Angola</option>
+          <option value="Arabie saoudite">Arabie saoudite</option>
+          <option value="Argentine">Argentine</option>
+          <option value="Arménie">Arménie</option>
+          <option value="Australie">Australie</option>
+          <option value="Autriche">Autriche</option>
+          <option value="Azerbaïdjan">Azerbaïdjan</option>
+          <option value="Bahamas">Bahamas</option>
+          <option value="Bahreïn">Bahreïn</option>
+          <option value="Bangladesh">Bangladesh</option>
+          <option value="Belgique">Belgique</option>
+          <option value="Bénin">Bénin</option>
+          <option value="Bhoutan">Bhoutan</option>
+          <option value="Biélorussie">Biélorussie</option>
+          <option value="Birmanie">Birmanie</option>
+          <option value="Bolivie">Bolivie</option>
+          <option value="Bosnie-Herzégovine">Bosnie-Herzégovine</option>
+          <option value="Botswana">Botswana</option>
+          <option value="Brésil">Brésil</option>
+          <option value="Brunei">Brunei</option>
+          <option value="Bulgarie">Bulgarie</option>
+          <option value="Burkina Faso">Burkina Faso</option>
+          <option value="Burundi">Burundi</option>
+          <option value="Cambodge">Cambodge</option>
+          <option value="Cameroun">Cameroun</option>
+          <option value="Canada">Canada</option>
+          <option value="Cap-Vert">Cap-Vert</option>
+          <option value="Chili">Chili</option>
+          <option value="Chine">Chine</option>
+          <option value="Chypre">Chypre</option>
+          <option value="Colombie">Colombie</option>
+          <option value="Comores">Comores</option>
+          <option value="Congo-Brazzaville">Congo-Brazzaville</option>
+          <option value="Congo-Kinshasa (RDC)">Congo-Kinshasa (RDC)</option>
+          <option value="Corée du Nord">Corée du Nord</option>
+          <option value="Corée du Sud">Corée du Sud</option>
+          <option value="Costa Rica">Costa Rica</option>
+          <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+          <option value="Croatie">Croatie</option>
+          <option value="Cuba">Cuba</option>
+          <option value="Danemark">Danemark</option>
+          <option value="Djibouti">Djibouti</option>
+          <option value="Dominique">Dominique</option>
+          <option value="Égypte">Égypte</option>
+          <option value="Émirats arabes unis">Émirats arabes unis</option>
+          <option value="Équateur">Équateur</option>
+          <option value="Érythrée">Érythrée</option>
+          <option value="Espagne">Espagne</option>
+          <option value="Estonie">Estonie</option>
+          <option value="Eswatini">Eswatini</option>
+          <option value="États-Unis">États-Unis</option>
+          <option value="Éthiopie">Éthiopie</option>
+          <option value="Fidji">Fidji</option>
+          <option value="Finlande">Finlande</option>
+          <option value="France">France</option>
+          <option value="Gabon">Gabon</option>
+          <option value="Gambie">Gambie</option>
+          <option value="Géorgie">Géorgie</option>
+          <option value="Ghana">Ghana</option>
+          <option value="Grèce">Grèce</option>
+          <option value="Grenade">Grenade</option>
+          <option value="Guatemala">Guatemala</option>
+          <option value="Guinée">Guinée</option>
+          <option value="Guinée-Bissau">Guinée-Bissau</option>
+          <option value="Guinée équatoriale">Guinée équatoriale</option>
+          <option value="Guyana">Guyana</option>
+          <option value="Haïti">Haïti</option>
+          <option value="Honduras">Honduras</option>
+          <option value="Hongrie">Hongrie</option>
+          <option value="Inde">Inde</option>
+          <option value="Indonésie">Indonésie</option>
+          <option value="Irak">Irak</option>
+          <option value="Iran">Iran</option>
+          <option value="Irlande">Irlande</option>
+          <option value="Islande">Islande</option>
+          <option value="Israël">Israël</option>
+          <option value="Italie">Italie</option>
+          <option value="Jamaïque">Jamaïque</option>
+          <option value="Japon">Japon</option>
+          <option value="Jordanie">Jordanie</option>
+          <option value="Kazakhstan">Kazakhstan</option>
+          <option value="Kenya">Kenya</option>
+          <option value="Kirghizistan">Kirghizistan</option>
+          <option value="Kiribati">Kiribati</option>
+          <option value="Koweït">Koweït</option>
+          <option value="Laos">Laos</option>
+          <option value="Lesotho">Lesotho</option>
+          <option value="Lettonie">Lettonie</option>
+          <option value="Liban">Liban</option>
+          <option value="Liberia">Liberia</option>
+          <option value="Libye">Libye</option>
+          <option value="Liechtenstein">Liechtenstein</option>
+          <option value="Lituanie">Lituanie</option>
+          <option value="Luxembourg">Luxembourg</option>
+          <option value="Macédoine du Nord">Macédoine du Nord</option>
+          <option value="Madagascar">Madagascar</option>
+          <option value="Malaisie">Malaisie</option>
+          <option value="Malawi">Malawi</option>
+          <option value="Maldives">Maldives</option>
+          <option value="Mali">Mali</option>
+          <option value="Malte">Malte</option>
+          <option value="Maroc">Maroc</option>
+          <option value="Maurice">Maurice</option>
+          <option value="Mauritanie">Mauritanie</option>
+          <option value="Mexique">Mexique</option>
+          <option value="Moldavie">Moldavie</option>
+          <option value="Monaco">Monaco</option>
+          <option value="Mongolie">Mongolie</option>
+          <option value="Monténégro">Monténégro</option>
+          <option value="Mozambique">Mozambique</option>
+          <option value="Namibie">Namibie</option>
+          <option value="Népal">Népal</option>
+          <option value="Nicaragua">Nicaragua</option>
+          <option value="Niger">Niger</option>
+          <option value="Nigeria">Nigeria</option>
+          <option value="Norvège">Norvège</option>
+          <option value="Nouvelle-Zélande">Nouvelle-Zélande</option>
+          <option value="Oman">Oman</option>
+          <option value="Ouganda">Ouganda</option>
+          <option value="Ouzbékistan">Ouzbékistan</option>
+          <option value="Pakistan">Pakistan</option>
+          <option value="Panama">Panama</option>
+          <option value="Papouasie-Nouvelle-Guinée">Papouasie-Nouvelle-Guinée</option>
+          <option value="Paraguay">Paraguay</option>
+          <option value="Pays-Bas">Pays-Bas</option>
+          <option value="Pérou">Pérou</option>
+          <option value="Philippines">Philippines</option>
+          <option value="Pologne">Pologne</option>
+          <option value="Portugal">Portugal</option>
+          <option value="Qatar">Qatar</option>
+          <option value="République centrafricaine">République centrafricaine</option>
+          <option value="République dominicaine">République dominicaine</option>
+          <option value="République tchèque">République tchèque</option>
+          <option value="Roumanie">Roumanie</option>
+          <option value="Royaume-Uni">Royaume-Uni</option>
+          <option value="Russie">Russie</option>
+          <option value="Rwanda">Rwanda</option>
+          <option value="Sao Tomé-et-Principe">Sao Tomé-et-Principe</option>
+          <option value="Sénégal">Sénégal</option>
+          <option value="Serbie">Serbie</option>
+          <option value="Seychelles">Seychelles</option>
+          <option value="Sierra Leone">Sierra Leone</option>
+          <option value="Singapour">Singapour</option>
+          <option value="Slovaquie">Slovaquie</option>
+          <option value="Slovénie">Slovénie</option>
+          <option value="Somalie">Somalie</option>
+          <option value="Soudan">Soudan</option>
+          <option value="Soudan du Sud">Soudan du Sud</option>
+          <option value="Sri Lanka">Sri Lanka</option>
+          <option value="Suède">Suède</option>
+          <option value="Suisse">Suisse</option>
+          <option value="Suriname">Suriname</option>
+          <option value="Syrie">Syrie</option>
+          <option value="Tadjikistan">Tadjikistan</option>
+          <option value="Tanzanie">Tanzanie</option>
+          <option value="Tchad">Tchad</option>
+          <option value="Thaïlande">Thaïlande</option>
+          <option value="Togo">Togo</option>
+          <option value="Tonga">Tonga</option>
+          <option value="Trinité-et-Tobago">Trinité-et-Tobago</option>
+          <option value="Tunisie">Tunisie</option>
+          <option value="Turkménistan">Turkménistan</option>
+          <option value="Turquie">Turquie</option>
+          <option value="Ukraine">Ukraine</option>
+          <option value="Uruguay">Uruguay</option>
+          <option value="Vanuatu">Vanuatu</option>
+          <option value="Venezuela">Venezuela</option>
+          <option value="Vietnam">Vietnam</option>
+          <option value="Yémen">Yémen</option>
+          <option value="Zambie">Zambie</option>
+          <option value="Zimbabwe">Zimbabwe</option>
+          <option value="Autre" data-i18n="pays_autre">Autre (non listé)</option>
+        </select>
+        <input type="text" id="paysAutre" placeholder="Écrivez le nom de votre pays" style="display:none; margin-top:6px;" data-i18n-ph="pays_autre_placeholder"/>
+        <span class="error-msg" id="paysError"></span>
+        <label for="villeInscription" data-i18n="label_ville">VILLE</label>
+        <input type="text" id="villeInscription" placeholder="Ex: Paris" autocomplete="off"/>
+        <span class="error-msg" id="villeError"></span>
         <label for="password" data-i18n="label_password">MOT DE PASSE</label>
         <div class="password-wrap">
           <input type="password" id="password" placeholder="Minimum 8 caractères" autocomplete="new-password" oninput="checkStrength(this.value)"/>
@@ -279,7 +468,23 @@
         <span class="error-msg" id="password2Error"></span>
         <button type="submit" class="btn-register" id="btnRegister" data-i18n="btn_create_account">CRÉER MON COMPTE &nbsp;→</button>
       </form>
-      <div class="login-link"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
+
+      <!-- ===== ÉTAPE 2 : SAISIE DU CODE DE VÉRIFICATION (cachée au départ) ===== -->
+      <div id="codeVerifWrap" style="display:none;">
+        <a href="#" id="btnRetourCode" data-i18n="verif_retour" style="display:inline-flex;align-items:center;gap:5px;color:#888;font-size:13px;font-weight:600;text-decoration:none;margin-bottom:16px;">← Retour</a>
+        <h1 data-i18n="verif_title">Vérifiez votre email</h1>
+        <p class="subtitle" id="codeVerifSubtitle">Un code à 6 chiffres a été envoyé à votre adresse email.</p>
+        <label for="codeInput" data-i18n="verif_label">CODE À 6 CHIFFRES</label>
+        <input type="text" id="codeInput" placeholder="123456" maxlength="6" inputmode="numeric" autocomplete="one-time-code"/>
+        <span class="error-msg" id="codeError"></span>
+        <button type="button" class="btn-register" id="btnVerifCode" data-i18n="btn_verify_code">VÉRIFIER LE CODE</button>
+        <div class="login-link" style="margin-top:14px;">
+          <span data-i18n="verif_no_code">Pas reçu ?</span>
+          <a href="#" id="btnResendCode" data-i18n="verif_resend">Renvoyer le code</a>
+        </div>
+      </div>
+
+      <div class="login-link" id="loginLinkWrap"><span data-i18n="reg_have_account">Déjà un compte ?</span> <a href="connexion.html" data-i18n="reg_login_link">Se connecter</a></div>
     </div>
     <div class="bottom-bar"></div>
   </div>
@@ -287,12 +492,17 @@
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
     const firebaseConfig = { apiKey:"AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w", authDomain:"artiroyce-f42e4.firebaseapp.com", projectId:"artiroyce-f42e4", storageBucket:"artiroyce-f42e4.firebasestorage.app", messagingSenderId:"588140774605", appId:"1:588140774605:web:b69cf8740c2fe5f1d59584" };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const functions = getFunctions(app);
+    const appelEnvoyerCode = httpsCallable(functions, 'envoyerCodeVerification');
+    const appelVerifierCode = httpsCallable(functions, 'verifierCodeVerification');
+    let inscriptionEnAttente = null;
     const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
     window.togglePass = id => { const p = document.getElementById(id); p.type = p.type==='password'?'text':'password'; };
     window.checkStrength = val => {
@@ -304,6 +514,37 @@
       fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
     };
     function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+
+    /* ===== NAVIGATION ENTRE ÉTAPES + BOUTON RETOUR DU TÉLÉPHONE ===== */
+    function afficherEtapeCode(emailSaisi) {
+      const t = T();
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginLinkWrap').style.display = 'none';
+      document.getElementById('codeVerifSubtitle').textContent =
+        (t.verif_subtitle_prefix || 'Un code à 6 chiffres a été envoyé à ') + emailSaisi;
+      document.getElementById('codeVerifWrap').style.display = 'block';
+      document.getElementById('codeInput').focus();
+      history.pushState({ etape: 'code' }, '', '');
+    }
+    function revenirAuFormulaire() {
+      document.getElementById('codeVerifWrap').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginLinkWrap').style.display = 'block';
+    }
+    window.addEventListener('popstate', function() {
+      if (document.getElementById('codeVerifWrap').style.display === 'block') {
+        revenirAuFormulaire();
+      }
+    });
+    document.getElementById('btnRetourCode').addEventListener('click', function(e) {
+      e.preventDefault();
+      history.back();
+    });
+
+    /* ===== PAYS : select statique (déjà rempli en HTML) — gère juste l'affichage du champ "Autre" ===== */
+    document.getElementById('pays').addEventListener('change', function() {
+      document.getElementById('paysAutre').style.display = this.value === 'Autre' ? 'block' : 'none';
+    });
     const vEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
     const vPhone = p => /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim());
     const vName  = n => /^[a-zA-ZÀ-ÿ\s\-\']{2,50}$/.test(n.trim());
@@ -315,6 +556,8 @@
         prenom:{el:document.getElementById('prenom'),err:document.getElementById('prenomError')},
         email:{el:document.getElementById('email'),err:document.getElementById('emailError')},
         tel:{el:document.getElementById('tel'),err:document.getElementById('telError')},
+        pays:{el:document.getElementById('pays'),err:document.getElementById('paysError')},
+        villeInscription:{el:document.getElementById('villeInscription'),err:document.getElementById('villeError')},
         password:{el:document.getElementById('password'),err:document.getElementById('passwordError')},
         password2:{el:document.getElementById('password2'),err:document.getElementById('password2Error')},
       };
@@ -323,35 +566,121 @@
       if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent=t.js_err_prenom||'⚠ Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
       if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent=t.js_err_email||'⚠ Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
       if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent=t.js_err_tel||'⚠ Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
+      if (!f.pays.el.value){f.pays.err.textContent=t.js_err_pays||'⚠ Sélectionnez votre pays.';f.pays.el.className='error';valid=false;}
+      else if (f.pays.el.value==='Autre' && !document.getElementById('paysAutre').value.trim()){f.pays.err.textContent=t.js_err_pays||'⚠ Indiquez le nom de votre pays.';document.getElementById('paysAutre').className='error';valid=false;}
+      else {f.pays.el.className='valid'; if(f.pays.el.value==='Autre'){document.getElementById('paysAutre').className='valid';}}
+      if (!f.villeInscription.el.value.trim()||f.villeInscription.el.value.trim().length<2){f.villeInscription.err.textContent=t.js_err_ville||'⚠ Entrez votre ville.';f.villeInscription.el.className='error';valid=false;}else{f.villeInscription.el.className='valid';}
       if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'⚠ Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
       if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
       if (!valid){showToast(t.js_err_fix||'⚠ Corrigez les erreurs.','error-toast');return;}
       const btn=document.getElementById('btnRegister');
-      btn.disabled=true;btn.textContent=t.js_creating||'Création du compte…';
+      const emailSaisi = f.email.el.value.trim();
+      btn.disabled=true;btn.textContent=t.js_checking_email||'Vérification…';
       try {
-        const cred = await createUserWithEmailAndPassword(auth, f.email.el.value.trim(), f.password.el.value);
-        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+        // ✅ VÉRIFICATION PRÉALABLE : cet email est-il déjà utilisé ?
+        const methodes = await fetchSignInMethodsForEmail(auth, emailSaisi);
+        if (methodes.length > 0) {
+          btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
+          f.email.el.className='error';
+          f.email.err.textContent = t.js_toast_email_used || '⚠ Cet email est déjà utilisé.';
+          showToast(t.js_toast_email_used||'⚠ Cet email est déjà utilisé.','error-toast');
+          return;
+        }
+
+        // ✅ AUCUN COMPTE CRÉÉ POUR L'INSTANT — on garde tout en mémoire et on envoie le code
+        inscriptionEnAttente = {
           nom: f.nom.el.value.trim(), prenom: f.prenom.el.value.trim(),
-          email: f.email.el.value.trim(), telephone: f.tel.el.value.trim(),
-          statut:'actif', kycStatut:'non_applicable', role:'visiteur',
-          verifie:false, dateInscription:serverTimestamp(),
-        });
-        showToast(t.js_toast_success_visitor||'✅ Compte visiteur créé ! Connectez-vous maintenant.','success');
-        setTimeout(()=>{ window.location.href='connexion.html'; },1500);
+          email: emailSaisi, motDePasse: f.password.el.value,
+          telephone: f.tel.el.value.trim(),
+          pays: f.pays.el.value==='Autre' ? document.getElementById('paysAutre').value.trim() : f.pays.el.value,
+          villeInscription: f.villeInscription.el.value.trim(),
+        };
+
+        btn.textContent=t.js_creating||'Envoi du code…';
+        await appelEnvoyerCode({ email: emailSaisi, contexte: 'inscription' });
+
+        afficherEtapeCode(emailSaisi);
       } catch(err) {
         btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
         const errMap = {
-          'auth/email-already-in-use': t.js_toast_email_used,
-          'auth/weak-password': t.js_err_weak_password,
           'auth/network-request-failed': t.js_err_network,
           'auth/too-many-requests': t.js_err_too_many,
           'auth/invalid-email': t.js_err_invalid_email,
-          'auth/user-disabled': t.js_err_user_disabled,
         };
-        if (err.code==='auth/email-already-in-use') { f.email.el.className='error'; }
         const mapped = errMap[err.code];
         if (mapped) { showToast(mapped, 'error-toast'); }
         else { showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast'); }
+      }
+    });
+
+    /* ===== ÉTAPE 2 : VÉRIFICATION DU CODE + CRÉATION RÉELLE DU COMPTE ===== */
+    document.getElementById('btnVerifCode').addEventListener('click', async function() {
+      const t = T();
+      const btn = this;
+      const champCode = document.getElementById('codeInput');
+      const erreurCode = document.getElementById('codeError');
+      erreurCode.textContent = '';
+      const code = champCode.value.trim();
+
+      if (!/^\d{6}$/.test(code)) {
+        erreurCode.textContent = t.verif_err_format || '⚠ Entrez les 6 chiffres du code.';
+        champCode.className = 'error';
+        return;
+      }
+      if (!inscriptionEnAttente) {
+        erreurCode.textContent = t.verif_err_generic || '⚠ Erreur de vérification.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = t.verif_checking || 'Vérification…';
+      try {
+        await appelVerifierCode({ email: inscriptionEnAttente.email, code: code });
+
+        // ✅ CODE VALIDÉ — LE COMPTE EST CRÉÉ MAINTENANT, PAS AVANT
+        const cred = await createUserWithEmailAndPassword(auth, inscriptionEnAttente.email, inscriptionEnAttente.motDePasse);
+        await setDoc(doc(db,'utilisateurs',cred.user.uid),{
+          nom: inscriptionEnAttente.nom, prenom: inscriptionEnAttente.prenom,
+          email: inscriptionEnAttente.email, telephone: inscriptionEnAttente.telephone,
+          pays: inscriptionEnAttente.pays, villeInscription: inscriptionEnAttente.villeInscription,
+          statut:'actif', kycStatut:'non_applicable', role:'visiteur',
+          verifie:true, dateInscription:serverTimestamp(),
+        });
+
+        champCode.className = 'valid';
+        showToast(t.verif_success || '✅ Email vérifié ! Connectez-vous maintenant.', 'success');
+        setTimeout(() => { window.location.href = 'connexion.html'; }, 1200);
+      } catch (err) {
+        champCode.className = 'error';
+        const messagesErreur = {
+          'invalid-argument': t.verif_err_wrong || '⚠ Code incorrect.',
+          'deadline-exceeded': t.verif_err_expired || '⚠ Ce code a expiré. Renvoyez-en un.',
+          'resource-exhausted': t.verif_err_too_many || '⚠ Trop de tentatives. Renvoyez un nouveau code.',
+          'not-found': t.verif_err_not_found || '⚠ Aucun code trouvé. Renvoyez-en un.',
+          'auth/email-already-in-use': t.js_toast_email_used || '⚠ Cet email est déjà utilisé.',
+        };
+        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || '⚠ Erreur de vérification.');
+        btn.disabled = false;
+        btn.textContent = t.btn_verify_code || 'VÉRIFIER LE CODE';
+      }
+    });
+
+    /* ===== ÉTAPE 2 : RENVOYER LE CODE ===== */
+    document.getElementById('btnResendCode').addEventListener('click', async function(e) {
+      e.preventDefault();
+      const t = T();
+      const erreurCode = document.getElementById('codeError');
+      erreurCode.textContent = '';
+      if (!inscriptionEnAttente) return;
+      try {
+        await appelEnvoyerCode({ email: inscriptionEnAttente.email, contexte: 'inscription' });
+        showToast(t.verif_resent || '✅ Nouveau code envoyé.', 'success');
+      } catch (err) {
+        if (err.code === 'resource-exhausted') {
+          erreurCode.textContent = err.message || (t.verif_err_wait || '⚠ Veuillez patienter avant de redemander un code.');
+        } else {
+          erreurCode.textContent = t.verif_err_generic || '⚠ Erreur lors du renvoi du code.';
+        }
       }
     });
   </script>
