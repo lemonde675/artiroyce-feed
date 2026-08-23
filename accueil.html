@@ -34,6 +34,7 @@
     .feed-wrap::-webkit-scrollbar { display: none; }
     .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
+    video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); }
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
@@ -228,7 +229,7 @@
 
   <!-- PANEL 6 : Discussion (tab 6) -->
   <div class="panel-slide" id="panel-6" style="position:relative;">
-    <iframe data-src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame" allow="microphone; camera"></iframe>
+    <iframe data-src="discussion_v1.html" style="width:100%;height:100%;border:none;display:block;" id="discFrame"></iframe>
     <div id="swipeLeft" style="position:absolute;top:0;left:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
     <div id="swipeRight" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
@@ -371,7 +372,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
 
 
-  function creerCard(uid, data, index) {
+  function creerCard(uid, data, index, publication) {
     const metier  = data.metier  || 'Professionnel';
     const ville   = data.ville || data.adresse || '';
     function getEmoji(m) {
@@ -408,13 +409,23 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     const bgClass = bg;
     const adresseEsc = adresse.replace(/'/g, "\\'");
 
+    let bgHTML;
+    if (publication && publication.type === 'video') {
+      bgHTML = `<video class="vcard-bg" src="${publication.url}" autoplay muted loop playsinline></video>`;
+    } else if (publication && publication.type === 'photo') {
+      const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
+      bgHTML = `<div class="vcard-bg" style="background-image:url('${urlEsc}');background-size:cover;background-position:center"></div>`;
+    } else {
+      bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
+    }
+
     return `<div class="vcard">
-      <div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>
+      ${bgHTML}
       <div class="vcard-overlay"></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
-        <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}','${(prenom+(data.nomFamille?' '+data.nomFamille:'')).replace(/'/g, "\\'")}')">Contacter</button>
+        <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}')">Contacter</button>
       </div>
       <div class="actions-r">
         <div class="act-btn" onclick="ouvrirGalerieAccueil('${uid}','${pseudo}')">
@@ -780,6 +791,14 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     appliquerEtatsSurCartes();
   }
 
+  // Un professionnel peut désormais apparaître sur plusieurs cartes (une par
+  // publication). Ce helper retourne TOUTES les cartes partageant un même id
+  // (au lieu de getElementById qui ne retourne que la première trouvée),
+  // pour que suivre/j'aime/sauver/commenter se mettent à jour partout.
+  function tousAvecId(id) {
+    return Array.from(document.querySelectorAll('[id="' + id + '"]'));
+  }
+
   function appliquerEtatsSurCartes(){
     document.querySelectorAll('.vcard').forEach(card => {
       const btnSuivre = card.querySelector('.btn-suivre');
@@ -792,14 +811,11 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     });
     Object.keys(mesReactionsAccueil).forEach(uid => {
       const type = mesReactionsAccueil[uid];
-      const likeBtn = document.getElementById('like-btn-'+uid);
-      const dislikeBtn = document.getElementById('dislike-btn-'+uid);
-      if (likeBtn) likeBtn.querySelector('.act-circle').classList.toggle('liked', type==='like');
-      if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.toggle('liked', type==='dislike');
+      tousAvecId('like-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='like'));
+      tousAvecId('dislike-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='dislike'));
     });
     mesSauvegardesAccueil.forEach(uid => {
-      const saveBtn = document.getElementById('save-btn-'+uid);
-      if (saveBtn) saveBtn.querySelector('.act-circle').classList.add('liked');
+      tousAvecId('save-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.add('liked'));
     });
   }
 
@@ -809,24 +825,24 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     if (moi === cibleUid) return;
     const relId = moi + '_' + cibleUid;
     const relRef = doc(db, 'abonnements', relId);
-    const btn = document.getElementById('suivre-'+cibleUid);
+    const btns = tousAvecId('suivre-'+cibleUid);
     try {
       if (mesSuivisAccueil.has(cibleUid)) {
         await deleteDoc(relRef);
         mesSuivisAccueil.delete(cibleUid);
-        if (btn) { btn.textContent = '+ Suivre'; btn.style.opacity = '1'; }
+        btns.forEach(btn => { btn.textContent = '+ Suivre'; btn.style.opacity = '1'; });
       } else {
         await setDoc(relRef, { follower: moi, followed: cibleUid, createdAt: serverTimestamp() });
         mesSuivisAccueil.add(cibleUid);
-        if (btn) { btn.textContent = 'Suivi(e)'; btn.style.opacity = '0.7'; }
+        btns.forEach(btn => { btn.textContent = 'Suivi(e)'; btn.style.opacity = '0.7'; });
         toast('✅ Suivi !', 'g');
       }
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
 
-  window.contacterDepuisAccueil = function(cibleUid, pseudo, nomComplet){
-    if (!cibleUid) return;
-    window.ouvrirChatDepuisOffre({ uid: cibleUid, nom: nomComplet || pseudo || 'Utilisateur', verifie: true });
+  window.contacterDepuisAccueil = function(cibleUid, pseudo){
+    toast('💬 Ouvre la discussion pour écrire à ' + pseudo, 'g');
+    goToPanel(6);
   };
 
   // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
@@ -840,32 +856,34 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     const reactRef = doc(db, 'utilisateurs', cibleUid, 'reactionsAccueil', moi);
     const cibleRef = doc(db, 'utilisateurs', cibleUid);
     const ancien = mesReactionsAccueil[cibleUid];
-    const likeN = document.getElementById('like-n-'+cibleUid);
-    const dislikeN = document.getElementById('dislike-n-'+cibleUid);
-    const likeBtn = document.getElementById('like-btn-'+cibleUid);
-    const dislikeBtn = document.getElementById('dislike-btn-'+cibleUid);
+    const likeNs = tousAvecId('like-n-'+cibleUid);
+    const dislikeNs = tousAvecId('dislike-n-'+cibleUid);
+    const likeBtns = tousAvecId('like-btn-'+cibleUid);
+    const dislikeBtns = tousAvecId('dislike-btn-'+cibleUid);
+    const lireN = (els) => els.length ? (parseInt(els[0].textContent||'0')||0) : 0;
+    const ecrireN = (els, val) => els.forEach(el => el.textContent = val);
     try {
       if (ancien === type) {
         // On retire sa réaction
         await deleteDoc(reactRef);
         await updateDoc(cibleRef, { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(-1) });
         delete mesReactionsAccueil[cibleUid];
-        if (likeBtn) likeBtn.querySelector('.act-circle').classList.remove('liked');
-        if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.remove('liked');
-        if (type==='like' && likeN) likeN.textContent = Math.max(0, parseInt(likeN.textContent||'0')-1);
-        if (type==='dislike' && dislikeN) dislikeN.textContent = Math.max(0, parseInt(dislikeN.textContent||'0')-1);
+        likeBtns.forEach(b => b.querySelector('.act-circle').classList.remove('liked'));
+        dislikeBtns.forEach(b => b.querySelector('.act-circle').classList.remove('liked'));
+        if (type==='like') ecrireN(likeNs, Math.max(0, lireN(likeNs)-1));
+        if (type==='dislike') ecrireN(dislikeNs, Math.max(0, lireN(dislikeNs)-1));
       } else {
         await setDoc(reactRef, { uid: moi, type: type, createdAt: serverTimestamp() });
         const maj = { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(1) };
         if (ancien) maj[ancien==='like'?'likesAccueil':'dislikesAccueil'] = increment(-1);
         await updateDoc(cibleRef, maj);
         mesReactionsAccueil[cibleUid] = type;
-        if (likeBtn) likeBtn.querySelector('.act-circle').classList.toggle('liked', type==='like');
-        if (dislikeBtn) dislikeBtn.querySelector('.act-circle').classList.toggle('liked', type==='dislike');
-        if (type==='like' && likeN) likeN.textContent = parseInt(likeN.textContent||'0')+1;
-        if (type==='dislike' && dislikeN) dislikeN.textContent = parseInt(dislikeN.textContent||'0')+1;
-        if (ancien==='like' && likeN) likeN.textContent = Math.max(0, parseInt(likeN.textContent||'0')-1);
-        if (ancien==='dislike' && dislikeN) dislikeN.textContent = Math.max(0, parseInt(dislikeN.textContent||'0')-1);
+        likeBtns.forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='like'));
+        dislikeBtns.forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='dislike'));
+        if (type==='like') ecrireN(likeNs, lireN(likeNs)+1);
+        if (type==='dislike') ecrireN(dislikeNs, lireN(dislikeNs)+1);
+        if (ancien==='like') ecrireN(likeNs, Math.max(0, lireN(likeNs)-1));
+        if (ancien==='dislike') ecrireN(dislikeNs, Math.max(0, lireN(dislikeNs)-1));
       }
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
@@ -874,17 +892,17 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     if (!auth.currentUser) { toast('Connecte-toi pour sauvegarder', ''); return; }
     const moi = auth.currentUser.uid;
     const saveRef = doc(db, 'utilisateurs', moi, 'sauvegardesAccueil', cibleUid);
-    const btn = document.getElementById('save-btn-'+cibleUid);
+    const btns = tousAvecId('save-btn-'+cibleUid);
     try {
       if (mesSauvegardesAccueil.has(cibleUid)) {
         await deleteDoc(saveRef);
         mesSauvegardesAccueil.delete(cibleUid);
-        if (btn) btn.querySelector('.act-circle').classList.remove('liked');
+        btns.forEach(btn => btn.querySelector('.act-circle').classList.remove('liked'));
         toast('Retiré des favoris', '');
       } else {
         await setDoc(saveRef, { uid: moi, createdAt: serverTimestamp() });
         mesSauvegardesAccueil.add(cibleUid);
-        if (btn) btn.querySelector('.act-circle').classList.add('liked');
+        btns.forEach(btn => btn.querySelector('.act-circle').classList.add('liked'));
         toast('💾 Sauvegardé !', 'g');
       }
     } catch(e) { console.error(e); toast('Erreur', ''); }
@@ -1016,8 +1034,11 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         uid: auth.currentUser.uid, nom: monNom, texte: texte, createdAt: serverTimestamp()
       });
       await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
-      const compteEl = document.getElementById('comment-n-'+cibleUid);
-      if (compteEl) compteEl.textContent = parseInt(compteEl.textContent||'0')+1;
+      const compteEls = tousAvecId('comment-n-'+cibleUid);
+      if (compteEls.length) {
+        const nouvelleValeur = (parseInt(compteEls[0].textContent||'0')||0) + 1;
+        compteEls.forEach(el => el.textContent = nouvelleValeur);
+      }
       window.ouvrirCommentairesAccueil(cibleUid, document.getElementById('commentsTitreAccueil').textContent.replace('💬 Commentaires — ',''));
     } catch(e) { console.error(e); toast('Erreur envoi commentaire', ''); }
   };
@@ -1276,12 +1297,30 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       let nombreAffichesAcc = 0;
       let indexRendu = 0;
 
-      function rendreLotSuivant() {
+      async function rendreLotSuivant() {
         const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
         if (!lot.length) return;
         const sentinelleActuelle = document.getElementById('sentinelleAccueil');
         if (sentinelleActuelle) sentinelleActuelle.remove();
-        lot.forEach(p => { feed.innerHTML += creerCard(p.id, p.data, indexRendu++); });
+
+        // Pour chaque professionnel du lot : une carte par publication
+        // (photo/vidéo), ou une seule carte fond uni s'il n'a rien publié.
+        const cartesHTML = [];
+        for (const p of lot) {
+          let publications = [];
+          try {
+            const portSnap = await db.collection('utilisateurs').doc(p.id).collection('portfolio')
+              .orderBy('createdAt', 'desc').get();
+            publications = portSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
+          } catch(e) { console.error('portfolio '+p.id, e); }
+
+          if (publications.length === 0) {
+            cartesHTML.push(creerCard(p.id, p.data, indexRendu++, null));
+          } else {
+            publications.forEach(pub => { cartesHTML.push(creerCard(p.id, p.data, indexRendu++, pub)); });
+          }
+        }
+        feed.innerHTML += cartesHTML.join('');
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
           const sentinelle = document.createElement('div');
