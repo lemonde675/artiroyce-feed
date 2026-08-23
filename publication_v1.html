@@ -216,6 +216,14 @@
   <a href="connexion.html">Se connecter</a>
 </div>
 
+<!-- VISITEUR : publication non autorisée -->
+<div class="login-screen" id="visiteurScreen">
+  <div style="font-size:48px">🚫</div>
+  <div style="font-size:20px;font-weight:900;">Réservé aux professionnels</div>
+  <p style="color:#888;font-size:14px;">Impossible de publier en tant que visiteur. Seuls les comptes professionnels vérifiés peuvent ajouter des photos/vidéos au fil ArtiRoyce.</p>
+  <a href="profil_visiteur.html">Retour à mon profil</a>
+</div>
+
 <div class="toast" id="toastEl"></div>
 
 <!-- FIREBASE -->
@@ -255,6 +263,15 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loginScreen').style.display = 'flex';
     return;
   }
+  try {
+    const monSnap = await db.collection('utilisateurs').doc(user.uid).get();
+    const monRole = monSnap.exists ? monSnap.data().role : null;
+    if (monRole === 'visiteur') {
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('visiteurScreen').style.display = 'flex';
+      return;
+    }
+  } catch(e) { console.error('Vérification rôle impossible :', e); }
   window._uid = user.uid;
   chargerMonPortfolio();
 });
@@ -350,8 +367,7 @@ window.submitPub = async function() {
 
     setLoading(false);
     showToast('Publié', '');
-    resetForm();
-    chargerMonPortfolio();
+    setTimeout(() => { window.location.href = 'accueil.html'; }, 900);
 
   } catch(err) {
     setLoading(false);
@@ -394,7 +410,6 @@ function searchMusicPub(){
         return;
       }
       res.innerHTML = data.results.map((t,i) => {
-        const nom = (t.trackName + ' — ' + t.artistName).replace(/'/g,"\\'").replace(/"/g,'');
         return `<div style="display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;background:#fafafa">
           <img src="${t.artworkUrl60||''}" style="width:38px;height:38px;border-radius:8px;background:#eee;flex-shrink:0">
           <div style="flex:1;min-width:0">
@@ -402,7 +417,7 @@ function searchMusicPub(){
             <div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.artistName||'').replace(/</g,'')}</div>
           </div>
           <button id="mppub-${i}" onclick="ecouterMusicPub(${i},'${(t.previewUrl||'').replace(/'/g,"\\'")}')" style="background:#eee;border:none;width:32px;height:32px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0">▶</button>
-          <button onclick="attacherMusiquePub('${nom}')" style="background:var(--green);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
+          <button onclick="attacherMusiquePub(${i})" style="background:var(--green);color:#fff;border:none;border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
         </div>`;
       }).join('');
       window._dernierResultatsMusicPub = data.results;
@@ -427,11 +442,12 @@ function ecouterMusicPub(idx, url){
   audioPreviewPub.onended = () => { document.getElementById('mppub-'+idx).textContent = '▶'; };
 }
 
-window.attacherMusiquePub = function(nom){
+window.attacherMusiquePub = function(idx){
+  const t = window._dernierResultatsMusicPub && window._dernierResultatsMusicPub[idx];
+  if (!t) return;
+  const nom = t.trackName + ' — ' + t.artistName;
   window._musicNom = nom;
-  window._musicUrl = window._dernierResultatsMusicPub
-    ? (window._dernierResultatsMusicPub.find(t => (t.trackName+' — '+t.artistName) === nom) || {}).previewUrl
-    : null;
+  window._musicUrl = t.previewUrl || null;
   document.getElementById('musicAttachedNamePub').textContent = '🎵 ' + nom;
   document.getElementById('musicAttachedPub').style.display = 'flex';
   document.getElementById('musicResultsPub').innerHTML = '';
