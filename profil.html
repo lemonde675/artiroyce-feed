@@ -750,7 +750,7 @@
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -948,7 +948,7 @@
       }
 
       // ── CHARGER LE PORTFOLIO ──
-      chargerPortfolio(userData, isOwnProfile);
+      chargerPortfolio(profileUid, isOwnProfile);
 
       hideLoading();
 
@@ -1311,9 +1311,14 @@
   window._menuIndex = -1;
   let _ownPortfolio = false;
 
-  function chargerPortfolio(data, ownProfile) {
+  async function chargerPortfolio(uid, ownProfile) {
     _ownPortfolio = ownProfile;
-    const items = data.portfolio || [];
+    let items = [];
+    try {
+      const q = query(collection(db, 'utilisateurs', uid, 'portfolio'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
+    } catch (e) { console.error('Chargement portfolio impossible :', e); }
     window._portfolioItems = items;
     const photos = items.filter(i => i.type === 'photo');
     const videos = items.filter(i => i.type === 'video');
@@ -1457,13 +1462,15 @@
     if (!item || !currentUser || !_ownPortfolio) { closeMediaMenu(); return; }
     if (!confirm('Supprimer ce média du portfolio ?')) { closeMediaMenu(); return; }
     try {
+      await updateDoc(doc(db, 'utilisateurs', currentUser.uid, 'portfolio', item.id), {
+        corbeille: true, corbeilleDepuis: new Date().toISOString()
+      });
       const newPortfolio = window._portfolioItems.filter((_, i) => i !== index);
-      await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { portfolio: newPortfolio });
       window._portfolioItems = newPortfolio;
       renderGridPhotos(newPortfolio.filter(i => i.type === 'photo'), true);
       renderGridVideos(newPortfolio.filter(i => i.type === 'video'), true);
       closeMediaMenu();
-      showToast('🗑️ Média supprimé', 'success');
+      showToast('🗑️ Média mis à la corbeille (restaurable 15 jours dans "Ajouter au portfolio")', 'success');
     } catch(e) { showToast('⚠ Erreur : ' + e.message, 'error-t'); closeMediaMenu(); }
   };
 </script>
