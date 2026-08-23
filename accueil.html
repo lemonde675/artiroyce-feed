@@ -419,7 +419,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     let boutonSonHTML = '';
     const estVideo = !!(publication && publication.type === 'video');
     if (estVideo) {
-      bgHTML = `<video class="vcard-bg" id="vid-${index}" src="${publication.url}" autoplay muted loop playsinline ontimeupdate="majBarreVideoAcc(${index})" onclick="basculerLectureVideoAcc(${index})"></video>`;
+      bgHTML = `<video class="vcard-bg" id="vid-${index}" data-idx="${index}" src="${publication.url}" autoplay muted loop playsinline ontimeupdate="majBarreVideoAcc(${index})" onclick="basculerLectureVideoAcc(${index})"></video>`;
       controlesVideoHTML = `
       <div class="vid-center-btn" id="vidPP-${index}" onclick="basculerLectureVideoAcc(${index})" style="display:none">
         <svg viewBox="0 0 24 24" fill="#fff"><polygon points="6,4 20,12 6,20"/></svg>
@@ -435,6 +435,15 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     } else if (publication && publication.type === 'photo') {
       const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
       bgHTML = `<div class="vcard-bg" style="background-image:url('${urlEsc}');background-size:cover;background-position:center"></div>`;
+      if (publication.musicUrl) {
+        const musicUrlEsc = String(publication.musicUrl).replace(/'/g, "\\'");
+        bgHTML += `<audio id="audio-${index}" data-idx="${index}" src="${musicUrlEsc}" loop muted></audio>`;
+        boutonSonHTML = `
+        <div class="act-btn" id="son-btn-${index}" onclick="basculerMuetAudioAcc(${index})">
+          <div class="act-circle"><svg class="ico" id="sonIco-${index}" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></div>
+          <span class="act-lbl">Son</span>
+        </div>`;
+      }
     } else {
       bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
     }
@@ -910,6 +919,44 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     vid.muted = !vid.muted;
     if (ico) {
       ico.innerHTML = vid.muted
+        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+        : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+    }
+  };
+
+  // Surveillance de visibilité : seule la vidéo bien visible à l'écran
+  // joue, toutes les autres sont mises en pause automatiquement (corrige
+  // le cas où une ancienne vidéo continuait de jouer en arrière-plan après
+  // avoir défilé vers une autre carte). Reconstruit à chaque nouveau lot car
+  // feed.innerHTML += recrée tous les éléments existants.
+  let observateurVideosAcc = null;
+  function surveillerVideosVisiblesAcc(){
+    if (observateurVideosAcc) observateurVideosAcc.disconnect();
+    observateurVideosAcc = new IntersectionObserver((entrees) => {
+      entrees.forEach(entree => {
+        const vid = entree.target;
+        const idx = vid.dataset.idx;
+        const btnPP = idx !== undefined ? document.getElementById('vidPP-'+idx) : null;
+        if (entree.isIntersecting && entree.intersectionRatio >= 0.6) {
+          vid.play().catch(()=>{});
+          if (btnPP) btnPP.style.display = 'none';
+        } else {
+          vid.pause();
+        }
+      });
+    }, { root: document.getElementById('feedW'), threshold: [0, 0.6, 1] });
+    document.querySelectorAll('video.vcard-bg, audio[data-idx]').forEach(el => observateurVideosAcc.observe(el));
+  }
+
+  // Musique attachée à une photo : même principe de coupure/activation du
+  // son que pour une vidéo, mais sur l'élément <audio> dédié.
+  window.basculerMuetAudioAcc = function(index){
+    const audio = document.getElementById('audio-'+index);
+    const ico = document.getElementById('sonIco-'+index);
+    if (!audio) return;
+    audio.muted = !audio.muted;
+    if (ico) {
+      ico.innerHTML = audio.muted
         ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
         : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
     }
@@ -1425,6 +1472,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
           }
         }
         feed.innerHTML += cartesHTML.join('');
+        surveillerVideosVisiblesAcc();
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
           const sentinelle = document.createElement('div');
