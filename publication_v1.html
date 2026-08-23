@@ -280,6 +280,29 @@ auth.onAuthStateChanged(async (user) => {
   chargerMonPortfolio();
 });
 
+// Compression photo avant envoi (même technique que discussion_v1.html,
+// déjà utilisée et fiable) : réduit vraiment la taille du fichier, donc
+// l'envoi est plus rapide pour de vrai, pas juste en apparence.
+function compresserImagePub(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxW=1280;const scale=Math.min(1,maxW/img.width);
+        const canvas=document.createElement('canvas');
+        canvas.width=img.width*scale;canvas.height=img.height*scale;
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        canvas.toBlob((blob)=>blob?resolve(blob):reject(new Error('Compression échouée')),'image/jpeg',0.72);
+      };
+      img.onerror=()=>reject(new Error('Image illisible'));
+      img.src=ev.target.result;
+    };
+    reader.onerror=()=>reject(new Error('Lecture du fichier échouée'));
+    reader.readAsDataURL(file);
+  });
+}
+
 window.submitPub = async function() {
   const uid = window._uid;
   if (!uid) { showToast('🔐 Connectez-vous', 'r'); return; }
@@ -298,10 +321,11 @@ window.submitPub = async function() {
     let fichiersEnvoyes = 0;
 
     for (let i = 0; i < photos.length; i++) {
-      const f = photos[i];
+      document.getElementById('progTxt').textContent = `Compression photo ${i+1}/${photos.length}…`;
+      let f = photos[i];
+      try { f = await compresserImagePub(photos[i]); } catch(e) { console.error('Compression impossible, envoi du fichier original :', e); }
       const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
       const task = uploadBytesResumable(ref(storage, path), f);
-      const failSafe = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -310,8 +334,8 @@ window.submitPub = async function() {
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
           },
-          err => { clearTimeout(failSafe); rej(err); },
-          async () => { clearTimeout(failSafe); res(await getDownloadURL(task.snapshot.ref)); }
+          err => { rej(err); },
+          async () => { res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       fichiersEnvoyes++;
@@ -326,17 +350,16 @@ window.submitPub = async function() {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
-      const failSafeV = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
             const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
-            document.getElementById('progTxt').textContent = 'Envoi vidéo…';
+            document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
           },
-          err => { clearTimeout(failSafeV); rej(err); },
-          async () => { clearTimeout(failSafeV); res(await getDownloadURL(task.snapshot.ref)); }
+          err => { rej(err); },
+          async () => { res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
