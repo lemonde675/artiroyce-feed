@@ -46,7 +46,7 @@
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
     /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
-    .actions-r { position: absolute; right: 10px; bottom: 92px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
+    .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
     .act-circle:active { transform: scale(1.15); }
@@ -75,6 +75,9 @@
     .wm-brand .r { color: var(--green); }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 500; }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+    .info-etoiles { font-size: 15px; letter-spacing: 3px; margin-bottom: 8px; }
+    .etoile-pleine { color: #ffd700; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+    .etoile-vide { color: rgba(255,255,255,0.28); }
     .bot-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; box-shadow: 0 -2px 14px rgba(0,0,0,0.10); overflow: visible; transition: transform 0.3s ease, opacity 0.3s ease; }
     .nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 7px 4px 8px; cursor: pointer; gap: 2px; }
     .nav-lb { font-size: 10px; font-weight: 700; color: #aaa; }
@@ -379,6 +382,17 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   const bgClasses = ['bg0','bg1','bg2','bg3','bg4','bg5'];
 
 
+  // 6 étoiles, une pleine tous les 10 000 (j'aime + vues) cumulés.
+  function etoilesHTMLAcc(data){
+    const total = (data.likesAccueil||0) + (data.vuesAccueil||0);
+    const remplies = Math.min(6, Math.floor(total/10000));
+    let html = '';
+    for (let i=0; i<6; i++){
+      html += i < remplies ? '<span class="etoile-pleine">★</span>' : '<span class="etoile-vide">★</span>';
+    }
+    return html;
+  }
+
   function creerCard(uid, data, index, publication) {
     const metier  = data.metier  || 'Professionnel';
     const ville   = data.ville || data.adresse || '';
@@ -448,7 +462,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
     }
 
-    return `<div class="vcard">
+    return `<div class="vcard" data-vue-uid="${uid}">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
@@ -498,6 +512,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         <div class="info-metier">${getEmoji(metier)} ${metier}</div>
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
         <div class="info-btns">
           <span class="wm-inline">
             <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
@@ -946,6 +961,28 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       });
     }, { root: document.getElementById('feedW'), threshold: [0, 0.6, 1] });
     document.querySelectorAll('video.vcard-bg, audio[data-idx]').forEach(el => observateurVideosAcc.observe(el));
+  }
+
+  // Comptage des vues (pour les étoiles) : une vue = la carte apparaît
+  // bien à l'écran, comptée une seule fois par professionnel et par
+  // session (pas à chaque va-et-vient en scrollant).
+  let observateurVuesAcc = null;
+  const vuesDejaComptees = new Set();
+  function surveillerVuesAcc(){
+    if (observateurVuesAcc) observateurVuesAcc.disconnect();
+    observateurVuesAcc = new IntersectionObserver((entrees) => {
+      entrees.forEach(entree => {
+        if (!entree.isIntersecting || entree.intersectionRatio < 0.6) return;
+        const cibleUid = entree.target.dataset.vueUid;
+        if (!cibleUid || vuesDejaComptees.has(cibleUid)) return;
+        if (auth.currentUser && cibleUid === auth.currentUser.uid) return;
+        vuesDejaComptees.add(cibleUid);
+        db.collection('utilisateurs').doc(cibleUid).update({
+          vuesAccueil: firebase.firestore.FieldValue.increment(1)
+        }).catch(()=>{});
+      });
+    }, { root: document.getElementById('feedW'), threshold: [0, 0.6] });
+    document.querySelectorAll('.vcard[data-vue-uid]').forEach(el => observateurVuesAcc.observe(el));
   }
 
   // Musique attachée à une photo : même principe de coupure/activation du
@@ -1473,6 +1510,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         }
         feed.innerHTML += cartesHTML.join('');
         surveillerVideosVisiblesAcc();
+        surveillerVuesAcc();
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
           const sentinelle = document.createElement('div');
