@@ -349,16 +349,21 @@ window.submitPub = async function() {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
+      let octetsDejaEnvoyesV = 0;
+      const filetDemarrageV = setTimeout(() => {
+        if (octetsDejaEnvoyesV === 0) { try { task.cancel(); } catch(e){} }
+      }, 25000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
+            octetsDejaEnvoyesV = snap.bytesTransferred;
             const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
           },
-          err => { rej(err); },
-          async () => { res(await getDownloadURL(task.snapshot.ref)); }
+          err => { clearTimeout(filetDemarrageV); rej(err); },
+          async () => { clearTimeout(filetDemarrageV); res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       const refVideo = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
