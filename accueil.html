@@ -36,23 +36,18 @@
     .vcard-bg { position: absolute; inset: 0; }
     video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
-    /* ── DESKTOP (≥900px) : grille de vignettes + carte en focus au clic ──
-       En dessous de 900px, rien de tout ceci ne s'applique : le mobile
-       garde exactement le même comportement qu'avant. */
-    @media (min-width: 900px) {
-      .feed-wrap.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; padding: 90px 20px 40px; height: auto; overflow: visible; background: #0a0a0a; }
-      .feed-wrap.grid-mode #hSpacer { display: none; grid-column: 1 / -1; }
-      .thumb-card { position: relative; aspect-ratio: 9/16; border-radius: 14px; overflow: hidden; cursor: pointer; background: #222; transition: transform .15s; }
-      .thumb-card:hover { transform: scale(1.03); }
-      .thumb-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-size: cover; background-position: center; }
-      .thumb-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.85)); display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; }
-      .thumb-name { color: #fff; font-weight: 800; font-size: 13px; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
-      .thumb-etoiles { font-size: 10px; letter-spacing: 1px; margin-top: 3px; }
-      .focus-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 500; display: flex; align-items: center; justify-content: center; }
-      .focus-inner { position: relative; width: 100%; max-width: 420px; height: 92vh; max-height: 900px; border-radius: 16px; overflow: hidden; }
-      .focus-inner .vcard { position: relative; height: 100%; }
-      .focus-back { position: absolute; top: 20px; left: 20px; z-index: 600; background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 20px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    }
+    /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
+       inséré toutes les 4 cartes dans le fil, défile tout seul. ── */
+    .cca-wrap-acc { background: #0d0d0d; padding: 14px 0 16px; scroll-snap-align: start; height: 100vh; height: calc(var(--vh, 1vh) * 100); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; }
+    .cca-titre-acc { font-size: 15px; font-weight: 800; color: #fff; padding: 0 14px 10px; }
+    .cover-carousel-acc { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; scrollbar-width: none; cursor: grab; touch-action: pan-x; }
+    .cca-card-acc { position: relative; flex: 0 0 auto; width: 150px; height: 220px; border-radius: 14px; overflow: hidden; scroll-snap-align: start; background: #222; cursor: pointer; transition: opacity .25s, transform .25s; }
+    .cca-card-acc img, .cca-card-acc video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cca-fade-acc { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 10px 12px; background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0)); }
+    .cca-nom-acc { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
+    .cca-snip-acc { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .cca-dismiss-acc { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .cca-suivre-acc { position: absolute; left: 6px; top: 6px; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 12px; cursor: pointer; color: #fff; }
     .vid-center-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 15; cursor: pointer; }
     .vid-center-btn svg { width: 26px; height: 26px; margin-left: 3px; }
     .vid-seek-wrap { position: absolute; left: 0; right: 0; top: 8px; height: 18px; z-index: 15; display: flex; align-items: center; padding: 0 12px; cursor: pointer; }
@@ -217,10 +212,6 @@
   <div class="panel-slide" id="panel-0">
     <div class="feed-wrap" id="feedW">
       <div id="hSpacer"></div>
-    </div>
-    <div class="focus-overlay" id="focusOverlayAcc" style="display:none">
-      <button class="focus-back" onclick="fermerCarteFocusAcc()">← Retour à la grille</button>
-      <div class="focus-inner" id="focusInnerAcc"></div>
     </div>
   </div>
 
@@ -405,45 +396,77 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
 
   // 6 étoiles, une pleine tous les 10 000 (j'aime + vues) cumulés.
-  // ── Desktop (≥900px) : grille de vignettes au lieu du fil plein écran ──
-  function estDesktopAcc(){ return window.innerWidth >= 900; }
-  window._cartesDataAcc = []; // uid/data/publication de chaque carte, pour pouvoir l'ouvrir en focus au clic
+  // ── Carrousel "Nos coups de cœur" — repris du modèle Actualités ──
+  window._carrouselCandidatsAcc = []; // {index, uid, data, publication} avec vraie photo/vidéo
+  const _carrouselEcartesAcc = new Set(); // écartés (✕) pour cette session
 
-  function creerVignetteAcc(uid, data, index, publication){
-    const pseudo = data.pseudo || data.nom || data.prenom || 'Professionnel';
-    let bg;
-    if (publication && publication.type === 'video') {
-      bg = `<video class="thumb-bg" src="${publication.url}" muted loop playsinline preload="metadata"></video>`;
-    } else if (publication && publication.type === 'photo') {
-      const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
-      bg = `<div class="thumb-bg" style="background-image:url('${urlEsc}')"></div>`;
-    } else {
-      bg = `<div class="thumb-bg" style="background:linear-gradient(135deg,#333,#555)"></div>`;
-    }
-    return `<div class="thumb-card" onclick="ouvrirCarteDepuisGrilleAcc(${index})">
-      ${bg}
-      <div class="thumb-overlay">
-        <div class="thumb-name">${pseudo}</div>
-        <div class="thumb-etoiles">${etoilesHTMLAcc(data)}</div>
-      </div>
-    </div>`;
+  function construireCarrouselAccHTML(){
+    const candidats = window._carrouselCandidatsAcc.filter(c => !_carrouselEcartesAcc.has(c.index)).slice(0, 12);
+    if (!candidats.length) return '';
+    const cartes = candidats.map(c => {
+      const pseudo = c.data.pseudo || c.data.nom || 'ArtiRoyce';
+      const snippetSrc = (c.publication.titre || c.data.metier || '');
+      const nomEsc = String(pseudo).replace(/</g,'&lt;');
+      const snipEsc = String(snippetSrc).slice(0,45).replace(/</g,'&lt;');
+      const estMoi = auth.currentUser && c.uid === auth.currentUser.uid;
+      const dejaSuivi = mesSuivisAccueil.has(c.uid);
+      const media = c.publication.type === 'video'
+        ? `<video src="${c.publication.url}" muted playsinline preload="metadata"></video>`
+        : `<img src="${c.publication.url}" loading="lazy">`;
+      const suivreBtn = (!estMoi && c.uid) ? `<span class="cca-suivre-acc" id="ccaSuivreAcc-${c.index}" onclick="event.stopPropagation();window.toggleSuivreCarrouselAcc('${c.uid}',${c.index})" style="background:${dejaSuivi?'rgba(255,255,255,0.28)':'var(--red)'}">${dejaSuivi?'✓ Suivi(e)':'+ Suivre'}</span>` : '';
+      return `<div class="cca-card-acc" id="ccaCardAcc-${c.index}" onclick="window.allerVersCarteAcc(${c.index})">
+        ${media}
+        <div class="cca-dismiss-acc" onclick="event.stopPropagation();window.ecarterCarrouselAcc(${c.index})" title="Pas intéressé(e)">✕</div>
+        <div class="cca-fade-acc"><div class="cca-nom-acc">${nomEsc}</div><div class="cca-snip-acc">${snipEsc}</div></div>
+        ${suivreBtn}
+      </div>`;
+    }).join('');
+    return `<div class="cca-wrap-acc"><div class="cca-titre-acc">✨ Nos coups de cœur</div>
+      <div class="cover-carousel-acc">${cartes}</div></div>`;
   }
 
-  window.ouvrirCarteDepuisGrilleAcc = function(index){
-    const item = window._cartesDataAcc.find(c => c.index === index);
-    if (!item) return;
-    document.getElementById('focusInnerAcc').innerHTML = creerCard(item.uid, item.data, item.index, item.publication);
-    document.getElementById('focusOverlayAcc').style.display = 'flex';
-    adjustLayout();
-    surveillerVideosVisiblesAcc();
-    surveillerVuesAcc();
-    chargerMesEtatsAccueil();
+  window.ecarterCarrouselAcc = function(index){
+    _carrouselEcartesAcc.add(index);
+    document.querySelectorAll('#ccaCardAcc-'+index).forEach(card => {
+      card.style.opacity = '0'; card.style.transform = 'scale(0.85)';
+      setTimeout(() => card.remove(), 220);
+    });
   };
 
-  window.fermerCarteFocusAcc = function(){
-    document.getElementById('focusOverlayAcc').style.display = 'none';
-    document.getElementById('focusInnerAcc').innerHTML = '';
+  window.toggleSuivreCarrouselAcc = async function(auteurUid, index){
+    await window.toggleSuivreAccueil(auteurUid);
+    const suivi = mesSuivisAccueil.has(auteurUid);
+    document.querySelectorAll('#ccaSuivreAcc-'+index).forEach(btn => {
+      btn.textContent = suivi ? '✓ Suivi(e)' : '+ Suivre';
+      btn.style.background = suivi ? 'rgba(255,255,255,0.28)' : 'var(--red)';
+    });
   };
+
+  // Clic sur une vignette : défile jusqu'à la vraie carte dans le fil,
+  // qui se met à jouer automatiquement (l'observateur de visibilité déjà
+  // en place s'en charge dès qu'elle apparaît bien à l'écran).
+  window.allerVersCarteAcc = function(index){
+    const el = document.getElementById('carte-'+index);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  let _carrousselPauseAcc = 0;
+  let _carrousselDemarreAcc = false;
+  function activerDefilementCarrouselAcc(){
+    if (_carrousselDemarreAcc) return;
+    _carrousselDemarreAcc = true;
+    setInterval(() => {
+      if (Date.now() < _carrousselPauseAcc) return;
+      document.querySelectorAll('.cover-carousel-acc').forEach(track => {
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        if (maxScroll <= 2) return;
+        if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+        else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+      });
+    }, 3000);
+    document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel-acc')) _carrousselPauseAcc = Date.now() + 4000; }, { passive: true });
+    document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-acc')) _carrousselPauseAcc = Date.now() + 4000; });
+  }
 
   function etoilesHTMLAcc(data){
     const total = (data.likesAccueil||0) + (data.vuesAccueil||0);
@@ -524,7 +547,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
     }
 
-    return `<div class="vcard" data-vue-uid="${uid}">
+    return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
@@ -1546,8 +1569,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       const TAILLE_LOT_ACC = 6;
       let nombreAffichesAcc = 0;
       let indexRendu = 0;
-      const modeDesktopAcc = estDesktopAcc();
-      if (modeDesktopAcc) feed.classList.add('grid-mode');
+      let cartesDepuisCarrouselAcc = 0;
 
       async function rendreLotSuivant() {
         const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
@@ -1557,9 +1579,6 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
         // Pour chaque professionnel du lot : une carte par publication
         // (photo/vidéo), ou une seule carte fond uni s'il n'a rien publié.
-        // Sur desktop : vignette légère (pas de lecture auto ni surveillance,
-        // pour éviter des dizaines de vidéos actives à la fois). Sur mobile :
-        // carte plein écran complète, comportement inchangé.
         const cartesHTML = [];
         for (const p of lot) {
           let publications = [];
@@ -1569,15 +1588,27 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
             publications = portSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
           } catch(e) { console.error('portfolio '+p.id, e); }
 
-          const items = publications.length === 0 ? [null] : publications;
-          items.forEach(pub => {
+          if (publications.length === 0) {
             const idx = indexRendu++;
-            window._cartesDataAcc.push({ uid: p.id, data: p.data, index: idx, publication: pub });
-            cartesHTML.push(modeDesktopAcc ? creerVignetteAcc(p.id, p.data, idx, pub) : creerCard(p.id, p.data, idx, pub));
-          });
+            cartesHTML.push(creerCard(p.id, p.data, idx, null));
+            cartesDepuisCarrouselAcc++;
+          } else {
+            publications.forEach(pub => {
+              const idx = indexRendu++;
+              cartesHTML.push(creerCard(p.id, p.data, idx, pub));
+              window._carrouselCandidatsAcc.push({ index: idx, uid: p.id, data: p.data, publication: pub });
+              cartesDepuisCarrouselAcc++;
+            });
+          }
+          while (cartesDepuisCarrouselAcc >= 4) {
+            const blocCarrousel = construireCarrouselAccHTML();
+            if (blocCarrousel) { cartesHTML.push(blocCarrousel); activerDefilementCarrouselAcc(); }
+            cartesDepuisCarrouselAcc -= 4;
+          }
         }
         feed.innerHTML += cartesHTML.join('');
-        if (!modeDesktopAcc) { surveillerVideosVisiblesAcc(); surveillerVuesAcc(); }
+        surveillerVideosVisiblesAcc();
+        surveillerVuesAcc();
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
           const sentinelle = document.createElement('div');
@@ -1588,10 +1619,8 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
           observateurAccueil.observe(sentinelle);
         }
         adjustLayout();
-        if (!modeDesktopAcc) {
-          if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
-          else appliquerEtatsSurCartes();
-        }
+        if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
+        else appliquerEtatsSurCartes();
       }
 
       const observateurAccueil = new IntersectionObserver((entrees) => {
