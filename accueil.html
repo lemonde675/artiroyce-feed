@@ -42,6 +42,7 @@
     #toggleLargeAcc { position: fixed; right: 8px; z-index: 150; font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.55); background: rgba(0,0,0,0.35); border-radius: 10px; padding: 3px 7px; cursor: pointer; letter-spacing: -1px; display: none; }
     @media (min-width: 768px) {
       #toggleLargeAcc { display: block; }
+      body.mode-large-acc .panels-container, body.mode-large-acc .panels-track { max-width: 600px !important; }
       body.mode-large-acc #feedW { max-width: 600px !important; margin: 0 auto !important; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
       body.mode-large-acc #toggleLargeAcc { color: #fff; }
       .cca-titre-acc { font-size: 22px; padding: 0 24px 16px; }
@@ -173,9 +174,9 @@
        VERSION ORDINATEUR / PC
     ══════════════════════════════════ */
     @media (min-width: 768px) {
-      html { max-width: none; width: 100%; background: #0a0a2e; }
+      html { max-width: none; width: 100%; background: #f5f6f8; }
       body { max-width: none !important; width: 100% !important; margin: 0 !important; box-shadow: none; }
-      .top-header, .bot-nav, .panels-container { max-width: none !important; width: 100% !important; }
+      .top-header, .bot-nav { max-width: none !important; width: 100% !important; }
       .feed-wrap, .panel-slide { scrollbar-width: thin; }
       .feed-wrap::-webkit-scrollbar { display: block; width: 6px; }
       .feed-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
@@ -1011,12 +1012,20 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
   // ── Contrôles vidéo personnalisés (fil principal) ──
   // Lecture/pause au clic ou au tap sur la vidéo elle-même ou l'icône
   // centrale. L'icône ne reste visible que quand la vidéo est en pause.
+  window._videosEnPauseManuelleAcc = new Set(); // pause volontaire : jamais relancée de force
   window.basculerLectureVideoAcc = function(index){
     const vid = document.getElementById('vid-'+index);
     const btn = document.getElementById('vidPP-'+index);
     if (!vid) return;
-    if (vid.paused) { vid.play().catch(()=>{}); if (btn) btn.style.display = 'none'; }
-    else { vid.pause(); if (btn) btn.style.display = 'flex'; }
+    if (vid.paused) {
+      vid.play().catch(()=>{});
+      window._videosEnPauseManuelleAcc.delete(index);
+      if (btn) btn.style.display = 'none';
+    } else {
+      vid.pause();
+      window._videosEnPauseManuelleAcc.add(index);
+      if (btn) btn.style.display = 'flex';
+    }
   };
 
   // Mise à jour de la barre de progression pendant la lecture.
@@ -1065,11 +1074,13 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     observateurVideosAcc = new IntersectionObserver((entrees) => {
       entrees.forEach(entree => {
         const vid = entree.target;
-        const idx = vid.dataset.idx;
+        const idx = vid.dataset.idx !== undefined ? Number(vid.dataset.idx) : undefined;
         const btnPP = idx !== undefined ? document.getElementById('vidPP-'+idx) : null;
         if (entree.isIntersecting && entree.intersectionRatio >= 0.6) {
-          vid.play().catch(()=>{});
-          if (btnPP) btnPP.style.display = 'none';
+          if (idx === undefined || !window._videosEnPauseManuelleAcc.has(idx)) {
+            vid.play().catch(()=>{});
+            if (btnPP) btnPP.style.display = 'none';
+          }
         } else {
           vid.pause();
         }
