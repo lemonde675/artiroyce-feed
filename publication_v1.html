@@ -323,6 +323,7 @@ window.submitPub = async function() {
       try { f = await compresserImagePub(photos[i]); } catch(e) { console.error('Compression impossible, envoi du fichier original :', e); }
       const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
       const task = uploadBytesResumable(ref(storage, path), f);
+      const failSafe = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -331,8 +332,8 @@ window.submitPub = async function() {
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
           },
-          err => { rej(err); },
-          async () => { res(await getDownloadURL(task.snapshot.ref)); }
+          err => { clearTimeout(failSafe); rej(err); },
+          async () => { clearTimeout(failSafe); res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       fichiersEnvoyes++;
@@ -348,6 +349,7 @@ window.submitPub = async function() {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
+      const failSafeV = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -356,8 +358,8 @@ window.submitPub = async function() {
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
           },
-          err => { rej(err); },
-          async () => { res(await getDownloadURL(task.snapshot.ref)); }
+          err => { clearTimeout(failSafeV); rej(err); },
+          async () => { clearTimeout(failSafeV); res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       const refVideo = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
