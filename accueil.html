@@ -457,7 +457,7 @@ function toggleSiteWidth(){
       const estMoi = auth.currentUser && c.uid === auth.currentUser.uid;
       const dejaSuivi = mesSuivisAccueil.has(c.uid);
       const media = c.publication.type === 'video'
-        ? `<video src="${c.publication.url}" muted playsinline preload="metadata"></video>`
+        ? `<video src="${c.publication.url}" muted playsinline preload="metadata" onloadeddata="this.play().then(()=>this.pause()).catch(()=>{})"></video>`
         : `<img src="${c.publication.url}" loading="lazy">`;
       const suivreBtn = (!estMoi && c.uid) ? `<span class="cca-suivre-acc" id="ccaSuivreAcc-${c.index}" onclick="event.stopPropagation();window.toggleSuivreCarrouselAcc('${c.uid}',${c.index})" style="background:${dejaSuivi?'rgba(255,255,255,0.28)':'var(--red)'}">${dejaSuivi?'✓ Suivi(e)':'+ Suivre'}</span>` : '';
       return `<div class="cca-card-acc" id="ccaCardAcc-${c.index}" onclick="window.allerVersCarteAcc(${c.index})">
