@@ -665,10 +665,10 @@ function toggleSiteWidth(){
       el.style.top = '74px';
     });
     document.querySelectorAll('.badge-v').forEach(el => {
-      el.style.top = '170px';
+      el.style.top = Math.max(8, 170 - hh) + 'px';
     });
     document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = '285px';
+      el.style.top = Math.max(8, 285 - hh) + 'px';
     });
     document.querySelectorAll('.info-bot').forEach(el => {
       el.style.bottom = '62px';
