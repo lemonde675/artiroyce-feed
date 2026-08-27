@@ -176,9 +176,20 @@
       .act-circle:hover { transform: scale(1.08); }
       .h-tabs { justify-content: center; overflow-x: visible; }
     }
+    /* ══════════════════════════════════
+       BOUTON <> RÉDUIRE / AGRANDIR (accueil.html uniquement)
+       Force la largeur indépendamment de la taille d'écran/zoom.
+    ══════════════════════════════════ */
+    html.site-reduced, html.site-reduced body { max-width: 480px !important; width: 100% !important; margin: 0 auto !important; background: #fff !important; }
+    html.site-reduced .top-header, html.site-reduced .bot-nav, html.site-reduced .panels-container { max-width: 480px !important; width: 100% !important; }
+    html.site-expanded, html.site-expanded body { max-width: none !important; width: 100% !important; }
+    html.site-expanded .top-header, html.site-expanded .bot-nav, html.site-expanded .panels-container { max-width: none !important; width: 100% !important; }
+    #widthToggleBtn { position: fixed; top: 8px; right: 8px; z-index: 999; background: #fff; color: #0a0a2e; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; font-family: monospace; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
   </style>
 </head>
 <body>
+
+<button id="widthToggleBtn" onclick="toggleSiteWidth()" title="Réduire / agrandir">&lt;&gt;</button>
 
 <header class="top-header" id="topH">
   <div class="h-row1">
@@ -367,6 +378,20 @@ if(window.visualViewport){
   window.visualViewport.addEventListener('scroll',majVh);
 }
 setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
+
+// Bouton <> réduire/agrandir la largeur de la page (accueil.html uniquement).
+function toggleSiteWidth(){
+  const html=document.documentElement;
+  const estAgrandi=html.classList.contains('site-expanded');
+  html.classList.remove('site-expanded','site-reduced');
+  html.classList.add(estAgrandi?'site-reduced':'site-expanded');
+  try{ sessionStorage.setItem('ariAccueilLargeur', estAgrandi?'reduit':'agrandi'); }catch(e){}
+}
+(function(){
+  let choix='reduit';
+  try{ choix=sessionStorage.getItem('ariAccueilLargeur')||'reduit'; }catch(e){}
+  document.documentElement.classList.add(choix==='agrandi'?'site-expanded':'site-reduced');
+})();
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
