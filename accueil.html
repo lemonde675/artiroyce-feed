@@ -77,8 +77,8 @@
     .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; }
-    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
+    .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: auto; }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
@@ -87,7 +87,7 @@
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
     .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
-    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; }
+    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 24px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; margin-top: 14px; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -97,7 +97,7 @@
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; margin-top: 10px; font-weight: 500; }
-    .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; margin-top: 10px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+    .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; margin-top: 10px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); pointer-events: auto; }
     .info-etoiles { font-size: 15px; letter-spacing: 3px; margin-bottom: 16px; margin-top: 10px; }
     .etoile-pleine { color: #ffd700; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
     .etoile-vide { color: rgba(255,255,255,0.28); }
@@ -180,11 +180,17 @@
        BOUTON <> RÉDUIRE / AGRANDIR (accueil.html uniquement)
        Force la largeur indépendamment de la taille d'écran/zoom.
     ══════════════════════════════════ */
-    html.site-reduced, html.site-reduced body { max-width: 480px !important; width: 100% !important; margin: 0 auto !important; background: #fff !important; }
+    html.site-reduced, html.site-reduced body { max-width: 480px !important; width: 100% !important; margin: 0 auto !important; background: #f0f0f0 !important; }
     html.site-reduced .top-header, html.site-reduced .bot-nav, html.site-reduced .panels-container { max-width: 480px !important; width: 100% !important; }
     html.site-expanded, html.site-expanded body { max-width: none !important; width: 100% !important; }
     html.site-expanded .top-header, html.site-expanded .bot-nav, html.site-expanded .panels-container { max-width: none !important; width: 100% !important; }
-    #widthToggleBtn { position: fixed; top: 8px; right: 8px; z-index: 999; background: #fff; color: #0a0a2e; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; font-family: monospace; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    #widthToggleBtn { position: fixed; top: 48px; right: 8px; z-index: 999; background: #fff; color: #0a0a2e; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; font-family: monospace; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    /* ══ Nouvelle recherche libre (remplace l'ancien panneau métiers) ══ */
+    .acc-search-bar { display:none; align-items:center; gap:8px; padding:10px 14px; background:#fff; border-bottom:1px solid #eee; position:fixed; left:50%; transform:translateX(-50%); width:100%; max-width:480px; z-index:199; }
+    html.site-expanded .acc-search-bar { max-width:none; }
+    .acc-search-bar.open { display:flex; }
+    .acc-search-bar input { flex:1; border:1px solid #e8ecf0; border-radius:20px; padding:9px 14px; font-size:13px; background:#f2f4f7; color:#222; font-family:inherit; outline:none; }
+    .acc-search-bar .acc-search-close { flex-shrink:0; font-size:13px; font-weight:700; color:#888; cursor:pointer; padding:4px; }
   </style>
 </head>
 <body>
@@ -209,7 +215,7 @@
       <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
       <div style="display:flex;align-items:center;gap:3px">
         <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
-        <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
+        <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="toggleAccSearch()">🔍</span>
         <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
       </div>
     </div>
@@ -309,6 +315,11 @@
   </div>
   <div class="sp-subtitle" id="spSubtitle" data-i18n="acc_all_jobs">Tous les métiers</div>
   <div class="sp-list" id="spList"></div>
+</div>
+
+<div class="acc-search-bar" id="accSearchBar">
+  <input type="text" id="accSearchInput" placeholder="Rechercher un pseudo, un métier, une ville…" oninput="onAccSearchInput()"/>
+  <span class="acc-search-close" onclick="toggleAccSearch()">Fermer</span>
 </div>
 
 <nav class="bot-nav">
@@ -647,6 +658,8 @@ function toggleSiteWidth(){
   function adjustLayout() {
     const hh = document.getElementById('topH').offsetHeight;
     document.getElementById('hSpacer').style.height = hh + 'px';
+    const accSearchBar = document.getElementById('accSearchBar');
+    if (accSearchBar) accSearchBar.style.top = hh + 'px';
     document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
       el.style.top = (hh + 74) + 'px';
     });
@@ -1474,6 +1487,34 @@ function toggleSiteWidth(){
     loadMetiersFromFirebase();
     renderMetiers(allMetiers);
     setTimeout(() => document.getElementById('spInput').focus(), 350);
+  }
+
+  // ══ NOUVELLE RECHERCHE LIBRE (remplace l'ouverture du panneau métiers ci-dessus) ══
+  window.toggleAccSearch = function() {
+    const barre = document.getElementById('accSearchBar');
+    const ouvert = barre.classList.toggle('open');
+    if (ouvert) {
+      setTimeout(() => document.getElementById('accSearchInput').focus(), 150);
+    } else {
+      document.getElementById('accSearchInput').value = '';
+      filtrerCartesParTexte('');
+    }
+  }
+
+  window.onAccSearchInput = function() {
+    const terme = document.getElementById('accSearchInput').value.trim().toLowerCase();
+    filtrerCartesParTexte(terme);
+  }
+
+  function filtrerCartesParTexte(terme) {
+    document.querySelectorAll('.vcard').forEach(card => {
+      if (!terme) { card.style.display = ''; return; }
+      const pseudoEl = card.querySelector('.info-user');
+      const metierEl = card.querySelector('.info-metier');
+      const villeEl = card.querySelector('.info-ville');
+      const hay = ((pseudoEl?pseudoEl.textContent:'') + ' ' + (metierEl?metierEl.textContent:'') + ' ' + (villeEl?villeEl.textContent:'')).toLowerCase();
+      card.style.display = hay.includes(terme) ? '' : 'none';
+    });
   }
 
   window.closeSearch = function() {
