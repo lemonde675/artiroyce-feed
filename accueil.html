@@ -772,6 +772,10 @@ function toggleSiteWidth(){
   const swipeZone = document.getElementById('panelsContainer');
 
   swipeZone.addEventListener('touchstart', (e) => {
+    // Un glissement qui démarre dans le carrousel "Nos coups de cœur" ne
+    // doit jamais déclencher le changement d'onglet — sinon on se retrouve
+    // sur Actualités juste en voulant faire défiler le carrousel.
+    if (e.target.closest('.cover-carousel-acc')) { isDragging = false; touchStartX = null; return; }
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     dragStartX = touchStartX;
@@ -1657,6 +1661,30 @@ function toggleSiteWidth(){
       let indexRendu = 0;
       let cartesDepuisCarrouselAcc = 0;
 
+      // Arrivée juste après une publication (accueil.html?pub=xxx&uid=yyy) :
+      // on affiche cette publication précise en tout premier, avant le fil
+      // normal, pour que l'auteur retrouve directement ce qu'il vient de
+      // publier. Ça ne change rien au classement pour les autres visites.
+      const paramsUrlAcc = new URLSearchParams(location.search);
+      const pubCibleId = paramsUrlAcc.get('pub');
+      const uidCibleId = paramsUrlAcc.get('uid');
+      if (pubCibleId && uidCibleId) {
+        try {
+          const [userSnapCible, pubSnapCible] = await Promise.all([
+            db.collection('utilisateurs').doc(uidCibleId).get(),
+            db.collection('utilisateurs').doc(uidCibleId).collection('portfolio').doc(pubCibleId).get()
+          ]);
+          if (userSnapCible.exists && pubSnapCible.exists) {
+            const pubCible = { id: pubSnapCible.id, ...pubSnapCible.data() };
+            feed.innerHTML += creerCard(uidCibleId, userSnapCible.data(), indexRendu++, pubCible);
+            window._carrouselCandidatsAcc.push({ index: indexRendu-1, uid: uidCibleId, data: userSnapCible.data(), publication: pubCible });
+          }
+        } catch(e) { console.error('Publication ciblée introuvable :', e); }
+        // Retire les paramètres de l'URL pour qu'un rechargement de page
+        // n'épingle pas cette publication indéfiniment.
+        history.replaceState(null, '', 'accueil.html');
+      }
+
       let chargementEnCoursAcc = false;
       async function rendreLotSuivant() {
         if (chargementEnCoursAcc) return;
@@ -1672,13 +1700,22 @@ function toggleSiteWidth(){
         const cartesHTML = [];
         for (const p of lot) {
           let publications = [];
+          let etaitUniquementLaPubEpingleeAcc = false;
           try {
             const portSnap = await db.collection('utilisateurs').doc(p.id).collection('portfolio')
               .orderBy('createdAt', 'desc').get();
             publications = portSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
+            if (pubCibleId && uidCibleId && p.id === uidCibleId) {
+              const avantFiltrage = publications.length;
+              publications = publications.filter(it => it.id !== pubCibleId);
+              if (avantFiltrage > 0 && publications.length === 0) etaitUniquementLaPubEpingleeAcc = true;
+            }
           } catch(e) { console.error('portfolio '+p.id, e); }
 
-          if (publications.length === 0) {
+          if (etaitUniquementLaPubEpingleeAcc) {
+            // Rien à faire : cette personne n'a que la publication déjà
+            // épinglée en haut du fil, pas de carte supplémentaire à créer.
+          } else if (publications.length === 0) {
             const idx = indexRendu++;
             cartesHTML.push(creerCard(p.id, p.data, idx, null));
             cartesDepuisCarrouselAcc++;
