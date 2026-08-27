@@ -35,6 +35,24 @@
     .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
     video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
+
+    /* ── DESKTOP (≥900px) : grille de vignettes + carte en focus au clic ──
+       En dessous de 900px, rien de tout ceci ne s'applique : le mobile
+       garde exactement le même comportement qu'avant. */
+    @media (min-width: 900px) {
+      .feed-wrap.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; padding: 90px 20px 40px; height: auto; overflow: visible; background: #0a0a0a; }
+      .feed-wrap.grid-mode #hSpacer { display: none; grid-column: 1 / -1; }
+      .thumb-card { position: relative; aspect-ratio: 9/16; border-radius: 14px; overflow: hidden; cursor: pointer; background: #222; transition: transform .15s; }
+      .thumb-card:hover { transform: scale(1.03); }
+      .thumb-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-size: cover; background-position: center; }
+      .thumb-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.85)); display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; }
+      .thumb-name { color: #fff; font-weight: 800; font-size: 13px; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+      .thumb-etoiles { font-size: 10px; letter-spacing: 1px; margin-top: 3px; }
+      .focus-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 500; display: flex; align-items: center; justify-content: center; }
+      .focus-inner { position: relative; width: 100%; max-width: 420px; height: 92vh; max-height: 900px; border-radius: 16px; overflow: hidden; }
+      .focus-inner .vcard { position: relative; height: 100%; }
+      .focus-back { position: absolute; top: 20px; left: 20px; z-index: 600; background: rgba(255,255,255,0.15); color: #fff; border: none; border-radius: 20px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    }
     .vid-center-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 60px; height: 60px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 15; cursor: pointer; }
     .vid-center-btn svg { width: 26px; height: 26px; margin-left: 3px; }
     .vid-seek-wrap { position: absolute; left: 0; right: 0; top: 8px; height: 18px; z-index: 15; display: flex; align-items: center; padding: 0 12px; cursor: pointer; }
@@ -199,6 +217,10 @@
   <div class="panel-slide" id="panel-0">
     <div class="feed-wrap" id="feedW">
       <div id="hSpacer"></div>
+    </div>
+    <div class="focus-overlay" id="focusOverlayAcc" style="display:none">
+      <button class="focus-back" onclick="fermerCarteFocusAcc()">← Retour à la grille</button>
+      <div class="focus-inner" id="focusInnerAcc"></div>
     </div>
   </div>
 
@@ -383,6 +405,46 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
 
   // 6 étoiles, une pleine tous les 10 000 (j'aime + vues) cumulés.
+  // ── Desktop (≥900px) : grille de vignettes au lieu du fil plein écran ──
+  function estDesktopAcc(){ return window.innerWidth >= 900; }
+  window._cartesDataAcc = []; // uid/data/publication de chaque carte, pour pouvoir l'ouvrir en focus au clic
+
+  function creerVignetteAcc(uid, data, index, publication){
+    const pseudo = data.pseudo || data.nom || data.prenom || 'Professionnel';
+    let bg;
+    if (publication && publication.type === 'video') {
+      bg = `<video class="thumb-bg" src="${publication.url}" muted loop playsinline preload="metadata"></video>`;
+    } else if (publication && publication.type === 'photo') {
+      const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
+      bg = `<div class="thumb-bg" style="background-image:url('${urlEsc}')"></div>`;
+    } else {
+      bg = `<div class="thumb-bg" style="background:linear-gradient(135deg,#333,#555)"></div>`;
+    }
+    return `<div class="thumb-card" onclick="ouvrirCarteDepuisGrilleAcc(${index})">
+      ${bg}
+      <div class="thumb-overlay">
+        <div class="thumb-name">${pseudo}</div>
+        <div class="thumb-etoiles">${etoilesHTMLAcc(data)}</div>
+      </div>
+    </div>`;
+  }
+
+  window.ouvrirCarteDepuisGrilleAcc = function(index){
+    const item = window._cartesDataAcc.find(c => c.index === index);
+    if (!item) return;
+    document.getElementById('focusInnerAcc').innerHTML = creerCard(item.uid, item.data, item.index, item.publication);
+    document.getElementById('focusOverlayAcc').style.display = 'flex';
+    adjustLayout();
+    surveillerVideosVisiblesAcc();
+    surveillerVuesAcc();
+    chargerMesEtatsAccueil();
+  };
+
+  window.fermerCarteFocusAcc = function(){
+    document.getElementById('focusOverlayAcc').style.display = 'none';
+    document.getElementById('focusInnerAcc').innerHTML = '';
+  };
+
   function etoilesHTMLAcc(data){
     const total = (data.likesAccueil||0) + (data.vuesAccueil||0);
     const remplies = Math.min(6, Math.floor(total/10000));
@@ -1484,6 +1546,8 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       const TAILLE_LOT_ACC = 6;
       let nombreAffichesAcc = 0;
       let indexRendu = 0;
+      const modeDesktopAcc = estDesktopAcc();
+      if (modeDesktopAcc) feed.classList.add('grid-mode');
 
       async function rendreLotSuivant() {
         const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
@@ -1493,6 +1557,9 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
 
         // Pour chaque professionnel du lot : une carte par publication
         // (photo/vidéo), ou une seule carte fond uni s'il n'a rien publié.
+        // Sur desktop : vignette légère (pas de lecture auto ni surveillance,
+        // pour éviter des dizaines de vidéos actives à la fois). Sur mobile :
+        // carte plein écran complète, comportement inchangé.
         const cartesHTML = [];
         for (const p of lot) {
           let publications = [];
@@ -1502,15 +1569,15 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
             publications = portSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
           } catch(e) { console.error('portfolio '+p.id, e); }
 
-          if (publications.length === 0) {
-            cartesHTML.push(creerCard(p.id, p.data, indexRendu++, null));
-          } else {
-            publications.forEach(pub => { cartesHTML.push(creerCard(p.id, p.data, indexRendu++, pub)); });
-          }
+          const items = publications.length === 0 ? [null] : publications;
+          items.forEach(pub => {
+            const idx = indexRendu++;
+            window._cartesDataAcc.push({ uid: p.id, data: p.data, index: idx, publication: pub });
+            cartesHTML.push(modeDesktopAcc ? creerVignetteAcc(p.id, p.data, idx, pub) : creerCard(p.id, p.data, idx, pub));
+          });
         }
         feed.innerHTML += cartesHTML.join('');
-        surveillerVideosVisiblesAcc();
-        surveillerVuesAcc();
+        if (!modeDesktopAcc) { surveillerVideosVisiblesAcc(); surveillerVuesAcc(); }
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
           const sentinelle = document.createElement('div');
@@ -1521,8 +1588,10 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
           observateurAccueil.observe(sentinelle);
         }
         adjustLayout();
-        if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
-        else appliquerEtatsSurCartes();
+        if (!modeDesktopAcc) {
+          if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
+          else appliquerEtatsSurCartes();
+        }
       }
 
       const observateurAccueil = new IntersectionObserver((entrees) => {
