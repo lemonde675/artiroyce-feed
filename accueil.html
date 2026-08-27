@@ -36,6 +36,14 @@
     .vcard-bg { position: absolute; inset: 0; }
     video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
+    /* ── Version LARGE (bouton <>) : même carte, juste un peu plus grande
+       et centrée avec un joli fond sombre, pensée pour l'écran d'ordinateur.
+       Par défaut (sans la classe), rien ne change — version actuelle intacte. */
+    body.mode-large-acc { background: radial-gradient(circle at 50% 0%, #2a2a2a, #050505 70%); }
+    body.mode-large-acc .top-header, body.mode-large-acc .bot-nav { max-width: 600px; }
+    body.mode-large-acc .panels-container, body.mode-large-acc .panels-track { max-width: 600px; margin: 0 auto; box-shadow: 0 0 80px rgba(0,0,0,0.7); }
+    body.mode-large-acc #toggleLargeAcc { color: #fff; }
+
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
        inséré toutes les 4 cartes dans le fil, défile tout seul. ── */
     .cca-wrap-acc { background: #0d0d0d; padding: 14px 0 16px; scroll-snap-align: start; height: 100vh; height: calc(var(--vh, 1vh) * 100); box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; }
@@ -158,7 +166,6 @@
     @media (min-width: 768px) {
       html { max-width: none; width: 100%; background: #0a0a2e; }
       body { max-width: none !important; width: 100% !important; margin: 0 !important; box-shadow: none; }
-      .top-header, .bot-nav, .panels-container { max-width: none !important; width: 100% !important; }
       .feed-wrap, .panel-slide { scrollbar-width: thin; }
       .feed-wrap::-webkit-scrollbar { display: block; width: 6px; }
       .feed-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
@@ -190,6 +197,7 @@
         <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="openSearch()">🔍</span>
         <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
+        <span id="toggleLargeAcc" onclick="basculerModeLargeAcc()" style="font-size:16px;font-weight:700;color:#888;cursor:pointer;padding:2px 4px;letter-spacing:-1px;" title="Version large/réduite">&lt;&gt;</span>
       </div>
     </div>
   </div>
@@ -467,6 +475,11 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
     document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel-acc')) _carrousselPauseAcc = Date.now() + 4000; }, { passive: true });
     document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-acc')) _carrousselPauseAcc = Date.now() + 4000; });
   }
+
+  // Bascule version réduite / large (bouton <>), pour l'écran d'ordinateur.
+  window.basculerModeLargeAcc = function(){
+    document.body.classList.toggle('mode-large-acc');
+  };
 
   function etoilesHTMLAcc(data){
     const total = (data.likesAccueil||0) + (data.vuesAccueil||0);
@@ -1571,7 +1584,11 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       let indexRendu = 0;
       let cartesDepuisCarrouselAcc = 0;
 
+      let chargementEnCoursAcc = false;
       async function rendreLotSuivant() {
+        if (chargementEnCoursAcc) return;
+        chargementEnCoursAcc = true;
+        try {
         const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
         if (!lot.length) return;
         const sentinelleActuelle = document.getElementById('sentinelleAccueil');
@@ -1621,6 +1638,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
         adjustLayout();
         if (nombreAffichesAcc <= TAILLE_LOT_ACC) chargerMesEtatsAccueil();
         else appliquerEtatsSurCartes();
+        } finally { chargementEnCoursAcc = false; }
       }
 
       const observateurAccueil = new IntersectionObserver((entrees) => {
