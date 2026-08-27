@@ -85,16 +85,6 @@
     .toast.g { background: var(--green); }
     .toast.r { background: var(--red); }
 
-    /* SUCCESS */
-    .success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px 24px; gap: 16px; background: #fff; position: fixed; inset: 0; z-index: 300; max-width: 480px; margin: 0 auto; }
-    .success-circle { width: 80px; height: 80px; border-radius: 50%; background: #f0fdf0; border: 3px solid var(--green); display: flex; align-items: center; justify-content: center; font-size: 36px; animation: popIn .4s cubic-bezier(0.34,1.56,0.64,1); }
-    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-    .success-title { font-size: 22px; font-weight: 900; color: #222; }
-    .success-sub { font-size: 14px; color: #888; }
-    .success-btns { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
-    .btn-outline { padding: 11px 22px; border-radius: 22px; border: 2px solid var(--green); background: none; color: var(--green); font-size: 13px; font-weight: 800; cursor: pointer; }
-    .btn-filled { padding: 11px 22px; border-radius: 22px; border: none; background: var(--red); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-block; }
-
     /* LOGIN */
     .login-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; padding: 40px 24px; gap: 14px; }
     .login-screen a { padding: 12px 28px; background: var(--red); color: #fff; border-radius: 24px; text-decoration: none; font-size: 14px; font-weight: 800; }
@@ -218,23 +208,20 @@
   </div>
 </div>
 
-<!-- SUCCESS -->
-<div class="success-screen" id="successScreen">
-  <div class="success-circle">✅</div>
-  <div class="success-title">Ajouté !</div>
-  <div class="success-sub">Visible dans votre portfolio sur ArtiRoyce.</div>
-  <div class="success-btns">
-    <button class="btn-outline" onclick="resetForm()">+ Ajouter encore</button>
-    <a href="profil.html" class="btn-filled">Voir mon profil</a>
-  </div>
-</div>
-
 <!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
   <div style="font-size:48px">🔐</div>
   <div style="font-size:20px;font-weight:900;">Connexion requise</div>
   <p style="color:#888;font-size:14px;">Connectez-vous pour ajouter au portfolio.</p>
   <a href="connexion.html">Se connecter</a>
+</div>
+
+<!-- VISITEUR : publication non autorisée -->
+<div class="login-screen" id="visiteurScreen">
+  <div style="font-size:48px">🚫</div>
+  <div style="font-size:20px;font-weight:900;">Réservé aux professionnels</div>
+  <p style="color:#888;font-size:14px;">Impossible de publier en tant que visiteur. Seuls les comptes professionnels vérifiés peuvent ajouter des photos/vidéos au fil ArtiRoyce.</p>
+  <a href="profil_visiteur.html">Retour à mon profil</a>
 </div>
 
 <div class="toast" id="toastEl"></div>
@@ -276,9 +263,41 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loginScreen').style.display = 'flex';
     return;
   }
+  try {
+    const monSnap = await db.collection('utilisateurs').doc(user.uid).get();
+    const monRole = monSnap.exists ? monSnap.data().role : null;
+    if (monRole === 'visiteur') {
+      document.getElementById('mainForm').style.display = 'none';
+      document.getElementById('visiteurScreen').style.display = 'flex';
+      return;
+    }
+  } catch(e) { console.error('Vérification rôle impossible :', e); }
   window._uid = user.uid;
   chargerMonPortfolio();
 });
+
+// Compression photo avant envoi (même technique que discussion_v1.html,
+// déjà utilisée et fiable) : réduit vraiment la taille du fichier, donc
+// l'envoi est plus rapide pour de vrai, pas juste en apparence.
+function compresserImagePub(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onload=()=>{
+        const maxW=1280;const scale=Math.min(1,maxW/img.width);
+        const canvas=document.createElement('canvas');
+        canvas.width=img.width*scale;canvas.height=img.height*scale;
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        canvas.toBlob((blob)=>blob?resolve(blob):reject(new Error('Compression échouée')),'image/jpeg',0.72);
+      };
+      img.onerror=()=>reject(new Error('Image illisible'));
+      img.src=ev.target.result;
+    };
+    reader.onerror=()=>reject(new Error('Lecture du fichier échouée'));
+    reader.readAsDataURL(file);
+  });
+}
 
 window.submitPub = async function() {
   const uid = window._uid;
@@ -296,12 +315,14 @@ window.submitPub = async function() {
   try {
     const totalFichiers = photos.length + (videoFile ? 1 : 0);
     let fichiersEnvoyes = 0;
+    let dernierePubIdEnvoyee = null;
 
     for (let i = 0; i < photos.length; i++) {
-      const f = photos[i];
+      document.getElementById('progTxt').textContent = `Compression photo ${i+1}/${photos.length}…`;
+      let f = photos[i];
+      try { f = await compresserImagePub(photos[i]); } catch(e) { console.error('Compression impossible, envoi du fichier original :', e); }
       const path = `portfolio/${uid}/${Date.now()}_${i}.jpg`;
       const task = uploadBytesResumable(ref(storage, path), f);
-      const failSafe = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -310,45 +331,47 @@ window.submitPub = async function() {
             document.getElementById('progPct').textContent = pct + '%';
             document.getElementById('progTxt').textContent = `Photo ${i+1}/${photos.length}`;
           },
-          err => { clearTimeout(failSafe); rej(err); },
-          async () => { clearTimeout(failSafe); res(await getDownloadURL(task.snapshot.ref)); }
+          err => { rej(err); },
+          async () => { res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
       fichiersEnvoyes++;
-      await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
+      const refPhoto = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
         type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      dernierePubIdEnvoyee = refPhoto.id;
     }
 
     if (videoFile) {
       const ext = videoFile.name.split('.').pop();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
       const task = uploadBytesResumable(ref(storage, path), videoFile);
-      const failSafeV = setTimeout(() => { try { task.cancel(); } catch(e){} }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
             const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
-            document.getElementById('progTxt').textContent = 'Envoi vidéo…';
+            document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
           },
-          err => { clearTimeout(failSafeV); rej(err); },
-          async () => { clearTimeout(failSafeV); res(await getDownloadURL(task.snapshot.ref)); }
+          err => { rej(err); },
+          async () => { res(await getDownloadURL(task.snapshot.ref)); }
         );
       });
-      await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
+      const refVideo = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
         type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      dernierePubIdEnvoyee = refVideo.id;
     }
 
     setLoading(false);
-    document.getElementById('successScreen').style.display = 'flex';
-    chargerMonPortfolio();
+    showToast('Publié', '');
+    const paramPub = dernierePubIdEnvoyee ? ('?pub=' + dernierePubIdEnvoyee + '&uid=' + uid) : '';
+    setTimeout(() => { window.location.href = 'accueil.html' + paramPub; }, 900);
 
   } catch(err) {
     setLoading(false);
@@ -391,14 +414,16 @@ function searchMusicPub(){
         return;
       }
       res.innerHTML = data.results.map((t,i) => {
+        const nomEsc = (t.trackName + ' — ' + t.artistName).replace(/'/g,"\\'").replace(/"/g,'');
+        const urlEsc = (t.previewUrl||'').replace(/'/g,"\\'");
         return `<div style="display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;background:#fafafa">
           <img src="${t.artworkUrl60||''}" style="width:38px;height:38px;border-radius:8px;background:#eee;flex-shrink:0">
           <div style="flex:1;min-width:0">
             <div style="font-size:12.5px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.trackName||'').replace(/</g,'')}</div>
             <div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.artistName||'').replace(/</g,'')}</div>
           </div>
-          <button id="mppub-${i}" onclick="ecouterMusicPub(${i},'${(t.previewUrl||'').replace(/'/g,"\\'")}')" style="background:#eee;border:none;width:32px;height:32px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0">▶</button>
-          <button onclick="attacherMusiquePub(${i})" style="background:#fff;color:var(--rose);border:1.5px solid var(--rose);border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
+          <button id="mppub-${i}" onclick="ecouterMusicPub(${i},'${urlEsc}')" style="background:#eee;border:none;width:32px;height:32px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0">▶</button>
+          <button onclick="attacherMusiquePub('${urlEsc}','${nomEsc}')" style="background:#fff;color:var(--rose);border:1.5px solid var(--rose);border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
         </div>`;
       }).join('');
       window._dernierResultatsMusicPub = data.results;
@@ -423,16 +448,13 @@ function ecouterMusicPub(idx, url){
   audioPreviewPub.onended = () => { document.getElementById('mppub-'+idx).textContent = '▶'; };
 }
 
-window.attacherMusiquePub = function(idx){
-  const t = (window._dernierResultatsMusicPub || [])[idx];
-  if (!t) return;
-  if (!t.previewUrl) {
+window.attacherMusiquePub = function(url, nom){
+  if (!url) {
     alert('Aperçu audio indisponible pour ce titre, choisis-en un autre.');
     return;
   }
-  const nom = t.trackName + ' — ' + t.artistName;
   window._musicNom = nom;
-  window._musicUrl = t.previewUrl;
+  window._musicUrl = url;
   document.getElementById('musicAttachedNamePub').textContent = '🎵 ' + nom;
   document.getElementById('musicAttachedPub').style.display = 'flex';
   document.getElementById('musicResultsPub').innerHTML = '';
@@ -534,7 +556,6 @@ function resetForm() {
   document.getElementById('progFill').style.width = '0%';
   document.getElementById('mainBtn').disabled = true;
   document.getElementById('headBtn').classList.remove('ready');
-  document.getElementById('successScreen').style.display = 'none';
   window.retirerMusiquePub();
   document.getElementById('musicResultsPub').innerHTML = '';
   document.getElementById('musicSearchInp').value = '';
