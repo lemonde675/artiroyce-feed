@@ -44,6 +44,10 @@
       #toggleLargeAcc { display: block; }
       body.mode-large-acc #feedW { max-width: 600px !important; margin: 0 auto !important; box-shadow: 0 0 60px rgba(0,0,0,0.6); }
       body.mode-large-acc #toggleLargeAcc { color: #fff; }
+      .cca-titre-acc { font-size: 19px; }
+      .cca-card-acc { width: 220px; height: 320px; }
+      .cca-nom-acc { font-size: 15px; }
+      .cca-snip-acc { font-size: 12px; }
     }
 
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
@@ -216,6 +220,8 @@
   </div>
 </header>
 
+<span id="toggleLargeAcc" onclick="basculerModeLargeAcc()" title="Version large/réduite">&lt;&gt;</span>
+
 <div class="panels-container" id="panelsContainer"><div class="panels-track" id="panelsTrack">
 
   <!-- PANEL 0 : Accueil feed -->
@@ -223,7 +229,6 @@
     <div class="feed-wrap" id="feedW">
       <div id="hSpacer"></div>
     </div>
-    <span id="toggleLargeAcc" onclick="basculerModeLargeAcc()" title="Version large/réduite">&lt;&gt;</span>
   </div>
 
   <!-- PANEL 1 : Actualités (tab 1) -->
@@ -567,7 +572,7 @@ setTimeout(majVh,50);setTimeout(majVh,300);setTimeout(majVh,1000);
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
-      <div class="vcard-overlay"></div>
+      <div class="vcard-overlay" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})" style="pointer-events:auto"` : ''}></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
