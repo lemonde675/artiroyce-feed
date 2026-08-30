@@ -922,6 +922,8 @@ let listeMesCv = [];
 let listeCorbeille = [];
 let listeCommunaute = [];
 let listeToutes = [];
+let mesSuivisCv = new Set();
+let monPaysPrefixeCv = '';
 const authorInfoCache = {};
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
 const TAILLE_LOT_CV = 6;
@@ -1009,6 +1011,53 @@ async function chargerBadgePour(auteurUid){
 }
 
 /* ══════════ CHARGEMENT DE LA LISTE COMMUNE ══════════ */
+function extraireIndicatifTelephoneCv(telephone){
+  if (!telephone) return '';
+  return String(telephone).replace(/\D/g, '').slice(0, 3);
+}
+const _ordreAleatoireStableCv = {};
+function ordreAleatoireStableCv(id){
+  if (!(id in _ordreAleatoireStableCv)) _ordreAleatoireStableCv[id] = Math.random();
+  return _ordreAleatoireStableCv[id];
+}
+// Classement de la section communauté, même esprit que sur accueil.html :
+// 1) suivis actifs (mis à jour il y a moins de 15 jours) ; 2) même pays actif
+// (moins de 24h) ; 3) la masse, en aléatoire stable par session.
+// Un seul CV par auteur (le plus récemment mis à jour), pour éviter qu'une
+// même personne occupe plusieurs cartes dans le fil communauté.
+function classerCommunauteCv(liste){
+  const parAuteur = new Map();
+  liste.forEach(c => {
+    const existant = parAuteur.get(c.auteurUid);
+    const ts = c.majLe ? new Date(c.majLe).getTime() : 0;
+    if (!existant || ts > (existant.majLe ? new Date(existant.majLe).getTime() : 0)) parAuteur.set(c.auteurUid, c);
+  });
+  const dedoublonnee = Array.from(parAuteur.values());
+
+  const QUINZE_JOURS_MS_CV = 15 * 24 * 60 * 60 * 1000;
+  const VINGT_QUATRE_H_MS_CV = 24 * 60 * 60 * 1000;
+  const maintenant = Date.now();
+  const suivisActifs = [], paysActifs = [], masse = [];
+  dedoublonnee.forEach(c => {
+    const ts = c.majLe ? new Date(c.majLe).getTime() : 0;
+    const estSuivi = mesSuivisCv.has(c.auteurUid);
+    const memePays = !!(monPaysPrefixeCv && c.telephone && extraireIndicatifTelephoneCv(c.telephone) === monPaysPrefixeCv);
+    const publieDepuisMoinsDe = (fenetreMs) => ts > 0 && (maintenant - ts) <= fenetreMs;
+    if (estSuivi && publieDepuisMoinsDe(QUINZE_JOURS_MS_CV)) suivisActifs.push(c);
+    else if (memePays && publieDepuisMoinsDe(VINGT_QUATRE_H_MS_CV)) paysActifs.push(c);
+    else masse.push(c);
+  });
+  function triParFraicheurCv(a, b){
+    const diff = (b.majLe ? new Date(b.majLe).getTime() : 0) - (a.majLe ? new Date(a.majLe).getTime() : 0);
+    if (diff !== 0) return diff;
+    return ordreAleatoireStableCv(a.id) - ordreAleatoireStableCv(b.id);
+  }
+  suivisActifs.sort(triParFraicheurCv);
+  paysActifs.sort(triParFraicheurCv);
+  masse.sort((a, b) => ordreAleatoireStableCv(a.id) - ordreAleatoireStableCv(b.id));
+  return suivisActifs.concat(paysActifs, masse);
+}
+
 async function chargerListe(){
   let erreurChargement = null;
   try {
@@ -1035,7 +1084,7 @@ async function chargerListe(){
 
   listeMesCv = listeToutes.filter(c => estAMoi(c) && c.publie && !c.corbeille);
   listeCorbeille = listeToutes.filter(c => estAMoi(c) && c.corbeille);
-  listeCommunaute = listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille);
+  listeCommunaute = classerCommunauteCv(listeToutes.filter(c => !estAMoi(c) && c.publie && !c.corbeille));
   nombreCvCommunauteAffiches = TAILLE_LOT_CV;
 
   await renderListeCards();
@@ -1439,6 +1488,19 @@ function ouvrirEdition(c){
 auth.onAuthStateChanged(async (user) => {
   currentUser = user;
   try {
+    if (user) {
+      try {
+        const snapSuivis = await collection(db, 'abonnements').where('follower', '==', user.uid).get();
+        mesSuivisCv = new Set(snapSuivis.docs.map(d => d.data().followed));
+      } catch (e) { console.error('suivis CV Pro :', e); }
+      try {
+        const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
+        if (ownSnap.exists) monPaysPrefixeCv = extraireIndicatifTelephoneCv(ownSnap.data().telephone);
+      } catch (e) { console.error('téléphone CV Pro :', e); }
+    } else {
+      mesSuivisCv = new Set();
+      monPaysPrefixeCv = '';
+    }
     await chargerListe();
     refreshDynamicTexts();
     afficherEtat('liste');
