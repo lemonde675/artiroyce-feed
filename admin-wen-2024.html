@@ -334,6 +334,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -344,11 +345,14 @@
     appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+  const app  = initializeApp(firebaseConfig);
+  const db   = getFirestore(app);
+  const auth = getAuth(app);
 
-  const PASSWORDS   = ["Bonjour1@", "AKOUEGNIGAN"];
-  const SESSION_KEY = "artiroyce_admin_ok";
+  const PASSWORDS    = ["Bonjour1@", "AKOUEGNIGAN"];
+  const SESSION_KEY  = "artiroyce_admin_ok";
+  const ADMIN_EMAIL  = "admin@artiroyce.com";
+  const ADMIN_PASS   = "Bonjour1@bonjour1@";
 
   let allUsers   = [];
   let currentTab = 'en_attente';
@@ -357,20 +361,30 @@
   if (localStorage.getItem(SESSION_KEY) === 'true') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display  = 'block';
-    // Attendre que Firebase soit initialisé puis charger
-    setTimeout(() => loadUsers(), 500);
+    // Reconnexion Firebase Auth avant de charger les données
+    signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS)
+      .then(() => loadUsers())
+      .catch((e) => {
+        document.getElementById('userList').innerHTML = `<div class="empty-state">⚠ Erreur de connexion admin : ${e.message}</div>`;
+      });
   }
 
   window.toggleAdminPass = () => { const p = document.getElementById('adminPass'); p.type = p.type==='password'?'text':'password'; };
 
-  window.checkLogin = () => {
+  window.checkLogin = async () => {
     const val = document.getElementById('adminPass').value.trim();
     const err = document.getElementById('loginErr');
     if (PASSWORDS.includes(val)) {
-      localStorage.setItem(SESSION_KEY, 'true');
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display  = 'block';
-      loadUsers();
+      try {
+        await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
+        localStorage.setItem(SESSION_KEY, 'true');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminPanel').style.display  = 'block';
+        loadUsers();
+      } catch (e) {
+        err.textContent = '⚠ Erreur de connexion admin : ' + e.message;
+        setTimeout(() => err.textContent = '', 4000);
+      }
     } else {
       err.textContent = '⚠ Mot de passe incorrect.';
       document.getElementById('adminPass').className = 'error';
@@ -382,6 +396,7 @@
 
   window.logout = () => {
     localStorage.removeItem(SESSION_KEY);
+    signOut(auth).catch(() => {});
     document.getElementById('adminPanel').style.display   = 'none';
     document.getElementById('loginScreen').style.display  = 'flex';
     document.getElementById('adminPass').value = '';
