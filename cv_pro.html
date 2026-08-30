@@ -1124,7 +1124,7 @@ async function renderListeCards(){
   // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
   // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
   // Aucune génération automatique de profils : uniquement les CV déjà en base.
-  const avecCarrousel = listeCommunaute.length > 4;
+  const avecCarrousel = listeCommunaute.length > 2;
   visiblesCommunaute.forEach((c, i) => {
     cardsCommu.appendChild(construireInstance(c, false));
     if (avecCarrousel && (i + 1) % 4 === 0) {
