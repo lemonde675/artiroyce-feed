@@ -93,6 +93,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 .card-actions { display: flex; gap: 0; border-top: 1px solid #e4e6eb; border-bottom: 1px solid #e4e6eb; margin-top: 12px; }
 .btn-c { flex: 1; padding: 10px 4px; border: none; background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: #65676b; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
+.btn-c-barre { width: 1px; height: 16px; background: #e4e6eb; }
 
 .pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
 .p-acts { display: flex; border-top: 1px solid #f5f5f5; margin-top: 6px; }
@@ -1222,7 +1223,7 @@ function afficherFeed() {
     + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
     + creerMediaHTML(p)
-    + (p.auteurUid ? '<div class="card-actions"><button class="btn-c" onclick="contacterActu(\'' + p.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + p.auteurUid + '\',' + (p.auteurVerifie?true:false) + ')">✅ Contacter</button></div>' : '')
+    + (p.auteurUid ? '<div class="card-actions"><button class="btn-c" onclick="contacterActu(\'' + p.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + p.auteurUid + '\',' + (p.auteurVerifie?true:false) + ')"><span class="btn-c-barre"></span>Contacter<span class="btn-c-barre"></span></button></div>' : '')
     + '<div class="pr-row">'
     +   '<span class="pr-cnt" id="likecount-' + p.id + '">' + (mesReactionsActu[p.id] || '') + ' ' + (p.likes || 0) + '</span>'
     +   '<span class="pr-r" id="commcount-' + p.id + '">0 commentaire · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') + '</span>'
