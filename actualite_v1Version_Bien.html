@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Actualités ArtiRoyce</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --red:#e63224; --green:#27a945; }
+html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #f2f2f2; }
+
+.barre-fixe { position: fixed; left: 0; right: 0; z-index: 50; background: #fff; }
+#barreSpacer { flex-shrink: 0; }
+.cats { display: flex; gap: 6px; padding: 6px 14px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; background: #fff; border-bottom: 1px solid #eee; }
+.cats::-webkit-scrollbar { display: none; }
+.cat-pill { white-space: nowrap; padding: 6px 14px; border-radius: 22px; font-size: 12px; font-weight: 700; border: 1.5px solid #eee; cursor: pointer; flex-shrink: 0; background: #fff; color: #888; }
+.cat-pill.active { background: #222; color: #fff; border-color: #222; }
+.zone-publier { background: #fff; padding: 8px 14px; border-bottom: 8px solid #eee; display: flex; align-items: center; gap: 8px; }
+.zone-publier .cp-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; cursor: pointer; }
+.zone-publier .cp-input { flex: 1; background: #f5f5f5; border-radius: 20px; padding: 8px 14px; font-size: 13.5px; color: #888; cursor: pointer; border: none; text-align: left; font-family: inherit; }
+.zone-publier .cp-search-btn { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: #f5f5f5; border: none; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.search-bar { display: none; align-items: center; gap: 8px; padding: 8px 14px; background: #fff; border-bottom: 1px solid #eee; }
+.search-bar.open { display: flex; }
+.search-bar input { flex: 1; border: 1px solid #e8ecf0; border-radius: 20px; padding: 8px 14px; font-size: 13px; background: #f2f4f7; color: #222; font-family: inherit; }
+.search-bar .search-close { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #888; cursor: pointer; padding: 4px; }
+
+.create-modal { position: fixed; inset: 0; z-index: 500; background: #fff; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
+.create-modal.open { transform: translateY(0); }
+.cm-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eee; }
+.cm-cancel { font-size: 14px; font-weight: 700; color: #888; cursor: pointer; padding: 4px; }
+.cm-title { font-size: 16px; font-weight: 900; color: #222; }
+.cm-publish { background: var(--red); color: #fff; font-size: 13px; font-weight: 800; padding: 7px 18px; border-radius: 22px; border: none; cursor: pointer; }
+.cm-publish:disabled { opacity: 0.6; }
+.cm-user { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+.cm-av { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg,#0d2b0f,#27a945); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.cm-name { font-size: 14px; font-weight: 800; color: #222; }
+.cm-cat-select { display: inline-flex; align-items: center; gap: 5px; background: #f5f5f5; padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; color: #555; margin-top: 3px; border: none; cursor: pointer; }
+
+.cm-gal-wrap { padding: 14px 16px; flex: 1; overflow-y: auto; }
+.cm-gal-textarea { width: 100%; border: none; outline: none; background: #f7f7f9; border-radius: 12px; padding: 12px 14px; font-size: 14px; color: #222; font-family: inherit; resize: none; margin-bottom: 12px; }
+.cm-gal-textarea::placeholder { color: #bbb; }
+.cm-step-boutique { flex: 1; display: none; flex-direction: column; overflow-y: auto; }
+.cad-layout-picker { display: flex; gap: 8px; overflow-x: auto; padding: 2px 16px 14px; scrollbar-width: none; }
+.cad-layout-opt { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; border: 2px solid #e4e6eb; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; font-weight: 900; color: #999; }
+.cad-layout-opt.active { border-color: var(--red); color: var(--red); background: #fff5f4; }
+.cad-titre-wrap { display: flex; align-items: center; gap: 8px; width: calc(100% - 32px); margin: 0 16px 10px; background: #f7f7f9; border: 1.5px dashed #ddd; border-radius: 10px; padding: 9px 12px; }
+.cad-titre-wrap:focus-within { border-color: var(--red); border-style: solid; background: #fff; }
+.cad-titre-ico { font-size: 13px; flex-shrink: 0; color: #aaa; }
+.cad-titre-input { flex: 1; min-width: 0; border: none; background: transparent; padding: 0; font-size: 14px; font-weight: 800; color: #222; outline: none; }
+.cad-color-picker { display: flex; align-items: center; gap: 9px; padding: 0 16px 12px; }
+.cad-tcp-label { font-size: 11px; color: #999; }
+.cad-tcp-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e4e6eb; cursor: pointer; position: relative; flex-shrink: 0; }
+.cad-tcp-dot.active { border-color: #222; }
+.cad-tcp-dot.active::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
+.cad-tcp-blanc { background: #fff; } .cad-tcp-blanc.active::after { color: #14143a; }
+.cad-tcp-vert { background: var(--green); } .cad-tcp-vert.active::after { color: #fff; }
+.cad-tcp-rose { background: #ff5c9e; } .cad-tcp-rose.active::after { color: #fff; }
+.cad-grid-wrap { padding: 0 16px 6px; }
+.cad-note { font-size: 11px; color: #999; text-align: center; padding: 6px 16px 14px; }
+
+.media-grid { display: grid; gap: 2px; }
+.media-slot { position: relative; overflow: hidden; background: #fff; }
+.media-slot img { width: 100%; height: 100%; object-fit: contain; background: #fafafa; position: absolute; inset: 0; }
+.media-slot.editable { border: 2px dashed #ddd; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; }
+.media-slot.editable.filled { border-style: solid; border-color: #f0f0f0; }
+.media-slot-empty { font-size: 22px; color: #bbb; }
+.media-slot-remove { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 5; cursor: pointer; }
+.media-tags input.media-chip { text-align: left; }
+.cm-textarea { flex: 1; border: none; outline: none; padding: 0 16px; font-size: 16px; color: #222; font-family: inherit; resize: none; line-height: 1.6; width: 100%; }
+.cm-textarea::placeholder { color: #bbb; }
+.cm-choix { padding: 6px 16px 16px; overflow-y: auto; flex: 1; }
+.cm-choix-intro { font-size: 12px; color: #888; padding: 2px 0 16px; line-height: 1.5; }
+.cm-choix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cm-choix-tile { background: #fafafa; border: 1.5px solid #eee; border-radius: 16px; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 9px; cursor: pointer; text-align: center; }
+.cm-choix-tile.wide { grid-column: 1/-1; flex-direction: row; text-align: left; padding: 16px; }
+.cm-choix-ico { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.cm-choix-nom { font-size: 13.5px; font-weight: 800; color: #222; }
+.cm-choix-sub { font-size: 11px; color: #888; margin-top: 2px; line-height: 1.4; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #222; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 9998; transition: transform 0.25s; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+#feedZone { padding: 10px; }
+#feedLoading, #feedEmpty { text-align: center; padding: 60px 20px; color: #999; }
+#feedLoading .sablier, #feedEmpty .icone { font-size: 40px; display: block; margin-bottom: 10px; }
+#feedEmpty { display: none; }
+
+.post { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; position: relative; }
+.post .auteur { font-weight: 700; font-size: 14.5px; }
+.post .meta { font-size: 12px; color: #999; margin-top: 1px; }
+.ph-follow { font-size: 11.5px; font-weight: 800; padding: 5px 12px; border-radius: 99px; cursor: pointer; position: absolute; top: 26px; right: -2px; border: 1.5px solid var(--red); color: var(--red); background: #fff; white-space: nowrap; }
+.ph-follow.suivi { border-color: #ccc; color: #888; background: #f5f5f5; }
+.post .texte { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+
+.card-actions { display: flex; gap: 0; border-top: 1px solid #e4e6eb; border-bottom: 1px solid #e4e6eb; margin-top: 12px; }
+.btn-c { flex: 1; padding: 10px 4px; border: none; background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; color: #65676b; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: inherit; }
+
+.pr-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; font-size: 12.5px; color: #999; }
+.p-acts { display: flex; border-top: 1px solid #f5f5f5; margin-top: 6px; }
+.pab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px 0; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 700; color: #999; position: relative; }
+.pab:active { background: #fafafa; }
+.pab.reacted { color: #222; }
+.pab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rpick { position: absolute; bottom: 46px; left: -10px; background: #fff; border-radius: 30px; padding: 10px 16px; display: flex; gap: 19px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 100; opacity: 0; pointer-events: none; transform: scale(0.8) translateY(8px); transition: all 0.2s cubic-bezier(.34,1.56,.64,1); border: 1px solid #f0f0f0; }
+.rpick.show { opacity: 1; pointer-events: all; transform: scale(1) translateY(0); }
+.ro { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; transition: transform 0.15s; padding: 4px; min-width: 30px; }
+.ro:hover { transform: scale(1.25) translateY(-4px); }
+.ro-e { font-size: 24px; line-height: 1; }
+.ro-l { font-size: 9px; font-weight: 700; color: #999; }
+.comm-zone { display: none; padding: 12px 0 0; border-top: 1px solid #f5f5f5; margin-top: 4px; }
+
+.corbeille-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; margin: 0 0 8px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #a07a1a; cursor: pointer; }
+.corbeille-liste { display: none; flex-direction: column; gap: 8px; padding: 0 0 4px; }
+.corbeille-liste.open { display: flex; }
+.corbeille-item { display: flex; align-items: center; gap: 10px; background: #fffaf0; border: 1px solid #f5e6c8; border-radius: 12px; padding: 10px 12px; margin: 0 14px 8px; }
+.corbeille-item-info { flex: 1; min-width: 0; }
+.corbeille-item-titre { font-size: 12.5px; font-weight: 700; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.corbeille-item-sub { font-size: 11px; color: #a07a1a; }
+.btn-restaurer { background: #eafaf0; color: var(--green); border: 1.5px solid var(--green); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.btn-suppr-def { background: #fdecea; color: var(--red); border: 1.5px solid var(--red); border-radius: 12px; padding: 7px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; margin-left: 6px; }
+
+.ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.ph-av { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
+.ph-vb { position: absolute; bottom: -1px; right: -1px; width: 15px; height: 15px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 900; }
+.online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); border: 2px solid #fff; }
+.ph-info { flex: 1; min-width: 0; }
+.ph-top { display: flex; align-items: center; gap: 6px; margin-bottom: 1px; flex-wrap: wrap; }
+.ph-name { font-size: 14px; font-weight: 800; color: #222; }
+.ph-badge { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: #f5f5f5; color: #555; }
+.ph-meta { font-size: 12px; color: #999; }
+.ph-more { position: absolute; top: -4px; right: -4px; color: #bbb; font-size: 22px; font-weight: 900; cursor: pointer; padding: 10px 14px; line-height: 1; }
+.post-menu { display: none; position: absolute; top: 30px; right: 8px; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 1px solid #eee; z-index: 80; overflow: hidden; min-width: 180px; }
+.post-menu div { padding: 11px 16px; font-size: 13px; font-weight: 700; color: var(--red); cursor: pointer; }
+
+.cca-wrap { background: #fff; border-radius: 12px; padding: 14px 0 16px; margin-bottom: 10px; }
+.cca-titre { font-size: 15px; font-weight: 800; color: #222; padding: 0 14px 10px; }
+.cover-carousel-actu { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; scrollbar-width: none; cursor: grab; touch-action: pan-x; }
+.cca-card { position: relative; flex: 0 0 auto; width: 140px; height: 180px; border-radius: 14px; overflow: hidden; scroll-snap-align: start; background: #ddd; cursor: pointer; transition: opacity .25s, transform .25s; }
+.cca-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cca-fade { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 10px 12px; background: linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0)); }
+.cca-nom { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
+.cca-snip { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cca-dismiss { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.cca-suivre { position: absolute; left: 6px; top: 6px; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 12px; cursor: pointer; color: #fff; }
+
+.p-media-grid { display: grid; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
+.p-media-item { position: relative; overflow: hidden; min-height: 160px; }
+.p-media-item img { width: 100%; height: 100%; object-fit: cover; object-position: center; background: #fafafa; display: block; }
+.p-media-free { display: flex; flex-wrap: wrap; gap: 2px; background: #fff; margin: 10px -14px 4px -14px; overflow: hidden; }
+.p-media-free .p-media-item { width: calc(33.333% - 1.33px); aspect-ratio: 1; min-height: 130px; }
+.media-tags { position: absolute; left: 6px; right: 6px; bottom: 6px; display: flex; justify-content: space-between; align-items: flex-end; gap: 5px; z-index: 3; }
+.p-media-item .media-tags { flex-wrap: wrap; }
+.media-chip { border: none; outline: none; border-radius: 99px; font-weight: 800; font-size: 10px; padding: 4px 9px; max-width: 60%; flex-shrink: 1; min-width: 0; box-shadow: 0 2px 7px rgba(0,0,0,.22); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.p-media-item:nth-child(2) .media-tags { justify-content: flex-start; gap: 20px; }
+.p-media-item:nth-child(2) .media-chip { max-width: 90%; }
+.p-media-item:nth-child(1) .media-tags { right: 15px; }
+.tags-blanc .media-chip { background: #fff; color: #14143a; }
+.tags-vert .media-chip { background: var(--green); color: #fff; }
+.tags-rose .media-chip { background: #ff5c9e; color: #fff; }
+
+#panneauDiagnostic { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px; padding: 8px 10px; max-height: 160px; overflow-y: auto; line-height: 1.5; border-top: 3px solid #0f0; }
+</style>
+</head>
+<body>
+
+<div class="barre-fixe">
+<div class="cats">
+  <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)">Tout</div>
+  <div class="cat-pill" data-cat="Vente" onclick="setCat(this)">🛍️ Vente</div>
+  <div class="cat-pill" data-cat="Arts" onclick="setCat(this)">🎨 Arts</div>
+  <div class="cat-pill" data-cat="Mode" onclick="setCat(this)">👗 Mode</div>
+  <div class="cat-pill" data-cat="Événements" onclick="setCat(this)">🎉 Événements</div>
+  <div class="cat-pill" data-cat="Business" onclick="setCat(this)">💼 Business</div>
+</div>
+<div class="zone-publier">
+  <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
+  <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
+  <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
+</div>
+<div class="search-bar" id="searchBar">
+  <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" oninput="onSearchInput()">
+  <span class="search-close" onclick="toggleSearch()">Fermer</span>
+</div>
+</div>
+<div id="barreSpacer"></div>
+<div style="padding:0 14px">
+  <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
+    <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
+  </div>
+  <div class="corbeille-liste" id="corbeilleListe"></div>
+</div>
+
+<div class="create-modal" id="createModal">
+  <div class="cm-header">
+    <span class="cm-cancel" id="cmBackOrCancel" onclick="cmBackOrClose()">Annuler</span>
+    <span class="cm-title" id="cmTitleLbl">Créer une publication</span>
+    <button class="cm-publish" id="btnPublish" onclick="publishPost()" style="display:none">Publier</button>
+  </div>
+
+  <!-- ÉTAPE 0 — CHOIX DU MODÈLE (Galerie et Boutique arrivent à l'étape suivante) -->
+  <div class="cm-choix" id="cmStepChoix">
+    <div class="cm-choix-intro">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
+    <div class="cm-choix-grid">
+      <div class="cm-choix-tile wide" onclick="chooseModel('texte')">
+        <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
+        <div><div class="cm-choix-nom">Texte</div><div class="cm-choix-sub">Un message simple, sans photo</div></div>
+      </div>
+      <div class="cm-choix-tile" onclick="chooseModel('galerie')">
+        <div class="cm-choix-ico" style="background:#e8f5e9">🖼️</div>
+        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">1 à 8 photos</div></div>
+      </div>
+      <div class="cm-choix-tile" onclick="chooseModel('boutique')">
+        <div class="cm-choix-ico" style="background:#fff0f0">🏪</div>
+        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Photos + nom + prix</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE TEXTE -->
+  <div class="cm-user" id="cmStepUser" style="display:none">
+    <div class="cm-av" id="cmAvatar">👤</div>
+    <div>
+      <div class="cm-name" id="cmNom">Mon compte</div>
+      <select id="cmCategorie" class="cm-cat-select">
+        <option value="Vente">🛍️ Vente</option>
+        <option value="Arts">🎨 Arts</option>
+        <option value="Mode">👗 Mode</option>
+        <option value="Événements">🎉 Événements</option>
+        <option value="Business">💼 Business</option>
+      </select>
+    </div>
+  </div>
+  <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
+
+  <!-- ÉTAPE GALERIE (1 à 8 photos) -->
+  <div class="cm-gal-wrap" id="cmStepGalerie" style="display:none">
+    <textarea class="cm-gal-textarea" id="cmGalText" rows="2" placeholder="Une légende (facultatif)…"></textarea>
+    <div class="cad-color-picker" id="galColorPicker" style="padding-left:0">
+      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
+      <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
+      <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
+    </div>
+    <div class="media-grid" id="galGrid"></div>
+  </div>
+
+  <!-- ÉTAPE BOUTIQUE (cadres + étiquettes nom/prix) -->
+  <div class="cm-step-boutique" id="cmStepBoutique">
+    <div class="cad-layout-picker" id="cadLayoutPicker"></div>
+    <div class="cad-titre-wrap">
+      <span class="cad-titre-ico">✏️</span>
+      <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique" onfocus="this.select()">
+    </div>
+    <div class="cad-color-picker" id="cadColorPicker">
+      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
+      <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
+      <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
+    </div>
+    <div class="cad-grid-wrap"><div id="cadGrid"></div></div>
+    <div class="cad-note">Touchez un cadre vide pour ajouter une photo, avec son nom et son prix</div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<div id="feedZone">
+  <div id="feedLoading"><span class="sablier">⏳</span>Chargement des publications…</div>
+  <div id="feedEmpty"><span class="icone">📭</span>Aucune publication pour l'instant.</div>
+  <div id="feedPosts"></div>
+</div>
+
+<div id="panneauDiagnostic"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   VERSION "COMPAT" — 31/07/2026.
+   Même logique exacte que la version précédente (classement par
+   paliers inclus), mais Firebase est chargé en scripts CLASSIQUES
+   (firebase-*-compat.js), pas en modules ES avec import(). Objectif :
+   contourner un blocage réseau/proxy observé précisément sur les
+   import() dynamiques de modules (deux fichiers très différents
+   échouaient au même endroit avec la méthode module).
+   ══════════════════════════════════════════════════════════════════ */
+
+// Petit journal visible directement à l'écran (toujours affiché).
+function toast(msg){
+  const el = document.getElementById('toastEl');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show';
+  setTimeout(() => el.className = 'toast', 2200);
+}
+
+function ajouterEtape(texte){
+  const panneau = document.getElementById('panneauDiagnostic');
+  if (!panneau) return;
+  const ligne = document.createElement('div');
+  ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
+  panneau.appendChild(ligne);
+}
+ajouterEtape('1. Script classique démarré ✅');
+
+// Reprend le correctif de l'ancienne version : cette page tourne en iframe dans
+// accueil.html, et le bandeau du parent (logo, onglets) recouvre le haut de
+// notre page. On calcule sa hauteur réelle et on pousse TOUTE la page en
+// dessous (pas seulement le modal comme avant), pour que le champ "Publier
+// un produit" ne soit plus caché.
+function getEmbedTopOffsetPx() {
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const topParent = window.parent.document.getElementById('topH');
+      if (topParent) return topParent.getBoundingClientRect().height;
+    }
+  } catch (e) { /* parent inaccessible : offset = 0 */ }
+  return 0;
+}
+function ajusterBarreFixe() {
+  const decalage = getEmbedTopOffsetPx();
+  const barre = document.querySelector('.barre-fixe');
+  if (!barre) return;
+  barre.style.top = decalage + 'px';
+  const spacer = document.getElementById('barreSpacer');
+  if (spacer) spacer.style.height = (decalage + barre.offsetHeight) + 'px';
+}
+window.addEventListener('load', ajusterBarreFixe);
+setTimeout(ajusterBarreFixe, 100);
+setTimeout(ajusterBarreFixe, 600);
+
+// Attrape-erreur global : affiche directement sur la page n'importe quelle
+// erreur JavaScript, pour voir le vrai problème sans avoir besoin de la console.
+function afficherErreurVisible(msg){
+  const target = document.getElementById('feedPosts') || document.body;
+  const bloc = document.createElement('div');
+  bloc.style.cssText = 'text-align:left;padding:14px 16px;margin:0 0 10px;font-size:12px;color:#e63224;background:#fff3f0;border:1px solid #f5c6bb;border-radius:12px;word-break:break-word;white-space:pre-wrap;font-family:monospace;';
+  bloc.textContent = '⚠️ ' + msg;
+  target.prepend(bloc);
+}
+window.addEventListener('error', e => afficherErreurVisible('Erreur JS : ' + e.message + ' (' + (e.filename ? e.filename.split('/').pop() : '?') + ':' + (e.lineno || '?') + ')'));
+window.addEventListener('unhandledrejection', e => afficherErreurVisible('Erreur async non gérée : ' + ((e.reason && e.reason.message) ? e.reason.message : String(e.reason))));
+
+// Utilisé par les attributs onerror des balises <script> Firebase plus bas.
+function signalerEchecFirebase(nomBibliotheque){
+  ajouterEtape('❌ ÉCHEC du chargement Firebase (' + nomBibliotheque + ')');
+  document.getElementById('feedLoading').innerHTML =
+    '<div style="font-size:13px;color:#e63224;padding:0 20px">❌ Impossible de charger Firebase (' + nomBibliotheque + ', depuis gstatic.com).</div>';
+}
+
+ajouterEtape('2. Téléchargement des bibliothèques Firebase (compat)...');
+</script>
+
+<!-- Chargement classique (pas de module, pas d'import()) : plus tolérant pour
+     certains réseaux/proxys mobiles que le chargement en modules ES. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"
+        onload="ajouterEtape('2b. Bibliothèque app chargée ✅')"
+        onerror="signalerEchecFirebase('app')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"
+        onload="ajouterEtape('2c. Bibliothèque auth chargée ✅')"
+        onerror="signalerEchecFirebase('auth')"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"
+        onload="ajouterEtape('2d. Bibliothèque firestore chargée ✅')"
+        onerror="signalerEchecFirebase('firestore')"></script>
+
+<script>
+let app, auth, db, currentUser = null;
+
+// Chargement progressif au scroll (comme l'ancienne version) : au lieu de
+// tout afficher d'un coup, on montre des lots de TAILLE_LOT publications, et
+// on en révèle un lot de plus dès qu'on approche du bas de la liste.
+const TAILLE_LOT = 6;
+let nombreAffiches = TAILLE_LOT;
+let listePublications = [];
+let listeCorbeille = [];
+const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+let categorieActive = 'Tout';
+
+// Création Galerie/Boutique (repris de l'ancienne version)
+let galImages = [];      // Photo/Galerie : {photo, nom, prix}
+let galTagColor = 'vert';
+let cadLayoutActif = 4;  // Boutique : 1 à 8 = disposition à cadres
+let cadSlots = [];       // Boutique : [{photo, nom, prix}]
+let cadTagColor = 'vert';
+
+// Réactions et commentaires (repris de l'ancienne version)
+let mesReactionsActu = {};   // { idPublication: emoji } pour les publications déjà "aimées" par l'utilisateur
+const _reactionEnCours = {}; // verrou anti-double-tap sur le sélecteur d'emojis
+const _replyingTo = {};      // { idPublication: {commentId, nom} } réponse en cours de rédaction
+const mesReactionsCommentaires = {}; // { idCommentaire: true } commentaires déjà aimés (mémoire locale, session en cours)
+const _commentsOuverts = new Set(); // ids des publications dont la zone commentaires est actuellement ouverte
+
+function avecDelaiMax(promesse, millisecondes){
+  return Promise.race([
+    promesse,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé (' + (millisecondes/1000) + 's)')), millisecondes))
+  ]);
+}
+
+(function demarrerFirebase(){
+  if (typeof firebase === 'undefined') {
+    ajouterEtape('❌ Firebase (compat) indisponible, impossible de continuer');
+    return;
+  }
+  ajouterEtape('3. Toutes les bibliothèques Firebase chargées ✅');
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+    authDomain: "artiroyce-f42e4.firebaseapp.com",
+    projectId: "artiroyce-f42e4",
+    storageBucket: "artiroyce-f42e4.firebasestorage.app",
+    messagingSenderId: "588140774605",
+    appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+  };
+  app = firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  db.settings({ experimentalForceLongPolling: true });
+  ajouterEtape('4. Firebase initialisé ✅, démarrage de l\u2019écoute de connexion...');
+  auth.onAuthStateChanged(surChangementAuth);
+})();
+
+let premierCheckAuth = true;
+async function surChangementAuth(user) {
+  ajouterEtape('4b. onAuthStateChanged déclenché, user = ' + (user ? user.uid : 'AUCUN'));
+  if (!user) {
+    if (premierCheckAuth) {
+      premierCheckAuth = false;
+      ajouterEtape('4c. Aucun utilisateur au 1er contrôle — nouvelle vérification dans 900ms avant redirection...');
+      setTimeout(() => {
+        if (!auth.currentUser) { window.location.replace('connexion.html'); }
+      }, 900);
+      return;
+    }
+    window.location.replace('connexion.html');
+    return;
+  }
+  premierCheckAuth = false;
+  currentUser = user;
+  currentUser.nomAffiche = user.email ? user.email.split('@')[0] : 'Moi';
+
+  try {
+    ajouterEtape('5. Lecture du profil utilisateur...');
+    const snap = await avecDelaiMax(db.collection('utilisateurs').doc(user.uid).get(), 8000);
+    if (snap.exists) {
+      const d = snap.data();
+      currentUser.nomAffiche = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.nomAffiche || 'Membre ArtiRoyce';
+      currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
+      // Champ réel de la base : role === 'visiteur' => Visiteur, sinon Professionnel
+      currentUser.role = d.role || 'visiteur';
+      currentUser.verifie = currentUser.role !== 'visiteur';
+      currentUser.ville = d.ville || '';
+      currentUser.photoAvatar = d.photoAvatar || '';
+      ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
+    } else {
+      ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
+    }
+  } catch (e) {
+    ajouterEtape('6bis. Échec lecture profil (' + (e && e.message || e) + '), on continue quand même');
+  }
+
+  ajouterEtape('7. Appel de chargerPublications()...');
+  await chargerMesReactionsActu();
+  chargerSuivis();
+  chargerPublications();
+
+  const initiale = (currentUser.nomAffiche || '?')[0].toUpperCase();
+  const cpAv = document.getElementById('cpAvatar');
+  const cmAv = document.getElementById('cmAvatar');
+  const photo = currentUser.photoAvatar;
+  cpAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
+  cmAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
+  cpAv.onclick = () => window.__voirProfil(currentUser.uid);
+  document.getElementById('cmNom').textContent = currentUser.nomAffiche;
+}
+
+// Suivre / ne plus suivre un auteur (utilisé sur les publications et le carrousel).
+// Chaque section du site garde son propre suivi (indépendant des autres) : stocké
+// dans utilisateurs/{moi}/suivisActualite/{auteurUid}.
+window.toggleSuivre = async function (auteurUid, event) {
+  if (event) event.stopPropagation();
+  if (!currentUser || auteurUid === currentUser.uid) return;
+  const ref = db.collection('utilisateurs').doc(currentUser.uid).collection('suivisActualite').doc(auteurUid);
+  try {
+    if (followedUids.has(auteurUid)) {
+      await ref.delete();
+      followedUids.delete(auteurUid);
+      toast('Vous ne suivez plus cette personne (Actualités)');
+    } else {
+      await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
+      followedUids.add(auteurUid);
+      toast('✅ Abonné(e) aux actualités de cette personne !');
+    }
+    afficherFeed();
+  } catch (e) { ajouterEtape('❌ Erreur suivi : ' + (e && e.message || e)); toast('Erreur'); }
+};
+
+// Contacter directement l'auteur d'une publication : ouvre la conversation
+// via le même pont que sur Offres (window.parent.ouvrirChatDepuisOffre),
+// au lieu de simplement renvoyer vers le Répert-Discussion.
+window.contacterActu = function (postId, nomAuteur, auteurUid, auteurVerifie){
+  if (!currentUser) { toast('Connectez-vous pour contacter'); return; }
+  if (!auteurUid) { toast('Contact indisponible pour cette publication'); return; }
+  if (auteurUid === currentUser.uid) { toast('Vous êtes l\'auteur de cette publication'); return; }
+  try {
+    if (window.parent && window.parent !== window && window.parent.ouvrirChatDepuisOffre) {
+      window.parent.ouvrirChatDepuisOffre({ uid: auteurUid, nom: nomAuteur || 'Utilisateur', verifie: !!auteurVerifie });
+      return;
+    }
+  } catch (e) {}
+  toast('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment');
+};
+
+async function chargerSuivis() {
+  try {
+    if (!currentUser) return;
+    const snap = await db.collection('utilisateurs').doc(currentUser.uid).collection('suivisActualite').get();
+    followedUids = new Set(snap.docs.map(d => d.id));
+    ajouterEtape('Suivis chargés ✅ (' + followedUids.size + ')');
+    listePublications = trierFeedParPriorite(listePublications);
+    afficherFeed();
+  } catch (e) {
+    ajouterEtape('Suivis ignorés : ' + (e && e.message || e));
+  }
+}
+
+let termeRecherche = '';
+window.toggleSearch = function () {
+  const barre = document.getElementById('searchBar');
+  const ouvert = barre.classList.toggle('open');
+  if (ouvert) {
+    setTimeout(() => document.getElementById('searchInput').focus(), 150);
+  } else {
+    document.getElementById('searchInput').value = '';
+    termeRecherche = '';
+    afficherFeed();
+  }
+  setTimeout(ajusterBarreFixe, 20);
+};
+window.onSearchInput = function () {
+  termeRecherche = document.getElementById('searchInput').value.trim().toLowerCase();
+  nombreAffiches = TAILLE_LOT;
+  afficherFeed();
+};
+
+const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+const BADGES = { 'Vente':'🛍️ Vente', 'Arts':'🎨 Arts', 'Mode':'👗 Mode', 'Événements':'🎉 Événement', 'Business':'💼 Business' };
+
+function creerAvatarHTML(nom, verifie, uid) {
+  const initiale = (nom || '?')[0].toUpperCase();
+  const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
+  return '<div class="ph-av" style="background:' + couleur + '" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+    + (verifie ? '<span class="ph-vb">✔</span>' : '')
+    + '<div class="online-dot" data-author="' + (uid || '') + '"></div>'
+    + '</div>';
+}
+
+window.__voirProfil = function (uid) {
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.goUserProfile === 'function') {
+      window.parent.goUserProfile(uid);
+      return;
+    }
+  } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+};
+
+// Affiche le point vert "en ligne" pour les auteurs actifs dans les 2 dernières minutes
+// (lit le champ derniereActivite du profil).
+async function marquerAuteursEnLigne() {
+  const dots = document.querySelectorAll('.online-dot[data-author]');
+  const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
+  for (const uid of uids) {
+    try {
+      const uSnap = await db.collection('utilisateurs').doc(uid).get();
+      if (!uSnap.exists) continue;
+      const da = uSnap.data().derniereActivite;
+      if (!da) continue;
+      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
+      if (Date.now() - t < 120000) {
+        document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = 'block');
+      }
+    } catch (e) {}
+  }
+}
+
+function tempsDepuis(ms) {
+  const diff = Date.now() - ms;
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'il y a peu';
+  if (m < 60) return 'il y a ' + m + 'min';
+  const h = Math.floor(m / 60);
+  if (h < 24) return 'il y a ' + h + 'h';
+  const j = Math.floor(h / 24);
+  if (j < 7) return 'il y a ' + j + 'j';
+  const s = Math.floor(j / 7);
+  if (s < 4) return 'il y a ' + s + ' sem.';
+  return 'il y a ' + Math.floor(j / 30) + ' mois';
+}
+
+/* ── Réactions sur une publication (reprises de l'ancienne version) ── */
+window.__toggleReactPickerActu = function (postId) {
+  document.querySelectorAll('.rpick.show').forEach(rp => { if (rp.id !== 'rp-' + postId) rp.classList.remove('show'); });
+  document.getElementById('rp-' + postId)?.classList.toggle('show');
+};
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.pab')) {
+    document.querySelectorAll('.rpick.show').forEach(rp => rp.classList.remove('show'));
+  }
+});
+
+window.__sendReactionActu = async function (postId, emoji, likesActuels) {
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  if (_reactionEnCours[postId]) return;
+  _reactionEnCours[postId] = true;
+
+  document.getElementById('rp-' + postId)?.classList.remove('show');
+  const prev = mesReactionsActu[postId] || '';
+  const btn = document.getElementById('pb-' + postId);
+  const labelEl = document.getElementById('pblabel-' + postId);
+  const countEl = document.getElementById('likecount-' + postId);
+  const reactRef = db.collection('publications').doc(postId).collection('reactions').doc(currentUser.uid);
+
+  try {
+    if (prev === emoji) {
+      delete mesReactionsActu[postId];
+      const nouveauTotal = Math.max(0, likesActuels - 1);
+      if (btn) btn.classList.remove('reacted');
+      if (labelEl) labelEl.textContent = "J'aime";
+      if (countEl) countEl.textContent = nouveauTotal;
+      await reactRef.delete();
+      await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      const delta = prev ? 0 : 1;
+      mesReactionsActu[postId] = emoji;
+      const nouveauTotal = likesActuels + delta;
+      if (btn) btn.classList.add('reacted');
+      if (labelEl) labelEl.textContent = 'Aimé';
+      if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
+      await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      if (delta) {
+        await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(1) });
+        window.__burstHeartsActu(btn, emoji);
+      }
+    }
+  } catch (e) {
+    ajouterEtape('❌ Erreur réaction : ' + (e && e.message || e));
+    toast("Erreur J'aime");
+  } finally {
+    delete _reactionEnCours[postId];
+  }
+};
+
+// Petite explosion d'emojis animée au moment du "J'aime"
+window.__burstHeartsActu = function (btnEl, emoji) {
+  if (!btnEl) return;
+  const rect = btnEl.getBoundingClientRect();
+  const originX = rect.left + rect.width / 2;
+  const originY = rect.top + rect.height / 2;
+  btnEl.style.transition = 'transform .18s cubic-bezier(.34,1.56,.64,1)';
+  btnEl.style.transform = 'scale(1.25)';
+  setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 180);
+
+  const symboles = [emoji || '❤️', emoji || '❤️', emoji || '❤️', '✨'];
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.textContent = symboles[Math.floor(Math.random() * symboles.length)];
+    const angle = (Math.random() * 100 - 50) - 90;
+    const distance = 55 + Math.random() * 70;
+    const dx = Math.cos(angle * Math.PI / 180) * distance;
+    const dy = Math.sin(angle * Math.PI / 180) * distance;
+    const taille = 13 + Math.random() * 15;
+    const duree = 650 + Math.random() * 500;
+    const rotation = (Math.random() * 140 - 70).toFixed(0);
+    p.style.cssText = 'position:fixed;left:' + originX + 'px;top:' + originY + 'px;font-size:' + taille + 'px;pointer-events:none;z-index:900;'
+      + 'transform:translate(-50%,-50%) scale(0.3) rotate(0deg);'
+      + 'transition:transform ' + duree + 'ms cubic-bezier(.17,.67,.34,1), opacity ' + duree + 'ms ease-out;opacity:1';
+    document.body.appendChild(p);
+    requestAnimationFrame(() => {
+      p.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(1.1) rotate(' + rotation + 'deg)';
+      p.style.opacity = '0';
+    });
+    setTimeout(() => p.remove(), duree + 100);
+  }
+};
+
+// Charge les publications déjà "aimées" par l'utilisateur (pour l'état du bouton)
+async function chargerMesReactionsActu() {
+  try {
+    if (!currentUser) return;
+    const snap = await db.collectionGroup('reactions').where('uid', '==', currentUser.uid).get();
+    mesReactionsActu = {};
+    snap.forEach(d => {
+      const refPub = d.ref.parent.parent;
+      if (refPub && refPub.parent && refPub.parent.id === 'publications') {
+        mesReactionsActu[refPub.id] = d.data().emoji || true;
+      }
+    });
+    ajouterEtape('9. Mes réactions chargées ✅ (' + Object.keys(mesReactionsActu).length + ')');
+  } catch (e) {
+    mesReactionsActu = {};
+    ajouterEtape('9. chargerMesReactionsActu ignoré : ' + (e && e.message || e));
+  }
+}
+
+/* ── Partager (version simplifiée : compteur + confirmation) ── */
+window.partagerPub = async function (postId, partagesActuels) {
+  try {
+    await db.collection('publications').doc(postId).update({ partages: firebase.firestore.FieldValue.increment(1) });
+    toast('Partagé ✅');
+  } catch (e) {
+    ajouterEtape('❌ Erreur partage : ' + (e && e.message || e));
+  }
+};
+
+/* ── Commentaires (avec réponses imbriquées, repris de l'ancienne version) ── */
+window.toggleComments = function (postId) {
+  const zone = document.getElementById('commzone-' + postId);
+  if (!zone) return;
+  const ouvert = zone.style.display === 'block';
+  zone.style.display = ouvert ? 'none' : 'block';
+  if (ouvert) { _commentsOuverts.delete(postId); }
+  else { _commentsOuverts.add(postId); }
+  if (!ouvert && !zone.dataset.init) {
+    zone.dataset.init = '1';
+    construireZoneCommentaires(postId, zone);
+    ecouterCommentaires(postId);
+  }
+};
+
+function construireZoneCommentaires(postId, zone) {
+  zone.innerHTML =
+    '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
+    + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+    + (currentUser ? (currentUser.nomAffiche || '?')[0].toUpperCase() : '?') + '</div>'
+    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + '<div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentairePub(\'' + postId + '\')">➤</div>'
+    + '</div>'
+    + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + postId + '">'
+    + '<span id="reply-indicator-text-' + postId + '"></span>'
+    + '<span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px" onclick="annulerReponsePub(\'' + postId + '\')">✕</span>'
+    + '</div>'
+    + '<div id="comm-list-' + postId + '"></div>';
+  document.getElementById('cinput-' + postId).addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.envoyerCommentairePub(postId);
+  });
+}
+
+function ecouterCommentaires(postId) {
+  db.collection('publications').doc(postId).collection('commentaires').orderBy('createdAt', 'asc')
+    .onSnapshot(snap2 => {
+      const total = snap2.size;
+      const compteEl = document.getElementById('commcount-' + postId);
+      const p = listePublications.find(x => x.id === postId);
+      if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (p ? ' · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') : '');
+
+      const listEl = document.getElementById('comm-list-' + postId);
+      if (!listEl) return;
+
+      const tous = [];
+      snap2.forEach(cd => tous.push({ id: cd.id, ...cd.data() }));
+      const parentDe = {};
+      tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+      function trouverRacine(id) { let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
+      const principaux = tous.filter(c => !c.parentId).sort((a, b) => {
+        const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0, tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+        return tb - ta;
+      });
+      const reponsesParRacine = {};
+      tous.filter(c => c.parentId).forEach(c => {
+        const racine = trouverRacine(c.id);
+        (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+      });
+
+      function construireCommentaireHTML(c, racineId) {
+        const auteurPub = (listePublications.find(x => x.id === postId) || {}).auteurUid;
+        const estCreateurPub = c.uid === auteurPub;
+        const statut = estCreateurPub ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
+        const initiale = (c.nom || '?')[0].toUpperCase();
+        const villeCourte = premiereVille(c.ville);
+        const dejaAime = mesReactionsCommentaires[c.id];
+        const wrap = document.createElement('div');
+        wrap.innerHTML =
+          '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
+          + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="window.__voirProfil(\'' + (c.uid || '') + '\')">' + escapeHtml(initiale) + '</div>'
+          + '<div style="flex:1;min-width:0">'
+          +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
+          +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
+          +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
+          +   '</div>'
+          +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
+          +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
+          +     '<span>' + (villeCourte ? escapeHtml(villeCourte) + ' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + '</span>'
+          +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
+          +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
+          +   '</div>'
+          + '</div>'
+          + '</div>';
+        return wrap;
+      }
+
+      listEl.innerHTML = '';
+      principaux.forEach(c => {
+        listEl.appendChild(construireCommentaireHTML(c, c.id));
+        const reponses = reponsesParRacine[c.id] || [];
+        if (reponses.length) {
+          const repZone = document.createElement('div');
+          repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+          const toggle2 = document.createElement('div');
+          toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
+          toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length > 1 ? 's' : '') + ' ▾';
+          toggle2.onclick = () => {
+            const frag = document.createDocumentFragment();
+            reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
+            repZone.appendChild(frag);
+            toggle2.remove();
+          };
+          repZone.appendChild(toggle2);
+          listEl.appendChild(repZone);
+        }
+      });
+    });
+}
+
+window.envoyerCommentairePub = async function (postId) {
+  if (!currentUser) { toast('Connectez-vous pour commenter'); return; }
+  const inp = document.getElementById('cinput-' + postId);
+  const texte = inp?.value?.trim();
+  if (!texte) return;
+  inp.value = '';
+  const reponseA = _replyingTo[postId] || null;
+  try {
+    await db.collection('publications').doc(postId).collection('commentaires').add({
+      texte, nom: currentUser.nomAffiche || 'Anonyme', uid: currentUser.uid,
+      verifie: !!currentUser.verifie, ville: currentUser.ville || '',
+      parentId: reponseA ? reponseA.commentId : null, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: 0
+    });
+    window.annulerReponsePub(postId);
+  } catch (e) {
+    ajouterEtape('❌ Erreur commentaire : ' + (e && e.message || e));
+  }
+};
+
+window.toggleAimeCommentaire = async function (postId, commentId, likesActuels) {
+  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  const ref = db.collection('publications').doc(postId).collection('commentaires').doc(commentId);
+  try {
+    if (mesReactionsCommentaires[commentId]) {
+      delete mesReactionsCommentaires[commentId];
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
+    } else {
+      mesReactionsCommentaires[commentId] = true;
+      await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+    }
+  } catch (e) { ajouterEtape('❌ Erreur J\u2019aime commentaire : ' + (e && e.message || e)); }
+};
+
+window.repondrePub = function (postId, commentId, nom) {
+  _replyingTo[postId] = { commentId, nom };
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  const texteIndic = document.getElementById('reply-indicator-text-' + postId);
+  if (indicateur && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indicateur.style.display = 'flex'; }
+  document.getElementById('cinput-' + postId)?.focus();
+};
+window.annulerReponsePub = function (postId) {
+  delete _replyingTo[postId];
+  const indicateur = document.getElementById('reply-indicator-' + postId);
+  if (indicateur) indicateur.style.display = 'none';
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   CORBEILLE (supprimer / restaurer / suppression définitive après 15
+   jours) ET MENU ⋯ PAR PUBLICATION — repris de l'ancienne version.
+   ══════════════════════════════════════════════════════════════════ */
+function afficherCorbeille() {
+  const toggle = document.getElementById('corbeilleToggle');
+  if (!toggle) return;
+  toggle.style.display = listeCorbeille.length ? 'flex' : 'none';
+  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  const liste = document.getElementById('corbeilleListe');
+  liste.innerHTML = listeCorbeille.map(creerLigneCorbeille).join('');
+  if (!listeCorbeille.length) liste.classList.remove('open');
+}
+window.toggleCorbeille = function () {
+  document.getElementById('corbeilleListe').classList.toggle('open');
+};
+
+function creerLigneCorbeille(p) {
+  const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(p.corbeilleDepuis || Date.now()).getTime());
+  const joursRestants = Math.max(0, Math.ceil(restantMs / (24 * 60 * 60 * 1000)));
+  const titre = p.texte ? p.texte.slice(0, 40) : (p.type === 'boutique' ? 'Boutique' : 'Publication');
+  return '<div class="corbeille-item">'
+    + '<div class="corbeille-item-info">'
+    + '<div class="corbeille-item-titre">' + escapeHtml(titre || 'Sans titre') + '</div>'
+    + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants > 1 ? 's' : '') + '</div>'
+    + '</div>'
+    + '<button class="btn-restaurer" onclick="restaurerPublication(\'' + p.id + '\')">Restaurer</button>'
+    + '<button class="btn-suppr-def" onclick="supprimerDefinitivement(\'' + p.id + '\')">Supprimer</button>'
+    + '</div>';
+}
+
+window.toggleMenuPost = function (postId) {
+  document.querySelectorAll('.post-menu').forEach(m => { if (m.id !== 'menu-' + postId) m.style.display = 'none'; });
+  const menu = document.getElementById('menu-' + postId);
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ph-more') && !e.target.closest('.post-menu')) {
+    document.querySelectorAll('.post-menu').forEach(m => m.style.display = 'none');
+  }
+});
+
+window.supprimerPublication = async function (postId) {
+  if (!confirm('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  try {
+    await db.collection('publications').doc(postId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
+    toast('🗑️ Publication mise à la corbeille');
+  } catch (e) { ajouterEtape('❌ Erreur suppression : ' + (e && e.message || e)); toast('Erreur lors de la suppression'); }
+};
+window.restaurerPublication = async function (postId) {
+  if (!confirm('Restaurer cette publication ? Elle réapparaîtra dans le fil.')) return;
+  try {
+    await db.collection('publications').doc(postId).update({ corbeille: false, corbeilleDepuis: null });
+    toast('♻️ Publication restaurée');
+  } catch (e) { ajouterEtape('❌ Erreur restauration : ' + (e && e.message || e)); toast('Erreur lors de la restauration'); }
+};
+window.supprimerDefinitivement = async function (postId) {
+  if (!confirm('Supprimer définitivement cette publication ? Cette action est irréversible.')) return;
+  try {
+    await db.collection('publications').doc(postId).delete();
+    toast('Publication supprimée définitivement');
+  } catch (e) { ajouterEtape('❌ Erreur suppression définitive : ' + (e && e.message || e)); toast('Erreur lors de la suppression définitive'); }
+};
+
+function formatDate(dateFirestore){
+  try {
+    const d = dateFirestore && dateFirestore.toDate ? dateFirestore.toDate() : new Date();
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' à ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return ''; }
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+// Ne garde que le premier mot de la ville renseignée dans le profil, pour un
+// affichage court et cohérent (ex: "Cotonou Bénin, kpakpa" -> "Cotonou").
+function premiereVille(ville) {
+  if (!ville) return '';
+  return String(ville).split(/[,\s]+/)[0] || '';
+}
+
+// Approximation de l'indicatif pays à partir du numéro de téléphone (pas une vraie
+// base de données des indicatifs : on garde juste les 3 premiers chiffres pour
+// comparer "ça commence pareil que chez moi"). Utilisé pour le palier "même pays"
+// du classement du fil.
+function extraireIndicatifTelephone(telephone) {
+  if (!telephone) return '';
+  const chiffres = String(telephone).replace(/\D/g, '');
+  return chiffres.slice(0, 3);
+}
+
+// Prêt pour l'étape "Suivre" (pas encore ajoutée) : reste vide pour l'instant,
+// donc le palier "suivis" du classement ne contiendra rien tant que ce bouton
+// n'existe pas dans cette version.
+let followedUids = new Set();
+
+// Chaque publication reçoit un nombre aléatoire figé une seule fois (mémorisé
+// ici), au lieu d'être re-mélangée à chaque mise à jour du fil. Sans ça, une
+// action (J'aime, nouveau commentaire...) qui redéclenche le chargement en
+// direct remélangeait tout et donnait l'impression que les publications /
+// photos changeaient de place ou même "changeaient" sous les yeux.
+const _ordreAleatoireStable = {};
+function ordreAleatoireStable(id) {
+  if (!(id in _ordreAleatoireStable)) _ordreAleatoireStable[id] = Math.random();
+  return _ordreAleatoireStable[id];
+}
+function melangerAleatoirement(liste) {
+  return liste.slice().sort((a, b) => ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id));
+}
+
+/* Classement du fil par paliers de priorité :
+   1. Mes propres publications
+   2. Les personnes que je suis (vide tant que "Suivre" n'existe pas ici)
+   3. Même pays (indicatif téléphonique, approximatif)
+   4. Le reste, mélangé aléatoirement (découverte)
+   Protégé par son propre détecteur d'erreur : en cas de souci, on revient
+   simplement à l'ordre par date, le fil ne se bloque jamais à cause de ça. */
+function trierFeedParPriorite(liste) {
+  try {
+    if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
+    const mesPosts = [], suivis = [], memePays = [], reste = [];
+    liste.forEach(p => {
+      if (p.auteurUid === currentUser.uid) mesPosts.push(p);
+      else if (p.auteurUid && followedUids.has(p.auteurUid)) suivis.push(p);
+      else if (currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe) memePays.push(p);
+      else reste.push(p);
+    });
+    return mesPosts.concat(suivis, memePays, melangerAleatoirement(reste));
+  } catch (e) {
+    ajouterEtape('❌ Tri par priorité : ' + (e && e.message || e) + ' — retour à l\u2019ordre par date');
+    return liste;
+  }
+}
+
+function chargerPublications() {
+  try {
+    db.collection('publications').orderBy('createdAt', 'desc').onSnapshot(snap => {
+      const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      listePublications = trierFeedParPriorite(toutes.filter(p => !p.corbeille));
+      listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
+
+      const maintenant = Date.now();
+      listeCorbeille
+        .filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
+        .forEach(p => db.collection('publications').doc(p.id).delete().catch(e => console.error(e)));
+
+      afficherFeed();
+      afficherCorbeille();
+      ajouterEtape('8. Publications chargées ✅ (' + listePublications.length + ')');
+    }, err => {
+      ajouterEtape('❌ Erreur lecture publications : ' + (err && err.message || err));
+      document.getElementById('feedLoading').style.display = 'none';
+      document.getElementById('feedEmpty').style.display = 'block';
+    });
+  } catch (e) {
+    ajouterEtape('❌ Exception chargerPublications : ' + (e && e.message || e));
+  }
+}
+
+// Dispositions de grille "magazine" — reprises telles quelles de l'ancienne
+// version (les mêmes zones grid-template-areas selon le nombre de photos).
+const MEDIA_LAYOUTS = {
+  1: { template:'1fr', areas:['1 / 1 / 2 / 2'], cRatio:'16/9' },
+  2: { template:'2fr 1fr', areas:['1/1/2/2','1/2/2/3'], cRatio:'3/2' },
+  3: { template:'2fr 1fr', rows:'1fr 1fr', areas:['1/1/3/2','1/2/2/3','2/2/3/3'], cRatio:'4/3' },
+  4: { template:'1fr 1fr', rows:'1fr 1fr', areas:['1/1/2/2','1/2/2/3','2/1/3/2','2/2/3/3'], cRatio:'1/1' },
+  5: { template:'1fr 1fr 1fr', rows:'1.4fr 1fr', areas:['1/1/2/4','2/1/3/2','2/2/3/3','2/3/3/4'], cRatio:'4/3' },
+  6: { template:'1fr 1fr 1fr', rows:'1fr 1fr', areas:null },
+  7: { template:'2fr 1fr 1fr', rows:'1fr 1fr 1fr', areas:['1/1/3/2'], cRatio:'1/1' },
+  8: { template:'1fr 1fr 1fr 1fr', rows:'1fr 1fr', areas:null }
+};
+
+// Grille de photos "magazine" pour Boutique (photo + nom + prix incrustés) et
+// Galerie (simples photos) — reprise fidèlement de l'ancienne version.
+function creerMediaHTML(p) {
+  const tag = p.tagColor || 'blanc';
+
+  if (p.type === 'boutique' && Array.isArray(p.cadres) && p.cadres.length) {
+    const layout = MEDIA_LAYOUTS[p.cadres.length] || MEDIA_LAYOUTS[4];
+    let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+      + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+    p.cadres.forEach((c, i) => {
+      const area = layout.areas ? layout.areas[i] : null;
+      html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+        + 'aspect-ratio:' + (layout.cRatio || '1') + '">'
+        + (c.photo ? '<img src="' + c.photo + '" loading="lazy">' : '')
+        + '<div class="media-tags tags-' + tag + '">'
+        + '<span class="media-chip">' + escapeHtml(c.nom || '') + '</span>'
+        + (c.prix ? '<span class="media-chip">' + escapeHtml(String(c.prix)) + '</span>' : '')
+        + '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  if (p.type === 'galerie' && Array.isArray(p.images) && p.images.length) {
+    const n = Math.min(p.images.length, 8);
+    const layout = MEDIA_LAYOUTS[n] || null;
+    // Compatibilité : anciennes publications = simples chaînes ; nouvelles = {photo,nom,prix}
+    const item = (im) => typeof im === 'string' ? { photo: im, nom: '', prix: '' } : (im || { photo: '', nom: '', prix: '' });
+    const tagsHTML = (im) => (im.nom || im.prix)
+      ? '<div class="media-tags tags-' + (p.tagColor || 'vert') + '">'
+        + (im.nom ? '<span class="media-chip">' + escapeHtml(im.nom) + '</span>' : '')
+        + (im.prix ? '<span class="media-chip">' + escapeHtml(String(im.prix)) + '</span>' : '')
+        + '</div>' : '';
+    if (layout) {
+      let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
+        + (layout.rows ? ';grid-template-rows:' + layout.rows : '') + '">';
+      p.images.slice(0, n).forEach((raw, i) => {
+        const im = item(raw);
+        const area = layout.areas ? layout.areas[i] : null;
+        html += '<div class="p-media-item" style="' + (area ? 'grid-area:' + area + ';' : '')
+          + 'aspect-ratio:' + (layout.cRatio || '1') + '"><img src="' + im.photo + '" loading="lazy">' + tagsHTML(im) + '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+    let html = '<div class="p-media-free">';
+    p.images.slice(0, 8).forEach(raw => {
+      const im = item(raw);
+      html += '<div class="p-media-item"><img src="' + im.photo + '" loading="lazy">' + tagsHTML(im) + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+  return '';
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CARROUSEL "Nos coups de cœur" — repris de l'ancienne version.
+   ══════════════════════════════════════════════════════════════════ */
+const _carouselDismissed = new Set(); // publications écartées du carrousel pour cette session
+
+function premiereImageDe(p) {
+  if (p.type === 'galerie' && p.images && p.images[0]) {
+    const im = p.images[0];
+    return typeof im === 'string' ? im : (im.photo || '');
+  }
+  if (p.type === 'boutique' && p.cadres && p.cadres[0] && p.cadres[0].photo) return p.cadres[0].photo;
+  return '';
+}
+
+function buildCoverCarouselHTML(toutes) {
+  const avecImage = toutes.map(p => ({ p, img: premiereImageDe(p) }))
+    .filter(x => x.img && !_carouselDismissed.has(x.p.id))
+    .slice(0, 12);
+  if (!avecImage.length) return '';
+
+  const cards = avecImage.map(({ p, img }) => {
+    const titre = escapeHtml(p.auteurNom || 'ArtiRoyce');
+    const snippet = escapeHtml((p.texte || '').slice(0, 45));
+    const estMoi = currentUser && p.auteurUid === currentUser.uid;
+    const dejaSuivi = followedUids.has(p.auteurUid);
+    const suivreBtn = (!estMoi && p.auteurUid)
+      ? '<span class="cca-suivre" id="ccaSuivre-' + p.id + '" onclick="event.stopPropagation();window.__toggleSuivreCarousel(\'' + p.auteurUid + '\',\'' + p.id + '\')" style="background:' + (dejaSuivi ? 'rgba(255,255,255,0.28)' : 'var(--red)') + '">' + (dejaSuivi ? '✓ Suivi(e)' : '+ Suivre') + '</span>'
+      : '';
+    return '<div class="cca-card" id="ccaCard-' + p.id + '" onclick="window.__scrollToPubActu(\'' + p.id + '\')">'
+      + '<img src="' + img + '" loading="lazy">'
+      + '<div class="cca-dismiss" onclick="event.stopPropagation();window.__dismissCarouselCard(\'' + p.id + '\')" title="Pas intéressé(e)">✕</div>'
+      + '<div class="cca-fade">'
+      +   '<div class="cca-nom">' + titre + '</div>'
+      +   '<div class="cca-snip">' + snippet + '</div>'
+      + '</div>'
+      + suivreBtn
+      + '</div>';
+  }).join('');
+
+  return '<div class="cca-wrap"><div class="cca-titre">Nos coups de cœur</div>'
+    + '<div class="cover-carousel-actu">' + cards + '</div></div>';
+}
+
+window.__dismissCarouselCard = function (pubId) {
+  _carouselDismissed.add(pubId);
+  document.querySelectorAll('#ccaCard-' + pubId).forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.85)';
+    setTimeout(() => card.remove(), 220);
+  });
+};
+
+window.__toggleSuivreCarousel = async function (auteurUid, pubId) {
+  await window.toggleSuivre(auteurUid);
+  document.querySelectorAll('#ccaSuivre-' + pubId).forEach(btn => {
+    const suivi = followedUids.has(auteurUid);
+    btn.textContent = suivi ? '✓ Suivi(e)' : '+ Suivre';
+    btn.style.background = suivi ? 'rgba(255,255,255,0.28)' : 'var(--red)';
+  });
+};
+
+window.__scrollToPubActu = function (id) {
+  const el = document.querySelector('.post[data-id="' + id + '"]');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+let _coverPausedUntilActu = 0;
+let _coverIntervalActuStarted = false;
+function wireCoverCarouselActu() {
+  if (_coverIntervalActuStarted) return;
+  _coverIntervalActuStarted = true;
+  setInterval(() => {
+    if (Date.now() < _coverPausedUntilActu) return;
+    document.querySelectorAll('.cover-carousel-actu').forEach(track => {
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (maxScroll <= 2) return;
+      if (track.scrollLeft >= maxScroll - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollTo({ left: track.scrollLeft + 160, behavior: 'smooth' });
+    });
+  }, 3000);
+  document.addEventListener('touchstart', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; }, { passive: true });
+  document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; });
+}
+
+function afficherFeed() {
+  document.getElementById('feedLoading').style.display = 'none';
+  const conteneur = document.getElementById('feedPosts');
+  const vide = document.getElementById('feedEmpty');
+  const filtrees = listePublications.filter(p => {
+    if (categorieActive !== 'Tout' && p.categorie !== categorieActive) return false;
+    if (termeRecherche) {
+      const hay = ((p.texte || '') + ' ' + (p.ville || '') + ' ' + (p.categorie || '') + ' ' + (p.auteurNom || '')).toLowerCase();
+      if (!hay.includes(termeRecherche)) return false;
+    }
+    return true;
+  });
+  if (!filtrees.length) { vide.style.display = 'block'; conteneur.innerHTML = ''; return; }
+  vide.style.display = 'none';
+  const visibles = filtrees.slice(0, nombreAffiches);
+  const carouselHTML = buildCoverCarouselHTML(listePublications);
+  let html = '';
+  visibles.forEach((p, i) => {
+    const nomAff = p.auteurNom || 'Utilisateur';
+    const statut = p.auteurVerifie ? 'Professionnel' : 'Visiteur';
+    const villeCourte = premiereVille(p.ville);
+    const metaTxt = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsDepuis(p.createdAt && p.createdAt.toMillis ? p.createdAt.toMillis() : Date.now());
+    const badgeTxt = BADGES[p.categorie] ? '<span class="ph-badge">' + BADGES[p.categorie] + '</span>' : '';
+    html += (
+    '<div class="post" data-id="' + p.id + '">'
+    + (currentUser && p.auteurUid === currentUser.uid
+        ? '<span class="ph-more" onclick="toggleMenuPost(\'' + p.id + '\')">⋯</span>'
+          + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">🗑️ Mettre à la corbeille</div></div>'
+        : '')
+    + '<div class="ph">'
+    +   creerAvatarHTML(nomAff, p.auteurVerifie, p.auteurUid)
+    +   '<div class="ph-info">'
+    +     '<div class="ph-top"><span class="ph-name">' + escapeHtml(nomAff) + '</span>' + badgeTxt + '</div>'
+    +     '<div class="ph-meta">' + metaTxt + '</div>'
+    +   '</div>'
+    +   (currentUser && p.auteurUid && p.auteurUid !== currentUser.uid
+        ? '<div class="ph-follow' + (followedUids.has(p.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivre(\'' + p.auteurUid + '\', event)">' + (followedUids.has(p.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+        : '')
+    + '</div>'
+    + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
+    + creerMediaHTML(p)
+    + (p.auteurUid ? '<div class="card-actions"><button class="btn-c" onclick="contacterActu(\'' + p.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + p.auteurUid + '\',' + (p.auteurVerifie?true:false) + ')">✅ Contacter</button></div>' : '')
+    + '<div class="pr-row">'
+    +   '<span class="pr-cnt" id="likecount-' + p.id + '">' + (mesReactionsActu[p.id] || '') + ' ' + (p.likes || 0) + '</span>'
+    +   '<span class="pr-r" id="commcount-' + p.id + '">0 commentaire · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') + '</span>'
+    + '</div>'
+    + '<div class="p-acts">'
+    +   '<div class="pab' + (mesReactionsActu[p.id] ? ' reacted' : '') + '" id="pb-' + p.id + '" onclick="window.__toggleReactPickerActu(\'' + p.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
+    +     '<span id="pblabel-' + p.id + '">' + (mesReactionsActu[p.id] ? 'Aimé' : "J'aime") + '</span>'
+    +     '<div class="rpick" id="rp-' + p.id + '">'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'❤️\',' + (p.likes || 0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'👍\',' + (p.likes || 0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😮\',' + (p.likes || 0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😂\',' + (p.likes || 0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'🔥\',' + (p.likes || 0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😢\',' + (p.likes || 0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+    +     '</div>'
+    +   '</div>'
+    +   '<button class="pab" onclick="toggleComments(\'' + p.id + '\')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+    +   '</button>'
+    +   '<button class="pab" onclick="partagerPub(\'' + p.id + '\',' + (p.partages || 0) + ')">'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+    +   '</button>'
+    + '</div>'
+    + '<div class="comm-zone" id="commzone-' + p.id + '"></div>'
+    + '</div>'
+    );
+    if (carouselHTML && (i + 1) % 5 === 0) html += carouselHTML;
+  });
+  if (visibles.length < filtrees.length) {
+    html += '<div id="feedSentinelle" style="height:1px"></div>';
+  }
+  conteneur.innerHTML = html;
+  observerSentinelleFeed();
+  if (carouselHTML) wireCoverCarouselActu();
+  marquerAuteursEnLigne();
+  // Ré-ouvre les commentaires qui étaient déjà ouverts avant ce rafraîchissement
+  // (sinon un simple "J'aime" ailleurs dans le fil les refermait silencieusement).
+  _commentsOuverts.forEach(postId => {
+    const zone = document.getElementById('commzone-' + postId);
+    if (zone) {
+      zone.style.display = 'block';
+      zone.dataset.init = '1';
+      construireZoneCommentaires(postId, zone);
+      ecouterCommentaires(postId);
+    }
+  });
+}
+
+// Changement de catégorie (repris de l'ancienne version) : on revient au
+// premier lot de publications et on ré-affiche filtré.
+function setCat(pill) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  categorieActive = pill.dataset.cat;
+  nombreAffiches = TAILLE_LOT;
+  afficherFeed();
+}
+
+// Observe la sentinelle en bas du feed : dès qu'elle approche de l'écran, on
+// révèle un lot supplémentaire de publications, un peu à la fois (comme
+// l'ancienne version).
+let _observateurFeed = null;
+function observerSentinelleFeed() {
+  const sentinelle = document.getElementById('feedSentinelle');
+  if (!sentinelle) return;
+  if (_observateurFeed) _observateurFeed.disconnect();
+  _observateurFeed = new IntersectionObserver((entrees) => {
+    if (entrees[0].isIntersecting) {
+      nombreAffiches += TAILLE_LOT;
+      afficherFeed();
+    }
+  }, { rootMargin: '400px' });
+  _observateurFeed.observe(sentinelle);
+}
+
+let cmEtapeActuelle = 'choix';
+
+function cmAfficherChoix() {
+  cmEtapeActuelle = 'choix';
+  document.getElementById('cmStepChoix').style.display = '';
+  document.getElementById('cmStepUser').style.display = 'none';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
+  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
+  document.getElementById('btnPublish').style.display = 'none';
+}
+
+window.openCreate = function() {
+  if (!currentUser) { toast('Connexion requise'); return; }
+  cmAfficherChoix();
+  document.getElementById('cmText').value = '';
+  document.getElementById('createModal').style.paddingTop = getEmbedTopOffsetPx() + 'px';
+  document.getElementById('createModal').classList.add('open');
+};
+
+window.cmBackOrClose = function() {
+  if (cmEtapeActuelle === 'choix') {
+    document.getElementById('createModal').classList.remove('open');
+  } else {
+    cmAfficherChoix();
+  }
+};
+
+window.chooseModel = function(type) {
+  cmEtapeActuelle = type;
+  document.getElementById('cmStepChoix').style.display = 'none';
+  document.getElementById('cmStepUser').style.display = 'flex';
+  document.getElementById('cmBackOrCancel').textContent = 'Retour';
+  document.getElementById('btnPublish').style.display = 'block';
+  document.getElementById('cmText').style.display = 'none';
+  document.getElementById('cmStepGalerie').style.display = 'none';
+  document.getElementById('cmStepBoutique').style.display = 'none';
+
+  if (type === 'texte') {
+    document.getElementById('cmText').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Publication texte';
+    setTimeout(() => document.getElementById('cmText').focus(), 250);
+  } else if (type === 'galerie') {
+    galImages = [];
+    galTagColor = 'vert';
+    document.getElementById('cmGalText').value = '';
+    renderGalColorPicker();
+    renderGalGrid();
+    document.getElementById('cmStepGalerie').style.display = 'block';
+    document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
+  } else if (type === 'boutique') {
+    cadLayoutActif = 4; cadTagColor = 'vert';
+    initCadSlots(4);
+    document.getElementById('cadTitreInput').value = 'Boutique';
+    renderCadLayoutPicker();
+    renderCadColorPicker();
+    renderCadGrid();
+    document.getElementById('cmStepBoutique').style.display = 'flex';
+    document.getElementById('cmTitleLbl').textContent = 'Boutique';
+  }
+};
+
+// Redimensionne et compresse une photo avant de la garder (sinon plusieurs photos en
+// pleine résolution dépassent la limite de 1 Mo par publication sur Firebase, et
+// l'envoi reste bloqué indéfiniment sans jamais afficher d'erreur).
+function redimensionnerImage(dataUrl, maxDim, qualite) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+      else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', qualite));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+function ouvrirSelecteurPhoto(callback) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.style.position = 'fixed';
+  input.style.left = '-9999px';
+  document.body.appendChild(input);
+  input.onchange = () => {
+    const fichier = input.files && input.files[0];
+    if (fichier) {
+      const lecteur = new FileReader();
+      lecteur.onload = async (e) => {
+        const compressee = await redimensionnerImage(e.target.result, 1000, 0.72);
+        callback(compressee);
+      };
+      lecteur.onerror = () => toast('Photo illisible, réessayez');
+      lecteur.readAsDataURL(fichier);
+    }
+    input.remove();
+  };
+  input.click();
+}
+
+/* ── Galerie (1 à 8 photos, disposition magazine automatique, sans étiquette) ── */
+function renderGalColorPicker() {
+  document.querySelectorAll('#galColorPicker .cad-tcp-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.c === galTagColor);
+    dot.onclick = () => { galTagColor = dot.dataset.c; renderGalColorPicker(); renderGalGrid(); };
+  });
+}
+
+function renderGalGrid() {
+  const grille = document.getElementById('galGrid');
+  ajouterEtape('🔎 DIAG galerie — galImages.length=' + galImages.length + ', grille trouvée=' + (!!grille));
+  grille.className = 'media-grid tags-' + galTagColor;
+  if (!galImages.length) {
+    grille.style.gridTemplateColumns = '1fr';
+    grille.style.gridTemplateRows = '';
+    grille.innerHTML = '<div class="media-slot editable" style="aspect-ratio:16/9" onclick="galAjouterPhoto()"><span class="media-slot-empty">📷</span></div>';
+    return;
+  }
+  const layoutIndex = galImages.length < 8 ? galImages.length + 1 : 8;
+  const layout = MEDIA_LAYOUTS[layoutIndex] || MEDIA_LAYOUTS[8];
+  ajouterEtape('🔎 DIAG galerie — disposition choisie pour ' + galImages.length + ' photo(s) (+1 case bouton): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
+  grille.style.gridTemplateColumns = layout.template;
+  grille.style.gridTemplateRows = layout.rows || '1fr';
+  grille.style.aspectRatio = layout.cRatio || '';
+  let html = '';
+  galImages.forEach((item, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    html += '<div class="media-slot" style="' + area + ratio + '">'
+      + '<img src="' + item.photo + '">'
+      + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div>'
+      + '<div class="media-tags">'
+      + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(item.nom) + '" oninput="galSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(item.prix) + '" oninput="galSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '</div></div>';
+  });
+  if (galImages.length < 8) {
+    const addArea = (layout.areas && layout.areas[galImages.length]) ? 'grid-area:' + layout.areas[galImages.length] + ';' : '';
+    const addRatio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    html += '<div class="media-slot editable" style="' + addArea + addRatio + '" onclick="galAjouterPhoto()"><span class="media-slot-empty">＋</span></div>';
+  }
+  grille.innerHTML = html;
+}
+window.galAjouterPhoto = function () {
+  ouvrirSelecteurPhoto(base64 => { galImages.push({ photo: base64, nom: '', prix: '' }); renderGalGrid(); });
+};
+window.galRetirerPhoto = function (i) {
+  galImages.splice(i, 1);
+  renderGalGrid();
+};
+window.galSetNom = function (i, v) { if (galImages[i]) galImages[i].nom = v; };
+window.galSetPrix = function (i, v) { if (galImages[i]) galImages[i].prix = v; };
+
+/* ── Boutique (cadres avec nom + prix intégrés dans l'image) ── */
+function initCadSlots(n) {
+  cadSlots = [];
+  for (let i = 0; i < n; i++) cadSlots.push({ photo: '', nom: '', prix: '' });
+}
+
+function renderCadLayoutPicker() {
+  const wrap = document.getElementById('cadLayoutPicker');
+  let html = '';
+  [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+    html += '<div class="cad-layout-opt' + (cadLayoutActif === n ? ' active' : '') + '" onclick="choisirDisposition(' + n + ')">' + n + '</div>';
+  });
+  wrap.innerHTML = html;
+}
+window.choisirDisposition = function (n) {
+  cadLayoutActif = n;
+  initCadSlots(n);
+  renderCadLayoutPicker();
+  renderCadGrid();
+};
+
+function renderCadColorPicker() {
+  document.querySelectorAll('#cadColorPicker .cad-tcp-dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.c === cadTagColor);
+    dot.onclick = () => { cadTagColor = dot.dataset.c; renderCadColorPicker(); renderCadGrid(); };
+  });
+}
+
+function renderCadGrid() {
+  const grille = document.getElementById('cadGrid');
+  const layout = MEDIA_LAYOUTS[cadLayoutActif] || MEDIA_LAYOUTS[4];
+  grille.className = 'media-grid tags-' + cadTagColor;
+  grille.style.gridTemplateColumns = layout.template;
+  grille.style.gridTemplateRows = layout.rows || '1fr';
+  grille.style.aspectRatio = layout.cRatio || '';
+
+  let html = '';
+  cadSlots.forEach((s, i) => {
+    const area = (layout.areas && layout.areas[i]) ? 'grid-area:' + layout.areas[i] + ';' : '';
+    const ratio = layout.areas ? '' : 'aspect-ratio:' + layout.cRatio;
+    if (s.photo) {
+      html += '<div class="media-slot editable filled" style="' + area + ratio + '">'
+        + '<img src="' + s.photo + '">'
+        + '<div class="media-slot-remove" onclick="event.stopPropagation();cadRetirerPhoto(' + i + ')">✕</div>'
+        + '<div class="media-tags">'
+        + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(s.nom) + '" oninput="cadSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(s.prix) + '" oninput="cadSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '</div></div>';
+    } else {
+      html += '<div class="media-slot editable" style="' + area + ratio + '" onclick="cadChoisirPhoto(' + i + ')"><span class="media-slot-empty">📷</span></div>';
+    }
+  });
+  grille.innerHTML = html;
+}
+window.cadChoisirPhoto = function (i) {
+  ouvrirSelecteurPhoto(base64 => { cadSlots[i].photo = base64; renderCadGrid(); });
+};
+window.cadRetirerPhoto = function (i) {
+  cadSlots[i] = { photo: '', nom: '', prix: '' };
+  renderCadGrid();
+};
+window.cadSetNom = function (i, v) { if (cadSlots[i]) cadSlots[i].nom = v; };
+window.cadSetPrix = function (i, v) { if (cadSlots[i]) cadSlots[i].prix = v; };
+
+window.publishPost = async function() {
+  if (!currentUser) { toast('Connexion requise'); return; }
+  const categorie = document.getElementById('cmCategorie').value;
+  let donnees = null;
+
+  if (cmEtapeActuelle === 'texte') {
+    const texte = document.getElementById('cmText').value.trim();
+    if (!texte) { toast('Écrivez un message avant de publier'); return; }
+    donnees = { type: 'texte', texte: texte };
+  } else if (cmEtapeActuelle === 'galerie') {
+    if (!galImages.length) { toast('Ajoutez au moins une photo'); return; }
+    donnees = {
+      type: 'galerie',
+      texte: document.getElementById('cmGalText').value.trim(),
+      tagColor: galTagColor,
+      images: galImages.slice(0, 8).map(it => ({ photo: it.photo, nom: it.nom || '', prix: it.prix || '' }))
+    };
+  } else if (cmEtapeActuelle === 'boutique') {
+    const cadresRemplis = cadSlots.filter(s => s.photo);
+    if (!cadresRemplis.length) { toast('Ajoutez au moins un article avec photo'); return; }
+    donnees = {
+      type: 'boutique',
+      texte: document.getElementById('cadTitreInput').value.trim() || 'Boutique',
+      disposition: cadresRemplis.length,
+      tagColor: cadTagColor,
+      cadres: cadresRemplis.map(s => ({ photo: s.photo, nom: s.nom || 'Article', prix: s.prix || '' }))
+    };
+  } else {
+    return;
+  }
+
+  const btn = document.getElementById('btnPublish');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  try {
+    await avecDelaiMax(db.collection('publications').add(Object.assign({
+      categorie: categorie,
+      auteurNom: currentUser.nomAffiche,
+      auteurUid: currentUser.uid,
+      auteurVerifie: !!currentUser.verifie,
+      ville: currentUser.ville || '',
+      paysPrefixe: currentUser.paysPrefixe || '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      likes: 0,
+      partages: 0
+    }, donnees)), 20000);
+    toast('Publié ✅');
+    document.getElementById('createModal').classList.remove('open');
+    cmAfficherChoix();
+  } catch (e) {
+    ajouterEtape('❌ Erreur publication : ' + (e && e.message || e));
+    toast('Erreur : publication impossible');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Publier';
+  }
+};
+</script>
+</body>
+</html>
