@@ -1122,12 +1122,12 @@ async function renderListeCards(){
   const visiblesCommunaute = listeCommunaute.slice(0, nombreCvCommunauteAffiches);
 
   // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
-  // et seulement s'il y a plus de 4 CV dans la communauté (comme demandé, style Fil Presse).
-  // Aucune génération automatique de profils : uniquement les CV déjà en base.
-  const avecCarrousel = listeCommunaute.length > 2;
+  // même logique qu'Accueil : pas de seuil minimum, on essaie simplement à
+  // chaque palier de 4, et buildCoverCarouselCv renvoie null s'il n'y a
+  // aucun CV avec photo — dans ce cas, rien ne s'affiche, sans erreur.
   visiblesCommunaute.forEach((c, i) => {
     cardsCommu.appendChild(construireInstance(c, false));
-    if (avecCarrousel && (i + 1) % 4 === 0) {
+    if ((i + 1) % 4 === 0) {
       try {
         const node = buildCoverCarouselCv(listeCommunaute);
         if (node) { cardsCommu.appendChild(node); wireCoverCarouselCv(); }
@@ -1295,10 +1295,15 @@ function creerInstanceImport(c, estMoi){
     const contact = document.createElement('div');
     contact.className = 'contact-row import-contact-row';
     contact.innerHTML = `
-      <button class="cbtn appel" onclick="alerterAppel()">${T('cv_btn_appeler')}</button>
-      <button class="cbtn msg" onclick="alerterDiscuter()">${T('cv_btn_discuter')}</button>
+      <button class="cbtn appel">${T('cv_btn_appeler')}</button>
+      <button class="cbtn msg">${T('cv_btn_discuter')}</button>
     `;
     wrapper.appendChild(contact);
+    const nomAffImport = ((c.prenom||'') + ' ' + (c.nomFamille||'')).trim() || 'Utilisateur';
+    const btnAppelImport = contact.querySelector('.cbtn.appel');
+    const telImport = c.telephone ? String(c.telephone).replace(/[^\d+]/g,'') : '';
+    btnAppelImport.onclick = telImport ? () => { window.location.href = 'tel:' + telImport; } : () => alert('Numéro non renseigné');
+    contact.querySelector('.cbtn.msg').onclick = () => contacterCv(c.auteurUid, nomAffImport);
   }
 
   if (estMoi) {
