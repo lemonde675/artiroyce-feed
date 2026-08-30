@@ -337,7 +337,7 @@ function renderScoreList(){
         ${telHref
           ? `<a href="${telHref}" class="appeler" style="text-decoration:none" onclick="event.stopPropagation()">📞 Appeler</a>`
           : `<button class="appeler" onclick="event.stopPropagation();toastPasDeNumero()">📞 Appeler</button>`}
-        <button class="contacter" onclick="event.stopPropagation();__voirProfil('${p.uid}')">💬 Contacter</button>
+        <button class="contacter" onclick="event.stopPropagation();contacterElite('${p.uid}','${escHtml(p.nom).replace(/'/g,"\\'")}')">💬 Contacter</button>
       </div>
     </div>`;
   }).join('');
@@ -373,6 +373,20 @@ function toastPasDeNumero(){
   setTimeout(() => t.remove(), 2200);
 }
 window.toastPasDeNumero = toastPasDeNumero;
+
+// Contacter directement : ouvre la conversation via le même pont que sur
+// Offres/Accueil/Actualités, au lieu d'ouvrir la page de profil.
+function contacterElite(uid, nom){
+  if (!uid) return;
+  try {
+    if (window.parent && window.parent !== window && window.parent.ouvrirChatDepuisOffre) {
+      window.parent.ouvrirChatDepuisOffre({ uid: uid, nom: nom || 'Utilisateur', verifie: true });
+      return;
+    }
+  } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+}
+window.contacterElite = contacterElite;
 
 // Navigation vers le vrai profil de l'auteur, reprise à l'identique
 // d'Actualités et Offres : passe par le parent si intégré dans accueil.html
