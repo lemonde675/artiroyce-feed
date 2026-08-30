@@ -1345,7 +1345,23 @@ function remplirLectureSeule(el, c, estMoi){
   remplirExperiencesLecture(el.querySelector('.js-experiences'), c.experiences);
 
   const contactRow = el.querySelector('.js-contact-row');
-  if (contactRow) contactRow.style.display = estMoi ? 'none' : 'flex';
+  if (contactRow) {
+    contactRow.style.display = estMoi ? 'none' : 'flex';
+    if (!estMoi) {
+      const nomAff = ((c.prenom||'') + ' ' + (c.nomFamille||'')).trim() || 'Utilisateur';
+      const btnAppel = contactRow.querySelector('.cbtn.appel');
+      const btnMsg = contactRow.querySelector('.cbtn.msg');
+      if (btnAppel) {
+        btnAppel.removeAttribute('onclick');
+        const tel = c.telephone ? String(c.telephone).replace(/[^\d+]/g,'') : '';
+        btnAppel.onclick = tel ? () => { window.location.href = 'tel:' + tel; } : () => alert('Numéro non renseigné');
+      }
+      if (btnMsg) {
+        btnMsg.removeAttribute('onclick');
+        btnMsg.onclick = () => contacterCv(c.auteurUid, nomAff);
+      }
+    }
+  }
 
   getAuthorInfo(c.auteurUid).then(info => {
     const roleEl = el.querySelector('.acct-role');
@@ -1472,6 +1488,21 @@ window.continuerVersModele = () => {
   afficherDetail(MODELE_TO_ETAT[modeleSelectionne]);
   render();
 };
+
+// Contacter directement l'auteur d'un CV : ouvre la conversation via le
+// même pont que sur Offres/Accueil/Actualités/Élite, au lieu d'une simple alerte.
+function contacterCv(auteurUid, nom){
+  if (!auteurUid) { alert('Contact indisponible pour ce CV'); return; }
+  if (currentUser && auteurUid === currentUser.uid) { alert('Vous êtes l\'auteur de ce CV'); return; }
+  try {
+    if (window.parent && window.parent !== window && window.parent.ouvrirChatDepuisOffre) {
+      window.parent.ouvrirChatDepuisOffre({ uid: auteurUid, nom: nom || 'Utilisateur', verifie: false });
+      return;
+    }
+  } catch (e) {}
+  alert('Connectez-vous via ArtiRoyce pour discuter avec cette personne.');
+}
+window.contacterCv = contacterCv;
 
 window.alerterAppel = () => alert(T('cv_alert_appel'));
 window.alerterDiscuter = () => alert(T('cv_alert_discuter'));
