@@ -1027,8 +1027,9 @@ function toggleSiteWidth(){
   };
 
   window.contacterDepuisAccueil = function(cibleUid, pseudo){
-    toast('💬 Ouvre la discussion pour écrire à ' + pseudo, 'g');
-    goToPanel(6);
+    if (!auth.currentUser) { toast('Connecte-toi pour contacter', ''); return; }
+    if (cibleUid === auth.currentUser.uid) { toast('C\'est votre propre publication', ''); return; }
+    window.ouvrirChatDepuisOffre({ uid: cibleUid, nom: pseudo, verifie: false });
   };
 
   // ── Contrôles vidéo personnalisés (fil principal) ──
