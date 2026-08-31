@@ -687,7 +687,13 @@ function toggleSiteWidth(){
     adjustLayout();
     // Redimensionner le container panels
     const pc = document.getElementById('panelsContainer');
-    if (pc) pc.style.width = Math.min(window.innerWidth, 480) + 'px';
+    if (pc) {
+      const topHEl = document.getElementById('topH');
+      const hh = topHEl ? topHEl.offsetHeight : 0;
+      const hDispo = window.innerHeight - hh;
+      const largeurIdeale = hDispo * (9 / 16);
+      pc.style.width = Math.min(window.innerWidth, largeurIdeale) + 'px';
+    }
   });
   window.addEventListener('resize', adjustLayout);
   setTimeout(adjustLayout, 100);
