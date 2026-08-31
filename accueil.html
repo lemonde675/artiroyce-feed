@@ -184,8 +184,8 @@
     ══════════════════════════════════ */
     html.site-reduced, html.site-reduced body { max-width: 480px !important; width: 100% !important; margin: 0 auto !important; background: #f0f0f0 !important; }
     html.site-reduced .top-header, html.site-reduced .bot-nav, html.site-reduced .panels-container { max-width: 480px !important; width: 100% !important; }
-    html.site-expanded, html.site-expanded body { max-width: none !important; width: 100% !important; }
-    html.site-expanded .top-header, html.site-expanded .bot-nav, html.site-expanded .panels-container { max-width: none !important; width: 100% !important; }
+    html.site-expanded, html.site-expanded body { max-width: 99vw !important; width: 100% !important; }
+    html.site-expanded .top-header, html.site-expanded .bot-nav, html.site-expanded .panels-container { max-width: 99vw !important; width: 100% !important; }
     #widthToggleBtn { position: fixed; top: 48px; right: 8px; z-index: 999; background: #fff; color: #0a0a2e; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; font-family: monospace; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
     /* ══ Nouvelle recherche libre (remplace l'ancien panneau métiers) ══ */
     .acc-search-bar { display:none; align-items:center; gap:8px; padding:10px 14px; background:#fff; border-bottom:1px solid #eee; position:fixed; left:50%; transform:translateX(-50%); width:100%; max-width:480px; z-index:199; }
@@ -401,8 +401,8 @@ function toggleSiteWidth(){
   try{ sessionStorage.setItem('ariAccueilLargeur', estAgrandi?'reduit':'agrandi'); }catch(e){}
 }
 (function(){
-  let choix='reduit';
-  try{ choix=sessionStorage.getItem('ariAccueilLargeur')||'reduit'; }catch(e){}
+  let choix='agrandi';
+  try{ choix=sessionStorage.getItem('ariAccueilLargeur')||'agrandi'; }catch(e){}
   document.documentElement.classList.add(choix==='agrandi'?'site-expanded':'site-reduced');
 })();
 </script>
@@ -683,13 +683,21 @@ function toggleSiteWidth(){
     });
   }
 
+  function adjustPanelsWidth() {
+    const pc = document.getElementById('panelsContainer');
+    if (pc) {
+      // Hauteur inchangée (gérée par --vh / --header-h ailleurs).
+      // On remplit 99% de la largeur de la fenêtre, sans se baser
+      // sur le ratio 9:16, pour combler le vide latéral sur desktop.
+      pc.style.width = (window.innerWidth * 0.99) + 'px';
+    }
+  }
+
   window.addEventListener('load', () => {
     adjustLayout();
-    // Redimensionner le container panels
-    const pc = document.getElementById('panelsContainer');
-    if (pc) pc.style.width = (window.innerWidth * 0.85) + 'px';
+    adjustPanelsWidth();
   });
-  window.addEventListener('resize', adjustLayout);
+  window.addEventListener('resize', () => { adjustLayout(); adjustPanelsWidth(); });
   setTimeout(adjustLayout, 100);
   setTimeout(adjustLayout, 400);
 
