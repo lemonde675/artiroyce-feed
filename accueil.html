@@ -301,6 +301,11 @@
     <div id="swipeRightFq" style="position:absolute;top:0;right:0;width:35px;height:100%;z-index:20;background:transparent;"></div>
   </div>
 
+  <!-- PANEL 9 : Itinéraire vidéo (accessible via le bouton Itinéraire de la barre du bas, pas un onglet du haut) -->
+  <div class="panel-slide" id="panel-9" style="position:relative;">
+    <iframe data-src="itineraire_v1.html" style="width:100%;height:100%;border:none;display:block;" id="itinFrame"></iframe>
+  </div>
+
 </div></div>
 
 <!-- PANEL RECHERCHE MÉTIERS -->
@@ -346,15 +351,13 @@
     </svg>
     <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
   </div>
-  <!-- Messages à droite -->
-  <div class="nav-i" onclick="ouvrirDiscussionProfilActif()">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
-      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
-      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
-      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
+  <!-- Itinéraire vidéo (ex-Messages) à droite -->
+  <div class="nav-i" onclick="ouvrirItineraireVideoProfilActif()">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/>
+      <polygon points="10,7.6 10,11.4 13.2,9.5" fill="var(--red)" stroke="none"/>
     </svg>
-    <span class="nav-lb" data-i18n="acc_nav_messages">Messages</span>
+    <span class="nav-lb" data-i18n="acc_nav_messages" style="line-height:1.2">Itinéraire<br>Vidéo</span>
   </div>
 </nav>
 
@@ -704,7 +707,7 @@ function toggleSiteWidth(){
   // ══ SWIPE HORIZONTAL ══
   const tabs = document.querySelectorAll('.h-tab');
   const track = document.getElementById('panelsTrack');
-  const totalPanels = 9;
+  const totalPanels = 10;
   let currentPanel = 0;
   let touchStartX = 0;
   let touchStartY = 0;
@@ -885,6 +888,31 @@ function toggleSiteWidth(){
     }
   };
 
+  // ══ PONT ACCUEIL → ITINÉRAIRE VIDÉO ══
+  // Même principe que le pont Discussion ci-dessus, mais vers le panneau 9
+  // (itinFrame / itineraire_v1.html). Noms distincts exprès pour ne jamais entrer
+  // en conflit avec window.ouvrirItineraire (bouton "Obtenir l'itinéraire" /
+  // Google Maps, déjà existant et intouché).
+  window.ouvrirItineraireVideoDepuisAccueil = function (info) {
+    if (!info || !info.uid) return;
+    const ifr = document.getElementById('itinFrame');
+    if (!ifr) return;
+    const dejaChargee = !!ifr.getAttribute('src');
+    window.goToPanel(9);
+    const payload = { type: 'ouvrirItineraireUid', uid: info.uid, nom: info.nom || 'Utilisateur' };
+    const envoyer = function () {
+      try { ifr.contentWindow.postMessage(payload, '*'); } catch (e) {}
+    };
+    if (dejaChargee) {
+      setTimeout(envoyer, 150);
+    } else {
+      ifr.addEventListener('load', function onLoad () {
+        ifr.removeEventListener('load', onLoad);
+        setTimeout(envoyer, 150);
+      });
+    }
+  };
+
   // ══ BANDES LATÉRALES — swipe depuis bord gauche/droit ══
   const swipeLeft = document.getElementById('swipeLeft');
   const swipeRight = document.getElementById('swipeRight');
@@ -1041,9 +1069,9 @@ function toggleSiteWidth(){
     window.ouvrirChatDepuisOffre({ uid: cibleUid, nom: pseudo, verifie: false });
   };
 
-  // Utilisée par les boutons Discussion / Messages de la barre du bas : ouvre
-  // directement le dialogue avec la personne dont la publication est actuellement
-  // affichée à l'écran (comme le fait Contacter), au lieu d'afficher juste la liste.
+  // Utilisée par le bouton Discussion de la barre du bas : ouvre directement le
+  // dialogue avec la personne dont la publication est actuellement affichée à
+  // l'écran (comme le fait Contacter), au lieu d'afficher juste la liste.
   // Si aucune carte n'est encore repérée comme active, on retombe sur la liste
   // (comportement d'avant), sans jamais rien casser.
   window.ouvrirDiscussionProfilActif = function(){
@@ -1052,6 +1080,21 @@ function toggleSiteWidth(){
     if (!auth.currentUser) { toast('Connecte-toi pour discuter', ''); return; }
     if (actif.uid === auth.currentUser.uid) { window.goToPanel(6); return; }
     window.ouvrirChatDepuisOffre({ uid: actif.uid, nom: actif.pseudo, verifie: false });
+  };
+
+  // Utilisée par le bouton Itinéraire de la barre du bas (remplace l'ancien bouton
+  // Messages) : ouvre la vidéo/photo d'itinéraire de la personne actuellement
+  // affichée à l'écran. Chaque profil a la sienne, indépendamment des autres — ce
+  // n'est jamais une vidéo unique partagée par tout le monde. Si aucune carte
+  // n'est encore repérée comme active, itineraire_v1.html affichera alors, une
+  // fois ouvert, votre propre itinéraire si vous êtes connecté.
+  window.ouvrirItineraireVideoProfilActif = function(){
+    const actif = window._profilActifAccueil;
+    if (actif && actif.uid) {
+      window.ouvrirItineraireVideoDepuisAccueil({ uid: actif.uid, nom: actif.pseudo });
+    } else {
+      window.goToPanel(9);
+    }
   };
 
   // ── Contrôles vidéo personnalisés (fil principal) ──
