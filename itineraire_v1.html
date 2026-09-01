@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>ArtiRoyce - Itinéraire</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--red:#e63224;--green:#27a945;--rose:#ec4899;--rose-fonce:#be185d;--rose-clair:#fdf2f8;--bg:#f2f3f5;--card:#fff}
+html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);overflow:hidden;max-width:480px;margin:0 auto}
+
+/* ── en-tête (masqué quand intégré dans accueil.html, voir message 'parentFrame') ── */
+.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:200;background:#fff;border-bottom:1px solid #e8e8e8}
+.h-row1{display:flex;align-items:center;padding:10px 14px;gap:8px}
+.h-house{font-size:22px;flex-shrink:0;cursor:pointer}
+.h-logo{flex:1;display:flex;align-items:center;justify-content:center;gap:7px}
+.h-logo-text{font-size:19px;font-weight:900;line-height:1;letter-spacing:-0.5px}
+.h-logo-text .arti{color:var(--red)}.h-logo-text .royce{color:var(--green)}
+.h-badge{background:var(--rose);color:#fff;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:100px;display:flex;align-items:center;gap:5px;flex-shrink:0}
+
+.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;background:var(--bg);overflow-y:auto}
+.spacer{flex-shrink:0}
+
+/* ── zone média ── */
+.media-wrap{position:relative;background:#111;flex-shrink:0;aspect-ratio:9/13;max-height:56vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.media-wrap video, .media-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.media-empty{color:rgba(255,255,255,0.55);text-align:center;padding:0 30px;font-size:13.5px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.media-empty .ic{width:56px;height:56px;border-radius:50%;background:rgba(236,72,153,0.18);border:2px solid var(--rose);display:flex;align-items:center;justify-content:center}
+.loader{color:rgba(255,255,255,0.5);font-size:13px;text-align:center}
+
+/* ── bandeau info sous le média ── */
+.info-strip{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border-bottom:1px solid #eee}
+.av{width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;background:linear-gradient(135deg,#f472b6,#831843)}
+.av img{width:100%;height:100%;border-radius:10px;object-fit:cover}
+.info-strip .nom{font-weight:800;font-size:14.5px;color:#111}
+.info-strip .zone{font-size:12px;color:#888;display:flex;align-items:center;gap:4px;margin-top:1px}
+
+/* ── explication ── */
+.explication{margin:16px 16px 0;padding:14px 15px;background:var(--rose-clair);border-left:3px solid var(--rose);border-radius:4px}
+.explication b{display:block;font-size:12.5px;color:var(--rose-fonce);margin-bottom:4px}
+.explication p{font-size:12.5px;line-height:1.55;color:#7a4a63}
+
+/* ── actions visiteur ── */
+.zone-visiteur{padding:16px}
+.cta-rose{width:100%;background:var(--rose);color:#fff;border:none;font-weight:700;font-size:14.5px;padding:14px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 18px rgba(236,72,153,0.35)}
+
+/* ── actions propriétaire ── */
+.zone-proprio{padding:16px;display:flex;flex-direction:column;gap:10px}
+.owner-tag{align-self:flex-start;font-size:11px;font-weight:700;color:var(--rose-fonce);background:var(--rose-clair);border:1px solid #f3c6dd;padding:5px 10px;border-radius:100px;margin-bottom:2px}
+.btn-owner{width:100%;border:none;font-weight:700;font-size:14px;padding:13px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn-owner.primary{background:var(--rose);color:#fff}
+.btn-owner.ghost{background:#fff;color:var(--rose-fonce);border:1.5px solid var(--rose)}
+.btn-owner.danger{background:#fff;color:var(--red);border:1.5px solid #f3b8b0}
+.btn-owner:disabled{opacity:0.55;pointer-events:none}
+.progress-wrap{height:6px;background:#f1d5e5;border-radius:100px;overflow:hidden;display:none}
+.progress-bar{height:100%;width:0%;background:var(--rose);transition:width 0.2s}
+
+.msg-etat{padding:0 16px;font-size:12px;color:#999;text-align:center}
+.msg-connexion{margin:16px;padding:14px;background:#fff8e1;border:1px solid #ffe082;border-radius:12px;font-size:12.5px;color:#8a6d00;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="top-header" id="topHeader">
+  <div class="h-row1">
+    <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
+    <div class="h-logo">
+      <svg width="22" height="16" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
+        <path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/>
+        <polygon points="68,17 90,55 75,55 87,34" fill="white"/>
+        <path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/>
+        <polygon points="76,93 54,55 75,55 87,76" fill="white"/>
+        <path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/>
+      </svg>
+      <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
+    </div>
+    <div class="h-badge">📍 Itinéraire</div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <div class="spacer" id="hSpacer" style="height:58px"></div>
+
+  <div class="media-wrap" id="mediaWrap">
+    <div class="loader" id="loader">Chargement…</div>
+  </div>
+
+  <div class="info-strip" id="infoStrip" style="display:none">
+    <div class="av" id="avatarBox">?</div>
+    <div>
+      <div class="nom" id="nomVal">—</div>
+      <div class="zone" id="zoneVal"></div>
+    </div>
+  </div>
+
+  <div class="explication">
+    <b>À quoi sert cette page ?</b>
+    <p>Elle reste toujours ici, séparée des publications qui changent souvent dans le fil — un repère fixe pour que vos clients retrouvent facilement l'endroit exact.</p>
+  </div>
+
+  <div id="zoneConnexion" class="msg-connexion" style="display:none">
+    Connectez-vous pour ajouter votre propre itinéraire vidéo, ou pour contacter ce professionnel.
+  </div>
+
+  <!-- Visiteur : simple lecture -->
+  <div class="zone-visiteur" id="zoneVisiteur" style="display:none">
+    <button class="cta-rose" id="btnVoirTrajet">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,4 20,12 6,20" fill="#fff" stroke="none"/></svg>
+      Voir comment s'y rendre
+    </button>
+  </div>
+
+  <!-- Propriétaire : gestion -->
+  <div class="zone-proprio" id="zoneProprio" style="display:none">
+    <span class="owner-tag">VOUS GÉREZ CET ITINÉRAIRE</span>
+    <input type="file" id="fichierInput" accept="video/*,image/*" style="display:none">
+    <button class="btn-owner primary" id="btnAjouter">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9"/><polygon points="23 7 16 12 23 17 23 7"/></svg>
+      <span id="btnAjouterTxt">Ajouter une vidéo ou une photo</span>
+    </button>
+    <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+    <button class="btn-owner danger" id="btnSupprimer" style="display:none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      Supprimer l'itinéraire
+    </button>
+  </div>
+
+  <div style="height:24px"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Vraie hauteur d'écran mobile (même principe qu'accueil.html)
+function majVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+majVh(); window.addEventListener('resize', majVh);
+
+let profilUid = null;   // le profil dont on affiche l'itinéraire (peut être différent de l'utilisateur connecté)
+let profilNom = '';
+let estProprietaire = false;
+let itineraireActuel = null; // {url, type}
+
+// ══ Pont avec accueil.html ══
+window.addEventListener('message', (e) => {
+  if (!e.data) return;
+  if (e.data.type === 'parentFrame') {
+    document.getElementById('topHeader').style.display = 'none';
+    document.getElementById('hSpacer').style.height = '0px';
+  }
+  if (e.data.type === 'ouvrirItineraireUid' && e.data.uid) {
+    chargerProfil(e.data.uid, e.data.nom || '');
+  }
+});
+
+// Accès direct possible via ?uid=... (hors iframe, pour test)
+const paramsUrl = new URLSearchParams(window.location.search);
+const uidDirect = paramsUrl.get('uid');
+
+auth.onAuthStateChanged((user) => {
+  if (uidDirect) {
+    chargerProfil(uidDirect, '');
+  } else if (!profilUid && user) {
+    // Aucun profil précis reçu par postMessage (ex. ouverture directe, ou aucune
+    // carte active repérée dans le fil) : on affiche par défaut le vôtre.
+    chargerProfil(user.uid, '');
+  } else if (!profilUid && !user) {
+    document.getElementById('loader').textContent = 'Connectez-vous pour voir un itinéraire';
+    document.getElementById('zoneConnexion').style.display = 'block';
+  }
+});
+
+async function chargerProfil(uid, nomFallback){
+  profilUid = uid;
+  profilNom = nomFallback;
+  document.getElementById('loader').textContent = 'Chargement…';
+  try {
+    const snap = await db.collection('utilisateurs').doc(uid).get();
+    const data = snap.exists ? snap.data() : {};
+    const pseudo = data.pseudo || data.nom || profilNom || 'Utilisateur';
+    const adresse = data.adresse || data.ville || '';
+    itineraireActuel = data.itineraire || null;
+
+    document.getElementById('nomVal').textContent = pseudo;
+    document.getElementById('zoneVal').innerHTML = adresse
+      ? '📍 ' + adresse
+      : '<span style="color:#bbb">Adresse non renseignée</span>';
+    const av = document.getElementById('avatarBox');
+    if (data.photoAvatar) {
+      av.innerHTML = '<img src="' + data.photoAvatar + '">';
+    } else {
+      av.textContent = (pseudo[0] || '?').toUpperCase();
+    }
+    document.getElementById('infoStrip').style.display = 'flex';
+
+    estProprietaire = !!(auth.currentUser && auth.currentUser.uid === uid);
+    afficherMedia();
+    afficherActions();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('loader').textContent = 'Impossible de charger cet itinéraire pour le moment.';
+  }
+}
+
+function afficherMedia(){
+  const wrap = document.getElementById('mediaWrap');
+  wrap.innerHTML = '';
+  if (itineraireActuel && itineraireActuel.url) {
+    if (itineraireActuel.type === 'video') {
+      wrap.innerHTML = '<video src="' + itineraireActuel.url + '" controls playsinline></video>';
+    } else {
+      wrap.innerHTML = '<img src="' + itineraireActuel.url + '">';
+    }
+  } else {
+    wrap.innerHTML = `
+      <div class="media-empty">
+        <div class="ic">📍</div>
+        <div>${estProprietaire
+          ? "Vous n'avez pas encore ajouté de vidéo ou de photo d'itinéraire."
+          : "Ce professionnel n'a pas encore ajouté de vidéo d'itinéraire."}</div>
+      </div>`;
+  }
+}
+
+function afficherActions(){
+  document.getElementById('zoneConnexion').style.display = 'none';
+  document.getElementById('zoneVisiteur').style.display = estProprietaire ? 'none' : 'block';
+  document.getElementById('zoneProprio').style.display = estProprietaire ? 'flex' : 'none';
+  if (estProprietaire) {
+    document.getElementById('btnAjouterTxt').textContent = itineraireActuel
+      ? 'Remplacer par une nouvelle vidéo ou photo'
+      : 'Ajouter une vidéo ou une photo';
+    document.getElementById('btnSupprimer').style.display = itineraireActuel ? 'flex' : 'none';
+  }
+}
+
+// Visiteur : le média est déjà affiché au-dessus : ce bouton fait défiler jusqu'à lui.
+document.getElementById('btnVoirTrajet').addEventListener('click', () => {
+  document.getElementById('mediaWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// ══ Propriétaire : ajouter / remplacer ══
+document.getElementById('btnAjouter').addEventListener('click', () => {
+  document.getElementById('fichierInput').click();
+});
+document.getElementById('fichierInput').addEventListener('change', async (e) => {
+  const fichier = e.target.files[0];
+  if (!fichier) return;
+  const estVideo = fichier.type.startsWith('video/');
+  const estPhoto = fichier.type.startsWith('image/');
+  if (!estVideo && !estPhoto) { alert('Choisissez une vidéo ou une photo.'); return; }
+  if (fichier.size > 80 * 1024 * 1024) { alert('Fichier trop volumineux (80 Mo max).'); return; }
+
+  const btn = document.getElementById('btnAjouter');
+  const progWrap = document.getElementById('progressWrap');
+  const progBar = document.getElementById('progressBar');
+  btn.disabled = true;
+  progWrap.style.display = 'block';
+
+  try {
+    const ext = (fichier.name.split('.').pop() || (estVideo ? 'mp4' : 'jpg'));
+    const chemin = 'itineraires/' + profilUid + '/' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+    const ref = storage.ref().child(chemin);
+    const tache = ref.put(fichier, { contentType: fichier.type });
+    tache.on('state_changed', (snap) => {
+      const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+      progBar.style.width = pct + '%';
+    });
+    await tache;
+    const url = await tache.snapshot.ref.getDownloadURL();
+
+    const nouvelItineraire = { url: url, type: estVideo ? 'video' : 'photo', updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    await db.collection('utilisateurs').doc(profilUid).set({ itineraire: nouvelItineraire }, { merge: true });
+
+    itineraireActuel = { url: url, type: estVideo ? 'video' : 'photo' };
+    afficherMedia();
+    afficherActions();
+  } catch (err) {
+    console.error(err);
+    alert("Échec de l'envoi. Vérifiez votre connexion et réessayez.");
+  } finally {
+    btn.disabled = false;
+    progWrap.style.display = 'none';
+    progBar.style.width = '0%';
+    e.target.value = '';
+  }
+});
+
+// ══ Propriétaire : supprimer ══
+document.getElementById('btnSupprimer').addEventListener('click', async () => {
+  if (!confirm("Supprimer votre vidéo/photo d'itinéraire ? Cette action est définitive.")) return;
+  try {
+    await db.collection('utilisateurs').doc(profilUid).set({ itineraire: firebase.firestore.FieldValue.delete() }, { merge: true });
+    itineraireActuel = null;
+    afficherMedia();
+    afficherActions();
+  } catch (err) {
+    console.error(err);
+    alert('Échec de la suppression. Réessayez.');
+  }
+});
+</script>
+</body>
+</html>
