@@ -728,6 +728,12 @@ function toggleSiteWidth(){
       const ifr = panelEl.querySelector('iframe[data-src]');
       if (ifr && !ifr.getAttribute('src')) {
         ifr.src = ifr.dataset.src;
+        // Signale à discussion_v1.html (et aux autres iframes qui l'attendent) qu'il est
+        // bien affiché dans le cadre d'accueil.html, pour qu'il masque son propre
+        // en-tête/sa propre barre du bas en double.
+        ifr.addEventListener('load', function () {
+          try { ifr.contentWindow.postMessage({ type: 'parentFrame' }, '*'); } catch (e) {}
+        });
       }
     }
 
