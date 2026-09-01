@@ -332,7 +332,7 @@
     <span class="nav-lb" data-i18n="acc_nav_profile">Mon Profil</span>
   </div>
   <!-- Discussion -->
-  <div class="nav-i active" onclick="goToPanel(6)">
+  <div class="nav-i active" onclick="ouvrirDiscussionProfilActif()">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)" data-i18n="acc_nav_discussion">Discussion</span>
   </div>
@@ -347,7 +347,7 @@
     <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
   </div>
   <!-- Messages à droite -->
-  <div class="nav-i" onclick="goToPanel(6)">
+  <div class="nav-i" onclick="ouvrirDiscussionProfilActif()">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
       <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
@@ -596,7 +596,7 @@ function toggleSiteWidth(){
       bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
     }
 
-    return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}">
+    return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}" data-pseudo="${pseudo}">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
@@ -1041,6 +1041,19 @@ function toggleSiteWidth(){
     window.ouvrirChatDepuisOffre({ uid: cibleUid, nom: pseudo, verifie: false });
   };
 
+  // Utilisée par les boutons Discussion / Messages de la barre du bas : ouvre
+  // directement le dialogue avec la personne dont la publication est actuellement
+  // affichée à l'écran (comme le fait Contacter), au lieu d'afficher juste la liste.
+  // Si aucune carte n'est encore repérée comme active, on retombe sur la liste
+  // (comportement d'avant), sans jamais rien casser.
+  window.ouvrirDiscussionProfilActif = function(){
+    const actif = window._profilActifAccueil;
+    if (!actif || !actif.uid) { window.goToPanel(6); return; }
+    if (!auth.currentUser) { toast('Connecte-toi pour discuter', ''); return; }
+    if (actif.uid === auth.currentUser.uid) { window.goToPanel(6); return; }
+    window.ouvrirChatDepuisOffre({ uid: actif.uid, nom: actif.pseudo, verifie: false });
+  };
+
   // ── Contrôles vidéo personnalisés (fil principal) ──
   // Lecture/pause au clic ou au tap sur la vidéo elle-même ou l'icône
   // centrale. L'icône ne reste visible que quand la vidéo est en pause.
@@ -1131,6 +1144,13 @@ function toggleSiteWidth(){
     observateurVuesAcc = new IntersectionObserver((entrees) => {
       entrees.forEach(entree => {
         if (!entree.isIntersecting || entree.intersectionRatio < 0.6) return;
+        // Mémorise la personne actuellement affichée à l'écran (indépendamment du
+        // comptage de vues ci-dessous, qui ne se fait qu'une fois par session) —
+        // utilisé par Discussion/Messages pour ouvrir directement son dialogue.
+        window._profilActifAccueil = {
+          uid: entree.target.dataset.vueUid,
+          pseudo: entree.target.dataset.pseudo || ''
+        };
         const cibleUid = entree.target.dataset.vueUid;
         if (!cibleUid || vuesDejaComptees.has(cibleUid)) return;
         if (auth.currentUser && cibleUid === auth.currentUser.uid) return;
