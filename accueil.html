@@ -720,10 +720,32 @@ function toggleSiteWidth(){
   // Panels: 0=Accueil, 1=Statuts, 2=Elites, 3=Categories, 4=Discussion(iframe), 5=Actualites, 6=FAQ
   const specialPanels = {};
 
+  // ══ Touche retour physique / navigateur ══
+  // Par défaut, cette page ne change jamais d'URL en changeant de panneau : la
+  // touche retour du téléphone n'a donc rien à "annuler" ici et retombe directement
+  // sur la page précédente dans l'historique du navigateur (ex. connexion.html),
+  // ce qui surprend l'utilisateur. On ajoute une entrée d'historique factice dès
+  // qu'on quitte l'Accueil (panneau 0), pour que le tout premier retour revienne
+  // à l'Accueil au lieu de sortir de l'application. Un second retour, lui, sortira
+  // normalement (comportement standard, inchangé).
+  let depuisPopstateAcc = false;
+  window.addEventListener('popstate', function () {
+    if (currentPanel !== 0) {
+      depuisPopstateAcc = true;
+      window.goToPanel(0);
+      depuisPopstateAcc = false;
+    }
+  });
+
   window.goToPanel = function(index, animate) {
     if (index < 0) index = 0;
     if (index >= totalPanels) index = totalPanels - 1;
+    const panelPrecedent = currentPanel;
     currentPanel = index;
+
+    if (!depuisPopstateAcc && panelPrecedent === 0 && index !== 0) {
+      try { history.pushState({ panelAcc: index }, '', location.href); } catch (e) {}
+    }
 
     // Chargement paresseux : l'iframe de cet onglet ne se charge que maintenant,
     // au moment où on l'ouvre pour la première fois (pas toutes en même temps
