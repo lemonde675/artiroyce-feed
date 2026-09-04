@@ -337,7 +337,7 @@
     <span class="nav-lb" data-i18n="acc_nav_profile">Mon Profil</span>
   </div>
   <!-- Discussion -->
-  <div class="nav-i active" onclick="ouvrirDiscussionProfilActif()">
+  <div class="nav-i active" onclick="goToPanel(6)">
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)" data-i18n="acc_nav_discussion">Discussion</span>
   </div>
@@ -351,13 +351,15 @@
     </svg>
     <span class="nav-lb" data-i18n="acc_nav_live">Live</span>
   </div>
-  <!-- Itinéraire vidéo (ex-Messages) à droite -->
-  <div class="nav-i" onclick="ouvrirItineraireVideoProfilActif()">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/>
-      <polygon points="10,7.6 10,11.4 13.2,9.5" fill="var(--red)" stroke="none"/>
+  <!-- Messages à droite -->
+  <div class="nav-i" onclick="ouvrirDiscussionProfilActif()">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" stroke="#888" stroke-width="2"/>
+      <polyline points="2,4 12,13 22,4" stroke="#888" stroke-width="2"/>
+      <line x1="12" y1="1" x2="12" y2="6" stroke="var(--red)" stroke-width="2.5"/>
+      <polyline points="9,4 12,1 15,4" stroke="var(--red)" stroke-width="2.5"/>
     </svg>
-    <span class="nav-lb" data-i18n="acc_nav_messages" style="line-height:1.2">Itinéraire<br>Vidéo</span>
+    <span class="nav-lb" data-i18n="acc_nav_messages">Messages</span>
   </div>
 </nav>
 
@@ -648,7 +650,7 @@ function toggleSiteWidth(){
       <div class="info-bot">
         <div class="info-metier">${getEmoji(metier)} ${metier}</div>
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
-        <button class="btn-itineraire-bot" onclick="ouvrirItineraire('${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
         <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
         <div class="info-btns">
           <span class="wm-inline">
@@ -1473,6 +1475,26 @@ function toggleSiteWidth(){
     if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
     else toast('📍 Adresse non disponible', '');
   }
+
+  // Remplace l'appel direct à ouvrirItineraire() depuis le bouton "🧭 Obtenir
+  // l'itinéraire" : propose maintenant un choix entre Google Maps (comportement
+  // d'avant, inchangé) et la vidéo/photo d'itinéraire du profil (panneau 9).
+  window.ouvrirChoixItineraire = function(uid, pseudo, adresse){
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+    overlay.innerHTML = `
+      <div style="background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;padding:20px 18px 26px;">
+        <div style="width:36px;height:4px;background:#ddd;border-radius:4px;margin:0 auto 16px;"></div>
+        <div style="font-weight:800;font-size:15px;color:#111;margin-bottom:14px;text-align:center;">Comment voulez-vous voir le chemin ?</div>
+        <button id="choixMapsAcc" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--red);background:#fff;color:var(--red);font-weight:700;font-size:14px;margin-bottom:10px;">🧭 Itinéraire Google Maps</button>
+        <button id="choixVideoAcc" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:14px;">🎥 Vidéo d'itinéraire</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    const fermer = () => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) fermer(); });
+    overlay.querySelector('#choixMapsAcc').onclick = () => { fermer(); window.ouvrirItineraire(adresse); };
+    overlay.querySelector('#choixVideoAcc').onclick = () => { fermer(); window.ouvrirItineraireVideoDepuisAccueil({ uid: uid, nom: pseudo }); };
+  };
 
   /* ══════════════════════════════════════════════════════════
      SÉLECTEUR DE LANGUE — variante locale à cette page
