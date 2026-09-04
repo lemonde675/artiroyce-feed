@@ -27,6 +27,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .media-empty{color:rgba(255,255,255,0.55);text-align:center;padding:0 30px;font-size:13.5px;display:flex;flex-direction:column;align-items:center;gap:14px}
 .media-empty .ic{width:56px;height:56px;border-radius:50%;background:rgba(236,72,153,0.18);border:2px solid var(--rose);display:flex;align-items:center;justify-content:center}
 .loader{color:rgba(255,255,255,0.5);font-size:13px;text-align:center}
+.barre-retour{padding:10px 16px;background:#fff;border-bottom:1px solid #eee}
+.btn-retour-accueil{display:inline-flex;align-items:center;gap:5px;background:var(--rose-clair);color:var(--rose-fonce);font-size:12.5px;font-weight:700;padding:8px 14px 8px 10px;border-radius:100px;cursor:pointer}
 
 /* ── bandeau info sous le média ── */
 .info-strip{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#fff;border-bottom:1px solid #eee}
@@ -63,7 +65,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
 <div class="top-header" id="topHeader">
   <div class="h-row1">
-    <span class="h-house" onclick="window.location.href='accueil.html'">🏠</span>
+    <span class="h-house" onclick="ouvrirAccueilDepuisItineraire()">🏠</span>
     <div class="h-logo">
       <svg width="22" height="16" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg">
         <path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/>
@@ -81,6 +83,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
 <div class="body-wrap">
   <div class="spacer" id="hSpacer" style="height:58px"></div>
+
+  <div class="barre-retour">
+    <div class="btn-retour-accueil" onclick="ouvrirAccueilDepuisItineraire()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
+      Retour
+    </div>
+  </div>
 
   <div class="media-wrap" id="mediaWrap">
     <div class="loader" id="loader">Chargement…</div>
@@ -115,10 +124,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="zone-proprio" id="zoneProprio" style="display:none">
     <span class="owner-tag">VOUS GÉREZ CET ITINÉRAIRE</span>
     <input type="file" id="fichierInput" accept="video/*,image/*" style="display:none">
-    <button class="btn-owner primary" id="btnAjouter">
+    <label class="btn-owner primary" for="fichierInput" id="btnAjouter" style="cursor:pointer">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9"/><polygon points="23 7 16 12 23 17 23 7"/></svg>
       <span id="btnAjouterTxt">Ajouter une vidéo ou une photo</span>
-    </button>
+    </label>
     <div class="progress-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
     <button class="btn-owner danger" id="btnSupprimer" style="display:none">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
@@ -151,6 +160,49 @@ const storage = firebase.storage();
 function majVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
 majVh(); window.addEventListener('resize', majVh);
 
+// Calcule en px la vraie hauteur du header FIXE du shell parent (accueil.html) quand
+// cette page est chargée en iframe, pour ne jamais cacher le haut du contenu dessous.
+// Même technique que discussion_v1.html / statut_v1.html — jamais une valeur devinée.
+function getEmbedTopOffsetPx(){
+  try {
+    if (window.parent && window.parent !== window && window.parent.document) {
+      const parentTop = window.parent.document.getElementById('topH');
+      if (parentTop) return parentTop.getBoundingClientRect().height;
+    }
+  } catch(e) {}
+  return 0;
+}
+function appliquerDecalageItineraire(){
+  const spacer = document.getElementById('hSpacer');
+  const embedded = !!(window.parent && window.parent !== window);
+  if (embedded) {
+    spacer.style.height = getEmbedTopOffsetPx() + 'px';
+  } else {
+    const propre = document.getElementById('topHeader');
+    spacer.style.height = (propre ? propre.getBoundingClientRect().height : 58) + 'px';
+  }
+}
+// Calcul direct au chargement, sans dépendre du message parentFrame (accueil.html ne
+// l'envoie pas toujours à temps) — window.parent!==window est un fait du DOM, fiable.
+appliquerDecalageItineraire();
+window.addEventListener('load', appliquerDecalageItineraire);
+window.addEventListener('resize', appliquerDecalageItineraire);
+setTimeout(appliquerDecalageItineraire, 300);
+
+// Revient au panneau Accueil déjà chargé dans accueil.html (sans recharger tout le
+// site dans l'iframe, ce qui déclenchait à tort une redirection vers connexion.html
+// à cause du ré-armorçage de la vérification de session dans cette page imbriquée).
+// En accès direct (hors iframe), on retombe sur la navigation classique.
+window.ouvrirAccueilDepuisItineraire = function(){
+  try {
+    if (window.parent && window.parent !== window && typeof window.parent.goToPanel === 'function') {
+      window.parent.goToPanel(0);
+      return;
+    }
+  } catch(e) {}
+  window.location.href = 'accueil.html';
+};
+
 let profilUid = null;   // le profil dont on affiche l'itinéraire (peut être différent de l'utilisateur connecté)
 let profilNom = '';
 let estProprietaire = false;
@@ -161,7 +213,7 @@ window.addEventListener('message', (e) => {
   if (!e.data) return;
   if (e.data.type === 'parentFrame') {
     document.getElementById('topHeader').style.display = 'none';
-    document.getElementById('hSpacer').style.height = '0px';
+    appliquerDecalageItineraire();
   }
   if (e.data.type === 'ouvrirItineraireUid' && e.data.uid) {
     chargerProfil(e.data.uid, e.data.nom || '');
@@ -255,9 +307,8 @@ document.getElementById('btnVoirTrajet').addEventListener('click', () => {
 });
 
 // ══ Propriétaire : ajouter / remplacer ══
-document.getElementById('btnAjouter').addEventListener('click', () => {
-  document.getElementById('fichierInput').click();
-});
+// (le <label for="fichierInput"> ci-dessus ouvre déjà nativement le sélecteur
+// photo/vidéo au tap — technique plus fiable sur mobile qu'un clic déclenché en JS)
 document.getElementById('fichierInput').addEventListener('change', async (e) => {
   const fichier = e.target.files[0];
   if (!fichier) return;
@@ -269,7 +320,8 @@ document.getElementById('fichierInput').addEventListener('change', async (e) => 
   const btn = document.getElementById('btnAjouter');
   const progWrap = document.getElementById('progressWrap');
   const progBar = document.getElementById('progressBar');
-  btn.disabled = true;
+  btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.55';
   progWrap.style.display = 'block';
 
   try {
@@ -294,7 +346,8 @@ document.getElementById('fichierInput').addEventListener('change', async (e) => 
     console.error(err);
     alert("Échec de l'envoi. Vérifiez votre connexion et réessayez.");
   } finally {
-    btn.disabled = false;
+    btn.style.pointerEvents = '';
+    btn.style.opacity = '';
     progWrap.style.display = 'none';
     progBar.style.width = '0%';
     e.target.value = '';
