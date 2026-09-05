@@ -942,6 +942,17 @@ function pushView(name){
   history.pushState({depth:viewStack.length},'',location.href);
 }
 window.requestClose=function(){ if(viewStack.length>0) history.back(); }
+// Ferme directement la vue au sommet de la pile, sans passer par
+// history.back() — évite le conflit avec l'historique de la page parente
+// (accueil.html), qui pouvait renvoyer à Accueil au lieu de fermer juste
+// cette vue (chat, appel, création/membres de groupe). Le bouton "‹" reste
+// au même endroit, seul son comportement interne change.
+function fermerVueLocale(name){
+  if(viewStack.length && viewStack[viewStack.length-1]===name){
+    viewStack.pop();
+    hideView(name);
+  }
+}
 window.addEventListener('popstate',(e)=>{
   const target=(e.state&&e.state.depth)||0;
   while(viewStack.length>target){ hideView(viewStack.pop()); }
@@ -1081,7 +1092,7 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
   cancelReply();
   setTimeout(()=>{const a=document.getElementById('msgsArea');a.scrollTop=a.scrollHeight},100);
 }
-window.closeChat=function(){requestClose()}
+window.closeChat=function(){fermerVueLocale('chat')}
 window.ouvrirOptionsChat=function(){
   if(currentEstGroupe){ ouvrirMembresGroupe(); return; }
   toast('Options','');
@@ -1618,7 +1629,7 @@ window.ouvrirCreationGroupe=function(){
   document.getElementById('groupCreatePanel').classList.add('open');
   pushView('groupcreate');
 }
-window.closeGroupCreate=function(){ requestClose(); }
+window.closeGroupCreate=function(){ fermerVueLocale('groupcreate'); }
 
 window.creerGroupeFinal=async function(){
   const nom=document.getElementById('grpNomInput').value.trim();
@@ -1639,7 +1650,7 @@ window.creerGroupeFinal=async function(){
       dernierEmetteur:''
     });
     toast('✅ Groupe créé','g');
-    requestClose();
+    fermerVueLocale('groupcreate');
     setTimeout(function(){ openGroupChat(docRef.id,{nom:nom,participants:participants}); },150);
   }catch(err){
     console.error('Création du groupe impossible :',err);
@@ -1736,7 +1747,7 @@ window.ouvrirMembresGroupe=function(){
   document.getElementById('groupMembersPanel').classList.add('open');
   pushView('groupmembers');
 }
-window.closeGroupMembers=function(){ requestClose(); }
+window.closeGroupMembers=function(){ fermerVueLocale('groupmembers'); }
 
 function renderListeMembresActuels(){
   const zone=document.getElementById('gmMembresActuels');
@@ -2706,7 +2717,7 @@ window.toggleSpk=function(){
   const b=document.getElementById('callSpkBtn');b.classList.toggle('active');
   toast('🔊 Haut-parleur (contrôle système du téléphone)','')
 }
-window.endCall=function(){requestClose()}
+window.endCall=function(){fermerVueLocale('call')}
 function logCallBubble(type,label){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';
@@ -2719,7 +2730,7 @@ function logCallBubble(type,label){
 
 /* ══════════════ CONFÉRENCE ══════════════ */
 window.openConf=function(){document.getElementById('confPanel').classList.add('open');pushView('conf')}
-window.closeConf=function(){requestClose()}
+window.closeConf=function(){fermerVueLocale('conf')}
 let confGen=false;
 window.genLink=function(){const c=Math.random().toString(36).substr(2,8).toUpperCase();document.getElementById('confLink').textContent='artiroyce.app/conf/'+c;confGen=true;toast('🔗 Lien généré !','g')}
 window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Copié !','g')).catch(()=>toast('📋 Copié !','g'))}
