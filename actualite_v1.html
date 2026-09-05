@@ -158,7 +158,6 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
 
-#panneauDiagnostic { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #1a1a1a; color: #0f0; font-family: monospace; font-size: 11px; padding: 8px 10px; max-height: 160px; overflow-y: auto; line-height: 1.5; border-top: 3px solid #0f0; }
 </style>
 </head>
 <body>
@@ -270,8 +269,6 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
   <div id="feedPosts"></div>
 </div>
 
-<div id="panneauDiagnostic"></div>
-
 <script>
 /* ══════════════════════════════════════════════════════════════════
    VERSION "COMPAT" — 31/07/2026.
@@ -292,12 +289,11 @@ function toast(msg){
   setTimeout(() => el.className = 'toast', 2200);
 }
 
+// Journal de diagnostic — écrit dans la console du navigateur (F12) au lieu
+// d'un panneau visible à l'écran. Tous les appels existants dans le code
+// continuent de fonctionner sans rien y changer.
 function ajouterEtape(texte){
-  const panneau = document.getElementById('panneauDiagnostic');
-  if (!panneau) return;
-  const ligne = document.createElement('div');
-  ligne.textContent = new Date().toLocaleTimeString() + ' — ' + texte;
-  panneau.appendChild(ligne);
+  console.log(new Date().toLocaleTimeString() + ' — ' + texte);
 }
 ajouterEtape('1. Script classique démarré ✅');
 
