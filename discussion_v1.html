@@ -1493,6 +1493,41 @@ window.reduireVideoDepuisFleche=function(e, backBtn){
   videoExpandeWrap=null;
   if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
 }
+/* ══ Empêche le plein écran NATIF du navigateur sur les vidéos de dialogue ══
+   `controlsList="nofullscreen"` (posé sur la balise <video>) n'est fiable que sur
+   Chrome ordinateur — sur Android/WebView, le navigateur peut quand même basculer
+   la vidéo en plein écran natif (double-tap, bouton natif...), ce qui fait
+   disparaître nos boutons ✕/‹ personnalisés (ils ne font plus partie de l'écran
+   affiché). Dès qu'on détecte cette tentative, on en sort immédiatement et on
+   force notre propre agrandissement (⤢) à la place. */
+function forcerAgrandissementPerso(video){
+  const wrap = video.closest && video.closest('.video-bbl');
+  if(!wrap || wrap.classList.contains('expanded')) return;
+  wrap.classList.add('expanded');
+  const btn = wrap.querySelector('.vid-expand');
+  if(btn){ btn.textContent='⤡'; btn.title='Réduire'; }
+  videoExpandeWrap = wrap;
+  if(viewStack[viewStack.length-1]!=='videoExpand') pushView('videoExpand');
+}
+function bloquerPleinEcranNatif(video){
+  if(!video || video.tagName!=='VIDEO' || !video.closest || !video.closest('.video-bbl')) return;
+  if(document.fullscreenElement===video && document.exitFullscreen){ document.exitFullscreen().catch(function(){}); }
+  else if(document.webkitFullscreenElement===video && document.webkitExitFullscreen){ document.webkitExitFullscreen(); }
+  else if(video.webkitDisplayingFullscreen && video.webkitExitFullscreen){ video.webkitExitFullscreen(); }
+  forcerAgrandissementPerso(video);
+}
+document.addEventListener('fullscreenchange', function(){
+  const el=document.fullscreenElement;
+  if(el && el.tagName==='VIDEO') bloquerPleinEcranNatif(el);
+}, true);
+document.addEventListener('webkitfullscreenchange', function(){
+  const el=document.webkitFullscreenElement;
+  if(el && el.tagName==='VIDEO') bloquerPleinEcranNatif(el);
+}, true);
+// iOS Safari : événement non standard, déclenché directement sur la <video> (ne
+// remonte pas dans le DOM) — on l'écoute quand même en phase de capture depuis
+// document, ce qui fonctionne même pour un événement qui ne "bubble" pas.
+document.addEventListener('webkitbeginfullscreen', function(e){ bloquerPleinEcranNatif(e.target); }, true);
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
   document.getElementById('emptyMsgsState').style.display = snap.empty ? 'flex' : 'none';
