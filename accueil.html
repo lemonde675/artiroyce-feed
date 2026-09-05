@@ -71,8 +71,7 @@
     .vcard-overlay.zone-tap-video { pointer-events: auto; cursor: pointer; }
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
-    /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
-    .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
+    .actions-r { display: flex; flex-direction: column; gap: 6px; align-items: center; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.55); -webkit-backdrop-filter: blur(6px) saturate(140%); backdrop-filter: blur(6px) saturate(140%); box-shadow: 0 3px 10px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), background 0.2s; }
     .act-circle:active { transform: scale(1.22); }
@@ -82,7 +81,7 @@
     .act-n { font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
+    .info-top { pointer-events: none; }
     .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: auto; }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
@@ -92,7 +91,12 @@
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
     .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
-    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
+    .info-bot { pointer-events: none; }
+    /* ✅ Conteneurs flex — remplacent les positions absolues devinées en pixels :
+       le haut et le bas de chaque colonne ne peuvent plus jamais se chevaucher,
+       quelle que soit la hauteur de la fenêtre (ordinateur ou mobile). */
+    .center-col-flex { position: absolute; inset: 0; left: 12px; right: 62px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 62px; pointer-events: none; }
+    .right-col-flex { position: absolute; inset: 0; left: auto; right: 8px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-top: 74px; padding-bottom: 70px; }
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 24px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; margin-top: 14px; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -138,7 +142,7 @@
     .panel-placeholder .ph-icon { font-size: 60px; opacity: 0.5; }
     .panel-placeholder .ph-title { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
     .panel-placeholder .ph-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
-    .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    .btn-suivre-wrap { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
@@ -609,6 +613,7 @@ function toggleSiteWidth(){
       ${boutonSonHTML}
       <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+      <div class="right-col-flex">
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
         <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}')">Contacter</button>
@@ -643,6 +648,8 @@ function toggleSiteWidth(){
           <span class="act-lbl">Partager</span>
         </div>
       </div>
+      </div>
+      <div class="center-col-flex">
       <div class="info-top">
         <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
@@ -662,6 +669,7 @@ function toggleSiteWidth(){
           </span>
         </div>
       </div>
+      </div>
     </div>`;
   }
 
@@ -671,51 +679,21 @@ function toggleSiteWidth(){
     document.getElementById('hSpacer').style.height = hh + 'px';
     const accSearchBar = document.getElementById('accSearchBar');
     if (accSearchBar) accSearchBar.style.top = hh + 'px';
-    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
-      el.style.top = '74px';
-    });
     document.querySelectorAll('.badge-v').forEach(el => {
       el.style.top = Math.max(8, 170 - hh) + 'px';
     });
-    document.querySelectorAll('.info-top').forEach(el => {
-      el.style.top = Math.max(8, 285 - hh) + 'px';
-    });
-    document.querySelectorAll('.info-bot').forEach(el => {
-      el.style.bottom = '62px';
+    // ✅ Même formule qu'avant (inchangée), appliquée au conteneur .center-col-flex
+    // au lieu de .info-top directement : le bas (.info-bot) est géré par le flex
+    // (justify-content:space-between + padding-bottom fixe en CSS), donc les deux
+    // ne peuvent plus jamais se chevaucher, quelle que soit la hauteur d'écran.
+    document.querySelectorAll('.center-col-flex').forEach(el => {
+      el.style.paddingTop = Math.max(8, 285 - hh) + 'px';
     });
     document.querySelectorAll('.vid-seek-wrap').forEach(el => {
       el.style.top = '10px';
     });
     document.querySelectorAll('.son-btn-top').forEach(el => {
       el.style.top = '34px';
-    });
-
-    // ✅ CORRECTION anti-collision (fenêtres d'ordinateur basses) :
-    // ne fait rien si l'espace est déjà suffisant (cas du mobile) ;
-    // remonte légèrement le bloc du haut seulement en cas de chevauchement réel.
-    document.querySelectorAll('.vcard').forEach(card => {
-      const infoTop = card.querySelector('.info-top');
-      const infoBot = card.querySelector('.info-bot');
-      if (infoTop && infoBot) {
-        const rTop = infoTop.getBoundingClientRect();
-        const rBot = infoBot.getBoundingClientRect();
-        const chevauchement = rTop.bottom - rBot.top + 10; // 10px de marge de sécurité
-        if (chevauchement > 0) {
-          const topActuel = parseFloat(infoTop.style.top) || 0;
-          infoTop.style.top = Math.max(8, topActuel - chevauchement) + 'px';
-        }
-      }
-      const suivreWrap = card.querySelector('.btn-suivre-wrap');
-      const actionsR = card.querySelector('.actions-r');
-      if (suivreWrap && actionsR) {
-        const rSuivre = suivreWrap.getBoundingClientRect();
-        const rActions = actionsR.getBoundingClientRect();
-        const chevauchement2 = rSuivre.bottom - rActions.top + 10;
-        if (chevauchement2 > 0) {
-          const topActuel2 = parseFloat(suivreWrap.style.top) || 0;
-          suivreWrap.style.top = Math.max(8, topActuel2 - chevauchement2) + 'px';
-        }
-      }
     });
   }
 
