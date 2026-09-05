@@ -111,6 +111,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .chat-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
 .back-btn{font-size:26px;cursor:pointer;color:#333;flex-shrink:0}
 .pc-retour-btn{flex-shrink:0;font-size:13px;font-weight:700;color:#fff;background:var(--red);border-radius:16px;padding:7px 16px;cursor:pointer}
+.hdr-back-pc{display:none;font-size:20px;font-weight:900;color:#333;cursor:pointer;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#f0f0f0;align-items:center;justify-content:center}
+@media (min-width:768px){.hdr-back-pc{display:flex}}
 .cha-av-wrap{position:relative;flex-shrink:0}
 .cha-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
 .cha-online{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
@@ -575,6 +577,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <div class="cha-name" id="chaNm">&#8212; <span class="vb">&#10004;</span></div>
       <div class="cha-st on" id="chaSt">&#9679; En ligne</div>
     </div>
+    <span class="hdr-back-pc" onclick="closeChat()" title="Retour">&#8249;</span>
     <div class="cha-btns">
       <button class="cha-btn" id="posToggle" onclick="toggleVilleSource()" title="Position en direct">&#128205;</button>
       <button class="cha-btn" onclick="addCall('audio')">&#128222;</button>
