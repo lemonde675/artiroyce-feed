@@ -32,7 +32,8 @@
     .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
     .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); top: var(--header-h, 0px); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 64px; }
     .feed-wrap::-webkit-scrollbar { display: none; }
-    .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
+    .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); scroll-snap-align: start; position: relative; flex-shrink: 0; }
+    .video-frame { position: absolute; inset: 0; overflow: hidden; }
     .vcard-bg { position: absolute; inset: 0; }
     video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
@@ -45,7 +46,15 @@
       .cca-fade-acc { padding: 16px 16px 18px; }
       video.vcard-bg { object-fit: contain; }
       div.vcard-bg[style*="background-image"] { background-size: contain !important; background-repeat: no-repeat !important; }
-      .vcard { max-width: 480px; margin: 0 auto; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+      /* ✅ Ordinateur : la carte devient une rangée [profil | vidéo | actions].
+         La vidéo se réduit à un cadre propre avec son ombre ; les deux colonnes
+         redeviennent des blocs normaux à côté (plus de calcul en pixels devinés).
+         Tenu volontairement dans ~450px de large pour rester dans la largeur
+         de 480px déjà gérée par le bouton <> existant (on n'y touche pas).
+         Mobile non concerné : aucune règle ici ne s'applique en dessous de 768px. */
+      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: flex-end; justify-content: center; gap: 12px; padding-bottom: 46px; overflow: visible; }
+      .video-frame { position: relative; inset: auto; width: 200px; aspect-ratio: 9 / 16; max-height: 74vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 0; padding-top: 0 !important; width: 112px; flex-shrink: 0; }
     }
 
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
@@ -608,11 +617,34 @@ function toggleSiteWidth(){
     }
 
     return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}" data-pseudo="${pseudo}">
+      <div class="center-col-flex">
+      <div class="info-top">
+        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <span class="info-globe-small">🌍</span>
+        <div class="info-user">${pseudo}</div>
+      </div>
+      <div class="info-bot">
+        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
+        <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
+        <div class="info-btns">
+          <span class="wm-inline">
+            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
+          </span>
+        </div>
+      </div>
+      </div>
+      <div class="video-frame">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
       <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
+      </div>
       <div class="right-col-flex">
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
@@ -646,27 +678,6 @@ function toggleSiteWidth(){
         <div class="act-btn" onclick="partagerAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
           <span class="act-lbl">Partager</span>
-        </div>
-      </div>
-      </div>
-      <div class="center-col-flex">
-      <div class="info-top">
-        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
-        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
-        <span class="info-globe-small">🌍</span>
-        <div class="info-user">${pseudo}</div>
-      </div>
-      <div class="info-bot">
-        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
-        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
-        <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
-        <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
-        <div class="info-btns">
-          <span class="wm-inline">
-            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
-            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
-            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
-          </span>
         </div>
       </div>
       </div>
