@@ -112,10 +112,10 @@
        Mobile non concerné : rien ici ne s'applique sous 768px.
     ══════════════════════════════════ */
     @media (min-width: 768px) {
-      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; overflow: visible; }
+      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 16px; padding-top: 6px; overflow: visible; }
       /* Largeur ajustée uniquement — hauteur indépendante, comme avant (haut/bas inchangés) */
-      .video-frame { position: relative; inset: auto; width: 220px; height: 80%; max-height: 70vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
-      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 12px 10px; padding-top: 12px !important; width: 92px; flex-shrink: 0; background: rgba(8,8,20,0.92); border-radius: 14px; box-sizing: border-box; }
+      .video-frame { position: relative; inset: auto; width: 340px; height: 80%; max-height: 70vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 16px 14px; padding-top: 16px !important; width: 130px; flex-shrink: 0; background: rgba(8,8,20,0.92); border-radius: 14px; box-sizing: border-box; }
       .center-col-flex .info-btns { display: none; }
       /* Un seul globe (celui à côté de "Professionnel") — le second, en double, disparaît */
       .info-globe-small { display: none; }
