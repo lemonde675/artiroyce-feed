@@ -163,6 +163,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .ibar{display:flex;align-items:flex-end;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));background:#fff;border-top:1px solid #eee;flex-shrink:0}
 .iwrap{flex:1;display:flex;align-items:flex-end;gap:6px;background:#f5f5f5;border-radius:22px;padding:9px 12px}
 .ib{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0}
+.emoji-btn{width:38px;height:38px;border-radius:50%;border:none;background:#ffc107;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(255,193,7,0.4);flex-shrink:0}
 .ib:active{color:var(--red)}
 #mTa{flex:1;background:none;border:none;outline:none;color:#111;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;resize:none;max-height:100px;line-height:1.4}
 #mTa::placeholder{color:#ccc}
@@ -236,8 +237,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .video-bbl video{display:block;width:100%;max-height:320px;background:#000}
 .video-bbl .img-ft{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 10px;font-size:10px;color:#ccc;background:#000}
 .vid-expand{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;display:flex;align-items:center;justify-content:center}
-.video-bbl.expanded video{width:100%;height:100%;object-fit:cover}
+.video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;background:#000}
+.video-bbl.expanded video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .video-bbl.expanded .img-ft{display:none}
 .video-bbl.expanded .vid-expand{top:16px;right:16px;width:36px;height:36px;font-size:18px}
 .file-bbl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;max-width:230px;cursor:pointer}
@@ -624,7 +625,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <button class="rec-send" onclick="sendRecording()">➤</button>
   </div>
   <div class="ibar" id="ibar">
-    <button class="ib" onclick="toggleEmoji()">😊</button>
+    <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
     <div class="iwrap">
       <button class="ib" onclick="pickFile()">📷</button>
       <textarea id="mTa" rows="1" placeholder="Répondre…" oninput="onTa()" onkeydown="onKey(event)"></textarea>
@@ -858,7 +859,11 @@ function majBoutonRetourPC(){
       ecranLarge = (pw.innerWidth || 0) >= 768;
     }
   } catch(e) { reduit = false; ecranLarge = false; }
-  document.querySelectorAll('.hdr-back-pc, .video-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
+  document.querySelectorAll('.hdr-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
+  // La flèche de la vidéo agrandie reste visible sur tout écran d'ordinateur,
+  // qu'on soit en mode réduit ou agrandi — le plein écran recouvre de toute
+  // façon tout le reste, il faut toujours un moyen d'en sortir.
+  document.querySelectorAll('.video-back-pc').forEach(el => el.classList.toggle('show', ecranLarge));
 }
 window.addEventListener('load', majBoutonRetourPC);
 window.addEventListener('resize', majBoutonRetourPC);
@@ -880,7 +885,7 @@ function getEmbedTopOffsetPx(){
 let embedTopOffsetPx=0;
 function appliquerDecalageChat(){
   const px=embedTopOffsetPx+'px';
-  ['chatPanel','profilContactPanel','confPanel','groupCreatePanel','groupMembersPanel'].forEach(function(id){
+  ['chatPanel','profilContactPanel','confPanel','groupCreatePanel','groupMembersPanel','callScreen','incomingCallScreen'].forEach(function(id){
     const el=document.getElementById(id);
     if(el) el.style.paddingTop=px;
   });
