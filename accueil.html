@@ -47,14 +47,16 @@
       video.vcard-bg { object-fit: contain; }
       div.vcard-bg[style*="background-image"] { background-size: contain !important; background-repeat: no-repeat !important; }
       /* ✅ Ordinateur : la carte devient une rangée [profil | vidéo | actions].
-         La vidéo se réduit à un cadre propre avec son ombre ; les deux colonnes
-         redeviennent des blocs normaux à côté (plus de calcul en pixels devinés).
-         Tenu volontairement dans ~450px de large pour rester dans la largeur
-         de 480px déjà gérée par le bouton <> existant (on n'y touche pas).
-         Mobile non concerné : aucune règle ici ne s'applique en dessous de 768px. */
-      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: flex-end; justify-content: center; gap: 12px; padding-bottom: 46px; overflow: visible; }
-      .video-frame { position: relative; inset: auto; width: 200px; aspect-ratio: 9 / 16; max-height: 74vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
-      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 0; padding-top: 0 !important; width: 112px; flex-shrink: 0; }
+         Vidéo agrandie et colonnes resserrées, tenu dans ~465px de large pour
+         rester dans la largeur de 480px déjà gérée par le bouton <> existant
+         (mécanisme de swipe partagé par tous les onglets — pas touché).
+         Centré verticalement (pas collé en bas) pour éviter tout débordement
+         vers l'en-tête si le contenu de la colonne profil est plus haut que
+         la vidéo. Mobile non concerné : rien ici ne s'applique sous 768px. */
+      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 12px; overflow: visible; }
+      .video-frame { position: relative; inset: auto; width: 240px; aspect-ratio: 9 / 16; max-height: 78vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 14px 12px; padding-top: 14px !important; width: 95px; flex-shrink: 0; background: rgba(10,10,20,0.55); border-radius: 14px; box-sizing: border-box; }
+      .center-col-flex .info-btns { display: none; }
     }
 
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
