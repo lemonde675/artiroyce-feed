@@ -67,6 +67,12 @@
     .vid-seek-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #fff; border-radius: 2px; }
     .son-btn-top { position: absolute; right: 12px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 15; cursor: pointer; }
     .son-btn-top svg { width: 15px; height: 15px; }
+    /* Curseur de volume — révélé par appui long sur l'icône son */
+    .vol-slider-wrap { position: absolute; top: 72px; right: 12px; width: 30px; height: 110px; background: rgba(0,0,0,0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); border-radius: 16px; z-index: 16; display: none; align-items: center; justify-content: center; padding: 10px 0; }
+    .vol-slider-wrap.open { display: flex; }
+    .vol-slider { -webkit-appearance: none; appearance: none; width: 90px; height: 4px; background: rgba(255,255,255,0.35); border-radius: 2px; outline: none; transform: rotate(-90deg); cursor: pointer; margin: 0; }
+    .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; }
+    .vol-slider::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; cursor: pointer; }
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); pointer-events: none; z-index: 1; }
     .vcard-overlay.zone-tap-video { pointer-events: auto; cursor: pointer; }
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
@@ -587,6 +593,9 @@ function toggleSiteWidth(){
       boutonSonHTML = `
         <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetVideoAcc(${index})">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+        <div class="vol-slider-wrap" id="volWrap-${index}">
+          <input type="range" class="vol-slider" id="volRange-${index}" min="0" max="100" value="100" oninput="reglerVolumeAcc(${index},'video',this.value)">
         </div>`;
     } else if (publication && publication.type === 'photo') {
       const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
@@ -597,6 +606,9 @@ function toggleSiteWidth(){
         boutonSonHTML = `
         <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetAudioAcc(${index})">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </div>
+        <div class="vol-slider-wrap" id="volWrap-${index}">
+          <input type="range" class="vol-slider" id="volRange-${index}" min="0" max="100" value="100" oninput="reglerVolumeAcc(${index},'audio',this.value)">
         </div>`;
       }
     } else {
@@ -688,6 +700,31 @@ function toggleSiteWidth(){
     });
     document.querySelectorAll('.son-btn-top').forEach(el => {
       el.style.top = '34px';
+    });
+    // ✅ Anti-chevauchement Suivre/Contacter ↔ colonne d'actions (Réalisation,
+    // j'aime, etc.) : ces deux blocs sont positionnés indépendamment (l'un
+    // depuis le haut, l'autre depuis le bas de la carte), donc sur une carte
+    // peu haute (fenêtre ordinateur réduite/non maximisée, ou mobile en
+    // paysage) le bas de la colonne d'actions peut remonter jusqu'à chevaucher
+    // Contacter. On calcule la vraie hauteur de chaque carte pour garder un
+    // espace minimum entre les deux — sans rien changer quand il y a
+    // largement la place (comportement identique à avant dans ce cas).
+    document.querySelectorAll('.vcard').forEach(card => {
+      const suivreWrap = card.querySelector('.btn-suivre-wrap');
+      const actionsR = card.querySelector('.actions-r');
+      if (!suivreWrap || !actionsR) return;
+      const cardH = card.clientHeight;
+      if (!cardH) return;
+      const minGap = 16;
+      const basSuivreWrap = 74 + suivreWrap.offsetHeight;
+      const topMinActionsR = basSuivreWrap + minGap;
+      const hauteurActionsR = actionsR.offsetHeight;
+      const bottomParDefaut = 70;
+      const topSiDefaut = cardH - bottomParDefaut - hauteurActionsR;
+      const bottomFinal = topSiDefaut < topMinActionsR
+        ? Math.max(8, cardH - hauteurActionsR - topMinActionsR)
+        : bottomParDefaut;
+      actionsR.style.bottom = bottomFinal + 'px';
     });
   }
 
@@ -1166,6 +1203,8 @@ function toggleSiteWidth(){
   // Son coupé par défaut (nécessaire pour la lecture automatique) : on
   // permet à l'utilisateur de l'activer/désactiver à tout moment.
   window.basculerMuetVideoAcc = function(index){
+    const btnSon = document.getElementById('son-btn-'+index);
+    if (btnSon && btnSon.dataset.suppressClick) { delete btnSon.dataset.suppressClick; return; }
     const vid = document.getElementById('vid-'+index);
     const ico = document.getElementById('sonIco-'+index);
     if (!vid) return;
@@ -1235,6 +1274,8 @@ function toggleSiteWidth(){
   // Musique attachée à une photo : même principe de coupure/activation du
   // son que pour une vidéo, mais sur l'élément <audio> dédié.
   window.basculerMuetAudioAcc = function(index){
+    const btnSon = document.getElementById('son-btn-'+index);
+    if (btnSon && btnSon.dataset.suppressClick) { delete btnSon.dataset.suppressClick; return; }
     const audio = document.getElementById('audio-'+index);
     const ico = document.getElementById('sonIco-'+index);
     if (!audio) return;
@@ -1245,6 +1286,64 @@ function toggleSiteWidth(){
         : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
     }
   };
+
+  // Réglage réel du volume (curseur révélé par appui long sur l'icône son) —
+  // val va de 0 à 100 ; 0 remet en muet, tout le reste active le son au
+  // niveau choisi. Fonctionne pour la vidéo comme pour la musique de photo.
+  window.reglerVolumeAcc = function(index, type, val){
+    const el = document.getElementById((type === 'video' ? 'vid-' : 'audio-') + index);
+    if (!el) return;
+    const v = Math.max(0, Math.min(100, Number(val) || 0)) / 100;
+    el.volume = v;
+    el.muted = (v === 0);
+    const ico = document.getElementById('sonIco-'+index);
+    if (ico) {
+      ico.innerHTML = el.muted
+        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
+        : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+    }
+  };
+
+  // Appui long (~420ms) sur l'icône son → ouvre le curseur de volume au lieu
+  // de couper/activer le son. Un tap normal (relâché avant le délai) garde
+  // exactement le comportement d'origine (basculerMuetVideoAcc/Audio).
+  function attacherVolumeLongPressAcc(){
+    document.querySelectorAll('.son-btn-top').forEach(btn => {
+      if (btn.dataset.volBound) return;
+      btn.dataset.volBound = '1';
+      const idx = btn.id.replace('son-btn-','');
+      let timer = null;
+      const fermerAutresAcc = () => {
+        document.querySelectorAll('.vol-slider-wrap.open').forEach(w => { if (w.id !== 'volWrap-'+idx) w.classList.remove('open'); });
+      };
+      const ouvrirCurseur = () => {
+        btn.dataset.suppressClick = '1';
+        fermerAutresAcc();
+        const wrap = document.getElementById('volWrap-'+idx);
+        const range = document.getElementById('volRange-'+idx);
+        const media = document.getElementById('vid-'+idx) || document.getElementById('audio-'+idx);
+        if (range && media) range.value = media.muted ? 0 : Math.round((media.volume||1) * 100);
+        if (wrap) wrap.classList.add('open');
+      };
+      const demarrer = (e) => { timer = setTimeout(ouvrirCurseur, 420); };
+      const annuler = () => { if (timer) { clearTimeout(timer); timer = null; } };
+      btn.addEventListener('touchstart', demarrer, { passive: true });
+      btn.addEventListener('touchend', annuler);
+      btn.addEventListener('touchcancel', annuler);
+      btn.addEventListener('mousedown', demarrer);
+      btn.addEventListener('mouseup', annuler);
+      btn.addEventListener('mouseleave', annuler);
+    });
+    // Toucher ailleurs sur la carte referme le curseur ouvert.
+    document.querySelectorAll('.vcard').forEach(card => {
+      if (card.dataset.volCloseBound) return;
+      card.dataset.volCloseBound = '1';
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.vol-slider-wrap') || e.target.closest('.son-btn-top')) return;
+        card.querySelectorAll('.vol-slider-wrap.open').forEach(w => w.classList.remove('open'));
+      });
+    });
+  }
 
   // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
   // document utilisateurs/{cible} (pas de lecture supplémentaire nécessaire
@@ -1988,6 +2087,7 @@ function toggleSiteWidth(){
         }
         feed.innerHTML += cartesHTML.join('');
         surveillerVideosVisiblesAcc();
+        attacherVolumeLongPressAcc();
         surveillerVuesAcc();
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
