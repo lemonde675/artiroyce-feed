@@ -7,7 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root { --red: #e63224; --green: #27a945; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6f8; color: #1c1e21; max-width: 480px; margin: 0 auto; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f6f8; color: #1c1e21; }
   .page { padding: 16px; }
   .btn-pub { display: inline-flex; align-items: center; gap: 6px; background: var(--red); color: #fff; border: none; border-radius: 22px; padding: 12px 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
   .card { background: #fff; border-radius: 14px; padding: 0; margin-top: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
@@ -39,7 +39,7 @@
   .filtre-pill.active[data-f="urgent"] { background: #e68a00; color: #fff; }
   .filtre-pill.active[data-f="offre"] { background: var(--green); color: #fff; }
   .filtre-pill.active[data-f="demande"] { background: var(--red); color: #fff; }
-  .barre-fixe-offres { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 50; background: #f5f6f8; padding-bottom: 6px; }
+  .barre-fixe-offres { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: #f5f6f8; padding-bottom: 6px; }
   #barreSpacer { flex-shrink: 0; }
   .zone-publier { background: #fff; padding: 9px 14px; border-radius: 18px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.08); margin-top: 2px; }
   .zone-publier .cp-av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#7a1a12,var(--red)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0; }
@@ -400,24 +400,49 @@ function melangerAleatoirement(liste){
   return liste.slice().sort((a, b) => ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id));
 }
 
-/* Classement du fil par paliers de priorité :
-   1. Mes propres offres/demandes
-   2. Les personnes que je suis (Suivre, propre à Offres)
-   3. Même pays (indicatif téléphonique, approximatif)
-   4. Le reste, mélangé aléatoirement de façon stable
+/* Classement du fil par paliers de priorité — aligné sur le classement
+   d'Accueil (mêmes règles, mêmes délais), avec un palier supplémentaire pour
+   ses propres offres/demandes fraîches :
+   1. Mes propres offres/demandes, publiées il y a moins de 72h → priorité
+      max, pour éviter qu'une offre qu'on vient de poster disparaisse
+      instantanément dans la masse.
+   2. Suivis ACTIFS (publié il y a moins de 15 jours) → priorité, triés du
+      plus récent au plus ancien.
+   3. Même pays ACTIF (publié il y a moins de 24h) → priorité temporaire,
+      triés du plus récent au plus ancien.
+   4. La masse (tout le reste — y compris mes propres offres passé 72h, ou un
+      suivi/compatriote devenu inactif) → mélange aléatoire, qui se
+      rafraîchit à chaque visite (pas figé indéfiniment, rien n'est jamais
+      supprimé par ce classement).
    Protégé par son propre détecteur d'erreur : en cas de souci, on revient
    simplement à l'ordre par date, le fil ne se bloque jamais à cause de ça. */
 function trierOffresParPriorite(liste){
   try {
     if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
-    const mesOffres = [], suivis = [], memePays = [], reste = [];
+    const maintenant = Date.now();
+    const tsOffre = (o) => (o.createdAt && o.createdAt.toMillis) ? o.createdAt.toMillis() : 0;
+    const publieeDepuisMoinsDe = (o, fenetreMs) => tsOffre(o) > 0 && (maintenant - tsOffre(o)) <= fenetreMs;
+
+    const mesOffresRecentes = [], suivisActifs = [], paysActifs = [], masse = [];
     liste.forEach(o => {
-      if (o.auteurUid === currentUser.uid) mesOffres.push(o);
-      else if (o.auteurUid && followedUidsOffres.has(o.auteurUid)) suivis.push(o);
-      else if (currentUser.paysPrefixe && o.paysPrefixe && o.paysPrefixe === currentUser.paysPrefixe) memePays.push(o);
-      else reste.push(o);
+      const estMoi = o.auteurUid === currentUser.uid;
+      const estSuivi = !!(o.auteurUid && followedUidsOffres.has(o.auteurUid));
+      const memePays = !!(currentUser.paysPrefixe && o.paysPrefixe && o.paysPrefixe === currentUser.paysPrefixe);
+
+      if (estMoi && publieeDepuisMoinsDe(o, SOIXANTE_DOUZE_H_MS)) mesOffresRecentes.push(o);
+      else if (estSuivi && publieeDepuisMoinsDe(o, QUINZE_JOURS_MS)) suivisActifs.push(o);
+      else if (memePays && publieeDepuisMoinsDe(o, VINGT_QUATRE_H_MS)) paysActifs.push(o);
+      else masse.push(o);
     });
-    return mesOffres.concat(suivis, memePays, melangerAleatoirement(reste));
+    function triParFraicheur(a, b) {
+      const diff = tsOffre(b) - tsOffre(a);
+      if (diff !== 0) return diff;
+      return ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id);
+    }
+    mesOffresRecentes.sort(triParFraicheur);
+    suivisActifs.sort(triParFraicheur);
+    paysActifs.sort(triParFraicheur);
+    return mesOffresRecentes.concat(suivisActifs, paysActifs, melangerAleatoirement(masse));
   } catch (e) {
     log('❌ Tri par priorité : ' + e.message + ' — retour à l\'ordre par date');
     return liste;
@@ -432,6 +457,8 @@ let _replyingTo = {};
 let _reactionEnCours = {};
 let listeCorbeille = [];
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+const SOIXANTE_DOUZE_H_MS = 72 * 60 * 60 * 1000;
+const VINGT_QUATRE_H_MS = 24 * 60 * 60 * 1000;
 
 function toast(msg){
   const el = document.getElementById('toastEl');
