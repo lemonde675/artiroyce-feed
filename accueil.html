@@ -74,10 +74,12 @@
     /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
     .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.82); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
-    .act-circle:active { transform: scale(1.15); }
-    .act-circle.liked { background: rgba(230,50,36,0.85); }
-    .act-n { font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
+    .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.55); -webkit-backdrop-filter: blur(6px) saturate(140%); backdrop-filter: blur(6px) saturate(140%); box-shadow: 0 3px 10px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), background 0.2s; }
+    .act-circle:active { transform: scale(1.22); }
+    .act-circle.liked { background: rgba(230,50,36,0.92); box-shadow: 0 3px 12px rgba(230,50,36,0.5); animation: actPop 0.32s cubic-bezier(.34,1.56,.64,1); }
+    .act-circle.liked .ico { fill: #fff; stroke: #fff; }
+    @keyframes actPop { 0%{transform:scale(1)} 45%{transform:scale(1.3)} 100%{transform:scale(1)} }
+    .act-n { font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
@@ -1318,7 +1320,31 @@ function toggleSiteWidth(){
     }
   };
 
-  // ── Commentaires (petite fiche, même esprit que le sélecteur de langue déjà présent) ──
+  // ── Commentaires (version riche : badges, réponses, j'aime — même esprit qu'actualite_v1) ──
+  const palettesCommAccueil = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
+  const mesReactionsCommAccueil = {};
+  const replyingToAccueil = {};
+  function escapeHtmlAccueil(str){
+    return String(str==null?'':str).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+  function tempsDepuisAccueil(ms){
+    const diff = Math.max(0, Date.now() - ms);
+    const min = Math.floor(diff/60000);
+    if (min < 1) return 'à l\'instant';
+    if (min < 60) return 'il y a ' + min + 'min';
+    const h = Math.floor(min/60);
+    if (h < 24) return 'il y a ' + h + 'h';
+    const j = Math.floor(h/24);
+    return 'il y a ' + j + 'j';
+  }
+  function premiereVilleAccueil(ville){
+    if (!ville) return '';
+    return String(ville).split(',')[0].split('/')[0].trim();
+  }
+
+
   // ── Galerie "Réalisation" — la vraie galerie portfolio de la personne
   // (alimentée par publication_v1.html), affichée sans quitter le fil. ──
   window.ouvrirGalerieAccueil = async function(cibleUid, pseudo){
@@ -1379,43 +1405,145 @@ function toggleSiteWidth(){
     idxAudioGalerieAccueil = idx;
   };
 
-  window.ouvrirCommentairesAccueil = async function(cibleUid, pseudo){
+  let _unsubCommentsAccueil = null;
+
+  window.ouvrirCommentairesAccueil = function(cibleUid, pseudo){
     let overlay = document.getElementById('commentsOverlayAccueil');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.className = 'moverlay';
       overlay.id = 'commentsOverlayAccueil';
-      overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('open'); };
-      overlay.innerHTML = '<div class="lsheet" style="max-height:70vh;display:flex;flex-direction:column">'
+      overlay.onclick = (e) => { if (e.target === overlay) { overlay.classList.remove('open'); if (_unsubCommentsAccueil) { _unsubCommentsAccueil(); _unsubCommentsAccueil = null; } } };
+      overlay.innerHTML = '<div class="lsheet" style="max-height:75vh;display:flex;flex-direction:column">'
         + '<div class="lhandle"></div>'
         + '<div class="ltitle" id="commentsTitreAccueil">Commentaires</div>'
         + '<div id="commentsListeAccueil" style="overflow-y:auto;padding:10px 16px;flex:1"></div>'
+        + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin:0 16px 8px;font-size:12px;color:#555" id="replyIndicAccueil">'
+        + '<span id="replyIndicTexteAccueil"></span>'
+        + '<span style="cursor:pointer;font-weight:800;color:#8e8e8e;padding:0 4px" onclick="annulerReponseAccueil()">✕</span>'
+        + '</div>'
         + '<div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid #eee">'
         + '<input id="commentsInputAccueil" placeholder="Ajouter un commentaire…" style="flex:1;border:1px solid #E8ECF0;border-radius:20px;padding:9px 14px;font-size:13px;outline:none">'
         + '<button onclick="envoyerCommentaireAccueil()" style="background:var(--red);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer">➤</button>'
         + '</div></div>';
       document.body.appendChild(overlay);
+      document.getElementById('commentsInputAccueil').addEventListener('keydown', e => { if (e.key === 'Enter') window.envoyerCommentaireAccueil(); });
     }
+    if (_unsubCommentsAccueil) { _unsubCommentsAccueil(); _unsubCommentsAccueil = null; }
     overlay.dataset.cible = cibleUid;
+    overlay.dataset.pseudo = pseudo;
+    window.annulerReponseAccueil();
     document.getElementById('commentsTitreAccueil').textContent = '💬 Commentaires — ' + pseudo;
     overlay.classList.add('open');
     const liste = document.getElementById('commentsListeAccueil');
     liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">Chargement…</div>';
+
+    _unsubCommentsAccueil = db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil')
+      .orderBy('createdAt','asc')
+      .onSnapshot(snap => {
+        const total = snap.size;
+        tousAvecId('comment-n-'+cibleUid).forEach(el => el.textContent = total);
+
+        const tous = [];
+        snap.forEach(d => tous.push({ id: d.id, ...d.data() }));
+        const parentDe = {};
+        tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
+        function trouverRacine(id){ let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
+        const principaux = tous.filter(c => !c.parentId).sort((a,b) => {
+          const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0, tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+          return tb - ta;
+        });
+        const reponsesParRacine = {};
+        tous.filter(c => c.parentId).forEach(c => {
+          const racine = trouverRacine(c.id);
+          (reponsesParRacine[racine] = reponsesParRacine[racine] || []).push(c);
+        });
+
+        function construireCommentaireAccueilHTML(c, racineId){
+          const estCreateur = c.uid === cibleUid;
+          const statut = estCreateur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
+          const initiale = (c.nom || '?')[0].toUpperCase();
+          const villeCourte = premiereVilleAccueil(c.ville);
+          const dejaAime = mesReactionsCommAccueil[c.id];
+          const wrap = document.createElement('div');
+          wrap.innerHTML =
+            '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
+            + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettesCommAccueil[initiale.charCodeAt(0) % palettesCommAccueil.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="goUserProfile(\'' + (c.uid||'') + '\')">' + escapeHtmlAccueil(initiale) + '</div>'
+            + '<div style="flex:1;min-width:0">'
+            +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
+            +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtmlAccueil(c.nom || 'Anonyme') + '</span>'
+            +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
+            +   '</div>'
+            +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtmlAccueil(c.texte) + '</div>'
+            +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
+            +     '<span>' + (villeCourte ? escapeHtmlAccueil(villeCourte) + ' · ' : '') + tempsDepuisAccueil(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
+            +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommAccueil(\'' + cibleUid + '\',\'' + c.id + '\')">' + (dejaAime ? 'Aimé' : "J'aime") + '</span>'
+            +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondreCommAccueil(\'' + racineId + '\',\'' + escapeHtmlAccueil(c.nom || '').replace(/'/g,"\\'") + '\')">Répondre</span>'
+            +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
+            +   '</div>'
+            + '</div>'
+            + '</div>';
+          return wrap;
+        }
+
+        if (!principaux.length) {
+          liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">Aucun commentaire pour l\'instant.</div>';
+          return;
+        }
+        liste.innerHTML = '';
+        principaux.forEach(c => {
+          liste.appendChild(construireCommentaireAccueilHTML(c, c.id));
+          const reponses = reponsesParRacine[c.id] || [];
+          if (reponses.length) {
+            const repZone = document.createElement('div');
+            repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+            const toggle2 = document.createElement('div');
+            toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
+            toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length > 1 ? 's' : '') + ' ▾';
+            toggle2.onclick = () => {
+              const frag = document.createDocumentFragment();
+              reponses.forEach(r => frag.appendChild(construireCommentaireAccueilHTML(r, c.id)));
+              repZone.appendChild(frag);
+              toggle2.remove();
+            };
+            repZone.appendChild(toggle2);
+            liste.appendChild(repZone);
+          }
+        });
+      }, e => {
+        console.error(e);
+        liste.innerHTML = '<div style="text-align:center;color:#e63224;font-size:12px;padding:20px">Impossible de charger les commentaires.</div>';
+      });
+  };
+
+  window.repondreCommAccueil = function(commentId, nom){
+    const overlay = document.getElementById('commentsOverlayAccueil');
+    overlay.dataset.reponseA = commentId;
+    overlay.dataset.reponseNom = nom;
+    const indic = document.getElementById('replyIndicAccueil');
+    const texteIndic = document.getElementById('replyIndicTexteAccueil');
+    if (indic && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indic.style.display = 'flex'; }
+    document.getElementById('commentsInputAccueil')?.focus();
+  };
+  window.annulerReponseAccueil = function(){
+    const overlay = document.getElementById('commentsOverlayAccueil');
+    if (overlay) { delete overlay.dataset.reponseA; delete overlay.dataset.reponseNom; }
+    const indic = document.getElementById('replyIndicAccueil');
+    if (indic) indic.style.display = 'none';
+  };
+
+  window.toggleAimeCommAccueil = async function(cibleUid, commentId){
+    if (!auth.currentUser) { toast('Connecte-toi pour réagir', ''); return; }
+    const ref = db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').doc(commentId);
     try {
-      const snap = await db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').orderBy('createdAt','desc').limit(30).get();
-      if (snap.empty) {
-        liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">Aucun commentaire pour l\'instant.</div>';
+      if (mesReactionsCommAccueil[commentId]) {
+        delete mesReactionsCommAccueil[commentId];
+        await ref.update({ likes: firebase.firestore.FieldValue.increment(-1) });
       } else {
-        liste.innerHTML = snap.docs.map(d => {
-          const c = d.data();
-          const nom = (c.nom||'Anonyme').replace(/</g,'&lt;');
-          const texte = (c.texte||'').replace(/</g,'&lt;');
-          return '<div style="margin-bottom:12px"><b style="font-size:13px">'+nom+'</b><div style="font-size:13px;color:#333">'+texte+'</div></div>';
-        }).join('');
+        mesReactionsCommAccueil[commentId] = true;
+        await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
       }
-    } catch(e) {
-      liste.innerHTML = '<div style="text-align:center;color:#e63224;font-size:12px;padding:20px">Impossible de charger les commentaires.</div>';
-    }
+    } catch(e) { console.error(e); }
   };
 
   window.envoyerCommentaireAccueil = async function(){
@@ -1426,19 +1554,18 @@ function toggleSiteWidth(){
     const texte = input.value.trim();
     if (!texte) return;
     input.value = '';
+    const reponseA = overlay.dataset.reponseA || null;
     try {
       const moiSnap = await getDoc(doc(db, 'utilisateurs', auth.currentUser.uid));
-      const monNom = (moiSnap.exists ? moiSnap.data().prenom : '') || 'Anonyme';
+      const moiData = moiSnap.exists ? moiSnap.data() : {};
+      const monNom = moiData.prenom || 'Anonyme';
       await db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').add({
-        uid: auth.currentUser.uid, nom: monNom, texte: texte, createdAt: serverTimestamp()
+        uid: auth.currentUser.uid, nom: monNom, texte: texte,
+        verifie: moiData.statut === 'verifie', ville: moiData.ville || moiData.adresse || '',
+        parentId: reponseA || null, createdAt: serverTimestamp(), likes: 0
       });
+      window.annulerReponseAccueil();
       await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
-      const compteEls = tousAvecId('comment-n-'+cibleUid);
-      if (compteEls.length) {
-        const nouvelleValeur = (parseInt(compteEls[0].textContent||'0')||0) + 1;
-        compteEls.forEach(el => el.textContent = nouvelleValeur);
-      }
-      window.ouvrirCommentairesAccueil(cibleUid, document.getElementById('commentsTitreAccueil').textContent.replace('💬 Commentaires — ',''));
     } catch(e) { console.error(e); toast('Erreur envoi commentaire', ''); }
   };
 
