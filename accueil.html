@@ -46,26 +46,6 @@
       .cca-fade-acc { padding: 16px 16px 18px; }
       video.vcard-bg { object-fit: contain; }
       div.vcard-bg[style*="background-image"] { background-size: contain !important; background-repeat: no-repeat !important; }
-      /* ✅ Ordinateur : la carte devient une rangée [profil | vidéo | actions].
-         Vidéo agrandie et colonnes resserrées, tenu dans ~470px de large pour
-         rester dans la largeur de 480px déjà gérée par le bouton <> existant
-         (mécanisme de swipe partagé par tous les onglets — pas touché).
-         Centré verticalement (pas collé en bas) pour éviter tout débordement
-         vers l'en-tête si le contenu de la colonne profil est plus haut que
-         la vidéo. Mobile non concerné : rien ici ne s'applique sous 768px. */
-      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; overflow: visible; }
-      .video-frame { position: relative; inset: auto; width: 285px; aspect-ratio: 9 / 16; max-height: 80vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
-      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 12px 10px; padding-top: 12px !important; width: 85px; flex-shrink: 0; background: rgba(10,10,20,0.55); border-radius: 14px; box-sizing: border-box; }
-      .center-col-flex .info-btns { display: none; }
-      /* Avatar : le décalage négatif (pensé pour flotter sur la vidéo en mobile)
-         le fait sortir du cadre de la carte ici → annulé sur ordinateur. */
-      .info-avatar { margin-top: 0; }
-      /* "Professionnel" avant le globe au lieu d'après (demande explicite) */
-      .info-job { flex-direction: row-reverse; justify-content: flex-end; }
-      /* Le badge "Vérifié" quitte la vidéo (il cachait le visage) et
-         réapparaît sous @pseudo, dans la colonne de profil. */
-      .badge-v { display: none; }
-      .badge-v-col { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px 5px 7px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); margin-top: 6px; margin-bottom: 4px; }
     }
 
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
@@ -121,6 +101,34 @@
        quelle que soit la hauteur de la fenêtre (ordinateur ou mobile). */
     .center-col-flex { position: absolute; inset: 0; left: 12px; right: 62px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 62px; pointer-events: none; }
     .right-col-flex { position: absolute; inset: 0; left: auto; right: 8px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-top: 74px; padding-bottom: 70px; }
+
+    /* ══════════════════════════════════
+       ✅ ORDINATEUR — carte [profil | vidéo | actions]
+       Placé ICI (après les règles de base ci-dessus) volontairement :
+       en CSS, à spécificité égale, c'est la règle la plus basse dans le
+       fichier qui gagne. Un bloc @media placé plus haut que ces règles de
+       base se faisait silencieusement écraser par elles sur ordinateur —
+       c'était la cause des soucis précédents, pas les valeurs elles-mêmes.
+       Mobile non concerné : rien ici ne s'applique sous 768px.
+    ══════════════════════════════════ */
+    @media (min-width: 768px) {
+      .vcard { max-width: none; width: 100%; margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px; overflow: visible; }
+      /* Largeur ajustée uniquement — hauteur indépendante, comme avant (haut/bas inchangés) */
+      .video-frame { position: relative; inset: auto; width: 220px; height: 80%; max-height: 70vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; }
+      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 12px 10px; padding-top: 12px !important; width: 92px; flex-shrink: 0; background: rgba(8,8,20,0.92); border-radius: 14px; box-sizing: border-box; }
+      .center-col-flex .info-btns { display: none; }
+      /* Un seul globe (celui à côté de "Professionnel") — le second, en double, disparaît */
+      .info-globe-small { display: none; }
+      /* Avatar : le décalage négatif (pensé pour flotter sur la vidéo en mobile)
+         le fait sortir du cadre de la carte ici → annulé sur ordinateur. */
+      .info-avatar { margin-top: 0; }
+      /* "Professionnel" avant le globe au lieu d'après (demande explicite) */
+      .info-job { flex-direction: row-reverse; justify-content: flex-end; }
+      /* Le badge "Vérifié" quitte la vidéo (il cachait le visage) et
+         réapparaît sous @pseudo, dans la colonne de profil. */
+      .badge-v { display: none; }
+      .badge-v-col { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px 5px 7px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); margin-top: 6px; margin-bottom: 4px; }
+    }
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 24px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; margin-top: 14px; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
