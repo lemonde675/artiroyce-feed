@@ -171,7 +171,9 @@
        VERSION ORDINATEUR / PC
     ══════════════════════════════════ */
     @media (min-width: 768px) {
-      body { background: #0a0a2e; }
+      html { max-width: none; width: 100%; background: #0a0a2e; }
+      body { max-width: none !important; width: 100% !important; margin: 0 !important; box-shadow: none; }
+      .top-header, .bot-nav, .panels-container { max-width: none !important; width: 100% !important; }
       .feed-wrap, .panel-slide { scrollbar-width: thin; }
       .feed-wrap::-webkit-scrollbar { display: block; width: 6px; }
       .feed-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 4px; }
@@ -686,6 +688,34 @@ function toggleSiteWidth(){
     });
     document.querySelectorAll('.son-btn-top').forEach(el => {
       el.style.top = '34px';
+    });
+
+    // ✅ CORRECTION anti-collision (fenêtres d'ordinateur basses) :
+    // ne fait rien si l'espace est déjà suffisant (cas du mobile) ;
+    // remonte légèrement le bloc du haut seulement en cas de chevauchement réel.
+    document.querySelectorAll('.vcard').forEach(card => {
+      const infoTop = card.querySelector('.info-top');
+      const infoBot = card.querySelector('.info-bot');
+      if (infoTop && infoBot) {
+        const rTop = infoTop.getBoundingClientRect();
+        const rBot = infoBot.getBoundingClientRect();
+        const chevauchement = rTop.bottom - rBot.top + 10; // 10px de marge de sécurité
+        if (chevauchement > 0) {
+          const topActuel = parseFloat(infoTop.style.top) || 0;
+          infoTop.style.top = Math.max(8, topActuel - chevauchement) + 'px';
+        }
+      }
+      const suivreWrap = card.querySelector('.btn-suivre-wrap');
+      const actionsR = card.querySelector('.actions-r');
+      if (suivreWrap && actionsR) {
+        const rSuivre = suivreWrap.getBoundingClientRect();
+        const rActions = actionsR.getBoundingClientRect();
+        const chevauchement2 = rSuivre.bottom - rActions.top + 10;
+        if (chevauchement2 > 0) {
+          const topActuel2 = parseFloat(suivreWrap.style.top) || 0;
+          suivreWrap.style.top = Math.max(8, topActuel2 - chevauchement2) + 'px';
+        }
+      }
     });
   }
 
