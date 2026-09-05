@@ -32,8 +32,7 @@
     .tab-green-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; }
     .feed-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); top: var(--header-h, 0px); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 64px; }
     .feed-wrap::-webkit-scrollbar { display: none; }
-    .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); scroll-snap-align: start; position: relative; flex-shrink: 0; }
-    .video-frame { position: absolute; inset: 0; overflow: hidden; }
+    .vcard { width: 100%; height: 100vh; height: calc(var(--vh, 1vh) * 100); height: calc((var(--vh, 1vh) * 100) - var(--header-h, 0px)); scroll-snap-align: start; position: relative; overflow: hidden; flex-shrink: 0; }
     .vcard-bg { position: absolute; inset: 0; }
     video.vcard-bg { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
@@ -46,6 +45,7 @@
       .cca-fade-acc { padding: 16px 16px 18px; }
       video.vcard-bg { object-fit: contain; }
       div.vcard-bg[style*="background-image"] { background-size: contain !important; background-repeat: no-repeat !important; }
+      .vcard { max-width: 480px; margin: 0 auto; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
     }
 
     /* ── Carrousel "Nos coups de cœur" — repris du modèle Actualités,
@@ -67,15 +67,12 @@
     .vid-seek-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: #fff; border-radius: 2px; }
     .son-btn-top { position: absolute; right: 12px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 15; cursor: pointer; }
     .son-btn-top svg { width: 15px; height: 15px; }
-    .vol-slider-wrap { position: absolute; right: 12px; width: 30px; height: 90px; display: flex; align-items: center; justify-content: center; z-index: 15; background: rgba(0,0,0,0.45); border-radius: 15px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .vol-slider-wrap.show { opacity: 1; pointer-events: auto; }
-    .vol-slider { writing-mode: vertical-lr; direction: rtl; width: 4px; height: 74px; accent-color: #fff; cursor: pointer; }
     .vcard-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, transparent 30%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.75) 100%); pointer-events: none; z-index: 1; }
     .vcard-overlay.zone-tap-video { pointer-events: auto; cursor: pointer; }
     .badge-v { position: absolute; left: 12px; display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px 6px 8px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); z-index: 10; }
-    .badge-v-col { display: none; }
     .badge-v-check { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; }
-    .actions-r { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+    /* ✅ CORRECTION : actions-r poussé vers le haut de 140px */
+    .actions-r { position: absolute; right: 10px; bottom: 70px; display: flex; flex-direction: column; gap: 6px; align-items: center; z-index: 10; }
     .act-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
     .act-circle { width: 36px; height: 36px; border-radius: 50%; background: rgba(8,15,55,0.55); -webkit-backdrop-filter: blur(6px) saturate(140%); backdrop-filter: blur(6px) saturate(140%); box-shadow: 0 3px 10px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), background 0.2s; }
     .act-circle:active { transform: scale(1.22); }
@@ -85,51 +82,17 @@
     .act-n { font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .act-lbl { font-size: 9px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.9); line-height: 1; }
     .ico { width: 17px; height: 17px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .info-top { pointer-events: none; }
+    .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
     .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: auto; }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
-    .info-job-globe-big { font-size: 14px; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.18); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
     .info-globe-small { font-size: 16px; margin-bottom: 14px; display: block; }
     .info-user { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; text-decoration: underline; text-underline-offset: 2px; }
     .info-desc { font-size: 12px; color: rgba(255,255,255,0.88); margin-top: 4px; margin-bottom: 4px; line-height: 1.4; }
     .info-stars { margin-top: 4px; font-size: 16px; letter-spacing: 1px; }
-    .info-bot { pointer-events: none; }
-    /* ✅ Conteneurs flex — remplacent les positions absolues devinées en pixels :
-       le haut et le bas de chaque colonne ne peuvent plus jamais se chevaucher,
-       quelle que soit la hauteur de la fenêtre (ordinateur ou mobile). */
-    .center-col-flex { position: absolute; inset: 0; left: 12px; right: 62px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 62px; pointer-events: none; }
-    .right-col-flex { position: absolute; inset: 0; left: auto; right: 8px; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; padding-top: 74px; padding-bottom: 70px; }
-
-    /* ══════════════════════════════════
-       ✅ ORDINATEUR — carte [profil | vidéo | actions]
-       Placé ICI (après les règles de base ci-dessus) volontairement :
-       en CSS, à spécificité égale, c'est la règle la plus basse dans le
-       fichier qui gagne. Un bloc @media placé plus haut que ces règles de
-       base se faisait silencieusement écraser par elles sur ordinateur —
-       c'était la cause des soucis précédents, pas les valeurs elles-mêmes.
-       Mobile non concerné : rien ici ne s'applique sous 768px.
-    ══════════════════════════════════ */
-    @media (min-width: 768px) {
-      .vcard { max-width: none; width: 100vw; position: relative; left: 50%; transform: translateX(-50%); margin: 0; box-shadow: none; display: flex; flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 6px 50px 0; box-sizing: border-box; overflow: visible; }
-      /* Largeur ajustée uniquement — hauteur indépendante, comme avant (haut/bas inchangés) */
-      .video-frame { position: relative; inset: auto; width: 340px; min-width: 160px; flex-shrink: 3; height: 80%; max-height: 70vh; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-      .center-col-flex, .right-col-flex { position: static; inset: auto; padding: 16px 14px; padding-top: 16px !important; width: 130px; min-width: 78px; flex-shrink: 1; background: rgba(8,8,20,0.92); border-radius: 14px; box-sizing: border-box; }
-      .center-col-flex .info-btns { display: none; }
-      /* Un seul globe (celui à côté de "Professionnel") — le second, en double, disparaît */
-      .info-globe-small { display: none; }
-      /* Avatar : le décalage négatif (pensé pour flotter sur la vidéo en mobile)
-         le fait sortir du cadre de la carte ici → annulé sur ordinateur. */
-      .info-avatar { margin-top: 0; }
-      /* "Professionnel" avant le globe au lieu d'après (demande explicite) */
-      .info-job { flex-direction: row-reverse; justify-content: flex-end; flex-wrap: wrap; }
-      .info-job-name { font-size: 13px; min-width: 0; overflow-wrap: break-word; }
-      /* Le badge "Vérifié" quitte la vidéo (il cachait le visage) et
-         réapparaît sous @pseudo, dans la colonne de profil. */
-      .badge-v { display: none; }
-      .badge-v-col { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px 5px 7px; border-radius: 24px; box-shadow: 0 2px 10px rgba(39,169,69,0.5); margin-top: 6px; margin-bottom: 4px; }
-    }
+    .info-bot { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
     .info-metier { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin-bottom: 16px; margin-top: 24px; }
     .info-btns { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden; max-width: 100%; margin-top: 14px; }
     .btn-disc { display: flex; align-items: center; gap: 6px; background: var(--green); color: #fff; border: none; border-radius: 24px; padding: 9px 16px; font-size: 14px; font-weight: 700; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -175,7 +138,7 @@
     .panel-placeholder .ph-icon { font-size: 60px; opacity: 0.5; }
     .panel-placeholder .ph-title { font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
     .panel-placeholder .ph-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
-    .btn-suivre-wrap { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    .btn-suivre-wrap { position: absolute; right: 8px; z-index: 10; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
     .btn-suivre { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-contacter { font-size: 11px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 16px; padding: 4px 10px; background: transparent; cursor: pointer; white-space: nowrap; }
     .bg0 { background: linear-gradient(160deg,#0d2b0f,#1a5e20,#0a3d1f); }
@@ -624,9 +587,6 @@ function toggleSiteWidth(){
       boutonSonHTML = `
         <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetVideoAcc(${index})">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-        </div>
-        <div class="vol-slider-wrap" id="volWrap-${index}">
-          <input type="range" class="vol-slider" id="volSlider-${index}" min="0" max="1" step="0.05" value="1" oninput="reglerVolumeAcc(${index},this.value,'video')">
         </div>`;
     } else if (publication && publication.type === 'photo') {
       const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
@@ -637,9 +597,6 @@ function toggleSiteWidth(){
         boutonSonHTML = `
         <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetAudioAcc(${index})">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-        </div>
-        <div class="vol-slider-wrap" id="volWrap-${index}">
-          <input type="range" class="vol-slider" id="volSlider-${index}" min="0" max="1" step="0.05" value="1" oninput="reglerVolumeAcc(${index},this.value,'audio')">
         </div>`;
       }
     } else {
@@ -647,36 +604,11 @@ function toggleSiteWidth(){
     }
 
     return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}" data-pseudo="${pseudo}">
-      <div class="center-col-flex">
-      <div class="info-top">
-        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
-        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
-        <span class="info-globe-small">🌍</span>
-        <div class="info-user">${pseudo}</div>
-        <div class="badge-v-col"><div class="badge-v-check">✔</div>Vérifié</div>
-      </div>
-      <div class="info-bot">
-        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
-        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
-        <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
-        <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
-        <div class="info-btns">
-          <span class="wm-inline">
-            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
-            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
-            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
-          </span>
-        </div>
-      </div>
-      </div>
-      <div class="video-frame">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
       <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>Vérifié</div>
-      </div>
-      <div class="right-col-flex">
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">+ Suivre</button>
         <button class="btn-contacter" onclick="contacterDepuisAccueil('${uid}','${pseudo}')">Contacter</button>
@@ -688,15 +620,15 @@ function toggleSiteWidth(){
         </div>
         <div class="act-btn" id="like-btn-${uid}" onclick="reagirAccueil('${uid}','like')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-          <span class="act-n" id="like-n-${uid}">${data.likesAccueil||0}</span>
+          <span class="act-n" id="like-n-${uid}" data-raw="${data.likesAccueil||0}">${formatCompactAccueil(data.likesAccueil||0)}</span>
         </div>
         <div class="act-btn" id="dislike-btn-${uid}" onclick="reagirAccueil('${uid}','dislike')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-          <span class="act-n" id="dislike-n-${uid}">${data.dislikesAccueil||0}</span>
+          <span class="act-n" id="dislike-n-${uid}" data-raw="${data.dislikesAccueil||0}">${formatCompactAccueil(data.dislikesAccueil||0)}</span>
         </div>
         <div class="act-btn" onclick="ouvrirCommentairesAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <span class="act-n" id="comment-n-${uid}">${data.commentsAccueil||0}</span>
+          <span class="act-n" id="comment-n-${uid}" data-raw="${data.commentsAccueil||0}">${formatCompactAccueil(data.commentsAccueil||0)}</span>
         </div>
         <div class="act-btn" id="save-btn-${uid}" onclick="toggleSauverAccueil('${uid}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
@@ -711,6 +643,24 @@ function toggleSiteWidth(){
           <span class="act-lbl">Partager</span>
         </div>
       </div>
+      <div class="info-top">
+        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
+        <span class="info-globe-small">🌍</span>
+        <div class="info-user">${pseudo}</div>
+      </div>
+      <div class="info-bot">
+        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
+        <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">🧭 Obtenir l'itinéraire</button>
+        <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
+        <div class="info-btns">
+          <span class="wm-inline">
+            <span style="display:flex;align-items:center;gap:3px;">${wmSVG}<span class="wm-brand"><span class="a">Arti</span><span class="r">Royce</span></span></span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.85);">${pseudo}</span>
+            <span style="font-size:8px;color:rgba(255,255,255,0.5);font-style:italic;">Téléchargé sur ArtiRoyce</span>
+          </span>
+        </div>
       </div>
     </div>`;
   }
@@ -721,24 +671,23 @@ function toggleSiteWidth(){
     document.getElementById('hSpacer').style.height = hh + 'px';
     const accSearchBar = document.getElementById('accSearchBar');
     if (accSearchBar) accSearchBar.style.top = hh + 'px';
+    document.querySelectorAll('.btn-suivre-wrap').forEach(el => {
+      el.style.top = '74px';
+    });
     document.querySelectorAll('.badge-v').forEach(el => {
       el.style.top = Math.max(8, 170 - hh) + 'px';
     });
-    // ✅ Même formule qu'avant (inchangée), appliquée au conteneur .center-col-flex
-    // au lieu de .info-top directement : le bas (.info-bot) est géré par le flex
-    // (justify-content:space-between + padding-bottom fixe en CSS), donc les deux
-    // ne peuvent plus jamais se chevaucher, quelle que soit la hauteur d'écran.
-    document.querySelectorAll('.center-col-flex').forEach(el => {
-      el.style.paddingTop = Math.max(8, 285 - hh) + 'px';
+    document.querySelectorAll('.info-top').forEach(el => {
+      el.style.top = Math.max(8, 285 - hh) + 'px';
+    });
+    document.querySelectorAll('.info-bot').forEach(el => {
+      el.style.bottom = '62px';
     });
     document.querySelectorAll('.vid-seek-wrap').forEach(el => {
       el.style.top = '10px';
     });
     document.querySelectorAll('.son-btn-top').forEach(el => {
       el.style.top = '34px';
-    });
-    document.querySelectorAll('.vol-slider-wrap').forEach(el => {
-      el.style.top = '70px';
     });
   }
 
@@ -1216,46 +1165,16 @@ function toggleSiteWidth(){
 
   // Son coupé par défaut (nécessaire pour la lecture automatique) : on
   // permet à l'utilisateur de l'activer/désactiver à tout moment.
-  window._volTimersAcc = {};
-  function afficherCurseurVolumeAcc(index, valeurActuelle){
-    const wrap = document.getElementById('volWrap-'+index);
-    const slider = document.getElementById('volSlider-'+index);
-    if (!wrap || !slider) return;
-    slider.value = valeurActuelle;
-    wrap.classList.add('show');
-    if (window._volTimersAcc[index]) clearTimeout(window._volTimersAcc[index]);
-    window._volTimersAcc[index] = setTimeout(() => wrap.classList.remove('show'), 2500);
-  }
-  // Réglage progressif du volume via le petit curseur qui apparaît au clic
-  // sur le bouton son (0 = coupé, 1 = plein volume) — vidéo ou musique de photo.
-  window.reglerVolumeAcc = function(index, valeur, type){
-    const el = document.getElementById((type === 'video' ? 'vid-' : 'audio-') + index);
-    const ico = document.getElementById('sonIco-'+index);
-    if (!el) return;
-    const v = parseFloat(valeur);
-    el.volume = v;
-    el.muted = (v <= 0);
-    if (ico) {
-      ico.innerHTML = el.muted
-        ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
-        : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
-    }
-    if (window._volTimersAcc[index]) clearTimeout(window._volTimersAcc[index]);
-    const wrap = document.getElementById('volWrap-'+index);
-    if (wrap) window._volTimersAcc[index] = setTimeout(() => wrap.classList.remove('show'), 2500);
-  };
   window.basculerMuetVideoAcc = function(index){
     const vid = document.getElementById('vid-'+index);
     const ico = document.getElementById('sonIco-'+index);
     if (!vid) return;
     vid.muted = !vid.muted;
-    if (!vid.muted && vid.volume === 0) vid.volume = 1;
     if (ico) {
       ico.innerHTML = vid.muted
         ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
         : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
     }
-    afficherCurseurVolumeAcc(index, vid.muted ? 0 : vid.volume);
   };
 
   // Surveillance de visibilité : seule la vidéo bien visible à l'écran
@@ -1320,13 +1239,11 @@ function toggleSiteWidth(){
     const ico = document.getElementById('sonIco-'+index);
     if (!audio) return;
     audio.muted = !audio.muted;
-    if (!audio.muted && audio.volume === 0) audio.volume = 1;
     if (ico) {
       ico.innerHTML = audio.muted
         ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>'
         : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
     }
-    afficherCurseurVolumeAcc(index, audio.muted ? 0 : audio.volume);
   };
 
   // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
@@ -1344,8 +1261,8 @@ function toggleSiteWidth(){
     const dislikeNs = tousAvecId('dislike-n-'+cibleUid);
     const likeBtns = tousAvecId('like-btn-'+cibleUid);
     const dislikeBtns = tousAvecId('dislike-btn-'+cibleUid);
-    const lireN = (els) => els.length ? (parseInt(els[0].textContent||'0')||0) : 0;
-    const ecrireN = (els, val) => els.forEach(el => el.textContent = val);
+    const lireN = (els) => els.length ? (parseInt(els[0].dataset.raw||'0')||0) : 0;
+    const ecrireN = (els, val) => els.forEach(el => { el.dataset.raw = val; el.textContent = formatCompactAccueil(val); });
     try {
       if (ancien === type) {
         // On retire sa réaction
@@ -1425,6 +1342,14 @@ function toggleSiteWidth(){
   function premiereVilleAccueil(ville){
     if (!ville) return '';
     return String(ville).split(',')[0].split('/')[0].trim();
+  }
+  // Format compact des compteurs (like/dislike/commentaires), style TikTok :
+  // < 1000 → nombre brut ; 1000-999999 → "x,xk" ; ≥ 1000000 → "x,xM".
+  function formatCompactAccueil(n){
+    n = Number(n) || 0;
+    if (n < 1000) return String(n);
+    if (n < 1000000) return (n/1000).toFixed(1).replace('.', ',') + 'k';
+    return (n/1000000).toFixed(1).replace('.', ',') + 'M';
   }
 
 
@@ -1525,7 +1450,7 @@ function toggleSiteWidth(){
       .orderBy('createdAt','asc')
       .onSnapshot(snap => {
         const total = snap.size;
-        tousAvecId('comment-n-'+cibleUid).forEach(el => el.textContent = total);
+        tousAvecId('comment-n-'+cibleUid).forEach(el => { el.dataset.raw = total; el.textContent = formatCompactAccueil(total); });
 
         const tous = [];
         snap.forEach(d => tous.push({ id: d.id, ...d.data() }));
