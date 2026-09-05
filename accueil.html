@@ -591,7 +591,7 @@ function toggleSiteWidth(){
         <div class="vid-seek-track"><div class="vid-seek-fill" id="vidSeekFill-${index}"></div></div>
       </div>`;
       boutonSonHTML = `
-        <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetVideoAcc(${index})">
+        <div class="son-btn-top" id="son-btn-${index}" onclick="toggleVolumeSliderAcc(${index},'video')">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
         </div>
         <div class="vol-slider-wrap" id="volWrap-${index}">
@@ -604,7 +604,7 @@ function toggleSiteWidth(){
         const musicUrlEsc = String(publication.musicUrl).replace(/'/g, "\\'");
         bgHTML += `<audio id="audio-${index}" data-idx="${index}" src="${musicUrlEsc}" loop muted></audio>`;
         boutonSonHTML = `
-        <div class="son-btn-top" id="son-btn-${index}" onclick="basculerMuetAudioAcc(${index})">
+        <div class="son-btn-top" id="son-btn-${index}" onclick="toggleVolumeSliderAcc(${index},'audio')">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
         </div>
         <div class="vol-slider-wrap" id="volWrap-${index}">
@@ -1203,8 +1203,6 @@ function toggleSiteWidth(){
   // Son coupé par défaut (nécessaire pour la lecture automatique) : on
   // permet à l'utilisateur de l'activer/désactiver à tout moment.
   window.basculerMuetVideoAcc = function(index){
-    const btnSon = document.getElementById('son-btn-'+index);
-    if (btnSon && btnSon.dataset.suppressClick) { delete btnSon.dataset.suppressClick; return; }
     const vid = document.getElementById('vid-'+index);
     const ico = document.getElementById('sonIco-'+index);
     if (!vid) return;
@@ -1274,8 +1272,6 @@ function toggleSiteWidth(){
   // Musique attachée à une photo : même principe de coupure/activation du
   // son que pour une vidéo, mais sur l'élément <audio> dédié.
   window.basculerMuetAudioAcc = function(index){
-    const btnSon = document.getElementById('son-btn-'+index);
-    if (btnSon && btnSon.dataset.suppressClick) { delete btnSon.dataset.suppressClick; return; }
     const audio = document.getElementById('audio-'+index);
     const ico = document.getElementById('sonIco-'+index);
     if (!audio) return;
@@ -1304,37 +1300,22 @@ function toggleSiteWidth(){
     }
   };
 
-  // Appui long (~420ms) sur l'icône son → ouvre le curseur de volume au lieu
-  // de couper/activer le son. Un tap normal (relâché avant le délai) garde
-  // exactement le comportement d'origine (basculerMuetVideoAcc/Audio).
-  function attacherVolumeLongPressAcc(){
-    document.querySelectorAll('.son-btn-top').forEach(btn => {
-      if (btn.dataset.volBound) return;
-      btn.dataset.volBound = '1';
-      const idx = btn.id.replace('son-btn-','');
-      let timer = null;
-      const fermerAutresAcc = () => {
-        document.querySelectorAll('.vol-slider-wrap.open').forEach(w => { if (w.id !== 'volWrap-'+idx) w.classList.remove('open'); });
-      };
-      const ouvrirCurseur = () => {
-        btn.dataset.suppressClick = '1';
-        fermerAutresAcc();
-        const wrap = document.getElementById('volWrap-'+idx);
-        const range = document.getElementById('volRange-'+idx);
-        const media = document.getElementById('vid-'+idx) || document.getElementById('audio-'+idx);
-        if (range && media) range.value = media.muted ? 0 : Math.round((media.volume||1) * 100);
-        if (wrap) wrap.classList.add('open');
-      };
-      const demarrer = (e) => { timer = setTimeout(ouvrirCurseur, 420); };
-      const annuler = () => { if (timer) { clearTimeout(timer); timer = null; } };
-      btn.addEventListener('touchstart', demarrer, { passive: true });
-      btn.addEventListener('touchend', annuler);
-      btn.addEventListener('touchcancel', annuler);
-      btn.addEventListener('mousedown', demarrer);
-      btn.addEventListener('mouseup', annuler);
-      btn.addEventListener('mouseleave', annuler);
-    });
-    // Toucher ailleurs sur la carte referme le curseur ouvert.
+  // Clic sur l'icône son → ouvre/ferme le curseur de volume (simple, pas
+  // besoin de maintenir). Glisser le curseur règle le volume (0 = muet).
+  window.toggleVolumeSliderAcc = function(index, type){
+    const wrap = document.getElementById('volWrap-'+index);
+    if (!wrap) return;
+    const dejaOuvert = wrap.classList.contains('open');
+    document.querySelectorAll('.vol-slider-wrap.open').forEach(w => w.classList.remove('open'));
+    if (dejaOuvert) return;
+    const range = document.getElementById('volRange-'+index);
+    const media = document.getElementById((type === 'video' ? 'vid-' : 'audio-') + index);
+    if (range && media) range.value = media.muted ? 0 : Math.round((media.volume||1) * 100);
+    wrap.classList.add('open');
+  };
+
+  // Toucher ailleurs sur la carte referme un curseur de volume ouvert.
+  function attacherFermetureVolumeAcc(){
     document.querySelectorAll('.vcard').forEach(card => {
       if (card.dataset.volCloseBound) return;
       card.dataset.volCloseBound = '1';
@@ -2087,7 +2068,7 @@ function toggleSiteWidth(){
         }
         feed.innerHTML += cartesHTML.join('');
         surveillerVideosVisiblesAcc();
-        attacherVolumeLongPressAcc();
+        attacherFermetureVolumeAcc();
         surveillerVuesAcc();
         nombreAffichesAcc += lot.length;
         if (nombreAffichesAcc < tousLesPros.length) {
