@@ -10,9 +10,9 @@
 :root{--red:#e63224;--green:#27a945;--bg:#F2F4F7}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
 html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x:none;touch-action:pan-y}
-.body-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100vh;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;background:var(--bg);overscroll-behavior-x:none}
+.body-wrap{position:fixed;top:0;left:0;right:0;height:100vh;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;background:var(--bg);overscroll-behavior-x:none}
 .spacer{flex-shrink:0}
-.top-header{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.top-header{position:fixed;top:0;left:0;right:0;background:#fff;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .th-row{display:flex;align-items:center;justify-content:space-between;padding:6px 12px 4px}
 .th-logo{font-size:22px;font-weight:900;line-height:1;letter-spacing:-0.5px}
 .th-logo .a{color:var(--red)}.th-logo .r{color:var(--green)}
@@ -302,6 +302,8 @@ const Timestamp = firebase.firestore.Timestamp;
 
 
 const FIFTEEN_DAYS_MS = 15*24*60*60*1000;
+const SOIXANTE_DOUZE_H_MS = 72*60*60*1000;
+const VINGT_QUATRE_H_MS = 24*60*60*1000;
 let currentUid = null;
 let currentUserData = null;
 
@@ -416,24 +418,49 @@ function melangerAleatoirementFP(liste){
   return liste.slice().sort(function(a,b){ return ordreAleatoireStableFP(a[0]) - ordreAleatoireStableFP(b[0]); });
 }
 
-/* Classement des publications des autres, par palier :
-   1. Les personnes que je suis
-   2. Même pays (indicatif téléphonique, approximatif)
-   3. Le reste, mélangé de façon stable (pas remélangé à chaque rafraîchissement)
-   "Mes publications" a déjà sa propre section séparée en haut, donc pas de
-   palier "moi" ici. Protégé par son propre filet de sécurité : en cas de
-   souci, on revient à l'ordre par date. */
-function trierAutresParPriorite(liste){
+/* Classement unifié du fil (mes publications + celles des autres), aligné sur
+   le classement d'Accueil/Actualités/Offres (mêmes règles, mêmes délais) :
+   1. Mes propres publications, publiées il y a moins de 72h → priorité max,
+      pour éviter qu'une publication qu'on vient de poster disparaisse
+      instantanément dans la masse.
+   2. Suivis ACTIFS (publié il y a moins de 15 jours) → priorité, triés du
+      plus récent au plus ancien.
+   3. Même pays ACTIF (publié il y a moins de 24h) → priorité temporaire,
+      triés du plus récent au plus ancien.
+   4. La masse (tout le reste — y compris mes propres publications passé 72h,
+      ou un suivi/compatriote devenu inactif) → mélange aléatoire, qui se
+      rafraîchit à chaque visite (pas figé indéfiniment, rien n'est jamais
+      supprimé par ce classement).
+   Protégé par son propre filet de sécurité : en cas de souci, on revient à
+   l'ordre par date. */
+function trierFeedParPrioriteFP(liste){
   try{
     if(!Array.isArray(liste) || liste.length < 2) return liste;
-    const suivis = [], memePays = [], reste = [];
+    const maintenant = Date.now();
+    const tsPost = function(p){ return (p.createdAt && p.createdAt.toMillis) ? p.createdAt.toMillis() : 0; };
+    const publieeDepuisMoinsDe = function(p, fenetreMs){ const ts = tsPost(p); return ts > 0 && (maintenant - ts) <= fenetreMs; };
+
+    const mesPostsRecents = [], suivisActifs = [], paysActifs = [], masse = [];
     liste.forEach(function(x){
       const p = x[1];
-      if(p.uid && followedUidsFilPresse.has(p.uid)) suivis.push(x);
-      else if(monPaysPrefixe && p.paysPrefixe && p.paysPrefixe === monPaysPrefixe) memePays.push(x);
-      else reste.push(x);
+      const estMoi = !!(currentUid && p.uid === currentUid);
+      const estSuivi = !!(p.uid && followedUidsFilPresse.has(p.uid));
+      const memePays = !!(monPaysPrefixe && p.paysPrefixe && p.paysPrefixe === monPaysPrefixe);
+
+      if(estMoi && publieeDepuisMoinsDe(p, SOIXANTE_DOUZE_H_MS)) mesPostsRecents.push(x);
+      else if(estSuivi && publieeDepuisMoinsDe(p, FIFTEEN_DAYS_MS)) suivisActifs.push(x);
+      else if(memePays && publieeDepuisMoinsDe(p, VINGT_QUATRE_H_MS)) paysActifs.push(x);
+      else masse.push(x);
     });
-    return suivis.concat(memePays, melangerAleatoirementFP(reste));
+    function triParFraicheur(a, b){
+      const diff = tsPost(b[1]) - tsPost(a[1]);
+      if(diff !== 0) return diff;
+      return ordreAleatoireStableFP(a[0]) - ordreAleatoireStableFP(b[0]);
+    }
+    mesPostsRecents.sort(triParFraicheur);
+    suivisActifs.sort(triParFraicheur);
+    paysActifs.sort(triParFraicheur);
+    return mesPostsRecents.concat(suivisActifs, paysActifs, melangerAleatoirementFP(masse));
   }catch(e){
     console.error('Tri par priorité Fil Presse impossible, retour à l\'ordre par date :', e);
     return liste;
@@ -447,13 +474,14 @@ function matchesSearch(p){
 }
 
 function renderFilteredFeed(){
-  const mineFiltered = allMineActive.filter(function(x){ return matchesSearch(x[1]); });
-  const othersFilteredBrut = allOthers.filter(function(x){ return matchesSearch(x[1]); });
-  const othersFiltered = trierAutresParPriorite(othersFilteredBrut);
-  const visibles = othersFiltered.slice(0, nombreAffichesAutres);
+  const combinedFilteredBrut = allMineActive.concat(allOthers).filter(function(x){ return matchesSearch(x[1]); });
+  const combinedFiltered = trierFeedParPrioriteFP(combinedFilteredBrut);
+  const visibles = combinedFiltered.slice(0, nombreAffichesAutres);
 
-  document.getElementById('mineList').innerHTML = mineFiltered.map(function(x){return renderPost(x[0],x[1],{mine:true});}).join('');
-  document.getElementById('secMineTitle').style.display = mineFiltered.length ? '' : 'none';
+  // "Mes publications" n'a plus de section séparée : elles sont désormais
+  // mélangées au fil général avec tout le monde (voir trierFeedParPrioriteFP).
+  document.getElementById('mineList').innerHTML = '';
+  document.getElementById('secMineTitle').style.display = 'none';
 
   const carouselBlock = buildCoverCarouselBlock();
   let feedHTML = '';
@@ -462,7 +490,8 @@ function renderFilteredFeed(){
     const useEveryFive = total >= 5;
     const midPoint = Math.max(1, Math.floor(total / 2));
     visibles.forEach(function(x, i){
-      feedHTML += renderPost(x[0], x[1], {mine:false});
+      const estMoi = !!(currentUid && x[1].uid === currentUid);
+      feedHTML += renderPost(x[0], x[1], {mine:estMoi});
       if(carouselBlock){
         if(useEveryFive){
           if((i + 1) % 5 === 0) feedHTML += carouselBlock;
@@ -478,7 +507,7 @@ function renderFilteredFeed(){
 
   markFollowedButtons();
   markAuthorsOnline();
-  mineFiltered.concat(visibles).forEach(function(x){ refreshReactionCount(x[0]); });
+  visibles.forEach(function(x){ refreshReactionCount(x[0]); });
 }
 
 // Chargement progressif au défilement, comme Actualités/Offres/Élite —
@@ -486,8 +515,8 @@ function renderFilteredFeed(){
 const observateurFP = new IntersectionObserver(function(entrees){
   entrees.forEach(function(entree){
     if(entree.isIntersecting){
-      const othersFiltered = trierAutresParPriorite(allOthers.filter(function(x){ return matchesSearch(x[1]); }));
-      if(nombreAffichesAutres < othersFiltered.length){
+      const combinedFiltered = allMineActive.concat(allOthers).filter(function(x){ return matchesSearch(x[1]); });
+      if(nombreAffichesAutres < combinedFiltered.length){
         nombreAffichesAutres += TAILLE_LOT_FP;
         renderFilteredFeed();
       }
