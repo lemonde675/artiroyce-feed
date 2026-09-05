@@ -237,10 +237,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .video-bbl video{display:block;width:100%;max-height:320px;background:#000}
 .video-bbl .img-ft{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 10px;font-size:10px;color:#ccc;background:#000}
 .vid-expand{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.video-bbl.expanded .vid-expand{display:none}
+.video-close-btn{display:none;position:absolute;top:16px;right:16px;z-index:6;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:18px;align-items:center;justify-content:center;cursor:pointer}
+.video-bbl.expanded .video-close-btn{display:flex}
 .video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;background:#000}
-.video-bbl.expanded video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.video-bbl.expanded video{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
 .video-bbl.expanded .img-ft{display:none}
-.video-bbl.expanded .vid-expand{top:16px;right:16px;width:36px;height:36px;font-size:18px}
 .file-bbl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;max-width:230px;cursor:pointer}
 .mrow.in .file-bbl{background:#fff;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
 .mrow.out .file-bbl{background:var(--red);border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(230,50,36,0.25)}
@@ -346,7 +348,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .call-local-video.agrandi{top:0;right:0;width:100%;height:100%;border-radius:0;border:none;box-shadow:none;z-index:2}
 .call-local-video video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
 .video-back-pc{display:none;position:absolute;top:16px;left:16px;z-index:6;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:20px;font-weight:900;align-items:center;justify-content:center;cursor:pointer}
-.video-bbl.expanded .video-back-pc.show{display:flex}
+.video-bbl.expanded .video-back-pc{display:flex}
 .call-pending-note{font-size:11.5px;color:#9a8760;text-align:center;padding:0 34px;line-height:1.6;position:relative;z-index:2}
 .call-ctrls{display:flex;justify-content:center;gap:16px;padding:22px 20px calc(46px + env(safe-area-inset-bottom, 0px));flex-shrink:0;position:relative;z-index:2}
 .call-ctrl{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65);border:none;color:#2b2013;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -860,10 +862,6 @@ function majBoutonRetourPC(){
     }
   } catch(e) { reduit = false; ecranLarge = false; }
   document.querySelectorAll('.hdr-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
-  // La flèche de la vidéo agrandie reste visible sur tout écran d'ordinateur,
-  // qu'on soit en mode réduit ou agrandi — le plein écran recouvre de toute
-  // façon tout le reste, il faut toujours un moyen d'en sortir.
-  document.querySelectorAll('.video-back-pc').forEach(el => el.classList.toggle('show', ecranLarge));
 }
 window.addEventListener('load', majBoutonRetourPC);
 window.addEventListener('resize', majBoutonRetourPC);
@@ -1421,7 +1419,7 @@ function creerElementMessage(doc){
   } else if(m.type==='video'){
     d.dataset.txt='🎬 Vidéo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+    interieur='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><span class="video-close-btn" onclick="reduireVideoDepuisFleche(event,this)" title="Fermer">&#10005;</span><video src="'+m.url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='file'){
     const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
     d.dataset.txt='📄 '+(m.nom||'Fichier');
@@ -2479,7 +2477,7 @@ function appendVideoMessage(file, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🎬 Vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
+  d.innerHTML='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><span class="video-close-btn" onclick="reduireVideoDepuisFleche(event,this)" title="Fermer">&#10005;</span><video src="'+url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
