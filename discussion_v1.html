@@ -237,7 +237,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .video-bbl .img-ft{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:5px 10px;font-size:10px;color:#ccc;background:#000}
 .vid-expand{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;display:flex;align-items:center;justify-content:center}
-.video-bbl.expanded video{max-height:100vh;height:100%;object-fit:contain}
+.video-bbl.expanded video{width:100%;height:100%;object-fit:cover}
+.video-bbl.expanded .img-ft{display:none}
 .video-bbl.expanded .vid-expand{top:16px;right:16px;width:36px;height:36px;font-size:18px}
 .file-bbl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;max-width:230px;cursor:pointer}
 .mrow.in .file-bbl{background:#fff;border-bottom-left-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
@@ -339,9 +340,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   100%{transform:scale(1.55);opacity:0}
 }
 .call-mid{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:1}
-.call-local-video{position:absolute;top:14px;right:14px;width:88px;height:120px;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 22px rgba(10,10,46,.25);z-index:5;border:2.5px solid rgba(255,255,255,.7);display:none}
+.call-local-video{position:absolute;top:14px;right:14px;width:88px;height:120px;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 8px 22px rgba(10,10,46,.25);z-index:5;border:2.5px solid rgba(255,255,255,.7);display:none;cursor:pointer;transition:top .25s,right .25s,width .25s,height .25s,border-radius .25s}
 .call-local-video.show{display:block}
+.call-local-video.agrandi{top:0;right:0;width:100%;height:100%;border-radius:0;border:none;box-shadow:none;z-index:2}
 .call-local-video video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.video-back-pc{display:none;position:absolute;top:16px;left:16px;z-index:6;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:20px;font-weight:900;align-items:center;justify-content:center;cursor:pointer}
+.video-bbl.expanded .video-back-pc.show{display:flex}
 .call-pending-note{font-size:11.5px;color:#9a8760;text-align:center;padding:0 34px;line-height:1.6;position:relative;z-index:2}
 .call-ctrls{display:flex;justify-content:center;gap:16px;padding:22px 20px calc(46px + env(safe-area-inset-bottom, 0px));flex-shrink:0;position:relative;z-index:2}
 .call-ctrl{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65);border:none;color:#2b2013;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -700,7 +704,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="call-mid" id="callMid">
     <video class="call-remote-video" id="callRemoteVideo" autoplay playsinline></video>
     <div class="call-avatar-big" id="callAvatarBig">?</div>
-    <div class="call-local-video" id="callLocalWrap"><video id="callLocalVideo" autoplay muted playsinline></video></div>
+    <div class="call-local-video" id="callLocalWrap" onclick="toggleAgrandirVideoLocale()"><video id="callLocalVideo" autoplay muted playsinline></video></div>
   </div>
   <div class="call-pending-note" id="callPendingNote">ℹ️ La connexion audio/vidéo est directe avec votre correspondant, sans passer par nos serveurs.</div>
   <div class="call-ctrls">
@@ -802,7 +806,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     // Sur ces écrans (aperçu photo/vidéo, menu contextuel, panneaux plein écran), le geste
     // de glissement doit rester local (déplacer un sticker, dessiner, recadrer...) —
     // il ne doit jamais être interprété comme "changer d'onglet Accueil/Discussion".
-    ignorerCeGeste = !!e.target.closest('.apercu-overlay, .ctx-menu, .conf-panel, .profil-contact-panel, .emo-panel, .call-screen');
+    ignorerCeGeste = !!e.target.closest('.apercu-overlay, .ctx-menu, .conf-panel, .profil-contact-panel, .emo-panel, .call-screen, .chat-panel');
   }, {passive:true});
 
   document.addEventListener('touchmove', (e)=>{
@@ -854,7 +858,7 @@ function majBoutonRetourPC(){
       ecranLarge = (pw.innerWidth || 0) >= 768;
     }
   } catch(e) { reduit = false; ecranLarge = false; }
-  document.querySelectorAll('.hdr-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
+  document.querySelectorAll('.hdr-back-pc, .video-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
 }
 window.addEventListener('load', majBoutonRetourPC);
 window.addEventListener('resize', majBoutonRetourPC);
@@ -994,6 +998,7 @@ function hideView(name){
     if(unsubMessages){ unsubMessages(); unsubMessages=null; }
     if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
     dernierSnapMessages=null;
+    ouvertureConvId++; // invalide toute réponse/écoute encore en vol pour la conversation qu'on ferme
     if(currentOtherUid) ajouterEtape('hideView(chat) — réinitialisation de la conversation (était : '+currentOtherUid+')');
     currentOtherUid=null; currentConvId=null; currentEstGroupe=false; currentGroupParticipants=[];
   }
@@ -1016,6 +1021,16 @@ function hideView(name){
     // mais sans redéclencher de navigation (on est déjà dans le traitement du retour).
     if(window.appelAnnulerSiSonne) window.appelAnnulerSiSonne();
   }
+  else if(name==='videoExpand'){
+    // Vidéo agrandie dans un dialogue : le retour physique du téléphone (Android)
+    // la réduit au lieu de fermer toute la page Discussion.
+    if(videoExpandeWrap){
+      videoExpandeWrap.classList.remove('expanded');
+      const btn=videoExpandeWrap.querySelector('.vid-expand');
+      if(btn){ btn.textContent='⤢'; btn.title='Agrandir'; }
+      videoExpandeWrap=null;
+    }
+  }
 }
 
 let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
@@ -1024,6 +1039,19 @@ let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversat
 let currentEstGroupe=false, currentGroupParticipants=[], groupesCache={};
 let currentChatRole='', unsubConvDoc=null, currentConvLuPar={}, dernierSnapMessages=null;
 let sourceVilleLive=false, villeLiveActuelle=null;
+// ⚠️ Numéro unique attribué à chaque ouverture de conversation (1-à-1 ou
+// groupe). startRealConversation()/demarrerConversationGroupe() sont
+// asynchrones (plusieurs appels réseau avant de brancher l'écoute des
+// messages) : si on ouvre une conversation puis qu'on en rouvre une autre
+// (ou la même) avant la fin de ces attentes, l'ancienne pouvait finir plus
+// tard et écraser/effacer ce que la nouvelle affichait déjà (messages qui
+// apparaissent puis disparaissent). Chaque ouverture vérifie ce numéro avant
+// de toucher l'écran : une ouverture périmée ne fait plus jamais rien.
+let ouvertureConvId=0;
+// Vidéo actuellement agrandie dans un dialogue (une seule à la fois, vu que
+// l'agrandissement recouvre tout l'écran) — utilisé par hideView('videoExpand')
+// pour la réduire quand on appuie sur le retour physique du téléphone.
+let videoExpandeWrap=null;
 let currentConvInfos={};
 /* ══ Présence réelle : chaque personne signale périodiquement qu'elle est active
    (heartbeat écrit sur son propre document 'utilisateurs'), et on lit celui de la
@@ -1077,6 +1105,7 @@ function villeAEnvoyer(){
   return (monInfo && monInfo.ville) || null;
 }
 window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie){
+  const monOuverture = ++ouvertureConvId;
   currentEstGroupe=false; currentGroupParticipants=[];
   currentChatName=name;currentChatIni=ini;currentChatBg=bg;currentChatRole=sub||'';
   const badgeHtml = verifie===false ? '' : ' <span class="vb">&#10004;</span>';
@@ -1100,7 +1129,7 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
   if(otherUid && currentUid){
     // ══ Mode réel : vraie conversation Firestore avec cette personne ══
     seed.style.display='none';empty.style.display='none';
-    startRealConversation(otherUid,name,sub,ini,bg,verifie===true);
+    startRealConversation(otherUid,name,sub,ini,bg,verifie===true,monOuverture);
   } else if(otherUid && !currentUid){
     // Diagnostic temporaire : si otherUid est fourni mais currentUid absent,
     // c'est que l'identité du compte connecté n'a pas été détectée par Firebase Auth.
@@ -1216,14 +1245,16 @@ function obtenirMonInfo(){
   return monInfoPromise;
 }
 
-async function startRealConversation(otherUid,name,role,ini,bg,verifie){
+async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuverture){
   currentOtherUid=otherUid;
   currentConvId=convIdFor(currentUid,otherUid);
   ajouterEtape('Ouverture conversation '+currentConvId+'...');
   const convRef=db.collection('conversations').doc(currentConvId);
   const mienne = await obtenirMonInfo();
+  if(monOuverture!==ouvertureConvId) return; // une conversation plus récente a été ouverte entre-temps
   try{
     const convSnap=await convRef.get();
+    if(monOuverture!==ouvertureConvId) return;
     ajouterEtape('Lecture conversation OK (existe : '+convSnap.exists+')');
     if(convSnap.exists){
       currentConvInfos=(convSnap.data()&&convSnap.data().infos)||{};
@@ -1242,6 +1273,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
         dernierEmetteur:'',
         infos:infosInit
       });
+      if(monOuverture!==ouvertureConvId) return;
       currentConvInfos=infosInit;
     } else {
       // Met à jour les infos affichées des DEUX côtés (nom/rôle à jour), sans toucher
@@ -1251,9 +1283,11 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
         [currentUid]:mienne
       };
       await convRef.set({infos:infosMaj},{merge:true});
+      if(monOuverture!==ouvertureConvId) return;
       currentConvInfos=Object.assign({},currentConvInfos,infosMaj);
     }
   }catch(err){
+    if(monOuverture!==ouvertureConvId) return;
     console.error('Conversation réelle inaccessible :',err);
     ajouterEtape('ÉCHEC conversation — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     alert('DIAGNOSTIC — Conversation Firestore inaccessible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
@@ -1263,6 +1297,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
   }
   if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
   unsubConvDoc=convRef.onSnapshot(function(docSnap){
+    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
     const d=docSnap.data()||{};
     currentConvLuPar=d.luPar||{};
     if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
@@ -1274,6 +1309,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie){
   ajouterEtape('Écoute des messages démarrée (onSnapshot)...');
   if(unsubMessages){ unsubMessages(); unsubMessages=null; }
   unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot({includeMetadataChanges:true}, function(snap){
+    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
     ajouterEtape('onSnapshot reçu : '+snap.size+' message(s)');
     dernierSnapMessages=snap;
     renderRealMessages(snap);
@@ -1380,7 +1416,7 @@ function creerElementMessage(doc){
   } else if(m.type==='video'){
     d.dataset.txt='🎬 Vidéo';
     const capHtml = m.legende ? '<div class="cap-txt">'+escapeHtml(m.legende)+'</div>' : '';
-    interieur='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
+    interieur='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+m.url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft" data-ft="1">'+t+(dir==='out'?' '+tickHtml:'')+villeHtml+'</div></div>';
   } else if(m.type==='file'){
     const sizeKb=m.taille?(m.taille/1024).toFixed(0):'?';
     d.dataset.txt='📄 '+(m.nom||'Fichier');
@@ -1419,6 +1455,32 @@ window.toggleVideoExpand=function(e, btn){
   const estAgrandie=wrap.classList.toggle('expanded');
   btn.textContent = estAgrandie ? '⤡' : '⤢';
   btn.title = estAgrandie ? 'Réduire' : 'Agrandir';
+  if(estAgrandie){
+    videoExpandeWrap=wrap;
+    // Empile un état d'historique : le retour physique du téléphone (Android)
+    // réduira la vidéo au lieu de fermer toute la page Discussion.
+    if(viewStack[viewStack.length-1]!=='videoExpand') pushView('videoExpand');
+  } else {
+    videoExpandeWrap=null;
+    // Réduction manuelle (bouton/flèche cliqué) : on retire juste notre propre
+    // suivi interne, SANS appeler history.back() nous-mêmes — cet appel s'est
+    // déjà montré peu fiable depuis cette iframe (voir le correctif sur
+    // closeChat()). Le retour physique reste géré par hideView() ci-dessus.
+    if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
+  }
+  if(typeof majBoutonRetourPC==='function') majBoutonRetourPC();
+}
+// Petite flèche "‹" (visible seulement sur ordinateur, même règle que pour le
+// chat) affichée en haut à gauche d'une vidéo agrandie, pour la réduire.
+window.reduireVideoDepuisFleche=function(e, backBtn){
+  e.stopPropagation();
+  const wrap=backBtn.closest('.video-bbl');
+  if(!wrap) return;
+  wrap.classList.remove('expanded');
+  const btn=wrap.querySelector('.vid-expand');
+  if(btn){ btn.textContent='⤢'; btn.title='Agrandir'; }
+  videoExpandeWrap=null;
+  if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
 }
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
@@ -1702,6 +1764,7 @@ function construireInfosGroupe(participants){
 }
 
 window.openGroupChat=function(convId, data){
+  const monOuverture = ++ouvertureConvId;
   currentEstGroupe=true;
   currentOtherUid=null;
   currentConvId=convId;
@@ -1725,7 +1788,7 @@ window.openGroupChat=function(convId, data){
   dernierSnapMessages=null;
   document.getElementById('demoMsgsSeed').style.display='none';
   document.getElementById('emptyMsgsState').style.display='none';
-  demarrerConversationGroupe(convId);
+  demarrerConversationGroupe(convId,monOuverture);
   document.getElementById('chatPanel').classList.add('open');
   appliquerDecalageChat();
   if(viewStack[viewStack.length-1]!=='chat') pushView('chat');
@@ -1733,12 +1796,14 @@ window.openGroupChat=function(convId, data){
   setTimeout(function(){ const a=document.getElementById('msgsArea'); a.scrollTop=a.scrollHeight; },100);
 }
 
-async function demarrerConversationGroupe(convId){
+async function demarrerConversationGroupe(convId,monOuverture){
   const convRef=db.collection('conversations').doc(convId);
   await obtenirMonInfo();
+  if(monOuverture!==ouvertureConvId) return; // une conversation plus récente a été ouverte entre-temps
   currentConvInfos=construireInfosGroupe(currentGroupParticipants);
   try{
     const snap=await convRef.get();
+    if(monOuverture!==ouvertureConvId) return;
     if(snap.exists){
       const d=snap.data();
       if(d.participants) currentGroupParticipants=d.participants;
@@ -1749,8 +1814,10 @@ async function demarrerConversationGroupe(convId){
       currentConvLuPar=d.luPar||{};
     }
   }catch(err){ console.error('Lecture du groupe impossible :',err); }
+  if(monOuverture!==ouvertureConvId) return;
   if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
   unsubConvDoc=convRef.onSnapshot(function(docSnap){
+    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
     const d=docSnap.data()||{};
     currentConvLuPar=d.luPar||{};
     if(d.participants){
@@ -1764,6 +1831,7 @@ async function demarrerConversationGroupe(convId){
   marquerConversationCommeLue();
   if(unsubMessages){ unsubMessages(); unsubMessages=null; }
   unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot({includeMetadataChanges:true}, function(snap){
+    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
     dernierSnapMessages=snap;
     renderRealMessages(snap);
     marquerConversationCommeLue();
@@ -2406,7 +2474,7 @@ function appendVideoMessage(file, legende){
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';d.dataset.txt='🎬 Vidéo';
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
-  d.innerHTML='<div class="video-bbl"><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
+  d.innerHTML='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><video src="'+url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
@@ -2696,7 +2764,7 @@ async function prepareCallScreen(type,nom,ini,bg){
   document.getElementById('callAvatarBig').style.display='flex';
   document.getElementById('callStatus').textContent='Connexion du micro/caméra…';
   document.getElementById('callCamBtn').style.display=type==='video'?'':'none';
-  document.getElementById('callLocalWrap').classList.remove('show');
+  document.getElementById('callLocalWrap').classList.remove('show','agrandi');
   const rv=document.getElementById('callRemoteVideo'); rv.srcObject=null; rv.style.display='none';
   document.getElementById('callScreen').classList.add('open');
   pushView('call');
@@ -2705,7 +2773,7 @@ async function prepareCallScreen(type,nom,ini,bg){
   }catch(err){
     document.getElementById('callStatus').textContent='Micro/caméra refusés — appel impossible';
     logCallBubble(type,'Échec — accès refusé');
-    setTimeout(requestClose,1600);
+    setTimeout(function(){ fermerVueLocale('call'); }, 1600);
     return null;
   }
   if(type==='video'){
@@ -2715,6 +2783,13 @@ async function prepareCallScreen(type,nom,ini,bg){
   return callStream;
 }
 window.prepareCallScreen=prepareCallScreen;
+
+// Vignette locale (votre caméra) : un tap l'agrandit pour occuper tout
+// l'écran d'appel, un second tap la ramène à sa taille/position d'origine
+// (petit cadre en haut à droite).
+window.toggleAgrandirVideoLocale=function(){
+  document.getElementById('callLocalWrap').classList.toggle('agrandi');
+};
 
 async function startCallReal(type){
   const stream=await prepareCallScreen(type,currentChatName,currentChatIni,currentChatBg);
