@@ -372,6 +372,8 @@ let nombreAffiches = TAILLE_LOT;
 let listePublications = [];
 let listeCorbeille = [];
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+const SOIXANTE_DOUZE_H_MS = 72 * 60 * 60 * 1000;
+const VINGT_QUATRE_H_MS = 24 * 60 * 60 * 1000;
 let categorieActive = 'Tout';
 
 // Création Galerie/Boutique (repris de l'ancienne version)
@@ -980,24 +982,50 @@ function melangerAleatoirement(liste) {
   return liste.slice().sort((a, b) => ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id));
 }
 
-/* Classement du fil par paliers de priorité :
-   1. Mes propres publications
-   2. Les personnes que je suis (vide tant que "Suivre" n'existe pas ici)
-   3. Même pays (indicatif téléphonique, approximatif)
-   4. Le reste, mélangé aléatoirement (découverte)
+/* Classement du fil par paliers de priorité — aligné sur le classement
+   d'Accueil (mêmes règles, mêmes délais), avec un palier supplémentaire pour
+   ses propres publications fraîches :
+   1. Mes propres publications, publiées il y a moins de 72h → priorité max,
+      pour éviter qu'une publication qu'on vient de poster disparaisse
+      instantanément dans la masse.
+   2. Suivis ACTIFS (publié il y a moins de 15 jours) → priorité, triés du
+      plus récent au plus ancien. (Palier vide tant que "Suivre" n'existe pas
+      encore dans Actualités.)
+   3. Même pays ACTIF (publié il y a moins de 24h) → priorité temporaire,
+      triés du plus récent au plus ancien.
+   4. La masse (tout le reste — y compris mes propres publications passé 72h,
+      ou un suivi/compatriote devenu inactif) → mélange aléatoire, qui se
+      rafraîchit à chaque visite (pas figé indéfiniment, rien n'est jamais
+      supprimé par ce classement).
    Protégé par son propre détecteur d'erreur : en cas de souci, on revient
    simplement à l'ordre par date, le fil ne se bloque jamais à cause de ça. */
 function trierFeedParPriorite(liste) {
   try {
     if (!currentUser || !Array.isArray(liste) || liste.length < 2) return liste;
-    const mesPosts = [], suivis = [], memePays = [], reste = [];
+    const maintenant = Date.now();
+    const tsPub = (p) => (p.createdAt && p.createdAt.toMillis) ? p.createdAt.toMillis() : 0;
+    const publieeDepuisMoinsDe = (p, fenetreMs) => tsPub(p) > 0 && (maintenant - tsPub(p)) <= fenetreMs;
+
+    const mesPostsRecents = [], suivisActifs = [], paysActifs = [], masse = [];
     liste.forEach(p => {
-      if (p.auteurUid === currentUser.uid) mesPosts.push(p);
-      else if (p.auteurUid && followedUids.has(p.auteurUid)) suivis.push(p);
-      else if (currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe) memePays.push(p);
-      else reste.push(p);
+      const estMoi = p.auteurUid === currentUser.uid;
+      const estSuivi = !!(p.auteurUid && followedUids.has(p.auteurUid));
+      const memePays = !!(currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe);
+
+      if (estMoi && publieeDepuisMoinsDe(p, SOIXANTE_DOUZE_H_MS)) mesPostsRecents.push(p);
+      else if (estSuivi && publieeDepuisMoinsDe(p, QUINZE_JOURS_MS)) suivisActifs.push(p);
+      else if (memePays && publieeDepuisMoinsDe(p, VINGT_QUATRE_H_MS)) paysActifs.push(p);
+      else masse.push(p);
     });
-    return mesPosts.concat(suivis, memePays, melangerAleatoirement(reste));
+    function triParFraicheur(a, b) {
+      const diff = tsPub(b) - tsPub(a);
+      if (diff !== 0) return diff;
+      return ordreAleatoireStable(a.id) - ordreAleatoireStable(b.id);
+    }
+    mesPostsRecents.sort(triParFraicheur);
+    suivisActifs.sort(triParFraicheur);
+    paysActifs.sort(triParFraicheur);
+    return mesPostsRecents.concat(suivisActifs, paysActifs, melangerAleatoirement(masse));
   } catch (e) {
     ajouterEtape('❌ Tri par priorité : ' + (e && e.message || e) + ' — retour à l\u2019ordre par date');
     return liste;
