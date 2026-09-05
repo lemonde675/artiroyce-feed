@@ -112,7 +112,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .back-btn{font-size:26px;cursor:pointer;color:#333;flex-shrink:0}
 .pc-retour-btn{flex-shrink:0;font-size:13px;font-weight:700;color:#fff;background:var(--red);border-radius:16px;padding:7px 16px;cursor:pointer}
 .hdr-back-pc{display:none;font-size:20px;font-weight:900;color:#333;cursor:pointer;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#f0f0f0;align-items:center;justify-content:center}
-@media (min-width:768px){.hdr-back-pc{display:flex}}
+.hdr-back-pc.show{display:flex}
 .cha-av-wrap{position:relative;flex-shrink:0}
 .cha-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
 .cha-online{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2px solid #fff}
@@ -834,6 +834,32 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <script>
 function adj(){const hh=document.getElementById('topH').offsetHeight;document.getElementById('spacer').style.height=hh+'px'}
 window.addEventListener('load',adj);window.addEventListener('resize',adj);setTimeout(adj,100);
+
+// Le petit bouton retour "‹" (visible seulement sur ordinateur) ne doit
+// apparaître qu'en mode RÉDUIT (html.site-reduced sur accueil.html) — c'est
+// là que l'utilisateur, avec une souris, ressent le besoin d'un retour
+// explicite. En mode agrandi (site-expanded), il reste caché.
+// ⚠️ Piège : le mode "réduit" est actif PAR DÉFAUT pour tout le monde, y
+// compris sur téléphone (ce n'est pas propre à l'ordinateur — ça ne fait
+// juste aucune différence visuelle sur un petit écran). Donc on ne se fie
+// pas qu'à cette classe : on vérifie EN PLUS la vraie largeur de la fenêtre
+// du navigateur (celle de la page parente, pas celle de cette iframe, qui
+// reste à 480px en mode réduit même sur un grand écran).
+function majBoutonRetourPC(){
+  let reduit = false, ecranLarge = false;
+  try {
+    const pw = window.parent;
+    if (pw && pw !== window) {
+      reduit = pw.document.documentElement.classList.contains('site-reduced');
+      ecranLarge = (pw.innerWidth || 0) >= 768;
+    }
+  } catch(e) { reduit = false; ecranLarge = false; }
+  document.querySelectorAll('.hdr-back-pc').forEach(el => el.classList.toggle('show', reduit && ecranLarge));
+}
+window.addEventListener('load', majBoutonRetourPC);
+window.addEventListener('resize', majBoutonRetourPC);
+setTimeout(majBoutonRetourPC, 300);
+setTimeout(majBoutonRetourPC, 1000);
 
 // Calcule en px la vraie hauteur du header FIXE du shell parent (accueil.html) quand cette
 // page est chargée en iframe, pour ne jamais cacher le chat-hdr (boutons d'appel) dessous.
