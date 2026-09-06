@@ -1822,38 +1822,73 @@ function renderConversationsReelles(convs){
   // démonstration (Mariama, Jean-Paul...) qui l'ont figé en dur dans le HTML.
   // Ici, chaque vraie carte reçoit sa propre écoute en temps réel.
   ecouterPresenceListeConversations(otherUids);
+  // La liste peut être reconstruite (nouveau message, tri...) sans qu'aucun
+  // statut Firestore n'ait réellement changé entre-temps : l'écoute Firestore
+  // ne se redéclenche alors pas toute seule. On réapplique donc immédiatement
+  // le dernier statut déjà connu de chaque personne sur les nouvelles cartes.
+  otherUids.forEach(appliquerStatutConnuCarte);
 }
 // uid -> fonction de désinscription, pour ne jamais écouter deux fois la même personne.
 let presenceListenersConvList={};
+// uid -> dernier statut connu ({enLigne, ms}), pour pouvoir le réappliquer tout de
+// suite si la liste est reconstruite sans nouveau changement Firestore, et pour
+// pouvoir réévaluer "en ligne / hors ligne" même sans nouvelle écriture (ci-dessous).
+let statutPresenceConnu={};
+function appliquerStatutConnuCarte(uid){
+  const s=statutPresenceConnu[uid];
+  if(!s) return;
+  document.querySelectorAll('.conv-card[data-uid="'+uid+'"]').forEach(function(card){
+    const statusEl=card.querySelector('.cc-status');
+    if(!statusEl) return;
+    const roleTxt=statusEl.dataset.role||'';
+    const avWrap=card.querySelector('.av-wrap');
+    card.dataset.online = s.enLigne ? '1' : '0';
+    if(s.enLigne){
+      statusEl.textContent='● En ligne'+(roleTxt?' · '+roleTxt:'');
+      statusEl.className='cc-status on';
+      if(avWrap && !avWrap.querySelector('.online-dot')){
+        const dot=document.createElement('div'); dot.className='online-dot'; avWrap.appendChild(dot);
+      }
+    } else {
+      const vu=s.ms>0 ? new Date(s.ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+      statusEl.textContent=(vu?'⊙ vu à '+vu:'')+(roleTxt?(vu?' · ':'')+roleTxt:'');
+      statusEl.className='cc-status off';
+      const dot=avWrap && avWrap.querySelector('.online-dot');
+      if(dot) dot.remove();
+    }
+  });
+}
 function ecouterPresenceListeConversations(uids){
+  demarrerRecheckPresenceListe();
   uids.forEach(function(uid){
     if(presenceListenersConvList[uid]) return;
     presenceListenersConvList[uid]=db.collection('utilisateurs').doc(uid).onSnapshot(function(doc){
       const dv=doc.data()&&doc.data().derniereVue;
       const ms=(dv&&dv.toDate)?dv.toDate().getTime():0;
       const enLigne=ms>0 && (Date.now()-ms)<SEUIL_EN_LIGNE_MS;
-      document.querySelectorAll('.conv-card[data-uid="'+uid+'"]').forEach(function(card){
-        const statusEl=card.querySelector('.cc-status');
-        if(!statusEl) return;
-        const roleTxt=statusEl.dataset.role||'';
-        const avWrap=card.querySelector('.av-wrap');
-        card.dataset.online = enLigne ? '1' : '0';
-        if(enLigne){
-          statusEl.textContent='● En ligne'+(roleTxt?' · '+roleTxt:'');
-          statusEl.className='cc-status on';
-          if(avWrap && !avWrap.querySelector('.online-dot')){
-            const dot=document.createElement('div'); dot.className='online-dot'; avWrap.appendChild(dot);
-          }
-        } else {
-          const vu=ms>0 ? new Date(ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-          statusEl.textContent=(vu?'⊙ vu à '+vu:'')+(roleTxt?(vu?' · ':'')+roleTxt:'');
-          statusEl.className='cc-status off';
-          const dot=avWrap && avWrap.querySelector('.online-dot');
-          if(dot) dot.remove();
-        }
-      });
+      statutPresenceConnu[uid]={enLigne:enLigne, ms:ms};
+      appliquerStatutConnuCarte(uid);
     }, function(err){ console.error('Présence liste conversations impossible pour',uid,':',err); });
   });
+}
+// Un heartbeat qui s'arrête (personne qui ferme l'app) n'envoie aucun signal
+// Firestore : sans ça, la liste resterait bloquée sur "En ligne" indéfiniment
+// après une vraie déconnexion, faute de nouvel événement pour la redescendre.
+// On réévalue donc nous-mêmes toutes les 15s, comme déjà fait pour le chat ouvert
+// (ecouterPresenceReelle) et le panneau Profil (pcSt/pcOnline).
+let recheckListeTimer=null;
+function demarrerRecheckPresenceListe(){
+  if(recheckListeTimer) return;
+  recheckListeTimer=setInterval(function(){
+    Object.keys(statutPresenceConnu).forEach(function(uid){
+      const s=statutPresenceConnu[uid];
+      const enLigne = s.ms>0 && (Date.now()-s.ms)<SEUIL_EN_LIGNE_MS;
+      if(enLigne!==s.enLigne){
+        s.enLigne=enLigne;
+        appliquerStatutConnuCarte(uid);
+      }
+    });
+  }, 15000);
 }
 
 /* ══════════════ VRAIS GROUPES (Firestore) ══════════════
