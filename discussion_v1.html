@@ -89,7 +89,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .pc-viewer{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column}
 .pc-viewer.show{display:flex}
 .pc-viewer-close{position:absolute;top:16px;right:16px;color:#fff;font-size:22px;cursor:pointer;z-index:2}
-.pc-viewer-back{position:absolute;top:16px;left:16px;color:#fff;font-size:24px;cursor:pointer;z-index:2}
 .pc-viewer-media{max-width:100%;max-height:82vh;display:flex;align-items:center;justify-content:center}
 .pc-viewer-media img,.pc-viewer-media video{max-width:100%;max-height:82vh;object-fit:contain}
 .pc-viewer-resend{position:absolute;bottom:26px;background:var(--red);color:#fff;border:none;padding:12px 22px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(230,50,36,0.4)}
@@ -134,6 +133,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.swipe-armed::before{content:'↩️';position:absolute;left:-30px;top:50%;transform:translateY(-50%);font-size:16px;opacity:0.85}
 .mrow.system{justify-content:center;margin:6px 0}
 .sys-msg{background:rgba(0,0,0,0.06);color:#666;font-size:11px;padding:5px 12px;border-radius:12px;text-align:center;max-width:80%}
+.pos-req-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;max-width:80%}
+.pos-req-actions{display:flex;gap:8px}
+.pos-req-btn{border:none;border-radius:14px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer}
+.pos-req-accept{background:var(--green);color:#fff}
+.pos-req-refuse{background:#eee;color:#666}
 .mrow.out{flex-direction:row-reverse}
 .m-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
 .bbl{max-width:72%;padding:10px 13px;border-radius:18px;font-size:13px;line-height:1.5;word-break:break-word}
@@ -163,12 +167,12 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.in .call-t{color:#bbb}
 .ibar{display:flex;align-items:flex-end;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));background:#fff;border-top:1px solid #eee;flex-shrink:0}
 .iwrap{flex:1;display:flex;align-items:flex-end;gap:6px;background:#f5f5f5;border-radius:22px;padding:9px 12px}
-.ib{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0;touch-action:manipulation}
-.emoji-btn{width:38px;height:38px;border-radius:50%;border:none;background:#ffc107;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(255,193,7,0.4);flex-shrink:0;touch-action:manipulation}
+.ib{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;flex-shrink:0}
+.emoji-btn{width:38px;height:38px;border-radius:50%;border:none;background:#ffc107;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 2px 8px rgba(255,193,7,0.4);flex-shrink:0}
 .ib:active{color:var(--red)}
 #mTa{flex:1;background:none;border:none;outline:none;color:#111;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;resize:none;max-height:100px;line-height:1.4}
 #mTa::placeholder{color:#ccc}
-.sb{width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(230,50,36,0.35);touch-action:manipulation}
+.sb{width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(230,50,36,0.35)}
 .sb:active{transform:scale(0.92)}
 .sb:disabled{background:#e0e0e0;box-shadow:none;cursor:not-allowed}
 .conf-panel{position:fixed;inset:0;left:50%;transform:translateX(100%);width:100%;max-width:480px;z-index:400;display:flex;flex-direction:column;background:#fff;transition:transform 0.3s cubic-bezier(.4,0,.2,1)}
@@ -283,18 +287,17 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 /* ── Emoji picker ── */
 .emo-panel{display:none;background:#fff;border-top:1px solid #eee;flex-shrink:0;max-height:220px;overflow:hidden;flex-direction:column}
 .emo-panel.show{display:flex}
-.emo-hdr{display:flex;align-items:center;gap:8px;padding:8px 12px 6px;flex-shrink:0}
-.emo-tab{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;cursor:pointer;padding:8px 12px;border-radius:22px;touch-action:manipulation}
-.emo-tab.actif{color:#fff;background:var(--red)}
-.emo-hdr .emo-close{margin-left:auto;font-size:16px;color:#ccc;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;touch-action:manipulation}
-.emo-hdr .emo-close:active{background:#f2f2f2}
+.emo-hdr{display:flex;align-items:center;gap:16px;padding:8px 12px 6px;flex-shrink:0}
+.emo-tab{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;cursor:pointer;padding:2px 0}
+.emo-tab.actif{color:var(--red);border-bottom:2px solid var(--red)}
+.emo-hdr .emo-close{margin-left:auto;font-size:16px;color:#ccc;cursor:pointer}
 .emo-body{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:4px 10px 10px;overflow-y:auto}
-.emo-body>span{font-size:21px;text-align:center;cursor:pointer;padding:8px 0;border-radius:8px;touch-action:manipulation}
+.emo-body>span{font-size:21px;text-align:center;cursor:pointer;padding:4px 0;border-radius:8px}
 .emo-body>span:active{background:#f2f2f2}
 .stk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px 10px 10px;overflow-y:auto}
-.stk-add{width:100%;aspect-ratio:1/1;border-radius:12px;background:#f7f7f7;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:26px;color:#bbb;cursor:pointer;touch-action:manipulation}
-.stk-item{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;cursor:pointer;background:#f5f5f5;touch-action:manipulation}
-.stk-item img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+.stk-add{width:100%;aspect-ratio:1/1;border-radius:12px;background:#f7f7f7;border:2px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:26px;color:#bbb;cursor:pointer}
+.stk-item{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;cursor:pointer;background:#f5f5f5}
+.stk-item img{width:100%;height:100%;object-fit:cover}
 .stk-bbl{background:none;box-shadow:none;max-width:150px}
 .stk-bbl img{width:130px;height:130px;object-fit:contain;display:block}
 .stk-ft{font-size:10px;color:#999;margin-top:2px;display:flex;align-items:center;gap:4px}
@@ -413,6 +416,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.out .mini-av{right:-8px}
 .ville-tag{color:inherit}
 .mrow.out .ville-tag{color:inherit}
+.modifie-tag{font-style:italic;opacity:0.75}
 #posToggle{background:#ddd!important;color:#888!important;font-size:14px!important}
 #posToggle.actif{background:var(--green)!important;color:#fff!important}
 </style>
@@ -588,7 +592,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <span class="hdr-back-pc" onclick="closeChat()" title="Retour">&#8249;</span>
     <div class="cha-btns">
-      <button class="cha-btn" id="posToggle" onclick="toggleVilleSource()" title="Position en direct">&#128205;</button>
+      <button class="cha-btn" id="posToggle" onclick="ouvrirChoixPosition()" title="Position en direct">&#128205;</button>
       <button class="cha-btn" onclick="addCall('audio')">&#128222;</button>
       <button class="cha-btn gr" onclick="addCall('video')">&#128249;</button>
       <button class="cha-btn" style="background:#222;color:#8dff9a" onclick="toggleDiagnostic()">&#128736;</button>
@@ -620,6 +624,13 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     </div>
     <span class="reply-close" onclick="cancelReply()">✕</span>
   </div>
+  <div class="reply-bar" id="editBar">
+    <div class="reply-bar-info">
+      <div class="reply-bar-name">✏️ Modifier le message</div>
+      <div class="reply-bar-txt" id="editTxtApercu">—</div>
+    </div>
+    <span class="reply-close" onclick="annulerModification()">✕</span>
+  </div>
   <div class="emo-panel" id="emoPanel"></div>
   <div class="rec-ui" id="recUi">
     <span class="rec-dot"></span>
@@ -649,7 +660,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="pc-retour-btn" onclick="fermerProfilContact()">‹ Retour</span>
   </div>
   <div class="pc-body">
-    <div class="pc-av" id="pcAv">?</div>
+    <div class="cha-av-wrap" style="width:96px;height:96px;margin:0 auto 12px">
+      <div class="pc-av" id="pcAv">?</div>
+      <div class="cha-online" id="pcOnline" style="display:none;width:18px;height:18px;right:4px;bottom:8px"></div>
+    </div>
     <div class="pc-name" id="pcNom">—</div>
     <div class="pc-st" id="pcSt">—</div>
     <div class="pc-role" id="pcRole"></div>
@@ -661,7 +675,6 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </div>
 <div class="pc-viewer" id="pcViewer">
-  <span class="pc-viewer-back" onclick="fermerVisionneuseMedia()">←</span>
   <span class="pc-viewer-close" onclick="fermerVisionneuseMedia()">✕</span>
   <div class="pc-viewer-media" id="pcViewerMedia"></div>
   <button class="pc-viewer-resend" id="pcViewerResend" onclick="renvoyerMediaCourant()">↗️ Renvoyer dans cette conversation</button>
@@ -694,9 +707,15 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </div>
 <div class="ctx-overlay" id="ctxOverlay" onclick="closeCtx()"></div>
+<div class="ctx-overlay" id="posChoixOverlay" onclick="fermerChoixPosition()" style="display:none"></div>
+<div class="ctx-menu" id="posChoixMenu" style="position:fixed;top:96px;left:50%;transform:translateX(-50%)">
+  <div class="ctx-item" onclick="choisirPosition('moi')">📍 Activer ma position</div>
+  <div class="ctx-item" onclick="choisirPosition('autre')">📩 Demander la position de <span id="posNomAutre"></span></div>
+</div>
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-emo-row" id="ctxEmoRow"></div>
   <div class="ctx-item" onclick="ctxReply()">↩️ Répondre</div>
+  <div class="ctx-item" id="ctxModifierItem" onclick="ctxModifier()" style="display:none">✏️ Modifier</div>
   <div class="ctx-item" onclick="ctxCopy()">📋 Copier</div>
   <div class="ctx-item" id="ctxInfos" onclick="ctxInfosLecture()">ℹ️ Infos (lu / pas lu)</div>
   <div class="ctx-item" onclick="ctxDeleteMe()">🙈 Supprimer pour moi</div>
@@ -898,7 +917,7 @@ window.addEventListener('resize',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); a
 embedTopOffsetPx=getEmbedTopOffsetPx();
 window.addEventListener('load',()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); });
 setTimeout(()=>{ embedTopOffsetPx=getEmbedTopOffsetPx(); appliquerDecalageChat(); },300);
-window.toast=function(m,t){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':t==='r'?' r':'');setTimeout(()=>el.className='toast',2400)}
+window.toast=function(m,t,duree){const el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':t==='r'?' r':'');setTimeout(()=>el.className='toast',duree||2400)}
 /* Affiché dans le cadre d'accueil.html : l'en-tête (logo+onglets) et la barre du bas
    d'accueil font déjà le travail — on masque ceux d'ici pour éviter le doublon
    (et le décalage des boutons d'appel / barre de saisie qu'il provoquait).
@@ -1000,7 +1019,7 @@ window.addEventListener('popstate',(e)=>{
 });
 function hideView(name){
   if(name==='chat'){
-    document.getElementById('chatPanel').classList.remove('open'); cancelReply();
+    document.getElementById('chatPanel').classList.remove('open'); cancelReply(); annulerModification();
     if(unsubMessages){ unsubMessages(); unsubMessages=null; }
     if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
     dernierSnapMessages=null;
@@ -1026,11 +1045,6 @@ function hideView(name){
     // Si on ferme cet écran (retour arrière) sans avoir répondu, ça compte comme un refus —
     // mais sans redéclencher de navigation (on est déjà dans le traitement du retour).
     if(window.appelAnnulerSiSonne) window.appelAnnulerSiSonne();
-  }
-  else if(name==='mediaviewer'){
-    document.getElementById('pcViewer').classList.remove('show');
-    document.getElementById('pcViewerMedia').innerHTML='';
-    indexMediaViewer=-1;
   }
   else if(name==='videoExpand'){
     // Vidéo agrandie dans un dialogue : le retour physique du téléphone (Android)
@@ -1073,6 +1087,68 @@ const SEUIL_EN_LIGNE_MS = 45000; // pas de battement depuis 45s → considéré 
 /* ══ Bascule profil / position réelle pour la ville affichée sur les messages ══
    Jamais les deux en même temps : soit la ville déclarée dans le profil (défaut),
    soit la position réelle au moment de l'envoi, une fois activée par la personne. */
+/* ══ Choix : activer ma propre position, ou demander celle de l'autre personne ══
+   Le bouton 📍 ouvrait directement l'activation pour soi ; il ouvre maintenant
+   un petit choix entre les deux. Demander la position de quelqu'un n'active
+   jamais rien de force chez elle — ça lui envoie juste une invitation avec
+   Accepter/Refuser, comme WhatsApp, jamais d'activation automatique. */
+window.ouvrirChoixPosition=function(){
+  if(currentEstGroupe){ toast('Fonction disponible seulement en conversation individuelle','r'); return; }
+  if(!currentOtherUid){ toast('Fonction indisponible pour une conversation démo','r'); return; }
+  document.getElementById('posNomAutre').textContent = currentChatName || 'cette personne';
+  document.getElementById('posChoixOverlay').style.display='block';
+  document.getElementById('posChoixMenu').style.display='block';
+}
+window.fermerChoixPosition=function(){
+  document.getElementById('posChoixOverlay').style.display='none';
+  document.getElementById('posChoixMenu').style.display='none';
+}
+window.choisirPosition=async function(qui){
+  fermerChoixPosition();
+  if(qui==='moi'){ toggleVilleSource(); return; }
+  if(!currentConvId || !currentOtherUid) return;
+  try{
+    const convRef=db.collection('conversations').doc(currentConvId);
+    await convRef.collection('messages').add({
+      type:'demandePosition', demandeur:currentUid, destinataire:currentOtherUid,
+      statut:'attente', horodatage:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:'📍 Demande de position envoyée',dernierEmetteur:currentUid},{merge:true});
+    toast('📩 Demande envoyée','g');
+  }catch(e){ console.error('Envoi de la demande de position impossible :',e); toast('⚠️ Envoi de la demande impossible','r'); }
+}
+// Réponse à une demande reçue : Refuser met juste à jour le statut. Accepter
+// déclenche la VRAIE demande de permission sur l'appareil de la personne qui
+// répond (jamais sur celui du demandeur) — impossible techniquement de faire
+// autrement, un site ne peut jamais activer la position de quelqu'un d'autre
+// sans son propre geste.
+window.repondreDemandePosition=async function(messageId, accepter){
+  if(!currentConvId) return;
+  const msgRef=db.collection('conversations').doc(currentConvId).collection('messages').doc(messageId);
+  if(!accepter){
+    msgRef.update({statut:'refuse'}).catch(function(e){ console.error('Réponse (refus) impossible :',e); });
+    return;
+  }
+  if(!navigator.geolocation){ toast('⚠️ Géolocalisation non disponible','r'); return; }
+  toast('📍 Demande de votre position...','g');
+  navigator.geolocation.getCurrentPosition(async(pos)=>{
+    let ville=null;
+    try{
+      const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+pos.coords.latitude+'&lon='+pos.coords.longitude+'&zoom=10',{headers:{'Accept-Language':'fr'}});
+      const data=await r.json();
+      ville=(data.address&&(data.address.city||data.address.town||data.address.village||data.address.county))||null;
+    }catch(e){ console.error('Reverse geocoding (réponse demande) impossible :',e); }
+    try{
+      await msgRef.update({statut:'accepte', ville: ville||null});
+      toast(ville?('✅ Position partagée : '+ville):'✅ Position partagée','g');
+    }catch(e){ console.error('Mise à jour demande position (accepté) impossible :',e); }
+  },(err)=>{
+    console.error('Géolocalisation refusée (réponse à une demande) :',err);
+    if(err && err.code===1){ toast('⚠️ Position bloquée — autorisez-la dans les réglages du site, puis réessayez','r',4500); }
+    else { toast('⚠️ Position momentanément indisponible — réessayez','r'); }
+    msgRef.update({statut:'refuse'}).catch(function(e){ console.error('Mise à jour demande position (échec) impossible :',e); });
+  });
+}
 function toggleVilleSource(){
   const btn=document.getElementById('posToggle');
   if(!btn) return;
@@ -1103,7 +1179,16 @@ function toggleVilleSource(){
       }
     },(err)=>{
       console.error('Géolocalisation refusée :',err);
-      toast('⚠️ Position refusée','r');
+      // Code 1 = PERMISSION_DENIED : une fois refusé, le navigateur ne redemande
+      // plus jamais tout seul — cliquer à nouveau ne changera rien tant que la
+      // personne n'a pas elle-même autorisé la position dans les réglages du
+      // site/téléphone. On l'explique clairement au lieu de répéter un message
+      // vague qui donnerait l'impression que le bouton est cassé.
+      if(err && err.code === 1){
+        toast('⚠️ Position bloquée — autorisez-la dans les réglages du site, puis réessayez','r',4500);
+      } else {
+        toast('⚠️ Position momentanément indisponible — réessayez','r');
+      }
     });
   } else {
     sourceVilleLive=false; villeLiveActuelle=null;
@@ -1203,6 +1288,14 @@ function quoteHtml(){
 
 window.doSend=function(){
   const ta=document.getElementById('mTa');const txt=ta.value.trim();if(!txt)return;
+  if(messageEnModificationId){
+    const id=messageEnModificationId;
+    messageEnModificationId=null;
+    document.getElementById('editBar').classList.remove('show');
+    ta.value='';ta.style.height='auto';onTa();
+    modifierMessageReel(id, txt);
+    return;
+  }
   ajouterEtape('doSend() appelé — txt="'+txt+'" currentOtherUid='+currentOtherUid+' currentConvId='+currentConvId);
   if(currentOtherUid && currentConvId){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
@@ -1342,13 +1435,18 @@ function ecouterPresenceReelle(otherUid){
     const st=document.getElementById('chaSt');
     if(!st || currentOtherUid!==otherUid) return;
     const enLigne = derniereVueMillis>0 && (Date.now()-derniereVueMillis)<SEUIL_EN_LIGNE_MS;
+    const pcSt=document.getElementById('pcSt'), pcOnline=document.getElementById('pcOnline');
     if(enLigne){
       st.textContent='● En ligne'; st.className='cha-st on';
       document.getElementById('chaOnline').style.display='';
+      if(pcSt){ pcSt.textContent='● En ligne'; pcSt.style.color='var(--green)'; }
+      if(pcOnline) pcOnline.style.display='';
     } else {
       const vu = derniereVueMillis>0 ? new Date(derniereVueMillis).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '—';
       st.textContent='⊙ vu à '+vu; st.className='cha-st off';
       document.getElementById('chaOnline').style.display='none';
+      if(pcSt){ pcSt.textContent='⊙ vu à '+vu; pcSt.style.color='#999'; }
+      if(pcOnline) pcOnline.style.display='none';
     }
   }
   unsubPresence=db.collection('utilisateurs').doc(otherUid).onSnapshot(function(doc){
@@ -1398,7 +1496,8 @@ function construireFooterHtml(doc){
   const m=doc.data();
   const dir = m.emetteur===currentUid ? 'out' : 'in';
   const t = (m.horodatage && m.horodatage.toDate) ? m.horodatage.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-  const villeHtml = m.ville ? ' · <span class="ville-tag">depuis '+escapeHtml(m.ville)+'</span>' : '';
+  const modifieHtml = m.modifie ? ' <span class="modifie-tag">Modifié</span>' : '';
+  const villeHtml = (m.ville ? ' · <span class="ville-tag">depuis '+escapeHtml(m.ville)+'</span>' : '') + modifieHtml;
   const {tickHtml} = calculerTickEtLecture(doc, m, dir);
   return {t:t, villeHtml:villeHtml, tickHtml:tickHtml, dir:dir};
 }
@@ -1408,7 +1507,7 @@ function creerElementMessage(doc){
   const infoEm = currentConvInfos[m.emetteur] || {ini:'?',bg:'#999',nom:''};
   const d=document.createElement('div');
   d.className='mrow '+dir;
-  d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;
+  d.dataset.real='1';d.dataset.mid='r'+doc.id;d.dataset.dir=dir;d.dataset.type=m.type||'texte';
   const {statutLecture} = calculerTickEtLecture(doc, m, dir);
   d.dataset.lecture=statutLecture;
   const miniAv='<div class="mini-av" style="background:'+infoEm.bg+'" onclick="event.stopPropagation();toast(\''+escAttr(infoEm.nom||'Profil')+'\',\'g\')">'+infoEm.ini+'</div>';
@@ -1418,6 +1517,29 @@ function creerElementMessage(doc){
     d.dataset.txt=m.texte||'';
     const nomEm = infoEm.nom || 'Quelqu\'un';
     d.innerHTML='<div class="sys-msg">'+escapeHtml(nomEm+' '+(m.texte||''))+'</div>';
+    return d;
+  }
+  if(m.type==='demandePosition'){
+    d.className='mrow system';
+    d.dataset.txt='📍 Demande de position';
+    const nomDemandeur = (currentConvInfos[m.demandeur]||{}).nom || 'Quelqu\'un';
+    let contenu;
+    if(m.statut==='attente'){
+      if(m.destinataire===currentUid){
+        contenu='<div class="pos-req-wrap"><div class="sys-msg">📍 '+escapeHtml(nomDemandeur)+' souhaite que vous partagiez votre position</div>'
+          +'<div class="pos-req-actions">'
+          +'<button class="pos-req-btn pos-req-accept" onclick="repondreDemandePosition(\''+doc.id+'\',true)">Accepter</button>'
+          +'<button class="pos-req-btn pos-req-refuse" onclick="repondreDemandePosition(\''+doc.id+'\',false)">Refuser</button>'
+          +'</div></div>';
+      } else {
+        contenu='<div class="sys-msg">📍 En attente de la réponse pour le partage de position…</div>';
+      }
+    } else if(m.statut==='accepte'){
+      contenu='<div class="sys-msg">✅ Position partagée'+(m.ville?(' : '+escapeHtml(m.ville)):'')+'</div>';
+    } else {
+      contenu='<div class="sys-msg">❌ Demande de position refusée</div>';
+    }
+    d.innerHTML=contenu;
     return d;
   }
   if(m.type==='image'){
@@ -1493,41 +1615,6 @@ window.reduireVideoDepuisFleche=function(e, backBtn){
   videoExpandeWrap=null;
   if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
 }
-/* ══ Empêche le plein écran NATIF du navigateur sur les vidéos de dialogue ══
-   `controlsList="nofullscreen"` (posé sur la balise <video>) n'est fiable que sur
-   Chrome ordinateur — sur Android/WebView, le navigateur peut quand même basculer
-   la vidéo en plein écran natif (double-tap, bouton natif...), ce qui fait
-   disparaître nos boutons ✕/‹ personnalisés (ils ne font plus partie de l'écran
-   affiché). Dès qu'on détecte cette tentative, on en sort immédiatement et on
-   force notre propre agrandissement (⤢) à la place. */
-function forcerAgrandissementPerso(video){
-  const wrap = video.closest && video.closest('.video-bbl');
-  if(!wrap || wrap.classList.contains('expanded')) return;
-  wrap.classList.add('expanded');
-  const btn = wrap.querySelector('.vid-expand');
-  if(btn){ btn.textContent='⤡'; btn.title='Réduire'; }
-  videoExpandeWrap = wrap;
-  if(viewStack[viewStack.length-1]!=='videoExpand') pushView('videoExpand');
-}
-function bloquerPleinEcranNatif(video){
-  if(!video || video.tagName!=='VIDEO' || !video.closest || !video.closest('.video-bbl')) return;
-  if(document.fullscreenElement===video && document.exitFullscreen){ document.exitFullscreen().catch(function(){}); }
-  else if(document.webkitFullscreenElement===video && document.webkitExitFullscreen){ document.webkitExitFullscreen(); }
-  else if(video.webkitDisplayingFullscreen && video.webkitExitFullscreen){ video.webkitExitFullscreen(); }
-  forcerAgrandissementPerso(video);
-}
-document.addEventListener('fullscreenchange', function(){
-  const el=document.fullscreenElement;
-  if(el && el.tagName==='VIDEO') bloquerPleinEcranNatif(el);
-}, true);
-document.addEventListener('webkitfullscreenchange', function(){
-  const el=document.webkitFullscreenElement;
-  if(el && el.tagName==='VIDEO') bloquerPleinEcranNatif(el);
-}, true);
-// iOS Safari : événement non standard, déclenché directement sur la <video> (ne
-// remonte pas dans le DOM) — on l'écoute quand même en phase de capture depuis
-// document, ce qui fonctionne même pour un événement qui ne "bubble" pas.
-document.addEventListener('webkitbeginfullscreen', function(e){ bloquerPleinEcranNatif(e.target); }, true);
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
   document.getElementById('emptyMsgsState').style.display = snap.empty ? 'flex' : 'none';
@@ -1541,6 +1628,13 @@ function renderRealMessages(snap){
     }
     const existant=area.querySelector('[data-mid="'+id+'"]');
     if(existant){
+      // Une demande de position dont le statut change (attente → accepté/refusé)
+      // a besoin de reconstruire toute la bulle (boutons ↔ résultat), pas juste
+      // le petit pied de message comme pour un simple accusé de lecture.
+      if(change.doc.data().type==='demandePosition' || change.doc.data().modifie){
+        existant.replaceWith(creerElementMessage(change.doc));
+        return;
+      }
       // Message déjà affiché (ex: passage de « remis » à « lu ») : on ne touche
       // qu'au petit pied de message, jamais au contenu média (photo/vidéo/audio).
       mettreAJourFooter(existant, change.doc);
@@ -1710,9 +1804,11 @@ function chargerConversationsReelles(){
 function renderConversationsReelles(convs){
   const wrap=document.getElementById('recentesReelles');
   if(!wrap) return;
+  const otherUids=[];
   wrap.innerHTML = convs.map(function(c){
     const otherUid = (c.participants||[]).find(id=>id!==currentUid);
     if(!otherUid) return '';
+    otherUids.push(otherUid);
     const info = (c.infos && c.infos[otherUid]) || {nom:'Utilisateur',ini:'?',bg:'#999',role:''};
     const t = (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
     const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
@@ -1720,8 +1816,44 @@ function renderConversationsReelles(convs){
       +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+info.ini+'</div></div>'
       +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+t+'</span></div>'
       +'<div class="cc-preview">'+apercu+'</div>'
-      +'<div class="cc-status off">'+escAttr(info.role||'')+'</div></div></div></div>';
+      +'<div class="cc-status off" data-role="'+escAttr(info.role||'')+'">'+escAttr(info.role||'')+'</div></div></div></div>';
   }).join('');
+  // Vrai statut en ligne/heure de dernière connexion — absent des exemples de
+  // démonstration (Mariama, Jean-Paul...) qui l'ont figé en dur dans le HTML.
+  // Ici, chaque vraie carte reçoit sa propre écoute en temps réel.
+  ecouterPresenceListeConversations(otherUids);
+}
+// uid -> fonction de désinscription, pour ne jamais écouter deux fois la même personne.
+let presenceListenersConvList={};
+function ecouterPresenceListeConversations(uids){
+  uids.forEach(function(uid){
+    if(presenceListenersConvList[uid]) return;
+    presenceListenersConvList[uid]=db.collection('utilisateurs').doc(uid).onSnapshot(function(doc){
+      const dv=doc.data()&&doc.data().derniereVue;
+      const ms=(dv&&dv.toDate)?dv.toDate().getTime():0;
+      const enLigne=ms>0 && (Date.now()-ms)<SEUIL_EN_LIGNE_MS;
+      document.querySelectorAll('.conv-card[data-uid="'+uid+'"]').forEach(function(card){
+        const statusEl=card.querySelector('.cc-status');
+        if(!statusEl) return;
+        const roleTxt=statusEl.dataset.role||'';
+        const avWrap=card.querySelector('.av-wrap');
+        card.dataset.online = enLigne ? '1' : '0';
+        if(enLigne){
+          statusEl.textContent='● En ligne'+(roleTxt?' · '+roleTxt:'');
+          statusEl.className='cc-status on';
+          if(avWrap && !avWrap.querySelector('.online-dot')){
+            const dot=document.createElement('div'); dot.className='online-dot'; avWrap.appendChild(dot);
+          }
+        } else {
+          const vu=ms>0 ? new Date(ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+          statusEl.textContent=(vu?'⊙ vu à '+vu:'')+(roleTxt?(vu?' · ':'')+roleTxt:'');
+          statusEl.className='cc-status off';
+          const dot=avWrap && avWrap.querySelector('.online-dot');
+          if(dot) dot.remove();
+        }
+      });
+    }, function(err){ console.error('Présence liste conversations impossible pour',uid,':',err); });
+  });
 }
 
 /* ══════════════ VRAIS GROUPES (Firestore) ══════════════
@@ -1968,6 +2100,7 @@ function openCtx(row,x,y){
   ctxRow=row;
   document.getElementById('ctxDelAll').style.display=row.dataset.dir==='out'?'':'none';
   document.getElementById('ctxInfos').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out')?'':'none';
+  document.getElementById('ctxModifierItem').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out'&&row.dataset.type==='texte')?'':'none';
   const menu=document.getElementById('ctxMenu');
   menu.classList.add('show');document.getElementById('ctxOverlay').classList.add('show');
   const mw=200,mh=menu.offsetHeight||260;
@@ -2008,6 +2141,36 @@ window.ctxDeleteAll=function(){
   ctxRow.dataset.txt='Message supprimé';
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.remove();
   toast('🗑️ Supprimé pour tout le monde','g');closeCtx();
+}
+// ── Modifier un message déjà envoyé (texte uniquement, comme WhatsApp) ──
+let messageEnModificationId=null;
+window.ctxModifier=function(){
+  if(!ctxRow || ctxRow.dataset.type!=='texte' || ctxRow.dataset.dir!=='out') { closeCtx(); return; }
+  messageEnModificationId = ctxRow.dataset.mid.replace(/^r/,'');
+  const ta=document.getElementById('mTa');
+  ta.value = ctxRow.dataset.txt || '';
+  onTa(); ta.focus();
+  document.getElementById('editTxtApercu').textContent = ctxRow.dataset.txt || '';
+  cancelReply(); // pas les deux barres en même temps
+  document.getElementById('editBar').classList.add('show');
+  closeCtx();
+}
+window.annulerModification=function(){
+  messageEnModificationId=null;
+  document.getElementById('editBar').classList.remove('show');
+  const ta=document.getElementById('mTa'); ta.value=''; ta.style.height='auto'; onTa();
+}
+async function modifierMessageReel(messageId, nouveauTexte){
+  if(!currentConvId) return;
+  try{
+    await db.collection('conversations').doc(currentConvId).collection('messages').doc(messageId).update({
+      texte: nouveauTexte, modifie: true
+    });
+    ajouterEtape('Message modifié sur Firestore ✅ ('+messageId+')');
+  }catch(err){
+    console.error('Modification du message impossible :',err);
+    toast('⚠️ Modification impossible (connexion)','r');
+  }
 }
 
 /* ══════════════ PIÈCES JOINTES (images compressées + fichiers) ══════════════ */
@@ -2461,7 +2624,9 @@ window.ouvrirProfilContact=function(){
   document.getElementById('pcNom').textContent = currentChatName || infos.nom || 'Utilisateur';
   const stSrc=document.getElementById('chaSt');
   const stDst=document.getElementById('pcSt');
-  if(stSrc){ stDst.textContent=stSrc.textContent; stDst.style.color = stSrc.classList.contains('on') ? 'var(--green)' : '#999'; }
+  const enLigneActuelle = !!(stSrc && stSrc.classList.contains('on'));
+  if(stSrc){ stDst.textContent=stSrc.textContent; stDst.style.color = enLigneActuelle ? 'var(--green)' : '#999'; }
+  document.getElementById('pcOnline').style.display = enLigneActuelle ? '' : 'none';
   document.getElementById('pcRole').textContent = infos.role || currentChatRole || '';
   renderGalerieMedias();
   document.getElementById('profilContactPanel').classList.add('open');
@@ -2498,10 +2663,11 @@ function voirMediaGalerie(i){
     ? '<video src="'+media.url+'" controls playsinline autoplay></video>'
     : '<img src="'+media.url+'"/>';
   document.getElementById('pcViewer').classList.add('show');
-  if(viewStack[viewStack.length-1]!=='mediaviewer') pushView('mediaviewer');
 }
 window.fermerVisionneuseMedia=function(){
-  fermerVueLocale('mediaviewer');
+  document.getElementById('pcViewer').classList.remove('show');
+  document.getElementById('pcViewerMedia').innerHTML='';
+  indexMediaViewer=-1;
 }
 window.renvoyerMediaCourant=function(){
   const media=mediaGalerieCourante[indexMediaViewer];
@@ -2667,7 +2833,15 @@ window.toggleRecording=async function(){
   try{
     recStream=await navigator.mediaDevices.getUserMedia({audio:true});
   }catch(err){
-    toast('🎤 Micro refusé ou indisponible','r');return;
+    console.error('Accès micro impossible pour le message vocal :',err);
+    if(err && err.name === 'NotAllowedError'){
+      toast('🎤 Micro bloqué — autorisez-le dans les réglages du site, puis réessayez','r',4500);
+    } else if(err && err.name === 'NotFoundError'){
+      toast('🎤 Aucun micro détecté sur cet appareil','r');
+    } else {
+      toast('🎤 Micro momentanément indisponible — réessayez','r');
+    }
+    return;
   }
   isRecording=true;recChunks=[];
   const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
@@ -2816,9 +2990,21 @@ async function prepareCallScreen(type,nom,ini,bg){
   try{
     callStream=await navigator.mediaDevices.getUserMedia({audio:true,video:type==='video'});
   }catch(err){
-    document.getElementById('callStatus').textContent='Micro/caméra refusés — appel impossible';
+    console.error('Accès micro/caméra impossible pour l\'appel :',err);
+    // Une fois bloqué, le navigateur ne redemande plus jamais tout seul —
+    // pareil que pour la position. On l'explique clairement au lieu d'un
+    // message vague qui donnerait l'impression que le bouton est cassé.
+    let msg;
+    if(err && err.name === 'NotAllowedError'){
+      msg='Micro/caméra bloqués — autorisez-les dans les réglages du site, puis réessayez';
+    } else if(err && err.name === 'NotFoundError'){
+      msg='Aucun micro/caméra détecté sur cet appareil';
+    } else {
+      msg='Micro/caméra momentanément indisponibles — réessayez';
+    }
+    document.getElementById('callStatus').textContent=msg;
     logCallBubble(type,'Échec — accès refusé');
-    setTimeout(function(){ fermerVueLocale('call'); }, 1600);
+    setTimeout(function(){ fermerVueLocale('call'); }, 2800);
     return null;
   }
   if(type==='video'){
