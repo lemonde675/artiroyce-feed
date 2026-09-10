@@ -40,6 +40,13 @@
    ══════════════════════════════════════════════════════════════════════ */
 window.Signalisation = (function(){
 
+  // Log une erreur en console ET dans le panneau 🛠️ visible à l'écran (déjà présent
+  // dans discussion_v1.html) — pour pouvoir diagnostiquer sans avoir besoin de F12.
+  function _logErreur(texte, err){
+    console.error(texte, err);
+    if(window.ajouterEtape) ajouterEtape('❌ '+texte+(err&&err.message?' — '+err.message:''), true);
+  }
+
   function refAppel(appelId){ return db.collection('appels').doc(appelId); }
 
   // Dépose une nouvelle demande d'appel et renvoie son identifiant.
@@ -66,19 +73,20 @@ window.Signalisation = (function(){
 
   function mettreAJourStatut(appelId, statut){
     return refAppel(appelId).set({ statut: statut }, { merge:true })
-      .catch(function(e){ console.error('Statut appel non mis à jour :', e); });
+      .catch(function(e){ _logErreur('Statut appel non mis à jour', e); });
   }
 
   // Écoute un appel précis (côté appelant : pour voir arriver la réponse ou un refus).
   function ecouterAppel(appelId, callback){
     return refAppel(appelId).onSnapshot(function(doc){
       if(doc.exists) callback(doc.data());
-    }, function(err){ console.error('Écoute de l\'appel impossible :', err); });
+    }, function(err){ _logErreur('Écoute de l\'appel impossible', err); });
   }
 
   // Écoute globale (démarrée une seule fois à la connexion) : détecte les appels qui me
   // sont destinés et qui sont encore en train de sonner, pour afficher l'écran entrant.
   function ecouterAppelsEntrants(monUid, callback){
+    if(window.ajouterEtape) ajouterEtape('📞 Écoute des appels entrants démarrée (uid : '+monUid+')');
     return db.collection('appels')
       .where('destinataireUid','==',monUid)
       .where('statut','==','sonne')
@@ -86,7 +94,7 @@ window.Signalisation = (function(){
         snap.docChanges().forEach(function(chg){
           if(chg.type==='added') callback(chg.doc.id, chg.doc.data());
         });
-      }, function(err){ console.error('Écoute des appels entrants impossible :', err); });
+      }, function(err){ _logErreur('Écoute des appels entrants impossible', err); });
   }
 
   // sousCollection vaut 'candidatsAppelant' ou 'candidatsDestinataire' selon qui envoie.
@@ -373,12 +381,16 @@ window.appelEcouteEntrants = function(){
   if(_offEntrants || !currentUid) return;
   _offEntrants = window.Signalisation.ecouterAppelsEntrants(currentUid, function(appelId, data){
     // Ignore un nouvel appel si un autre est déjà affiché ou en cours.
-    if(_appelEnCoursDestinataire || _appelId) return;
+    if(_appelEnCoursDestinataire || _appelId){
+      if(window.ajouterEtape) ajouterEtape('⚠️ Appel entrant ignoré — un autre appel semble déjà en cours ('+(appelId)+')', true);
+      return;
+    }
     afficherEcranAppelEntrant(appelId, data);
   });
 }
 
 function afficherEcranAppelEntrant(appelId, data){
+  if(window.ajouterEtape) ajouterEtape('📞 Appel entrant détecté de '+(data.appelantNom||'?')+' ('+data.type+')');
   _appelEnCoursDestinataire = { appelId: appelId, data: data, offAttente: null };
   document.getElementById('icName').textContent = data.appelantNom || 'Utilisateur';
   document.getElementById('icSub').textContent = data.type==='video' ? 'Appel vidéo entrant…' : 'Appel vocal entrant…';
