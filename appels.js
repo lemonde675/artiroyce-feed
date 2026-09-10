@@ -182,6 +182,11 @@ function creerPeerConnection(){
       }
       const av=document.getElementById('callAvatarBig');
       if(av) av.style.display='none';
+    } else {
+      // Appel audio : aucune balise <video> visible ici — il faut quand même
+      // brancher le flux reçu quelque part pour que le son soit audible.
+      const ra=document.getElementById('callRemoteAudio');
+      if(ra && ra.srcObject!==e.streams[0]) ra.srcObject=e.streams[0];
     }
   };
   pc.onconnectionstatechange = function(){
@@ -215,6 +220,8 @@ function nettoyerEtatAppel(){
   if(_pc){ try{ _pc.close(); }catch(e){} _pc=null; }
   const rv=document.getElementById('callRemoteVideo');
   if(rv){ rv.srcObject=null; rv.style.display='none'; }
+  const ra=document.getElementById('callRemoteAudio');
+  if(ra){ ra.srcObject=null; }
   _appelId=null; _appelRole=null;
 }
 
