@@ -171,6 +171,56 @@ let _offDocAppel=null, _offCandidatsDistants=null, _offEntrants=null;
 let _sonnerieTimeoutId=null;
 let _appelEnCoursDestinataire=null; // {appelId, data, offAttente} pendant l'écran "appel entrant"
 
+/* ══════════════ SONNERIE (tonalité sonore) ══════════════
+   Génère un bip localement (Web Audio), aucun fichier son à ajouter au projet.
+   Deux motifs différents pour distinguer à l'oreille "j'appelle" et "on m'appelle" :
+   - 'sortant'  (moi qui appelle) : un bip long régulier, comme une tonalité classique.
+   - 'entrant'  (on m'appelle)    : deux bips courts rapprochés, plus insistant.
+   Remarque : un navigateur bloque parfois un son qui démarre sans qu'aucun clic
+   n'ait eu lieu sur la page avant — le premier tap/clic sur la page (n'importe où)
+   débloque le son pour le reste de la session, avant même qu'un appel n'arrive. */
+let _sonnerieCtx=null, _sonnerieTimers=[];
+
+function _obtenirContexteAudio(){
+  if(!_sonnerieCtx){
+    try{ _sonnerieCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(_sonnerieCtx.state==='suspended') _sonnerieCtx.resume().catch(function(){});
+  return _sonnerieCtx;
+}
+['click','touchstart'].forEach(function(evt){
+  document.addEventListener(evt, function(){ _obtenirContexteAudio(); }, { once:true, passive:true });
+});
+
+function _bip(ctx, freq, debut, duree){
+  const osc=ctx.createOscillator(), gain=ctx.createGain();
+  osc.frequency.value=freq; osc.type='sine';
+  gain.gain.setValueAtTime(0, ctx.currentTime+debut);
+  gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime+debut+0.02);
+  gain.gain.setValueAtTime(0.18, ctx.currentTime+debut+duree-0.02);
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime+debut+duree);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(ctx.currentTime+debut); osc.stop(ctx.currentTime+debut+duree);
+}
+
+function demarrerSonnerie(motif){
+  arreterSonnerie();
+  const ctx=_obtenirContexteAudio();
+  if(!ctx) return;
+  const cycle = motif==='entrant' ? 1800 : 3000;
+  function jouerCycle(){
+    if(motif==='entrant'){ _bip(ctx,880,0,0.35); _bip(ctx,880,0.45,0.35); }
+    else { _bip(ctx,440,0,1.2); }
+    _sonnerieTimers.push(setTimeout(jouerCycle, cycle));
+  }
+  jouerCycle();
+}
+function arreterSonnerie(){
+  _sonnerieTimers.forEach(function(t){ clearTimeout(t); });
+  _sonnerieTimers=[];
+}
+
 function creerPeerConnection(){
   const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
   pc.ontrack = function(e){
@@ -214,6 +264,7 @@ function demarrerChronoAppelReel(){
 // à l'écran/aux boutons (géré côté discussion_v1.html) ni supprimer le document d'appel
 // (fait séparément par l'appelant de la fonction, selon le contexte).
 function nettoyerEtatAppel(){
+  arreterSonnerie();
   if(_offDocAppel){ _offDocAppel(); _offDocAppel=null; }
   if(_offCandidatsDistants){ _offCandidatsDistants(); _offCandidatsDistants=null; }
   if(_sonnerieTimeoutId){ clearTimeout(_sonnerieTimeoutId); _sonnerieTimeoutId=null; }
@@ -255,6 +306,7 @@ window.appelSortant = async function(type){
       offre: { type: offre.type, sdp: offre.sdp }
     });
     document.getElementById('callStatus').textContent='Ça sonne…';
+    demarrerSonnerie('sortant');
 
     _pc.onicecandidate = function(e){
       if(e.candidate) window.Signalisation.ajouterCandidat(_appelId,'candidatsAppelant',e.candidate.toJSON());
@@ -266,16 +318,19 @@ window.appelSortant = async function(type){
     _offDocAppel = window.Signalisation.ecouterAppel(_appelId, function(data){
       if(data.statut==='accepte' && data.reponse && !reponseTraitee){
         reponseTraitee=true;
+        arreterSonnerie();
         if(_sonnerieTimeoutId){ clearTimeout(_sonnerieTimeoutId); _sonnerieTimeoutId=null; }
         document.getElementById('callStatus').textContent='Connexion…';
         _pc.setRemoteDescription(new RTCSessionDescription(data.reponse))
           .catch(function(e){ ajouterEtape('❌ Réponse distante invalide : '+e.message, true); });
       } else if(data.statut==='refuse' && !reponseTraitee){
         reponseTraitee=true;
+        arreterSonnerie();
         document.getElementById('callStatus').textContent='Appel refusé';
         logCallBubble(type,'Refusé');
         terminerSansRaccrocherManuel(1200);
       } else if(data.statut==='raccroche'){
+        arreterSonnerie();
         terminerSansRaccrocherManuel(0);
       }
     });
@@ -284,6 +339,7 @@ window.appelSortant = async function(type){
     _sonnerieTimeoutId = setTimeout(function(){
       if(!reponseTraitee){
         reponseTraitee=true;
+        arreterSonnerie();
         window.Signalisation.mettreAJourStatut(_appelId,'manque');
         document.getElementById('callStatus').textContent='Sans réponse';
         logCallBubble(type,'Sans réponse');
@@ -292,6 +348,7 @@ window.appelSortant = async function(type){
     },35000);
 
   }catch(err){
+    arreterSonnerie();
     ajouterEtape('❌ Échec appel sortant : '+(err&&err.message), true);
     document.getElementById('callStatus').textContent='Impossible de joindre le correspondant';
     logCallBubble(type,'Échec');
@@ -329,10 +386,12 @@ function afficherEcranAppelEntrant(appelId, data){
   document.getElementById('icAvatar').style.background = data.appelantBg || '#999';
   document.getElementById('incomingCallScreen').classList.add('open');
   pushView('incall');
+  demarrerSonnerie('entrant');
 
   // Si l'appelant raccroche/annule avant que je réponde, l'écran se ferme tout seul.
   _appelEnCoursDestinataire.offAttente = window.Signalisation.ecouterAppel(appelId, function(d){
     if(d.statut!=='sonne' && _appelEnCoursDestinataire && _appelEnCoursDestinataire.appelId===appelId){
+      arreterSonnerie();
       if(_appelEnCoursDestinataire.offAttente){ _appelEnCoursDestinataire.offAttente(); }
       _appelEnCoursDestinataire=null;
       if(viewStack[viewStack.length-1]==='incall') requestClose();
@@ -346,6 +405,7 @@ window.appelAccepter = async function(){
   const appelId=_appelEnCoursDestinataire.appelId, data=_appelEnCoursDestinataire.data;
   if(_appelEnCoursDestinataire.offAttente) _appelEnCoursDestinataire.offAttente();
   _appelEnCoursDestinataire=null;
+  arreterSonnerie();
   requestClose(); // ferme l'écran "appel entrant" (pop de la vue 'incall')
 
   const stream = await prepareCallScreen(data.type, data.appelantNom, data.appelantIni, data.appelantBg);
@@ -387,8 +447,13 @@ window.appelAnnulerSiSonne = function(){
   const appelId=_appelEnCoursDestinataire.appelId;
   if(_appelEnCoursDestinataire.offAttente) _appelEnCoursDestinataire.offAttente();
   _appelEnCoursDestinataire=null;
-  window.Signalisation.mettreAJourStatut(appelId,'refuse');
-  window.Signalisation.supprimerAppel(appelId);
+  arreterSonnerie();
+  // Important : attendre que le changement de statut soit bien reçu par Firestore
+  // AVANT de supprimer le document, sinon l'appelant (qui écoute ce document) ne
+  // reçoit jamais l'info "refusé" — seulement "document disparu", qu'il ignore.
+  window.Signalisation.mettreAJourStatut(appelId,'refuse').then(function(){
+    window.Signalisation.supprimerAppel(appelId);
+  });
 }
 
 /* Bouton "Refuser" sur l'écran d'appel entrant. */
@@ -404,8 +469,11 @@ window.appelRefuser = function(){
    en cours (mode démo/conférence, ou déjà nettoyé par un timeout/refus géré ailleurs). */
 window.appelRaccrocher = function(){
   if(_appelId){
-    window.Signalisation.mettreAJourStatut(_appelId,'raccroche');
-    window.Signalisation.supprimerAppel(_appelId);
+    const idAppel=_appelId;
+    // Même logique : on attend la confirmation du statut avant de supprimer.
+    window.Signalisation.mettreAJourStatut(idAppel,'raccroche').then(function(){
+      window.Signalisation.supprimerAppel(idAppel);
+    });
   }
   nettoyerEtatAppel();
 }
