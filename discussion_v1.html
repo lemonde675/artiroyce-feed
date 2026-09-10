@@ -2987,6 +2987,8 @@ async function prepareCallScreen(type,nom,ini,bg){
   callType=type;callSeconds=0;callMuted=false;callCamOff=false;
   const volSlider=document.getElementById('callVolumeSlider');
   if(volSlider) volSlider.value=100;
+  const spkBtn=document.getElementById('callSpkBtn');
+  if(spkBtn){ spkBtn.classList.remove('active'); spkBtn.textContent='🔊'; }
   document.getElementById('callName').textContent=nom;
   document.getElementById('callAvatarBig').textContent=ini;
   document.getElementById('callAvatarBig').style.background=bg;
@@ -3061,8 +3063,11 @@ window.toggleCam=function(){
   document.getElementById('callCamBtn').textContent=callCamOff?'🚫':'📷';
 }
 window.toggleSpk=function(){
-  const b=document.getElementById('callSpkBtn');b.classList.toggle('active');
-  toast('🔊 Haut-parleur (contrôle système du téléphone)','')
+  const b=document.getElementById('callSpkBtn');
+  const coupe=b.classList.toggle('active');
+  b.textContent=coupe?'🔇':'🔊';
+  const slider=document.getElementById('callVolumeSlider');
+  onCallVolumeChange(coupe ? 0 : (slider?slider.value:100));
 }
 // Curseur de volume dédié à l'appel : agit directement sur le son reçu du
 // correspondant, indépendamment du volume général de l'appareil.
