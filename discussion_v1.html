@@ -356,6 +356,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .video-bbl.expanded .video-back-pc{display:flex}
 .call-pending-note{font-size:11.5px;color:#9a8760;text-align:center;padding:0 34px;line-height:1.6;position:relative;z-index:2}
 .call-ctrls{display:flex;justify-content:center;gap:16px;padding:22px 20px calc(46px + env(safe-area-inset-bottom, 0px));flex-shrink:0;position:relative;z-index:2}
+.call-vol-row{display:flex;align-items:center;gap:10px;padding:0 34px;position:relative;z-index:2;font-size:15px}
+.call-vol-row input[type="range"]{flex:1;accent-color:var(--red,#e63224)}
 .call-ctrl{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65);border:none;color:#2b2013;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;
   box-shadow:0 6px 16px rgba(43,32,19,.1);backdrop-filter:blur(6px);transition:transform .15s}
 .call-ctrl:active{transform:scale(.92)}
@@ -733,6 +735,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="call-local-video" id="callLocalWrap" onclick="toggleAgrandirVideoLocale()"><video id="callLocalVideo" autoplay muted playsinline></video></div>
   </div>
   <div class="call-pending-note" id="callPendingNote">ℹ️ La connexion audio/vidéo est directe avec votre correspondant, sans passer par nos serveurs.</div>
+  <div class="call-vol-row" id="callVolRow">
+    <span>🔈</span>
+    <input type="range" id="callVolumeSlider" min="0" max="100" value="100" oninput="onCallVolumeChange(this.value)"/>
+    <span>🔊</span>
+  </div>
   <div class="call-ctrls">
     <button class="call-ctrl" id="callMuteBtn" onclick="toggleMute()">🎙️</button>
     <button class="call-ctrl" id="callCamBtn" onclick="toggleCam()">📷</button>
@@ -2978,6 +2985,8 @@ window.startCall=async function(type){startCallReal(type)}
    (nom/avatar = l'appelant). Renvoie le flux local, ou null si micro/caméra refusés. */
 async function prepareCallScreen(type,nom,ini,bg){
   callType=type;callSeconds=0;callMuted=false;callCamOff=false;
+  const volSlider=document.getElementById('callVolumeSlider');
+  if(volSlider) volSlider.value=100;
   document.getElementById('callName').textContent=nom;
   document.getElementById('callAvatarBig').textContent=ini;
   document.getElementById('callAvatarBig').style.background=bg;
@@ -3054,6 +3063,13 @@ window.toggleCam=function(){
 window.toggleSpk=function(){
   const b=document.getElementById('callSpkBtn');b.classList.toggle('active');
   toast('🔊 Haut-parleur (contrôle système du téléphone)','')
+}
+// Curseur de volume dédié à l'appel : agit directement sur le son reçu du
+// correspondant, indépendamment du volume général de l'appareil.
+window.onCallVolumeChange=function(val){
+  const v=Math.max(0,Math.min(100,parseInt(val,10)||0))/100;
+  const rv=document.getElementById('callRemoteVideo'); if(rv) rv.volume=v;
+  const ra=document.getElementById('callRemoteAudio'); if(ra) ra.volume=v;
 }
 window.endCall=function(){fermerVueLocale('call')}
 function logCallBubble(type,label){
