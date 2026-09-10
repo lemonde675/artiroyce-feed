@@ -251,9 +251,20 @@ function creerPeerConnection(){
     ajouterEtape('Appel — état de connexion : '+pc.connectionState);
     if(pc.connectionState==='connected'){
       demarrerChronoAppelReel();
-    } else if(pc.connectionState==='failed' || pc.connectionState==='disconnected'){
+    } else if(pc.connectionState==='disconnected'){
       const st=document.getElementById('callStatus');
       if(st && !callTimerInt) st.textContent='Connexion impossible avec le correspondant';
+    } else if(pc.connectionState==='failed'){
+      // Échec définitif (contrairement à "disconnected" qui peut parfois se rétablir tout
+      // seul) : avant, rien ne se passait ici et l'appel restait bloqué indéfiniment,
+      // empêchant même de recevoir un appel suivant. On ferme proprement, automatiquement.
+      const st=document.getElementById('callStatus');
+      if(st) st.textContent='Connexion perdue avec le correspondant';
+      ajouterEtape('⚠️ Connexion définitivement perdue — fermeture automatique de l\'appel', true);
+      const appelIdAuMomentEchec=_appelId;
+      setTimeout(function(){
+        if(_appelId===appelIdAuMomentEchec && window.requestClose) requestClose();
+      }, 1500);
     }
   };
   return pc;
@@ -418,7 +429,15 @@ window.appelAccepter = async function(){
   if(_appelEnCoursDestinataire.offAttente) _appelEnCoursDestinataire.offAttente();
   _appelEnCoursDestinataire=null;
   arreterSonnerie();
-  requestClose(); // ferme l'écran "appel entrant" (pop de la vue 'incall')
+  // Fermeture SYNCHRONE de l'écran "appel entrant" (au lieu de requestClose(), qui
+  // passe par history.back() — asynchrone). Sans ça, l'écran d'appel réel ouvert juste
+  // après (pushView('call')) pouvait se faire refermer par erreur par ce back() encore
+  // en cours de traitement par le navigateur — d'où l'appel qui « coupait tout seul ».
+  document.getElementById('incomingCallScreen').classList.remove('open');
+  if(viewStack.length && viewStack[viewStack.length-1]==='incall'){
+    viewStack.pop();
+    history.replaceState({depth:viewStack.length},'',location.href);
+  }
 
   const stream = await prepareCallScreen(data.type, data.appelantNom, data.appelantIni, data.appelantBg);
   if(!stream) return;
