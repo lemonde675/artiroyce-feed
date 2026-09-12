@@ -1517,11 +1517,35 @@ async function publishStatut(){
     // gros) ; seul le lien de téléchargement, une petite chaîne de texte, va dans Firestore —
     // ainsi tout le monde peut la voir, pas seulement l'auteur dans sa propre session.
     var videoUrl=null;
+    var surveillanceUpload=null;
     if(editorMode==='video'&&editorVideoFile){
-      if(btn)btn.textContent='Envoi de la vidéo…';
+      if(btn)btn.textContent='Envoi de la vidéo… 0%';
       var chemin='statuts_videos/'+window.currentUid+'_'+Date.now()+'_'+editorVideoFile.name;
       var sRef=window.fb.storageRef(window.storage,chemin);
-      await window.fb.uploadBytes(sRef,editorVideoFile);
+      var uploadTask=window.fb.uploadBytes(sRef,editorVideoFile); // renvoie l'UploadTask (pas juste une Promise) pour pouvoir suivre sa progression
+
+      // Filet de sécurité : si l'upload reste bloqué à 0% de progression pendant 25s
+      // (réseau qui ne démarre jamais, blocage silencieux…), on annule proprement au lieu
+      // de laisser le bouton tourner indéfiniment — jamais coupé si ça progresse, même lentement.
+      var derniereProgressionPct=-1, derniereProgressionTs=Date.now();
+      surveillanceUpload=setInterval(function(){
+        if(derniereProgressionPct<=0 && Date.now()-derniereProgressionTs>25000){
+          clearInterval(surveillanceUpload);
+          uploadTask.cancel();
+        }
+      },1000);
+
+      uploadTask.on('state_changed', function(snap){
+        var pct=snap.totalBytes?Math.round((snap.bytesTransferred/snap.totalBytes)*100):0;
+        if(pct!==derniereProgressionPct){derniereProgressionPct=pct;derniereProgressionTs=Date.now();}
+        if(btn)btn.textContent='Envoi de la vidéo… '+pct+'%';
+      });
+
+      try{
+        await uploadTask;
+      }finally{
+        if(surveillanceUpload)clearInterval(surveillanceUpload);
+      }
       videoUrl=await window.fb.getDownloadURL(sRef);
       if(btn)btn.textContent='Publication…';
     }
@@ -1555,7 +1579,8 @@ async function publishStatut(){
   }catch(e){
     console.error(e);
     var msgErreur = 'Erreur lors de la publication';
-    if (editorMode==='video') msgErreur += ' — vérifie que Firebase Storage est activé sur ton projet';
+    if (e && e.code === 'storage/canceled') msgErreur = '⚠️ Envoi vidéo interrompu (aucune progression après 25s) — vérifie ta connexion et réessaie';
+    else if (editorMode==='video') msgErreur += ' — vérifie que Firebase Storage est activé sur ton projet';
     else if (e && e.message && /longer than|exceeds|too large|invalid-argument/i.test(e.message)) msgErreur = '⚠️ Contenu trop volumineux pour être publié — réessaie avec moins de photos';
     toast(msgErreur,'');
   }finally{
