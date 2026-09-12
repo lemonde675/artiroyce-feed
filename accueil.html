@@ -782,6 +782,17 @@ function toggleSiteWidth(){
     const panelPrecedent = currentPanel;
     currentPanel = index;
 
+    // Signale au panneau qu'on quitte (déjà chargé) qu'il n'est plus affiché : sans ça,
+    // une vidéo ou une musique de statut en cours de lecture continuait de jouer en
+    // arrière-plan après avoir changé d'onglet.
+    if (panelPrecedent !== index) {
+      const prevPanelEl = document.getElementById('panel-' + panelPrecedent);
+      const prevIfr = prevPanelEl && prevPanelEl.querySelector('iframe[data-src]');
+      if (prevIfr && prevIfr.contentWindow) {
+        try { prevIfr.contentWindow.postMessage({ type: 'panelCache' }, '*'); } catch (e) {}
+      }
+    }
+
     if (!depuisPopstateAcc && panelPrecedent === 0 && index !== 0) {
       try { history.pushState({ panelAcc: index }, '', location.href); } catch (e) {}
     }
