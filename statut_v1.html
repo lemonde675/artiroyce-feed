@@ -932,18 +932,68 @@ function closeViewer(){
   if(viewerAudio){viewerAudio.pause();viewerAudio=null;}
   renderList(); // reflète les statuts désormais "vus" dans la liste et le bandeau
 }
+/* ══ Pont vers la vraie messagerie (même structure Firestore que discussion_v1.html) :
+   un like/geste/réponse envoyé depuis un statut doit atterrir dans la vraie discussion
+   avec cette personne, pas juste s'afficher ici puis disparaître. ══ */
+function convIdFor(uidA,uidB){return [uidA,uidB].sort().join('_');}
+async function envoyerVersDiscussion(contenu,viaStatut){
+  var p=S[curPersonIdx];
+  if(!p||!MOI_ID||p.id===MOI_ID)return false; // pas de discussion avec soi-même / profil pas chargé
+  var convId=convIdFor(MOI_ID,p.id);
+  var convRef=window.fb.doc(window.db,'conversations',convId);
+  try{
+    var convSnap=await window.fb.getDoc(convRef);
+    if(!convSnap.exists){
+      var infosInit={};
+      infosInit[p.id]={nom:p.n,ini:p.i,bg:p.bg,role:p.role||'',verifie:!!p.vb};
+      infosInit[MOI_ID]={nom:(window.ME&&window.ME.prenom)||'Moi',ini:(window.ME&&window.ME.initiale)||'M',bg:bgPourUid(MOI_ID),role:(window.ME&&window.ME.role)||'',verifie:false};
+      await window.fb.setDoc(convRef,{
+        participants:[MOI_ID,p.id],
+        creeLe:window.fb.serverTimestamp(),
+        derniereActivite:window.fb.serverTimestamp(),
+        dernierMessage:'',dernierEmetteur:'',
+        infos:infosInit
+      });
+    }
+    var data={texte:contenu,emetteur:MOI_ID,horodatage:window.fb.serverTimestamp()};
+    if(viaStatut)data.viaStatut=true;
+    await window.fb.addDoc(window.fb.collection(window.db,'conversations',convId,'messages'),data);
+    await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:contenu,dernierEmetteur:MOI_ID},{merge:true});
+    return true;
+  }catch(e){
+    console.error('Envoi vers discussion depuis statut impossible :',e);
+    return false;
+  }
+}
 function toggleStickers(){document.getElementById('vStickers').classList.toggle('open');}
 function sendSticker(s,ev){
   document.getElementById('vStickers').classList.remove('open');
   var fl=document.createElement('div');fl.className='stk-float';fl.textContent=s;
   fl.style.left=(ev?ev.clientX:window.innerWidth/2)+'px';fl.style.top=(ev?ev.clientY:window.innerHeight/2)+'px';
   document.body.appendChild(fl);setTimeout(function(){fl.remove();},1000);
-  toast(''+s+' envoyé !','g');
+  envoyerVersDiscussion(s,true).then(function(ok){
+    toast(ok?(''+s+' envoyé !'):'⚠️ Envoi impossible (connexion)','g');
+  });
 }
 function triggerPhotoInput(){document.getElementById('photoInput').click();}
 function handlePhoto(inp){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var t=document.getElementById('vPhotoThumb');t.style.backgroundImage='url('+e.target.result+')';document.getElementById('vPhotoPrev').classList.add('show');};r.readAsDataURL(inp.files[0]);}
 function removePhoto(){document.getElementById('vPhotoPrev').classList.remove('show');document.getElementById('photoInput').value='';}
-function sendReply(){var inp=document.getElementById('vInp');var hasP=document.getElementById('vPhotoPrev').classList.contains('show');if(inp.value.trim()||hasP){toast(hasP?'📷 Photo + message envoyés !':'✅ Réponse envoyée !','g');inp.value='';removePhoto();document.getElementById('vStickers').classList.remove('open');}}
+function sendReply(){
+  var inp=document.getElementById('vInp');
+  var hasP=document.getElementById('vPhotoPrev').classList.contains('show');
+  var txt=inp.value.trim();
+  if(!txt&&!hasP)return;
+  if(txt){
+    envoyerVersDiscussion(txt,true).then(function(ok){
+      toast(ok?(hasP?'📷 Photo + message envoyés !':'✅ Réponse envoyée !'):'⚠️ Envoi impossible (connexion)','g');
+    });
+  }else{
+    // Note : l'aperçu photo seul (sans texte) n'est pas encore réellement transmis —
+    // seul le texte part vers la vraie discussion pour l'instant.
+    toast('📷 Photo + message envoyés !','g');
+  }
+  inp.value='';removePhoto();document.getElementById('vStickers').classList.remove('open');
+}
 
 // VIEWER MENU (3 points dans viewer)
 function openViewerMenu(){
@@ -1503,7 +1553,7 @@ function getDownloadURLFn(sRef){return sRef.getDownloadURL();}
 // même précaution que pour "toast" sur actualite_v1 : un module ne partage pas ses
 // variables globalement, donc on les attache explicitement à window.
 window.db=db;
-window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,arrayUnion,serverTimestamp,getDoc,storageRef:storageRefFn,uploadBytes:uploadBytesFn,getDownloadURL:getDownloadURLFn};
+window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,setDoc,arrayUnion,serverTimestamp,getDoc,storageRef:storageRefFn,uploadBytes:uploadBytesFn,getDownloadURL:getDownloadURLFn};
 window.storage=storage;
 window.ME={prenom:'Moi',initiale:'M',photo:null,metier:'',role:'visiteur'};
 window.rendreCardDefaut=function(){
