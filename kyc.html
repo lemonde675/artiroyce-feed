@@ -18,12 +18,11 @@
 
     .progress-wrap { background: #fff; padding: 14px 16px 16px; border-bottom: 1px solid #eee; }
     .progress-title { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .progress-steps { display: flex; gap: 6px; align-items: center; }
-    .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; background: #e0e0e0; color: #888; flex-shrink: 0; transition: all 0.3s; }
-    .step-dot.done   { background: var(--green); color: #fff; }
-    .step-dot.active { background: var(--red); color: #fff; }
-    .step-line { flex: 1; height: 3px; background: #e0e0e0; border-radius: 2px; transition: background 0.3s; }
-    .step-line.done { background: var(--green); }
+    /* Barre de progression simple (remplace les dots fixes : le nombre de documents
+       obligatoires varie selon le type de pièce d'identité choisi — CNI/permis = recto+verso,
+       passeport = 1 seule page — donc un compte fixe de "5 étapes" n'a plus de sens ici) */
+    .progress-bar-wrap { background: #e0e0e0; border-radius: 4px; height: 8px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--green); border-radius: 4px; width: 0%; transition: width 0.3s; }
 
     .kyc-hero { margin: 16px; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 24px 20px; position: relative; }
     .kyc-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(230,50,36,0.15), rgba(39,169,69,0.15)); }
@@ -95,6 +94,14 @@
 
     .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
+    /* ── Sélecteur de type de document d'identité (CNI / Passeport / Permis) ── */
+    .doctype-picker { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .doctype-btn { border: 2px solid #ddd; background: #fafafa; border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .doctype-btn .doctype-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .doctype-btn .doctype-label { font-size: 11px; font-weight: 700; color: #555; }
+    .doctype-btn.active { border-color: var(--green); background: #f0fff4; }
+    .doctype-btn.active .doctype-label { color: var(--green); }
+
     .tip-box { background: #f8f9fa; border-radius: 10px; padding: 12px 14px; margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; }
     .tip-box.warning { background: #fff8e1; }
     .tip-box.info    { background: #e8f4fd; }
@@ -112,6 +119,11 @@
     .btn-submit { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--green), #1e8c38); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(39,169,69,0.3); }
     .btn-submit:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
     .submit-note { text-align: center; font-size: 11px; color: #aaa; margin-top: 12px; line-height: 1.5; }
+
+    /* ── Bandeau de confiance (protection des documents) ── */
+    .trust-box { display: flex; gap: 10px; align-items: flex-start; background: #fdf0f7; border: 1px solid #f8c9e0; border-radius: 12px; padding: 12px 14px; }
+    .trust-box .trust-icon { font-size: 18px; flex-shrink: 0; }
+    .trust-box .trust-text { font-size: 12px; color: #ec4899; line-height: 1.5; font-weight: 600; }
 
     /* Overlay envoi */
     .upload-progress-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 500; display: none; align-items: center; justify-content: center; }
@@ -170,19 +182,15 @@
 <div class="progress-wrap">
   <div class="progress-title">
     <span>Vérification KYC</span>
-    <span style="font-size:12px;color:#888;" id="progressCount">0 / 5 complétés</span>
+    <span style="font-size:12px;color:#888;" id="progressCount">0 / 4 complétés</span>
   </div>
-  <div class="progress-steps">
-    <div class="step-dot active" id="dot1">1</div>
-    <div class="step-line" id="line1"></div>
-    <div class="step-dot" id="dot2">2</div>
-    <div class="step-line" id="line2"></div>
-    <div class="step-dot" id="dot3">3</div>
-    <div class="step-line" id="line3"></div>
-    <div class="step-dot" id="dot4">4</div>
-    <div class="step-line" id="line4"></div>
-    <div class="step-dot" id="dot5">5</div>
-  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBarFill"></div></div>
+</div>
+
+<!-- BANDEAU DE CONFIANCE -->
+<div class="trust-box" style="margin:12px 16px 0;">
+  <div class="trust-icon">🔒</div>
+  <div class="trust-text">Vos documents sont protégés et ne servent qu'à cette vérification d'identité. Ils ne sont jamais partagés ni utilisés à d'autres fins.</div>
 </div>
 
 <!-- HERO -->
@@ -192,10 +200,10 @@
     <h2>Prouvez votre identité pour être visible</h2>
     <p>Sans cette vérification, votre profil ne sera pas visible par les clients et les fans. La vérification prend 24 à 48h.</p>
     <div class="kyc-hero-steps">
-      <div class="kyc-hero-step"><span>🤳</span>Selfie + carte</div>
-      <div class="kyc-hero-step"><span>👤</span>Photo identité</div>
-      <div class="kyc-hero-step"><span>🪪</span>CNI recto/verso</div>
-      <div class="kyc-hero-step"><span>📄</span>Documents</div>
+      <div class="kyc-hero-step"><span>🤳</span>Selfie + pièce</div>
+      <div class="kyc-hero-step"><span>🪪</span>Pièce d'identité</div>
+      <div class="kyc-hero-step"><span>🏠</span>Domicile</div>
+      <div class="kyc-hero-step"><span>📎</span>Extra (optionnel)</div>
     </div>
   </div>
 </div>
@@ -234,131 +242,129 @@
   </div>
 </div>
 
-<!-- 2. PHOTO IDENTITÉ -->
-<div class="kyc-section">
-  <div class="kyc-section-header">
-    <div class="section-icon blue">👤</div>
-    <div class="section-header-text">
-      <div class="section-header-title">Photo d'identité personnelle</div>
-      <div class="section-header-sub">Portrait seul, visage bien visible</div>
-    </div>
-    <span class="required-badge">OBLIGATOIRE</span>
-  </div>
-  <div class="kyc-section-body">
-    <div class="upload-zone" id="zone-photo">
-      <div class="upload-btn-area">
-        <div class="upload-icon">🧑</div>
-        <div class="upload-title">Photo portrait</div>
-        <div class="upload-sub">Fond clair, visage droit, sans lunettes de soleil</div>
-      </div>
-      <img class="upload-preview" id="preview-photo" alt=""/>
-      <div class="upload-filename" id="name-photo"></div>
-      <div class="upload-check">✓</div>
-      <div class="upload-btns">
-        <button class="upload-btn-cam" onclick="takePicture('photo')">📷 Caméra</button>
-        <button class="upload-btn-gal" onclick="pickGallery('photo')">🖼️ Galerie</button>
-      </div>
-      <input type="file" class="file-input-cam" id="cam-photo" accept="image/*" capture="user" onchange="handleFile('photo', this)"/>
-      <input type="file" class="file-input-gal" id="gal-photo" accept="image/*" onchange="handleFile('photo', this)"/>
-    </div>
-    <div class="tip-box info">
-      <div class="tip-icon">ℹ️</div>
-      <div class="tip-text">Cette photo sera comparée à votre carte d'identité par notre équipe pour confirmer que c'est bien vous.</div>
-    </div>
-  </div>
-</div>
-
-<!-- 3. CNI RECTO + VERSO -->
+<!-- 2. DOCUMENT D'IDENTITÉ (CNI / Passeport / Permis — un seul au choix) -->
 <div class="kyc-section">
   <div class="kyc-section-header">
     <div class="section-icon green">🪪</div>
     <div class="section-header-text">
-      <div class="section-header-title">Carte d'identité nationale</div>
-      <div class="section-header-sub">Recto ET verso obligatoires</div>
+      <div class="section-header-title">Document d'identité</div>
+      <div class="section-header-sub">Choisissez le document que vous possédez</div>
     </div>
     <span class="required-badge">OBLIGATOIRE</span>
   </div>
   <div class="kyc-section-body">
-    <div class="upload-grid">
+    <div class="doctype-picker" id="doctypePicker">
+      <div class="doctype-btn active" id="doctype-btn-cni" onclick="setDocType('cni')">
+        <span class="doctype-icon">🪪</span><span class="doctype-label">CNI</span>
+      </div>
+      <div class="doctype-btn" id="doctype-btn-passport" onclick="setDocType('passport')">
+        <span class="doctype-icon">🛂</span><span class="doctype-label">Passeport</span>
+      </div>
+      <div class="doctype-btn" id="doctype-btn-permis" onclick="setDocType('permis')">
+        <span class="doctype-icon">🚗</span><span class="doctype-label">Permis</span>
+      </div>
+    </div>
+
+    <!-- Recto/verso : visible pour CNI et Permis -->
+    <div class="upload-grid" id="idRectoVersoWrap">
       <div>
         <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;text-align:center;">FACE AVANT (RECTO)</div>
-        <div class="upload-zone" id="zone-cni-recto">
+        <div class="upload-zone" id="zone-id-recto">
           <div class="upload-btn-area">
             <div class="upload-icon">📋</div>
-            <div class="upload-title" style="font-size:12px;">Recto CNI</div>
+            <div class="upload-title" style="font-size:12px;" id="idRectoLabel">Recto CNI</div>
           </div>
-          <img class="upload-preview" id="preview-cni-recto" alt=""/>
-          <div class="upload-filename" id="name-cni-recto"></div>
+          <img class="upload-preview" id="preview-id-recto" alt=""/>
+          <div class="upload-filename" id="name-id-recto"></div>
           <div class="upload-check">✓</div>
           <div class="upload-btns">
-            <button class="upload-btn-cam" style="font-size:10px;" onclick="takePicture('cni-recto')">📷</button>
-            <button class="upload-btn-gal" style="font-size:10px;" onclick="pickGallery('cni-recto')">🖼️</button>
+            <button class="upload-btn-cam" style="font-size:10px;" onclick="takePicture('id-recto')">📷</button>
+            <button class="upload-btn-gal" style="font-size:10px;" onclick="pickGallery('id-recto')">🖼️</button>
           </div>
-          <input type="file" class="file-input-cam" id="cam-cni-recto" accept="image/*" capture="environment" onchange="handleFile('cni-recto', this)"/>
-          <input type="file" class="file-input-gal" id="gal-cni-recto" accept="image/*" onchange="handleFile('cni-recto', this)"/>
+          <input type="file" class="file-input-cam" id="cam-id-recto" accept="image/*" capture="environment" onchange="handleFile('id-recto', this)"/>
+          <input type="file" class="file-input-gal" id="gal-id-recto" accept="image/*" onchange="handleFile('id-recto', this)"/>
         </div>
       </div>
       <div>
         <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;text-align:center;">FACE ARRIÈRE (VERSO)</div>
-        <div class="upload-zone" id="zone-cni-verso">
+        <div class="upload-zone" id="zone-id-verso">
           <div class="upload-btn-area">
             <div class="upload-icon">📋</div>
-            <div class="upload-title" style="font-size:12px;">Verso CNI</div>
+            <div class="upload-title" style="font-size:12px;" id="idVersoLabel">Verso CNI</div>
           </div>
-          <img class="upload-preview" id="preview-cni-verso" alt=""/>
-          <div class="upload-filename" id="name-cni-verso"></div>
+          <img class="upload-preview" id="preview-id-verso" alt=""/>
+          <div class="upload-filename" id="name-id-verso"></div>
           <div class="upload-check">✓</div>
           <div class="upload-btns">
-            <button class="upload-btn-cam" style="font-size:10px;" onclick="takePicture('cni-verso')">📷</button>
-            <button class="upload-btn-gal" style="font-size:10px;" onclick="pickGallery('cni-verso')">🖼️</button>
+            <button class="upload-btn-cam" style="font-size:10px;" onclick="takePicture('id-verso')">📷</button>
+            <button class="upload-btn-gal" style="font-size:10px;" onclick="pickGallery('id-verso')">🖼️</button>
           </div>
-          <input type="file" class="file-input-cam" id="cam-cni-verso" accept="image/*" capture="environment" onchange="handleFile('cni-verso', this)"/>
-          <input type="file" class="file-input-gal" id="gal-cni-verso" accept="image/*" onchange="handleFile('cni-verso', this)"/>
+          <input type="file" class="file-input-cam" id="cam-id-verso" accept="image/*" capture="environment" onchange="handleFile('id-verso', this)"/>
+          <input type="file" class="file-input-gal" id="gal-id-verso" accept="image/*" onchange="handleFile('id-verso', this)"/>
         </div>
       </div>
     </div>
+
+    <!-- Page unique : visible pour Passeport uniquement -->
+    <div class="upload-zone" id="zone-id-single" style="display:none;">
+      <div class="upload-btn-area">
+        <div class="upload-icon">🛂</div>
+        <div class="upload-title">Page d'identité du passeport</div>
+        <div class="upload-sub">La page avec votre photo et vos informations</div>
+      </div>
+      <img class="upload-preview" id="preview-id-single" alt=""/>
+      <div class="upload-filename" id="name-id-single"></div>
+      <div class="upload-check">✓</div>
+      <div class="upload-btns">
+        <button class="upload-btn-cam" onclick="takePicture('id-single')">📷 Caméra</button>
+        <button class="upload-btn-gal" onclick="pickGallery('id-single')">🖼️ Galerie</button>
+      </div>
+      <input type="file" class="file-input-cam" id="cam-id-single" accept="image/*" capture="environment" onchange="handleFile('id-single', this)"/>
+      <input type="file" class="file-input-gal" id="gal-id-single" accept="image/*" onchange="handleFile('id-single', this)"/>
+    </div>
+
     <div class="tip-box warning">
       <div class="tip-icon">⚠️</div>
-      <div class="tip-text"><strong>Important :</strong> La carte doit être à plat, bien éclairée, sans reflet. Tous les coins doivent être visibles.</div>
+      <div class="tip-text"><strong>Important :</strong> Le document doit être à plat, bien éclairé, sans reflet, en cours de validité. Tous les coins doivent être visibles.</div>
     </div>
   </div>
 </div>
 
-<!-- 4. DOCUMENT OFFICIEL -->
+<!-- 3. JUSTIFICATIF DE DOMICILE -->
 <div class="kyc-section">
   <div class="kyc-section-header">
-    <div class="section-icon orange">📄</div>
+    <div class="section-icon orange">🏠</div>
     <div class="section-header-text">
-      <div class="section-header-title">Document officiel</div>
-      <div class="section-header-sub">Acte de naissance, certificat de nationalité…</div>
+      <div class="section-header-title">Justificatif de domicile</div>
+      <div class="section-header-sub">Preuve de résidence de moins de 3 mois</div>
     </div>
     <span class="required-badge">OBLIGATOIRE</span>
   </div>
   <div class="kyc-section-body">
-    <div class="upload-zone" id="zone-doc">
+    <div class="upload-zone" id="zone-domicile">
       <div class="upload-btn-area">
-        <div class="upload-icon">🗂️</div>
-        <div class="upload-title">Acte de naissance ou certificat</div>
-        <div class="upload-sub">Document délivré par l'État</div>
+        <div class="upload-icon">🏠</div>
+        <div class="upload-title">Facture, relevé bancaire ou attestation</div>
+        <div class="upload-sub">À votre nom, de moins de 3 mois</div>
       </div>
-      <img class="upload-preview" id="preview-doc" alt=""/>
-      <div class="upload-filename" id="name-doc"></div>
+      <img class="upload-preview" id="preview-domicile" alt=""/>
+      <div class="upload-filename" id="name-domicile"></div>
       <div class="upload-check">✓</div>
       <div class="upload-btns">
-        <button class="upload-btn-cam" onclick="takePicture('doc')">📷 Caméra</button>
-        <button class="upload-btn-gal" onclick="pickGallery('doc')">🖼️ Galerie</button>
+        <button class="upload-btn-cam" onclick="takePicture('domicile')">📷 Caméra</button>
+        <button class="upload-btn-gal" onclick="pickGallery('domicile')">🖼️ Galerie</button>
       </div>
-      <input type="file" class="file-input-cam" id="cam-doc" accept="image/*" capture="environment" onchange="handleFile('doc', this)"/>
-      <input type="file" class="file-input-gal" id="gal-doc" accept="image/*,application/pdf" onchange="handleFile('doc', this)"/>
+      <input type="file" class="file-input-cam" id="cam-domicile" accept="image/*" capture="environment" onchange="handleFile('domicile', this)"/>
+      <input type="file" class="file-input-gal" id="gal-domicile" accept="image/*,application/pdf" onchange="handleFile('domicile', this)"/>
     </div>
     <div class="tip-box info">
       <div class="tip-icon">📋</div>
-      <div class="tip-text">Exemples : acte de naissance, certificat de nationalité, extrait de casier judiciaire, document officiel d'état civil.</div>
+      <div class="tip-text">Documents acceptés : facture d'électricité, d'eau ou d'internet fixe, relevé de compte bancaire — de moins de 3 mois et à votre nom. <strong>Ou :</strong> une attestation de résidence légale, légalisée par une autorité compétente (mairie, quartier, arrondissement…).</div>
     </div>
   </div>
 </div>
 
-<!-- 5. DOCUMENTS SUPPLÉMENTAIRES -->
+<!-- 4. DOCUMENTS SUPPLÉMENTAIRES (optionnel) -->
 <div class="kyc-section">
   <div class="kyc-section-header">
     <div class="section-icon purple">📎</div>
@@ -390,15 +396,12 @@
 
 <!-- SUBMIT -->
 <div class="submit-section">
-  <div class="checklist" id="checklist">
-    <div class="checklist-item"><div class="check-circle" id="chk-selfie">—</div><span>🤳 Selfie avec carte d'identité en main</span></div>
-    <div class="checklist-item"><div class="check-circle" id="chk-photo">—</div><span>👤 Photo d'identité personnelle</span></div>
-    <div class="checklist-item"><div class="check-circle" id="chk-cni-recto">—</div><span>🪪 CNI Recto</span></div>
-    <div class="checklist-item"><div class="check-circle" id="chk-cni-verso">—</div><span>🪪 CNI Verso</span></div>
-    <div class="checklist-item"><div class="check-circle" id="chk-doc">—</div><span>📄 Document officiel</span></div>
+  <div class="checklist" id="checklist"></div>
+  <div class="trust-box" style="margin-bottom:14px;">
+    <div class="trust-icon">🔒</div>
+    <div class="trust-text">Vos documents sont chiffrés et sécurisés — utilisés uniquement pour cette vérification. La vérification prend 24 à 48 heures ouvrables.</div>
   </div>
   <button class="btn-submit" id="btnSubmit" onclick="submitKYC()" disabled>🔒 Soumettre mon dossier KYC</button>
-  <div class="submit-note">Vos documents sont chiffrés et sécurisés.<br/>La vérification prend 24 à 48 heures ouvrables.</div>
 </div>
 
 <script type="module">
@@ -421,15 +424,56 @@
 
   let currentUser = null;
 
-  // Stockage des fichiers et base64
-  const files   = { selfie: null, photo: null, 'cni-recto': null, 'cni-verso': null, doc: null, extra: null };
-  const base64s = { selfie: null, photo: null, 'cni-recto': null, 'cni-verso': null, doc: null, extra: null };
-  const required = ['selfie', 'photo', 'cni-recto', 'cni-verso', 'doc'];
+  // Stockage des fichiers et base64 (toutes les clés possibles, utilisées ou non selon le type de document)
+  const files   = { selfie: null, 'id-recto': null, 'id-verso': null, 'id-single': null, domicile: null, extra: null };
+  const base64s = { selfie: null, 'id-recto': null, 'id-verso': null, 'id-single': null, domicile: null, extra: null };
+
+  // Type de document d'identité choisi : 'cni' | 'passport' | 'permis'
+  let docType = 'cni';
+
+  // Libellés des documents obligatoires, utilisés à la fois pour la checklist et les messages
+  const REQUIRED_LABELS = {
+    'selfie':     '🤳 Selfie avec document d\'identité en main',
+    'id-recto':   '🪪 Recto de la pièce d\'identité',
+    'id-verso':   '🪪 Verso de la pièce d\'identité',
+    'id-single':  '🛂 Page d\'identité du passeport',
+    'domicile':   '🏠 Justificatif de domicile'
+  };
+
+  // Liste des documents obligatoires : varie selon le type de pièce choisi
+  // (CNI/Permis = recto + verso ; Passeport = une seule page)
+  function getRequired() {
+    const idKeys = (docType === 'passport') ? ['id-single'] : ['id-recto', 'id-verso'];
+    return ['selfie', ...idKeys, 'domicile'];
+  }
+
+  // ── Changement de type de document (CNI / Passeport / Permis) ──
+  window.setDocType = function(type) {
+    docType = type;
+    document.querySelectorAll('.doctype-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`doctype-btn-${type}`).classList.add('active');
+
+    const isPassport = (type === 'passport');
+    document.getElementById('idRectoVersoWrap').style.display = isPassport ? 'none' : 'grid';
+    document.getElementById('zone-id-single').style.display   = isPassport ? 'block' : 'none';
+
+    const nomDoc = type === 'cni' ? 'CNI' : type === 'permis' ? 'permis' : 'passeport';
+    const rectoLbl = document.getElementById('idRectoLabel');
+    const versoLbl = document.getElementById('idVersoLabel');
+    if (rectoLbl) rectoLbl.textContent = 'Recto ' + nomDoc;
+    if (versoLbl) versoLbl.textContent = 'Verso ' + nomDoc;
+
+    updateChecklist();
+  };
 
   onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = 'connexion.html'; return; }
     currentUser = user;
   });
+
+  // Affiche la checklist et la barre de progression dès le chargement de la page
+  // (elles sont générées en JS pour s'adapter au type de document choisi, plus codées en dur dans le HTML)
+  updateChecklist();
 
   function showToast(msg, type = '') {
     const t = document.getElementById('toast');
@@ -479,21 +523,23 @@
   };
 
   function updateChecklist() {
-    let done = 0;
-    required.forEach((key, idx) => {
-      const chk  = document.getElementById(`chk-${key}`);
-      const dot  = document.getElementById(`dot${idx + 1}`);
-      const line = document.getElementById(`line${idx + 1}`);
-      if (files[key]) {
-        chk.classList.add('done'); chk.textContent = '✓';
-        if (dot)  { dot.classList.remove('active'); dot.classList.add('done'); }
-        if (line) line.classList.add('done');
-        done++;
-      } else {
-        chk.classList.remove('done'); chk.textContent = '—';
-      }
-    });
-    document.getElementById('progressCount').textContent = `${done} / 5 complétés`;
+    const required = getRequired();
+    const checklistEl = document.getElementById('checklist');
+
+    // Régénère la checklist à chaque appel : nécessaire car la liste change
+    // quand on bascule entre CNI/Permis (recto+verso) et Passeport (page unique)
+    checklistEl.innerHTML = required.map(key => {
+      const isDone = !!files[key];
+      return `<div class="checklist-item">`
+        + `<div class="check-circle${isDone ? ' done' : ''}">${isDone ? '✓' : '—'}</div>`
+        + `<span>${REQUIRED_LABELS[key]}</span></div>`;
+    }).join('');
+
+    const done = required.filter(k => files[k]).length;
+    document.getElementById('progressCount').textContent = `${done} / ${required.length} complétés`;
+    const pct = Math.round((done / required.length) * 100);
+    document.getElementById('progressBarFill').style.width = pct + '%';
+
     const allDone = required.every(k => files[k]);
     document.getElementById('btnSubmit').disabled = !allDone;
   }
@@ -505,6 +551,7 @@
   window.submitKYC = async function() {
     if (!currentUser) { showToast('⚠ Vous devez être connecté.', 'error-toast'); return; }
 
+    const required = getRequired();
     const missing = required.filter(k => !files[k]);
     if (missing.length > 0) {
       missing.forEach(k => document.getElementById(`zone-${k}`).classList.add('required-missing'));
@@ -549,26 +596,27 @@
       progText.textContent = 'Préparation du dossier…';
       progBar.style.width = '40%';
 
-      const compressedSelfie    = await compressImage('selfie');
-      const compressedPhoto     = await compressImage('photo');
-      const compressedCniRecto  = await compressImage('cni-recto');
-      const compressedCniVerso  = await compressImage('cni-verso');
-      const compressedDoc       = await compressImage('doc');
-      const compressedExtra     = base64s['extra'] ? await compressImage('extra') : null;
+      const compressedSelfie   = await compressImage('selfie');
+      const compressedIdRecto  = base64s['id-recto']  ? await compressImage('id-recto')  : null;
+      const compressedIdVerso  = base64s['id-verso']  ? await compressImage('id-verso')  : null;
+      const compressedIdSingle = base64s['id-single'] ? await compressImage('id-single') : null;
+      const compressedDomicile = await compressImage('domicile');
+      const compressedExtra    = base64s['extra'] ? await compressImage('extra') : null;
 
       progText.textContent = 'Envoi vers Firebase…';
       progBar.style.width = '70%';
 
       // Sauvegarder dans Firestore (pas de Storage !)
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), {
-        kycStatut:    'en_attente',
-        kycSoumisLe:  serverTimestamp(),
-        kycSelfie:    compressedSelfie    || null,
-        kycPhoto:     compressedPhoto     || null,
-        kycCniRecto:  compressedCniRecto  || null,
-        kycCniVerso:  compressedCniVerso  || null,
-        kycDocument:  compressedDoc       || null,
-        kycExtra:     compressedExtra     || null,
+        kycStatut:      'en_attente',
+        kycSoumisLe:    serverTimestamp(),
+        kycTypeDoc:     docType, // 'cni' | 'passport' | 'permis' — pour que l'équipe sache quel document a été fourni
+        kycSelfie:      compressedSelfie   || null,
+        kycIdRecto:     compressedIdRecto  || null,
+        kycIdVerso:     compressedIdVerso  || null,
+        kycIdSingle:    compressedIdSingle || null,
+        kycDomicile:    compressedDomicile || null,
+        kycExtra:       compressedExtra    || null,
         kycRaisonRejet: '', // Effacer l'ancienne raison si resoumis
       });
 
