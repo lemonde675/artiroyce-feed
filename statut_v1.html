@@ -797,25 +797,22 @@ var DEFILEMENT_AUTO=(function(){try{return localStorage.getItem('artiroyce_defil
 var itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
-  enTrainDeTenir=false;
-  holdTimer=setTimeout(function(){
-    enTrainDeTenir=true;
-    pauseViewer(); // ne se déclenche QUE si le doigt reste vraiment posé — jamais sur un tap rapide
-  },280);
+  holdTimer=Date.now();
+  pauseViewer();
 };
 window.onZoneUp=function(e,dir){
-  clearTimeout(holdTimer);
-  if(enTrainDeTenir){
-    resumeViewer(); // relâché après une vraie pause : on reprend la lecture, on n'avance pas
+  var duree=Date.now()-holdTimer;
+  if(duree<300){ // relâché vite = un vrai tap : on avance directement, sans repasser par
+    // resumeViewer() juste avant (qui recréait un minuteur pour le détruire aussitôt après —
+    // c'est ce qui donnait la sensation de saccade sur les taps rapides)
+    estEnPause=false;
+    if(dir==='next')goNextItem();else goPrevItem();
   }else{
-    if(dir==='next')goNextItem();else goPrevItem(); // tap rapide : avance immédiate, aucun gel au passage
+    resumeViewer(); // vraie pause tenue un moment : on reprend juste la lecture, sans avancer
   }
-  enTrainDeTenir=false;
 };
 window.onZoneLeave=function(){
-  clearTimeout(holdTimer);
-  if(enTrainDeTenir)resumeViewer();
-  enTrainDeTenir=false;
+  resumeViewer();
 };
 function pauseViewer(){
   if(estEnPause)return;
