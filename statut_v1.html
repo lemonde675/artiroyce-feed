@@ -88,7 +88,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-fill.active{animation:pFill 11s linear forwards}
 @keyframes pFill{from{width:0%}to{width:100%}}
 .v-hdr{position:absolute;top:60px;left:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:10}
-.v-av{width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.v-av{width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .v-info{flex:1;min-width:0}
 .v-nm{font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
 .v-t{font-size:10px;color:rgba(255,255,255,0.8);margin-top:1px}
@@ -122,6 +122,9 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-quick-row{display:flex;gap:6px;justify-content:flex-end;padding:0 2px}
 .v-quick-emoji{width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:transform 0.15s;flex-shrink:0}
 .v-quick-emoji:active{transform:scale(1.2)}
+.v-stats-row{display:none;justify-content:flex-end;padding:0 2px}
+.v-stats-btn{background:rgba(0,0,0,0.4);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:7px 14px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px}
+.stats-reaction-pill{display:inline-flex;align-items:center;gap:5px;background:#f2f2f7;border-radius:20px;padding:7px 13px;font-size:14px;font-weight:700;color:#111;margin:3px}
 /* Zones de tap précédent/suivant sur le lecteur de statut (façon WhatsApp/Instagram) */
 .v-tap{position:absolute;top:122px;bottom:82px;width:38%;z-index:3}
 #vMedia img,#vMedia video{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;pointer-events:none}
@@ -139,7 +142,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-inp-wrap{flex:1;position:relative}
 .v-inp{width:100%;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.35);border-radius:22px;padding:10px 44px 10px 16px;color:#fff;font-size:13px;outline:none;font-family:'Segoe UI',Arial,sans-serif;backdrop-filter:blur(6px)}
 .v-inp::placeholder{color:rgba(255,255,255,0.5)}
-.v-snd{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.v-snd{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:var(--red);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 /* TOAST */
 .toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:rgba(20,20,40,0.9);color:#fff;padding:8px 18px;border-radius:22px;font-size:13px;font-weight:700;z-index:1500;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(10px)}
 .toast.show{opacity:1}.toast.g{background:rgba(39,169,69,0.92)}
@@ -335,12 +338,12 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     <div class="v-info">
       <div class="v-nm" id="vNm">—</div>
       <div class="v-t" id="vT">—</div>
-      <div class="v-music-badge" id="vMusicBadge" style="display:none">
-        <div class="v-music-wave"><span></span><span></span><span></span><span></span></div><span id="vMusicName">—</span>
-      </div>
       <div class="v-vol-wrap" id="vVolWrap" style="display:none">
         <span class="v-vol-ico" id="vVolIco" onclick="toggleMuteViewer()">🔉</span>
         <input type="range" class="v-vol-slider" id="vVolSlider" min="0" max="100" value="80" oninput="setViewerVolume(this.value)">
+      </div>
+      <div class="v-music-badge" id="vMusicBadge" style="display:none">
+        <div class="v-music-wave"><span></span><span></span><span></span><span></span></div><span id="vMusicName">—</span>
       </div>
     </div>
     <div class="v-actions">
@@ -371,12 +374,15 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     <span class="v-photo-rm" onclick="removePhoto()">✕</span>
   </div>
   <div class="v-foot">
-    <div class="v-quick-row">
+    <div class="v-quick-row" id="vQuickRow">
       <span class="v-quick-emoji" onclick="sendSticker('❤️',event)">❤️</span>
       <span class="v-quick-emoji" onclick="sendSticker('😍',event)">😍</span>
       <span class="v-quick-emoji" onclick="sendSticker('😂',event)">😂</span>
       <span class="v-quick-emoji" onclick="sendSticker('😮',event)">😮</span>
       <span class="v-quick-emoji" onclick="sendSticker('🔥',event)">🔥</span>
+    </div>
+    <div class="v-stats-row" id="vStatsRow">
+      <button class="v-stats-btn" onclick="openStatutStats()">👀 <span id="vStatsVuCount">0</span></button>
     </div>
     <div class="v-foot-row">
       <button class="v-act-btn" onclick="toggleStickers()">😊</button>
@@ -463,7 +469,18 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   </div>
 </div>
 
-<!-- CONTACTS PICKER -->
+<!-- STATISTIQUES DU STATUT (vues + réactions), visible uniquement par l'auteur -->
+<div class="overlay" id="statsOverlay" onclick="if(event.target===this)closeStatutStats()">
+  <div class="sheet" style="max-height:70%;overflow-y:auto">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">📊 Statistiques du statut</span><span class="sheet-x" onclick="closeStatutStats()">✕</span></div>
+    <div style="padding:18px">
+      <div style="font-size:14px;font-weight:700;color:#555;margin-bottom:14px">👀 <span id="statsVuTotal">0</span> vue(s)</div>
+      <div style="font-size:12px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Réactions</div>
+      <div id="statsReactionsWrap">Chargement…</div>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="contactsOverlay" onclick="if(event.target===this)closeContacts()">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -504,16 +521,17 @@ window.chargerStatuts=function(){
       var uid=d.auteurUid;
       if(!map[uid]){
         map[uid]={id:uid,n:d.auteurNom||'Anonyme',vb:!!d.auteurVerifie,i:(d.auteurNom||'?')[0].toUpperCase(),
-          bg:bgPourUid(uid),role:d.auteurRole||'visiteur',hidden:false,items:[]};
+          bg:bgPourUid(uid),role:d.auteurRole||'visiteur',ph:d.auteurPhoto||null,hidden:false,items:[]};
       }
       map[uid].items.push({
         docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,photos:d.photos||null,effet:d.effet||'static',video:d.video||null,bg:d.bg||null,
         music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
-        postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0)
+        postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0),
+        vuCount:Array.isArray(d.vuPar)?d.vuPar.length:0
       });
     });
     Object.keys(map).forEach(function(uid){map[uid].items.sort(function(a,b){return a.postedAt-b.postedAt;});});
-    if(!map[MOI_ID])map[MOI_ID]={id:MOI_ID,n:'Moi',vb:false,i:'M',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',role:'moi',hidden:false,items:[]};
+    if(!map[MOI_ID])map[MOI_ID]={id:MOI_ID,n:'Moi',vb:false,i:'M',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',role:'moi',ph:(window.ME&&window.ME.photo)||null,hidden:false,items:[]};
     S=Object.keys(map).map(function(k){return map[k];});
     document.getElementById('stLoading').style.display='none';
     renderList();renderMyCard();
@@ -813,10 +831,26 @@ function showCurrentItem(){
   document.getElementById('vHdr').style.top=(60+off)+'px';
 
   document.getElementById('vBg').style.background=p.bg;
-  document.getElementById('vAv').textContent=p.i;
-  document.getElementById('vAv').style.background=p.bg;
+  var vAvEl=document.getElementById('vAv');
+  if(p.ph){
+    vAvEl.textContent='';
+    vAvEl.style.background='#000';
+    vAvEl.innerHTML='<img src="'+p.ph+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentNode.textContent=\''+p.i+'\';this.parentNode.style.background=\''+p.bg+'\'">';
+  }else{
+    vAvEl.innerHTML='';
+    vAvEl.textContent=p.i;
+    vAvEl.style.background=p.bg;
+  }
   document.getElementById('vNm').textContent=p.n+(p.vb?' ✔':'');
   document.getElementById('vT').textContent=tempsDepuis(it.postedAt)+' · '+roleTexte(p);
+
+  // Sur mon propre statut : la rangée d'emojis (réagir à soi-même n'a pas de sens) laisse
+  // place à un bouton de statistiques (vues + réactions reçues).
+  var estMoiStatut=(p.id===MOI_ID);
+  var qRow=document.getElementById('vQuickRow'), sRow=document.getElementById('vStatsRow');
+  if(qRow)qRow.style.display=estMoiStatut?'none':'flex';
+  if(sRow)sRow.style.display=estMoiStatut?'flex':'none';
+  if(estMoiStatut){var vc=document.getElementById('vStatsVuCount');if(vc)vc.textContent=it.vuCount||0;}
 
   // Vraie photo/vidéo si présente, sinon le fond décoratif + emoji (statut texte, ou compat anciens statuts)
   var vMedia=document.getElementById('vMedia');
@@ -955,7 +989,7 @@ async function envoyerVersDiscussion(contenu,viaStatut){
         infos:infosInit
       });
     }
-    var data={texte:contenu,emetteur:MOI_ID,horodatage:window.fb.serverTimestamp()};
+    var data={texte:contenu,emetteur:MOI_ID,ville:(window.ME&&window.ME.ville)||null,horodatage:window.fb.serverTimestamp()};
     if(viaStatut)data.viaStatut=true;
     await window.fb.addDoc(window.fb.collection(window.db,'conversations',convId,'messages'),data);
     await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:contenu,dernierEmetteur:MOI_ID},{merge:true});
@@ -974,7 +1008,46 @@ function sendSticker(s,ev){
   envoyerVersDiscussion(s,true).then(function(ok){
     toast(ok?(''+s+' envoyé !'):'⚠️ Envoi impossible (connexion)','g');
   });
+  enregistrerReactionStatut(s);
 }
+/* Réaction enregistrée sur le statut lui-même (indépendamment du message envoyé en discussion
+   ci-dessus) : un document par personne dans une sous-collection, pour que l'auteur puisse
+   ensuite voir le total par emoji dans ses statistiques. Se réagir à soi-même reste impossible
+   (le bouton n'apparaît même pas sur son propre statut). */
+async function enregistrerReactionStatut(emoji){
+  var p=S[curPersonIdx];
+  if(!p||!MOI_ID||p.id===MOI_ID)return;
+  var it=p.items[curItemIdx];
+  if(!it||!it.docId)return;
+  try{
+    await window.fb.setDoc(window.fb.doc(window.db,'statuts',it.docId,'reactions',MOI_ID),{emoji:emoji,at:window.fb.serverTimestamp()});
+  }catch(e){console.error('Enregistrement de la réaction sur le statut impossible :',e);}
+}
+
+/* Fiche statistiques (vues + réactions), accessible uniquement depuis son propre statut. */
+async function openStatutStats(){
+  var p=S[curPersonIdx];
+  if(!p||p.id!==MOI_ID)return;
+  var it=p.items[curItemIdx];
+  if(!it||!it.docId)return;
+  pauseViewer();
+  document.getElementById('statsVuTotal').textContent=it.vuCount||0;
+  document.getElementById('statsReactionsWrap').innerHTML='<span style="color:#aaa;font-size:13px">Chargement…</span>';
+  document.getElementById('statsOverlay').classList.add('open');
+  try{
+    var snap=await window.fb.getDoc(window.fb.collection(window.db,'statuts',it.docId,'reactions'));
+    var tally={};
+    snap.forEach(function(docSnap){var r=docSnap.data();var e=r.emoji||'❤️';tally[e]=(tally[e]||0)+1;});
+    var keys=Object.keys(tally);
+    document.getElementById('statsReactionsWrap').innerHTML=keys.length
+      ? keys.map(function(e){return '<span class="stats-reaction-pill">'+e+' '+tally[e]+'</span>';}).join('')
+      : '<span style="color:#aaa;font-size:13px">Aucune réaction pour l’instant</span>';
+  }catch(e){
+    console.error('Chargement des réactions du statut impossible :',e);
+    document.getElementById('statsReactionsWrap').innerHTML='<span style="color:var(--red);font-size:13px">Erreur de chargement</span>';
+  }
+}
+function closeStatutStats(){document.getElementById('statsOverlay').classList.remove('open');resumeViewer();}
 function triggerPhotoInput(){document.getElementById('photoInput').click();}
 function handlePhoto(inp){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var t=document.getElementById('vPhotoThumb');t.style.backgroundImage='url('+e.target.result+')';document.getElementById('vPhotoPrev').classList.add('show');};r.readAsDataURL(inp.files[0]);}
 function removePhoto(){document.getElementById('vPhotoPrev').classList.remove('show');document.getElementById('photoInput').value='';}
@@ -1304,6 +1377,7 @@ async function publishStatut(){
 
     var payload={
       auteurUid:window.currentUid, auteurNom:me.prenom||'Moi', auteurVerifie:(me.role&&me.role!=='visiteur'), auteurRole:me.role||'visiteur',
+      auteurPhoto:(window.ME&&window.ME.photo)||null,
       e:emojis[editorMode]||'📢', texte:tv||'',
       photo:editorMode==='photo'?editorPhotoData:null,
       photos:editorMode==='collage'?collageImages.slice(0,4):null,
@@ -1581,6 +1655,7 @@ auth.onAuthStateChanged(async(user)=>{
     window.ME.photo=d.photoAvatar||user.photoURL||null;
     window.ME.metier=d.metier||'';
     window.ME.role=d.role||'visiteur';
+    window.ME.ville=d.ville||null;
     window.ME.initiale=window.ME.prenom[0].toUpperCase();
     const card=document.getElementById('myStatutCard');
     const lbl=document.getElementById('myStatutLabel');
