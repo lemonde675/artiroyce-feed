@@ -34,9 +34,10 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .s-card{width:86px;height:132px;border-radius:18px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.15);transition:transform 0.18s}
 .s-card:active{transform:scale(0.93)}
 .s-card-bg{position:absolute;inset:0}
+.s-card-bg video{width:100%;height:100%;object-fit:cover}
 .s-card-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 25%,rgba(0,0,0,0.7))}
 .s-card-emoji{position:absolute;top:50%;left:50%;transform:translate(-50%,-65%);font-size:36px}
-.s-card-av{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff}
+.s-card-av{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;overflow:hidden}
 .s-card-unseen{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1.5px solid #fff;animation:pulse 1.5s infinite}
 .s-card-name{position:absolute;bottom:6px;left:4px;right:4px;font-size:9px;font-weight:800;color:#fff;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .s-card-music{position:absolute;bottom:20px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:2px;font-size:7px;color:rgba(255,255,255,0.9);font-weight:700}
@@ -53,9 +54,10 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .st-row{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:11px 12px;margin-bottom:7px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.06);transition:all 0.15s;position:relative}
 .st-row:active{transform:scale(0.97)}
 .str-left{position:relative;flex-shrink:0}
-.str-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff}
+.str-av{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;overflow:hidden}
 .str-ring{position:absolute;inset:-3px;border-radius:50%}
-.str-thumb{position:absolute;bottom:-4px;right:-4px;width:24px;height:24px;border-radius:8px;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+.str-thumb{position:absolute;bottom:-4px;right:-4px;width:24px;height:24px;border-radius:8px;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 5px rgba(0,0,0,0.2);overflow:hidden}
+.str-thumb video{width:100%;height:100%;object-fit:cover}
 .str-body{flex:1;min-width:0}
 .str-name{font-size:13px;font-weight:800;color:#111;display:flex;align-items:center;gap:5px}
 .str-vb{background:var(--green);color:#fff;font-size:8px;padding:2px 5px;border-radius:99px;font-weight:900}
@@ -574,7 +576,7 @@ window.chargerStatuts=function(){
 };
 
 var T=null,curIdx=0,editorMode='',editorMusic=null,editorMusicUrl=null,editorMusicTrimS=0,editorMusicTrimE=15,selectedBg='linear-gradient(135deg,#e63224,#ff6b5b)';
-var editorPhotoData=null,editorVideoUrl=null,editorVideoFile=null;
+var editorPhotoData=null,editorVideoUrl=null,editorVideoFile=null,editorVideoCompressing=false;
 var trimSPct=0,trimEPct=0.3,draggingH=null;
 var currentAudio=null,currentTrack=null,currentTrackUrl=null,currentTrackIdx=null,musicCtx=null;
 var previewAudio=null,previewPlaying=false;
@@ -677,10 +679,17 @@ function renderList(){
     var dernier=p.items[p.items.length-1];
     var row=document.createElement('div');
     row.className='st-row';
+    var vraiePhotoListe=dernier.photo||(dernier.photos&&dernier.photos[0])||null;
+    var vraieVideoListe=dernier.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[dernier.docId])||null;
+    var strThumbHtml=vraiePhotoListe
+      ? '<div class="str-thumb" style="background:url(\''+vraiePhotoListe+'\') center/cover"></div>'
+      : vraieVideoListe
+      ? '<div class="str-thumb"><video src="'+vraieVideoListe+'" muted playsinline preload="metadata" onloadeddata="this.currentTime=0.05"></video></div>'
+      : '<div class="str-thumb" style="background:'+p.bg+'">'+dernier.e+'</div>';
     row.innerHTML='<div class="str-left">'
-      +'<div class="str-av" style="background:'+p.bg+'">'+p.i+'</div>'
+      +'<div class="str-av" style="background:'+p.bg+'">'+(p.ph?'<img src="'+p.ph+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\';this.parentNode.textContent=\''+p.i+'\'">':p.i)+'</div>'
       +'<svg class="str-ring" viewBox="0 0 44 44"><circle cx="22" cy="22" r="20" fill="none" stroke="'+(vu?'#ddd':'#e63224')+'" stroke-width="2.5" stroke-dasharray="126 0" transform="rotate(-90 22 22)"/></svg>'
-      +'<div class="str-thumb" style="background:'+p.bg+'">'+dernier.e+'</div>'
+      +strThumbHtml
       +'</div>'
       +'<div class="str-body" onclick="openViewer(\''+p.id+'\')">'
       +'<div class="str-name">'+esc(p.n)+(p.vb?' <span class="str-vb">✔</span>':'')+'</div>'
@@ -726,12 +735,17 @@ function renderStrip(){
     div.className='strip-item';
     div.onclick=function(){openViewer(p.id);};
     var vraiePhoto=dernier.photo||(dernier.photos&&dernier.photos[0])||null;
+    var vraieVideo=dernier.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[dernier.docId])||null;
     div.innerHTML='<div class="s-card"'+(vu?' style="opacity:.5"':'')+'>'
       +(vraiePhoto
         ? '<div class="s-card-bg" style="background:url(\''+vraiePhoto+'\') center/cover"></div>'
+        : vraieVideo
+        // Vraie vidéo en vignette (comme sur accueil.html) : "onloadeddata" force l'affichage de la
+        // première image dès que la vidéo est prête, au lieu d'une vignette noire/vide aléatoire.
+        ? '<div class="s-card-bg"><video src="'+vraieVideo+'" muted playsinline preload="metadata" onloadeddata="this.currentTime=0.05"></video></div>'
         : '<div class="s-card-bg" style="background:'+p.bg+'"></div><div class="s-card-emoji">'+dernier.e+'</div>')
       +'<div class="s-card-overlay"></div>'
-      +'<div class="s-card-av" style="background:rgba(0,0,0,0.35)">'+p.i+'</div>'
+      +'<div class="s-card-av" style="background:rgba(0,0,0,0.35)">'+(p.ph?'<img src="'+p.ph+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\';this.parentNode.textContent=\''+p.i+'\'">':p.i)+'</div>'
       +(vu?'':'<div class="s-card-unseen"></div>')
       +(dernier.music?'<div class="s-card-music">🎵 '+esc(dernier.music)+'</div>':'')
       +'<div class="s-card-name">'+esc(p.n)+'</div></div>'
@@ -791,6 +805,10 @@ async function deleteFromRow(){
 
 // VIEWER
 var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8,viewerEffTimer=null;
+// Référence vers la source sonore actuellement active dans le viewer : soit la musique de
+// fond attachée (viewerAudio), soit le son propre de la vidéo elle-même — jamais les deux en
+// même temps (sinon ça superpose deux sons). Le volume/mute et la pause agissent sur celle-ci.
+var viewerSoundEl=null;
 var DUREE_STATUT_DEFAUT=11000;
 var ITEM_DUREE_MS=(function(){try{var v=parseInt(localStorage.getItem('artiroyce_duree_statut'),10);return (v&&v>0)?v:DUREE_STATUT_DEFAUT;}catch(e){return DUREE_STATUT_DEFAUT;}})();
 var DEFILEMENT_AUTO=(function(){try{return localStorage.getItem('artiroyce_defilement_auto')!=='off';}catch(e){return true;}})();
@@ -823,14 +841,14 @@ function pauseViewer(){
   if(T){clearTimeout(T);T=null;}
   itemPauseElapsed+=Date.now()-itemDebut;
   document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='paused';});
-  if(viewerAudio)viewerAudio.pause();
+  if(viewerSoundEl)viewerSoundEl.pause();
 }
 function resumeViewer(){
   if(!estEnPause)return;
   estEnPause=false;
   itemDebut=Date.now();
   document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='running';});
-  if(viewerAudio)viewerAudio.play().catch(function(){});
+  if(viewerSoundEl)viewerSoundEl.play().catch(function(){});
   if(DEFILEMENT_AUTO){
     var restant=Math.max(300,ITEM_DUREE_MS-itemPauseElapsed);
     T=setTimeout(goNextItem,restant);
@@ -866,6 +884,11 @@ function showCurrentItem(){
   var off=getEmbedTopOffsetPx();
   document.getElementById('vProg').style.top=(52+off)+'px';
   document.getElementById('vHdr').style.top=(60+off)+'px';
+  // Le fond photo/vidéo lui-même commençait à top:0, donc caché sous le bandeau opaque du shell
+  // (têtes coupées) — même correctif que sur accueil.html : on le décale du même montant, "bottom"
+  // reste à 0 (venant de la classe .v-bg/inset:0), donc la hauteur s'ajuste automatiquement.
+  document.getElementById('vBg').style.top=off+'px';
+  document.getElementById('vMedia').style.top=off+'px';
 
   document.getElementById('vBg').style.background=p.bg;
   var vAvEl=document.getElementById('vAv');
@@ -891,6 +914,9 @@ function showCurrentItem(){
 
   // Vraie photo/vidéo si présente, sinon le fond décoratif + emoji (statut texte, ou compat anciens statuts)
   var vMedia=document.getElementById('vMedia');
+  viewerSoundEl=null; // réinitialisé ICI, avant le rendu média : le bloc vidéo ci-dessous peut
+  // le réassigner (son propre son), et le bloc musique plus bas aussi (musique attachée) —
+  // il ne doit pas être écrasé après coup par l'un ou l'autre.
   if(it.photo){
     document.getElementById('vBg').style.background='#000';
     vMedia.innerHTML='<img src="'+it.photo+'" style="width:100%;height:100%;object-fit:contain">';
@@ -903,13 +929,20 @@ function showCurrentItem(){
   }else if(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId])){
     var videoSrc=it.video||window.VIDEOS_LOCAUX[it.docId];
     document.getElementById('vBg').style.background='#000';
-    vMedia.innerHTML='<video src="'+videoSrc+'" style="width:100%;height:100%;object-fit:contain" autoplay muted playsinline></video>';
+    // Muette UNIQUEMENT si une musique de fond est attachée à ce statut (pour ne pas superposer
+    // le son de la vidéo et la musique) — sinon la vidéo garde son propre son, comme sur les
+    // vraies plateformes (Instagram/WhatsApp ne coupent jamais le son natif d'une vidéo).
+    var aDeLaMusique=!!(it.music&&it.musicUrl);
+    vMedia.innerHTML='<video src="'+videoSrc+'" style="width:100%;height:100%;object-fit:contain" autoplay'+(aDeLaMusique?' muted':'')+' playsinline></video>';
     vMedia.style.display='block';
     document.getElementById('vEmoji').style.display='none';
     var vidEl=vMedia.querySelector('video');
     // La vidéo avance toute seule à sa vraie fin — jamais coupée ni prolongée par le
     // réglage de vitesse (qui ne concerne que les statuts photo/texte).
-    if(vidEl)vidEl.onended=function(){if(DEFILEMENT_AUTO)goNextItem();};
+    if(vidEl){
+      vidEl.onended=function(){if(DEFILEMENT_AUTO)goNextItem();};
+      if(!aDeLaMusique){vidEl.volume=viewerVolume;viewerSoundEl=vidEl;}
+    }
   }else{
     document.getElementById('vBg').style.background=it.bg||p.bg;
     vMedia.innerHTML='';vMedia.style.display='none';
@@ -933,8 +966,14 @@ function showCurrentItem(){
       viewerAudio.play().catch(function(){});
       var finDuClip=it.trimE||15;
       viewerAudio.ontimeupdate=function(){if(viewerAudio&&viewerAudio.currentTime>=finDuClip)viewerAudio.currentTime=it.trimS||0;};
+      viewerSoundEl=viewerAudio;
     }else{vw.style.display='none';}
-  }else{mb.style.display='none';vw.style.display='none';}
+  }else{
+    mb.style.display='none';
+    // Pas de musique : si c'est une vidéo avec son propre son, le contrôle de volume reste
+    // affiché (viewerSoundEl a déjà été réglé sur la vidéo juste au-dessus) ; sinon on le cache.
+    vw.style.display=viewerSoundEl?'flex':'none';
+  }
 
   var estItemVideo=!!(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId]));
 
@@ -986,7 +1025,7 @@ function goPrevItem(){
 }
 window.setViewerVolume=function(v){
   viewerVolume=v/100;
-  if(viewerAudio)viewerAudio.volume=viewerVolume;
+  if(viewerSoundEl)viewerSoundEl.volume=viewerVolume;
   var ico=document.querySelector('.v-vol-ico');
   if(ico)ico.textContent=v==0?'🔇':v<50?'🔈':'🔊';
 };
@@ -1012,6 +1051,7 @@ function closeViewer(){
   document.getElementById('contactsOverlay').classList.remove('open');
   if(T){clearTimeout(T);T=null;}
   if(viewerAudio){viewerAudio.pause();viewerAudio=null;}
+  viewerSoundEl=null;
   // La vidéo elle-même n'était jamais coupée (seule la musique de fond l'était) : elle
   // continuait à jouer, invisible, tant qu'on ne rechargeait pas la page.
   var vMedia=document.getElementById('vMedia');
@@ -1270,7 +1310,7 @@ function closeMenu(){document.getElementById('menuOverlay').classList.remove('op
 
 // ÉDITEUR
 function openEditor(mode){
-  editorMode=mode;editorMusic=null;editorPhotoData=null;editorVideoUrl=null;editorVideoFile=null;
+  editorMode=mode;editorMusic=null;editorPhotoData=null;editorVideoUrl=null;editorVideoFile=null;editorVideoCompressing=false;
   collageImages=[];collageEff='static';
   var titles={photo:'📷 Photo',video:'🎥 Vidéo',text:'✍️ Texte',collage:'🖼️ Collage',audio:'🎤 Audio'};
   document.getElementById('editorTitle').textContent=titles[mode]||'Éditeur';
@@ -1386,6 +1426,63 @@ function compresserImage(file, maxDim, qualite){
   });
 }
 
+// Réduit une vidéo avant envoi : baisse la résolution (max 720p sur le plus grand côté) et
+// limite le débit, en gardant le son d'origine. Contrairement aux photos (simple redimensionnement
+// canvas), une vraie compression vidéo demande de la RE-LIRE en temps réel pendant l'enregistrement
+// (MediaRecorder) — donc ça prend à peu près la durée réelle de la vidéo, pas instantané.
+// Nécessite un navigateur qui supporte captureStream() sur <video> (Chrome/Edge/Firefox Android ;
+// support limité sur Safari/iOS) — en cas d'échec, on republie la vidéo d'origine sans bloquer l'envoi.
+function compresserVideo(file, maxDim, videoBitsPerSecond){
+  return new Promise(function(resolve, reject){
+    var url=URL.createObjectURL(file);
+    var vid=document.createElement('video');
+    vid.src=url; vid.playsInline=true; vid.muted=false; vid.volume=0; // volume=0 (pas .muted) : coupe le son à l'oreille sans couper le flux capturé
+    vid.style.cssText='position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;';
+    document.body.appendChild(vid);
+
+    function nettoyer(){ try{vid.pause();}catch(e){} URL.revokeObjectURL(url); if(vid.parentNode)vid.parentNode.removeChild(vid); }
+
+    vid.onloadedmetadata=function(){
+      var w=vid.videoWidth||720, h=vid.videoHeight||1280;
+      var echelle=Math.min(1, maxDim/Math.max(w,h));
+      var tw=Math.round(w*echelle), th=Math.round(h*echelle);
+
+      vid.play().then(function(){
+        var stream;
+        try{ stream = vid.captureStream ? vid.captureStream() : vid.mozCaptureStream(); }
+        catch(e){ nettoyer(); reject(e); return; }
+        if(!stream || !window.MediaRecorder){ nettoyer(); reject(new Error('captureStream/MediaRecorder non supporté')); return; }
+
+        var pisteVideo=stream.getVideoTracks()[0];
+        if(pisteVideo && pisteVideo.applyConstraints && echelle<1){
+          pisteVideo.applyConstraints({width:tw,height:th}).catch(function(){});
+        }
+
+        var mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')) ? 'video/webm;codecs=vp9,opus'
+          : (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) ? 'video/webm;codecs=vp8,opus'
+          : 'video/webm';
+
+        var recorder;
+        try{ recorder = new MediaRecorder(stream, {mimeType:mimeType, videoBitsPerSecond:videoBitsPerSecond}); }
+        catch(e){ nettoyer(); reject(e); return; }
+
+        var morceaux=[];
+        recorder.ondataavailable=function(ev){ if(ev.data && ev.data.size>0) morceaux.push(ev.data); };
+        recorder.onerror=function(ev){ nettoyer(); reject(ev.error||new Error('erreur MediaRecorder')); };
+        recorder.onstop=function(){
+          nettoyer();
+          var blob=new Blob(morceaux,{type:mimeType});
+          var nomFichier=(file.name||'video').replace(/\.[^/.]+$/,'')+'_720p.webm';
+          resolve(new File([blob], nomFichier, {type:mimeType}));
+        };
+        recorder.start();
+        vid.onended=function(){ try{recorder.stop();}catch(e){} };
+      }).catch(function(e){ nettoyer(); reject(e); });
+    };
+    vid.onerror=function(){ nettoyer(); reject(new Error('vidéo invalide')); };
+  });
+}
+
 function handleEdFile(inp){
   if(!inp.files||!inp.files[0])return;
   var f=inp.files[0];
@@ -1398,8 +1495,19 @@ function handleEdFile(inp){
     }).catch(function(err){ console.error(err); toast('⚠️ Photo invalide, réessaie',''); });
   }else if(editorMode==='video'){
     var url=URL.createObjectURL(f);
-    editorVideoUrl=url;editorVideoFile=f;
+    editorVideoUrl=url;editorVideoFile=f; // aperçu instantané + valeur par défaut si la compression échoue
     var vid=document.getElementById('edVid');vid.src=url;vid.style.display='block';
+
+    // Compression en arrière-plan (résolution + débit réduits) : ne bloque pas l'aperçu ni la
+    // suite de l'édition (musique, etc.) — seul le bouton "Publier" attend la fin si nécessaire.
+    editorVideoCompressing=true;
+    compresserVideo(f, 1280, 1500000).then(function(fichierCompresse){
+      editorVideoFile=fichierCompresse; // remplace l'original par la version compressée pour l'envoi
+      editorVideoCompressing=false;
+    }).catch(function(err){
+      console.error('Compression vidéo échouée, envoi de l\'originale :', err);
+      editorVideoCompressing=false; // on garde editorVideoFile = fichier d'origine, envoi non bloqué
+    });
   }
 }
 
@@ -1504,6 +1612,7 @@ async function publishStatut(){
   var emojis={photo:'📷',video:'🎥',text:'✍️',collage:'🖼️',audio:'🎤'};
   if(editorMode==='photo'&&!editorPhotoData){toast('⚠️ Choisis une photo d\'abord',''); return;}
   if(editorMode==='video'&&!editorVideoFile){toast('⚠️ Choisis une vidéo d\'abord',''); return;}
+  if(editorMode==='video'&&editorVideoCompressing){toast('⏳ Compression de la vidéo en cours, patiente un instant…',''); return;}
   if(editorMode==='collage'&&(!collageImages||!collageImages.length)){toast('⚠️ Ajoute au moins une photo',''); return;}
   if(!window.currentUid){toast('Connecte-toi pour publier',''); return;}
   var tv=editorMode==='text'&&document.getElementById('textArea')?document.getElementById('textArea').value||'Statut texte':'';
@@ -1586,7 +1695,7 @@ async function publishStatut(){
   }finally{
     if(btn){btn.disabled=false;btn.textContent='🚀 Publier';}
   }
-  editorMusic=null;editorMusicUrl=null;editorPhotoData=null;editorVideoUrl=null;editorVideoFile=null;
+  editorMusic=null;editorMusicUrl=null;editorPhotoData=null;editorVideoUrl=null;editorVideoFile=null;editorVideoCompressing=false;
 }
 
 // Tuile "Mon statut" : tant qu'il y a des statuts actifs (non expirés), le tap central les rejoue ;
