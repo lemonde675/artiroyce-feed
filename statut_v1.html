@@ -86,13 +86,16 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-fill{height:100%;background:#fff;border-radius:3px;width:0%}
 .v-fill.done{width:100%}
 .v-fill.active{animation:pFill 11s linear forwards}
+.v-fill.manual{width:100%;background:rgba(255,255,255,0.5)}
 @keyframes pFill{from{width:0%}to{width:100%}}
 .v-hdr{position:absolute;top:60px;left:12px;right:12px;display:flex;align-items:center;gap:10px;z-index:10}
 .v-av{width:40px;height:40px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .v-info{flex:1;min-width:0}
 .v-nm{font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
 .v-t{font-size:10px;color:rgba(255,255,255,0.8);margin-top:1px}
-.v-music-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,0.6);border-radius:20px;padding:5px 11px;font-size:11px;color:#fff;font-weight:700;margin-top:4px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25)}
+.v-music-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,0.6);border-radius:20px;padding:4px 9px;font-size:10px;color:#fff;font-weight:700;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);max-width:110px;flex-shrink:1;min-width:0}
+#vMusicName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.v-vol-music-row{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:nowrap}
 .v-music-wave{display:flex;align-items:center;gap:1.5px}
 .v-music-wave span{width:2px;background:#fff;border-radius:2px;animation:wave 0.8s infinite ease-in-out}
 .v-music-wave span:nth-child(1){height:5px;animation-delay:0s}
@@ -131,9 +134,9 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .v-tap-l{left:0}
 .v-tap-r{right:0}
 /* Curseur de volume (visible seulement si musique attachée) */
-.v-vol-wrap{display:flex;align-items:center;gap:8px;margin-top:6px;background:rgba(0,0,0,0.55);border-radius:20px;padding:6px 12px 6px 10px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);width:fit-content}
+.v-vol-wrap{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.55);border-radius:20px;padding:4px 9px 4px 8px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);width:fit-content;flex-shrink:0}
 .v-vol-ico{font-size:18px;color:#fff;flex-shrink:0;cursor:pointer;user-select:none}
-.v-vol-slider{-webkit-appearance:none;appearance:none;width:110px;height:6px;border-radius:6px;background:rgba(255,255,255,0.35);outline:none}
+.v-vol-slider{-webkit-appearance:none;appearance:none;width:52px;height:6px;border-radius:6px;background:rgba(255,255,255,0.35);outline:none}
 .v-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--red);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:2px solid #fff}
 .v-vol-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--red);cursor:pointer;border:2px solid #fff}
 .v-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer}
@@ -252,7 +255,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .contacts-list{padding:10px 16px}
 .contact-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5;cursor:pointer}
 .contact-row:last-child{border:none}
-.contact-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.contact-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .contact-name{flex:1;font-size:13px;font-weight:700;color:#111}
 .contact-check{width:22px;height:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s;flex-shrink:0}
 .contact-check.checked{background:var(--green);border-color:var(--green);color:#fff}
@@ -338,12 +341,14 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     <div class="v-info">
       <div class="v-nm" id="vNm">—</div>
       <div class="v-t" id="vT">—</div>
+      <div class="v-vol-music-row" id="vVolMusicRow">
       <div class="v-vol-wrap" id="vVolWrap" style="display:none">
         <span class="v-vol-ico" id="vVolIco" onclick="toggleMuteViewer()">🔉</span>
         <input type="range" class="v-vol-slider" id="vVolSlider" min="0" max="100" value="80" oninput="setViewerVolume(this.value)">
       </div>
       <div class="v-music-badge" id="vMusicBadge" style="display:none">
         <div class="v-music-wave"><span></span><span></span><span></span><span></span></div><span id="vMusicName">—</span>
+      </div>
       </div>
     </div>
     <div class="v-actions">
@@ -481,6 +486,21 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     </div>
   </div>
 </div>
+<!-- VITESSE DE DÉFILEMENT DES STATUTS -->
+<div class="overlay" id="speedOverlay" onclick="if(event.target===this)closeSpeedPicker()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title">⏱️ Vitesse de défilement</span><span class="sheet-x" onclick="closeSpeedPicker()">✕</span></div>
+    <div style="padding:8px 0">
+      <div class="ctx-item" onclick="definirVitesseDefilement(5000)">5 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(11000)">11 secondes (par défaut)</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(20000)">20 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(30000)">30 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(60000)">1 minute</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement('manuel')">⏸️ Pas de défilement automatique (je swipe moi-même)</div>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="contactsOverlay" onclick="if(event.target===this)closeContacts()">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -499,13 +519,10 @@ var MOI_ID=null; // devient le vrai uid de l'utilisateur connecté dès que le p
 var BG_PALETTE=['linear-gradient(160deg,#0d2b0f,#27a945)','linear-gradient(160deg,#0a0a2e,#1a1a6e)','linear-gradient(160deg,#4a1a00,#c0392b)','linear-gradient(160deg,#001030,#002060)','linear-gradient(160deg,#2c0060,#6a0dad)','linear-gradient(160deg,#7b3f00,#c0722a)'];
 function bgPourUid(uid){var h=0;for(var i=0;i<uid.length;i++)h=(h*31+uid.charCodeAt(i))>>>0;return BG_PALETTE[h%BG_PALETTE.length];}
 
-var CONTACTS=[
-  {id:'c1',n:'Brice K.',i:'BK',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',checked:true},
-  {id:'c2',n:'Sandra M.',i:'SM',bg:'linear-gradient(135deg,#27a945,#5ee87a)',checked:true},
-  {id:'c3',n:'Koffi R.',i:'KR',bg:'linear-gradient(135deg,#001030,#002060)',checked:true},
-  {id:'c4',n:'Amina T.',i:'AT',bg:'linear-gradient(135deg,#4a1a00,#c0392b)',checked:false},
-  {id:'c5',n:'Rémi D.',i:'RD',bg:'linear-gradient(135deg,#2c0060,#6a0dad)',checked:true}
-];
+// Rempli dynamiquement à l'ouverture par openContactsPicker(), à partir des vrais
+// abonnés (collection Firestore 'abonnements', déjà utilisée par fil-presse.html,
+// actualite_v1.html, accueil.html et offre_v1.html — même système, pas de doublon).
+var CONTACTS=[];
 
 // Regroupe les documents plats de Firestore ('statuts') par auteur, comme WhatsApp affiche
 // une seule tuile par personne avec ses items empilés.
@@ -519,6 +536,12 @@ window.chargerStatuts=function(){
       var ts=d.createdAt&&d.createdAt.toMillis?d.createdAt.toMillis():Date.now();
       if((Date.now()-ts)>=VINGT_QUATRE_H_MS)return; // expiré : on ne l'affiche même pas
       var uid=d.auteurUid;
+      // Restriction "Qui peut voir" : uniquement si l'auteur l'a explicitement activée
+      // (restreint===true). Par défaut (comme aujourd'hui), aucun champ = visible par tous.
+      if(d.restreint===true&&uid!==MOI_ID){
+        var visibles=Array.isArray(d.visibleUids)?d.visibleUids:[];
+        if(visibles.indexOf(MOI_ID)<0)return; // pas dans la liste autorisée : ce statut m'est invisible
+      }
       if(!map[uid]){
         map[uid]={id:uid,n:d.auteurNom||'Anonyme',vb:!!d.auteurVerifie,i:(d.auteurNom||'?')[0].toUpperCase(),
           bg:bgPourUid(uid),role:d.auteurRole||'visiteur',ph:d.auteurPhoto||null,hidden:false,items:[]};
@@ -527,6 +550,7 @@ window.chargerStatuts=function(){
         docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,photos:d.photos||null,effet:d.effet||'static',video:d.video||null,bg:d.bg||null,
         music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
         postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0),
+        restreint:!!d.restreint,visibleUids:Array.isArray(d.visibleUids)?d.visibleUids:[],
         vuCount:Array.isArray(d.vuPar)?d.vuPar.length:0
       });
     });
@@ -767,7 +791,10 @@ async function deleteFromRow(){
 
 // VIEWER
 var curPersonIdx=0,curItemIdx=0,viewerAudio=null,viewerVolume=0.8,viewerEffTimer=null;
-var ITEM_DUREE_MS=11000,itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
+var DUREE_STATUT_DEFAUT=11000;
+var ITEM_DUREE_MS=(function(){try{var v=parseInt(localStorage.getItem('artiroyce_duree_statut'),10);return (v&&v>0)?v:DUREE_STATUT_DEFAUT;}catch(e){return DUREE_STATUT_DEFAUT;}})();
+var DEFILEMENT_AUTO=(function(){try{return localStorage.getItem('artiroyce_defilement_auto')!=='off';}catch(e){return true;}})();
+var itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
   holdTimer=Date.now();
@@ -796,12 +823,15 @@ function resumeViewer(){
   if(!estEnPause)return;
   estEnPause=false;
   itemDebut=Date.now();
-  var restant=Math.max(300,ITEM_DUREE_MS-itemPauseElapsed);
   document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='running';});
   if(viewerAudio)viewerAudio.play().catch(function(){});
-  T=setTimeout(goNextItem,restant);
+  if(DEFILEMENT_AUTO){
+    var restant=Math.max(300,ITEM_DUREE_MS-itemPauseElapsed);
+    T=setTimeout(goNextItem,restant);
+  }
 }
 
+var ordonneeSession=null; // ordre figé à l'ouverture du lecteur, ne bouge plus tant qu'on ne le referme pas
 function openViewer(personId,itemIdx){
   majVh(); // valeur fraîche à l'instant T, au cas où la barre d'adresse aurait changé depuis le chargement
   var pIdx=S.findIndex(function(x){return x.id===personId;});
@@ -813,6 +843,7 @@ function openViewer(personId,itemIdx){
     itemIdx=premierNonVu>=0?premierNonVu:0;
   }
   curItemIdx=itemIdx;
+  ordonneeSession=listeOrdonnee(); // figé ici : ne change plus même quand "vu" passe à true en cours de route
   document.getElementById('viewer').classList.add('open');
   showCurrentItem();
 }
@@ -869,6 +900,10 @@ function showCurrentItem(){
     vMedia.innerHTML='<video src="'+videoSrc+'" style="width:100%;height:100%;object-fit:contain" autoplay muted playsinline></video>';
     vMedia.style.display='block';
     document.getElementById('vEmoji').style.display='none';
+    var vidEl=vMedia.querySelector('video');
+    // La vidéo avance toute seule à sa vraie fin — jamais coupée ni prolongée par le
+    // réglage de vitesse (qui ne concerne que les statuts photo/texte).
+    if(vidEl)vidEl.onended=function(){if(DEFILEMENT_AUTO)goNextItem();};
   }else{
     document.getElementById('vBg').style.background=it.bg||p.bg;
     vMedia.innerHTML='';vMedia.style.display='none';
@@ -895,9 +930,16 @@ function showCurrentItem(){
     }else{vw.style.display='none';}
   }else{mb.style.display='none';vw.style.display='none';}
 
+  var estItemVideo=!!(it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId]));
+
   // Barres de progression = nombre d'ITEMS de CETTE personne (pas nombre de personnes)
   var bars='';
-  p.items.forEach(function(x,j){var cls=j<curItemIdx?'done':j===curItemIdx?'active':'';bars+='<div class="v-bar"><div class="v-fill '+cls+'"></div></div>';});
+  p.items.forEach(function(x,j){
+    var estVideoX=!!(x.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[x.docId]));
+    var cls=j<curItemIdx?'done':j===curItemIdx?((DEFILEMENT_AUTO&&!estVideoX)?'active':'manual'):'';
+    var styleAttr=(cls==='active')?' style="animation-duration:'+(ITEM_DUREE_MS/1000)+'s"':'';
+    bars+='<div class="v-bar"><div class="v-fill '+cls+'"'+styleAttr+'></div></div>';
+  });
   document.getElementById('vProg').innerHTML=bars;
 
   if(!it.vu){
@@ -909,13 +951,13 @@ function showCurrentItem(){
 
   itemDebut=Date.now();itemPauseElapsed=0;estEnPause=false;
   if(T)clearTimeout(T);
-  T=setTimeout(goNextItem,ITEM_DUREE_MS);
+  T=(DEFILEMENT_AUTO&&!estItemVideo)?setTimeout(goNextItem,ITEM_DUREE_MS):null;
 }
 
 function goNextItem(){
   var p=S[curPersonIdx];
   if(curItemIdx<p.items.length-1){curItemIdx++;showCurrentItem();return;}
-  var ordonnee=listeOrdonnee();
+  var ordonnee=ordonneeSession||listeOrdonnee();
   var pos=ordonnee.findIndex(function(x){return x.id===p.id;});
   if(pos>=0&&pos<ordonnee.length-1){
     var suivant=ordonnee[pos+1];
@@ -927,7 +969,7 @@ function goNextItem(){
 function goPrevItem(){
   if(curItemIdx>0){curItemIdx--;showCurrentItem();return;}
   var p=S[curPersonIdx];
-  var ordonnee=listeOrdonnee();
+  var ordonnee=ordonneeSession||listeOrdonnee();
   var pos=ordonnee.findIndex(function(x){return x.id===p.id;});
   if(pos>0){
     var precedent=ordonnee[pos-1];
@@ -964,8 +1006,21 @@ function closeViewer(){
   document.getElementById('contactsOverlay').classList.remove('open');
   if(T){clearTimeout(T);T=null;}
   if(viewerAudio){viewerAudio.pause();viewerAudio=null;}
+  // La vidéo elle-même n'était jamais coupée (seule la musique de fond l'était) : elle
+  // continuait à jouer, invisible, tant qu'on ne rechargeait pas la page.
+  var vMedia=document.getElementById('vMedia');
+  var vidEnCours=vMedia&&vMedia.querySelector('video');
+  if(vidEnCours){vidEnCours.pause();vidEnCours.src='';}
+  if(vMedia)vMedia.innerHTML='';
+  ordonneeSession=null;
   renderList(); // reflète les statuts désormais "vus" dans la liste et le bandeau
 }
+/* Quand accueil.html (le shell) fait glisser l'utilisateur vers un autre onglet (Actualités,
+   Fil presse, etc.), cette page reste chargée en arrière-plan : sans ce signal, une vidéo ou
+   une musique de statut continuait de jouer, invisible, après le changement d'onglet. */
+window.addEventListener('message',function(e){
+  if(e.data&&e.data.type==='panelCache')closeViewer();
+});
 /* ══ Pont vers la vraie messagerie (même structure Firestore que discussion_v1.html) :
    un like/geste/réponse envoyé depuis un statut doit atterrir dans la vraie discussion
    avec cette personne, pas juste s'afficher ici puis disparaître. ══ */
@@ -1014,13 +1069,21 @@ function sendSticker(s,ev){
    ci-dessus) : un document par personne dans une sous-collection, pour que l'auteur puisse
    ensuite voir le total par emoji dans ses statistiques. Se réagir à soi-même reste impossible
    (le bouton n'apparaît même pas sur son propre statut). */
+function escapeHtmlStatut(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 async function enregistrerReactionStatut(emoji){
   var p=S[curPersonIdx];
   if(!p||!MOI_ID||p.id===MOI_ID)return;
   var it=p.items[curItemIdx];
   if(!it||!it.docId)return;
   try{
-    await window.fb.setDoc(window.fb.doc(window.db,'statuts',it.docId,'reactions',MOI_ID),{emoji:emoji,at:window.fb.serverTimestamp()});
+    await window.fb.setDoc(window.fb.doc(window.db,'statuts',it.docId,'reactions',MOI_ID),{
+      emoji:emoji,
+      nom:(window.ME&&window.ME.prenom)||'Utilisateur',
+      photo:(window.ME&&window.ME.photo)||null,
+      ini:(window.ME&&window.ME.initiale)||'?',
+      bg:bgPourUid(MOI_ID),
+      at:window.fb.serverTimestamp()
+    });
   }catch(e){console.error('Enregistrement de la réaction sur le statut impossible :',e);}
 }
 
@@ -1036,11 +1099,17 @@ async function openStatutStats(){
   document.getElementById('statsOverlay').classList.add('open');
   try{
     var snap=await window.fb.getDoc(window.fb.collection(window.db,'statuts',it.docId,'reactions'));
-    var tally={};
-    snap.forEach(function(docSnap){var r=docSnap.data();var e=r.emoji||'❤️';tally[e]=(tally[e]||0)+1;});
-    var keys=Object.keys(tally);
-    document.getElementById('statsReactionsWrap').innerHTML=keys.length
-      ? keys.map(function(e){return '<span class="stats-reaction-pill">'+e+' '+tally[e]+'</span>';}).join('')
+    var reactions=[];
+    snap.forEach(function(docSnap){reactions.push(docSnap.data());});
+    document.getElementById('statsReactionsWrap').innerHTML=reactions.length
+      ? reactions.map(function(r){
+          var av=r.photo
+            ? '<img src="'+r.photo+'" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            : '<div style="width:36px;height:36px;border-radius:50%;background:'+(r.bg||'#999')+';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0">'+escapeHtmlStatut(r.ini||'?')+'</div>';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f2f2f2">'
+            +av+'<span style="flex:1;font-size:14px;font-weight:700;color:#111">'+escapeHtmlStatut(r.nom||'Utilisateur')+'</span>'
+            +'<span style="font-size:20px">'+(r.emoji||'❤️')+'</span></div>';
+        }).join('')
       : '<span style="color:#aaa;font-size:13px">Aucune réaction pour l’instant</span>';
   }catch(e){
     console.error('Chargement des réactions du statut impossible :',e);
@@ -1074,13 +1143,33 @@ function openViewerMenu(){
   var s=S[curPersonIdx];
   document.getElementById('viewerMenuName').textContent=s?s.n:'Options';
   var estMoi=s&&s.id===MOI_ID;
-  document.getElementById('viewerMenuOptions').innerHTML=estMoi
+  document.getElementById('viewerMenuOptions').innerHTML=(estMoi
     ? '<div class="ctx-item" onclick="openContactsPicker()"><span class="ctx-item-icon">👥</span>Choisir qui peut voir</div>'
       +'<div class="ctx-item danger" onclick="deleteStatut()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>'
-    : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>';
+    : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>')
+    +'<div class="ctx-item" onclick="openSpeedPicker()"><span class="ctx-item-icon">⏱️</span>Vitesse de défilement</div>';
   document.getElementById('viewerMenuOverlay').classList.add('open');
 }
 function closeViewerMenu(){document.getElementById('viewerMenuOverlay').classList.remove('open');resumeViewer();}
+function openSpeedPicker(){
+  // Le viewer est déjà en pause depuis l'ouverture du menu ⋯ : on ne le reprend pas ici,
+  // juste un changement de fiche visible, la pause continue pendant le choix.
+  document.getElementById('viewerMenuOverlay').classList.remove('open');
+  document.getElementById('speedOverlay').classList.add('open');
+}
+function closeSpeedPicker(){document.getElementById('speedOverlay').classList.remove('open');resumeViewer();}
+function definirVitesseDefilement(choix){
+  if(choix==='manuel'){
+    DEFILEMENT_AUTO=false;
+    try{localStorage.setItem('artiroyce_defilement_auto','off');}catch(e){}
+  }else{
+    DEFILEMENT_AUTO=true;
+    ITEM_DUREE_MS=choix;
+    try{localStorage.setItem('artiroyce_defilement_auto','on');localStorage.setItem('artiroyce_duree_statut',String(choix));}catch(e){}
+  }
+  document.getElementById('speedOverlay').classList.remove('open');
+  showCurrentItem(); // réaffiche l'item courant avec le nouveau réglage appliqué immédiatement
+}
 function maskStatut(){closeViewerMenu();if(S[curPersonIdx])S[curPersonIdx].hidden=true;renderList();closeViewer();toast('Statut masqué','');}
 async function deleteStatut(){
   closeViewerMenu();
@@ -1094,24 +1183,80 @@ async function deleteStatut(){
 }
 
 // CONTACTS
-function openContactsPicker(){
+async function openContactsPicker(){
   closeViewerMenu();
   pauseViewer();
   var list=document.getElementById('contactsList');
-  list.innerHTML='';
-  CONTACTS.forEach(function(c){
-    var row=document.createElement('div');
-    row.className='contact-row';
-    row.innerHTML='<div class="contact-av" style="background:'+c.bg+'">'+c.i+'</div>'
-      +'<div class="contact-name">'+c.n+'</div>'
-      +'<div class="contact-check'+(c.checked?' checked':'') +'" id="chk-'+c.id+'">'+(c.checked?'✔':'')+'</div>';
-    row.onclick=function(){c.checked=!c.checked;var el=document.getElementById('chk-'+c.id);el.className='contact-check'+(c.checked?' checked':'');el.textContent=c.checked?'✔':'';};
-    list.appendChild(row);
-  });
+  list.innerHTML='<div style="text-align:center;padding:20px;color:#aaa;font-size:13px">Chargement de tes abonnés…</div>';
   document.getElementById('contactsOverlay').classList.add('open');
+
+  var p=S[curPersonIdx];
+  var itemActuel=(p&&p.id===MOI_ID)?p.items[curItemIdx]:null;
+  var dejaRestreint=!!(itemActuel&&itemActuel.restreint);
+  var dejaVisibles=(itemActuel&&itemActuel.visibleUids)||[];
+
+  try{
+    // Mes abonnés = les personnes qui ME suivent (pas l'inverse) : ce sont elles qui
+    // ont le droit de me voir, comme sur WhatsApp/Facebook.
+    var q=window.fb.query(window.fb.collection(window.db,'abonnements'),window.fb.where('followed','==',MOI_ID));
+    var snap=await window.fb.getDoc(q);
+    var followerUids=[];
+    snap.forEach(function(d){var f=d.data().follower;if(f)followerUids.push(f);});
+
+    if(!followerUids.length){
+      CONTACTS=[];
+      list.innerHTML='<div style="text-align:center;padding:24px 12px;color:#888;font-size:13px;line-height:1.6">Tu n\'as pas encore d\'abonné(e)s.<br>Ton statut reste visible par tout le monde tant que personne ne s\'est abonné à toi.</div>';
+      return;
+    }
+
+    var profils=await Promise.all(followerUids.map(function(uid){
+      return window.fb.getDoc(window.fb.doc(window.db,'utilisateurs',uid)).then(function(s){
+        var u=s.exists?s.data():{};
+        return {id:uid,n:(u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')||'Utilisateur',
+          i:((u.prenom||'?')[0]||'?').toUpperCase(),bg:bgPourUid(uid),photo:u.photoAvatar||null};
+      }).catch(function(){return {id:uid,n:'Utilisateur',i:'?',bg:bgPourUid(uid),photo:null};});
+    }));
+
+    CONTACTS=profils.map(function(c){
+      c.checked=dejaRestreint?(dejaVisibles.indexOf(c.id)>=0):true; // par défaut : tous cochés (public)
+      return c;
+    });
+
+    list.innerHTML='';
+    CONTACTS.forEach(function(c){
+      var row=document.createElement('div');
+      row.className='contact-row';
+      var avHtml=c.photo?('<img src="'+c.photo+'" style="width:100%;height:100%;object-fit:cover">'):c.i;
+      row.innerHTML='<div class="contact-av" style="background:'+c.bg+'">'+avHtml+'</div>'
+        +'<div class="contact-name">'+escapeHtmlStatut(c.n)+'</div>'
+        +'<div class="contact-check'+(c.checked?' checked':'') +'" id="chk-'+c.id+'">'+(c.checked?'✔':'')+'</div>';
+      row.onclick=function(){c.checked=!c.checked;var el=document.getElementById('chk-'+c.id);el.className='contact-check'+(c.checked?' checked':'');el.textContent=c.checked?'✔':'';};
+      list.appendChild(row);
+    });
+  }catch(e){
+    console.error('Chargement des abonnés impossible :',e);
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--red);font-size:13px">Erreur de chargement</div>';
+  }
 }
 function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');resumeViewer();}
-function saveContacts(){var sel=CONTACTS.filter(function(c){return c.checked;}).map(function(c){return c.n;});closeContacts();toast('Visible par '+sel.length+' contact(s) ✅','g');}
+async function saveContacts(){
+  var p=S[curPersonIdx];
+  if(!p||p.id!==MOI_ID){closeContacts();return;}
+  if(!CONTACTS.length){closeContacts();toast('Statut visible par tout le monde','g');return;}
+  var decoches=CONTACTS.filter(function(c){return !c.checked;});
+  var restreint=decoches.length>0; // rien décoché = public, comme avant (on ne casse rien par défaut)
+  var visibleUids=restreint?CONTACTS.filter(function(c){return c.checked;}).map(function(c){return c.id;}):[];
+  closeContacts();
+  try{
+    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){
+      return window.fb.updateDoc(window.fb.doc(window.db,'statuts',it.docId),{restreint:restreint,visibleUids:visibleUids});
+    }));
+    toast(restreint?('Visible par '+visibleUids.length+' abonné(e)(s) ✅'):'Statut visible par tout le monde ✅','g');
+  }catch(e){
+    console.error('Enregistrement de la restriction impossible :',e);
+    toast('⚠️ Enregistrement impossible (connexion)','');
+  }
+}
 
 // MENU CRÉER
 function openMenu(){document.getElementById('menuOverlay').classList.add('open');}
@@ -1615,6 +1760,7 @@ function updateDoc(ref,data){return ref.update(data);}
 function deleteDoc(ref){return ref.delete();}
 function setDoc(ref,data,opts){return opts?ref.set(data,opts):ref.set(data);}
 function orderBy(field,dir){return function(r){return r.orderBy(field,dir);};}
+function where(field,op,value){return function(r){return r.where(field,op,value);};}
 function query(baseRef){var fns=Array.prototype.slice.call(arguments,1);var r=baseRef;fns.forEach(function(fn){r=fn(r);});return r;}
 function onSnapshot(ref,cb,errCb){return ref.onSnapshot(cb,errCb);}
 function serverTimestamp(){return firebase.firestore.FieldValue.serverTimestamp();}
@@ -1627,7 +1773,7 @@ function getDownloadURLFn(sRef){return sRef.getDownloadURL();}
 // même précaution que pour "toast" sur actualite_v1 : un module ne partage pas ses
 // variables globalement, donc on les attache explicitement à window.
 window.db=db;
-window.fb={collection,addDoc,onSnapshot,orderBy,query,updateDoc,deleteDoc,doc,setDoc,arrayUnion,serverTimestamp,getDoc,storageRef:storageRefFn,uploadBytes:uploadBytesFn,getDownloadURL:getDownloadURLFn};
+window.fb={collection,addDoc,onSnapshot,orderBy,where,query,updateDoc,deleteDoc,doc,setDoc,arrayUnion,serverTimestamp,getDoc,storageRef:storageRefFn,uploadBytes:uploadBytesFn,getDownloadURL:getDownloadURLFn};
 window.storage=storage;
 window.ME={prenom:'Moi',initiale:'M',photo:null,metier:'',role:'visiteur'};
 window.rendreCardDefaut=function(){
