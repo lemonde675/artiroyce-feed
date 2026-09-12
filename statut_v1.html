@@ -797,19 +797,25 @@ var DEFILEMENT_AUTO=(function(){try{return localStorage.getItem('artiroyce_defil
 var itemDebut=0,itemPauseElapsed=0,estEnPause=false,holdTimer=null,enTrainDeTenir=false;
 
 window.onZoneDown=function(){
-  holdTimer=Date.now();
-  pauseViewer(); // pause immédiate, sans délai — plus fluide qu'un seuil d'attente avant exécution
+  enTrainDeTenir=false;
+  holdTimer=setTimeout(function(){
+    enTrainDeTenir=true;
+    pauseViewer(); // ne se déclenche QUE si le doigt reste vraiment posé — jamais sur un tap rapide
+  },280);
 };
 window.onZoneUp=function(e,dir){
-  var duree=Date.now()-holdTimer;
-  resumeViewer();
-  if(duree<220){ // relâché vite = un vrai tap -> on navigue comme avant
-    if(dir==='next')goNextItem();else goPrevItem();
+  clearTimeout(holdTimer);
+  if(enTrainDeTenir){
+    resumeViewer(); // relâché après une vraie pause : on reprend la lecture, on n'avance pas
+  }else{
+    if(dir==='next')goNextItem();else goPrevItem(); // tap rapide : avance immédiate, aucun gel au passage
   }
-  // sinon, la personne voulait juste lire tranquillement : on reste simplement sur l'item, pas de saut
+  enTrainDeTenir=false;
 };
 window.onZoneLeave=function(){
-  resumeViewer();
+  clearTimeout(holdTimer);
+  if(enTrainDeTenir)resumeViewer();
+  enTrainDeTenir=false;
 };
 function pauseViewer(){
   if(estEnPause)return;
