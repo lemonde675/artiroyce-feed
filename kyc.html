@@ -634,11 +634,9 @@
         }
       } catch (errDocs) {
         overlay.classList.remove('show');
-        alert('ERREUR ENVOI DOCUMENTS : ' + errDocs.message); // diagnostic temporaire
         showToast('⚠ Statut envoyé, mais échec de l\'envoi des documents : ' + errDocs.message, 'error-toast');
         return; // on s'arrête ici : la personne doit savoir que ce n'est pas complet
       }
-      alert('DOCUMENTS ENVOYÉS SANS ERREUR'); // diagnostic temporaire
 
       progBar.style.width = '100%';
       progText.textContent = 'Dossier envoyé !';
