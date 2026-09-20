@@ -407,7 +407,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -606,18 +606,25 @@
       progText.textContent = 'Envoi vers Firebase…';
       progBar.style.width = '70%';
 
-      // Sauvegarder dans Firestore (pas de Storage !)
+      // Statut/métadonnées : restent sur le profil public (profil.html en a besoin
+      // pour afficher "en attente" / "vérifié" / "rejeté").
       await updateDoc(doc(db, 'utilisateurs', currentUser.uid), {
         kycStatut:      'en_attente',
         kycSoumisLe:    serverTimestamp(),
-        kycTypeDoc:     docType, // 'cni' | 'passport' | 'permis' — pour que l'équipe sache quel document a été fourni
+        kycTypeDoc:     docType,
+        kycRaisonRejet: '', // Effacer l'ancienne raison si resoumis
+      });
+
+      // Documents eux-mêmes (selfie, pièce d'identité, justificatif) : déplacés dans
+      // un emplacement PROTÉGÉ, distinct du profil public — seul le propriétaire et
+      // l'administrateur peuvent le lire (voir firestore.rules, match /prive/{docId}).
+      await setDoc(doc(db, 'utilisateurs', currentUser.uid, 'prive', 'kyc'), {
         kycSelfie:      compressedSelfie   || null,
         kycIdRecto:     compressedIdRecto  || null,
         kycIdVerso:     compressedIdVerso  || null,
         kycIdSingle:    compressedIdSingle || null,
         kycDomicile:    compressedDomicile || null,
         kycExtra:       compressedExtra    || null,
-        kycRaisonRejet: '', // Effacer l'ancienne raison si resoumis
       });
 
       progBar.style.width = '100%';
