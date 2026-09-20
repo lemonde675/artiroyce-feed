@@ -108,6 +108,8 @@
   }
   .hero h1{ font-size:22px; font-weight:800; color:var(--ink); line-height:1.25; }
   .hero p{ font-size:13px; color:var(--muted); margin-top:6px; line-height:1.5; max-width:34ch; }
+  .founders{ font-size:11.5px; color:var(--muted); margin-top:12px; padding-top:12px; border-top:1px solid var(--hairline); display:flex; align-items:center; gap:6px; }
+  .founders::before{ content:"👤"; font-size:12px; }
 
   .list-section-label{
     font-size:12px; font-weight:700; color:var(--muted);
@@ -220,6 +222,7 @@
           <div class="hero-badge">🔒</div>
           <h1>Sécurité & confidentialité</h1>
           <p>Tout ce que vous devez savoir sur la protection de vos données, de vos documents et de votre vie privée sur ArtiRoyce.</p>
+          <div class="founders">Van Dyck & Isidore Ravat Wenon · Fondateurs · 2025</div>
         </div>
 
         <div class="list-section-label">Choisissez un thème</div>
@@ -398,6 +401,75 @@ function ajusterHauteurHeader(){
 }
 ajusterHauteurHeader();
 window.addEventListener('resize', ajusterHauteurHeader);
+
+// ── Glissement gauche/droite ────────────────────────────────────────────
+// Deux comportements selon où on se trouve, comme sur le reste du site :
+//  - Sur l'écran d'accueil FAQ (aucune sous-page ouverte) : swipe = changement
+//    d'onglet (droite -> Fil Presse, comme le glissement décrit dans fil-presseDvB.html).
+//  - Dans une sous-page (thème ou réponse) : swipe vers la droite = retour en arrière,
+//    comme le bouton "‹" — c'est le geste natif attendu à l'intérieur d'une FAQ.
+(function(){
+  let touchStartX = 0, touchStartY = 0, tracking = false, locked = null;
+  const SWIPE_MIN = 25;
+  const LOCK_THRESHOLD = 10;
+
+  function goToAdjacentTab(direction){
+    try{
+      if(window.parent && window.parent !== window && typeof window.parent.switchTab === 'function'){
+        window.parent.switchTab(direction);
+        return;
+      }
+    }catch(e){}
+    try{
+      if(window.parent && window.parent !== window){
+        window.parent.postMessage({ action: 'swipeNav', direction: direction, from: 'faq' }, '*');
+        return;
+      }
+    }catch(e){}
+    // Repli si la page n'est pas intégrée en iframe (ouverte seule) :
+    // FAQ est le dernier onglet -> seul "prev" (retour vers Fil Presse) a une destination.
+    if(direction === 'prev') window.location.href = 'fil-presse.html';
+  }
+
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1) return;
+    tracking = true;
+    locked = null;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e){
+    if(!tracking || locked || !e.touches.length) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if(Math.abs(dx) < LOCK_THRESHOLD && Math.abs(dy) < LOCK_THRESHOLD) return;
+    locked = Math.abs(dx) > Math.abs(dy) * 1.2 ? 'h' : 'v';
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e){
+    const wasHorizontal = tracking && locked === 'h';
+    tracking = false;
+    locked = null;
+    if(!wasHorizontal || !e.changedTouches || !e.changedTouches.length) return;
+
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) < SWIPE_MIN) return;
+
+    const surSousPage = historyStack.length > 1;
+
+    if(dx > 0){
+      // Glissement vers la droite
+      if(surSousPage) goBack();
+      else goToAdjacentTab('prev');
+    } else {
+      // Glissement vers la gauche : pas de sous-page suivante à ouvrir par swipe
+      // (on choisit une question précise via un tap), et FAQ est le dernier onglet.
+      if(!surSousPage) goToAdjacentTab('next');
+    }
+  }, { passive: true });
+})();
+
 </script>
 
 </body>
