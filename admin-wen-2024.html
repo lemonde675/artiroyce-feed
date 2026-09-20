@@ -24,7 +24,7 @@
     .admin-badge .admin-name { color: #27a945; font-weight: 700; margin-top: 4px; }
     label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #333; margin-bottom: 6px; }
     .input-wrap { position: relative; margin-bottom: 18px; }
-    input[type="password"], input[type="text"] { width: 100%; padding: 12px 44px 12px 14px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 15px; color: #333; outline: none; background: #fafafa; }
+    input[type="password"], input[type="text"], input[type="email"] { width: 100%; padding: 12px 44px 12px 14px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 15px; color: #333; outline: none; background: #fafafa; }
     input:focus { border-color: #e63224; background: #fff; }
     input.error { border-color: #e63224; background: #fff5f5; }
     .eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888; display: flex; align-items: center; }
@@ -245,7 +245,11 @@
         <p>Panel de gestion & validation KYC</p>
         <p class="admin-name">Isidore Wenon</p>
       </div>
-      <label for="adminPass">MOT DE PASSE ADMIN</label>
+      <label for="adminEmail">EMAIL ADMINISTRATEUR</label>
+      <div class="input-wrap">
+        <input type="email" id="adminEmail" placeholder="ton.email@exemple.com" autocomplete="off"/>
+      </div>
+      <label for="adminPass">MOT DE PASSE</label>
       <div class="input-wrap">
         <input type="password" id="adminPass" placeholder="••••••••••" autocomplete="off"/>
         <button type="button" class="eye-btn" onclick="toggleAdminPass()">
@@ -254,6 +258,7 @@
       </div>
       <p class="err-login" id="loginErr"></p>
       <button class="btn-admin" onclick="checkLogin()">ACCÉDER AU PANEL →</button>
+      <p style="text-align:center;margin-top:14px"><a href="mot-de-passe-oublie.html" style="color:#e02010;font-size:13px;text-decoration:none">Mot de passe oublié ?</a></p>
     </div>
     <div class="bottom-bar"></div>
   </div>
@@ -334,7 +339,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -349,57 +354,63 @@
   const db   = getFirestore(app);
   const auth = getAuth(app);
 
-  const PASSWORDS    = ["Bonjour1@", "AKOUEGNIGAN"];
-  const SESSION_KEY  = "artiroyce_admin_ok";
-  const ADMIN_EMAIL  = "admin@artiroyce.com";
-  const ADMIN_PASS   = "Bonjour1@bonjour1@";
+  // Seul cet identifiant (UID) a le droit d'administrer. Ce n'est PAS un secret comme
+  // un mot de passe : le connaître ne permet à personne de se faire passer pour
+  // l'admin — il faut toujours le vrai mot de passe du compte pour se connecter,
+  // et ce mot de passe, lui, n'est écrit nulle part dans ce fichier.
+  const ADMIN_UID = "JyUlOcQjf4Scaf43faUuj2zx6Gi1";
 
   let allUsers   = [];
   let currentTab = 'en_attente';
   let mainTab    = 'comptes';
 
-  if (localStorage.getItem(SESSION_KEY) === 'true') {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminPanel').style.display  = 'block';
-    // Reconnexion Firebase Auth avant de charger les données
-    signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS)
-      .then(() => loadUsers())
-      .catch((e) => {
-        document.getElementById('userList').innerHTML = `<div class="empty-state">⚠ Erreur de connexion admin : ${e.message}</div>`;
-      });
-  }
+  // Si déjà connecté (session Firebase persistante), on saute directement au panel
+  // sans redemander le mot de passe — plus besoin d'un système de session "maison".
+  onAuthStateChanged(auth, (user) => {
+    if (user && user.uid === ADMIN_UID) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display  = 'block';
+      loadUsers();
+    } else {
+      if (user) signOut(auth).catch(() => {}); // connecté mais pas administrateur : on déconnecte
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('adminPanel').style.display  = 'none';
+    }
+  });
 
   window.toggleAdminPass = () => { const p = document.getElementById('adminPass'); p.type = p.type==='password'?'text':'password'; };
 
   window.checkLogin = async () => {
-    const val = document.getElementById('adminPass').value.trim();
-    const err = document.getElementById('loginErr');
-    if (PASSWORDS.includes(val)) {
-      try {
-        await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASS);
-        localStorage.setItem(SESSION_KEY, 'true');
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminPanel').style.display  = 'block';
-        loadUsers();
-      } catch (e) {
-        err.textContent = '⚠ Erreur de connexion admin : ' + e.message;
-        setTimeout(() => err.textContent = '', 4000);
+    const email = document.getElementById('adminEmail').value.trim();
+    const pass  = document.getElementById('adminPass').value.trim();
+    const err   = document.getElementById('loginErr');
+    if (!email || !pass) {
+      err.textContent = '⚠ Renseigne ton email et ton mot de passe.';
+      return;
+    }
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      if (cred.user.uid !== ADMIN_UID) {
+        await signOut(auth).catch(() => {});
+        err.textContent = '⚠ Ce compte n\'a pas les droits administrateur.';
+        return;
       }
-    } else {
-      err.textContent = '⚠ Mot de passe incorrect.';
-      document.getElementById('adminPass').className = 'error';
-      setTimeout(() => err.textContent = '', 3000);
+      // onAuthStateChanged ci-dessus prend le relais pour afficher le panel
+    } catch (e) {
+      err.textContent = '⚠ Connexion impossible : ' + e.message;
+      setTimeout(() => err.textContent = '', 4000);
     }
   };
 
+  document.getElementById('adminEmail').addEventListener('keydown', e => { if (e.key==='Enter') window.checkLogin(); });
   document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key==='Enter') window.checkLogin(); });
 
   window.logout = () => {
-    localStorage.removeItem(SESSION_KEY);
     signOut(auth).catch(() => {});
     document.getElementById('adminPanel').style.display   = 'none';
     document.getElementById('loginScreen').style.display  = 'flex';
     document.getElementById('adminPass').value = '';
+    document.getElementById('adminEmail').value = '';
     document.getElementById('loginErr').textContent = '';
   };
 
