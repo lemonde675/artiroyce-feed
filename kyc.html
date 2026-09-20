@@ -615,17 +615,28 @@
         kycRaisonRejet: '', // Effacer l'ancienne raison si resoumis
       });
 
-      // Documents eux-mêmes (selfie, pièce d'identité, justificatif) : déplacés dans
-      // un emplacement PROTÉGÉ, distinct du profil public — seul le propriétaire et
-      // l'administrateur peuvent le lire (voir firestore.rules, match /prive/{docId}).
-      await setDoc(doc(db, 'utilisateurs', currentUser.uid, 'prive', 'kyc'), {
-        kycSelfie:      compressedSelfie   || null,
-        kycIdRecto:     compressedIdRecto  || null,
-        kycIdVerso:     compressedIdVerso  || null,
-        kycIdSingle:    compressedIdSingle || null,
-        kycDomicile:    compressedDomicile || null,
-        kycExtra:       compressedExtra    || null,
-      });
+      // Documents eux-mêmes : déplacés dans un emplacement PROTÉGÉ (utilisateurs/{uid}/prive/…),
+      // seul le propriétaire et l'administrateur peuvent le lire (voir firestore.rules).
+      // Chaque document est enregistré SÉPARÉMENT (plutôt qu'un seul gros document) pour
+      // rester loin de la limite de taille de 1 Mo par document de Firestore.
+      try {
+        const docsAEnvoyer = {
+          kyc_selfie:   compressedSelfie,
+          kyc_idRecto:  compressedIdRecto,
+          kyc_idVerso:  compressedIdVerso,
+          kyc_idSingle: compressedIdSingle,
+          kyc_domicile: compressedDomicile,
+          kyc_extra:    compressedExtra,
+        };
+        for (const [nomDoc, contenu] of Object.entries(docsAEnvoyer)) {
+          if (!contenu) continue; // ex : pas de recto/verso si passeport (page unique)
+          await setDoc(doc(db, 'utilisateurs', currentUser.uid, 'prive', nomDoc), { image: contenu });
+        }
+      } catch (errDocs) {
+        overlay.classList.remove('show');
+        showToast('⚠ Statut envoyé, mais échec de l\'envoi des documents : ' + errDocs.message, 'error-toast');
+        return; // on s'arrête ici : la personne doit savoir que ce n'est pas complet
+      }
 
       progBar.style.width = '100%';
       progText.textContent = 'Dossier envoyé !';
