@@ -160,18 +160,51 @@ window.Signalisation = (function(){
 
    Serveurs réseau utilisés pour établir la connexion :
    - STUN (Google, gratuit) : suffit dans la majorité des cas.
-   - TURN (Open Relay Project, gratuit/public) : relais de secours quand la
-     connexion directe échoue (réseaux mobiles restrictifs, etc.). Service
-     public partagé, correct pour démarrer/tester ; à remplacer par un TURN
-     dédié si le volume d'utilisation le justifie plus tard.
+   - TURN (Cloudflare Realtime) : relais quand la connexion directe échoue
+     (réseaux mobiles restrictifs, appels à distance, etc.). Les identifiants
+     sont temporaires : ils sont demandés à /api/turn (fonction Vercel qui garde
+     la clé secrète côté serveur) juste avant chaque appel.
+   - Liste de SECOURS (ancien TURN public Open Relay) : utilisée seulement si
+     /api/turn ne répond pas, pour que les appels continuent de fonctionner
+     comme avant plutôt que d'échouer.
    ══════════════════════════════════════════════════════════════════════ */
 
-const ICE_SERVERS = [
+const ICE_SERVERS_SECOURS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
 ];
+
+// Liste réellement utilisée par creerPeerConnection() (remplacée par celle de Cloudflare
+// quand elle est chargée avec succès).
+let ICE_SERVERS = ICE_SERVERS_SECOURS;
+let _iceChargeLe = 0;
+
+// Demande des identifiants TURN temporaires à /api/turn. Ne lève jamais d'erreur :
+// en cas de problème (réseau, serveur, clé), on garde simplement la liste de secours.
+// Les identifiants sont réutilisés pendant 30 minutes pour ne pas redemander à chaque appel.
+async function chargerIceServers(){
+  if(Date.now() - _iceChargeLe < 30*60*1000) return;
+  try{
+    const ctrl = new AbortController();
+    const to = setTimeout(function(){ ctrl.abort(); }, 4000);
+    const rep = await fetch('/api/turn', { cache:'no-store', signal: ctrl.signal });
+    clearTimeout(to);
+    if(!rep.ok) throw new Error('HTTP '+rep.status);
+    const data = await rep.json();
+    if(Array.isArray(data.iceServers) && data.iceServers.length){
+      ICE_SERVERS = data.iceServers;
+      _iceChargeLe = Date.now();
+      ajouterEtape('Serveurs réseau : relais Cloudflare chargé');
+    } else {
+      throw new Error('réponse vide');
+    }
+  }catch(e){
+    ICE_SERVERS = ICE_SERVERS_SECOURS;
+    ajouterEtape('Serveurs réseau : relais Cloudflare indisponible, liste de secours utilisée ('+(e && e.message || e)+')');
+  }
+}
 
 // ── État de l'appel en cours (au plus un à la fois) ──
 let _pc=null, _appelId=null, _appelRole=null;
@@ -307,6 +340,7 @@ window.appelSortant = async function(type){
   let reponseTraitee=false;
   try{
     const moi = await obtenirMonInfo();
+    await chargerIceServers();
     _pc = creerPeerConnection();
     _appelRole = 'appelant';
     callStream.getTracks().forEach(function(t){ _pc.addTrack(t, callStream); });
@@ -443,6 +477,7 @@ window.appelAccepter = async function(){
   if(!stream) return;
 
   try{
+    await chargerIceServers();
     _pc = creerPeerConnection();
     _appelRole = 'destinataire';
     _appelId = appelId;
