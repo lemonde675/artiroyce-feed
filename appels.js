@@ -8,6 +8,11 @@
    variables et fonctions déjà déclarées sur cette même page (db,
    currentUid, currentOtherUid, currentConvId, callStream, pushView,
    requestClose, logCallBubble, obtenirMonInfo, prepareCallScreen, etc.).
+
+   Version DIAGNOSTIC (13/10/2026) : toutes les étapes clés et toutes les
+   erreurs (envoi/réception des candidats réseau, erreurs du relais TURN)
+   sont maintenant affichées dans le panneau 🛠️, pour trouver pourquoi
+   l'appel reste bloqué sur « Connexion… ».
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════ PARTIE 1 — SIGNALISATION ════════════════════════════ */
@@ -19,11 +24,8 @@
    audio/vidéo) : il ne fait que déposer et lire, dans Firestore, les
    informations nécessaires pour que deux téléphones se trouvent et se
    connectent DIRECTEMENT entre eux (offre, réponse, candidats réseau ICE).
-   Une fois la connexion établie, l'audio/vidéo ne repasse plus jamais par
-   Firebase — voir appel.js pour cette partie-là.
 
-   Schéma Firestore utilisé (nouvelle collection, séparée de "conversations"
-   pour ne rien perturber de la messagerie existante) :
+   Schéma Firestore utilisé :
 
    appels/{appelId}
      appelantUid, appelantNom, appelantIni, appelantBg   → qui appelle
@@ -40,8 +42,7 @@
    ══════════════════════════════════════════════════════════════════════ */
 window.Signalisation = (function(){
 
-  // Log une erreur en console ET dans le panneau 🛠️ visible à l'écran (déjà présent
-  // dans discussion_v1.html) — pour pouvoir diagnostiquer sans avoir besoin de F12.
+  // Log une erreur en console ET dans le panneau 🛠️ visible à l'écran.
   function _logErreur(texte, err){
     console.error(texte, err);
     if(window.ajouterEtape) ajouterEtape('❌ '+texte+(err&&err.message?' — '+err.message:''), true);
@@ -49,7 +50,6 @@ window.Signalisation = (function(){
 
   function refAppel(appelId){ return db.collection('appels').doc(appelId); }
 
-  // Dépose une nouvelle demande d'appel et renvoie son identifiant.
   async function creerAppel(donnees){
     const doc = await db.collection('appels').add({
       appelantUid: donnees.appelantUid,
@@ -66,7 +66,6 @@ window.Signalisation = (function(){
     return doc.id;
   }
 
-  // Le destinataire dépose sa réponse (fait passer l'appel en "accepte").
   function envoyerReponse(appelId, reponse){
     return refAppel(appelId).update({ reponse: reponse, statut: 'accepte' });
   }
@@ -76,15 +75,12 @@ window.Signalisation = (function(){
       .catch(function(e){ _logErreur('Statut appel non mis à jour', e); });
   }
 
-  // Écoute un appel précis (côté appelant : pour voir arriver la réponse ou un refus).
   function ecouterAppel(appelId, callback){
     return refAppel(appelId).onSnapshot(function(doc){
       if(doc.exists) callback(doc.data());
     }, function(err){ _logErreur('Écoute de l\'appel impossible', err); });
   }
 
-  // Écoute globale (démarrée une seule fois à la connexion) : détecte les appels qui me
-  // sont destinés et qui sont encore en train de sonner, pour afficher l'écran entrant.
   function ecouterAppelsEntrants(monUid, callback){
     if(window.ajouterEtape) ajouterEtape('📞 Écoute des appels entrants démarrée (uid : '+monUid+')');
     return db.collection('appels')
@@ -97,10 +93,15 @@ window.Signalisation = (function(){
       }, function(err){ _logErreur('Écoute des appels entrants impossible', err); });
   }
 
-  // sousCollection vaut 'candidatsAppelant' ou 'candidatsDestinataire' selon qui envoie.
+  // DIAGNOSTIC : une erreur d'envoi est maintenant visible dans le panneau 🛠️
+  // (avant, elle n'allait que dans la console, invisible sur téléphone).
+  let _erreursEnvoiCandidat=0;
   function ajouterCandidat(appelId, sousCollection, candidat){
     return refAppel(appelId).collection(sousCollection).add({ candidat: JSON.stringify(candidat) })
-      .catch(function(e){ console.error('Candidat réseau non envoyé :', e); });
+      .catch(function(e){
+        _erreursEnvoiCandidat++;
+        if(_erreursEnvoiCandidat<=3) _logErreur('Candidat réseau NON envoyé ('+sousCollection+')', e);
+      });
   }
 
   function ecouterCandidats(appelId, sousCollection, callback){
@@ -108,13 +109,12 @@ window.Signalisation = (function(){
       snap.docChanges().forEach(function(chg){
         if(chg.type==='added'){
           try{ callback(JSON.parse(chg.doc.data().candidat)); }
-          catch(e){ console.error('Candidat réseau illisible :', e); }
+          catch(e){ _logErreur('Candidat réseau illisible', e); }
         }
       });
-    }, function(err){ console.error('Écoute des candidats réseau impossible :', err); });
+    }, function(err){ _logErreur('Écoute des candidats réseau impossible ('+sousCollection+')', err); });
   }
 
-  // Nettoyage complet une fois l'appel terminé (évite d'accumuler des documents inutiles).
   async function supprimerAppel(appelId){
     try{
       const sousCols=['candidatsAppelant','candidatsDestinataire'];
@@ -144,30 +144,9 @@ window.Signalisation = (function(){
 
 /* ════════════════════════════ PARTIE 2 — APPEL ════════════════════════════ */
 
-/* ══════════════════════════════════════════════════════════════════════
-   ArtiRoyce — Appels audio/vidéo réels (WebRTC)
-   ══════════════════════════════════════════════════════════════════════
-   Gère la connexion DIRECTE entre deux téléphones, une fois que
-   signalisation.js a permis aux deux appareils de se trouver via Firestore.
-
-   Ce fichier réutilise volontairement les variables et fonctions déjà
-   déclarées dans discussion_v1.html (db, currentUid, currentOtherUid,
-   currentConvId, currentChatName/Ini/Bg, callStream, callType, callSeconds,
-   callTimerInt, pushView, requestClose, viewStack, logCallBubble, fmtTime,
-   ajouterEtape, obtenirMonInfo, prepareCallScreen) — accessibles ici car
-   ce fichier est chargé en tout dernier, comme un script classique de plus
-   sur la même page (pas de module, donc portée globale partagée).
-
-   Serveurs réseau utilisés pour établir la connexion :
-   - STUN (Google, gratuit) : suffit dans la majorité des cas.
-   - TURN (Cloudflare Realtime) : relais quand la connexion directe échoue
-     (réseaux mobiles restrictifs, appels à distance, etc.). Les identifiants
-     sont temporaires : ils sont demandés à /api/turn (fonction Vercel qui garde
-     la clé secrète côté serveur) juste avant chaque appel.
-   - Liste de SECOURS (ancien TURN public Open Relay) : utilisée seulement si
-     /api/turn ne répond pas, pour que les appels continuent de fonctionner
-     comme avant plutôt que d'échouer.
-   ══════════════════════════════════════════════════════════════════════ */
+/* Serveurs réseau utilisés pour établir la connexion :
+   - TURN (Cloudflare Realtime) via /api/turn (identifiants temporaires).
+   - Liste de SECOURS (ancien TURN public Open Relay) si /api/turn ne répond pas. */
 
 const ICE_SERVERS_SECOURS = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -176,16 +155,14 @@ const ICE_SERVERS_SECOURS = [
   { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
 ];
 
-// Liste réellement utilisée par creerPeerConnection() (remplacée par celle de Cloudflare
-// quand elle est chargée avec succès).
 let ICE_SERVERS = ICE_SERVERS_SECOURS;
 let _iceChargeLe = 0;
 
-// Demande des identifiants TURN temporaires à /api/turn. Ne lève jamais d'erreur :
-// en cas de problème (réseau, serveur, clé), on garde simplement la liste de secours.
-// Les identifiants sont réutilisés pendant 30 minutes pour ne pas redemander à chaque appel.
 async function chargerIceServers(){
-  if(Date.now() - _iceChargeLe < 30*60*1000) return;
+  if(Date.now() - _iceChargeLe < 30*60*1000){
+    ajouterEtape('Serveurs réseau : relais Cloudflare déjà chargé (réutilisé)');
+    return;
+  }
   try{
     const ctrl = new AbortController();
     const to = setTimeout(function(){ ctrl.abort(); }, 4000);
@@ -196,7 +173,9 @@ async function chargerIceServers(){
     if(Array.isArray(data.iceServers) && data.iceServers.length){
       ICE_SERVERS = data.iceServers;
       _iceChargeLe = Date.now();
-      ajouterEtape('Serveurs réseau : relais Cloudflare chargé');
+      let nbAdresses=0;
+      data.iceServers.forEach(function(s){ nbAdresses += Array.isArray(s.urls) ? s.urls.length : 1; });
+      ajouterEtape('Serveurs réseau : relais Cloudflare chargé ('+nbAdresses+' adresses)');
     } else {
       throw new Error('réponse vide');
     }
@@ -206,18 +185,23 @@ async function chargerIceServers(){
   }
 }
 
-// ── État de l'appel en cours (au plus un à la fois) ──
 let _pc=null, _appelId=null, _appelRole=null;
 let _offDocAppel=null, _offCandidatsDistants=null, _offEntrants=null;
 
-// Candidats réseau du correspondant reçus AVANT que la description distante (offre/réponse)
-// soit posée : le navigateur les refuse à ce moment-là (InvalidStateError) et ils étaient
-// perdus pour toujours → l'appel restait sur « Connexion… » puis coupait. On les met en
-// attente et on les applique dès que la description distante est prête.
+// Candidats du correspondant reçus AVANT la description distante : mis en attente.
 let _candidatsDistantsTampon=[], _descDistantePrete=false;
+function _typeCandidat(cand){
+  const m=/ typ (\w+)/.exec((cand && cand.candidate)||'');
+  return m?m[1]:'?';
+}
 function recevoirCandidatDistant(cand){
   if(!_pc) return;
-  if(!_descDistantePrete){ _candidatsDistantsTampon.push(cand); return; }
+  if(!_descDistantePrete){
+    _candidatsDistantsTampon.push(cand);
+    ajouterEtape('Candidat réseau DISTANT reçu (en attente) : '+_typeCandidat(cand));
+    return;
+  }
+  ajouterEtape('Candidat réseau DISTANT reçu : '+_typeCandidat(cand));
   _pc.addIceCandidate(new RTCIceCandidate(cand)).catch(function(e){
     if(window.ajouterEtape) ajouterEtape('⚠️ Candidat distant refusé : '+(e&&e.message||e), true);
   });
@@ -225,29 +209,20 @@ function recevoirCandidatDistant(cand){
 function descriptionDistantePrete(){
   _descDistantePrete=true;
   const liste=_candidatsDistantsTampon; _candidatsDistantsTampon=[];
+  if(liste.length) ajouterEtape('Application de '+liste.length+' candidat(s) distant(s) mis en attente');
   liste.forEach(recevoirCandidatDistant);
 }
 function reinitialiserCandidats(){
   _candidatsDistantsTampon=[]; _descDistantePrete=false;
 }
-// Journal des candidats locaux (host / srflx / relay) : permet de voir dans le panneau 🛠️
-// si le relais Cloudflare (relay) est bien utilisé. Les identifiants ne sont jamais affichés.
 function noterCandidatLocal(c){
   if(!window.ajouterEtape || !c) return;
-  const m=/ typ (\w+)/.exec(c.candidate||'');
-  ajouterEtape('Candidat réseau local : '+(m?m[1]:'?'));
+  ajouterEtape('Candidat réseau local : '+_typeCandidat(c));
 }
 let _sonnerieTimeoutId=null;
-let _appelEnCoursDestinataire=null; // {appelId, data, offAttente} pendant l'écran "appel entrant"
+let _appelEnCoursDestinataire=null;
 
-/* ══════════════ SONNERIE (tonalité sonore) ══════════════
-   Génère un bip localement (Web Audio), aucun fichier son à ajouter au projet.
-   Deux motifs différents pour distinguer à l'oreille "j'appelle" et "on m'appelle" :
-   - 'sortant'  (moi qui appelle) : un bip long régulier, comme une tonalité classique.
-   - 'entrant'  (on m'appelle)    : deux bips courts rapprochés, plus insistant.
-   Remarque : un navigateur bloque parfois un son qui démarre sans qu'aucun clic
-   n'ait eu lieu sur la page avant — le premier tap/clic sur la page (n'importe où)
-   débloque le son pour le reste de la session, avant même qu'un appel n'arrive. */
+/* ══════════════ SONNERIE (tonalité sonore) ══════════════ */
 let _sonnerieCtx=null, _sonnerieTimers=[];
 
 function _obtenirContexteAudio(){
@@ -293,6 +268,7 @@ function arreterSonnerie(){
 function creerPeerConnection(){
   const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
   pc.ontrack = function(e){
+    ajouterEtape('Flux '+(e.track && e.track.kind || '?')+' du correspondant reçu');
     if(callType==='video'){
       const rv=document.getElementById('callRemoteVideo');
       if(rv){
@@ -302,11 +278,24 @@ function creerPeerConnection(){
       const av=document.getElementById('callAvatarBig');
       if(av) av.style.display='none';
     } else {
-      // Appel audio : aucune balise <video> visible ici — il faut quand même
-      // brancher le flux reçu quelque part pour que le son soit audible.
       const ra=document.getElementById('callRemoteAudio');
       if(ra && ra.srcObject!==e.streams[0]) ra.srcObject=e.streams[0];
     }
+  };
+  pc.onicegatheringstatechange = function(){
+    ajouterEtape('Appel — collecte réseau : '+pc.iceGatheringState);
+  };
+  // DIAGNOSTIC : erreurs du relais TURN / STUN (identifiants refusés, port bloqué…).
+  // Limité à 6 messages pour ne pas noyer le panneau. Aucun mot de passe n'est affiché.
+  let nbErreursIce=0;
+  pc.onicecandidateerror = function(e){
+    nbErreursIce++;
+    if(nbErreursIce>6) return;
+    const adresse=(e.url||'').split('?')[0];
+    ajouterEtape('⚠️ Erreur serveur réseau '+(e.errorCode||'?')+' '+(e.errorText||'')+' ('+adresse+')', true);
+  };
+  pc.onsignalingstatechange = function(){
+    ajouterEtape('Appel — signalisation : '+pc.signalingState);
   };
   pc.oniceconnectionstatechange = function(){
     ajouterEtape('Appel — état ICE : '+pc.iceConnectionState);
@@ -319,9 +308,6 @@ function creerPeerConnection(){
       const st=document.getElementById('callStatus');
       if(st && !callTimerInt) st.textContent='Connexion impossible avec le correspondant';
     } else if(pc.connectionState==='failed'){
-      // Échec définitif (contrairement à "disconnected" qui peut parfois se rétablir tout
-      // seul) : avant, rien ne se passait ici et l'appel restait bloqué indéfiniment,
-      // empêchant même de recevoir un appel suivant. On ferme proprement, automatiquement.
       const st=document.getElementById('callStatus');
       if(st) st.textContent='Connexion perdue avec le correspondant';
       ajouterEtape('⚠️ Connexion définitivement perdue — fermeture automatique de l\'appel', true);
@@ -335,7 +321,7 @@ function creerPeerConnection(){
 }
 
 function demarrerChronoAppelReel(){
-  if(callTimerInt) return; // déjà démarré, ne pas dupliquer
+  if(callTimerInt) return;
   document.getElementById('callStatus').textContent='0:00 · Connecté';
   callTimerInt=setInterval(function(){
     callSeconds++;
@@ -343,9 +329,6 @@ function demarrerChronoAppelReel(){
   },1000);
 }
 
-// Referme proprement la connexion WebRTC et les écoutes Firestore liées, sans toucher
-// à l'écran/aux boutons (géré côté discussion_v1.html) ni supprimer le document d'appel
-// (fait séparément par l'appelant de la fonction, selon le contexte).
 function nettoyerEtatAppel(){
   arreterSonnerie();
   if(_offDocAppel){ _offDocAppel(); _offDocAppel=null; }
@@ -360,7 +343,7 @@ function nettoyerEtatAppel(){
   _appelId=null; _appelRole=null;
 }
 
-/* ══════════════ APPEL SORTANT (je clique 📞/📹 dans une conversation réelle) ══════════════ */
+/* ══════════════ APPEL SORTANT ══════════════ */
 window.appelSortant = async function(type){
   if(!window.RTCPeerConnection){
     ajouterEtape('❌ WebRTC non supporté par ce navigateur', true);
@@ -371,6 +354,7 @@ window.appelSortant = async function(type){
   if(!currentOtherUid || !currentConvId || !callStream) return;
   let reponseTraitee=false;
   try{
+    ajouterEtape('— Appel SORTANT ('+type+') —');
     const moi = await obtenirMonInfo();
     await chargerIceServers();
     _pc = creerPeerConnection();
@@ -378,10 +362,6 @@ window.appelSortant = async function(type){
     reinitialiserCandidats();
     callStream.getTracks().forEach(function(t){ _pc.addTrack(t, callStream); });
 
-    // Le gestionnaire est branché AVANT setLocalDescription (qui lance la collecte des
-    // candidats). Avant, il était branché après l'écriture Firestore : les premiers
-    // candidats (réseau local, STUN) étaient émis sans personne pour les envoyer et perdus.
-    // Ceux qui arrivent avant que l'identifiant d'appel existe sont mis en attente.
     let idAppelLocal=null;
     const candidatsLocauxEnAttente=[];
     _pc.onicecandidate = function(e){
@@ -405,11 +385,14 @@ window.appelSortant = async function(type){
       type: type,
       offre: { type: offre.type, sdp: offre.sdp }
     });
+    ajouterEtape('Offre envoyée (appel '+_appelId+')');
     document.getElementById('callStatus').textContent='Ça sonne…';
     demarrerSonnerie('sortant');
 
     idAppelLocal=_appelId;
-    candidatsLocauxEnAttente.splice(0).forEach(function(c){
+    const enAttente=candidatsLocauxEnAttente.splice(0);
+    if(enAttente.length) ajouterEtape('Envoi de '+enAttente.length+' candidat(s) local(aux) mis en attente');
+    enAttente.forEach(function(c){
       window.Signalisation.ajouterCandidat(idAppelLocal,'candidatsAppelant',c);
     });
     _offCandidatsDistants = window.Signalisation.ecouterCandidats(_appelId,'candidatsDestinataire',recevoirCandidatDistant);
@@ -419,9 +402,10 @@ window.appelSortant = async function(type){
         reponseTraitee=true;
         arreterSonnerie();
         if(_sonnerieTimeoutId){ clearTimeout(_sonnerieTimeoutId); _sonnerieTimeoutId=null; }
+        ajouterEtape('Réponse du correspondant reçue');
         document.getElementById('callStatus').textContent='Connexion…';
         _pc.setRemoteDescription(new RTCSessionDescription(data.reponse))
-          .then(descriptionDistantePrete)
+          .then(function(){ ajouterEtape('Réponse appliquée'); descriptionDistantePrete(); })
           .catch(function(e){ ajouterEtape('❌ Réponse distante invalide : '+e.message, true); });
       } else if(data.statut==='refuse' && !reponseTraitee){
         reponseTraitee=true;
@@ -435,7 +419,6 @@ window.appelSortant = async function(type){
       }
     });
 
-    // Personne ne répond après 35 secondes → appel manqué, comme un vrai appel.
     _sonnerieTimeoutId = setTimeout(function(){
       if(!reponseTraitee){
         reponseTraitee=true;
@@ -456,8 +439,6 @@ window.appelSortant = async function(type){
   }
 }
 
-// Ferme l'écran d'appel après un délai, en ayant déjà géré Firestore avant (donc sans
-// laisser hideView('call') → appelRaccrocher() réécrire un statut différent par-dessus).
 function terminerSansRaccrocherManuel(delaiMs){
   const appelIdCourant=_appelId;
   setTimeout(function(){
@@ -467,12 +448,10 @@ function terminerSansRaccrocherManuel(delaiMs){
   }, delaiMs);
 }
 
-/* ══════════════ ÉCOUTE GLOBALE DES APPELS ENTRANTS ══════════════
-   Démarrée une seule fois (voir discussion_v1.html, juste après l'authentification). */
+/* ══════════════ ÉCOUTE GLOBALE DES APPELS ENTRANTS ══════════════ */
 window.appelEcouteEntrants = function(){
   if(_offEntrants || !currentUid) return;
   _offEntrants = window.Signalisation.ecouterAppelsEntrants(currentUid, function(appelId, data){
-    // Ignore un nouvel appel si un autre est déjà affiché ou en cours.
     if(_appelEnCoursDestinataire || _appelId){
       if(window.ajouterEtape) ajouterEtape('⚠️ Appel entrant ignoré — un autre appel semble déjà en cours ('+(appelId)+')', true);
       return;
@@ -492,7 +471,6 @@ function afficherEcranAppelEntrant(appelId, data){
   pushView('incall');
   demarrerSonnerie('entrant');
 
-  // Si l'appelant raccroche/annule avant que je réponde, l'écran se ferme tout seul.
   _appelEnCoursDestinataire.offAttente = window.Signalisation.ecouterAppel(appelId, function(d){
     if(d.statut!=='sonne' && _appelEnCoursDestinataire && _appelEnCoursDestinataire.appelId===appelId){
       arreterSonnerie();
@@ -510,10 +488,6 @@ window.appelAccepter = async function(){
   if(_appelEnCoursDestinataire.offAttente) _appelEnCoursDestinataire.offAttente();
   _appelEnCoursDestinataire=null;
   arreterSonnerie();
-  // Fermeture SYNCHRONE de l'écran "appel entrant" (au lieu de requestClose(), qui
-  // passe par history.back() — asynchrone). Sans ça, l'écran d'appel réel ouvert juste
-  // après (pushView('call')) pouvait se faire refermer par erreur par ce back() encore
-  // en cours de traitement par le navigateur — d'où l'appel qui « coupait tout seul ».
   document.getElementById('incomingCallScreen').classList.remove('open');
   if(viewStack.length && viewStack[viewStack.length-1]==='incall'){
     viewStack.pop();
@@ -521,9 +495,10 @@ window.appelAccepter = async function(){
   }
 
   const stream = await prepareCallScreen(data.type, data.appelantNom, data.appelantIni, data.appelantBg);
-  if(!stream) return;
+  if(!stream){ ajouterEtape('❌ Micro/caméra non obtenus — appel non accepté', true); return; }
 
   try{
+    ajouterEtape('— Appel ENTRANT accepté ('+data.type+') —');
     await chargerIceServers();
     _pc = creerPeerConnection();
     _appelRole = 'destinataire';
@@ -539,10 +514,12 @@ window.appelAccepter = async function(){
     _offCandidatsDistants = window.Signalisation.ecouterCandidats(appelId,'candidatsAppelant',recevoirCandidatDistant);
 
     await _pc.setRemoteDescription(new RTCSessionDescription(data.offre));
+    ajouterEtape('Offre de l\'appelant appliquée');
     descriptionDistantePrete();
     const reponse = await _pc.createAnswer();
     await _pc.setLocalDescription(reponse);
     await window.Signalisation.envoyerReponse(appelId, { type: reponse.type, sdp: reponse.sdp });
+    ajouterEtape('Réponse envoyée à l\'appelant');
     document.getElementById('callStatus').textContent='Connexion…';
 
     _offDocAppel = window.Signalisation.ecouterAppel(appelId, function(d){
@@ -555,37 +532,27 @@ window.appelAccepter = async function(){
   }
 }
 
-/* Nettoyage Firestore pur (sans navigation) quand un appel entrant n'aboutit pas —
-   utilisé à la fois par le bouton "Refuser" et par hideView('incall') (retour arrière). */
 window.appelAnnulerSiSonne = function(){
   if(!_appelEnCoursDestinataire) return;
   const appelId=_appelEnCoursDestinataire.appelId;
   if(_appelEnCoursDestinataire.offAttente) _appelEnCoursDestinataire.offAttente();
   _appelEnCoursDestinataire=null;
   arreterSonnerie();
-  // Important : attendre que le changement de statut soit bien reçu par Firestore
-  // AVANT de supprimer le document, sinon l'appelant (qui écoute ce document) ne
-  // reçoit jamais l'info "refusé" — seulement "document disparu", qu'il ignore.
   window.Signalisation.mettreAJourStatut(appelId,'refuse').then(function(){
     window.Signalisation.supprimerAppel(appelId);
   });
 }
 
-/* Bouton "Refuser" sur l'écran d'appel entrant. */
 window.appelRefuser = function(){
   if(!_appelEnCoursDestinataire) return;
   window.appelAnnulerSiSonne();
   requestClose();
 }
 
-/* ══════════════ RACCROCHER ══════════════
-   Appelé automatiquement par hideView('call') dans discussion_v1.html (bouton rouge,
-   ou fermeture de l'écran par tout autre moyen). Sans effet si aucun appel réel n'était
-   en cours (mode démo/conférence, ou déjà nettoyé par un timeout/refus géré ailleurs). */
+/* ══════════════ RACCROCHER ══════════════ */
 window.appelRaccrocher = function(){
   if(_appelId){
     const idAppel=_appelId;
-    // Même logique : on attend la confirmation du statut avant de supprimer.
     window.Signalisation.mettreAJourStatut(idAppel,'raccroche').then(function(){
       window.Signalisation.supprimerAppel(idAppel);
     });
