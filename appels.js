@@ -209,6 +209,34 @@ async function chargerIceServers(){
 // ── État de l'appel en cours (au plus un à la fois) ──
 let _pc=null, _appelId=null, _appelRole=null;
 let _offDocAppel=null, _offCandidatsDistants=null, _offEntrants=null;
+
+// Candidats réseau du correspondant reçus AVANT que la description distante (offre/réponse)
+// soit posée : le navigateur les refuse à ce moment-là (InvalidStateError) et ils étaient
+// perdus pour toujours → l'appel restait sur « Connexion… » puis coupait. On les met en
+// attente et on les applique dès que la description distante est prête.
+let _candidatsDistantsTampon=[], _descDistantePrete=false;
+function recevoirCandidatDistant(cand){
+  if(!_pc) return;
+  if(!_descDistantePrete){ _candidatsDistantsTampon.push(cand); return; }
+  _pc.addIceCandidate(new RTCIceCandidate(cand)).catch(function(e){
+    if(window.ajouterEtape) ajouterEtape('⚠️ Candidat distant refusé : '+(e&&e.message||e), true);
+  });
+}
+function descriptionDistantePrete(){
+  _descDistantePrete=true;
+  const liste=_candidatsDistantsTampon; _candidatsDistantsTampon=[];
+  liste.forEach(recevoirCandidatDistant);
+}
+function reinitialiserCandidats(){
+  _candidatsDistantsTampon=[]; _descDistantePrete=false;
+}
+// Journal des candidats locaux (host / srflx / relay) : permet de voir dans le panneau 🛠️
+// si le relais Cloudflare (relay) est bien utilisé. Les identifiants ne sont jamais affichés.
+function noterCandidatLocal(c){
+  if(!window.ajouterEtape || !c) return;
+  const m=/ typ (\w+)/.exec(c.candidate||'');
+  ajouterEtape('Candidat réseau local : '+(m?m[1]:'?'));
+}
 let _sonnerieTimeoutId=null;
 let _appelEnCoursDestinataire=null; // {appelId, data, offAttente} pendant l'écran "appel entrant"
 
@@ -280,6 +308,9 @@ function creerPeerConnection(){
       if(ra && ra.srcObject!==e.streams[0]) ra.srcObject=e.streams[0];
     }
   };
+  pc.oniceconnectionstatechange = function(){
+    ajouterEtape('Appel — état ICE : '+pc.iceConnectionState);
+  };
   pc.onconnectionstatechange = function(){
     ajouterEtape('Appel — état de connexion : '+pc.connectionState);
     if(pc.connectionState==='connected'){
@@ -321,6 +352,7 @@ function nettoyerEtatAppel(){
   if(_offCandidatsDistants){ _offCandidatsDistants(); _offCandidatsDistants=null; }
   if(_sonnerieTimeoutId){ clearTimeout(_sonnerieTimeoutId); _sonnerieTimeoutId=null; }
   if(_pc){ try{ _pc.close(); }catch(e){} _pc=null; }
+  reinitialiserCandidats();
   const rv=document.getElementById('callRemoteVideo');
   if(rv){ rv.srcObject=null; rv.style.display='none'; }
   const ra=document.getElementById('callRemoteAudio');
@@ -343,7 +375,22 @@ window.appelSortant = async function(type){
     await chargerIceServers();
     _pc = creerPeerConnection();
     _appelRole = 'appelant';
+    reinitialiserCandidats();
     callStream.getTracks().forEach(function(t){ _pc.addTrack(t, callStream); });
+
+    // Le gestionnaire est branché AVANT setLocalDescription (qui lance la collecte des
+    // candidats). Avant, il était branché après l'écriture Firestore : les premiers
+    // candidats (réseau local, STUN) étaient émis sans personne pour les envoyer et perdus.
+    // Ceux qui arrivent avant que l'identifiant d'appel existe sont mis en attente.
+    let idAppelLocal=null;
+    const candidatsLocauxEnAttente=[];
+    _pc.onicecandidate = function(e){
+      if(!e.candidate) return;
+      noterCandidatLocal(e.candidate);
+      const c=e.candidate.toJSON();
+      if(idAppelLocal) window.Signalisation.ajouterCandidat(idAppelLocal,'candidatsAppelant',c);
+      else candidatsLocauxEnAttente.push(c);
+    };
 
     const offre = await _pc.createOffer();
     await _pc.setLocalDescription(offre);
@@ -361,12 +408,11 @@ window.appelSortant = async function(type){
     document.getElementById('callStatus').textContent='Ça sonne…';
     demarrerSonnerie('sortant');
 
-    _pc.onicecandidate = function(e){
-      if(e.candidate) window.Signalisation.ajouterCandidat(_appelId,'candidatsAppelant',e.candidate.toJSON());
-    };
-    _offCandidatsDistants = window.Signalisation.ecouterCandidats(_appelId,'candidatsDestinataire',function(cand){
-      if(_pc) _pc.addIceCandidate(new RTCIceCandidate(cand)).catch(function(e){ console.error('Candidat distant refusé :',e); });
+    idAppelLocal=_appelId;
+    candidatsLocauxEnAttente.splice(0).forEach(function(c){
+      window.Signalisation.ajouterCandidat(idAppelLocal,'candidatsAppelant',c);
     });
+    _offCandidatsDistants = window.Signalisation.ecouterCandidats(_appelId,'candidatsDestinataire',recevoirCandidatDistant);
 
     _offDocAppel = window.Signalisation.ecouterAppel(_appelId, function(data){
       if(data.statut==='accepte' && data.reponse && !reponseTraitee){
@@ -375,6 +421,7 @@ window.appelSortant = async function(type){
         if(_sonnerieTimeoutId){ clearTimeout(_sonnerieTimeoutId); _sonnerieTimeoutId=null; }
         document.getElementById('callStatus').textContent='Connexion…';
         _pc.setRemoteDescription(new RTCSessionDescription(data.reponse))
+          .then(descriptionDistantePrete)
           .catch(function(e){ ajouterEtape('❌ Réponse distante invalide : '+e.message, true); });
       } else if(data.statut==='refuse' && !reponseTraitee){
         reponseTraitee=true;
@@ -483,14 +530,16 @@ window.appelAccepter = async function(){
     _appelId = appelId;
     stream.getTracks().forEach(function(t){ _pc.addTrack(t, stream); });
 
+    reinitialiserCandidats();
     _pc.onicecandidate = function(e){
-      if(e.candidate) window.Signalisation.ajouterCandidat(appelId,'candidatsDestinataire',e.candidate.toJSON());
+      if(!e.candidate) return;
+      noterCandidatLocal(e.candidate);
+      window.Signalisation.ajouterCandidat(appelId,'candidatsDestinataire',e.candidate.toJSON());
     };
-    _offCandidatsDistants = window.Signalisation.ecouterCandidats(appelId,'candidatsAppelant',function(cand){
-      if(_pc) _pc.addIceCandidate(new RTCIceCandidate(cand)).catch(function(e){ console.error('Candidat distant refusé :',e); });
-    });
+    _offCandidatsDistants = window.Signalisation.ecouterCandidats(appelId,'candidatsAppelant',recevoirCandidatDistant);
 
     await _pc.setRemoteDescription(new RTCSessionDescription(data.offre));
+    descriptionDistantePrete();
     const reponse = await _pc.createAnswer();
     await _pc.setLocalDescription(reponse);
     await window.Signalisation.envoyerReponse(appelId, { type: reponse.type, sdp: reponse.sdp });
