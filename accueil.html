@@ -862,11 +862,15 @@ function toggleSiteWidth(){
   // TOUCH EVENTS sur le container global
   const swipeZone = document.getElementById('panelsContainer');
 
+  // Vrai quand le doigt a été posé dans le carrousel : tout le geste est alors
+  // ignoré par le changement d'onglet (le carrousel défile seul).
+  let gesteDansCarrouselAcc = false;
   swipeZone.addEventListener('touchstart', (e) => {
     // Un glissement qui démarre dans le carrousel "Nos coups de cœur" ne
     // doit jamais déclencher le changement d'onglet — sinon on se retrouve
     // sur Actualités juste en voulant faire défiler le carrousel.
-    if (e.target.closest('.cover-carousel-acc')) { isDragging = false; touchStartX = null; return; }
+    if (e.target.closest('.cover-carousel-acc')) { isDragging = false; gesteDansCarrouselAcc = true; return; }
+    gesteDansCarrouselAcc = false;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     dragStartX = touchStartX;
@@ -874,6 +878,7 @@ function toggleSiteWidth(){
   }, { passive: true });
 
   swipeZone.addEventListener('touchmove', (e) => {
+    if (gesteDansCarrouselAcc) return;
     const dx = e.touches[0].clientX - touchStartX;
     const dy = e.touches[0].clientY - touchStartY;
 
@@ -892,7 +897,15 @@ function toggleSiteWidth(){
     }
   }, { passive: true });
 
+  // Si le navigateur interrompt le geste (ex. un défilement interne prend la main),
+  // on remet la page bien en place au lieu de la laisser coincée à moitié.
+  swipeZone.addEventListener('touchcancel', () => {
+    gesteDansCarrouselAcc = false;
+    if (isDragging) { isDragging = false; goToPanel(currentPanel); }
+  }, { passive: true });
+
   swipeZone.addEventListener('touchend', (e) => {
+    if (gesteDansCarrouselAcc) { gesteDansCarrouselAcc = false; return; }
     if (!isDragging) return;
     isDragging = false;
     const dx = e.changedTouches[0].clientX - dragStartX;
