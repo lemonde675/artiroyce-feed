@@ -1935,11 +1935,13 @@ function toggleSiteWidth(){
     // (ex. Répert-Discussion) d'afficher un vrai statut en ligne / vu il y a X.
     function battementPresence(){
       if (document.visibilityState === 'visible') {
-        updateDoc(doc(db, 'utilisateurs', user.uid), { derniereActivite: serverTimestamp() }).catch(()=>{});
+        // Registre de présence UNIQUE : on écrit les deux champs (derniereActivite lu par
+        // Actualités/Offres/Fil Presse, derniereVue lu par Répert-Discussion).
+        updateDoc(doc(db, 'utilisateurs', user.uid), { derniereActivite: serverTimestamp(), derniereVue: serverTimestamp() }).catch(()=>{});
       }
     }
     battementPresence();
-    setInterval(battementPresence, 45000);
+    setInterval(battementPresence, 25000);
     document.addEventListener('visibilitychange', battementPresence);
 
     const feed = document.getElementById('feedW');
