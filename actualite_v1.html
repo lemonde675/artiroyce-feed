@@ -563,23 +563,34 @@ window.__voirProfil = function (uid) {
 };
 
 // Affiche le point vert "en ligne" pour les auteurs actifs dans les 2 dernières minutes
-// (lit le champ derniereActivite du profil).
-async function marquerAuteursEnLigne() {
+// Point vert "en ligne" — même règle sur toutes les pages : un signal "je suis là"
+// reçu il y a moins de 60 secondes (le plus récent des deux champs de présence).
+// Rafraîchi automatiquement toutes les 60 s tant que la page est visible.
+const SEUIL_EN_LIGNE_MS = 60000;
+function dernierSignalMs(d){
+  if (!d) return 0;
+  let m = 0;
+  ['derniereVue','derniereActivite'].forEach(k => {
+    const v = d[k]; if (!v) return;
+    const t = v.toDate ? v.toDate().getTime() : new Date(v).getTime();
+    if (t > m) m = t;
+  });
+  return m;
+}
+async function marquerAuteursEnLigne(){
   const dots = document.querySelectorAll('.online-dot[data-author]');
   const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
   for (const uid of uids) {
+    if (uid === 'artiroyce_presse') continue;
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
-      if (!uSnap.exists) continue;
-      const da = uSnap.data().derniereActivite;
-      if (!da) continue;
-      const t = da.toDate ? da.toDate().getTime() : new Date(da).getTime();
-      if (Date.now() - t < 120000) {
-        document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = 'block');
-      }
+      const ms = uSnap.exists ? dernierSignalMs(uSnap.data()) : 0;
+      const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_MS;
+      document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
     } catch (e) {}
   }
 }
+setInterval(function(){ if (document.visibilityState === 'visible' && typeof db !== 'undefined' && db) marquerAuteursEnLigne(); }, 60000);
 
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
