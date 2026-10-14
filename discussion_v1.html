@@ -1008,6 +1008,13 @@ history.replaceState({depth:0},'',location.href);
 function pushView(name){
   viewStack.push(name);
   history.pushState({depth:viewStack.length},'',location.href);
+  if(name==='incall') signalerAuParent('appelEntrant');
+  else if(name==='call') signalerAuParent('appelDecroche');
+}
+// Petit pont vers accueil.html : affiche l'écran d'appel même si l'utilisateur
+// est sur un autre onglet, puis le ramène où il était à la fin de l'appel.
+function signalerAuParent(type){
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:type},'*'); }catch(e){}
 }
 window.requestClose=function(){ if(viewStack.length>0) history.back(); }
 // Ferme directement la vue au sommet de la pile, sans passer par
@@ -1047,12 +1054,14 @@ function hideView(name){
     if(callStream){ callStream.getTracks().forEach(t=>t.stop()); callStream=null; }
     document.getElementById('callScreen').classList.remove('open');
     if(dur>0) logCallBubble(callType,fmtTime(dur));
+    signalerAuParent('appelFin');
   }
   else if(name==='incall'){
     document.getElementById('incomingCallScreen').classList.remove('open');
     // Si on ferme cet écran (retour arrière) sans avoir répondu, ça compte comme un refus —
     // mais sans redéclencher de navigation (on est déjà dans le traitement du retour).
     if(window.appelAnnulerSiSonne) window.appelAnnulerSiSonne();
+    signalerAuParent('appelFin');
   }
   else if(name==='videoExpand'){
     // Vidéo agrandie dans un dialogue : le retour physique du téléphone (Android)
@@ -1090,7 +1099,19 @@ let currentConvInfos={};
    (heartbeat écrit sur son propre document 'utilisateurs'), et on lit celui de la
    personne en face pour savoir si elle est vraiment en ligne, sans donnée factice. */
 let unsubPresence=null, presenceRecheckTimer=null, monHeartbeatTimer=null;
-const SEUIL_EN_LIGNE_MS = 45000; // pas de battement depuis 45s → considéré hors ligne
+const SEUIL_EN_LIGNE_MS = 60000; // pas de signal depuis 60s → considéré hors ligne (même règle sur toutes les pages)
+// Registre de présence unique : on prend le plus récent des deux champs
+// (derniereVue / derniereActivite), écrits ensemble par accueil.html.
+function dernierSignalMs(d){
+  if(!d) return 0;
+  let m=0;
+  ['derniereVue','derniereActivite'].forEach(function(k){
+    const v=d[k]; if(!v) return;
+    const t=v.toDate?v.toDate().getTime():new Date(v).getTime();
+    if(t>m) m=t;
+  });
+  return m;
+}
 
 /* ══ Bascule profil / position réelle pour la ville affichée sur les messages ══
    Jamais les deux en même temps : soit la ville déclarée dans le profil (défaut),
@@ -1458,8 +1479,7 @@ function ecouterPresenceReelle(otherUid){
     }
   }
   unsubPresence=db.collection('utilisateurs').doc(otherUid).onSnapshot(function(doc){
-    const dv=doc.data()&&doc.data().derniereVue;
-    derniereVueMillis=(dv&&dv.toDate)?dv.toDate().getTime():0;
+    derniereVueMillis=dernierSignalMs(doc.data());
     appliquerAffichage();
   }, function(err){ console.error('Écoute présence impossible :',err); });
   presenceRecheckTimer=setInterval(appliquerAffichage, 15000);
@@ -1837,8 +1857,7 @@ function ecouterPresenceListeConversations(uids){
   uids.forEach(function(uid){
     if(presenceListenersConvList[uid]) return;
     presenceListenersConvList[uid]=db.collection('utilisateurs').doc(uid).onSnapshot(function(doc){
-      const dv=doc.data()&&doc.data().derniereVue;
-      const ms=(dv&&dv.toDate)?dv.toDate().getTime():0;
+      const ms=dernierSignalMs(doc.data());
       const enLigne=ms>0 && (Date.now()-ms)<SEUIL_EN_LIGNE_MS;
       document.querySelectorAll('.conv-card[data-uid="'+uid+'"]').forEach(function(card){
         const statusEl=card.querySelector('.cc-status');
@@ -3223,13 +3242,19 @@ function demarrerFirebase(){
    permet pas comme Realtime Database), mais le seuil de 45s en tient compte. ── */
 function demarrerHeartbeatPresence(){
   if(!currentUid || monHeartbeatTimer) return;
+  // Dans accueil.html, c'est l'Accueil qui envoie le signal (une seule source) :
+  // on ne double pas les écritures ici.
+  if(window.parent && window.parent!==window) return;
   const battement = function(){
+    if(document.visibilityState!=='visible') return;
+    const ts=firebase.firestore.FieldValue.serverTimestamp();
     db.collection('utilisateurs').doc(currentUid).set(
-      { derniereVue: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }
+      { derniereVue: ts, derniereActivite: ts }, { merge:true }
     ).catch(function(e){ console.error('Heartbeat présence impossible :', e); });
   };
   battement();
   monHeartbeatTimer = setInterval(battement, 25000);
+  document.addEventListener('visibilitychange', battement);
 }
 
 // ── Réception du pont Offre → Discussion (depuis accueil.html) ──
