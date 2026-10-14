@@ -91,6 +91,10 @@
     .info-top { position: absolute; left: 12px; right: 62px; z-index: 10; pointer-events: none; }
     .info-avatar { width: 48px; height: 48px; border-radius: 50%; border: 2.5px solid #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; overflow: hidden; flex-shrink: 0; margin-bottom: 20px; margin-top: -40px; background: linear-gradient(135deg,#333,#555); box-shadow: 0 2px 10px rgba(0,0,0,0.4); pointer-events: auto; }
     .info-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    /* Point vert "en ligne" sur l'avatar (même règle que Répert-Discussion) */
+    .info-avatar-wrap { position: relative; width: 48px; height: 48px; margin-top: -40px; margin-bottom: 20px; pointer-events: auto; }
+    .info-avatar-wrap .info-avatar { margin: 0; }
+    .online-dot-acc { display: none; position: absolute; bottom: 1px; right: 1px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2.5px solid #fff; z-index: 2; }
     .info-job { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
     .info-job-globe-big { font-size: 22px; }
     .info-job-name { font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
@@ -656,7 +660,7 @@ function toggleSiteWidth(){
         </div>
       </div>
       <div class="info-top">
-        <div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div>
+        <div class="info-avatar-wrap"><div class="info-avatar" onclick="goUserProfile('${uid}')">${avatarInner}</div><div class="online-dot-acc" data-author="${uid}"></div></div>
         <div class="info-job"><span class="info-job-globe-big">🌍</span><span class="info-job-name">Professionnel</span></div>
         <span class="info-globe-small">🌍</span>
         <div class="info-user">${pseudo}</div>
@@ -910,8 +914,41 @@ function toggleSiteWidth(){
 
   // ══ RECEVOIR SWIPE DEPUIS IFRAME DISCUSSION ══
   let iframeSwipeStart = null;
+  let panelAvantAppelAcc = null;
+  let vibrationAppelAcc = null;
   window.addEventListener('message', (e) => {
     if (!e.data || !e.data.type) return;
+
+    // Appel entrant détecté par Répert-Discussion (chargé en arrière-plan) :
+    // on affiche directement son écran d'appel, quel que soit l'onglet ouvert.
+    if (e.data.type === 'appelEntrant') {
+      if (panelAvantAppelAcc === null) panelAvantAppelAcc = currentPanel;
+      if (currentPanel !== 6) {
+        depuisPopstateAcc = true;   // pas d'entrée d'historique : le retour reste géré par l'écran d'appel
+        window.goToPanel(6);
+        depuisPopstateAcc = false;
+      }
+      try {
+        if (navigator.vibrate && !vibrationAppelAcc) {
+          navigator.vibrate([400, 200, 400]);
+          vibrationAppelAcc = setInterval(() => { try { navigator.vibrate([400, 200, 400]); } catch(err){} }, 1800);
+        }
+      } catch(err) {}
+      return;
+    }
+    if (e.data.type === 'appelDecroche' || e.data.type === 'appelFin') {
+      if (vibrationAppelAcc) { clearInterval(vibrationAppelAcc); vibrationAppelAcc = null; try { navigator.vibrate(0); } catch(err){} }
+      if (e.data.type === 'appelFin' && panelAvantAppelAcc !== null) {
+        const retour = panelAvantAppelAcc;
+        panelAvantAppelAcc = null;
+        if (currentPanel === 6 && retour !== 6) {
+          depuisPopstateAcc = true;
+          window.goToPanel(retour);
+          depuisPopstateAcc = false;
+        }
+      }
+      return;
+    }
 
     if (e.data.type === 'swipeMove') {
       const dx = e.data.dx;
@@ -1269,6 +1306,7 @@ function toggleSiteWidth(){
           pseudo: entree.target.dataset.pseudo || ''
         };
         const cibleUid = entree.target.dataset.vueUid;
+        majPointVertAcc(cibleUid);
         if (!cibleUid || vuesDejaComptees.has(cibleUid)) return;
         if (auth.currentUser && cibleUid === auth.currentUser.uid) return;
         vuesDejaComptees.add(cibleUid);
@@ -1279,6 +1317,37 @@ function toggleSiteWidth(){
     }, { root: document.getElementById('feedW'), threshold: [0, 0.6] });
     document.querySelectorAll('.vcard[data-vue-uid]').forEach(el => observateurVuesAcc.observe(el));
   }
+
+  // ══ PRÉSENCE UNIQUE (point vert) ══
+  // Même règle partout : en ligne si un signal "je suis là" a été reçu il y a
+  // moins de 60 secondes (on prend le plus récent des deux champs).
+  const SEUIL_EN_LIGNE_ACC_MS = 60000;
+  function dernierSignalMsAcc(d){
+    if (!d) return 0;
+    let m = 0;
+    ['derniereVue','derniereActivite'].forEach(k => {
+      const v = d[k]; if (!v) return;
+      const t = v.toDate ? v.toDate().getTime() : new Date(v).getTime();
+      if (t > m) m = t;
+    });
+    return m;
+  }
+  // Une seule lecture, pour la carte affichée à l'écran seulement (économique).
+  async function majPointVertAcc(uid){
+    if (!uid) return;
+    try {
+      const s = await db.collection('utilisateurs').doc(uid).get();
+      const ms = s.exists ? dernierSignalMsAcc(s.data()) : 0;
+      const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_ACC_MS;
+      document.querySelectorAll('.online-dot-acc[data-author="'+uid+'"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
+    } catch(e) {}
+  }
+  // Rafraîchit le point vert de la carte affichée toutes les 30 s.
+  setInterval(() => {
+    if (document.visibilityState !== 'visible' || currentPanel !== 0) return;
+    const actif = window._profilActifAccueil;
+    if (actif && actif.uid) majPointVertAcc(actif.uid);
+  }, 30000);
 
   // Musique attachée à une photo : même principe de coupure/activation du
   // son que pour une vidéo, mais sur l'élément <audio> dédié.
@@ -1943,6 +2012,19 @@ function toggleSiteWidth(){
     battementPresence();
     setInterval(battementPresence, 25000);
     document.addEventListener('visibilitychange', battementPresence);
+
+    // Répert-Discussion est chargé en arrière-plan (lui seul, les autres onglets
+    // restent en chargement petit à petit) pour que l'écoute des appels entrants
+    // soit active dès la connexion, sur n'importe quel onglet.
+    setTimeout(() => {
+      const ifrDisc = document.getElementById('discFrame');
+      if (ifrDisc && !ifrDisc.getAttribute('src')) {
+        ifrDisc.src = ifrDisc.dataset.src;
+        ifrDisc.addEventListener('load', function () {
+          try { ifrDisc.contentWindow.postMessage({ type: 'parentFrame' }, '*'); } catch (err) {}
+        });
+      }
+    }, 2500);
 
     const feed = document.getElementById('feedW');
     try {
