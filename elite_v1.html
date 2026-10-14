@@ -29,7 +29,7 @@
   .h-tab.active { background: var(--red); color: #fff; font-weight: 700; }
 
   /* ═══ HERO — fixe, juste sous le header, ne défile plus avec le reste ═══ */
-  .hero{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:150;background:#fdfdfe;padding:18px 16px 14px;border-bottom:1px solid #f0f0f3}
+  .hero{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:150;background:#fff;padding:18px 16px 14px;border-bottom:1px solid #f0f0f3}
   .hero-spacer{flex-shrink:0}
   .eyebrow{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:4px}
   .titre-elite{font-size:26px;font-weight:800;margin:0 0 6px;color:#16163a;display:flex;align-items:center;gap:8px}
@@ -58,7 +58,7 @@
 
   /* ═══ SCORE ÉLITE — modèle "Plaque Artisan" retenu ═══ */
   #scoreList{display:flex;flex-direction:column;gap:12px;padding:0 16px}
-  .plaque{background:#fffdf9;border-radius:20px;padding:22px 18px 16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #f0ece1;cursor:pointer}
+  .plaque{background:#fff;border-radius:20px;padding:22px 18px 16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #eeeef2;cursor:pointer}
   .plaque-ring{width:76px;height:76px;border-radius:50%;margin:0 auto 8px;padding:4px}
   .plaque.diamant .plaque-ring{background:conic-gradient(#38bdf8,#0ea5e9,#38bdf8)}
   .plaque.or .plaque-ring{background:conic-gradient(#f7cf5e,#d4930a,#f7cf5e)}
@@ -66,7 +66,7 @@
   .plaque-photo{width:100%;height:100%;border-radius:50%;overflow:hidden;background:#fff;padding:3px;display:flex;align-items:center;justify-content:center}
   .plaque-photo img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
   .plaque-photo .plaque-initiale{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px}
-  .plaque-pin{width:24px;height:24px;border-radius:50%;margin:-16px auto 8px;position:relative;z-index:2;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.25);border:2px solid #fffdf9}
+  .plaque-pin{width:24px;height:24px;border-radius:50%;margin:-16px auto 8px;position:relative;z-index:2;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.25);border:2px solid #fff}
   .plaque.diamant .plaque-pin{background:#0ea5e9}
   .plaque.or .plaque-pin{background:#d4930a}
   .plaque.argent .plaque-pin{background:#8b93a1}
@@ -80,7 +80,7 @@
   .plaque-tier-badge.or{background:rgba(212,147,10,.12);color:#d4930a}
   .plaque-tier-badge.argent{background:rgba(139,147,161,.15);color:#8b93a1}
   .plaque-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
-  .plaque-stats span{display:flex;align-items:center;gap:5px;font-size:10px;color:#7a7f92;background:#f7f5f0;
+  .plaque-stats span{display:flex;align-items:center;gap:5px;font-size:10px;color:#7a7f92;background:#f5f6f8;
       border-radius:9px;padding:5px 7px}
   .plaque-stats i{width:7px;height:7px;border-radius:50%;flex-shrink:0}
   .plaque-acts{display:flex;gap:8px}
@@ -89,6 +89,20 @@
       gap:5px;font-family:inherit;line-height:1;text-decoration:none}
   .plaque-acts .appeler{background:var(--green);color:#fff}
   .plaque-acts .contacter{background:var(--red);color:#fff}
+
+  /* ═══ Grille des 4 dernières réalisations sous chaque carte ═══ */
+  .plaque-grille{display:none;margin-top:14px;text-align:left}
+  .plaque-grille.pleine{display:block}
+  .pg-titre{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;color:#9a9fb3;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .pg-voir{color:var(--red);text-transform:none;letter-spacing:0;font-size:12px;cursor:pointer}
+  .pg-cases{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pg-case{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#eef0f4;cursor:pointer}
+  .pg-case img,.pg-case video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .pg-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;padding-left:3px}
+  .pg-visionneuse{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center}
+  .pg-visionneuse.ouverte{display:flex}
+  .pg-visionneuse img,.pg-visionneuse video{max-width:100%;max-height:85vh;object-fit:contain}
+  .pg-fermer{position:absolute;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 
   .non-classe-card{margin:0 16px 12px;padding:14px 16px;border-radius:20px;border:1.5px dashed #e2e4ee;color:#9a9fb3;font-size:12.5px;display:flex;align-items:center;gap:10px}
 
@@ -149,6 +163,11 @@
   <!-- rempli dynamiquement -->
 </div>
 <div id="sentinelleElite" style="height:1px"></div>
+
+<div class="pg-visionneuse" id="pgVisionneuse" onclick="if(event.target===this)fermerVisionneuseElite()">
+  <span class="pg-fermer" id="pgFermer" onclick="fermerVisionneuseElite()">✕</span>
+  <div id="pgVisionneuseMedia"></div>
+</div>
 
 <div class="footer-note">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.</div>
 
@@ -339,6 +358,7 @@ function renderScoreList(){
           : `<button class="appeler" onclick="event.stopPropagation();toastPasDeNumero()">📞 Appeler</button>`}
         <button class="contacter" onclick="event.stopPropagation();contacterElite('${p.uid}','${escHtml(p.nom).replace(/'/g,"\\'")}')">💬 Contacter</button>
       </div>
+      <div class="plaque-grille" data-uid="${p.uid}" onclick="event.stopPropagation()"></div>
     </div>`;
   }).join('');
 
@@ -347,7 +367,79 @@ function renderScoreList(){
     html += `<div class="non-classe-card">🕒 ${tousLesNonClasses.length} professionnel(s) pas encore classé(s) — le classement se précisera automatiquement avec l'ancienneté du compte et les futurs avis/ventes.</div>`;
   }
   el.innerHTML = html || '<div class="non-classe-card">Aucun professionnel pour l’instant.</div>';
+  attacherGrillesElite();
 }
+
+/* ── Grille des réalisations : chargée seulement quand la carte approche de
+   l'écran (économise la 4G), et gardée en mémoire pour ne jamais relire deux fois. ── */
+const _realisationsElite = {}; // uid -> [{type,url}] (ou [] si rien)
+const observateurGrilles = new IntersectionObserver(entrees => {
+  entrees.forEach(entree => {
+    if (!entree.isIntersecting) return;
+    observateurGrilles.unobserve(entree.target);
+    remplirGrilleElite(entree.target);
+  });
+}, { rootMargin: '400px' });
+
+function attacherGrillesElite(){
+  document.querySelectorAll('.plaque-grille[data-uid]').forEach(g => {
+    if (_realisationsElite[g.dataset.uid]) afficherGrilleElite(g, _realisationsElite[g.dataset.uid]);
+    else observateurGrilles.observe(g);
+  });
+}
+
+async function remplirGrilleElite(grille){
+  const uid = grille.dataset.uid;
+  if (!_realisationsElite[uid]) {
+    try {
+      const snap = await db.collection('utilisateurs').doc(uid).collection('portfolio')
+        .orderBy('createdAt','desc').limit(8).get();
+      _realisationsElite[uid] = snap.docs.map(d => d.data())
+        .filter(it => !it.corbeille && it.url)
+        .slice(0, 4)
+        .map(it => ({ type: it.type === 'video' ? 'video' : 'photo', url: it.url }));
+    } catch (e) {
+      console.error('Réalisations Élite impossibles à charger :', e);
+      _realisationsElite[uid] = [];
+    }
+  }
+  // La liste a pu être redessinée entre-temps : on remplit toutes les grilles de cette personne.
+  document.querySelectorAll('.plaque-grille[data-uid="'+uid+'"]').forEach(g => afficherGrilleElite(g, _realisationsElite[uid]));
+}
+
+function afficherGrilleElite(grille, items){
+  if (!items || !items.length) { grille.classList.remove('pleine'); grille.innerHTML = ''; return; }
+  const uid = grille.dataset.uid;
+  grille.innerHTML = '<div class="pg-titre"><span>Réalisations</span><span class="pg-voir" onclick="__voirProfil(\''+uid+'\')">Voir tout ›</span></div>'
+    + '<div class="pg-cases">' + items.map((it, i) =>
+        '<div class="pg-case" onclick="ouvrirVisionneuseElite(\''+uid+'\','+i+')">'
+        + (it.type === 'video'
+            ? '<video src="'+escHtml(it.url)+'" muted playsinline preload="metadata" onloadeddata="this.currentTime=0.05"></video><span class="pg-play">▶</span>'
+            : '<img src="'+escHtml(it.url)+'" loading="lazy" alt="">')
+        + '</div>').join('') + '</div>';
+  grille.classList.add('pleine');
+}
+
+function ouvrirVisionneuseElite(uid, i){
+  const it = (_realisationsElite[uid] || [])[i];
+  if (!it) return;
+  const zone = document.getElementById('pgVisionneuseMedia');
+  zone.innerHTML = it.type === 'video'
+    ? '<video src="'+escHtml(it.url)+'" controls autoplay playsinline></video>'
+    : '<img src="'+escHtml(it.url)+'" alt="">';
+  document.getElementById('pgFermer').style.top = (getEmbedTopOffsetPx() + 14) + 'px';
+  document.getElementById('pgVisionneuse').classList.add('ouverte');
+}
+function fermerVisionneuseElite(){
+  const v = document.getElementById('pgVisionneuse');
+  v.classList.remove('ouverte');
+  const vid = v.querySelector('video'); if (vid) { vid.pause(); vid.src = ''; }
+  document.getElementById('pgVisionneuseMedia').innerHTML = '';
+}
+window.ouvrirVisionneuseElite = ouvrirVisionneuseElite;
+window.fermerVisionneuseElite = fermerVisionneuseElite;
+// Quand on change d'onglet dans l'Accueil, la vidéo ouverte s'arrête.
+window.addEventListener('message', e => { if (e.data && e.data.type === 'panelCache') fermerVisionneuseElite(); });
 
 // Chargement progressif au défilement, comme Actualités et Offres.
 const observateurElite = new IntersectionObserver(entrees => {
