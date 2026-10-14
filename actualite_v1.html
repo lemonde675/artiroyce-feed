@@ -158,6 +158,10 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .tags-vert .media-chip { background: var(--green); color: #fff; }
 .tags-rose .media-chip { background: #ff5c9e; color: #fff; }
 
+
+/* Point vert sur MON avatar à côté de « Publier… » (même format que les publications) */
+.me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
+.me-online-dot{display:none;position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2}
 </style>
 </head>
 <body>
@@ -172,7 +176,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
   <div class="cat-pill" data-cat="Business" onclick="setCat(this)">💼 Business</div>
 </div>
 <div class="zone-publier">
-  <div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div>
+  <span class="me-av-wrap"><div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div><span class="me-online-dot"></span></span>
   <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
   <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
 </div>
@@ -467,6 +471,7 @@ async function surChangementAuth(user) {
   cpAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
   cmAv.innerHTML = photo ? '<img src="' + photo + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : initiale;
   cpAv.onclick = () => window.__voirProfil(currentUser.uid);
+  document.querySelectorAll('.me-online-dot').forEach(function(d){d.style.display='block';});
   document.getElementById('cmNom').textContent = currentUser.nomAffiche;
 }
 
