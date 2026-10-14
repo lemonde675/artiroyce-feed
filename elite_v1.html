@@ -374,18 +374,22 @@ function renderScoreList(){
    l'écran (économise la 4G), et gardée en mémoire pour ne jamais relire deux fois. ── */
 const _realisationsElite = {}; // uid -> [{type,url}] (ou [] si rien)
 const _grillesEnAttente = new Set();
+// On surveille la CARTE entière (toujours visible), pas la grille elle-même
+// (vide et cachée tant qu'elle n'est pas remplie, donc jamais « vue »).
 const observateurGrilles = new IntersectionObserver(entrees => {
   entrees.forEach(entree => {
     if (!entree.isIntersecting) return;
+    const grille = entree.target.querySelector('.plaque-grille[data-uid]');
+    if (!grille) return;
     observateurGrilles.unobserve(entree.target);
-    remplirGrilleElite(entree.target);
+    remplirGrilleElite(grille);
   });
 }, { rootMargin: '400px' });
 
 function attacherGrillesElite(){
   document.querySelectorAll('.plaque-grille[data-uid]').forEach(g => {
     if (_realisationsElite[g.dataset.uid]) afficherGrilleElite(g, _realisationsElite[g.dataset.uid]);
-    else observateurGrilles.observe(g);
+    else { const carte = g.closest('.plaque'); if (carte) observateurGrilles.observe(carte); }
   });
 }
 
@@ -403,7 +407,11 @@ async function remplirGrilleElite(grille){
       console.error('Réalisations Élite (tri par date) impossibles, 2e essai sans tri :', e);
       try { docs = (await col.limit(8).get()).docs; } catch (e2) { console.error('Réalisations Élite impossibles :', e2); }
     }
-    if (!docs) return; // échec : on ne mémorise rien, un prochain affichage réessaiera
+    if (!docs) { // échec : on ne mémorise rien, un prochain affichage réessaiera
+      grille.classList.add('pleine');
+      grille.innerHTML = '<div style="font-size:11px;color:#b3b7c6;text-align:center">Réalisations momentanément indisponibles</div>';
+      return;
+    }
     _realisationsElite[uid] = docs.map(d => d.data())
       .filter(it => !it.corbeille && it.url)
       .slice(0, 4)
