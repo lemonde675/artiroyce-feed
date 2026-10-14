@@ -110,6 +110,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 .cmt-input-row{display:flex;gap:8px;margin-top:6px}
 .cmt-input{flex:1;border:1px solid #E8ECF0;border-radius:14px;padding:8px 12px;font-size:13px}
 .cmt-send{background:var(--red);color:#fff;border:none;border-radius:14px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* Point vert sur MON avatar à côté de « Publier… » (même format que les publications) */
+.me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
+.me-online-dot{display:none;position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2}
 </style>
 </head>
 <body>
@@ -140,7 +144,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 
   <div class="composer" id="composer">
     <div class="composer-row">
-      <div class="avatar" id="myAvatar">?</div>
+      <span class="me-av-wrap"><div class="avatar" id="myAvatar">?</div><span class="me-online-dot"></span></span>
       <div class="composer-input" id="composerBtn" data-i18n="presse_quoi_neuf">Publier une actualité presse…</div>
       <div class="search-circle-btn" onclick="window.__toggleSearch()" title="Rechercher">🔍</div>
     </div>
@@ -1432,6 +1436,7 @@ auth.onAuthStateChanged(async function(user){
       currentUserData = uSnap.exists ? uSnap.data() : {};
       monPaysPrefixe = extraireIndicatifTelephone(currentUserData.telephone);
     }catch(e){ currentUserData = {}; }
+    document.querySelectorAll('.me-online-dot').forEach(function(d){d.style.display='block';});
     const av = document.getElementById('myAvatar');
     av.innerHTML = currentUserData.photoAvatar
       ? ('<img src="'+currentUserData.photoAvatar+'">')
