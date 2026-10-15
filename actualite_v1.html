@@ -1219,7 +1219,7 @@ function premiereImageDe(p) {
 
 function buildCoverCarouselHTML(toutes) {
   const avecImage = toutes.map(p => ({ p, img: premiereImageDe(p) }))
-    .filter(x => x.img && !_carouselDismissed.has(x.p.id))
+    .filter(x => x.img && !x.p.photoProfil && !_carouselDismissed.has(x.p.id)) // jamais de photo de profil dans le carrousel
     .slice(0, 12);
   if (!avecImage.length) return '';
 
