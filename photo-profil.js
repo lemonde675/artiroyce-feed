@@ -210,7 +210,15 @@ async function validerApercu(){
     // 3. Publications dans les pages choisies (seulement si Public).
     const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || u.nom || u.prenom || 'Membre ArtiRoyce';
     const estPro = u.role && u.role !== 'visiteur';
-    const pays = u.telephone ? String(u.telephone).replace(/\D/g, '').slice(0, 3) : '';
+    // Indicatif du pays, avec ou sans +229 (même règle que les pages Actualités / Offres / Fil Presse).
+    const pays = (function(t){
+      const brut = String(t || '').trim(); if (!brut) return '';
+      const c = brut.replace(/\D/g, '');
+      if (brut.startsWith('+')) return c.slice(0, 3);
+      if (c.startsWith('00')) return c.slice(2, 5);
+      if (c.startsWith('0') || c.length <= 10) return '229';
+      return c.slice(0, 3);
+    })(u.telephone);
     const texte = commentaire ? (LIBELLE_POST + ' · ' + commentaire) : LIBELLE_POST;
     const echecs = [];
     let pubRef = null; // publication créée : sert de grande version de secours pour la visionneuse
