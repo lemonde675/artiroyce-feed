@@ -187,7 +187,7 @@
   <div class="profile-info">
     <div class="avatar-section">
       <div class="avatar-wrap">
-        <div class="avatar" id="avatarWrap" onclick="ouvrirSelecteurPhoto()">
+        <div class="avatar" id="avatarWrap" onclick="toucherAvatar()">
           <span class="avatar-initiale" id="avatarInitiale">?</span>
         </div>
         <button class="avatar-edit" id="inputAvatarBtn" onclick="ouvrirSelecteurPhoto()">📷</button>
@@ -439,28 +439,38 @@
       });
     }
 
-    document.getElementById('inputAvatar').addEventListener('change', async function() {
+    // Changement de photo : ouvre l'écran « Aperçu de la photo de profil »
+    // (commentaire, Public/Privé, pages où publier) — voir photo-profil.js.
+    document.getElementById('inputAvatar').addEventListener('change', function() {
       if (!currentUser || !isOwnProfile) return;
       const file = this.files[0];
-      if (!file) return;
-      try {
-        const b64 = await compresserImage(file, 250, 0.5);
-        const history = Array.isArray(userData.photoHistory) ? userData.photoHistory.slice() : [];
-        // L'ancienne photo (si elle existe) part dans l'historique, jamais supprimée
-        if (userData.photoAvatar) {
-          history.unshift({ url: userData.photoAvatar, date: new Date().toISOString() });
-        }
-        // On garde les 8 dernières pour ne pas alourdir le document
-        const trimmedHistory = history.slice(0, 8);
-        await updateDoc(doc(db, 'utilisateurs', currentUser.uid), { photoAvatar: b64, photoHistory: trimmedHistory });
-        userData.photoAvatar = b64;
-        userData.photoHistory = trimmedHistory;
-        document.getElementById('avatarWrap').innerHTML = `<img src="${b64}" alt="avatar"/>`;
-        renderHistory();
-        showToast(T().pv_toast_photo || '✅ Photo mise à jour !', 'success');
-      } catch(e) { showToast((T().js_toast_error_prefix||'⚠ Erreur : ')+e.message, 'error-toast'); }
       this.value = '';
+      if (!file) return;
+      if (!window.PhotoProfil) { showToast('⚠ Rechargez la page puis réessayez.', 'error-toast'); return; }
+      window.PhotoProfil.ouvrirApercu(file, {
+        uid: currentUser.uid,
+        userData: userData,
+        toast: (m, t) => showToast(m, t === 'ok' ? 'success' : (t === 'err' ? 'error-toast' : '')),
+        onFait: (petite) => {
+          document.getElementById('avatarWrap').innerHTML = `<img src="${petite}" alt="avatar"/>`;
+          renderHistory();
+        }
+      });
     });
+
+    // Visionneuse plein écran : on glisse pour voir les anciennes photos de profil.
+    window.ouvrirHisto = function(idx) {
+      if (!window.PhotoProfil || !userData) return;
+      const liste = window.PhotoProfil.listeVisible(userData, isOwnProfile);
+      const k = liste.findIndex(e => e.idx === idx);
+      window.PhotoProfil.ouvrirVisionneuse(liste, k < 0 ? 0 : k, profileUid);
+    };
+
+    // Toucher la photo : l'ouvre en grand s'il y en a une ; sinon (son propre profil) choisir une photo.
+    window.toucherAvatar = function() {
+      if (userData && userData.photoAvatar && window.PhotoProfil) { window.ouvrirHisto(-2); return; }
+      window.ouvrirSelecteurPhoto();
+    };
 
     function formatHistoryDate(iso) {
       try {
@@ -518,7 +528,13 @@
       const purged = purgerHistoriqueExpire();
       if (purged) sauvegarderHistorique();
       const history = Array.isArray(userData.photoHistory) ? userData.photoHistory : [];
-      if (history.length === 0) {
+      const avatarActuel = userData.photoAvatar || '';
+      const actuelleDansHisto = !!avatarActuel && history.some(h => h.url === avatarActuel);
+      // Photo actuelle d'avant ce système (absente de l'historique) : affichée en premier.
+      const vignetteActuelle = (avatarActuel && !actuelleDansHisto)
+        ? `<div class="history-item"><div class="history-thumb" onclick="ouvrirHisto(-1)"><img src="${avatarActuel}" alt="photo actuelle"/></div><div class="history-actuelle">Photo actuelle</div></div>`
+        : '';
+      if (history.length === 0 && !vignetteActuelle) {
         el.innerHTML = `<div class="history-empty">${T().pv_history_empty || 'Aucun changement de photo pour le moment.'}</div>`;
         return;
       }
@@ -529,8 +545,10 @@
       const restoreLabel = t.pv_history_restore || '↩️ Restaurer';
       const untilLabel = t.pv_history_deleted_until || 'Suppression définitive le';
 
-      el.innerHTML = `<div class="history-grid">` + history.map((h, i) => {
+      el.innerHTML = `<div class="history-grid">` + vignetteActuelle + history.map((h, i) => {
         const estSupprimee = !!h.deletedAt;
+        // Quelqu'un d'autre : jamais les photos supprimées ni les photos privées.
+        if (!isOwnProfile && (estSupprimee || h.prive)) return '';
         let actionsHtml;
         let noteHtml = '';
         if (estSupprimee) {
@@ -546,7 +564,8 @@
         }
         return `
         <div class="history-item ${estSupprimee ? 'deleted' : ''}">
-          <div class="history-thumb"><img src="${h.url}" alt="ancienne photo"/></div>
+          <div class="history-thumb" ${estSupprimee ? '' : `onclick="ouvrirHisto(${i})"`}><img src="${h.url}" alt="photo de profil"/>${h.prive ? '<span class="history-prive">🔒</span>' : ''}</div>
+          ${h.url === avatarActuel ? '<div class="history-actuelle">Photo actuelle</div>' : ''}
           <div class="history-date">${changedLabel}<br>${formatHistoryDate(h.date)}</div>
           ${noteHtml}
           <div class="history-actions">${actionsHtml}</div>
@@ -625,6 +644,7 @@
       document.querySelectorAll('.history-actions').forEach(el => el.style.display = 'none');
     }
   </script>
+  <script type="module" src="photo-profil.js"></script>
   <script src="translations.js"></script>
 </body>
 </html>
