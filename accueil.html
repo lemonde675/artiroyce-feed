@@ -206,7 +206,12 @@
     .acc-search-bar.open { display:flex; }
     .acc-search-bar input { flex:1; border:1px solid #e8ecf0; border-radius:20px; padding:9px 14px; font-size:13px; background:#f2f4f7; color:#222; font-family:inherit; outline:none; }
     .acc-search-bar .acc-search-close { flex-shrink:0; font-size:13px; font-weight:700; color:#888; cursor:pointer; padding:4px; }
-  </style>
+  
+/* Rond de chargement ArtiRoyce : rose, centré (identique sur toutes les pages) */
+.ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
+.ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
+@keyframes arSpin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 
@@ -227,7 +232,7 @@
       <div class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></div>
     </div>
     <div class="h-icons" style="gap:8px;">
-      <div class="h-ico bell" onclick="toast('🔔 Notifications','')">🔔<div class="bdot">3</div></div>
+      <div class="h-ico bell" onclick="if(window.ArNotif)ArNotif.ouvrirListe()">🔔<div class="bdot" id="notifBadge" style="display:none">0</div></div>
       <div style="display:flex;align-items:center;gap:3px">
         <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="toggleAccSearch()">🔍</span>
@@ -251,7 +256,10 @@
 <div class="panels-container" id="panelsContainer"><div class="panels-track" id="panelsTrack">
 
   <!-- PANEL 0 : Accueil feed -->
-  <div class="panel-slide" id="panel-0">
+  <div class="panel-slide" id="panel-0" style="position:relative;">
+    <div id="accChargement" style="position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:#f0f0f0;pointer-events:none">
+      <div class="ar-charge" style="min-height:0"><div class="ar-spin"></div>Chargement…</div>
+    </div>
     <div class="feed-wrap" id="feedW">
       <div id="hSpacer"></div>
     </div>
@@ -1105,8 +1113,14 @@ function toggleSiteWidth(){
   let mesSauvegardesAccueil = new Set();
 
   function extraireIndicatifTelephoneAcc(telephone){
-    if (!telephone) return '';
-    return String(telephone).replace(/\D/g, '').slice(0, 3);
+    // Indicatif du pays, avec ou sans +229 (numéro local = Bénin).
+    const brut = String(telephone || '').trim();
+    if (!brut) return '';
+    const chiffres = brut.replace(/\D/g, '');
+    if (brut.startsWith('+')) return chiffres.slice(0, 3);
+    if (chiffres.startsWith('00')) return chiffres.slice(2, 5);
+    if (chiffres.startsWith('0') || chiffres.length <= 10) return '229';
+    return chiffres.slice(0, 3);
   }
   const _ordreAleatoireStableAcc = {};
   function ordreAleatoireStableAcc(id){
@@ -2202,5 +2216,18 @@ function toggleSiteWidth(){
   });
 </script>
 <script src="translations.js"></script>
+<script>
+  // Retire le rond de chargement dès que la première carte de l'Accueil s'affiche
+  // (ou au bout de 15 s au plus tard, pour ne jamais bloquer l'écran).
+  (function(){
+    const ch = document.getElementById('accChargement'), feed = document.getElementById('feedW');
+    if (!ch || !feed) return;
+    const fin = () => { if (ch.parentNode) ch.remove(); };
+    const obs = new MutationObserver(() => { if (feed.querySelector('.vcard')) { obs.disconnect(); fin(); } });
+    obs.observe(feed, { childList: true, subtree: true });
+    setTimeout(() => { obs.disconnect(); fin(); }, 15000);
+  })();
+</script>
+<script src="notifications.js"></script>
 </body>
 </html>
