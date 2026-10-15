@@ -1087,6 +1087,12 @@ const MEDIA_LAYOUTS = {
 function creerMediaHTML(p) {
   const tag = p.tagColor || 'blanc';
 
+  // Photo de profil publiée : affichée entière et centrée, jamais coupée.
+  if (p.photoProfil && Array.isArray(p.images) && p.images.length) {
+    const src = typeof p.images[0] === 'string' ? p.images[0] : (p.images[0] && p.images[0].photo) || '';
+    return '<div style="background:#f2f2f2"><img src="' + src + '" loading="lazy" style="display:block;width:100%;max-height:520px;object-fit:contain"></div>';
+  }
+
   if (p.type === 'boutique' && Array.isArray(p.cadres) && p.cadres.length) {
     const layout = MEDIA_LAYOUTS[p.cadres.length] || MEDIA_LAYOUTS[4];
     let html = '<div class="p-media-grid" style="grid-template-columns:' + layout.template
