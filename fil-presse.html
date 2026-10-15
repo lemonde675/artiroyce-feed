@@ -344,6 +344,8 @@ function renderPost(id, p, opts){
   const imgsGridCols = imgCount <= 1 ? '1fr' : '1fr 1fr';
   const imgs = imgList.map(function(u){
     const sizing = imgCount === 1 ? 'aspect-ratio:4/5;max-height:520px;' : 'height:170px;';
+    // Photo de profil publiée : entière et centrée, jamais coupée.
+    if (p.photoProfil) return '<img src="'+esc(u)+'" loading="lazy" style="max-height:520px;object-fit:contain;background:#f2f2f2">';
     return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer" style="'+sizing+'object-fit:cover">';
   }).join('');
   const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
