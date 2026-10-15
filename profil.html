@@ -146,6 +146,29 @@
     .monetize-icon { width: 44px; height: 44px; border-radius: 12px; background: #fdeceb; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
     .monetize-text h3 { font-size: 15px; font-weight: 800; color: #1a1a1a; }
     .monetize-text p { font-size: 12.5px; color: #777; margin-top: 3px; line-height: 1.5; }
+
+    /* ═══ Progression vers la monétisation (0 → 100 000) ═══ */
+    .monet-prog { margin-top: 14px; border: 1.5px solid #eee; border-radius: 14px; padding: 16px 14px 14px; display: none; }
+    .monet-prog.show { display: block; }
+    .mp-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .mp-titre { font-size: 13.5px; font-weight: 800; color: #1a1a1a; }
+    .mp-total { font-size: 13px; font-weight: 800; color: var(--red); white-space: nowrap; }
+    .mp-sous { font-size: 11.5px; color: #888; margin-top: 3px; line-height: 1.4; }
+    .mp-piste { position: relative; height: 14px; background: #f1f1f4; border-radius: 10px; margin: 30px 0 6px; }
+    .mp-rempli { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 10px; background: linear-gradient(90deg, #27a945, #f5b301, #e63224); transition: width 1.2s ease; }
+    .mp-bulle { position: absolute; top: -26px; transform: translateX(-50%); background: #1a1a2e; color: #fff; font-size: 10.5px; font-weight: 800; padding: 3px 7px; border-radius: 8px; white-space: nowrap; transition: left 1.2s ease; }
+    .mp-bulle::after { content: ''; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%); border: 4px solid transparent; border-bottom: 0; border-top-color: #1a1a2e; }
+    .mp-tick { position: absolute; top: 3px; width: 2px; height: 8px; background: rgba(0,0,0,.12); border-radius: 1px; }
+    .mp-labels { position: relative; height: 14px; font-size: 9px; color: #aaa; font-weight: 700; }
+    .mp-labels span { position: absolute; transform: translateX(-50%); }
+    .mp-labels span.ok { color: #27a945; }
+    .mp-detail { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+    .mp-detail div { background: #f7f7f9; border-radius: 10px; padding: 7px 4px; text-align: center; font-size: 10.5px; color: #777; }
+    .mp-detail b { display: block; font-size: 14px; color: #1a1a1a; }
+    .mp-btn { width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; }
+    .mp-btn.bloque { background: #f1f1f4; color: #888; }
+    .mp-btn.pret { background: var(--green); color: #fff; }
+    .mp-reste { text-align: center; font-size: 11.5px; color: #888; margin-top: 7px; }
     .monetize-badge { margin-top: 11px; background: #e63224; color: #fff; font-size: 11.5px; font-weight: 700; padding: 6px 13px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; }
 
     .media-section { background: #fff; margin-top: 10px; padding: 14px 12px 0; }
@@ -237,9 +260,9 @@
     .toast.error-t { background: var(--red); }
 
     /* Chargement */
-    .loading-screen { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 16px; transition: opacity 0.3s; }
+    .loading-screen { position: fixed; inset: 0; width: 100%; height: 100%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 200; gap: 16px; transition: opacity 0.3s; }
     .loading-screen.hidden { opacity: 0; pointer-events: none; }
-    .loading-spinner { width: 48px; height: 48px; border-radius: 50%; border: 4px solid #eee; border-top-color: var(--green); animation: spin 0.8s linear infinite; }
+    .loading-spinner { width: 48px; height: 48px; border-radius: 50%; border: 4px solid #fde4ef; border-top-color: #ec4899; animation: spin 0.8s linear infinite; margin: 0 auto; flex-shrink: 0; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 14px; color: #888; font-weight: 600; }
 
@@ -640,6 +663,20 @@
       <span class="monetize-badge" id="monetizeBadge">⏳ En attente de validation</span>
     </div>
   </div>
+  <!-- Progression vers la monétisation : visible seulement par le propriétaire du profil -->
+  <div class="monet-prog" id="monetProg">
+    <div class="mp-top"><div class="mp-titre">🚀 Objectif monétisation</div><div class="mp-total" id="mpTotal">0 / 100 k</div></div>
+    <div class="mp-sous">Points d'audience = vues + J'aime + abonnés. À 100 000, la monétisation se débloque.</div>
+    <div class="mp-piste" id="mpPiste"><div class="mp-rempli" id="mpRempli"></div><div class="mp-bulle" id="mpBulle" style="left:0%">0</div></div>
+    <div class="mp-labels" id="mpLabels"></div>
+    <div class="mp-detail">
+      <div><b id="mpVues">0</b>👁️ Vues</div>
+      <div><b id="mpLikes">0</b>❤️ J'aime</div>
+      <div><b id="mpAbonnes">0</b>👥 Abonnés</div>
+    </div>
+    <button class="mp-btn bloque" id="mpBtn">🔒 Pas encore éligible</button>
+    <div class="mp-reste" id="mpReste"></div>
+  </div>
 </div>
 
 <!-- ── PORTFOLIO ── -->
@@ -750,7 +787,7 @@
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -840,6 +877,8 @@
       document.getElementById('coordHoraires').textContent  = userData.horaires  || '—';
       document.getElementById('profileBio').textContent     = userData.bio || 'Professionnel vérifié sur ArtiRoyce.';
       renderHistoryPro();
+      chargerStatistiques();
+      compterVisiteProfil();
 
       // ── Charger photos existantes ──
       if (userData.photoAvatar) {
@@ -1300,6 +1339,112 @@
     const k = liste.findIndex(e => e.idx === idx);
     window.PhotoProfil.ouvrirVisionneuse(liste, k < 0 ? 0 : k, profileUid);
   };
+
+
+  // ══════════════════════════════════════
+  // STATISTIQUES RÉELLES + PROGRESSION MONÉTISATION
+  // J'aime  = réactions reçues (Accueil + Actualités + Offres + Fil Presse)
+  // Abonnés = personnes qui suivent ce profil (collection « abonnements »)
+  // Posts   = publications actives (Actualités + Offres + Fil Presse)
+  // Vues    = vues sur l'Accueil + visites du profil
+  // Points d'audience = vues + J'aime + abonnés → objectif 100 000.
+  // ══════════════════════════════════════
+  const OBJECTIF_MONET = 100000;
+  const fmtNb = n => n >= 1e6 ? (n/1e6).toFixed(n >= 1e7 ? 0 : 1).replace('.0','') + ' M'
+                  : n >= 1e3 ? (n/1e3).toFixed(n >= 1e4 ? 0 : 1).replace('.0','') + ' k' : String(n);
+  const fmtLong = n => n.toLocaleString('fr-FR');
+
+  // Une visite de profil = 1 vue (jamais la sienne, au plus une fois par jour et par visiteur).
+  function compterVisiteProfil() {
+    if (isOwnProfile || !profileUid || !currentUser) return;
+    const cle = 'vueProfil_' + currentUser.uid + '_' + profileUid;
+    try {
+      const der = +localStorage.getItem(cle) || 0;
+      if (Date.now() - der < 24*3600*1000) return;
+      localStorage.setItem(cle, String(Date.now()));
+    } catch (e) {}
+    updateDoc(doc(db, 'utilisateurs', profileUid), { vuesProfilTotal: increment(1) }).catch(() => {});
+  }
+
+  async function compterDocs(col, champ, uid) {
+    try { return (await getDocs(query(collection(db, col), where(champ, '==', uid)))).docs; }
+    catch (e) { console.warn('Statistiques ' + col + ' indisponibles :', e); return []; }
+  }
+
+  async function chargerStatistiques() {
+    if (!profileUid || !userData) return;
+    const [pubs, offres, presse, abonnes] = await Promise.all([
+      compterDocs('publications', 'auteurUid', profileUid),
+      compterDocs('offres', 'auteurUid', profileUid),
+      compterDocs('fil_presse', 'uid', profileUid),
+      compterDocs('abonnements', 'followed', profileUid)
+    ]);
+    const pubsActives = pubs.filter(d => !d.data().corbeille);
+    const offresActives = offres.filter(d => !d.data().corbeille);
+    const presseActives = presse.filter(d => !d.data().deletedAt);
+
+    // Fil Presse : les réactions sont rangées dans une sous-liste de chaque publication.
+    let likesPresse = 0;
+    await Promise.all(presseActives.map(async d => {
+      try { likesPresse += (await getDocs(collection(db, 'fil_presse', d.id, 'reactions'))).size; } catch (e) {}
+    }));
+    const likes = (userData.likesAccueil || 0)
+      + pubsActives.reduce((s, d) => s + (d.data().likes || 0), 0)
+      + offresActives.reduce((s, d) => s + (d.data().likes || 0), 0)
+      + likesPresse;
+    const nbAbonnes = new Set(abonnes.map(d => d.data().follower).filter(Boolean)).size;
+    const nbPosts = pubsActives.length + offresActives.length + presseActives.length;
+    const vues = (userData.vuesAccueil || 0) + (userData.vuesProfilTotal || 0);
+
+    const nums = document.querySelectorAll('.stats-row .stat-num');
+    if (nums[0]) nums[0].textContent = fmtNb(likes);
+    if (nums[1]) nums[1].textContent = fmtNb(nbAbonnes);
+    if (nums[2]) nums[2].textContent = fmtNb(nbPosts);
+
+    if (isOwnProfile) afficherProgressionMonet(vues, likes, nbAbonnes);
+  }
+
+  function afficherProgressionMonet(vues, likes, abonnes) {
+    const total = vues + likes + abonnes;
+    const pct = Math.min(100, total / OBJECTIF_MONET * 100);
+    const box = document.getElementById('monetProg');
+    if (!box) return;
+    box.classList.add('show');
+
+    // Repères tous les 10 000, allumés en vert une fois atteints.
+    const piste = document.getElementById('mpPiste'), lab = document.getElementById('mpLabels');
+    piste.querySelectorAll('.mp-tick').forEach(t => t.remove());
+    let html = '';
+    for (let k = 1; k <= 10; k++) {
+      const pos = k * 10;
+      if (k < 10) { const t = document.createElement('div'); t.className = 'mp-tick'; t.style.left = pos + '%'; piste.appendChild(t); }
+      if (k % 2 === 0) html += '<span class="' + (total >= k * 10000 ? 'ok' : '') + '" style="left:' + Math.min(pos, 96) + '%">' + (k * 10) + 'k</span>';
+    }
+    lab.innerHTML = html;
+
+    document.getElementById('mpVues').textContent = fmtNb(vues);
+    document.getElementById('mpLikes').textContent = fmtNb(likes);
+    document.getElementById('mpAbonnes').textContent = fmtNb(abonnes);
+    document.getElementById('mpTotal').textContent = fmtNb(total) + ' / 100 k';
+    const bulle = document.getElementById('mpBulle');
+    bulle.textContent = fmtNb(total);
+    // Petit délai pour que la barre se remplisse en glissant.
+    setTimeout(() => {
+      document.getElementById('mpRempli').style.width = pct + '%';
+      bulle.style.left = Math.max(6, Math.min(94, pct)) + '%';
+    }, 150);
+
+    const btn = document.getElementById('mpBtn'), reste = document.getElementById('mpReste');
+    if (total >= OBJECTIF_MONET) {
+      btn.className = 'mp-btn pret'; btn.textContent = '💰 Activer la monétisation';
+      btn.onclick = () => showToast('💰 La monétisation arrive très bientôt !', 'success');
+      reste.textContent = '🎉 Félicitations, vous avez atteint 100 000 points d’audience !';
+    } else {
+      btn.className = 'mp-btn bloque'; btn.textContent = '🔒 Pas encore éligible';
+      btn.onclick = () => showToast('Encore ' + fmtLong(OBJECTIF_MONET - total) + ' points pour débloquer la monétisation', '');
+      reste.textContent = 'Encore ' + fmtLong(OBJECTIF_MONET - total) + ' points pour atteindre 100 000.';
+    }
+  }
 
   window.agrandirAvatar = function() {
     const avatarWrap = document.getElementById('avatarWrap');
