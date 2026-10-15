@@ -80,7 +80,8 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 .toast.show { transform: translateX(-50%) translateY(0); }
 
 #feedZone { padding: 10px; }
-#feedLoading, #feedEmpty { text-align: center; padding: 60px 20px; color: #999; }
+#feedLoading { text-align: center; color: #999; }
+#feedEmpty { text-align: center; padding: 60px 20px; color: #999; }
 #feedLoading .sablier, #feedEmpty .icone { font-size: 40px; display: block; margin-bottom: 10px; }
 #feedEmpty { display: none; }
 
@@ -162,6 +163,11 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 /* Point vert sur MON avatar à côté de « Publier… » (même format que les publications) */
 .me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
 .me-online-dot{display:none;position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2}
+
+/* Rond de chargement ArtiRoyce : rose, centré (identique sur toutes les pages) */
+.ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
+.ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
+@keyframes arSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -268,7 +274,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 <div class="toast" id="toastEl"></div>
 
 <div id="feedZone">
-  <div id="feedLoading"><span class="sablier">⏳</span>Chargement des publications…</div>
+  <div id="feedLoading"><div class="ar-charge"><div class="ar-spin"></div>Chargement des publications…</div></div>
   <div id="feedEmpty"><span class="icone">📭</span>Aucune publication pour l'instant.</div>
   <div id="feedPosts"></div>
 </div>
@@ -486,10 +492,14 @@ window.toggleSuivre = async function (auteurUid, event) {
     if (followedUids.has(auteurUid)) {
       await ref.delete();
       followedUids.delete(auteurUid);
+      // Compteur « Abonnés » du profil (même liste que l'Accueil et le Fil Presse).
+      db.collection('abonnements').doc(currentUser.uid + '_' + auteurUid).delete().catch(() => {});
       toast('Vous ne suivez plus cette personne (Actualités)');
     } else {
       await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
       followedUids.add(auteurUid);
+      db.collection('abonnements').doc(currentUser.uid + '_' + auteurUid).set({ follower: currentUser.uid, followed: auteurUid, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+      window.ArNotif && ArNotif.envoyer({ dest: auteurUid, type: 'abonne', page: 'profil', unique: true });
       toast('✅ Abonné(e) aux actualités de cette personne !');
     }
     afficherFeed();
@@ -651,6 +661,8 @@ window.__sendReactionActu = async function (postId, emoji, likesActuels) {
       if (labelEl) labelEl.textContent = 'Aimé';
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
       await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      { const pub = listePublications.find(x => x.id === postId);
+        if (pub) window.ArNotif && ArNotif.envoyer({ dest: pub.auteurUid, type: 'reaction', page: 'actualites', cibleId: postId, extrait: emoji, unique: true }); }
       if (delta) {
         await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(1) });
         window.__burstHeartsActu(btn, emoji);
@@ -721,12 +733,41 @@ window.partagerPub = async function (postId, partagesActuels) {
   try {
     await db.collection('publications').doc(postId).update({ partages: firebase.firestore.FieldValue.increment(1) });
     toast('Partagé ✅');
+    { const pub = listePublications.find(x => x.id === postId);
+      if (pub) window.ArNotif && ArNotif.envoyer({ dest: pub.auteurUid, type: 'partage', page: 'actualites', cibleId: postId, unique: true }); }
   } catch (e) {
     ajouterEtape('❌ Erreur partage : ' + (e && e.message || e));
   }
 };
 
 /* ── Commentaires (avec réponses imbriquées, repris de l'ancienne version) ── */
+
+/* ── Ouverture depuis une notification (accueil.html → cette page) ──
+   Montre la publication demandée (on affiche plus de publications si besoin),
+   la fait défiler à l'écran, la met en évidence et ouvre les commentaires. */
+let _pubAOuvrir = null, _pubMinuteur = null;
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.type !== 'ouvrirPublication' || !e.data.id) return;
+  _pubAOuvrir = { id: e.data.id, commentaires: !!e.data.commentaires, essais: 0, reset: false };
+  clearInterval(_pubMinuteur);
+  _pubMinuteur = setInterval(tenterOuverturePub, 400);
+  tenterOuverturePub();
+});
+function tenterOuverturePub() {
+  const d = _pubAOuvrir;
+  if (!d) { clearInterval(_pubMinuteur); return; }
+  if (++d.essais > 40) { _pubAOuvrir = null; clearInterval(_pubMinuteur); return; }
+  if (!d.reset) { d.reset = true; try { if (categorieActive !== 'Tout' || termeRecherche) { categorieActive = 'Tout'; termeRecherche = ''; const si = document.getElementById('searchInput'); if (si) si.value = ''; document.querySelectorAll('[data-cat]').forEach(p => p.classList.toggle('active', p.dataset.cat === 'Tout')); afficherFeed(); } } catch (err) {} }
+  const el = document.querySelector('.post[data-id="' + d.id + '"]');
+  if (!el) { try { if (listePublications.some(x => x.id === d.id) && nombreAffiches < listePublications.length) { nombreAffiches += 12; afficherFeed(); } } catch (err) {} return; }
+  _pubAOuvrir = null; clearInterval(_pubMinuteur);
+  try { window.parent.postMessage({ type: 'publicationOuverte' }, '*'); } catch (err) {}
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.style.transition = 'box-shadow .4s'; el.style.boxShadow = '0 0 0 3px #e63224';
+  setTimeout(function () { el.style.boxShadow = ''; }, 2200);
+  if (d.commentaires) { try { const z = document.getElementById('commzone-' + d.id); if (z && z.style.display !== 'block') window.toggleComments(d.id); } catch (err) {} }
+}
+
 window.toggleComments = function (postId) {
   const zone = document.getElementById('commzone-' + postId);
   if (!zone) return;
@@ -851,6 +892,16 @@ window.envoyerCommentairePub = async function (postId) {
       likes: 0
     });
     window.annulerReponsePub(postId);
+    // Notifications : l'auteur de la publication, et l'auteur du commentaire auquel on répond.
+    (async () => {
+      const pub = listePublications.find(x => x.id === postId);
+      let cibleReponse = '';
+      if (reponseA && reponseA.commentId) {
+        try { const c = await db.collection('publications').doc(postId).collection('commentaires').doc(reponseA.commentId).get(); cibleReponse = (c.data() || {}).uid || ''; } catch (e) {}
+        if (cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: cibleReponse, type: 'reponse', page: 'actualites', cibleId: postId, extrait: texte });
+      }
+      if (pub && pub.auteurUid !== cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: pub.auteurUid, type: 'commentaire', page: 'actualites', cibleId: postId, extrait: texte });
+    })();
   } catch (e) {
     ajouterEtape('❌ Erreur commentaire : ' + (e && e.message || e));
   }
@@ -970,10 +1021,18 @@ function premiereVille(ville) {
 // comparer "ça commence pareil que chez moi"). Utilisé pour le palier "même pays"
 // du classement du fil.
 function extraireIndicatifTelephone(telephone) {
-  if (!telephone) return '';
-  const chiffres = String(telephone).replace(/\D/g, '');
+  // Indicatif du pays, que le numéro soit écrit avec ou sans +229.
+  // Un numéro local (commençant par 0, ou 10 chiffres max sans +) = Bénin (229).
+  const brut = String(telephone || '').trim();
+  if (!brut) return '';
+  const chiffres = brut.replace(/\D/g, '');
+  if (brut.startsWith('+')) return chiffres.slice(0, 3);
+  if (chiffres.startsWith('00')) return chiffres.slice(2, 5);
+  if (chiffres.startsWith('0') || chiffres.length <= 10) return '229';
   return chiffres.slice(0, 3);
 }
+// Anciennes publications enregistrées avec un indicatif "local" (ex. 016) = Bénin.
+function normPays(x){ x = String(x || ''); return x && x[0] === '0' ? '229' : x; }
 
 // Prêt pour l'étape "Suivre" (pas encore ajoutée) : reste vide pour l'instant,
 // donc le palier "suivis" du classement ne contiendra rien tant que ce bouton
@@ -1022,7 +1081,7 @@ function trierFeedParPriorite(liste) {
     liste.forEach(p => {
       const estMoi = p.auteurUid === currentUser.uid;
       const estSuivi = !!(p.auteurUid && followedUids.has(p.auteurUid));
-      const memePays = !!(currentUser.paysPrefixe && p.paysPrefixe && p.paysPrefixe === currentUser.paysPrefixe);
+      const memePays = !!(currentUser.paysPrefixe && p.paysPrefixe && normPays(p.paysPrefixe) === currentUser.paysPrefixe);
 
       if (estMoi && publieeDepuisMoinsDe(p, SOIXANTE_DOUZE_H_MS)) mesPostsRecents.push(p);
       else if (estSuivi && publieeDepuisMoinsDe(p, QUINZE_JOURS_MS)) suivisActifs.push(p);
@@ -1626,5 +1685,6 @@ window.publishPost = async function() {
   }
 };
 </script>
+<script src="notifications.js"></script>
 </body>
 </html>
