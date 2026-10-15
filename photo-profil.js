@@ -59,7 +59,7 @@ const css = `
 .ppv-scene{flex:1;position:relative;overflow:hidden}
 .ppv-piste{position:absolute;inset:0;display:flex;transition:transform .28s ease}
 .ppv-case{flex:0 0 100%;display:flex;align-items:center;justify-content:center}
-.ppv-case img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ppv-case img{width:100%;height:100%;object-fit:contain;display:block}
 .ppv-fl{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:22px;cursor:pointer;display:none}
 .ppv-fl.g{left:10px}.ppv-fl.d{right:10px}
 @media (min-width:768px){.ppv-fl{display:block}}
@@ -213,34 +213,43 @@ async function validerApercu(){
     const pays = u.telephone ? String(u.telephone).replace(/\D/g, '').slice(0, 3) : '';
     const texte = commentaire ? (LIBELLE_POST + ' · ' + commentaire) : LIBELLE_POST;
     const echecs = [];
+    let pubRef = null; // publication créée : sert de grande version de secours pour la visionneuse
     for (const c of cibles) {
       try {
         if (c === 'actualites') {
-          await addDoc(collection(db(), 'publications'), {
+          const r = await addDoc(collection(db(), 'publications'), {
             type: 'galerie', photoProfil: true, categorie: '', texte, images: [grande],
             auteurNom: nom, auteurUid: uid, auteurVerifie: !!estPro,
             ville: u.ville || '', paysPrefixe: pays,
             createdAt: serverTimestamp(), likes: 0, partages: 0
           });
+          if (!pubRef) pubRef = { col: 'publications', id: r.id, champ: 'images' };
         } else if (c === 'offres') {
-          await addDoc(collection(db(), 'offres'), {
+          const r = await addDoc(collection(db(), 'offres'), {
             type: 'texte', photoProfil: true, titre: LIBELLE_POST, texte, imageUrl: grande, dureeDays: 30,
             auteurNom: nom, auteurUid: uid, auteurVerifie: !!estPro,
             ville: u.ville || '', paysPrefixe: pays,
             createdAt: serverTimestamp(), likes: 0, partages: 0
           });
+          if (!pubRef) pubRef = { col: 'offres', id: r.id, champ: 'imageUrl' };
         } else if (c === 'filPresse') {
-          await addDoc(collection(db(), 'fil_presse'), {
+          const r = await addDoc(collection(db(), 'fil_presse'), {
             uid, prenom: u.prenom || nom, metier: u.metier || '', photoAvatar: petite,
             roleLbl: estPro ? 'Professionnel' : 'Visiteur', journalNom: '', ville: u.ville || '',
             paysPrefixe: pays, official: false, verifie: true, type: 'actu', photoProfil: true,
             texte, images: [grande], videoUrl: '', likes: 0, comments: 0, deletedAt: null,
             createdAt: serverTimestamp()
           });
+          if (!pubRef) pubRef = { col: 'fil_presse', id: r.id, champ: 'images' };
         }
       } catch(e) { console.error('Publication ' + c + ' impossible :', e); echecs.push(c); }
     }
 
+    // On note la publication dans l'historique (secours si la grande version n'a pas pu être lue).
+    if (pubRef) {
+      nouvelHisto[0].pubRef = pubRef;
+      try { await updateDoc(doc(db(), 'utilisateurs', uid), { photoHistory: nouvelHisto }); } catch(e) {}
+    }
     u.photoAvatar = petite; u.photoHistory = nouvelHisto;
     fermerApercu();
     if (ctx.onFait) ctx.onFait(petite, nouvelHisto);
@@ -304,15 +313,31 @@ function construireVisionneuse(){
 
 async function chargerGrande(k){
   const it = _vis.liste[k];
-  if (!it || !it.grandId || !_vis.uid) return;
-  if (!_grandes[it.grandId]) {
-    try {
-      const s = await getDoc(doc(db(), 'utilisateurs', _vis.uid, 'photosProfil', it.grandId));
-      if (s.exists() && s.data().url) _grandes[it.grandId] = s.data().url;
-    } catch(e) { return; }
+  if (!it || !_vis.uid) return;
+  const cle = it.grandId || (it.pubRef && it.pubRef.id);
+  if (!cle) return;
+  if (!_grandes[cle]) {
+    // 1) grande version enregistrée à part
+    if (it.grandId) {
+      try {
+        const s = await getDoc(doc(db(), 'utilisateurs', _vis.uid, 'photosProfil', it.grandId));
+        if (s.exists() && s.data().url) _grandes[cle] = s.data().url;
+      } catch(e) {}
+    }
+    // 2) secours : l'image de la publication faite au même moment
+    if (!_grandes[cle] && it.pubRef) {
+      try {
+        const s = await getDoc(doc(db(), it.pubRef.col, it.pubRef.id));
+        if (s.exists()) {
+          const v = s.data()[it.pubRef.champ];
+          const url = Array.isArray(v) ? v[0] : v;
+          if (url) _grandes[cle] = url;
+        }
+      } catch(e) {}
+    }
   }
   const img = document.querySelector('#ppvPiste .ppv-case[data-k="' + k + '"] img');
-  if (img && _grandes[it.grandId]) img.src = _grandes[it.grandId];
+  if (img && _grandes[cle]) img.src = _grandes[cle];
 }
 
 function allerA(k){
@@ -335,7 +360,7 @@ function ouvrirVisionneuse(liste, index, uid){
   injecterStyles(); construireVisionneuse();
   _vis = { liste, i: 0, uid };
   document.getElementById('ppvPiste').innerHTML = liste.map((it, k) =>
-    '<div class="ppv-case" data-k="' + k + '"><img src="' + esc((it.grandId && _grandes[it.grandId]) || it.url) + '" alt=""></div>').join('');
+    '<div class="ppv-case" data-k="' + k + '"><img src="' + esc(_grandes[it.grandId || (it.pubRef && it.pubRef.id)] || it.url) + '" alt=""></div>').join('');
   document.getElementById('ppvOv').classList.add('open');
   document.getElementById('ppvPiste').style.transition = 'none';
   allerA(index || 0);
