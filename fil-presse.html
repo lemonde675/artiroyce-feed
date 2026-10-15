@@ -598,7 +598,7 @@ window.__scrollToPost = function(id){
 // à être inséré directement dans le fil, comme les suggestions Facebook.
 function buildCoverCarouselBlock(){
   const combined = allMineActive.concat(allOthers)
-    .filter(function(x){ return (x[1].images || []).length > 0; })
+    .filter(function(x){ return (x[1].images || []).length > 0 && !x[1].photoProfil; }) // jamais de photo de profil dans le carrousel
     .slice(0, 12);
   if(!combined.length) return '';
 
