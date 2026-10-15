@@ -689,9 +689,33 @@ function choisirFiltre(el){
   afficherOffres();
 }
 
+// Chargement petit à petit : 30 offres d'abord, puis 30 de plus à chaque fois
+// qu'on arrive en bas du fil, jusqu'à la toute première offre publiée.
+const LOT_OFFRES_SERVEUR = 30;
+let limiteOffres = LOT_OFFRES_SERVEUR;
+let _offresPeutEnAvoirPlus = false;
+let _chargementPlusOffres = false;
+let _stopOffres = null;
+
+function chargerPlusOffres(){
+  if (_chargementPlusOffres || !_offresPeutEnAvoirPlus) return;
+  _chargementPlusOffres = true;
+  limiteOffres += LOT_OFFRES_SERVEUR;
+  const zone = document.getElementById('feedOffres');
+  if (zone && !document.getElementById('offresPlus')) {
+    const d = document.createElement('div');
+    d.id = 'offresPlus'; d.className = 'ar-charge'; d.style.minHeight = '0';
+    d.innerHTML = '<div class="ar-spin"></div>Chargement d’autres offres…';
+    zone.appendChild(d);
+  }
+  chargerOffres();
+}
+
 function chargerOffres(){
-  log('8. Chargement des offres depuis Firestore…');
-  db.collection('offres').orderBy('createdAt','desc').limit(30).onSnapshot(snap => {
+  log('8. Chargement des offres depuis Firestore… (jusqu\'à ' + limiteOffres + ')');
+  if (_stopOffres) { _stopOffres(); _stopOffres = null; }
+  _stopOffres = db.collection('offres').orderBy('createdAt','desc').limit(limiteOffres).onSnapshot(snap => {
+    _offresPeutEnAvoirPlus = snap.size >= limiteOffres;
     const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const brut = toutes.filter(o => !o.corbeille);
     listeCorbeille = toutes.filter(o => o.corbeille && currentUser && o.auteurUid === currentUser.uid);
@@ -708,10 +732,22 @@ function chargerOffres(){
     const ancienIds = toutesLesOffres.map(o => o.id).join(',');
     const structurel = nouveauxIds !== ancienIds;
 
-    toutesLesOffres = trierOffresParPriorite(brut);
+    if (_chargementPlusOffres) {
+      // Offres plus anciennes : ajoutées À LA SUITE, sans déplacer celles déjà affichées.
+      const parId = new Map(brut.map(o => [o.id, o]));
+      const dejaLa = toutesLesOffres.filter(o => parId.has(o.id)).map(o => parId.get(o.id));
+      const connus = new Set(dejaLa.map(o => o.id));
+      toutesLesOffres = dejaLa.concat(trierOffresParPriorite(brut.filter(o => !connus.has(o.id))));
+    } else {
+      toutesLesOffres = trierOffresParPriorite(brut);
+    }
     log('9. Offres reçues ✅ (' + toutesLesOffres.length + ')');
 
-    if (structurel) {
+    if (_chargementPlusOffres) {
+      _chargementPlusOffres = false;
+      nombreAffiches += TAILLE_LOT;
+      afficherOffres();
+    } else if (structurel) {
       nombreAffiches = TAILLE_LOT;
       afficherOffres();
     } else {
@@ -719,6 +755,8 @@ function chargerOffres(){
     }
     afficherCorbeilleOffres();
   }, err => {
+    _chargementPlusOffres = false;
+    const p = document.getElementById('offresPlus'); if (p) p.remove();
     log('❌ Erreur Firestore : ' + err.message);
   });
 }
@@ -874,6 +912,12 @@ function afficherOffres(){
       }
     }, { rootMargin: '400px' });
     observateur.observe(document.getElementById('sentinelle'));
+  } else if (_offresPeutEnAvoirPlus) {
+    // Toutes les offres reçues sont affichées : on va chercher les suivantes.
+    observateur = new IntersectionObserver(entrees => {
+      if (entrees[0].isIntersecting) chargerPlusOffres();
+    }, { rootMargin: '400px' });
+    observateur.observe(document.getElementById('sentinelle'));
   }
 }
 
@@ -977,7 +1021,7 @@ function tenterOuverturePub() {
   if (++d.essais > 40) { _pubAOuvrir = null; clearInterval(_pubMinuteur); return; }
   if (!d.reset) { d.reset = true; try { if (filtreActif !== 'tout' || termeRecherche) { filtreActif = 'tout'; termeRecherche = ''; document.querySelectorAll('.filtre-pill').forEach(p => p.classList.toggle('active', p.dataset.f === 'tout')); afficherOffres(); } } catch (err) {} }
   const el = document.getElementById('card-' + d.id);
-  if (!el) { try { if (toutesLesOffres.some(x => x.id === d.id) && nombreAffiches < toutesLesOffres.length) { nombreAffiches += 12; afficherOffres(); } } catch (err) {} return; }
+  if (!el) { try { if (toutesLesOffres.some(x => x.id === d.id) && nombreAffiches < toutesLesOffres.length) { nombreAffiches += 12; afficherOffres(); } else if (!toutesLesOffres.some(x => x.id === d.id) && _offresPeutEnAvoirPlus) { nombreAffiches = toutesLesOffres.length; chargerPlusOffres(); } } catch (err) {} return; }
   _pubAOuvrir = null; clearInterval(_pubMinuteur);
   try { window.parent.postMessage({ type: 'publicationOuverte' }, '*'); } catch (err) {}
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1320,7 +1364,7 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
 
 /* ── Carrousel "Offres en vedette" (repris de l'ancien code) ── */
 function buildCoverCarouselOffres(offresActives){
-  const avecImage = offresActives.filter(o => o.imageUrl).slice(0, 12);
+  const avecImage = offresActives.filter(o => o.imageUrl && !o.photoProfil).slice(0, 12); // jamais de photo de profil dans le carrousel
   if (!avecImage.length) return null;
   const div = document.createElement('div');
   div.className = 'cover-carousel-wrap';
