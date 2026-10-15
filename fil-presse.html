@@ -114,6 +114,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 /* Point vert sur MON avatar à côté de « Publier… » (même format que les publications) */
 .me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
 .me-online-dot{display:none;position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2}
+
+/* Rond de chargement ArtiRoyce : rose, centré (identique sur toutes les pages) */
+.ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
+.ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
+@keyframes arSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -199,7 +204,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
     <div id="mineList"></div>
 
     <div class="sec-title" data-i18n="presse_fil">Fil Presse</div>
-    <div id="feedList"><div class="empty-msg" data-i18n="presse_chargement">Chargement…</div></div>
+    <div id="feedList"><div class="ar-charge"><div class="ar-spin"></div><span data-i18n="presse_chargement">Chargement…</span></div></div>
     <div id="sentinelleFP" style="height:1px"></div>
   </div>
 </div>
@@ -413,10 +418,18 @@ const _ordreAleatoireStableFP = {};
 // Approximation de l'indicatif pays à partir du numéro de téléphone (3
 // premiers chiffres), même principe que sur Actualités/Offres.
 function extraireIndicatifTelephone(telephone){
-  if(!telephone) return '';
-  const chiffres = String(telephone).replace(/\D/g, '');
+  // Indicatif du pays, que le numéro soit écrit avec ou sans +229.
+  // Un numéro local (commençant par 0, ou 10 chiffres max sans +) = Bénin (229).
+  const brut = String(telephone || '').trim();
+  if (!brut) return '';
+  const chiffres = brut.replace(/\D/g, '');
+  if (brut.startsWith('+')) return chiffres.slice(0, 3);
+  if (chiffres.startsWith('00')) return chiffres.slice(2, 5);
+  if (chiffres.startsWith('0') || chiffres.length <= 10) return '229';
   return chiffres.slice(0, 3);
 }
+// Anciennes publications enregistrées avec un indicatif "local" (ex. 016) = Bénin.
+function normPays(x){ x = String(x || ''); return x && x[0] === '0' ? '229' : x; }
 
 function ordreAleatoireStableFP(id){
   if(!(id in _ordreAleatoireStableFP)) _ordreAleatoireStableFP[id] = Math.random();
@@ -453,7 +466,7 @@ function trierFeedParPrioriteFP(liste){
       const p = x[1];
       const estMoi = !!(currentUid && p.uid === currentUid);
       const estSuivi = !!(p.uid && followedUidsFilPresse.has(p.uid));
-      const memePays = !!(monPaysPrefixe && p.paysPrefixe && p.paysPrefixe === monPaysPrefixe);
+      const memePays = !!(monPaysPrefixe && p.paysPrefixe && normPays(p.paysPrefixe) === monPaysPrefixe);
 
       if(estMoi && publieeDepuisMoinsDe(p, SOIXANTE_DOUZE_H_MS)) mesPostsRecents.push(x);
       else if(estSuivi && publieeDepuisMoinsDe(p, FIFTEEN_DAYS_MS)) suivisActifs.push(x);
@@ -1186,6 +1199,7 @@ window.__toggleFollow = async function(targetUid){
     if(btn){ btn.classList.remove('on'); btn.textContent = '+ Suivre'; }
   } else {
     await setDoc(relRef, { follower: currentUid, followed: targetUid, createdAt: serverTimestamp() });
+    window.ArNotif && ArNotif.envoyer({ dest: targetUid, type: 'abonne', page: 'profil', unique: true });
     if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
   }
 }
@@ -1217,6 +1231,7 @@ window.__sendReaction = async function(postId, emoji){
     await deleteDoc(reactRef);
   } else {
     await setDoc(reactRef, { emoji: emoji, uid: currentUid, createdAt: serverTimestamp() });
+    window.ArNotif && ArNotif.envoyer({ dest: findPostAuthorUid(postId), type: 'reaction', page: 'filPresse', cibleId: postId, extrait: emoji, unique: true });
   }
   document.getElementById('picker-'+postId).classList.remove('show');
   refreshReactionCount(postId);
@@ -1241,6 +1256,33 @@ window.__toggleComments = async function(postId){
   const opening = !box.classList.contains('show');
   box.classList.toggle('show');
   if(opening) await loadComments(postId);
+}
+
+
+/* ── Ouverture depuis une notification (accueil.html → cette page) ──
+   Montre la publication demandée (on affiche plus de publications si besoin),
+   la fait défiler à l'écran, la met en évidence et ouvre les commentaires. */
+let _pubAOuvrir = null, _pubMinuteur = null;
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.type !== 'ouvrirPublication' || !e.data.id) return;
+  _pubAOuvrir = { id: e.data.id, commentaires: !!e.data.commentaires, essais: 0, reset: false };
+  clearInterval(_pubMinuteur);
+  _pubMinuteur = setInterval(tenterOuverturePub, 400);
+  tenterOuverturePub();
+});
+function tenterOuverturePub() {
+  const d = _pubAOuvrir;
+  if (!d) { clearInterval(_pubMinuteur); return; }
+  if (++d.essais > 40) { _pubAOuvrir = null; clearInterval(_pubMinuteur); return; }
+  if (!d.reset) { d.reset = true; try { if (searchTerm) { searchTerm = ''; renderFilteredFeed(); } } catch (err) {} }
+  const el = document.getElementById('post-' + d.id);
+  if (!el) { try { if (allMineActive.concat(allOthers).some(x => x[0] === d.id)) { nombreAffichesAutres += 12; renderFilteredFeed(); } } catch (err) {} return; }
+  _pubAOuvrir = null; clearInterval(_pubMinuteur);
+  try { window.parent.postMessage({ type: 'publicationOuverte' }, '*'); } catch (err) {}
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.style.transition = 'box-shadow .4s'; el.style.boxShadow = '0 0 0 3px #e63224';
+  setTimeout(function () { el.style.boxShadow = ''; }, 2200);
+  if (d.commentaires) { try { const b = document.getElementById('comments-' + d.id); if (b && !b.classList.contains('show')) window.__toggleComments(d.id); } catch (err) {} }
 }
 
 function findPostAuthorUid(postId){
@@ -1402,6 +1444,16 @@ window.__addComment = async function(postId){
   });
   input.value = '';
   window.__cancelReply(postId);
+  // Notifications : l'auteur de la publication, et l'auteur du commentaire auquel on répond.
+  (async function(){
+    let cibleReponse = '';
+    if (target && target.parentId) {
+      try { const c = await getDoc(doc(db,'fil_presse', postId, 'comments', target.parentId)); cibleReponse = (c.data() || {}).uid || ''; } catch (e) {}
+      if (cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: cibleReponse, type: 'reponse', page: 'filPresse', cibleId: postId, extrait: texte });
+    }
+    const auteur = findPostAuthorUid(postId);
+    if (auteur && auteur !== cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: auteur, type: 'commentaire', page: 'filPresse', cibleId: postId, extrait: texte });
+  })();
   await loadComments(postId);
   const postRef = doc(db,'fil_presse', postId);
   const snap = await getDocs(collection(db,'fil_presse', postId, 'comments'));
@@ -1453,5 +1505,6 @@ auth.onAuthStateChanged(async function(user){
 });
 </script>
 <script src="translations.js"></script>
+<script src="notifications.js"></script>
 </body>
 </html>
