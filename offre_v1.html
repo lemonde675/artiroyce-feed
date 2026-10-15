@@ -151,6 +151,11 @@
 /* Point vert sur MON avatar à côté de « Publier… » (même format que les publications) */
 .me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
 .me-online-dot{display:none;position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--green);border:2.5px solid #fff;z-index:2}
+
+/* Rond de chargement ArtiRoyce : rose, centré (identique sur toutes les pages) */
+.ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
+.ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
+@keyframes arSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -182,7 +187,7 @@
       <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
     </div>
     <div class="corbeille-liste" id="corbeilleListe"></div>
-    <div id="feedOffres"><div class="card"><p>⏳ Chargement…</p></div></div>
+    <div id="feedOffres"><div class="ar-charge"><div class="ar-spin"></div>Chargement des offres…</div></div>
     <div id="sentinelle" style="height:1px"></div>
   </div>
 </div>
@@ -351,10 +356,18 @@ auth.onAuthStateChanged(async user => {
 // Approximation de l'indicatif pays à partir du numéro de téléphone (3 premiers
 // chiffres), utilisé pour le palier "même pays" du classement du fil.
 function extraireIndicatifTelephone(telephone){
-  if (!telephone) return '';
-  const chiffres = String(telephone).replace(/\D/g, '');
+  // Indicatif du pays, que le numéro soit écrit avec ou sans +229.
+  // Un numéro local (commençant par 0, ou 10 chiffres max sans +) = Bénin (229).
+  const brut = String(telephone || '').trim();
+  if (!brut) return '';
+  const chiffres = brut.replace(/\D/g, '');
+  if (brut.startsWith('+')) return chiffres.slice(0, 3);
+  if (chiffres.startsWith('00')) return chiffres.slice(2, 5);
+  if (chiffres.startsWith('0') || chiffres.length <= 10) return '229';
   return chiffres.slice(0, 3);
 }
+// Anciennes publications enregistrées avec un indicatif "local" (ex. 016) = Bénin.
+function normPays(x){ x = String(x || ''); return x && x[0] === '0' ? '229' : x; }
 
 // Suivi propre à Offres, indépendant des autres sections (Actualités a le sien).
 // Stocké dans utilisateurs/{moi}/suivisOffres/{auteurUid}.
@@ -377,9 +390,13 @@ async function toggleSuivreOffre(auteurUid, event){
     if (followedUidsOffres.has(auteurUid)) {
       await ref.delete();
       followedUidsOffres.delete(auteurUid);
+      // Compteur « Abonnés » du profil (même liste que l'Accueil et le Fil Presse).
+      db.collection('abonnements').doc(currentUser.uid + '_' + auteurUid).delete().catch(() => {});
     } else {
       await ref.set({ depuis: firebase.firestore.FieldValue.serverTimestamp() });
       followedUidsOffres.add(auteurUid);
+      db.collection('abonnements').doc(currentUser.uid + '_' + auteurUid).set({ follower: currentUser.uid, followed: auteurUid, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
+      window.ArNotif && ArNotif.envoyer({ dest: auteurUid, type: 'abonne', page: 'profil', unique: true });
     }
     // On ne re-trie pas le fil tout de suite : ça bougerait les publications sous les
     // doigts pendant qu'on lit. Le nouveau classement s'appliquera au prochain
@@ -432,7 +449,7 @@ function trierOffresParPriorite(liste){
     liste.forEach(o => {
       const estMoi = o.auteurUid === currentUser.uid;
       const estSuivi = !!(o.auteurUid && followedUidsOffres.has(o.auteurUid));
-      const memePays = !!(currentUser.paysPrefixe && o.paysPrefixe && o.paysPrefixe === currentUser.paysPrefixe);
+      const memePays = !!(currentUser.paysPrefixe && o.paysPrefixe && normPays(o.paysPrefixe) === currentUser.paysPrefixe);
 
       if (estMoi && publieeDepuisMoinsDe(o, SOIXANTE_DOUZE_H_MS)) mesOffresRecentes.push(o);
       else if (estSuivi && publieeDepuisMoinsDe(o, QUINZE_JOURS_MS)) suivisActifs.push(o);
@@ -900,6 +917,8 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
       if (iconEl) iconEl.textContent = meta.icon;
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
       await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      { const of = toutesLesOffres.find(x => x.id === offreId);
+        if (of) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'reaction', page: 'offres', cibleId: offreId, extrait: emoji, unique: true }); }
       if (delta) await db.collection('offres').doc(offreId).update({ likes: firebase.firestore.FieldValue.increment(1) });
     }
   } catch (e) {
@@ -932,12 +951,41 @@ window.partagerOffre = async function (offreId, partagesActuels){
   try {
     await db.collection('offres').doc(offreId).update({ partages: firebase.firestore.FieldValue.increment(1) });
     toast('Partagé ✅');
+    { const of = toutesLesOffres.find(x => x.id === offreId);
+      if (of) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'partage', page: 'offres', cibleId: offreId, unique: true }); }
   } catch (e) {
     log('❌ Erreur partage : ' + e.message);
   }
 };
 
 /* ── Commentaires (réponses imbriquées + suppression + modification) ── */
+
+/* ── Ouverture depuis une notification (accueil.html → cette page) ──
+   Montre la publication demandée (on affiche plus de publications si besoin),
+   la fait défiler à l'écran, la met en évidence et ouvre les commentaires. */
+let _pubAOuvrir = null, _pubMinuteur = null;
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.type !== 'ouvrirPublication' || !e.data.id) return;
+  _pubAOuvrir = { id: e.data.id, commentaires: !!e.data.commentaires, essais: 0, reset: false };
+  clearInterval(_pubMinuteur);
+  _pubMinuteur = setInterval(tenterOuverturePub, 400);
+  tenterOuverturePub();
+});
+function tenterOuverturePub() {
+  const d = _pubAOuvrir;
+  if (!d) { clearInterval(_pubMinuteur); return; }
+  if (++d.essais > 40) { _pubAOuvrir = null; clearInterval(_pubMinuteur); return; }
+  if (!d.reset) { d.reset = true; try { if (filtreActif !== 'tout' || termeRecherche) { filtreActif = 'tout'; termeRecherche = ''; document.querySelectorAll('.filtre-pill').forEach(p => p.classList.toggle('active', p.dataset.f === 'tout')); afficherOffres(); } } catch (err) {} }
+  const el = document.getElementById('card-' + d.id);
+  if (!el) { try { if (toutesLesOffres.some(x => x.id === d.id) && nombreAffiches < toutesLesOffres.length) { nombreAffiches += 12; afficherOffres(); } } catch (err) {} return; }
+  _pubAOuvrir = null; clearInterval(_pubMinuteur);
+  try { window.parent.postMessage({ type: 'publicationOuverte' }, '*'); } catch (err) {}
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.style.transition = 'box-shadow .4s'; el.style.boxShadow = '0 0 0 3px #e63224';
+  setTimeout(function () { el.style.boxShadow = ''; }, 2200);
+  if (d.commentaires) { try { const z = document.getElementById('commzone-' + d.id); if (z && z.style.display !== 'block') window.toggleComments(d.id); } catch (err) {} }
+}
+
 window.toggleComments = function (offreId){
   const zone = document.getElementById('commzone-' + offreId);
   if (!zone) return;
@@ -1066,6 +1114,16 @@ window.envoyerCommentaireOffre = async function (offreId){
       likes: 0
     });
     window.annulerReponseOffre(offreId);
+    // Notifications : l'auteur de l'offre, et l'auteur du commentaire auquel on répond.
+    (async () => {
+      const of = toutesLesOffres.find(x => x.id === offreId);
+      let cibleReponse = '';
+      if (reponseA && reponseA.commentId) {
+        try { const c = await db.collection('offres').doc(offreId).collection('commentaires').doc(reponseA.commentId).get(); cibleReponse = (c.data() || {}).uid || ''; } catch (e) {}
+        if (cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: cibleReponse, type: 'reponse', page: 'offres', cibleId: offreId, extrait: texte });
+      }
+      if (of && of.auteurUid !== cibleReponse) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'commentaire', page: 'offres', cibleId: offreId, extrait: texte });
+    })();
   } catch (e) {
     log('❌ Erreur commentaire : ' + e.message);
   }
@@ -1231,6 +1289,8 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
   if (!confirm('Envoyer votre candidature pour cette offre ?')) return;
   try {
     await db.collection('offres').doc(offreId).update({ candidatures: firebase.firestore.FieldValue.increment(1) });
+    { const of = toutesLesOffres.find(x => x.id === offreId);
+      if (of) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'candidature', page: 'offres', cibleId: offreId, unique: true }); }
     await db.collection('offres').doc(offreId).collection('commentaires').add({
       texte: '📩 A postulé à cette offre',
       nom: currentUser.nomAffiche || 'Anonyme',
@@ -1350,5 +1410,6 @@ function publierOffre(){
   });
 }
 </script>
+<script src="notifications.js"></script>
 </body>
 </html>
