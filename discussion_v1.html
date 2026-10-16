@@ -19,7 +19,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .h-ico.bell{background:#fff8e1;border:2px solid #ffc107}
 .h-ico.chat{background:#e8f5e9;border:2px solid var(--green)}
 .h-ico .bdot{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.h-ico.chat .bdot{background:var(--green)}
+.h-ico.chat .bdot{background:var(--red);width:auto;min-width:16px;padding:0 3px;border-radius:9px}
 .h-dots{font-size:22px;color:#333;cursor:pointer;padding:2px 4px;font-weight:700}
 .h-tabs{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;padding:0 10px 7px;gap:6px}
 .h-tabs::-webkit-scrollbar{display:none}
@@ -478,6 +478,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .gi-footer{position:absolute;left:0;right:0;bottom:0;padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #eee}
 .gi-inviter{text-align:center;padding:18px 10px;color:#888;font-size:13px;line-height:1.5}
 .gi-inviter button{margin-top:10px;background:var(--green);color:#fff;border:none;border-radius:22px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
+
+/* ══ Liste unique (discussions + groupes mélangés, la plus récente en haut) ══ */
+.nouv-row{display:flex;gap:8px;padding:2px 12px 10px;overflow-x:auto;scrollbar-width:none}
+.nouv-row::-webkit-scrollbar{display:none}
+.nouv-btn{flex-shrink:0;display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #e6e6e6;border-radius:22px;padding:8px 14px;font-size:13px;font-weight:700;color:#222;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.nouv-btn span{font-size:16px}
+.liste-vide{text-align:center;color:#aaa;font-size:13px;padding:30px 20px}
+.conv-card.non-lu .cc-name{color:#000}
+.conv-card.non-lu .cc-preview{color:#333;font-weight:700}
+.conv-card.non-lu .cc-time{color:var(--red);font-weight:800}
 </style>
 </head>
 <body>
@@ -496,8 +506,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <span class="h-logo-text"><span class="arti">Arti</span><span class="royce">Royce</span></span>
     </div>
     <div class="h-icons">
-      <div class="h-ico bell">🔔<span class="bdot">3</span></div>
-      <div class="h-ico chat">💬<span class="bdot">1</span></div>
+      <div class="h-ico bell">🔔<span class="bdot" style="display:none">0</span></div>
+      <div class="h-ico chat">💬<span class="bdot" id="msgBadgeLocal" style="display:none">0</span></div>
       <span class="h-dots">⋮</span>
     </div>
   </div>
@@ -532,88 +542,19 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <button class="pill" onclick="setMode('online',this)">En ligne</button>
   </div>
   <div class="conv-scroll" id="convList">
-    <div class="sec-hdr"><span class="sec-lbl">Récentes</span></div>
-    <div id="recentesReelles"></div>
-    <div class="conv-card" data-mode="conv" data-unread="1" data-online="1" onclick="openChat('Mariama Kouyaté','Coiffeuse','MK','linear-gradient(135deg,#0d2b0f,#27a945)',true,'',true)">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="online-dot"></div><div class="v-icon">✔</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Mariama Kouyaté</span><span class="cc-time">17:34</span></div>
-          <div class="cc-preview">Bonjour ! Je suis disponible demain 🙏</div>
-          <div class="cc-status on">● En ligne · ✂️ Coiffeuse</div>
-        </div>
-        <div class="ubadge">2</div>
-      </div>
+    <div class="nouv-row">
+      <button class="nouv-btn" onclick="ouvrirCreationGroupe()"><span>👥</span>Nouveau groupe</button>
+      <button class="nouv-btn" onclick="openConf()"><span>🎙️</span>Conférence</button>
+      <button class="nouv-btn" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()"><span>✏️</span>Nouvelle discussion</button>
     </div>
-    <div class="conv-card" data-mode="conv" data-online="0" onclick="openChat('Jean-Paul Mensah','Photographe','JP','linear-gradient(135deg,#0a0a2e,#1a1a6e)',false,'Il y a 2h',true)">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div><div class="v-icon">✔</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Jean-Paul Mensah</span><span class="cc-time">16:12</span></div>
-          <div class="cc-preview">✓✓ Ok parfait, à demain !</div>
-          <div class="cc-status off">⊙ Il y a 2h · 📷 Photographe</div>
-        </div>
-      </div>
-    </div>
-    <div class="conv-card" data-mode="conv" data-unread="1" data-online="1" onclick="openChat('Aminata Traoré','Maquilleuse','AT','linear-gradient(135deg,#4a1a00,#c0392b)',true,'',true)">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div><div class="online-dot"></div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Aminata Traoré</span><span class="cc-time">14:50</span></div>
-          <div class="cc-preview">Le devis est prêt 📩</div>
-          <div class="cc-status on">● En ligne · 💄 Maquilleuse</div>
-        </div>
-        <div class="ubadge">1</div>
-      </div>
-    </div>
-    <div class="conv-card" data-mode="conv" data-online="0" onclick="openChat('David Koffi','DJ','DK','linear-gradient(135deg,#001030,#002060)',false,'Il y a 1 jour',true)">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#001030,#002060)">DK</div><div class="v-icon">✔</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">David Koffi</span><span class="cc-time">Hier</span></div>
-          <div class="cc-preview">Merci pour la confiance 🎶</div>
-          <div class="cc-status off">⊙ Il y a 1 jour · 🎧 DJ</div>
-        </div>
-      </div>
-    </div>
+    <div class="sec-hdr"><span class="sec-lbl">Discussions</span></div>
+    <div id="recentesReelles"><div class="liste-vide">Chargement de vos discussions…</div></div>
+    <div id="groupesReels" style="display:none"></div>
     <div class="sec-hdr" id="secContacts" style="display:none"><span class="sec-lbl">Vos contacts</span></div>
     <div id="contactsListe"></div>
     <div id="resultatsRechercheReels" style="display:none"></div>
     <div id="sentinelleContacts" style="height:1px"></div>
-    <div class="sec-hdr" id="secG"><span class="sec-lbl">Groupes</span><span class="sec-action" onclick="ouvrirCreationGroupe()">+ Créer</span></div>
-    <div id="groupesReels"></div>
-    <div class="conv-card" data-mode="group" onclick="openChat('Artistes Cotonou','Groupe · 12 membres','👥','linear-gradient(135deg,#2c0060,#6a0dad)',false,'')">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#2c0060,#6a0dad);font-size:22px">👥</div><div class="g-count">12</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Artistes Cotonou</span><span class="cc-time">Lun</span></div>
-          <div class="cc-preview">Fatou : Event samedi ! Qui vient ? 🎉</div>
-          <span class="cc-tag">👥 Groupe · 12 membres</span>
-        </div>
-        <div class="ubadge">5</div>
-      </div>
-    </div>
-    <div class="sec-hdr" id="secC"><span class="sec-lbl">Conférences</span><span class="sec-action" onclick="openConf()">+ Lancer</span></div>
-    <div class="conv-card" data-mode="conf" onclick="openConf()">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#003d00,#007a00);font-size:22px">🎙️</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Conf. Pros du Son</span><span class="cc-time">Dim</span></div>
-          <div class="cc-preview">Terminé · 45 min · 8 participants</div>
-          <span class="cc-tag">🎙️ Audio · Lien généré</span>
-        </div>
-      </div>
-    </div>
-    <div class="conv-card" data-mode="conf" onclick="openConf()">
-      <div class="cc-inner">
-        <div class="av-wrap"><div class="av" style="background:linear-gradient(135deg,#00304a,#005a8a);font-size:22px">📹</div></div>
-        <div class="cc-info">
-          <div class="cc-top"><span class="cc-name">Réunion Créatifs</span><span class="cc-time">Jeu</span></div>
-          <div class="cc-preview">Terminé · 1h12 · 5 participants</div>
-          <span class="cc-tag">📹 Vidéo · Lien généré</span>
-        </div>
-      </div>
-    </div>
+    <span id="secG" style="display:none"></span><span id="secC" style="display:none"></span>
   </div>
 </div>
 <nav class="bot-nav">
@@ -1098,8 +1039,7 @@ window.setMode=function(mode,el){
     else if(mode==='conf')c.style.display=c.dataset.mode==='conf'?'':'none';
     else if(mode==='online')c.style.display=c.dataset.online==='1'?'':'none';
   });
-  document.getElementById('secG').style.display=(mode==='all'||mode==='groups')?'':'none';
-  document.getElementById('secC').style.display=(mode==='all'||mode==='conf')?'':'none';
+
 }
 /* ══════════════ TOUCHE RETOUR MODERNISÉE (History API) ══════════════
    Chaque vue plein écran (discussion, conférence, appel) empile un état d'historique.
@@ -1218,6 +1158,27 @@ function dernierSignalMs(d){
   });
   return m;
 }
+// Moment exact où la personne a quitté la plateforme (écrit par accueil.html quand
+// l'app passe en arrière-plan, se ferme ou se déconnecte).
+function horsLigneMs(d){
+  const v=d&&d.horsLigneDepuis; if(!v) return 0;
+  return v.toDate?v.toDate().getTime():new Date(v).getTime();
+}
+// En ligne = signal récent ET pas sortie depuis ce signal.
+function etatPresence(d){
+  const sig=dernierSignalMs(d), hors=horsLigneMs(d);
+  const enLigne = sig>0 && (Date.now()-sig)<SEUIL_EN_LIGNE_MS && !(hors && hors>=sig-1000);
+  return { enLigne:enLigne, vuMs: Math.max(sig,hors) };
+}
+// « vu aujourd'hui à 15:02 » / « vu hier à 21:40 » / « vu le 14 oct. à 09:12 »
+function texteVu(ms){
+  if(!ms) return '';
+  const d=new Date(ms), auj=new Date(), hier=new Date(); hier.setDate(auj.getDate()-1);
+  const h=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  if(d.toDateString()===auj.toDateString()) return "vu aujourd'hui à "+h;
+  if(d.toDateString()===hier.toDateString()) return 'vu hier à '+h;
+  return 'vu le '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' à '+h;
+}
 
 /* ══ Bascule profil / position réelle pour la ville affichée sur les messages ══
    Jamais les deux en même temps : soit la ville déclarée dans le profil (défaut),
@@ -1248,7 +1209,7 @@ window.choisirPosition=async function(qui){
       type:'demandePosition', demandeur:currentUid, destinataire:currentOtherUid,
       statut:'attente', horodatage:firebase.firestore.FieldValue.serverTimestamp()
     });
-    await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:'📍 Demande de position envoyée',dernierEmetteur:currentUid},{merge:true});
+    await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:'📍 Demande de position envoyée',dernierEmetteur:currentUid,nonLus:majNonLusAutres()},{merge:true});
     toast('📩 Demande envoyée','g');
   }catch(e){ console.error('Envoi de la demande de position impossible :',e); toast('⚠️ Envoi de la demande impossible','r'); }
 }
@@ -1487,8 +1448,7 @@ function couleurNomGroupe(uid){
 }
 /* Dès que les contacts (avec leurs photos) sont chargés, on redessine les listes. */
 function rafraichirAvatarsApresContacts(){
-  if(window._dernieresConvs) renderConversationsReelles(window._dernieresConvs);
-  if(window._derniersGroupes) renderGroupesReels(window._derniersGroupes);
+  if(window._toutesConvs) renderListeUnifiee(window._toutesConvs);
   if(currentOtherUid && !currentEstGroupe){
     const av=document.getElementById('chaAv');
     if(av && photoDe(currentOtherUid)) av.innerHTML=avatarInterieur(currentOtherUid, currentChatIni);
@@ -1615,11 +1575,12 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
 function ecouterPresenceReelle(otherUid){
   if(unsubPresence){ unsubPresence(); unsubPresence=null; }
   if(presenceRecheckTimer){ clearInterval(presenceRecheckTimer); presenceRecheckTimer=null; }
-  let derniereVueMillis=0;
+  let donneesPresence=null;
   function appliquerAffichage(){
     const st=document.getElementById('chaSt');
     if(!st || currentOtherUid!==otherUid) return;
-    const enLigne = derniereVueMillis>0 && (Date.now()-derniereVueMillis)<SEUIL_EN_LIGNE_MS;
+    const etat=etatPresence(donneesPresence);
+    const enLigne = etat.enLigne;
     const pcSt=document.getElementById('pcSt'), pcOnline=document.getElementById('pcOnline');
     if(enLigne){
       st.textContent='● En ligne'; st.className='cha-st on';
@@ -1627,15 +1588,15 @@ function ecouterPresenceReelle(otherUid){
       if(pcSt){ pcSt.textContent='● En ligne'; pcSt.style.color='var(--green)'; }
       if(pcOnline) pcOnline.style.display='';
     } else {
-      const vu = derniereVueMillis>0 ? new Date(derniereVueMillis).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '—';
-      st.textContent='⊙ vu à '+vu; st.className='cha-st off';
+      const vu = etat.vuMs ? '⊙ '+texteVu(etat.vuMs) : '⊙ Hors ligne';
+      st.textContent=vu; st.className='cha-st off';
       document.getElementById('chaOnline').style.display='none';
-      if(pcSt){ pcSt.textContent='⊙ vu à '+vu; pcSt.style.color='#999'; }
+      if(pcSt){ pcSt.textContent=vu; pcSt.style.color='#999'; }
       if(pcOnline) pcOnline.style.display='none';
     }
   }
   unsubPresence=db.collection('utilisateurs').doc(otherUid).onSnapshot(function(doc){
-    derniereVueMillis=dernierSignalMs(doc.data());
+    donneesPresence=doc.data()||null;
     appliquerAffichage();
   }, function(err){ console.error('Écoute présence impossible :',err); });
   presenceRecheckTimer=setInterval(appliquerAffichage, 15000);
@@ -1644,7 +1605,8 @@ async function marquerConversationCommeLue(){
   if(!currentConvId || !currentUid) return;
   try{
     await db.collection('conversations').doc(currentConvId).set({
-      luPar:{ [currentUid]: firebase.firestore.FieldValue.serverTimestamp() }
+      luPar:{ [currentUid]: firebase.firestore.FieldValue.serverTimestamp() },
+      nonLus:{ [currentUid]: 0 }
     },{merge:true});
   }catch(err){
     console.error('Marquage comme lu impossible :',err);
@@ -1861,12 +1823,22 @@ async function uploaderVersStorage(blob, sousDossier, extension, typeContenu){
   ajouterEtape('Upload terminé ✅ : '+chemin);
   return url;
 }
+/* Vrai compteur de non-lus : +1 pour chaque autre participant à chaque message envoyé.
+   (Remis à 0 par chacun quand il ouvre la discussion.) */
+function majNonLusAutres(){
+  const parts = currentEstGroupe
+    ? ((currentGroupData && currentGroupData.participants) || (groupesCache[currentConvId] && groupesCache[currentConvId].participants) || [])
+    : [currentOtherUid];
+  const o={};
+  parts.forEach(function(uid){ if(uid && uid!==currentUid) o[uid]=firebase.firestore.FieldValue.increment(1); });
+  return o;
+}
 async function envoyerMessageMedia(type, url, extra){
   const convRef=db.collection('conversations').doc(currentConvId);
   const data=Object.assign({type:type,url:url,emetteur:currentUid,ville:villeAEnvoyer(),horodatage:firebase.firestore.FieldValue.serverTimestamp()},extra||{});
   await convRef.collection('messages').add(data);
   const apercu = type==='image' ? '📷 Photo' : type==='video' ? '🎬 Vidéo' : type==='file' ? '📄 '+(extra&&extra.nom||'Fichier') : type==='audio' ? '🎤 Message vocal' : type==='sticker' ? '🧩 Sticker' : '';
-  await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:apercu,dernierEmetteur:currentUid},{merge:true});
+  await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:apercu,dernierEmetteur:currentUid,nonLus:majNonLusAutres()},{merge:true});
   ajouterEtape('Message média écrit sur Firestore ✅ (type='+type+')');
 }
 function compresserImage(file){
@@ -1962,7 +1934,8 @@ async function envoyerMessageReel(txt){
     await convRef.set({
       derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
       dernierMessage: txt,
-      dernierEmetteur: currentUid
+      dernierEmetteur: currentUid,
+      nonLus: majNonLusAutres()
     },{merge:true});
     ajouterEtape('Message écrit sur Firestore ✅');
   }catch(err){
@@ -1983,56 +1956,126 @@ function chargerConversationsReelles(){
   unsubConversations = db.collection('conversations')
     .where('participants','array-contains',currentUid)
     .onSnapshot(function(snap){
-      let convs = [], groupes = [];
-      snap.docs.forEach(function(d){
-        const data=Object.assign({id:d.id},d.data());
-        if(data.type==='groupe') groupes.push(data); else convs.push(data);
-      });
-      function parDateDesc(a,b){
-        const ta=(a.derniereActivite&&a.derniereActivite.toDate)?a.derniereActivite.toDate().getTime():0;
-        const tb=(b.derniereActivite&&b.derniereActivite.toDate)?b.derniereActivite.toDate().getTime():0;
-        return tb-ta;
-      }
-      convs.sort(parDateDesc);
-      groupes.sort(parDateDesc);
-      renderConversationsReelles(convs);
-      renderGroupesReels(groupes);
+      const toutes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+      renderListeUnifiee(toutes);
     }, function(err){
       console.error('Écoute des conversations réelles impossible :',err);
     });
 }
 
-function renderConversationsReelles(convs){
-  window._dernieresConvs=convs;
+function msActivite(c){ return (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().getTime() : 0; }
+
+/* Heure affichée dans la liste : aujourd'hui « 15:02 », hier « Hier », sinon « 14/10 ». */
+function heureListe(ms){
+  if(!ms) return '';
+  const d=new Date(ms), auj=new Date();
+  const hier=new Date(); hier.setDate(auj.getDate()-1);
+  if(d.toDateString()===auj.toDateString()) return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  if(d.toDateString()===hier.toDateString()) return 'Hier';
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+}
+
+/* Vrai nombre de messages non lus pour moi dans cette conversation.
+   Compteur tenu à jour à chaque envoi (nonLus.{uid}) et remis à 0 quand j'ouvre.
+   Secours pour les anciennes conversations : dernier message d'un autre après ma dernière lecture = 1. */
+function nonLusPour(c){
+  let n = (c.nonLus && typeof c.nonLus[currentUid]==='number') ? c.nonLus[currentUid] : 0;
+  if(n<=0 && c.dernierEmetteur && c.dernierEmetteur!==currentUid && c.dernierMessage){
+    const lu = c.luPar && c.luPar[currentUid];
+    const luMs = (lu && lu.toDate) ? lu.toDate().getTime() : 0;
+    if(msActivite(c) > luMs + 1000) n = 1;
+  }
+  // La discussion actuellement ouverte à l'écran est lue au fur et à mesure.
+  if(c.id===currentConvId && document.getElementById('chatPanel').classList.contains('open')) n = 0;
+  return Math.max(0, n);
+}
+
+function carteConversation(c){
+  const otherUid = (c.participants||[]).find(function(id){ return id!==currentUid; });
+  if(!otherUid) return '';
+  const info = (c.infos && c.infos[otherUid]) || infoDepuisContacts(otherUid);
+  const n = nonLusPour(c);
+  const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
+  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="conv" data-online="0" data-unread="'+(n?1:0)+'" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
+    +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+avatarInterieur(otherUid, info.ini)+'</div></div>'
+    +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+heureListe(msActivite(c))+'</span></div>'
+    +'<div class="cc-preview">'+apercu+'</div>'
+    +'<div class="cc-status off" data-role="'+escAttr(info.role||'')+'">'+escAttr(info.role||'')+'</div></div>'
+    +(n?'<div class="ubadge">'+(n>99?'99+':n)+'</div>':'')
+    +'</div></div>';
+}
+
+function carteGroupe(g){
+  groupesCache[g.id]={nom:g.nom||'Groupe', participants:g.participants||[], photoGroupe:g.photoGroupe||''};
+  const bg=gradientPourId(g.id);
+  const n=nonLusPour(g);
+  const nb=(g.participants||[]).length;
+  let apercu=g.dernierMessage?escapeHtml(g.dernierMessage):'Aucun message — démarrer la discussion';
+  if(g.dernierMessage && g.dernierEmetteur){
+    const auteur = g.dernierEmetteur===currentUid ? 'Vous' : infoDepuisContacts(g.dernierEmetteur).nom.split(' ')[0];
+    apercu = escapeHtml(auteur)+' : '+apercu;
+  }
+  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="group" data-unread="'+(n?1:0)+'" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
+    +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">'+avatarGroupeHtml(g)+'</div><div class="g-count">'+nb+'</div></div>'
+    +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(g.nom||'Groupe')+'</span><span class="cc-time">'+heureListe(msActivite(g))+'</span></div>'
+    +'<div class="cc-preview">'+apercu+'</div>'
+    +'<span class="cc-tag">👥 Groupe · '+nb+' membres</span></div>'
+    +(n?'<div class="ubadge">'+(n>99?'99+':n)+'</div>':'')
+    +'</div></div>';
+}
+
+/* Une seule liste, comme WhatsApp : discussions à deux ET groupes mélangés,
+   la plus récente activité en haut. */
+function renderListeUnifiee(toutes){
+  window._toutesConvs=toutes;
   const wrap=document.getElementById('recentesReelles');
   if(!wrap) return;
+  groupesCache={};
+  const triees=toutes.slice().sort(function(a,b){ return msActivite(b)-msActivite(a); });
   const otherUids=[];
-  wrap.innerHTML = convs.map(function(c){
-    const otherUid = (c.participants||[]).find(id=>id!==currentUid);
-    if(!otherUid) return '';
-    otherUids.push(otherUid);
-    const info = (c.infos && c.infos[otherUid]) || {nom:'Utilisateur',ini:'?',bg:'#999',role:''};
-    const t = (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-    const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
-    return '<div class="conv-card" data-mode="conv" data-online="0" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
-      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+avatarInterieur(otherUid, info.ini)+'</div></div>'
-      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+t+'</span></div>'
-      +'<div class="cc-preview">'+apercu+'</div>'
-      +'<div class="cc-status off" data-role="'+escAttr(info.role||'')+'">'+escAttr(info.role||'')+'</div></div></div></div>';
+  let total=0;
+  const html=triees.map(function(c){
+    total+=nonLusPour(c);
+    if(c.type==='groupe') return carteGroupe(c);
+    const o=(c.participants||[]).find(function(id){ return id!==currentUid; });
+    if(o) otherUids.push(o);
+    return carteConversation(c);
   }).join('');
-  // Vrai statut en ligne/heure de dernière connexion — absent des exemples de
-  // démonstration (Mariama, Jean-Paul...) qui l'ont figé en dur dans le HTML.
-  // Ici, chaque vraie carte reçoit sa propre écoute en temps réel.
+  wrap.innerHTML = html || '<div class="liste-vide">Aucune discussion pour le moment.<br>Touchez « ✏️ Nouvelle discussion » pour écrire à quelqu\'un.</div>';
+  // La recherche et les filtres en cours restent appliqués après une mise à jour.
+  const sq=document.getElementById('sq');
+  if(sq && sq.value.trim()) doSearch();
+  const pillActive=document.querySelector('.pill.active');
+  if(pillActive && pillActive.textContent.trim()!=='Toutes') pillActive.click();
   ecouterPresenceListeConversations(otherUids);
+  const bl=document.getElementById('msgBadgeLocal');
+  if(bl){ bl.textContent= total>99?'99+':String(total); bl.style.display= total>0?'flex':'none'; }
+  // Total des non-lus pour la pastille de l'en-tête (accueil.html).
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'nonLusTotal', n:total},'*'); }catch(e){}
 }
+// Compatibilité : anciens appels.
+function renderConversationsReelles(){ if(window._toutesConvs) renderListeUnifiee(window._toutesConvs); }
+
 // uid -> fonction de désinscription, pour ne jamais écouter deux fois la même personne.
 let presenceListenersConvList={};
 function ecouterPresenceListeConversations(uids){
   uids.forEach(function(uid){
     if(presenceListenersConvList[uid]) return;
     presenceListenersConvList[uid]=db.collection('utilisateurs').doc(uid).onSnapshot(function(doc){
-      const ms=dernierSignalMs(doc.data());
-      const enLigne=ms>0 && (Date.now()-ms)<SEUIL_EN_LIGNE_MS;
+      presenceDonneesListe[uid]=doc.data()||null;
+      appliquerPresenceCarte(uid);
+    }, function(err){ console.error('Présence liste conversations impossible pour',uid,':',err); });
+  });
+  // Les cartes viennent d'être redessinées : on remet tout de suite le bon statut.
+  uids.forEach(appliquerPresenceCarte);
+}
+let presenceDonneesListe={};
+// Réévalue régulièrement (quelqu'un qui ferme l'app sans prévenir passe hors ligne).
+setInterval(function(){ Object.keys(presenceDonneesListe).forEach(appliquerPresenceCarte); }, 20000);
+function appliquerPresenceCarte(uid){
+      if(!(uid in presenceDonneesListe)) return;
+      const etat=etatPresence(presenceDonneesListe[uid]);
+      const enLigne=etat.enLigne;
       document.querySelectorAll('.conv-card[data-uid="'+uid+'"]').forEach(function(card){
         const statusEl=card.querySelector('.cc-status');
         if(!statusEl) return;
@@ -2046,15 +2089,13 @@ function ecouterPresenceListeConversations(uids){
             const dot=document.createElement('div'); dot.className='online-dot'; avWrap.appendChild(dot);
           }
         } else {
-          const vu=ms>0 ? new Date(ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
-          statusEl.textContent=(vu?'⊙ vu à '+vu:'')+(roleTxt?(vu?' · ':'')+roleTxt:'');
+          const vu=texteVu(etat.vuMs);
+          statusEl.textContent=(vu?'⊙ '+vu:'')+(roleTxt?(vu?' · ':'')+roleTxt:'');
           statusEl.className='cc-status off';
           const dot=avWrap && avWrap.querySelector('.online-dot');
           if(dot) dot.remove();
         }
       });
-    }, function(err){ console.error('Présence liste conversations impossible pour',uid,':',err); });
-  });
 }
 
 /* ══════════════ VRAIS GROUPES (Firestore) ══════════════
@@ -2073,24 +2114,7 @@ function adminsDuGroupe(d){
 function jeSuisAdmin(){ return adminsDuGroupe().indexOf(currentUid)!==-1; }
 function avatarGroupeHtml(d){ return (d && d.photoGroupe) ? '<img src="'+d.photoGroupe+'" alt=""/>' : '👥'; }
 
-function renderGroupesReels(list){
-  window._derniersGroupes=list;
-  const wrap=document.getElementById('groupesReels');
-  if(!wrap) return;
-  groupesCache={};
-  wrap.innerHTML = list.map(function(g){
-    groupesCache[g.id]={nom:g.nom||'Groupe', participants:g.participants||[], photoGroupe:g.photoGroupe||''};
-    const bg=gradientPourId(g.id);
-    const t=(g.derniereActivite&&g.derniereActivite.toDate)?g.derniereActivite.toDate().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
-    const apercu=g.dernierMessage?escapeHtml(g.dernierMessage):'Aucun message — démarrer la discussion';
-    const n=(g.participants||[]).length;
-    return '<div class="conv-card" data-mode="group" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
-      +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">'+avatarGroupeHtml(g)+'</div><div class="g-count">'+n+'</div></div>'
-      +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(g.nom||'Groupe')+'</span><span class="cc-time">'+t+'</span></div>'
-      +'<div class="cc-preview">'+apercu+'</div>'
-      +'<span class="cc-tag">👥 Groupe · '+n+' membres</span></div></div></div>';
-  }).join('');
-}
+function renderGroupesReels(){ if(window._toutesConvs) renderListeUnifiee(window._toutesConvs); }
 
 function nomContact(u){ return ((u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')).trim() || u.nom || 'Utilisateur'; }
 
@@ -3750,9 +3774,17 @@ function demarrerHeartbeatPresence(){
       { derniereVue: ts, derniereActivite: ts }, { merge:true }
     ).catch(function(e){ console.error('Heartbeat présence impossible :', e); });
   };
+  const sortie = function(){
+    db.collection('utilisateurs').doc(currentUid).set(
+      { horsLigneDepuis: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true }
+    ).catch(function(){});
+  };
   battement();
   monHeartbeatTimer = setInterval(battement, 25000);
-  document.addEventListener('visibilitychange', battement);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='visible') battement(); else sortie();
+  });
+  window.addEventListener('pagehide', sortie);
 }
 
 // ── Réception du pont Offre → Discussion (depuis accueil.html) ──
