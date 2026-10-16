@@ -22,7 +22,7 @@
     .h-ico { position: relative; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
     .h-ico.bell { background: #fff8e1; border: 2px solid #ffc107; }
     .h-ico.chat { background: #e8f5e9; border: 2px solid var(--green); }
-    .h-ico.chat .bdot { background: var(--green); }
+    .h-ico.chat .bdot { background: var(--red); min-width: 16px; width: auto; padding: 0 3px; border-radius: 9px; }
     .h-ico .bdot { position: absolute; top: -3px; right: -3px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
     .h-dots { font-size: 22px; color: #333; cursor: pointer; padding: 2px 4px; font-weight: 700; }
     .h-tabs { display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; padding: 6px 10px 10px; gap: 6px; }
@@ -234,7 +234,7 @@
     <div class="h-icons" style="gap:8px;">
       <div class="h-ico bell" onclick="if(window.ArNotif)ArNotif.ouvrirListe()">🔔<div class="bdot" id="notifBadge" style="display:none">0</div></div>
       <div style="display:flex;align-items:center;gap:3px">
-        <div class="h-ico chat" onclick="toast('💬 Support en ligne','g')" style="margin:0">💬<div class="bdot">1</div></div>
+        <div class="h-ico chat" onclick="window.goToPanel(6)" style="margin:0">💬<div class="bdot" id="msgBadge" style="display:none">0</div></div>
         <span style="font-size:20px;cursor:pointer;padding:2px 0" onclick="toggleAccSearch()">🔍</span>
         <span class="h-dots" id="langIconEl" onclick="openLangAll()" style="padding:2px 0;font-size:19px;">🇫🇷</span>
       </div>
@@ -939,6 +939,14 @@ function toggleSiteWidth(){
   let vibrationAppelAcc = null;
   window.addEventListener('message', (e) => {
     if (!e.data || !e.data.type) return;
+
+    // Vrai nombre de messages non lus (envoyé par Répert-Discussion) → pastille 💬
+    if (e.data.type === 'nonLusTotal') {
+      const b = document.getElementById('msgBadge');
+      const n = parseInt(e.data.n, 10) || 0;
+      if (b) { b.textContent = n > 99 ? '99+' : String(n); b.style.display = n > 0 ? 'flex' : 'none'; }
+      return;
+    }
 
     // Appel entrant détecté par Répert-Discussion (chargé en arrière-plan) :
     // on affiche directement son écran d'appel, quel que soit l'onglet ouvert.
@@ -2036,9 +2044,18 @@ function toggleSiteWidth(){
         updateDoc(doc(db, 'utilisateurs', user.uid), { derniereActivite: serverTimestamp(), derniereVue: serverTimestamp() }).catch(()=>{});
       }
     }
+    // Heure exacte de sortie : quand l'app passe en arrière-plan, se ferme
+    // ou que l'écran se verrouille, on note « horsLigneDepuis » (lu par Répert-Discussion
+    // pour afficher « vu aujourd'hui à 15:02 » au lieu de l'heure du dernier message).
+    function sortiePresence(){
+      updateDoc(doc(db, 'utilisateurs', user.uid), { horsLigneDepuis: serverTimestamp() }).catch(()=>{});
+    }
     battementPresence();
     setInterval(battementPresence, 25000);
-    document.addEventListener('visibilitychange', battementPresence);
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible') battementPresence(); else sortiePresence();
+    });
+    window.addEventListener('pagehide', sortiePresence);
 
     // Répert-Discussion est chargé en arrière-plan (lui seul, les autres onglets
     // restent en chargement petit à petit) pour que l'écoute des appels entrants
