@@ -36,9 +36,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .search-inner{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:10px 14px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
 .search-inner input{flex:1;background:none;border:none;outline:none;color:#111;font-size:14px;font-family:'Segoe UI',Arial,sans-serif}
 .search-inner input::placeholder{color:#ccc}
-.pill-row{display:flex;gap:8px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.pill-row{display:flex;gap:6px;padding:0 14px 8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
 .pill-row::-webkit-scrollbar{display:none}
-.pill{white-space:nowrap;padding:6px 16px;border-radius:22px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:var(--card);color:#aaa;box-shadow:0 1px 4px rgba(0,0,0,0.06);flex-shrink:0;transition:all 0.18s}
+.pill{white-space:nowrap;padding:6px 11px;border-radius:22px;font-size:12px;font-weight:700;cursor:pointer;border:none;background:var(--card);color:#aaa;box-shadow:0 1px 4px rgba(0,0,0,0.06);flex-shrink:0;transition:all 0.18s}
 .pill.active{background:var(--red);color:#fff}
 .conv-scroll{flex:1;overflow-y:auto;scrollbar-width:none;padding:0 0 70px}
 .conv-scroll::-webkit-scrollbar{display:none}
@@ -480,10 +480,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .gi-inviter button{margin-top:10px;background:var(--green);color:#fff;border:none;border-radius:22px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer}
 
 /* ══ Liste unique (discussions + groupes mélangés, la plus récente en haut) ══ */
-.nouv-row{display:flex;gap:8px;padding:2px 12px 10px;overflow-x:auto;scrollbar-width:none}
-.nouv-row::-webkit-scrollbar{display:none}
-.nouv-btn{flex-shrink:0;display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #e6e6e6;border-radius:22px;padding:8px 14px;font-size:13px;font-weight:700;color:#222;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
-.nouv-btn span{font-size:16px}
+.nouv-row{display:flex;gap:8px;padding:2px 14px 8px}
+.nouv-btn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;border-radius:14px;padding:7px 4px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nouv-btn span{font-size:17px;line-height:1.1}
+.nouv-btn.nb-g,.nouv-btn.nb-c,.nouv-btn.nb-e{background:#fff;color:#333;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
 .liste-vide{text-align:center;color:#aaa;font-size:13px;padding:30px 20px}
 .conv-card.non-lu .cc-name{color:#000}
 .conv-card.non-lu .cc-preview{color:#333;font-weight:700}
@@ -524,7 +524,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="top-bar-right">
       <button class="tbr-btn" onclick="toggleSearch()">🔍</button>
       <button class="tbr-btn" onclick="toggleDiagnostic()" title="Diagnostic" style="background:#222;color:#8dff9a">🛠️</button>
-      <button class="tbr-btn red" onclick="toast('✏️ Nouveau message bientôt !','g')">✏️</button>
+      <button class="tbr-btn red" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()">✏️</button>
     </div>
   </div>
   <div class="search-wrap" id="searchWrap" style="display:none">
@@ -543,9 +543,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
   <div class="conv-scroll" id="convList">
     <div class="nouv-row">
-      <button class="nouv-btn" onclick="ouvrirCreationGroupe()"><span>👥</span>Nouveau groupe</button>
-      <button class="nouv-btn" onclick="openConf()"><span>🎙️</span>Conférence</button>
-      <button class="nouv-btn" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()"><span>✏️</span>Nouvelle discussion</button>
+      <button class="nouv-btn nb-g" onclick="ouvrirCreationGroupe()"><span>👥</span>Groupe</button>
+      <button class="nouv-btn nb-c" onclick="openConf()"><span>🎙️</span>Conférence</button>
+      <button class="nouv-btn nb-e" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()"><span>✏️</span>Écrire</button>
     </div>
     <div class="sec-hdr"><span class="sec-lbl">Discussions</span></div>
     <div id="recentesReelles"><div class="liste-vide">Chargement de vos discussions…</div></div>
@@ -886,6 +886,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   }, {passive:true});
 
   document.addEventListener('touchmove', (e)=>{
+    // Comme les autres onglets (Statut, CV Pro, Offres…) : on ne change plus d'onglet en
+    // glissant n'importe où dans la page — seulement depuis les bords (zones gérées par accueil.html).
+    // Faire défiler les filtres ou la liste ne fait donc plus partir la page à gauche/droite.
+    return;
     if(ignorerCeGeste) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
@@ -902,6 +906,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
   document.addEventListener('touchend', (e)=>{
     if(ignorerCeGeste || !swiping) return;
+    return;
     const dx = e.changedTouches[0].clientX - startX;
     if(window.parent !== window){
       window.parent.postMessage({type:'swipeEnd', dx:dx}, '*');
@@ -956,6 +961,9 @@ function getEmbedTopOffsetPx(){
 let embedTopOffsetPx=0;
 function appliquerDecalageChat(){
   const px=embedTopOffsetPx+'px';
+  const sp=document.getElementById('spacer');
+  const th=document.getElementById('topH');
+  if(sp && th && th.style.display==='none') sp.style.setProperty('height',px,'important');
   ['chatPanel','profilContactPanel','confPanel','groupCreatePanel','groupMembersPanel','groupAddPanel','callScreen','incomingCallScreen'].forEach(function(id){
     const el=document.getElementById(id);
     if(el) el.style.paddingTop=px;
@@ -978,7 +986,9 @@ function hideEmbeddedChrome(){
   const th=document.getElementById('topH');
   if(th) th.style.setProperty('display','none','important');
   const sp=document.getElementById('spacer');
-  if(sp) sp.style.setProperty('height','0px','important');
+  // La barre d'accueil (logo + onglets) est posée PAR-DESSUS ce cadre : on pousse la
+  // liste juste en dessous, pour que « Discussions », la recherche et les filtres restent visibles.
+  if(sp) sp.style.setProperty('height',(getEmbedTopOffsetPx()||0)+'px','important');
   document.querySelectorAll('nav.bot-nav').forEach(n=>n.style.setProperty('display','none','important'));
 }
 // On ne masque QUE si accueil.html confirme explicitement qu'il nous affiche dans son
@@ -1046,10 +1056,19 @@ window.setMode=function(mode,el){
    Le bouton retour physique du téléphone (ou le geste navigateur) dépile alors
    la vue au lieu de quitter la page directement. */
 let viewStack=[];
-history.replaceState({depth:0},'',location.href);
+/* Chaque vue ouverte reçoit un numéro unique (vid) enregistré dans l'historique.
+   Avant, on enregistrait seulement la « profondeur » : quand une vue était fermée par
+   le bouton ‹ (sans toucher l'historique), il restait une ancienne entrée de même
+   profondeur, et la touche retour du téléphone ne fermait plus la vue suivante
+   (ex. Conférence) — il fallait appuyer deux fois. Avec un numéro unique, une seule fois suffit. */
+let viewIds=[], compteurVues=0;
+function resyncViewIds(){ if(viewIds.length>viewStack.length) viewIds.length=viewStack.length; while(viewIds.length<viewStack.length) viewIds.push(++compteurVues); }
+history.replaceState({depth:0,vid:0},'',location.href);
 function pushView(name){
+  resyncViewIds();
   viewStack.push(name);
-  history.pushState({depth:viewStack.length},'',location.href);
+  viewIds.push(++compteurVues);
+  history.pushState({depth:viewStack.length,vid:compteurVues},'',location.href);
   if(name==='incall') signalerAuParent('appelEntrant');
   else if(name==='call') signalerAuParent('appelDecroche');
 }
@@ -1065,14 +1084,20 @@ window.requestClose=function(){ if(viewStack.length>0) history.back(); }
 // cette vue (chat, appel, création/membres de groupe). Le bouton "‹" reste
 // au même endroit, seul son comportement interne change.
 function fermerVueLocale(name){
+  resyncViewIds();
   if(viewStack.length && viewStack[viewStack.length-1]===name){
-    viewStack.pop();
+    viewStack.pop(); viewIds.pop();
     hideView(name);
   }
 }
 window.addEventListener('popstate',(e)=>{
-  const target=(e.state&&e.state.depth)||0;
-  while(viewStack.length>target){ hideView(viewStack.pop()); }
+  resyncViewIds();
+  const st=e.state||{};
+  let cible;
+  if(typeof st.vid==='number') cible=st.vid;
+  else { const d=st.depth||0; cible = d>0 ? (viewIds[d-1]||0) : 0; }
+  // On ferme toutes les vues ouvertes APRÈS l'entrée sur laquelle on revient.
+  while(viewStack.length && viewIds[viewIds.length-1]>cible){ viewIds.pop(); hideView(viewStack.pop()); }
 });
 function hideView(name){
   if(name==='chat'){
@@ -2041,7 +2066,7 @@ function renderListeUnifiee(toutes){
     if(o) otherUids.push(o);
     return carteConversation(c);
   }).join('');
-  wrap.innerHTML = html || '<div class="liste-vide">Aucune discussion pour le moment.<br>Touchez « ✏️ Nouvelle discussion » pour écrire à quelqu\'un.</div>';
+  wrap.innerHTML = html || '<div class="liste-vide">Aucune discussion pour le moment.<br>Touchez « ✏️ Écrire » pour écrire à quelqu\'un.</div>';
   // La recherche et les filtres en cours restent appliqués après une mise à jour.
   const sq=document.getElementById('sq');
   if(sq && sq.value.trim()) doSearch();
