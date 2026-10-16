@@ -403,6 +403,15 @@
 </div>
 
 <script>
+  // Lien d'invitation reçu (…/accueil.html?rejoindre=ID) : on le mémorise tout de suite,
+  // même si la personne doit d'abord se connecter ou s'inscrire. Répert-Discussion
+  // l'ouvrira dès qu'elle sera connectée.
+  try {
+    var arRej = new URLSearchParams(location.search).get('rejoindre');
+    if (arRej) { localStorage.setItem('arRejoindre', arRej); history.replaceState(null, '', location.pathname); }
+  } catch (e) {}
+</script>
+<script>
 // Vraie hauteur d'écran (au lieu de 100vh, qui ne suit pas la barre d'adresse mobile
 // et coupait le bas des panneaux — ex. la barre "Répondre" dans Répert-Discussion).
 function majVh(){
@@ -941,6 +950,11 @@ function toggleSiteWidth(){
     if (!e.data || !e.data.type) return;
 
     // Vrai nombre de messages non lus (envoyé par Répert-Discussion) → pastille 💬
+    // Répert-Discussion ouvre un groupe/une conférence reçu par lien : on affiche son onglet.
+    if (e.data.type === 'afficherDiscussion') {
+      if (currentPanel !== 6) window.goToPanel(6);
+      return;
+    }
     if (e.data.type === 'nonLusTotal') {
       const b = document.getElementById('msgBadge');
       const n = parseInt(e.data.n, 10) || 0;
@@ -2068,7 +2082,7 @@ function toggleSiteWidth(){
           try { ifrDisc.contentWindow.postMessage({ type: 'parentFrame' }, '*'); } catch (err) {}
         });
       }
-    }, 2500);
+    }, (function(){ try { return localStorage.getItem('arRejoindre') ? 300 : 2500; } catch(e){ return 2500; } })());
 
     const feed = document.getElementById('feedW');
     try {
