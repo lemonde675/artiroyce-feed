@@ -6,6 +6,10 @@
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
   <title>ArtiRoyce – Accueil</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="/icone-192.png">
+  <link rel="apple-touch-icon" href="/icone-192.png">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     :root { --red: #e63224; --green: #27a945; }
@@ -2268,5 +2272,11 @@ function toggleSiteWidth(){
   })();
 </script>
 <script src="notifications.js"></script>
+<script>
+  // Application installable : active sw.js (sans effet sur le reste de la page si ça échoue)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){ navigator.serviceWorker.register('/sw.js').catch(function(){}); });
+  }
+</script>
 </body>
 </html>
