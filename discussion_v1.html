@@ -242,7 +242,15 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .fw-ligne .av{width:42px;height:42px;font-size:15px;flex-shrink:0}
 .fw-nom{flex:1;min-width:0;font-size:14px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fw-nom small{display:block;font-size:11px;color:#999;font-weight:600}
-.fw-ligne input{width:20px;height:20px;accent-color:var(--green)}
+.fw-ligne input.fw-chk{width:18px;height:18px;margin:0 2px 0 0;flex-shrink:0;accent-color:var(--red);cursor:pointer}
+.fw-rond{width:24px;height:24px;border-radius:50%;border:2px solid #9a9a9a;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;transition:all .12s}
+.fw-ligne input:checked + .fw-rond{background:var(--green);border-color:var(--green)}
+.fw-ligne input:checked + .fw-rond::after{content:'✓'}
+.fw-sec{padding:14px 14px 6px;font-size:13px;font-weight:800;color:#888}
+.fw-choisis{display:none;align-items:center;gap:10px;padding:10px 14px 16px;border-top:1px solid #eee;background:#fff}
+.fw-choisis.show{display:flex}
+.fw-noms{flex:1;min-width:0;font-size:13px;color:#333;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fw-go{width:52px;height:52px;border-radius:50%;border:none;background:var(--green);color:#fff;font-size:22px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(39,169,69,.35)}
 .mrow.out .reacts{justify-content:flex-end}
 .react-pill{background:#fff;border-radius:99px;padding:1px 6px;font-size:11px;box-shadow:0 1px 4px rgba(0,0,0,0.14);border:1px solid #f0f0f0}
 
@@ -846,10 +854,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="back-btn" onclick="fermerTransfert()">&#8249;</span>
     <span style="font-size:16px;font-weight:800;color:#111">Transférer à…</span>
   </div>
-  <div style="padding:10px 14px 6px"><div class="search-inner"><span style="color:#ccc">🔍</span><input type="text" id="fwSearch" placeholder="Rechercher une discussion…" oninput="filtrerTransfert()"/></div></div>
+  <div style="padding:10px 14px 6px"><div class="search-inner"><span style="color:#ccc">🔍</span><input type="text" id="fwSearch" placeholder="Rechercher un nom, un numéro, un groupe…" oninput="filtrerTransfert()"/></div></div>
   <div id="fwApercu" style="margin:4px 14px 8px;padding:8px 12px;background:#f6f6f6;border-radius:12px;font-size:12px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
   <div id="fwListe" style="flex:1;overflow-y:auto"></div>
-  <div style="padding:10px 14px 16px;border-top:1px solid #eee"><button class="conf-btn green" id="fwEnvoyer" style="width:100%" onclick="envoyerTransfert()">↪️ Envoyer</button></div>
+  <div class="fw-choisis" id="fwChoisis"><div class="fw-noms" id="fwNoms"></div><button class="fw-go" id="fwEnvoyer" onclick="envoyerTransfert()" title="Envoyer">➤</button></div>
 </div>
 <div class="conf-panel" id="groupCreatePanel">
   <div class="conf-hdr">
@@ -934,13 +942,15 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="ps-titre">Partager</div>
   <img id="psApercu" class="ps-apercu" alt=""/>
   <div class="ps-grille">
+    <button id="psArtiRoyce" onclick="partageVia('artiroyce')" style="display:none"><span style="background:linear-gradient(135deg,#e02010,#27a945)">AR</span>ArtiRoyce</button>
     <button onclick="partageVia('whatsapp')"><span style="background:#25d366">🟢</span>WhatsApp</button>
     <button onclick="partageVia('facebook')"><span style="background:#1877f2">f</span>Facebook</button>
     <button onclick="partageVia('telegram')"><span style="background:#229ed9">✈️</span>Telegram</button>
     <button onclick="partageVia('sms')"><span style="background:#34a853">💬</span>SMS</button>
     <button onclick="partageVia('email')"><span style="background:#888">✉️</span>E-mail</button>
     <button onclick="partageVia('copier')"><span style="background:#333">📋</span>Copier</button>
-    <button onclick="partageVia('image')"><span style="background:var(--red)">🖼️</span>Image</button>
+    <button id="psImage" onclick="partageVia('image')"><span style="background:var(--red)">🖼️</span>Image</button>
+    <button id="psPlus" onclick="partageVia('plus')" style="display:none"><span style="background:#555">⋯</span>Plus</button>
   </div>
   <button class="ps-fermer" onclick="fermerPartage()">Fermer</button>
 </div>
@@ -2133,6 +2143,7 @@ async function envoyerMessageReel(txt){
       dernierEmetteur: currentUid,
       nonLus: majNonLusAutres()
     },{merge:true});
+    compterFrequent(currentConvId);
     ajouterEtape('Message écrit sur Firestore ✅');
   }catch(err){
     console.error('Envoi du message réel impossible :',err);
@@ -2447,6 +2458,10 @@ async function partagerArtiRoyce(o){
 function ouvrirPartage(){
   const img=document.getElementById('psApercu');
   if(partageEnCours && partageEnCours.blob){ img.src=URL.createObjectURL(partageEnCours.blob); img.style.display=''; } else img.style.display='none';
+  const interne=!!(partageEnCours && partageEnCours.interne);
+  document.getElementById('psArtiRoyce').style.display=interne?'':'none';
+  document.getElementById('psPlus').style.display=(interne && navigator.share)?'':'none';
+  document.getElementById('psImage').style.display=(partageEnCours && partageEnCours.blob)?'':'none';
   document.getElementById('partageOverlay').style.display='block';
   document.getElementById('partageSheet').classList.add('open');
 }
@@ -2465,6 +2480,8 @@ window.partageVia=function(app){
     email:'mailto:?subject='+encodeURIComponent('Rejoignez-nous sur ArtiRoyce')+'&body='+t
   };
   if(liens[app]){ window.open(liens[app],'_blank'); fermerPartage(); return; }
+  if(app==='artiroyce' && partageEnCours.interne){ fermerPartage(); ouvrirTransfert(partageEnCours.interne); return; }
+  if(app==='plus' && navigator.share){ fermerPartage(); navigator.share({ title:'ArtiRoyce', text:partageEnCours.message, url:partageEnCours.url }).catch(function(){}); return; }
   if(app==='copier'){
     const fini=function(){ toast('📋 Texte et lien copiés','g'); fermerPartage(); };
     if(navigator.clipboard) navigator.clipboard.writeText(partageEnCours.texte).then(fini).catch(function(){ prompt('Copiez ce texte :',partageEnCours.texte); });
@@ -3075,25 +3092,57 @@ function apercuMessage(m){
 window.ctxTransferer=function(){
   if(!ctxRow) return;
   const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
-  messageATransferer=donneesMessages[idMsg]||null;
+  const m=donneesMessages[idMsg]||null;
   closeCtx();
-  if(!messageATransferer){ toast('⚠️ Message introuvable','r'); return; }
-  document.getElementById('fwApercu').textContent='↪️ '+apercuMessage(messageATransferer);
+  if(!m){ toast('⚠️ Message introuvable','r'); return; }
+  ouvrirTransfert(m);
+}
+/* Compteur local des discussions où j'écris le plus → « Contacts fréquents » (comme WhatsApp). */
+function compterFrequent(convId){
+  try{ const f=JSON.parse(localStorage.getItem('arFrequents')||'{}'); f[convId]=(f[convId]||0)+1; localStorage.setItem('arFrequents',JSON.stringify(f)); }catch(e){}
+}
+function lireFrequents(){ try{ return JSON.parse(localStorage.getItem('arFrequents')||'{}'); }catch(e){ return {}; } }
+function ligneTransfert(cle, nom, sous, bg, avHtml, recherche){
+  // Même case à cocher que « Nouveau groupe » : carrée, à gauche.
+  return '<label class="fw-ligne" data-recherche="'+escAttr(String(recherche||nom).toLowerCase())+'" data-nom="'+escAttr(nom)+'">'
+    +'<input type="checkbox" class="fw-chk" value="'+escAttr(cle)+'" onchange="majBoutonTransfert(this)"/>'
+    +'<div class="av" style="background:'+bg+'">'+avHtml+'</div>'
+    +'<div class="fw-nom">'+escapeHtml(nom)+(sous?'<small>'+escapeHtml(sous)+'</small>':'')+'</div></label>';
+}
+function ligneConvTransfert(c){
+  if(c.type==='groupe'){
+    const noms=(c.participants||[]).filter(function(u){ return u!==currentUid; }).map(function(u){ return infoDepuisContacts(u).nom.split(' ')[0]; }).slice(0,6).join(', ');
+    return ligneTransfert('c:'+c.id, c.nom||'Groupe', (c.conference?'🎙️ ':'')+noms, gradientPourId(c.id), (c.conference&&!c.photoGroupe)?'🎙️':avatarGroupeHtml(c), (c.nom||'')+' '+noms);
+  }
+  const o=(c.participants||[]).find(function(u){ return u!==currentUid; }); if(!o) return '';
+  const info=(c.infos&&c.infos[o])||infoDepuisContacts(o);
+  const u=contactParId(o)||{};
+  return ligneTransfert('c:'+c.id, info.nom||'Utilisateur', info.role||u.metier||'', info.bg||gradientPourId(o), avatarInterieur(o, info.ini||'?'), (info.nom||'')+' '+(u.telephone||''));
+}
+function ouvrirTransfert(m){
+  messageATransferer=m;
+  document.getElementById('fwApercu').textContent='↪️ '+apercuMessage(m);
   document.getElementById('fwSearch').value='';
   const convs=(window._toutesConvs||[]).slice().sort(function(a,b){ return msActivite(b)-msActivite(a); });
-  document.getElementById('fwListe').innerHTML = convs.map(function(c){
-    let nom, sous, avHtml, bg;
-    if(c.type==='groupe'){
-      nom=c.nom||'Groupe'; sous=(c.conference?'🎙️ Conférence':'👥 Groupe')+' · '+(c.participants||[]).length; bg=gradientPourId(c.id);
-      avHtml=(c.conference&&!c.photoGroupe)?'🎙️':avatarGroupeHtml(c);
-    } else {
-      const o=(c.participants||[]).find(function(u){ return u!==currentUid; }); if(!o) return '';
-      const info=(c.infos&&c.infos[o])||infoDepuisContacts(o);
-      nom=info.nom||'Utilisateur'; sous=info.role||''; bg=info.bg||gradientPourId(o); avHtml=avatarInterieur(o, info.ini||'?');
-    }
-    return '<label class="fw-ligne" data-recherche="'+escAttr(String(nom).toLowerCase())+'"><div class="av" style="background:'+bg+'">'+avHtml+'</div>'
-      +'<div class="fw-nom">'+escapeHtml(nom)+'<small>'+escapeHtml(sous)+'</small></div><input type="checkbox" class="fw-chk" value="'+c.id+'" onchange="majBoutonTransfert()"/></label>';
-  }).join('') || '<div class="liste-vide">Aucune discussion pour le moment.</div>';
+  const freq=lireFrequents();
+  let frequents=convs.filter(function(c){ return freq[c.id]>0; }).sort(function(a,b){ return freq[b.id]-freq[a.id]; }).slice(0,5);
+  if(!frequents.length) frequents=convs.slice(0,4);
+  const idsFreq=frequents.map(function(c){ return c.id; });
+  const recents=convs.filter(function(c){ return idsFreq.indexOf(c.id)===-1; });
+  // Tous les autres membres d'ArtiRoyce, même sans discussion ouverte avec eux.
+  const dejaEnConv={};
+  convs.forEach(function(c){ if(c.type!=='groupe') (c.participants||[]).forEach(function(u){ dejaEnConv[u]=true; }); });
+  const autres=(window.tousLesContacts||[]).filter(function(u){ return u.id!==currentUid && !dejaEnConv[u.id]; })
+    .map(function(u){ return { u:u, nom:((u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')).trim()||u.nom||'Utilisateur' }; })
+    .sort(function(a,b){ return a.nom.localeCompare(b.nom,'fr'); });
+  let html='';
+  if(frequents.length) html+='<div class="fw-sec">Contacts fréquents</div>'+frequents.map(ligneConvTransfert).join('');
+  if(recents.length) html+='<div class="fw-sec">Discussions récentes</div>'+recents.map(ligneConvTransfert).join('');
+  if(autres.length) html+='<div class="fw-sec">Autres contacts sur ArtiRoyce</div>'+autres.map(function(x){
+    const u=x.u;
+    return ligneTransfert('u:'+u.id, x.nom, u.role==='visiteur'?'Visiteur':(u.metier||'Professionnel'), gradientPourId(u.id), avatarInterieur(u.id, initialesDe(u.prenom,u.nomFamille)), x.nom+' '+(u.telephone||''));
+  }).join('');
+  document.getElementById('fwListe').innerHTML = html || '<div class="liste-vide">Aucune discussion pour le moment.</div>';
   majBoutonTransfert();
   document.getElementById('forwardPanel').classList.add('open');
   appliquerDecalageChat();
@@ -3101,23 +3150,50 @@ window.ctxTransferer=function(){
 }
 window.fermerTransfert=function(){ fermerVueLocale('forward'); }
 window.filtrerTransfert=function(){
-  const q=document.getElementById('fwSearch').value.toLowerCase().trim();
-  document.querySelectorAll('#fwListe .fw-ligne').forEach(function(l){ l.style.display=(!q||l.dataset.recherche.indexOf(q)!==-1)?'':'none'; });
+  const brut=document.getElementById('fwSearch').value.toLowerCase().trim();
+  const chiffres=brut.replace(/\D/g,'');
+  document.querySelectorAll('#fwListe .fw-ligne').forEach(function(l){
+    const r=l.dataset.recherche;
+    const ok=!brut || r.indexOf(brut)!==-1 || (chiffres.length>=3 && r.replace(/\D/g,'').indexOf(chiffres)!==-1);
+    l.style.display=ok?'':'none';
+  });
+  // Titres de section cachés quand plus rien en dessous
+  document.querySelectorAll('#fwListe .fw-sec').forEach(function(sec){
+    let el=sec.nextElementSibling, visible=false;
+    while(el && !el.classList.contains('fw-sec')){ if(el.style.display!=='none'){ visible=true; break; } el=el.nextElementSibling; }
+    sec.style.display=visible?'':'none';
+  });
 }
-window.majBoutonTransfert=function(){
-  const n=document.querySelectorAll('#fwListe .fw-chk:checked').length;
-  const b=document.getElementById('fwEnvoyer');
-  b.textContent= n ? '↪️ Envoyer à '+n+' discussion'+(n>1?'s':'') : '↪️ Choisissez une ou plusieurs discussions';
-  b.disabled=!n; b.style.opacity=n?1:.55;
+window.majBoutonTransfert=function(caseCochee){
+  // Une même personne peut apparaître dans 2 sections : on coche/décoche partout pareil.
+  if(caseCochee) document.querySelectorAll('#fwListe .fw-chk').forEach(function(c){ if(c.value===caseCochee.value) c.checked=caseCochee.checked; });
+  const vus={}, noms=[];
+  document.querySelectorAll('#fwListe .fw-chk:checked').forEach(function(c){ if(vus[c.value]) return; vus[c.value]=true; noms.push(c.closest('.fw-ligne').dataset.nom); });
+  document.getElementById('fwNoms').textContent=noms.join(', ');
+  document.getElementById('fwChoisis').classList.toggle('show', noms.length>0);
 }
 window.envoyerTransfert=async function(){
-  const ids=Array.from(document.querySelectorAll('#fwListe .fw-chk:checked')).map(function(c){ return c.value; });
-  if(!ids.length || !messageATransferer) return;
+  const cles=Array.from(new Set(Array.from(document.querySelectorAll('#fwListe .fw-chk:checked')).map(function(c){ return c.value; })));
+  if(!cles.length || !messageATransferer) return;
   const m=messageATransferer, fv=firebase.firestore.FieldValue;
   const champs=['type','texte','url','legende','nom','taille','duree'];
+  const btn=document.getElementById('fwEnvoyer'); btn.disabled=true;
   let ok=0;
-  for(const id of ids){
-    const c=convDepuisListe(id); if(!c) continue;
+  const ids=cles;
+  for(const cle of cles){
+    let id=cle.slice(2), c=null;
+    if(cle.indexOf('u:')===0){
+      // Personne sans discussion avec moi : on crée la discussion (comme quand on lui écrit).
+      try{
+        const moi=await obtenirMonInfo();
+        const info=infoDepuisContacts(id), u=contactParId(id)||{};
+        const convId=convIdFor(currentUid,id);
+        const infos={}; infos[id]={nom:info.nom,ini:info.ini,bg:info.bg,role:u.role==='visiteur'?'Visiteur':(u.metier||'Professionnel'),verifie:u.statut==='verifie'}; infos[currentUid]=moi;
+        await db.collection('conversations').doc(convId).set({ participants:[currentUid,id], infos:infos },{merge:true});
+        c={ id:convId, participants:[currentUid,id] }; id=convId;
+      }catch(e){ console.error('Création de discussion impossible :',e); continue; }
+    } else c=convDepuisListe(id);
+    if(!c) continue;
     const msg={ emetteur:currentUid, transfere:true, ville:villeAEnvoyer(), horodatage:fv.serverTimestamp() };
     champs.forEach(function(k){ if(m[k]!==undefined && m[k]!==null) msg[k]=m[k]; });
     if(!msg.type) msg.type='texte';
@@ -3126,9 +3202,11 @@ window.envoyerTransfert=async function(){
       const ref=db.collection('conversations').doc(id);
       await ref.collection('messages').add(msg);
       await ref.set({ derniereActivite:fv.serverTimestamp(), dernierMessage:'↪️ '+apercuMessage(m), dernierEmetteur:currentUid, nonLus:nonLus },{merge:true});
+      compterFrequent(id);
       ok++;
     }catch(e){ console.error('Transfert impossible vers',id,e); }
   }
+  btn.disabled=false;
   fermerTransfert();
   toast(ok===ids.length ? '↪️ Transféré à '+ok+' discussion'+(ok>1?'s':'') : '⚠️ Transféré à '+ok+' sur '+ids.length, ok===ids.length?'g':'r');
 }
@@ -3140,10 +3218,8 @@ window.ctxPartager=function(){
   closeCtx();
   const contenu = m.url ? (apercuMessage(m)+'\n'+m.url) : (m.texte||'');
   const message = contenu+'\n\n— Partagé depuis ArtiRoyce, le réseau social des talents 👉';
-  partageEnCours={ texte:message+' '+baseSiteArtiRoyce(), url:baseSiteArtiRoyce(), message:message, titre:'ArtiRoyce', blob:null };
-  if(navigator.share){
-    navigator.share({ title:'ArtiRoyce', text:message, url:baseSiteArtiRoyce() }).catch(function(err){ if(!err || err.name!=='AbortError') ouvrirPartage(); });
-  } else ouvrirPartage();
+  partageEnCours={ texte:message+' '+baseSiteArtiRoyce(), url:baseSiteArtiRoyce(), message:message, titre:'ArtiRoyce', blob:null, interne:m };
+  ouvrirPartage();
 }
 
 /* ══════════════ ÉPINGLER (un message en haut de la discussion, pour tous) ══════════════ */
