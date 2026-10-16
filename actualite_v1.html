@@ -1,7 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<script>
+  // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Actualités ArtiRoyce</title>
 <style>
@@ -174,21 +179,21 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 <div class="barre-fixe">
 <div class="cats">
-  <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)">Tout</div>
-  <div class="cat-pill" data-cat="Vente" onclick="setCat(this)">🛍️ Vente</div>
-  <div class="cat-pill" data-cat="Arts" onclick="setCat(this)">🎨 Arts</div>
-  <div class="cat-pill" data-cat="Mode" onclick="setCat(this)">👗 Mode</div>
-  <div class="cat-pill" data-cat="Événements" onclick="setCat(this)">🎉 Événements</div>
-  <div class="cat-pill" data-cat="Business" onclick="setCat(this)">💼 Business</div>
+  <div class="cat-pill active" data-cat="Tout" onclick="setCat(this)" data-tr="Tout">Tout</div>
+  <div class="cat-pill" data-cat="Vente" onclick="setCat(this)" data-tr="🛍️ Vente">🛍️ Vente</div>
+  <div class="cat-pill" data-cat="Arts" onclick="setCat(this)" data-tr="🎨 Arts">🎨 Arts</div>
+  <div class="cat-pill" data-cat="Mode" onclick="setCat(this)" data-tr="👗 Mode">👗 Mode</div>
+  <div class="cat-pill" data-cat="Événements" onclick="setCat(this)" data-tr="🎉 Événements">🎉 Événements</div>
+  <div class="cat-pill" data-cat="Business" onclick="setCat(this)" data-tr="💼 Business">💼 Business</div>
 </div>
 <div class="zone-publier">
   <span class="me-av-wrap"><div class="cp-av" id="cpAvatar" onclick="openCreate()">👤</div><span class="me-online-dot"></span></span>
-  <button class="cp-input" onclick="openCreate()">Publier un produit (bijoux, accessoires, mode...)</button>
+  <button class="cp-input" id="cpInputBtn" onclick="openCreate()" data-tr="Publier un produit (bijoux, accessoires, mode...)">Publier un produit (bijoux, accessoires, mode...)</button>
   <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
 </div>
 <div class="search-bar" id="searchBar">
-  <input type="text" id="searchInput" placeholder="Rechercher un article, une ville, une catégorie…" oninput="onSearchInput()">
-  <span class="search-close" onclick="toggleSearch()">Fermer</span>
+  <input type="text" id="searchInput" data-tr-ph="Rechercher un article, une ville, une catégorie…" placeholder="Rechercher un article, une ville, une catégorie…" oninput="onSearchInput()">
+  <span class="search-close" onclick="toggleSearch()" data-tr="Fermer">Fermer</span>
 </div>
 </div>
 <div id="barreSpacer"></div>
@@ -201,26 +206,26 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 <div class="create-modal" id="createModal">
   <div class="cm-header">
-    <span class="cm-cancel" id="cmBackOrCancel" onclick="cmBackOrClose()">Annuler</span>
-    <span class="cm-title" id="cmTitleLbl">Créer une publication</span>
-    <button class="cm-publish" id="btnPublish" onclick="publishPost()" style="display:none">Publier</button>
+    <span class="cm-cancel" id="cmBackOrCancel" onclick="cmBackOrClose()" data-tr="Annuler">Annuler</span>
+    <span class="cm-title" id="cmTitleLbl" data-tr="Créer une publication">Créer une publication</span>
+    <button class="cm-publish" id="btnPublish" onclick="publishPost()" style="display:none" data-tr="Publier">Publier</button>
   </div>
 
   <!-- ÉTAPE 0 — CHOIX DU MODÈLE (Galerie et Boutique arrivent à l'étape suivante) -->
   <div class="cm-choix" id="cmStepChoix">
-    <div class="cm-choix-intro">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
+    <div class="cm-choix-intro" data-tr="Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
     <div class="cm-choix-grid">
       <div class="cm-choix-tile wide" onclick="chooseModel('texte')">
         <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
-        <div><div class="cm-choix-nom">Texte</div><div class="cm-choix-sub">Un message simple, sans photo</div></div>
+        <div><div class="cm-choix-nom" data-tr="Texte">Texte</div><div class="cm-choix-sub" data-tr="Un message simple, sans photo">Un message simple, sans photo</div></div>
       </div>
       <div class="cm-choix-tile" onclick="chooseModel('galerie')">
         <div class="cm-choix-ico" style="background:#e8f5e9">🖼️</div>
-        <div><div class="cm-choix-nom">Photo · Galerie</div><div class="cm-choix-sub">1 à 8 photos</div></div>
+        <div><div class="cm-choix-nom" data-tr="Photo · Galerie">Photo · Galerie</div><div class="cm-choix-sub" data-tr="1 à 8 photos">1 à 8 photos</div></div>
       </div>
       <div class="cm-choix-tile" onclick="chooseModel('boutique')">
         <div class="cm-choix-ico" style="background:#fff0f0">🏪</div>
-        <div><div class="cm-choix-nom">Boutique</div><div class="cm-choix-sub">Photos + nom + prix</div></div>
+        <div><div class="cm-choix-nom" data-tr="Boutique">Boutique</div><div class="cm-choix-sub" data-tr="Photos + nom + prix">Photos + nom + prix</div></div>
       </div>
     </div>
   </div>
@@ -231,21 +236,21 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
     <div>
       <div class="cm-name" id="cmNom">Mon compte</div>
       <select id="cmCategorie" class="cm-cat-select">
-        <option value="Vente">🛍️ Vente</option>
-        <option value="Arts">🎨 Arts</option>
-        <option value="Mode">👗 Mode</option>
-        <option value="Événements">🎉 Événements</option>
-        <option value="Business">💼 Business</option>
+        <option value="Vente" data-tr="🛍️ Vente">🛍️ Vente</option>
+        <option value="Arts" data-tr="🎨 Arts">🎨 Arts</option>
+        <option value="Mode" data-tr="👗 Mode">👗 Mode</option>
+        <option value="Événements" data-tr="🎉 Événements">🎉 Événements</option>
+        <option value="Business" data-tr="💼 Business">💼 Business</option>
       </select>
     </div>
   </div>
-  <textarea class="cm-textarea" id="cmText" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
+  <textarea class="cm-textarea" id="cmText" data-tr-ph="Quoi de neuf ? Partagez votre actualité…" placeholder="Quoi de neuf ? Partagez votre actualité…" rows="6" style="display:none"></textarea>
 
   <!-- ÉTAPE GALERIE (1 à 8 photos) -->
   <div class="cm-gal-wrap" id="cmStepGalerie" style="display:none">
-    <textarea class="cm-gal-textarea" id="cmGalText" rows="2" placeholder="Une légende (facultatif)…"></textarea>
+    <textarea class="cm-gal-textarea" id="cmGalText" rows="2" data-tr-ph="Une légende (facultatif)…" placeholder="Une légende (facultatif)…"></textarea>
     <div class="cad-color-picker" id="galColorPicker" style="padding-left:0">
-      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-label" data-tr="🎨 Étiquettes">🎨 Étiquettes</span>
       <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
       <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
       <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
@@ -261,21 +266,21 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
       <input class="cad-titre-input" id="cadTitreInput" placeholder="Boutique" value="Boutique" onfocus="this.select()">
     </div>
     <div class="cad-color-picker" id="cadColorPicker">
-      <span class="cad-tcp-label">🎨 Étiquettes</span>
+      <span class="cad-tcp-label" data-tr="🎨 Étiquettes">🎨 Étiquettes</span>
       <span class="cad-tcp-dot cad-tcp-blanc" data-c="blanc" title="Blanc"></span>
       <span class="cad-tcp-dot cad-tcp-vert" data-c="vert" title="Vert"></span>
       <span class="cad-tcp-dot cad-tcp-rose" data-c="rose" title="Rose"></span>
     </div>
     <div class="cad-grid-wrap"><div id="cadGrid"></div></div>
-    <div class="cad-note">Touchez un cadre vide pour ajouter une photo, avec son nom et son prix</div>
+    <div class="cad-note" data-tr="Touchez un cadre vide pour ajouter une photo, avec son nom et son prix">Touchez un cadre vide pour ajouter une photo, avec son nom et son prix</div>
   </div>
 </div>
 
 <div class="toast" id="toastEl"></div>
 
 <div id="feedZone">
-  <div id="feedLoading"><div class="ar-charge"><div class="ar-spin"></div>Chargement des publications…</div></div>
-  <div id="feedEmpty"><span class="icone">📭</span>Aucune publication pour l'instant.</div>
+  <div id="feedLoading"><div class="ar-charge"><div class="ar-spin"></div><span data-tr="Chargement des publications…">Chargement des publications…</span></div></div>
+  <div id="feedEmpty"><span class="icone">📭</span><span data-tr="Aucune publication pour l'instant.">Aucune publication pour l'instant.</span></div>
   <div id="feedPosts"></div>
 </div>
 
@@ -294,7 +299,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 function toast(msg){
   const el = document.getElementById('toastEl');
   if (!el) return;
-  el.textContent = msg;
+  el.textContent = TR(msg);
   el.className = 'toast show';
   setTimeout(() => el.className = 'toast', 2200);
 }
@@ -454,6 +459,7 @@ async function surChangementAuth(user) {
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       // Champ réel de la base : role === 'visiteur' => Visiteur, sinon Professionnel
       currentUser.role = d.role || 'visiteur';
+      currentUser.estVisiteur = (d.role === 'visiteur'); // seulement les vrais comptes « Visiteur »
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
       currentUser.photoAvatar = d.photoAvatar || '';
@@ -479,6 +485,11 @@ async function surChangementAuth(user) {
   cpAv.onclick = () => window.__voirProfil(currentUser.uid);
   document.querySelectorAll('.me-online-dot').forEach(function(d){d.style.display='block';});
   document.getElementById('cmNom').textContent = currentUser.nomAffiche;
+  // Visiteurs : la barre « Publier » indique que c'est réservé aux professionnels.
+  if (currentUser.estVisiteur) {
+    const b = document.getElementById('cpInputBtn');
+    if (b) { b.setAttribute('data-tr', '🔒 Publication réservée aux professionnels'); b.textContent = TR('🔒 Publication réservée aux professionnels'); }
+  }
 }
 
 // Suivre / ne plus suivre un auteur (utilisé sur les publications et le carrousel).
@@ -610,15 +621,15 @@ setInterval(function(){ if (document.visibilityState === 'visible' && typeof db 
 function tempsDepuis(ms) {
   const diff = Date.now() - ms;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'il y a peu';
-  if (m < 60) return 'il y a ' + m + 'min';
+  if (m < 1) return TR('il y a peu');
+  if (m < 60) return TR('il y a {n}min', {n: m});
   const h = Math.floor(m / 60);
-  if (h < 24) return 'il y a ' + h + 'h';
+  if (h < 24) return TR('il y a {n}h', {n: h});
   const j = Math.floor(h / 24);
-  if (j < 7) return 'il y a ' + j + 'j';
+  if (j < 7) return TR('il y a {n}j', {n: j});
   const s = Math.floor(j / 7);
-  if (s < 4) return 'il y a ' + s + ' sem.';
-  return 'il y a ' + Math.floor(j / 30) + ' mois';
+  if (s < 4) return TR('il y a {n} sem.', {n: s});
+  return TR('il y a {n} mois', {n: Math.floor(j / 30)});
 }
 
 /* ── Réactions sur une publication (reprises de l'ancienne version) ── */
@@ -649,7 +660,7 @@ window.__sendReactionActu = async function (postId, emoji, likesActuels) {
       delete mesReactionsActu[postId];
       const nouveauTotal = Math.max(0, likesActuels - 1);
       if (btn) btn.classList.remove('reacted');
-      if (labelEl) labelEl.textContent = "J'aime";
+      if (labelEl) labelEl.textContent = TR("J'aime");
       if (countEl) countEl.textContent = nouveauTotal;
       await reactRef.delete();
       await db.collection('publications').doc(postId).update({ likes: firebase.firestore.FieldValue.increment(-1) });
@@ -658,7 +669,7 @@ window.__sendReactionActu = async function (postId, emoji, likesActuels) {
       mesReactionsActu[postId] = emoji;
       const nouveauTotal = likesActuels + delta;
       if (btn) btn.classList.add('reacted');
-      if (labelEl) labelEl.textContent = 'Aimé';
+      if (labelEl) labelEl.textContent = TR('Aimé');
       if (countEl) countEl.textContent = emoji + ' ' + nouveauTotal;
       await reactRef.set({ emoji, uid: currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       { const pub = listePublications.find(x => x.id === postId);
@@ -787,7 +798,7 @@ function construireZoneCommentaires(postId, zone) {
     '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
     + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
     + (currentUser ? (currentUser.nomAffiche || '?')[0].toUpperCase() : '?') + '</div>'
-    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + '<input type="text" placeholder="' + TR('Ajouter un commentaire…') + '" id="cinput-' + postId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
     + '<div style="cursor:pointer;font-size:17px;background:#e63224;color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentairePub(\'' + postId + '\')">➤</div>'
     + '</div>'
     + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + postId + '">'
@@ -806,7 +817,7 @@ function ecouterCommentaires(postId) {
       const total = snap2.size;
       const compteEl = document.getElementById('commcount-' + postId);
       const p = listePublications.find(x => x.id === postId);
-      if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (p ? ' · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') : '');
+      if (compteEl) compteEl.textContent = TR(total > 1 ? '{n} commentaires' : '{n} commentaire', {n: total}) + (p ? ' · ' + TR((p.partages || 0) > 1 ? '{n} partages' : '{n} partage', {n: p.partages || 0}) : '');
 
       const listEl = document.getElementById('comm-list-' + postId);
       if (!listEl) return;
@@ -829,7 +840,7 @@ function ecouterCommentaires(postId) {
       function construireCommentaireHTML(c, racineId) {
         const auteurPub = (listePublications.find(x => x.id === postId) || {}).auteurUid;
         const estCreateurPub = c.uid === auteurPub;
-        const statut = estCreateurPub ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
+        const statut = estCreateurPub ? TR('Créateur') : (c.verifie ? TR('Professionnel') : TR('Visiteur'));
         const initiale = (c.nom || '?')[0].toUpperCase();
         const villeCourte = premiereVille(c.ville);
         const dejaAime = mesReactionsCommentaires[c.id];
@@ -839,14 +850,14 @@ function ecouterCommentaires(postId) {
           + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="window.__voirProfil(\'' + (c.uid || '') + '\')">' + escapeHtml(initiale) + '</div>'
           + '<div style="flex:1;min-width:0">'
           +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
-          +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom || 'Anonyme') + '</span>'
+          +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom || TR('Anonyme')) + '</span>'
           +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
           +   '</div>'
           +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word">' + escapeHtml(c.texte) + '</div>'
           +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
           +     '<span>' + (villeCourte ? escapeHtml(villeCourte) + ' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + '</span>'
-          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? 'Aimé' : "J'aime") + '</span>'
-          +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">Répondre</span>'
+          +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime ? '#e63224' : '#8e8e8e') + '" onclick="toggleAimeCommentaire(\'' + postId + '\',\'' + c.id + '\',' + (c.likes || 0) + ')">' + (dejaAime ? TR('Aimé') : TR("J'aime")) + '</span>'
+          +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondrePub(\'' + postId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom || '').replace(/'/g, "\\'") + '\')">' + TR('Répondre') + '</span>'
           +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
           +   '</div>'
           + '</div>'
@@ -863,7 +874,7 @@ function ecouterCommentaires(postId) {
           repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
           const toggle2 = document.createElement('div');
           toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
-          toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length > 1 ? 's' : '') + ' ▾';
+          toggle2.innerHTML = TR(reponses.length > 1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length});
           toggle2.onclick = () => {
             const frag = document.createDocumentFragment();
             reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
@@ -925,7 +936,7 @@ window.repondrePub = function (postId, commentId, nom) {
   _replyingTo[postId] = { commentId, nom };
   const indicateur = document.getElementById('reply-indicator-' + postId);
   const texteIndic = document.getElementById('reply-indicator-text-' + postId);
-  if (indicateur && texteIndic) { texteIndic.textContent = 'Réponse à ' + nom; indicateur.style.display = 'flex'; }
+  if (indicateur && texteIndic) { texteIndic.textContent = TR('Réponse à {nom}', {nom: nom}); indicateur.style.display = 'flex'; }
   document.getElementById('cinput-' + postId)?.focus();
 };
 window.annulerReponsePub = function (postId) {
@@ -942,7 +953,7 @@ function afficherCorbeille() {
   const toggle = document.getElementById('corbeilleToggle');
   if (!toggle) return;
   toggle.style.display = listeCorbeille.length ? 'flex' : 'none';
-  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  document.getElementById('corbeilleLabel').textContent = TR('Corbeille ({n})', {n: listeCorbeille.length});
   const liste = document.getElementById('corbeilleListe');
   liste.innerHTML = listeCorbeille.map(creerLigneCorbeille).join('');
   if (!listeCorbeille.length) liste.classList.remove('open');
@@ -954,14 +965,14 @@ window.toggleCorbeille = function () {
 function creerLigneCorbeille(p) {
   const restantMs = QUINZE_JOURS_MS - (Date.now() - new Date(p.corbeilleDepuis || Date.now()).getTime());
   const joursRestants = Math.max(0, Math.ceil(restantMs / (24 * 60 * 60 * 1000)));
-  const titre = p.texte ? p.texte.slice(0, 40) : (p.type === 'boutique' ? 'Boutique' : 'Publication');
+  const titre = p.texte ? p.texte.slice(0, 40) : (p.type === 'boutique' ? TR('Boutique') : TR('Publication'));
   return '<div class="corbeille-item">'
     + '<div class="corbeille-item-info">'
-    + '<div class="corbeille-item-titre">' + escapeHtml(titre || 'Sans titre') + '</div>'
-    + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants > 1 ? 's' : '') + '</div>'
+    + '<div class="corbeille-item-titre">' + escapeHtml(titre || TR('Sans titre')) + '</div>'
+    + '<div class="corbeille-item-sub">' + TR(joursRestants > 1 ? 'Supprimée définitivement dans {n} jours' : 'Supprimée définitivement dans {n} jour', {n: joursRestants}) + '</div>'
     + '</div>'
-    + '<button class="btn-restaurer" onclick="restaurerPublication(\'' + p.id + '\')">Restaurer</button>'
-    + '<button class="btn-suppr-def" onclick="supprimerDefinitivement(\'' + p.id + '\')">Supprimer</button>'
+    + '<button class="btn-restaurer" onclick="restaurerPublication(\'' + p.id + '\')">' + TR('Restaurer') + '</button>'
+    + '<button class="btn-suppr-def" onclick="supprimerDefinitivement(\'' + p.id + '\')">' + TR('Supprimer') + '</button>'
     + '</div>';
 }
 
@@ -977,21 +988,21 @@ document.addEventListener('click', (e) => {
 });
 
 window.supprimerPublication = async function (postId) {
-  if (!confirm('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  if (!confirm(TR('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.'))) return;
   try {
     await db.collection('publications').doc(postId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
     toast('🗑️ Publication mise à la corbeille');
   } catch (e) { ajouterEtape('❌ Erreur suppression : ' + (e && e.message || e)); toast('Erreur lors de la suppression'); }
 };
 window.restaurerPublication = async function (postId) {
-  if (!confirm('Restaurer cette publication ? Elle réapparaîtra dans le fil.')) return;
+  if (!confirm(TR('Restaurer cette publication ? Elle réapparaîtra dans le fil.'))) return;
   try {
     await db.collection('publications').doc(postId).update({ corbeille: false, corbeilleDepuis: null });
     toast('♻️ Publication restaurée');
   } catch (e) { ajouterEtape('❌ Erreur restauration : ' + (e && e.message || e)); toast('Erreur lors de la restauration'); }
 };
 window.supprimerDefinitivement = async function (postId) {
-  if (!confirm('Supprimer définitivement cette publication ? Cette action est irréversible.')) return;
+  if (!confirm(TR('Supprimer définitivement cette publication ? Cette action est irréversible.'))) return;
   try {
     await db.collection('publications').doc(postId).delete();
     toast('Publication supprimée définitivement');
@@ -1229,7 +1240,7 @@ function buildCoverCarouselHTML(toutes) {
     const estMoi = currentUser && p.auteurUid === currentUser.uid;
     const dejaSuivi = followedUids.has(p.auteurUid);
     const suivreBtn = (!estMoi && p.auteurUid)
-      ? '<span class="cca-suivre" id="ccaSuivre-' + p.id + '" onclick="event.stopPropagation();window.__toggleSuivreCarousel(\'' + p.auteurUid + '\',\'' + p.id + '\')" style="background:' + (dejaSuivi ? 'rgba(255,255,255,0.28)' : 'var(--red)') + '">' + (dejaSuivi ? '✓ Suivi(e)' : '+ Suivre') + '</span>'
+      ? '<span class="cca-suivre" id="ccaSuivre-' + p.id + '" onclick="event.stopPropagation();window.__toggleSuivreCarousel(\'' + p.auteurUid + '\',\'' + p.id + '\')" style="background:' + (dejaSuivi ? 'rgba(255,255,255,0.28)' : 'var(--red)') + '">' + (dejaSuivi ? TR('✓ Suivi(e)') : TR('+ Suivre')) + '</span>'
       : '';
     return '<div class="cca-card" id="ccaCard-' + p.id + '" onclick="window.__scrollToPubActu(\'' + p.id + '\')">'
       + '<img src="' + img + '" loading="lazy">'
@@ -1242,7 +1253,7 @@ function buildCoverCarouselHTML(toutes) {
       + '</div>';
   }).join('');
 
-  return '<div class="cca-wrap"><div class="cca-titre">Nos coups de cœur</div>'
+  return '<div class="cca-wrap"><div class="cca-titre">' + TR('Nos coups de cœur') + '</div>'
     + '<div class="cover-carousel-actu">' + cards + '</div></div>';
 }
 
@@ -1259,7 +1270,7 @@ window.__toggleSuivreCarousel = async function (auteurUid, pubId) {
   await window.toggleSuivre(auteurUid);
   document.querySelectorAll('#ccaSuivre-' + pubId).forEach(btn => {
     const suivi = followedUids.has(auteurUid);
-    btn.textContent = suivi ? '✓ Suivi(e)' : '+ Suivre';
+    btn.textContent = suivi ? TR('✓ Suivi(e)') : TR('+ Suivre');
     btn.style.background = suivi ? 'rgba(255,255,255,0.28)' : 'var(--red)';
   });
 };
@@ -1306,15 +1317,15 @@ function afficherFeed() {
   let html = '';
   visibles.forEach((p, i) => {
     const nomAff = p.auteurNom || 'Utilisateur';
-    const statut = p.auteurVerifie ? 'Professionnel' : 'Visiteur';
+    const statut = p.auteurVerifie ? TR('Professionnel') : TR('Visiteur');
     const villeCourte = premiereVille(p.ville);
     const metaTxt = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsDepuis(p.createdAt && p.createdAt.toMillis ? p.createdAt.toMillis() : Date.now());
-    const badgeTxt = BADGES[p.categorie] ? '<span class="ph-badge">' + BADGES[p.categorie] + '</span>' : '';
+    const badgeTxt = BADGES[p.categorie] ? '<span class="ph-badge">' + TR(BADGES[p.categorie]) + '</span>' : '';
     html += (
     '<div class="post" data-id="' + p.id + '">'
     + (currentUser && p.auteurUid === currentUser.uid
         ? '<span class="ph-more" onclick="toggleMenuPost(\'' + p.id + '\')">⋯</span>'
-          + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">🗑️ Mettre à la corbeille</div></div>'
+          + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">' + TR('🗑️ Mettre à la corbeille') + '</div></div>'
         : '')
     + '<div class="ph">'
     +   creerAvatarHTML(nomAff, p.auteurVerifie, p.auteurUid)
@@ -1323,34 +1334,34 @@ function afficherFeed() {
     +     '<div class="ph-meta">' + metaTxt + '</div>'
     +   '</div>'
     +   (currentUser && p.auteurUid && p.auteurUid !== currentUser.uid
-        ? '<div class="ph-follow' + (followedUids.has(p.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivre(\'' + p.auteurUid + '\', event)">' + (followedUids.has(p.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+        ? '<div class="ph-follow' + (followedUids.has(p.auteurUid) ? ' suivi' : '') + '" onclick="toggleSuivre(\'' + p.auteurUid + '\', event)">' + (followedUids.has(p.auteurUid) ? TR('Suivi(e)') : TR('+ Suivre')) + '</div>'
         : '')
     + '</div>'
     + '<div class="texte">' + escapeHtml(p.texte || '') + '</div>'
     + creerMediaHTML(p)
-    + (p.auteurUid ? '<div class="card-actions"><button class="btn-c" onclick="contacterActu(\'' + p.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + p.auteurUid + '\',' + (p.auteurVerifie?true:false) + ')"><span class="btn-c-barre"></span>Contacter<span class="btn-c-barre"></span></button></div>' : '')
+    + (p.auteurUid ? '<div class="card-actions"><button class="btn-c" onclick="contacterActu(\'' + p.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + p.auteurUid + '\',' + (p.auteurVerifie?true:false) + ')"><span class="btn-c-barre"></span>' + TR('Contacter') + '<span class="btn-c-barre"></span></button></div>' : '')
     + '<div class="pr-row">'
     +   '<span class="pr-cnt" id="likecount-' + p.id + '">' + (mesReactionsActu[p.id] || '') + ' ' + (p.likes || 0) + '</span>'
-    +   '<span class="pr-r" id="commcount-' + p.id + '">0 commentaire · ' + (p.partages || 0) + ' partage' + ((p.partages || 0) > 1 ? 's' : '') + '</span>'
+    +   '<span class="pr-r" id="commcount-' + p.id + '">' + TR('{n} commentaire', {n: 0}) + ' · ' + TR((p.partages || 0) > 1 ? '{n} partages' : '{n} partage', {n: p.partages || 0}) + '</span>'
     + '</div>'
     + '<div class="p-acts">'
     +   '<div class="pab' + (mesReactionsActu[p.id] ? ' reacted' : '') + '" id="pb-' + p.id + '" onclick="window.__toggleReactPickerActu(\'' + p.id + '\')">'
     +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
-    +     '<span id="pblabel-' + p.id + '">' + (mesReactionsActu[p.id] ? 'Aimé' : "J'aime") + '</span>'
+    +     '<span id="pblabel-' + p.id + '">' + (mesReactionsActu[p.id] ? TR('Aimé') : TR("J'aime")) + '</span>'
     +     '<div class="rpick" id="rp-' + p.id + '">'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'❤️\',' + (p.likes || 0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'👍\',' + (p.likes || 0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😮\',' + (p.likes || 0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😂\',' + (p.likes || 0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'🔥\',' + (p.likes || 0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
-    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😢\',' + (p.likes || 0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'❤️\',' + (p.likes || 0) + ')"><span class="ro-e">❤️</span><span class="ro-l">' + TR("J'aime") + '</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'👍\',' + (p.likes || 0) + ')"><span class="ro-e">👍</span><span class="ro-l">' + TR('Super') + '</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😮\',' + (p.likes || 0) + ')"><span class="ro-e">😮</span><span class="ro-l">' + TR('Wow') + '</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😂\',' + (p.likes || 0) + ')"><span class="ro-e">😂</span><span class="ro-l">' + TR('Haha') + '</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'🔥\',' + (p.likes || 0) + ')"><span class="ro-e">🔥</span><span class="ro-l">' + TR('Feu') + '</span></div>'
+    +       '<div class="ro" onclick="event.stopPropagation();window.__sendReactionActu(\'' + p.id + '\',\'😢\',' + (p.likes || 0) + ')"><span class="ro-e">😢</span><span class="ro-l">' + TR('Triste') + '</span></div>'
     +     '</div>'
     +   '</div>'
     +   '<button class="pab" onclick="toggleComments(\'' + p.id + '\')">'
-    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> ' + TR('Commenter')
     +   '</button>'
     +   '<button class="pab" onclick="partagerPub(\'' + p.id + '\',' + (p.partages || 0) + ')">'
-    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+    +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ' + TR('Partager')
     +   '</button>'
     + '</div>'
     + '<div class="comm-zone" id="commzone-' + p.id + '"></div>'
@@ -1414,13 +1425,14 @@ function cmAfficherChoix() {
   document.getElementById('cmText').style.display = 'none';
   document.getElementById('cmStepGalerie').style.display = 'none';
   document.getElementById('cmStepBoutique').style.display = 'none';
-  document.getElementById('cmTitleLbl').textContent = 'Créer une publication';
-  document.getElementById('cmBackOrCancel').textContent = 'Annuler';
+  document.getElementById('cmTitleLbl').textContent = TR('Créer une publication');
+  document.getElementById('cmBackOrCancel').textContent = TR('Annuler');
   document.getElementById('btnPublish').style.display = 'none';
 }
 
 window.openCreate = function() {
   if (!currentUser) { toast('Connexion requise'); return; }
+  if (currentUser.estVisiteur) { toast('🔒 La publication est réservée aux professionnels'); return; }
   cmAfficherChoix();
   document.getElementById('cmText').value = '';
   document.getElementById('createModal').style.paddingTop = getEmbedTopOffsetPx() + 'px';
@@ -1439,7 +1451,7 @@ window.chooseModel = function(type) {
   cmEtapeActuelle = type;
   document.getElementById('cmStepChoix').style.display = 'none';
   document.getElementById('cmStepUser').style.display = 'flex';
-  document.getElementById('cmBackOrCancel').textContent = 'Retour';
+  document.getElementById('cmBackOrCancel').textContent = TR('Retour');
   document.getElementById('btnPublish').style.display = 'block';
   document.getElementById('cmText').style.display = 'none';
   document.getElementById('cmStepGalerie').style.display = 'none';
@@ -1447,7 +1459,7 @@ window.chooseModel = function(type) {
 
   if (type === 'texte') {
     document.getElementById('cmText').style.display = 'block';
-    document.getElementById('cmTitleLbl').textContent = 'Publication texte';
+    document.getElementById('cmTitleLbl').textContent = TR('Publication texte');
     setTimeout(() => document.getElementById('cmText').focus(), 250);
   } else if (type === 'galerie') {
     galImages = [];
@@ -1456,16 +1468,16 @@ window.chooseModel = function(type) {
     renderGalColorPicker();
     renderGalGrid();
     document.getElementById('cmStepGalerie').style.display = 'block';
-    document.getElementById('cmTitleLbl').textContent = 'Photo · Galerie';
+    document.getElementById('cmTitleLbl').textContent = TR('Photo · Galerie');
   } else if (type === 'boutique') {
     cadLayoutActif = 4; cadTagColor = 'vert';
     initCadSlots(4);
-    document.getElementById('cadTitreInput').value = 'Boutique';
+    document.getElementById('cadTitreInput').value = TR('Boutique');
     renderCadLayoutPicker();
     renderCadColorPicker();
     renderCadGrid();
     document.getElementById('cmStepBoutique').style.display = 'flex';
-    document.getElementById('cmTitleLbl').textContent = 'Boutique';
+    document.getElementById('cmTitleLbl').textContent = TR('Boutique');
   }
 };
 
@@ -1544,8 +1556,8 @@ function renderGalGrid() {
       + '<img src="' + item.photo + '">'
       + '<div class="media-slot-remove" onclick="event.stopPropagation();galRetirerPhoto(' + i + ')">✕</div>'
       + '<div class="media-tags">'
-      + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(item.nom) + '" oninput="galSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
-      + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(item.prix) + '" oninput="galSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '<input class="media-chip" placeholder="' + TR('Nom…') + '" value="' + escapeHtml(item.nom) + '" oninput="galSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+      + '<input class="media-chip" placeholder="' + TR('Prix…') + '" value="' + escapeHtml(item.prix) + '" oninput="galSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
       + '</div></div>';
   });
   if (galImages.length < 8) {
@@ -1610,8 +1622,8 @@ function renderCadGrid() {
         + '<img src="' + s.photo + '">'
         + '<div class="media-slot-remove" onclick="event.stopPropagation();cadRetirerPhoto(' + i + ')">✕</div>'
         + '<div class="media-tags">'
-        + '<input class="media-chip" placeholder="Nom…" value="' + escapeHtml(s.nom) + '" oninput="cadSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
-        + '<input class="media-chip" placeholder="Prix…" value="' + escapeHtml(s.prix) + '" oninput="cadSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '<input class="media-chip" placeholder="' + TR('Nom…') + '" value="' + escapeHtml(s.nom) + '" oninput="cadSetNom(' + i + ',this.value)" onclick="event.stopPropagation()">'
+        + '<input class="media-chip" placeholder="' + TR('Prix…') + '" value="' + escapeHtml(s.prix) + '" oninput="cadSetPrix(' + i + ',this.value)" onclick="event.stopPropagation()">'
         + '</div></div>';
     } else {
       html += '<div class="media-slot editable" style="' + area + ratio + '" onclick="cadChoisirPhoto(' + i + ')"><span class="media-slot-empty">📷</span></div>';
@@ -1631,6 +1643,7 @@ window.cadSetPrix = function (i, v) { if (cadSlots[i]) cadSlots[i].prix = v; };
 
 window.publishPost = async function() {
   if (!currentUser) { toast('Connexion requise'); return; }
+  if (currentUser.estVisiteur) { toast('🔒 La publication est réservée aux professionnels'); return; }
   const categorie = document.getElementById('cmCategorie').value;
   let donnees = null;
 
@@ -1661,7 +1674,7 @@ window.publishPost = async function() {
   }
 
   const btn = document.getElementById('btnPublish');
-  btn.disabled = true; btn.textContent = 'Publication…';
+  btn.disabled = true; btn.textContent = TR('Publication…');
   try {
     await avecDelaiMax(db.collection('publications').add(Object.assign({
       categorie: categorie,
@@ -1681,10 +1694,11 @@ window.publishPost = async function() {
     ajouterEtape('❌ Erreur publication : ' + (e && e.message || e));
     toast('Erreur : publication impossible');
   } finally {
-    btn.disabled = false; btn.textContent = 'Publier';
+    btn.disabled = false; btn.textContent = TR('Publier');
   }
 };
 </script>
 <script src="notifications.js"></script>
+<script src="translations-app.js"></script>
 </body>
 </html>
