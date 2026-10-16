@@ -488,6 +488,18 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .conv-card.non-lu .cc-name{color:#000}
 .conv-card.non-lu .cc-preview{color:#333;font-weight:700}
 .conv-card.non-lu .cc-time{color:var(--red);font-weight:800}
+/* ══ Feuille de partage ══ */
+.partage-sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,110%);width:100%;max-width:480px;background:#fff;border-radius:22px 22px 0 0;z-index:1300;padding:10px 16px 18px;box-sizing:border-box;transition:transform .25s ease;box-shadow:0 -6px 30px rgba(0,0,0,.15)}
+.partage-sheet.open{transform:translate(-50%,0)}
+#partageOverlay{z-index:1290}
+.ps-poignee{width:40px;height:4px;border-radius:2px;background:#ddd;margin:0 auto 10px}
+.ps-titre{font-size:15px;font-weight:800;color:#111;margin-bottom:10px;text-align:center}
+.ps-apercu{display:block;width:120px;height:120px;border-radius:12px;margin:0 auto 12px;object-fit:cover;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.ps-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 6px}
+.ps-grille button{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#333;cursor:pointer;font-family:inherit}
+.ps-grille button span{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:900}
+.ps-fermer{width:100%;margin-top:14px;padding:12px;border:none;border-radius:14px;background:#f2f2f2;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.cc-tag.conf{background:#e8f5e9;color:#1b7a36}
 </style>
 </head>
 <body>
@@ -546,6 +558,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <button class="nouv-btn nb-g" onclick="ouvrirCreationGroupe()"><span>👥</span>Groupe</button>
       <button class="nouv-btn nb-c" onclick="openConf()"><span>🎙️</span>Conférence</button>
       <button class="nouv-btn nb-e" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()"><span>✏️</span>Écrire</button>
+      <button class="nouv-btn nb-e" onclick="inviterSurArtiRoyce()"><span>📩</span>Inviter</button>
     </div>
     <div class="sec-hdr"><span class="sec-lbl">Discussions</span></div>
     <div id="recentesReelles"><div class="liste-vide">Chargement de vos discussions…</div></div>
@@ -772,25 +785,30 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span style="font-size:16px;font-weight:800;color:#111">Conférence</span>
   </div>
   <div class="conf-body">
-    <div class="conf-title">🎙️ Nouvelle Conférence</div>
-    <div class="conf-sub">Générez un lien et invitez des participants</div>
-    <div class="conf-link-box">
-      <div class="conf-link-label">Lien de la conférence</div>
-      <div class="conf-link-val" id="confLink">Appuyez sur Générer pour créer un lien</div>
+    <div class="conf-title">🎙️ Nouvelle conférence</div>
+    <div class="conf-sub">Créez la salle, partagez le lien : vos invités entrent en un toucher.</div>
+    <div id="confEtapeCreer">
+      <div class="search-inner" style="margin-bottom:12px"><input type="text" id="confNomInput" maxlength="60" placeholder="Nom de la conférence (ex. Atelier couture)"/></div>
+      <button class="conf-btn green" style="width:100%" onclick="creerConference()">🔗 Créer la conférence et son lien</button>
     </div>
-    <div class="conf-btns">
-      <button class="conf-btn green" onclick="genLink()">🔗 Générer</button>
-      <button class="conf-btn out" onclick="copyLink()">📋 Copier</button>
+    <div id="confEtapeLien" style="display:none">
+      <div class="conf-link-box">
+        <div class="conf-link-label">Lien de la conférence</div>
+        <div class="conf-link-val" id="confLink"></div>
+      </div>
+      <div class="conf-btns">
+        <button class="conf-btn green" onclick="partagerConference()">📤 Partager</button>
+        <button class="conf-btn out" onclick="copyLink()">📋 Copier</button>
+      </div>
+      <div style="height:14px"></div>
+      <div class="conf-btns">
+        <button class="conf-btn red" onclick="launchConfCall('audio')">🎙️ Lancer Audio</button>
+        <button class="conf-btn green" onclick="launchConfCall('video')">📹 Lancer Vidéo</button>
+      </div>
+      <div class="conf-part-title" id="confPartTitre">Participants</div>
+      <div id="confPartListe"></div>
+      <div style="text-align:center;margin-top:16px"><span style="font-size:12px;color:#999;text-decoration:underline;cursor:pointer" onclick="nouvelleConference()">＋ Créer une autre conférence</span></div>
     </div>
-    <div style="height:14px"></div>
-    <div class="conf-btns">
-      <button class="conf-btn red" onclick="launchConfCall('audio')">🎙️ Lancer Audio</button>
-      <button class="conf-btn green" onclick="launchConfCall('video')">📹 Lancer Vidéo</button>
-    </div>
-    <div class="conf-part-title">Participants (3)</div>
-    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0d2b0f,#27a945)">MK</div><div class="conf-part-name">Mariama Kouyaté</div><div class="conf-part-role" style="color:var(--green)">Hôte</div></div>
-    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#0a0a2e,#1a1a6e)">JP</div><div class="conf-part-name">Jean-Paul Mensah</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
-    <div class="conf-part-item"><div class="conf-part-av" style="background:linear-gradient(135deg,#4a1a00,#c0392b)">AT</div><div class="conf-part-name">Aminata Traoré</div><div class="conf-part-role" style="color:#aaa">Invité</div></div>
   </div>
 </div>
 <div class="conf-panel" id="groupCreatePanel">
@@ -870,6 +888,22 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="ctx-overlay" id="gmMenuOverlay" onclick="fermerMenuMembre()"></div>
 <div class="ctx-menu" id="gmMenu" style="left:50%;top:40%;transform:translate(-50%,-50%);min-width:250px"></div>
 <div class="toast" id="toastEl"></div>
+<div class="ctx-overlay" id="partageOverlay" onclick="fermerPartage()"></div>
+<div class="partage-sheet" id="partageSheet">
+  <div class="ps-poignee"></div>
+  <div class="ps-titre">Partager</div>
+  <img id="psApercu" class="ps-apercu" alt=""/>
+  <div class="ps-grille">
+    <button onclick="partageVia('whatsapp')"><span style="background:#25d366">🟢</span>WhatsApp</button>
+    <button onclick="partageVia('facebook')"><span style="background:#1877f2">f</span>Facebook</button>
+    <button onclick="partageVia('telegram')"><span style="background:#229ed9">✈️</span>Telegram</button>
+    <button onclick="partageVia('sms')"><span style="background:#34a853">💬</span>SMS</button>
+    <button onclick="partageVia('email')"><span style="background:#888">✉️</span>E-mail</button>
+    <button onclick="partageVia('copier')"><span style="background:#333">📋</span>Copier</button>
+    <button onclick="partageVia('image')"><span style="background:var(--red)">🖼️</span>Image</button>
+  </div>
+  <button class="ps-fermer" onclick="fermerPartage()">Fermer</button>
+</div>
 <script>
 // ══ SWIPE HORIZONTAL → signal vers accueil.html ══
 (function(){
@@ -1045,7 +1079,7 @@ window.setMode=function(mode,el){
   document.querySelectorAll('.conv-card').forEach(c=>{
     if(mode==='all')c.style.display='';
     else if(mode==='unread')c.style.display=c.dataset.unread==='1'?'':'none';
-    else if(mode==='groups')c.style.display=c.dataset.mode==='group'?'':'none';
+    else if(mode==='groups')c.style.display=(c.dataset.mode==='group'||c.dataset.mode==='conf')?'':'none';
     else if(mode==='conf')c.style.display=c.dataset.mode==='conf'?'':'none';
     else if(mode==='online')c.style.display=c.dataset.online==='1'?'':'none';
   });
@@ -1519,11 +1553,76 @@ function obtenirMonInfo(){
   return monInfoPromise;
 }
 
+/* ══ OUVERTURE RAPIDE DES DISCUSSIONS ══
+   1) Les messages sont demandés tout de suite, en même temps que le reste (avant, ils
+      arrivaient en dernier, après 3 allers-retours internet).
+   2) Les discussions du haut de la liste et celles déjà ouvertes restent « au chaud » :
+      leurs messages sont déjà en mémoire, donc ils s'affichent dès qu'on touche. */
+function convDepuisListe(id){
+  return (window._toutesConvs||[]).find(function(c){ return c.id===id; }) || null;
+}
+function requeteMessages(convId){
+  return db.collection('conversations').doc(convId).collection('messages').orderBy('horodatage','asc');
+}
+function ecouterMessagesConv(convId, monOuverture){
+  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
+  unsubMessages=requeteMessages(convId).onSnapshot({includeMetadataChanges:true}, function(snap){
+    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
+    dernierSnapMessages=snap;
+    renderRealMessages(snap);
+    if(!(snap.metadata && snap.metadata.fromCache)) marquerConversationCommeLue();
+  }, function(err){
+    console.error('Écoute des messages impossible :',err);
+    ajouterEtape('ÉCHEC écoute messages — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+  });
+  garderAuChaud(convId);
+}
+let prechargements={}, ordrePrechargements=[];
+const MAX_AU_CHAUD=8;
+function garderAuChaud(convId){
+  if(!convId || !currentUid || !window.db) return;
+  const i=ordrePrechargements.indexOf(convId);
+  if(i!==-1){ ordrePrechargements.splice(i,1); ordrePrechargements.push(convId); return; }
+  try{
+    prechargements[convId]=requeteMessages(convId).onSnapshot(function(){}, function(){
+      // Pas d'accès (ex. retiré d'un groupe) : on arrête simplement ce préchargement.
+      const j=ordrePrechargements.indexOf(convId); if(j!==-1) ordrePrechargements.splice(j,1);
+      delete prechargements[convId];
+    });
+    ordrePrechargements.push(convId);
+  }catch(e){ return; }
+  while(ordrePrechargements.length>MAX_AU_CHAUD){
+    const k=ordrePrechargements.findIndex(function(id){ return id!==currentConvId; });
+    if(k===-1) break;
+    const vieux=ordrePrechargements.splice(k,1)[0];
+    try{ prechargements[vieux](); }catch(e){}
+    delete prechargements[vieux];
+  }
+}
+let prechargementPlanifie=null;
+function prechargerHautDeListe(triees){
+  window._hautDeListe=triees.slice(0,5).map(function(c){ return c.id; });
+  if(prechargementPlanifie) return;
+  prechargementPlanifie=setTimeout(function(){
+    prechargementPlanifie=null;
+    (window._hautDeListe||[]).forEach(function(id){ garderAuChaud(id); });
+  }, 1200);
+}
+
 async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuverture){
   currentOtherUid=otherUid;
   currentConvId=convIdFor(currentUid,otherUid);
   ajouterEtape('Ouverture conversation '+currentConvId+'...');
   const convRef=db.collection('conversations').doc(currentConvId);
+  // Conversation déjà connue (présente dans la liste) : on affiche ses messages TOUT DE SUITE.
+  let messagesDejaEcoutes=false;
+  const connue=convDepuisListe(currentConvId);
+  if(connue){
+    currentConvInfos=connue.infos||{};
+    currentConvLuPar=connue.luPar||{};
+    ecouterMessagesConv(currentConvId, monOuverture);
+    messagesDejaEcoutes=true;
+  }
   const mienne = await obtenirMonInfo();
   if(monOuverture!==ouvertureConvId) return; // une conversation plus récente a été ouverte entre-temps
   try{
@@ -1580,18 +1679,12 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
   });
   ecouterPresenceReelle(otherUid);
   marquerConversationCommeLue();
-  ajouterEtape('Écoute des messages démarrée (onSnapshot)...');
-  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
-  unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot({includeMetadataChanges:true}, function(snap){
-    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
-    ajouterEtape('onSnapshot reçu : '+snap.size+' message(s)');
-    dernierSnapMessages=snap;
-    renderRealMessages(snap);
-    marquerConversationCommeLue();
-  }, function(err){
-    console.error('Écoute des messages réels impossible :',err);
-    ajouterEtape('ÉCHEC écoute messages — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-  });
+  if(!messagesDejaEcoutes){
+    ajouterEtape('Écoute des messages démarrée (onSnapshot)...');
+    ecouterMessagesConv(currentConvId, monOuverture);
+  } else if(dernierSnapMessages){
+    renderRealMessages(dernierSnapMessages);
+  }
 }
 /* ── Vraie présence de la personne en face : on lit son heartbeat (voir
    demarrerHeartbeatPresence), et on réévalue nous-mêmes toutes les 15s si elle est
@@ -2031,7 +2124,7 @@ function carteConversation(c){
 }
 
 function carteGroupe(g){
-  groupesCache[g.id]={nom:g.nom||'Groupe', participants:g.participants||[], photoGroupe:g.photoGroupe||''};
+  groupesCache[g.id]={nom:g.nom||'Groupe', participants:g.participants||[], photoGroupe:g.photoGroupe||'', conference:g.conference===true, lienActif:g.lienActif===true};
   const bg=gradientPourId(g.id);
   const n=nonLusPour(g);
   const nb=(g.participants||[]).length;
@@ -2040,11 +2133,12 @@ function carteGroupe(g){
     const auteur = g.dernierEmetteur===currentUid ? 'Vous' : infoDepuisContacts(g.dernierEmetteur).nom.split(' ')[0];
     apercu = escapeHtml(auteur)+' : '+apercu;
   }
-  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="group" data-unread="'+(n?1:0)+'" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
-    +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">'+avatarGroupeHtml(g)+'</div><div class="g-count">'+nb+'</div></div>'
+  const conf=g.conference===true;
+  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="'+(conf?'conf':'group')+'" data-unread="'+(n?1:0)+'" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
+    +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">'+((conf&&!g.photoGroupe)?'🎙️':avatarGroupeHtml(g))+'</div><div class="g-count">'+nb+'</div></div>'
     +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(g.nom||'Groupe')+'</span><span class="cc-time">'+heureListe(msActivite(g))+'</span></div>'
     +'<div class="cc-preview">'+apercu+'</div>'
-    +'<span class="cc-tag">👥 Groupe · '+nb+' membres</span></div>'
+    +(conf?'<span class="cc-tag conf">🎙️ Conférence · '+nb+' participant'+(nb>1?'s':'')+'</span></div>':'<span class="cc-tag">👥 Groupe · '+nb+' membres</span></div>')
     +(n?'<div class="ubadge">'+(n>99?'99+':n)+'</div>':'')
     +'</div></div>';
 }
@@ -2073,6 +2167,7 @@ function renderListeUnifiee(toutes){
   const pillActive=document.querySelector('.pill.active');
   if(pillActive && pillActive.textContent.trim()!=='Toutes') pillActive.click();
   ecouterPresenceListeConversations(otherUids);
+  prechargerHautDeListe(triees);
   const bl=document.getElementById('msgBadgeLocal');
   if(bl){ bl.textContent= total>99?'99+':String(total); bl.style.display= total>0?'flex':'none'; }
   // Total des non-lus pour la pastille de l'en-tête (accueil.html).
@@ -2182,11 +2277,135 @@ window.majCompteSelection=function(zoneId, compteId){
   const el=document.getElementById(compteId);
   if(el) el.textContent = n ? '· '+n+' sélectionné'+(n>1?'s':'') : '';
 }
+/* ══════════════ PARTAGE : IMAGE + TEXTE + LIEN ══════════════
+   Sur téléphone : le menu de partage du téléphone (WhatsApp, Facebook, SMS…) avec
+   une belle image ArtiRoyce + le texte + le lien. Sans ce menu (ex. ordinateur) :
+   notre propre feuille avec WhatsApp, Facebook, Telegram, SMS, e-mail, copier, image. */
+function baseSiteArtiRoyce(){
+  try{ if(/artiroyce/i.test(location.hostname)) return location.origin; }catch(e){}
+  return 'https://www.artiroyce.com';
+}
+function lienRejoindre(convId){ return baseSiteArtiRoyce()+'/accueil.html?rejoindre='+encodeURIComponent(convId); }
+const TEXTE_INVITATION='🌍 Rejoignez ArtiRoyce, le réseau social pour vendre, acheter et exposer vos talents !\n🤝 Trouvez et retrouvez des amis, des clients et des opportunités.\n🚀 Faites progresser votre activité.\n👉 Inscription gratuite :';
+
+function decouperLignes(ctx, texte, largeurMax){
+  const mots=String(texte).split(' '); const lignes=[]; let l='';
+  mots.forEach(function(m){ const t=l?l+' '+m:m; if(ctx.measureText(t).width>largeurMax && l){ lignes.push(l); l=m; } else l=t; });
+  if(l) lignes.push(l); return lignes;
+}
+/* Image carrée 1080×1080 aux couleurs ArtiRoyce (logo, titre, sous-titre, adresse du site). */
+function fabriquerImagePartage(titre, sousTitre){
+  return new Promise(function(resolve){
+    try{
+      const W=1080, c=document.createElement('canvas'); c.width=W; c.height=W;
+      const x=c.getContext('2d');
+      const police='"Segoe UI",Roboto,Arial,sans-serif';
+      const fond=x.createLinearGradient(0,0,0,W); fond.addColorStop(0,'#ffffff'); fond.addColorStop(1,'#eef5ef');
+      x.fillStyle=fond; x.fillRect(0,0,W,W);
+      // hexagones décoratifs discrets
+      x.globalAlpha=0.07; x.lineWidth=10;
+      [[110,170,'#e02010'],[970,260,'#27a945'],[150,760,'#27a945'],[960,720,'#e02010']].forEach(function(h){
+        x.strokeStyle=h[2]; x.beginPath();
+        for(let i=0;i<6;i++){ const a=Math.PI/3*i; x.lineTo(h[0]+80*Math.cos(a), h[1]+80*Math.sin(a)); }
+        x.closePath(); x.stroke();
+      });
+      x.globalAlpha=1;
+      // logo (mêmes formes que l'en-tête)
+      x.save(); x.translate((W-142*1.8)/2, 60); x.scale(1.8,1.8);
+      const chemins=[
+        ['#e02010','M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z'],
+        ['#27a945','M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z'],
+        ['#ffffff','M 68,17 L 90,55 L 75,55 L 87,34 Z'],['#e02010','M 68,17 L 90,55 L 71,55 L 59,34 Z'],
+        ['#ffffff','M 76,93 L 54,55 L 75,55 L 87,76 Z'],['#27a945','M 76,93 L 54,55 L 75,55 L 87,76 Z']
+      ];
+      chemins.forEach(function(ch){ x.fillStyle=ch[0]; x.fill(new Path2D(ch[1]),'evenodd'); });
+      x.restore();
+      // nom
+      x.textAlign='left'; x.textBaseline='alphabetic'; x.font='900 104px '+police;
+      const wA=x.measureText('Arti').width, wR=x.measureText('Royce').width, x0=(W-wA-wR)/2;
+      x.fillStyle='#e02010'; x.fillText('Arti',x0,365); x.fillStyle='#27a945'; x.fillText('Royce',x0+wA,365);
+      // titre
+      x.textAlign='center'; x.fillStyle='#111'; x.font='900 74px '+police;
+      let y=500; decouperLignes(x,titre,W-160).slice(0,2).forEach(function(l){ x.fillText(l,W/2,y); y+=86; });
+      // sous-titre
+      x.fillStyle='#555'; x.font='500 42px '+police; y+=6;
+      decouperLignes(x,sousTitre,W-180).slice(0,3).forEach(function(l){ x.fillText(l,W/2,y); y+=56; });
+      // pastilles
+      const pastilles=['🎨 Talents','🛍️ Ventes','🤝 Amis']; x.font='800 36px '+police;
+      const larg=pastilles.map(function(p){ return x.measureText(p).width+56; });
+      let px=(W-larg.reduce(function(a,b){return a+b;},0)-2*24)/2; const py=Math.min(y+20,790);
+      pastilles.forEach(function(p,i){
+        x.fillStyle='#ffffff'; x.strokeStyle='#e4e4e4'; x.lineWidth=3;
+        x.beginPath(); if(x.roundRect) x.roundRect(px,py,larg[i],72,36); else x.rect(px,py,larg[i],72); x.fill(); x.stroke();
+        x.fillStyle='#222'; x.fillText(p,px+larg[i]/2,py+49); px+=larg[i]+24;
+      });
+      // bandeau du bas
+      x.fillStyle='#e02010'; x.fillRect(0,W-170,W,170);
+      x.fillStyle='#fff'; x.font='900 62px '+police; x.fillText('👉 '+baseSiteArtiRoyce().replace(/^https?:\/\//,''),W/2,W-88);
+      x.font='600 32px '+police; x.fillText('Inscription gratuite · Le réseau social ArtiRoyce',W/2,W-38);
+      c.toBlob(function(b){ resolve(b); },'image/png');
+    }catch(e){ resolve(null); }
+  });
+}
+
+let partageEnCours=null;
+async function partagerArtiRoyce(o){
+  // o = { titre, sousTitre, message, url }
+  const texteComplet=o.message+' '+o.url;
+  const blob=await fabriquerImagePartage(o.titre, o.sousTitre);
+  const fichier = blob ? new File([blob],'artiroyce.png',{type:'image/png'}) : null;
+  partageEnCours={ texte:texteComplet, url:o.url, message:o.message, titre:o.titre, blob:blob };
+  try{
+    if(fichier && navigator.canShare && navigator.canShare({files:[fichier]})){
+      await navigator.share({ files:[fichier], title:'ArtiRoyce', text:texteComplet });
+      return;
+    }
+    if(navigator.share){ await navigator.share({ title:'ArtiRoyce', text:o.message, url:o.url }); return; }
+  }catch(err){
+    if(err && err.name==='AbortError') return; // la personne a simplement fermé le menu
+  }
+  ouvrirPartage();
+}
+function ouvrirPartage(){
+  const img=document.getElementById('psApercu');
+  if(partageEnCours && partageEnCours.blob){ img.src=URL.createObjectURL(partageEnCours.blob); img.style.display=''; } else img.style.display='none';
+  document.getElementById('partageOverlay').style.display='block';
+  document.getElementById('partageSheet').classList.add('open');
+}
+window.fermerPartage=function(){
+  document.getElementById('partageOverlay').style.display='none';
+  document.getElementById('partageSheet').classList.remove('open');
+}
+window.partageVia=function(app){
+  if(!partageEnCours) return;
+  const t=encodeURIComponent(partageEnCours.texte), u=encodeURIComponent(partageEnCours.url);
+  const liens={
+    whatsapp:'https://wa.me/?text='+t,
+    facebook:'https://www.facebook.com/sharer/sharer.php?u='+u,
+    telegram:'https://t.me/share/url?url='+u+'&text='+encodeURIComponent(partageEnCours.message),
+    sms:'sms:?body='+t,
+    email:'mailto:?subject='+encodeURIComponent('Rejoignez-nous sur ArtiRoyce')+'&body='+t
+  };
+  if(liens[app]){ window.open(liens[app],'_blank'); fermerPartage(); return; }
+  if(app==='copier'){
+    const fini=function(){ toast('📋 Texte et lien copiés','g'); fermerPartage(); };
+    if(navigator.clipboard) navigator.clipboard.writeText(partageEnCours.texte).then(fini).catch(function(){ prompt('Copiez ce texte :',partageEnCours.texte); });
+    else prompt('Copiez ce texte :',partageEnCours.texte);
+    return;
+  }
+  if(app==='image' && partageEnCours.blob){
+    const a=document.createElement('a'); a.href=URL.createObjectURL(partageEnCours.blob); a.download='ArtiRoyce-invitation.png';
+    document.body.appendChild(a); a.click(); a.remove(); toast('🖼️ Image enregistrée','g');
+  }
+}
+
 window.inviterSurArtiRoyce=function(){
-  const url='https://www.artiroyce.com';
-  const texte='Rejoins-moi sur ArtiRoyce, le réseau des professionnels vérifiés : '+url;
-  if(navigator.share){ navigator.share({title:'ArtiRoyce', text:texte, url:url}).catch(function(){}); }
-  else { navigator.clipboard.writeText(texte).then(function(){ toast('🔗 Invitation copiée','g'); }).catch(function(){ toast(url,''); }); }
+  partagerArtiRoyce({
+    titre:'Rejoignez-nous !',
+    sousTitre:'Le réseau social pour vendre, exposer vos talents et retrouver vos amis',
+    message:TEXTE_INVITATION,
+    url:baseSiteArtiRoyce()
+  });
 }
 
 window.ouvrirCreationGroupe=function(){
@@ -2321,6 +2540,9 @@ function appliquerDonneesGroupe(d){
 
 async function demarrerConversationGroupe(convId,monOuverture){
   const convRef=db.collection('conversations').doc(convId);
+  // Messages demandés TOUT DE SUITE (avant : seulement après la lecture de mes infos et du groupe).
+  currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+  ecouterMessagesConv(convId, monOuverture);
   await obtenirMonInfo();
   if(monOuverture!==ouvertureConvId) return; // une conversation plus récente a été ouverte entre-temps
   currentConvInfos=construireInfosGroupe(currentGroupParticipants);
@@ -2344,13 +2566,8 @@ async function demarrerConversationGroupe(convId,monOuverture){
     if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
   }, function(err){ console.error('Écoute du groupe impossible :',err); });
   marquerConversationCommeLue();
-  if(unsubMessages){ unsubMessages(); unsubMessages=null; }
-  unsubMessages=convRef.collection('messages').orderBy('horodatage','asc').onSnapshot({includeMetadataChanges:true}, function(snap){
-    if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
-    dernierSnapMessages=snap;
-    renderRealMessages(snap);
-    marquerConversationCommeLue();
-  }, function(err){ console.error('Écoute des messages du groupe impossible :',err); });
+  // Les noms des membres sont maintenant connus : on rafraîchit l'affichage déjà fait.
+  if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
 }
 
 /* ══ Infos du groupe (façon WhatsApp) ══ */
@@ -2421,6 +2638,7 @@ function renderParametresGroupe(){
       +'<div class="gi-param" onclick="changerPhotoGroupe()"><span class="gi-param-ico">🖼️</span><span class="gi-param-txt">Photo du groupe<span class="gi-param-sous">Toucher pour changer</span></span></div>'
       +'<div class="gi-param" onclick="basculerReglageGroupe(\'seulsAdminsEcrivent\')"><span class="gi-param-ico">💬</span><span class="gi-param-txt">Seuls les admins envoient des messages<span class="gi-param-sous">Les autres membres peuvent seulement lire</span></span>'+sw(currentGroupData.seulsAdminsEcrivent===true)+'</div>'
       +'<div class="gi-param" onclick="basculerReglageGroupe(\'seulsAdminsAjoutent\')"><span class="gi-param-ico">➕</span><span class="gi-param-txt">Seuls les admins ajoutent des membres</span>'+sw(currentGroupData.seulsAdminsAjoutent===true)+'</div>'
+      +'<div class="gi-param" onclick="basculerReglageGroupe(\'lienActif\')"><span class="gi-param-ico">🔗</span><span class="gi-param-txt">Lien d\'invitation actif<span class="gi-param-sous">Toute personne ayant le lien peut entrer</span></span>'+sw(currentGroupData.lienActif===true)+'</div>'
       +'<div class="gi-note">Touchez un membre dans l\'onglet « Membres » pour le nommer admin ou le retirer du groupe.</div>';
   } else {
     html+='<div class="gi-param"><span class="gi-param-ico">💬</span><span class="gi-param-txt">Envoi de messages<span class="gi-param-sous">'+(currentGroupData.seulsAdminsEcrivent===true?'Seuls les admins':'Tous les membres')+'</span></span></div>'
@@ -2463,7 +2681,8 @@ window.basculerReglageGroupe=function(champ){
   const champs={}; champs[champ]=nouveau;
   const textes={
     seulsAdminsEcrivent: nouveau ? 'a réservé l\'envoi de messages aux admins' : 'a autorisé tous les membres à envoyer des messages',
-    seulsAdminsAjoutent: nouveau ? 'a réservé l\'ajout de membres aux admins' : 'a autorisé tous les membres à ajouter des membres'
+    seulsAdminsAjoutent: nouveau ? 'a réservé l\'ajout de membres aux admins' : 'a autorisé tous les membres à ajouter des membres',
+    lienActif: nouveau ? 'a activé le lien d\'invitation' : 'a désactivé le lien d\'invitation'
   };
   majGroupe(champs, textes[champ], '✅ Réglage enregistré');
 }
@@ -2484,10 +2703,29 @@ window.onPhotoGroupeChoisie=async function(e){
     toast('⚠️ Photo du groupe non envoyée','r');
   }
 }
-window.partagerGroupe=function(){
-  const texte='Rejoins le groupe « '+currentChatName+' » sur ArtiRoyce : https://www.artiroyce.com';
-  if(navigator.share){ navigator.share({title:currentChatName, text:texte}).catch(function(){}); }
-  else { navigator.clipboard.writeText(texte).then(function(){ toast('🔗 Copié','g'); }).catch(function(){}); }
+/* Partager le groupe : un admin partage un vrai lien d'entrée (il active le « lien
+   d'invitation » du groupe). Un membre simple partage ce lien seulement s'il est déjà
+   activé par un admin ; sinon il partage une invitation à rejoindre ArtiRoyce. */
+window.partagerGroupe=async function(){
+  if(!currentConvId) return;
+  const nom=currentChatName||'Groupe';
+  const estConf=currentGroupData.conference===true;
+  let lienActif=currentGroupData.lienActif===true;
+  if(!lienActif && jeSuisAdmin()){
+    const ok=await majGroupe({lienActif:true}, 'a activé le lien d\'invitation', null);
+    if(ok){ currentGroupData.lienActif=true; lienActif=true; }
+  }
+  if(lienActif){
+    partagerArtiRoyce({
+      titre:(estConf?'🎙️ ':'👥 ')+nom,
+      sousTitre:estConf?'Vous êtes invité(e) à la conférence sur ArtiRoyce':'Rejoignez notre groupe sur ArtiRoyce, le réseau social des talents',
+      message:(estConf?'🎙️ Vous êtes invité(e) à la conférence « ':'👥 Rejoignez notre groupe « ')+nom+' » sur ArtiRoyce, le réseau social pour vendre, exposer vos talents et retrouver vos amis.\n👉 Touchez le lien pour entrer :',
+      url:lienRejoindre(currentConvId)
+    });
+  } else {
+    toast('ℹ️ Seul un admin peut activer le lien d\'entrée du groupe','');
+    inviterSurArtiRoyce();
+  }
 }
 window.ouvrirMediasGroupe=function(){
   fermerVueLocale('groupmembers');
@@ -3651,15 +3889,136 @@ function logCallBubble(type,label){
 }
 
 /* ══════════════ CONFÉRENCE ══════════════ */
-window.openConf=function(){document.getElementById('confPanel').classList.add('open');pushView('conf')}
+/* Une conférence = une salle ArtiRoyce (comme un groupe) avec un lien d'entrée.
+   Les invités qui touchent le lien entrent dans la salle ; l'appel audio/vidéo de
+   groupe (jusqu'à 50 personnes) se lance depuis ici ou depuis la salle. */
+let confActuelle=null, unsubConfDoc=null;
+window.openConf=function(){
+  afficherEtatConference();
+  document.getElementById('confPanel').classList.add('open');
+  pushView('conf');
+}
 window.closeConf=function(){fermerVueLocale('conf')}
-let confGen=false;
-window.genLink=function(){const c=Math.random().toString(36).substr(2,8).toUpperCase();document.getElementById('confLink').textContent='artiroyce.app/conf/'+c;confGen=true;toast('🔗 Lien généré !','g')}
-window.copyLink=function(){const v=document.getElementById('confLink').textContent;if(!confGen){toast('⚠️ Générez un lien d\'abord','');return}navigator.clipboard.writeText(v).then(()=>toast('📋 Copié !','g')).catch(()=>toast('📋 Copié !','g'))}
-window.launchConfCall=function(type){
-  currentChatName='Conférence';currentChatIni='🎙️';currentChatBg='linear-gradient(135deg,#003d00,#007a00)';
-  document.getElementById('confPanel').classList.remove('open');
-  startCallReal(type);
+function afficherEtatConference(){
+  const avecLien=!!confActuelle;
+  document.getElementById('confEtapeCreer').style.display=avecLien?'none':'';
+  document.getElementById('confEtapeLien').style.display=avecLien?'':'none';
+  if(avecLien) document.getElementById('confLink').textContent=lienRejoindre(confActuelle.id);
+}
+window.nouvelleConference=function(){
+  if(unsubConfDoc){ unsubConfDoc(); unsubConfDoc=null; }
+  confActuelle=null; document.getElementById('confNomInput').value=''; afficherEtatConference();
+}
+window.creerConference=async function(){
+  if(!currentUid){ toast('⚠️ Connexion requise','r'); return null; }
+  const moi=await obtenirMonInfo();
+  const nom=document.getElementById('confNomInput').value.trim() || ('Conférence de '+String(moi.nom||'').split(' ')[0]);
+  try{
+    const ref=await db.collection('conversations').add({
+      type:'groupe', conference:true, nom:nom, description:'Conférence',
+      participants:[currentUid], admins:[currentUid], creePar:currentUid,
+      lienActif:true, seulsAdminsEcrivent:false, seulsAdminsAjoutent:true,
+      creeLe:firebase.firestore.FieldValue.serverTimestamp(),
+      derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),
+      dernierMessage:'🎙️ Conférence créée', dernierEmetteur:''
+    });
+    messageSystemeGroupe(ref.id, 'a créé la conférence « '+nom+' »');
+    confActuelle={ id:ref.id, nom:nom, participants:[currentUid] };
+    afficherEtatConference();
+    ecouterConference(ref.id);
+    toast('✅ Conférence créée — partagez le lien','g');
+    return confActuelle;
+  }catch(err){
+    console.error('Création de la conférence impossible :',err);
+    toast('⚠️ Création impossible (connexion)','r');
+    return null;
+  }
+}
+function ecouterConference(id){
+  if(unsubConfDoc){ unsubConfDoc(); unsubConfDoc=null; }
+  unsubConfDoc=db.collection('conversations').doc(id).onSnapshot(function(d){
+    if(!d.exists || !confActuelle || confActuelle.id!==id) return;
+    const data=d.data()||{};
+    confActuelle.participants=data.participants||[];
+    confActuelle.nom=data.nom||confActuelle.nom;
+    const liste=confActuelle.participants;
+    document.getElementById('confPartTitre').textContent='Participants ('+liste.length+')';
+    document.getElementById('confPartListe').innerHTML=liste.map(function(uid){
+      const info= uid===currentUid && monInfo ? monInfo : infoDepuisContacts(uid);
+      const hote= (data.admins||[]).indexOf(uid)!==-1;
+      return '<div class="conf-part-item"><div class="conf-part-av" style="background:'+(info.bg||gradientPourId(uid))+'">'+avatarInterieur(uid,info.ini||'?')+'</div>'
+        +'<div class="conf-part-name">'+escapeHtml(uid===currentUid?'Vous':(info.nom||'Utilisateur'))+'</div>'
+        +'<div class="conf-part-role" style="color:'+(hote?'var(--green)':'#aaa')+'">'+(hote?'Hôte':'Invité')+'</div></div>';
+    }).join('') + (liste.length<2?'<div style="font-size:12px;color:#999;padding:10px 0">Partagez le lien : les invités apparaîtront ici dès qu\'ils entrent.</div>':'');
+  }, function(err){ console.error('Écoute conférence impossible :',err); });
+}
+window.partagerConference=function(){
+  if(!confActuelle){ toast('⚠️ Créez d\'abord la conférence',''); return; }
+  partagerArtiRoyce({
+    titre:'🎙️ '+confActuelle.nom,
+    sousTitre:'Vous êtes invité(e) à la conférence sur ArtiRoyce',
+    message:'🎙️ Vous êtes invité(e) à la conférence « '+confActuelle.nom+' » sur ArtiRoyce, le réseau social pour vendre, exposer vos talents et retrouver vos amis.\n👉 Touchez le lien pour entrer :',
+    url:lienRejoindre(confActuelle.id)
+  });
+}
+window.copyLink=function(){
+  if(!confActuelle){ toast('⚠️ Créez d\'abord la conférence',''); return; }
+  const v=lienRejoindre(confActuelle.id);
+  if(navigator.clipboard) navigator.clipboard.writeText(v).then(function(){ toast('📋 Lien copié !','g'); }).catch(function(){ prompt('Copiez le lien :',v); });
+  else prompt('Copiez le lien :',v);
+}
+window.genLink=window.creerConference; // ancien nom, gardé par sécurité
+window.launchConfCall=async function(type){
+  if(!confActuelle){ const c=await creerConference(); if(!c) return; }
+  const c=confActuelle;
+  fermerVueLocale('conf');
+  groupesCache[c.id]={ nom:c.nom, participants:c.participants||[currentUid] };
+  openGroupChat(c.id, { nom:c.nom, participants:c.participants||[currentUid], conference:true });
+  setTimeout(function(){ if(window.GroupeAppel) window.GroupeAppel.lancer(type); }, 500);
+}
+
+/* ══ Entrer dans un groupe / une conférence grâce au lien reçu ══
+   Le lien (…/accueil.html?rejoindre=ID) est mémorisé par l'Accueil, même si la
+   personne doit d'abord se connecter ou s'inscrire ; on le traite ensuite ici. */
+function verifierLienRejoindre(){
+  let id=null;
+  try{
+    const p=new URLSearchParams(location.search).get('rejoindre');
+    if(p){ id=p; history.replaceState(history.state,'',location.pathname); }
+    if(!id){ id=localStorage.getItem('arRejoindre'); }
+    if(id) localStorage.removeItem('arRejoindre');
+  }catch(e){}
+  if(id) rejoindreParLien(id);
+}
+window.addEventListener('message', function(e){
+  if(e.data && e.data.type==='rejoindreConv' && e.data.id && currentUid) rejoindreParLien(e.data.id);
+});
+async function rejoindreParLien(id){
+  if(!currentUid || !id) return;
+  const ref=db.collection('conversations').doc(id);
+  const ouvrir=function(d){
+    try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'afficherDiscussion'},'*'); }catch(e){}
+    groupesCache[id]={ nom:d.nom||'Groupe', participants:d.participants||[], photoGroupe:d.photoGroupe||'' };
+    openGroupChat(id, Object.assign({}, d));
+  };
+  try{
+    let snap=null;
+    try{ snap=await ref.get(); }catch(e){ snap=null; }
+    if(snap && snap.exists){
+      const d=snap.data()||{};
+      if((d.participants||[]).indexOf(currentUid)!==-1){ ouvrir(d); return; }
+      if(d.lienActif!==true){ toast('🔒 Ce lien d\'invitation n\'est plus actif','r'); return; }
+    } else if(snap && !snap.exists){ toast('⚠️ Ce lien ne correspond à aucun groupe','r'); return; }
+    await ref.update({ participants: firebase.firestore.FieldValue.arrayUnion(currentUid) });
+    const d=(await ref.get()).data()||{};
+    messageSystemeGroupe(id, d.conference ? 'a rejoint la conférence via le lien' : 'a rejoint le groupe via le lien');
+    toast(d.conference ? '🎙️ Bienvenue dans la conférence' : '👥 Bienvenue dans le groupe','g');
+    ouvrir(d);
+  }catch(err){
+    console.error('Entrée par lien impossible :',err);
+    if(err && err.code==='permission-denied') toast('🔒 Lien reçu, mais l\'entrée automatique doit encore être autorisée (réglage de sécurité)','r');
+    else toast('⚠️ Impossible d\'entrer pour le moment','r');
+  }
 }
 </script>
 
@@ -3716,6 +4075,14 @@ function demarrerFirebase(){
     firebase.initializeApp(firebaseConfig);
     window.db = firebase.firestore();
     db.settings({ experimentalForceLongPolling: true });
+    // Copie des messages gardée sur le téléphone : à l'ouverture d'une discussion, les
+    // messages déjà reçus s'affichent tout de suite (même après fermeture du site, même
+    // avec une connexion faible), puis se mettent à jour avec internet.
+    try{
+      db.enablePersistence({ synchronizeTabs:true })
+        .then(function(){ ajouterEtape('Mémoire des messages sur le téléphone activée ✅'); })
+        .catch(function(e){ ajouterEtape('Mémoire téléphone indisponible ('+(e&&e.code)+') — fonctionnement normal en ligne'); });
+    }catch(e){}
     window.auth = firebase.auth();
     window.storage = firebase.storage();
     ajouterEtape('4. Firebase initialisé ✅');
@@ -3773,7 +4140,9 @@ function demarrerFirebase(){
     // Écoute des appels entrants (audio/vidéo) : démarrée une seule fois, dès que
     // l'identité réelle est connue, pour recevoir un appel même si aucune conversation
     // n'est ouverte à ce moment-là.
+    securiserEcouteAppelsEntrants();
     if(currentUid && window.appelEcouteEntrants) window.appelEcouteEntrants();
+    if(currentUid) setTimeout(verifierLienRejoindre, 600);
     if(currentUid && window._chatEnAttente){
       const p = window._chatEnAttente;
       window._chatEnAttente = null;
@@ -3782,6 +4151,28 @@ function demarrerFirebase(){
       window.openChat(p.nom, '', ini, bg, false, '', false, p.uid, !!p.verifie);
     }
   });
+}
+/* Avec la mémoire sur le téléphone, Firestore peut d'abord rendre une ancienne copie.
+   Pour les appels entrants, on n'écoute QUE la réponse fraîche du serveur : jamais de
+   sonnerie fantôme pour un appel terminé pendant que l'app était fermée.
+   Même résultat qu'avant sinon (chaque appel signalé une seule fois). appels.js n'est pas modifié. */
+function securiserEcouteAppelsEntrants(){
+  if(!window.Signalisation || window.Signalisation._securise) return;
+  window.Signalisation._securise=true;
+  window.Signalisation.ecouterAppelsEntrants=function(monUid, callback){
+    const dejaSignales={};
+    return db.collection('appels')
+      .where('destinataireUid','==',monUid)
+      .where('statut','==','sonne')
+      .onSnapshot({includeMetadataChanges:true}, function(snap){
+        if(snap.metadata && snap.metadata.fromCache) return;
+        snap.docs.forEach(function(d){
+          if(dejaSignales[d.id]) return;
+          dejaSignales[d.id]=true;
+          callback(d.id, d.data());
+        });
+      }, function(err){ console.error('Écoute des appels entrants impossible :',err); });
+  };
 }
 /* ── Signale que JE suis actif(ve), pour que les autres personnes voient mon vrai
    statut « en ligne ». Écrit tout de suite, puis toutes les 25 secondes tant que la
