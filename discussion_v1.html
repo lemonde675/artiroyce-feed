@@ -327,7 +327,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .emo-hdr{display:flex;align-items:center;gap:16px;padding:8px 12px 6px;flex-shrink:0}
 .emo-tab{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;cursor:pointer;padding:2px 0}
 .emo-tab.actif{color:var(--red);border-bottom:2px solid var(--red)}
-.emo-hdr .emo-close{margin-left:auto;font-size:18px;color:#999;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-right:-8px}
+.emo-hdr .emo-close{margin-left:auto;font-size:18px;color:#777;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;margin-right:30px;background:#f4f4f4}
 .emo-hdr .emo-close:active{background:#f2f2f2}
 .emo-tab{padding:8px 4px!important}
 .emo-body{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:4px 10px 10px;overflow-y:auto}
@@ -1161,6 +1161,7 @@ function pushView(name){
   viewStack.push(name);
   viewIds.push(++compteurVues);
   history.pushState({depth:viewStack.length,vid:compteurVues},'',location.href);
+  try{ signalerVuesAuParent(); }catch(e){}
   if(name==='incall') signalerAuParent('appelEntrant');
   else if(name==='call') signalerAuParent('appelDecroche');
 }
@@ -1170,6 +1171,16 @@ function signalerAuParent(type){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:type},'*'); }catch(e){}
 }
 window.requestClose=function(){ if(viewStack.length>0) history.back(); }
+/* Prévient l'Accueil quand une vue est ouverte (discussion, panneau, appel) : il coupe alors
+   ses bandes de glissement des bords, qui recouvraient les boutons du bord droit/gauche. */
+let dernierNbVuesSignale=-1;
+function signalerVuesAuParent(){
+  const n=viewStack.length;
+  if(n===dernierNbVuesSignale) return;
+  dernierNbVuesSignale=n;
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'discVues', n:n},'*'); }catch(e){}
+}
+setInterval(signalerVuesAuParent, 400);
 // Ferme directement la vue au sommet de la pile, sans passer par
 // history.back() — évite le conflit avec l'historique de la page parente
 // (accueil.html), qui pouvait renvoyer à Accueil au lieu de fermer juste
@@ -1180,6 +1191,7 @@ function fermerVueLocale(name){
   if(viewStack.length && viewStack[viewStack.length-1]===name){
     viewStack.pop(); viewIds.pop();
     hideView(name);
+    try{ signalerVuesAuParent(); }catch(e){}
   }
 }
 window.addEventListener('popstate',(e)=>{
