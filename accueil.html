@@ -951,6 +951,14 @@ function toggleSiteWidth(){
 
     // Vrai nombre de messages non lus (envoyé par Répert-Discussion) → pastille 💬
     // Répert-Discussion ouvre un groupe/une conférence reçu par lien : on affiche son onglet.
+    // Une discussion / un panneau est ouvert dans Répert-Discussion : les bandes invisibles
+    // de glissement (bords gauche et droit) se désactivent, sinon elles « mangent » les
+    // touches des boutons du bord (✕ des emojis, Envoyer, ⋮…).
+    if (e.data.type === 'discVues') {
+      const actif = !(e.data.n > 0);
+      ['swipeLeft', 'swipeRight'].forEach(id => { const z = document.getElementById(id); if (z) z.style.pointerEvents = actif ? '' : 'none'; });
+      return;
+    }
     if (e.data.type === 'afficherDiscussion') {
       if (currentPanel !== 6) window.goToPanel(6);
       return;
