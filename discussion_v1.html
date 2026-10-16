@@ -221,6 +221,28 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 
 /* ── Réactions ── */
 .reacts{display:flex;gap:2px;margin:-5px 6px 0}
+/* Réactions collées sous la bulle (comme WhatsApp) */
+.mrow.a-react{margin-bottom:14px}
+.react-colle{position:absolute;bottom:-15px;z-index:3;display:flex;align-items:center;gap:1px;background:#fff;border-radius:99px;padding:2px 6px;font-size:13px;line-height:1.2;box-shadow:0 1px 5px rgba(0,0,0,0.18);border:1px solid #f0f0f0;cursor:pointer;white-space:nowrap}
+.react-colle .rc-n{font-size:10px;font-weight:800;color:#666;margin-left:2px}
+.react-colle.moi{border-color:#bcd4ff;background:#eef4ff}
+.mrow.out .react-colle{right:22px}
+.mrow.in .react-colle{left:22px}
+.transfere-lbl{font-size:10.5px;font-style:italic;opacity:.75;margin-bottom:3px;display:block}
+.mrow.epingle-flash .bbl,.mrow.epingle-flash .img-bbl{box-shadow:0 0 0 3px #ffd54f}
+/* Bandeau du message épinglé */
+.pin-bar{display:none;align-items:center;gap:10px;padding:8px 14px;background:#fffdf4;border-bottom:1px solid #f1e7c6;cursor:pointer;flex-shrink:0}
+.pin-bar.show{display:flex}
+.pin-ico{font-size:16px}
+.pin-txt{flex:1;min-width:0;font-size:12.5px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin-txt b{color:#b8860b;font-size:11px;display:block}
+.pin-x{font-size:18px;color:#aaa;padding:0 4px}
+/* Transférer */
+.fw-ligne{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #f4f4f4;cursor:pointer}
+.fw-ligne .av{width:42px;height:42px;font-size:15px;flex-shrink:0}
+.fw-nom{flex:1;min-width:0;font-size:14px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fw-nom small{display:block;font-size:11px;color:#999;font-weight:600}
+.fw-ligne input{width:20px;height:20px;accent-color:var(--green)}
 .mrow.out .reacts{justify-content:flex-end}
 .react-pill{background:#fff;border-radius:99px;padding:1px 6px;font-size:11px;box-shadow:0 1px 4px rgba(0,0,0,0.14);border:1px solid #f0f0f0}
 
@@ -612,6 +634,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <button class="cha-btn" style="background:#f0f0f0;color:#333;box-shadow:none" onclick="ouvrirOptionsChat()">&#8942;</button>
     </div>
   </div>
+  <div class="pin-bar" id="pinBar" onclick="allerAuMessageEpingle()">
+    <span class="pin-ico">📌</span>
+    <span class="pin-txt"><b id="pinAuteur">Message épinglé</b><span id="pinTexte"></span></span>
+    <span class="pin-x" onclick="event.stopPropagation();desepingler()" title="Désépingler">✕</span>
+  </div>
   <div class="msgs-area" id="msgsArea">
     <div class="day-sep"><span>Aujourd'hui</span></div>
     <div id="demoMsgsSeed">
@@ -731,6 +758,9 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   <div class="ctx-item" onclick="ctxReply()">↩️ Répondre</div>
   <div class="ctx-item" id="ctxModifierItem" onclick="ctxModifier()" style="display:none">✏️ Modifier</div>
   <div class="ctx-item" onclick="ctxCopy()">📋 Copier</div>
+  <div class="ctx-item" id="ctxTransferer" onclick="ctxTransferer()">↪️ Transférer</div>
+  <div class="ctx-item" id="ctxPartager" onclick="ctxPartager()">📤 Partager</div>
+  <div class="ctx-item" id="ctxEpingler" onclick="ctxEpingler()">📌 Épingler</div>
   <div class="ctx-item" id="ctxInfos" onclick="ctxInfosLecture()">ℹ️ Infos (lu / pas lu)</div>
   <div class="ctx-item" onclick="ctxDeleteMe()">🙈 Supprimer pour moi</div>
   <div class="ctx-item danger" id="ctxDelAll" onclick="ctxDeleteAll()">🗑️ Supprimer pour tout le monde</div>
@@ -810,6 +840,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <div style="text-align:center;margin-top:16px"><span style="font-size:12px;color:#999;text-decoration:underline;cursor:pointer" onclick="nouvelleConference()">＋ Créer une autre conférence</span></div>
     </div>
   </div>
+</div>
+<div class="conf-panel" id="forwardPanel">
+  <div class="conf-hdr">
+    <span class="back-btn" onclick="fermerTransfert()">&#8249;</span>
+    <span style="font-size:16px;font-weight:800;color:#111">Transférer à…</span>
+  </div>
+  <div style="padding:10px 14px 6px"><div class="search-inner"><span style="color:#ccc">🔍</span><input type="text" id="fwSearch" placeholder="Rechercher une discussion…" oninput="filtrerTransfert()"/></div></div>
+  <div id="fwApercu" style="margin:4px 14px 8px;padding:8px 12px;background:#f6f6f6;border-radius:12px;font-size:12px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+  <div id="fwListe" style="flex:1;overflow-y:auto"></div>
+  <div style="padding:10px 14px 16px;border-top:1px solid #eee"><button class="conf-btn green" id="fwEnvoyer" style="width:100%" onclick="envoyerTransfert()">↪️ Envoyer</button></div>
 </div>
 <div class="conf-panel" id="groupCreatePanel">
   <div class="conf-hdr">
@@ -998,7 +1038,7 @@ function appliquerDecalageChat(){
   const sp=document.getElementById('spacer');
   const th=document.getElementById('topH');
   if(sp && th && th.style.display==='none') sp.style.setProperty('height',px,'important');
-  ['chatPanel','profilContactPanel','confPanel','groupCreatePanel','groupMembersPanel','groupAddPanel','callScreen','incomingCallScreen'].forEach(function(id){
+  ['chatPanel','profilContactPanel','confPanel','forwardPanel','groupCreatePanel','groupMembersPanel','groupAddPanel','callScreen','incomingCallScreen'].forEach(function(id){
     const el=document.getElementById(id);
     if(el) el.style.paddingTop=px;
   });
@@ -1142,6 +1182,7 @@ function hideView(name){
     ouvertureConvId++; // invalide toute réponse/écoute encore en vol pour la conversation qu'on ferme
     if(currentOtherUid) ajouterEtape('hideView(chat) — réinitialisation de la conversation (était : '+currentOtherUid+')');
     currentOtherUid=null; currentConvId=null; currentEstGroupe=false; currentGroupParticipants=[]; currentGroupData={};
+    afficherEpingle(null);
     if(window.GroupeAppel) window.GroupeAppel.surFermetureGroupe();
     appliquerRestrictionEcriture();
   }
@@ -1149,6 +1190,7 @@ function hideView(name){
   else if(name==='groupcreate'){ document.getElementById('groupCreatePanel').classList.remove('open'); }
   else if(name==='groupmembers'){ document.getElementById('groupMembersPanel').classList.remove('open'); }
   else if(name==='groupadd'){ document.getElementById('groupAddPanel').classList.remove('open'); }
+  else if(name==='forward'){ document.getElementById('forwardPanel').classList.remove('open'); }
   else if(name==='gcall'){ if(window.GroupeAppel) window.GroupeAppel.quitter(); }
   else if(name==='call'){
     // Si un appel réel (WebRTC) était en cours, on prévient l'autre personne et on
@@ -1617,6 +1659,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
   // Conversation déjà connue (présente dans la liste) : on affiche ses messages TOUT DE SUITE.
   let messagesDejaEcoutes=false;
   const connue=convDepuisListe(currentConvId);
+  afficherEpingle(connue ? (connue.epingle||null) : null);
   if(connue){
     currentConvInfos=connue.infos||{};
     currentConvLuPar=connue.luPar||{};
@@ -1673,6 +1716,7 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
     if(monOuverture!==ouvertureConvId) return; // écoute périmée (conversation fermée/changée depuis)
     const d=docSnap.data()||{};
     currentConvLuPar=d.luPar||{};
+    afficherEpingle(d.epingle||null);
     if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
   }, function(err){
     console.error('Écoute du document de conversation impossible :',err);
@@ -1778,7 +1822,34 @@ function construireFooterHtml(doc){
   const {tickHtml} = calculerTickEtLecture(doc, m, dir);
   return {t:t, villeHtml:villeHtml, tickHtml:tickHtml, dir:dir};
 }
+const donneesMessages={}; // id → contenu du message (pour transférer / partager / épingler)
 function creerElementMessage(doc){
+  const el=creerElementMessageBrut(doc);
+  appliquerEtatsMessage(el, doc);
+  return el;
+}
+/* Réactions, « supprimé pour moi » : appliqués à la création ET à chaque mise à jour. */
+function appliquerEtatsMessage(el, doc){
+  const m=doc.data()||{};
+  donneesMessages[doc.id]=m;
+  if(Array.isArray(m.supprimePour) && m.supprimePour.indexOf(currentUid)!==-1){ el.style.display='none'; return; }
+  const rmw=el.querySelector('.rmw');
+  if(!rmw) return;
+  const ancien=rmw.querySelector('.react-colle'); if(ancien) ancien.remove();
+  const r=m.reactions||{};
+  const uids=Object.keys(r).filter(function(u){ return r[u]; });
+  el.classList.toggle('a-react', uids.length>0);
+  if(!uids.length) return;
+  const compte={}; uids.forEach(function(u){ compte[r[u]]=(compte[r[u]]||0)+1; });
+  const emojis=Object.keys(compte).sort(function(a,b){ return compte[b]-compte[a]; }).slice(0,3);
+  const pill=document.createElement('div');
+  pill.className='react-colle'+(r[currentUid]?' moi':'');
+  pill.innerHTML=emojis.join('')+(uids.length>1?'<span class="rc-n">'+uids.length+'</span>':'');
+  pill.title=uids.map(function(u){ return (u===currentUid?'Vous':nomDeUid(u))+' '+r[u]; }).join(' · ');
+  pill.onclick=function(ev){ ev.stopPropagation(); toast(pill.title,'g',3000); };
+  rmw.appendChild(pill);
+}
+function creerElementMessageBrut(doc){
   const m=doc.data();
   const {t, villeHtml, tickHtml, dir} = construireFooterHtml(doc);
   const infoEm = currentConvInfos[m.emetteur] || infoDepuisContacts(m.emetteur);
@@ -1839,9 +1910,15 @@ function creerElementMessage(doc){
   } else if(m.type==='audio'){
     d.dataset.txt='🎤 Message vocal';
     interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
+  } else if(m.supprime){
+    d.dataset.txt='Message supprimé'; d.dataset.type='supprime';
+    interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">🚫 Message supprimé</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
+    d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
+    return d;
   } else {
     d.dataset.txt=m.texte||'';
-    interieur='<div class="bbl">'+nomGroupeHtml+escapeHtml(m.texte||'')+'<div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
+    const transfereHtml = m.transfere ? '<span class="transfere-lbl">↪️ Transféré</span>' : '';
+    interieur='<div class="bbl">'+nomGroupeHtml+transfereHtml+escapeHtml(m.texte||'')+'<div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
     d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
     return d;
   }
@@ -1912,13 +1989,14 @@ function renderRealMessages(snap){
       // Une demande de position dont le statut change (attente → accepté/refusé)
       // a besoin de reconstruire toute la bulle (boutons ↔ résultat), pas juste
       // le petit pied de message comme pour un simple accusé de lecture.
-      if(change.doc.data().type==='demandePosition' || change.doc.data().modifie){
+      if(change.doc.data().type==='demandePosition' || change.doc.data().modifie || (change.doc.data().supprime && existant.dataset.type!=='supprime')){
         existant.replaceWith(creerElementMessage(change.doc));
         return;
       }
       // Message déjà affiché (ex: passage de « remis » à « lu ») : on ne touche
       // qu'au petit pied de message, jamais au contenu média (photo/vidéo/audio).
-      mettreAJourFooter(existant, change.doc);
+      if(existant.dataset.type!=='supprime') mettreAJourFooter(existant, change.doc);
+      appliquerEtatsMessage(existant, change.doc);
       return;
     }
     area.appendChild(creerElementMessage(change.doc));
@@ -2533,6 +2611,7 @@ function appliquerDonneesGroupe(d){
   if(d.nom) currentChatName=d.nom;
   currentConvLuPar=d.luPar||{};
   currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+  afficherEpingle(d.epingle||null);
   majEnteteGroupe();
   appliquerRestrictionEcriture();
   if(document.getElementById('groupMembersPanel').classList.contains('open')) renderInfosGroupe();
@@ -2542,6 +2621,7 @@ async function demarrerConversationGroupe(convId,monOuverture){
   const convRef=db.collection('conversations').doc(convId);
   // Messages demandés TOUT DE SUITE (avant : seulement après la lecture de mes infos et du groupe).
   currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+  afficherEpingle((convDepuisListe(convId)||{}).epingle||null);
   ecouterMessagesConv(convId, monOuverture);
   await obtenirMonInfo();
   if(monOuverture!==ouvertureConvId) return; // une conversation plus récente a été ouverte entre-temps
@@ -2902,16 +2982,31 @@ function openCtx(row,x,y){
   document.getElementById('ctxDelAll').style.display=row.dataset.dir==='out'?'':'none';
   document.getElementById('ctxInfos').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out')?'':'none';
   document.getElementById('ctxModifierItem').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out'&&row.dataset.type==='texte')?'':'none';
+  const reel=row.dataset.real==='1' && row.dataset.type!=='supprime';
+  ['ctxTransferer','ctxPartager','ctxEpingler'].forEach(function(id){ document.getElementById(id).style.display=reel?'':'none'; });
+  const idMsg=(row.dataset.mid||'').replace(/^r/,'');
+  document.getElementById('ctxEpingler').textContent = (epingleActuel && epingleActuel.id===idMsg) ? '📌 Désépingler' : '📌 Épingler';
   const menu=document.getElementById('ctxMenu');
   menu.classList.add('show');document.getElementById('ctxOverlay').classList.add('show');
-  const mw=200,mh=menu.offsetHeight||260;
+  // Taille réelle du menu : il ne dépasse plus jamais du bord de l'écran.
+  const mw=Math.min(menu.offsetWidth||260, window.innerWidth-16), mh=menu.offsetHeight||300;
+  menu.style.maxWidth=(window.innerWidth-16)+'px';
   let left=Math.min(Math.max(8,x-mw/2),window.innerWidth-mw-8);
   let top=y+mh>window.innerHeight-20?y-mh-10:y+10;
-  menu.style.left=left+'px';menu.style.top=Math.max(60,top)+'px';
+  top=Math.min(Math.max(60,top), Math.max(60,window.innerHeight-mh-10));
+  menu.style.left=left+'px';menu.style.top=top+'px';
 }
 window.closeCtx=function(){document.getElementById('ctxMenu').classList.remove('show');document.getElementById('ctxOverlay').classList.remove('show');ctxRow=null}
 window.ctxReact=function(emoji){
   if(!ctxRow)return;
+  if(ctxRow.dataset.real==='1' && currentConvId){
+    const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
+    const actuel=((donneesMessages[idMsg]||{}).reactions||{})[currentUid];
+    const champ={}; champ['reactions.'+currentUid] = (actuel===emoji) ? firebase.firestore.FieldValue.delete() : emoji;
+    db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg).update(champ)
+      .catch(function(e){ console.error('Réaction impossible :',e); toast('⚠️ Réaction non enregistrée','r'); });
+    closeCtx(); return;
+  }
   let r=ctxRow.nextElementSibling;
   if(!r||!r.classList.contains('reacts')){r=document.createElement('div');r.className='reacts';ctxRow.after(r)}
   if(!r.textContent.includes(emoji)){const p=document.createElement('span');p.className='react-pill';p.textContent=emoji;r.appendChild(p)}
@@ -2931,18 +3026,166 @@ window.ctxInfosLecture=function(){
 }
 window.ctxDeleteMe=function(){
   if(!ctxRow)return;
+  if(ctxRow.dataset.real==='1' && currentConvId){
+    const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
+    db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg)
+      .update({ supprimePour: firebase.firestore.FieldValue.arrayUnion(currentUid) }).catch(function(e){ console.error('Suppression pour moi :',e); });
+  }
   ctxRow.style.display='none';
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.style.display='none';
   toast('🙈 Supprimé pour vous','g');closeCtx();
 }
 window.ctxDeleteAll=function(){
   if(!ctxRow)return;
+  if(ctxRow.dataset.real==='1' && currentConvId && ctxRow.dataset.dir==='out'){
+    const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
+    const ref=db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg);
+    const fv=firebase.firestore.FieldValue;
+    ref.update({ supprime:true, type:'texte', texte:'', url:fv.delete(), legende:fv.delete(), reactions:fv.delete() })
+      .then(function(){
+        if(epingleActuel && epingleActuel.id===idMsg) desepingler();
+        // Si c'était le dernier message, l'aperçu de la liste l'indique aussi.
+        const c=convDepuisListe(currentConvId);
+        if(c && c.dernierEmetteur===currentUid){
+          const dernier=Array.from(document.querySelectorAll('#msgsArea .mrow[data-real="1"]')).filter(function(r){ return r.style.display!=='none'; }).pop();
+          if(dernier && dernier.dataset.mid==='r'+idMsg) db.collection('conversations').doc(currentConvId).set({dernierMessage:'🚫 Message supprimé'},{merge:true}).catch(function(){});
+        }
+        toast('🗑️ Supprimé pour tout le monde','g');
+      })
+      .catch(function(e){ console.error('Suppression pour tous :',e); toast('⚠️ Suppression impossible','r'); });
+    closeCtx(); return;
+  }
   const bbl=ctxRow.querySelector('.bbl');
   if(bbl){bbl.innerHTML='<span class="msg-deleted">🚫 Message supprimé</span>'}
   ctxRow.dataset.txt='Message supprimé';
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.remove();
   toast('🗑️ Supprimé pour tout le monde','g');closeCtx();
 }
+/* ══════════════ TRANSFÉRER (vers d'autres discussions ArtiRoyce, plusieurs à la fois) ══════════════ */
+let messageATransferer=null;
+function apercuMessage(m){
+  if(!m) return '';
+  if(m.type==='image') return '📷 Photo'+(m.legende?' · '+m.legende:'');
+  if(m.type==='video') return '🎬 Vidéo'+(m.legende?' · '+m.legende:'');
+  if(m.type==='file') return '📄 '+(m.nom||'Fichier');
+  if(m.type==='audio') return '🎤 Message vocal';
+  if(m.type==='sticker') return '🧩 Sticker';
+  return m.texte||'';
+}
+window.ctxTransferer=function(){
+  if(!ctxRow) return;
+  const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
+  messageATransferer=donneesMessages[idMsg]||null;
+  closeCtx();
+  if(!messageATransferer){ toast('⚠️ Message introuvable','r'); return; }
+  document.getElementById('fwApercu').textContent='↪️ '+apercuMessage(messageATransferer);
+  document.getElementById('fwSearch').value='';
+  const convs=(window._toutesConvs||[]).slice().sort(function(a,b){ return msActivite(b)-msActivite(a); });
+  document.getElementById('fwListe').innerHTML = convs.map(function(c){
+    let nom, sous, avHtml, bg;
+    if(c.type==='groupe'){
+      nom=c.nom||'Groupe'; sous=(c.conference?'🎙️ Conférence':'👥 Groupe')+' · '+(c.participants||[]).length; bg=gradientPourId(c.id);
+      avHtml=(c.conference&&!c.photoGroupe)?'🎙️':avatarGroupeHtml(c);
+    } else {
+      const o=(c.participants||[]).find(function(u){ return u!==currentUid; }); if(!o) return '';
+      const info=(c.infos&&c.infos[o])||infoDepuisContacts(o);
+      nom=info.nom||'Utilisateur'; sous=info.role||''; bg=info.bg||gradientPourId(o); avHtml=avatarInterieur(o, info.ini||'?');
+    }
+    return '<label class="fw-ligne" data-recherche="'+escAttr(String(nom).toLowerCase())+'"><div class="av" style="background:'+bg+'">'+avHtml+'</div>'
+      +'<div class="fw-nom">'+escapeHtml(nom)+'<small>'+escapeHtml(sous)+'</small></div><input type="checkbox" class="fw-chk" value="'+c.id+'" onchange="majBoutonTransfert()"/></label>';
+  }).join('') || '<div class="liste-vide">Aucune discussion pour le moment.</div>';
+  majBoutonTransfert();
+  document.getElementById('forwardPanel').classList.add('open');
+  appliquerDecalageChat();
+  pushView('forward');
+}
+window.fermerTransfert=function(){ fermerVueLocale('forward'); }
+window.filtrerTransfert=function(){
+  const q=document.getElementById('fwSearch').value.toLowerCase().trim();
+  document.querySelectorAll('#fwListe .fw-ligne').forEach(function(l){ l.style.display=(!q||l.dataset.recherche.indexOf(q)!==-1)?'':'none'; });
+}
+window.majBoutonTransfert=function(){
+  const n=document.querySelectorAll('#fwListe .fw-chk:checked').length;
+  const b=document.getElementById('fwEnvoyer');
+  b.textContent= n ? '↪️ Envoyer à '+n+' discussion'+(n>1?'s':'') : '↪️ Choisissez une ou plusieurs discussions';
+  b.disabled=!n; b.style.opacity=n?1:.55;
+}
+window.envoyerTransfert=async function(){
+  const ids=Array.from(document.querySelectorAll('#fwListe .fw-chk:checked')).map(function(c){ return c.value; });
+  if(!ids.length || !messageATransferer) return;
+  const m=messageATransferer, fv=firebase.firestore.FieldValue;
+  const champs=['type','texte','url','legende','nom','taille','duree'];
+  let ok=0;
+  for(const id of ids){
+    const c=convDepuisListe(id); if(!c) continue;
+    const msg={ emetteur:currentUid, transfere:true, ville:villeAEnvoyer(), horodatage:fv.serverTimestamp() };
+    champs.forEach(function(k){ if(m[k]!==undefined && m[k]!==null) msg[k]=m[k]; });
+    if(!msg.type) msg.type='texte';
+    const nonLus={}; (c.participants||[]).forEach(function(u){ if(u!==currentUid) nonLus[u]=fv.increment(1); });
+    try{
+      const ref=db.collection('conversations').doc(id);
+      await ref.collection('messages').add(msg);
+      await ref.set({ derniereActivite:fv.serverTimestamp(), dernierMessage:'↪️ '+apercuMessage(m), dernierEmetteur:currentUid, nonLus:nonLus },{merge:true});
+      ok++;
+    }catch(e){ console.error('Transfert impossible vers',id,e); }
+  }
+  fermerTransfert();
+  toast(ok===ids.length ? '↪️ Transféré à '+ok+' discussion'+(ok>1?'s':'') : '⚠️ Transféré à '+ok+' sur '+ids.length, ok===ids.length?'g':'r');
+}
+
+/* ══════════════ PARTAGER (vers WhatsApp, Facebook, SMS… hors d'ArtiRoyce) ══════════════ */
+window.ctxPartager=function(){
+  if(!ctxRow) return;
+  const m=donneesMessages[ctxRow.dataset.mid.replace(/^r/,'')]||{};
+  closeCtx();
+  const contenu = m.url ? (apercuMessage(m)+'\n'+m.url) : (m.texte||'');
+  const message = contenu+'\n\n— Partagé depuis ArtiRoyce, le réseau social des talents 👉';
+  partageEnCours={ texte:message+' '+baseSiteArtiRoyce(), url:baseSiteArtiRoyce(), message:message, titre:'ArtiRoyce', blob:null };
+  if(navigator.share){
+    navigator.share({ title:'ArtiRoyce', text:message, url:baseSiteArtiRoyce() }).catch(function(err){ if(!err || err.name!=='AbortError') ouvrirPartage(); });
+  } else ouvrirPartage();
+}
+
+/* ══════════════ ÉPINGLER (un message en haut de la discussion, pour tous) ══════════════ */
+let epingleActuel=null;
+function afficherEpingle(ep){
+  epingleActuel = (ep && ep.id) ? ep : null;
+  const bar=document.getElementById('pinBar'); if(!bar) return;
+  if(!epingleActuel){ bar.classList.remove('show'); return; }
+  document.getElementById('pinAuteur').textContent='Épinglé'+(epingleActuel.parNom?' par '+epingleActuel.parNom:'');
+  document.getElementById('pinTexte').textContent=epingleActuel.texte||'';
+  bar.classList.add('show');
+}
+window.ctxEpingler=async function(){
+  if(!ctxRow || !currentConvId) return;
+  const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
+  closeCtx();
+  if(epingleActuel && epingleActuel.id===idMsg){ desepingler(); return; }
+  const moi=await obtenirMonInfo();
+  const ep={ id:idMsg, texte:apercuMessage(donneesMessages[idMsg]).slice(0,160), par:currentUid, parNom:String(moi.nom||'').split(' ')[0], le:Date.now() };
+  try{
+    await db.collection('conversations').doc(currentConvId).set({ epingle:ep },{merge:true});
+    afficherEpingle(ep);
+    if(currentEstGroupe) messageSystemeGroupe(currentConvId,'a épinglé un message');
+    toast('📌 Message épinglé','g');
+  }catch(e){ console.error('Épinglage impossible :',e); toast('⚠️ Épinglage impossible','r'); }
+}
+window.desepingler=async function(){
+  if(!currentConvId) return;
+  try{
+    await db.collection('conversations').doc(currentConvId).set({ epingle:firebase.firestore.FieldValue.delete() },{merge:true});
+    afficherEpingle(null);
+    toast('📌 Message désépinglé','g');
+  }catch(e){ console.error('Désépinglage impossible :',e); toast('⚠️ Action impossible','r'); }
+}
+window.allerAuMessageEpingle=function(){
+  if(!epingleActuel) return;
+  const row=document.querySelector('#msgsArea [data-mid="r'+epingleActuel.id+'"]');
+  if(!row || row.style.display==='none'){ toast('Message introuvable (peut-être supprimé)',''); return; }
+  row.scrollIntoView({behavior:'smooth',block:'center'});
+  row.classList.add('epingle-flash'); setTimeout(function(){ row.classList.remove('epingle-flash'); },1600);
+}
+
 // ── Modifier un message déjà envoyé (texte uniquement, comme WhatsApp) ──
 let messageEnModificationId=null;
 window.ctxModifier=function(){
