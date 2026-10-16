@@ -1435,12 +1435,8 @@ function applyTranslations(lang) {
 function initLang() {
   let saved = 'FR';
   try { saved = localStorage.getItem('ar_lang') || 'FR'; } catch(e){}
-  /* Détecter la langue du navigateur */
-  if (saved === 'FR') {
-    const bl = (navigator.language || 'fr').toUpperCase().slice(0,2);
-    const map = { FR:'FR', EN:'EN', ES:'ES', PT:'PT', AR:'AR', ZH:'ZH', RU:'RU', DE:'DE', JA:'JA', HI:'HI' };
-    if (map[bl]) saved = map[bl];
-  }
+  /* Langue par défaut : FRANÇAIS (on ne suit plus la langue du téléphone).
+     Le visiteur change de langue avec le bouton 🌍 ; son choix est gardé. */
   applyTranslations(saved);
 
   /* Mettre à jour le sélecteur visuel */
