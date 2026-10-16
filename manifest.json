@@ -4,7 +4,7 @@
   "description": "Le réseau social pour vendre, acheter et exposer vos talents.",
   "lang": "fr",
   "id": "/accueil.html",
-  "start_url": "/accueil.html",
+  "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
