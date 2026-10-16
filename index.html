@@ -16,6 +16,7 @@
   :root {
     --rouge: #e63224;
     --vert: #27a945;
+    --rose: #ec4899;
     --bg: #ffffff;
     --text: #111827;
     --muted: #6b7280;
@@ -43,7 +44,7 @@
   /* ── BARRE TOP ── */
   .top-bar {
     position:fixed; top:0; left:0; right:0; height:3px;
-    background:linear-gradient(90deg,var(--rouge) 0%,var(--vert) 100%);
+    background:linear-gradient(90deg,var(--rouge) 0%,var(--rose) 100%);
     z-index:200;
   }
 
@@ -116,15 +117,15 @@
   .hero-badge {
     display:inline-flex; align-items:center; gap:8px;
     padding:7px 16px; border-radius:50px;
-    border:1.5px solid rgba(39,169,69,0.35);
-    background:rgba(39,169,69,0.08); color:#1a8a33;
+    border:1.5px solid rgba(236,72,153,0.35);
+    background:rgba(236,72,153,0.08); color:#be185d;
     font-size:12px; font-weight:700; letter-spacing:0.5px;
     text-transform:uppercase; margin-bottom:28px;
     animation:fadeInDown 0.8s ease both;
   }
   .badge-dot {
     width:7px;height:7px;border-radius:50%;
-    background:var(--vert);animation:pulse-g 1.5s ease infinite;
+    background:var(--rose);animation:pulse-g 1.5s ease infinite;
   }
   @keyframes pulse-g { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.5);} }
 
@@ -138,8 +139,7 @@
   }
   .hero-title .line2 {
     display:block;
-    background:linear-gradient(90deg,var(--rouge) 0%,#ff7c6e 45%,var(--vert) 100%);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    color:var(--rose);
   }
 
   .hero-sub {
@@ -171,7 +171,7 @@
     box-shadow:0 2px 8px rgba(0,0,0,0.06);
     transition:all .25s; display:flex; align-items:center; gap:8px;
   }
-  .btn-hero-sec:hover { border-color:var(--vert); color:var(--vert); transform:translateY(-2px); }
+  .btn-hero-sec:hover { border-color:var(--rose); color:var(--rose); transform:translateY(-2px); }
 
   /* ── STATS ── */
   .stats-band {
@@ -292,7 +292,7 @@
     font-family:var(--font); font-size:21px; font-weight:800;
     color:var(--text); margin-bottom:10px; line-height:1.2;
   }
-  .mono-title span { color:var(--vert); }
+  .mono-title span { color:var(--rose); }
   .mono-desc {
     font-size:13px; color:var(--muted);
     line-height:1.7; margin-bottom:22px;
@@ -311,8 +311,8 @@
   .tp-ico  { font-size:16px; margin-bottom:4px; }
   .tp-num  { font-size:14px; font-weight:800; color:var(--text); }
   .tp-lbl  { font-size:9px; color:var(--muted); margin-top:2px; font-weight:600; }
-  .threshold-pill.active { border-color:rgba(39,169,69,0.4); background:rgba(39,169,69,0.06); }
-  .threshold-pill.active .tp-num { color:var(--vert); }
+  .threshold-pill.active { border-color:rgba(236,72,153,0.4); background:rgba(236,72,153,0.06); }
+  .threshold-pill.active .tp-num { color:var(--rose); }
 
   .pay-methods {
     display:flex; gap:7px; flex-wrap:wrap; justify-content:center;
@@ -320,8 +320,8 @@
   .pay-pill {
     display:flex; align-items:center; gap:5px;
     padding:7px 12px; border-radius:50px;
-    background:#f3f4f6; border:1px solid #E8ECF0;
-    font-size:11px; font-weight:600; color:var(--text); white-space:nowrap;
+    background:rgba(236,72,153,0.06); border:1.5px solid rgba(236,72,153,0.4);
+    font-size:11px; font-weight:600; color:var(--rose); white-space:nowrap;
   }
   .pay-icon { font-size:13px; }
 
@@ -337,7 +337,7 @@
   .g-ico   { font-size:24px; margin-bottom:8px; display:block; }
   .g-title { font-size:12px; font-weight:700; color:var(--text); margin-bottom:4px; }
   .g-desc  { font-size:11px; color:var(--muted); line-height:1.5; }
-  .g-amount{ font-family:var(--font); font-size:20px; font-weight:800; color:var(--vert); margin-top:8px; display:block; }
+  .g-amount{ font-family:var(--font); font-size:20px; font-weight:800; color:var(--rose); margin-top:8px; display:block; }
 
   /* ── COMMENT ÇA MARCHE ── */
   .how-section { position:relative; z-index:1; padding:40px 16px; }
@@ -378,7 +378,7 @@
     color:var(--text); font-size:14px; font-weight:600;
     cursor:pointer; text-decoration:none; transition:all .25s;
   }
-  .btn-cta-outline:hover { border-color:var(--vert); color:var(--vert); transform:translateY(-2px); }
+  .btn-cta-outline:hover { border-color:var(--rose); color:var(--rose); transform:translateY(-2px); }
 
   /* ── FOOTER ── */
   footer {
@@ -412,7 +412,7 @@
     background:#fff; cursor:pointer;
     transition:all .2s; white-space:nowrap;
   }
-  .lang-btn:hover { border-color:var(--vert); }
+  .lang-btn:hover { border-color:var(--rose); }
   .lang-flag  { font-size:13px; line-height:1; }
   .lang-code  { font-size:9px; font-weight:700; color:var(--text); }
   .lang-arrow { font-size:7px; color:var(--muted); transition:transform .2s; }
@@ -433,10 +433,10 @@
     color:var(--text); transition:background .15s; white-space:nowrap;
   }
   .lang-option:hover { background:#f3f4f6; }
-  .lang-option.active { background:#dcfce7; color:var(--vert); }
+  .lang-option.active { background:#fce7f3; color:var(--rose); }
   .lang-option .lo-flag  { font-size:15px; }
   .lang-option .lo-name  { flex:1; }
-  .lang-option .lo-check { color:var(--vert); font-size:11px; font-weight:800; opacity:0; }
+  .lang-option .lo-check { color:var(--rose); font-size:11px; font-weight:800; opacity:0; }
   .lang-option.active .lo-check { opacity:1; }
 
   /* Toutes tailles d'écran */
@@ -556,9 +556,8 @@
     <span class="line2" data-i18n="hero_line2">du monde, ici.</span>
   </h1>
   <p class="hero-sub" data-i18n="hero_sub">
-    Juristes, électriciens, couturiers, consultants, développeurs — 
-    chaque profil vérifié, chaque talent certifié. 
-    Trouvez, contactez, collaborez.
+    Rejoignez ArtiRoyce, le réseau social pour vendre, acheter et exposer vos talents !
+    Trouvez et retrouvez des amis, des clients et des opportunités.
   </p>
   <div class="hero-ctas">
     <a href="enregistrer.html" class="btn-hero-main" data-i18n="btn_start">Commencer gratuitement →</a>
@@ -653,7 +652,7 @@
         vous commencez à percevoir vos gains — automatiquement, sans démarche compliquée.
       </p>
       <div class="mono-thresholds">
-        <div class="threshold-pill">
+        <div class="threshold-pill active">
           <span class="tp-ico">👁️</span>
           <span class="tp-num">1 000</span>
           <span class="tp-lbl" data-i18n="tp_views">vues</span>
@@ -663,7 +662,7 @@
           <span class="tp-num">500</span>
           <span class="tp-lbl" data-i18n="tp_likes">j'aime</span>
         </div>
-        <div class="threshold-pill">
+        <div class="threshold-pill active">
           <span class="tp-ico">⭐</span>
           <span class="tp-num" data-i18n="tp_elite">Élite</span>
           <span class="tp-lbl" data-i18n="tp_badge">badge</span>
