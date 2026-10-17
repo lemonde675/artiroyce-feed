@@ -570,8 +570,11 @@ var CONTACTS=[];
 // une seule tuile par personne avec ses items empilés.
 window.chargerStatuts=function(){
   MOI_ID=window.currentUid;
+  if(window.__stEcoute&&window.__stEcouteUid===MOI_ID)return;   // déjà en écoute : pas de doublon
+  if(window.__stEcoute){try{window.__stEcoute();}catch(e){}}
+  window.__stEcouteUid=MOI_ID;
   var q=window.fb.query(window.fb.collection(window.db,'statuts'),window.fb.orderBy('createdAt','desc'));
-  window.fb.onSnapshot(q,function(snap){
+  window.__stEcoute=window.fb.onSnapshot(q,function(snap){
     var map={};
     snap.forEach(function(docSnap){
       var d=docSnap.data();
@@ -600,9 +603,13 @@ window.chargerStatuts=function(){
     });
     Object.keys(map).forEach(function(uid){map[uid].items.sort(function(a,b){return a.postedAt-b.postedAt;});});
     if(!map[MOI_ID])map[MOI_ID]={id:MOI_ID,n:'Moi',vb:false,i:'M',bg:'linear-gradient(135deg,#e63224,#ff6b5b)',role:'moi',ph:(window.ME&&window.ME.photo)||null,hidden:false,items:[]};
+    // Garde ce que la personne a masqué pendant cette visite.
+    S.forEach(function(ancien){if(ancien.hidden&&map[ancien.id])map[ancien.id].hidden=true;});
     S=Object.keys(map).map(function(k){return map[k];});
     document.getElementById('stLoading').style.display='none';
-    renderList();renderMyCard();
+    var sig=signatureStatuts();
+    if(sig!==window.__stSignature){window.__stSignature=sig;renderList();renderMyCard();}
+    sauverCacheStatuts();
 
     // Purge automatique : MES propres statuts de plus de 24h (les autres nettoient les leurs de leur côté)
     snap.forEach(function(docSnap){
@@ -616,6 +623,49 @@ window.chargerStatuts=function(){
     document.getElementById('stLoading').innerHTML='<div style="color:#e63224;font-size:13px;text-align:center;padding:20px">Erreur de chargement des statuts</div>';
   });
 };
+
+/* ══ Affichage immédiat à l'entrée (comme Discussion) ══
+   - signatureStatuts : résumé de ce qui est VISIBLE dans la liste → si rien n'a changé, on ne redessine pas.
+   - cache : la dernière liste est gardée dans le téléphone et affichée tout de suite à l'ouverture,
+     puis remplacée en silence par la version à jour. */
+function signatureStatuts(){
+  try{
+    return JSON.stringify(listeOrdonnee().map(function(p){
+      return [p.id,p.n,p.ph,p.hidden,p.vb,p.role,p.items.map(function(it){
+        return [it.docId,it.vu,!!it.photo,(it.photos||[]).length,!!it.video,it.m,it.music,it.bg];
+      })];
+    }));
+  }catch(e){return String(Math.random());}
+}
+var CLE_CACHE_ST='ar_statuts_cache_v1';
+function sauverCacheStatuts(){
+  try{
+    var leger=S.map(function(p){
+      return {id:p.id,n:p.n,vb:p.vb,i:p.i,bg:p.bg,role:p.role,ph:(p.ph&&p.ph.length<4000)||(p.ph&&/^https?:/.test(p.ph))?p.ph:null,hidden:false,
+        items:p.items.map(function(it){
+          var ph=it.photo&&(/^https?:/.test(it.photo)||it.photo.length<120000)?it.photo:null;
+          return {docId:it.docId,e:it.e,m:it.m,photo:ph,photos:null,effet:it.effet,video:it.video&&/^https?:/.test(it.video)?it.video:null,bg:it.bg,
+            music:it.music,musicUrl:it.musicUrl,trimS:it.trimS,trimE:it.trimE,postedAt:it.postedAt,vu:it.vu,
+            restreint:it.restreint,visibleUids:[],exclusUids:[],vuCount:it.vuCount,depuisCache:true};
+        })};
+    });
+    var txt=JSON.stringify({moi:MOI_ID,quand:Date.now(),S:leger});
+    if(txt.length<1500000)localStorage.setItem(CLE_CACHE_ST,txt);
+  }catch(e){}
+}
+function afficherCacheStatuts(){
+  try{
+    var c=JSON.parse(localStorage.getItem(CLE_CACHE_ST)||'null');
+    if(!c||!Array.isArray(c.S)||Date.now()-c.quand>VINGT_QUATRE_H_MS)return false;
+    if(S.some(function(p){return p.items&&p.items.length;}))return false;   // les vraies données sont déjà là
+    MOI_ID=MOI_ID||c.moi;
+    S=c.S;
+    document.getElementById('stLoading').style.display='none';
+    window.__stSignature=signatureStatuts();
+    renderList();renderMyCard();
+    return true;
+  }catch(e){return false;}
+}
 
 var T=null,curIdx=0,editorMode='',editorMusic=null,editorMusicUrl=null,editorMusicTrimS=0,editorMusicTrimE=15,selectedBg='linear-gradient(135deg,#e63224,#ff6b5b)';
 var editorPhotoData=null,editorVideoUrl=null,editorVideoFile=null,editorVideoCompressing=false;
@@ -811,8 +861,7 @@ const observateurStripStatuts=new IntersectionObserver(function(entrees){
   });
 },{root:document.querySelector('.strip'),rootMargin:'200px'});
 
-renderList();
-renderMyCard();
+if(!afficherCacheStatuts()){renderList();renderMyCard();}
 
 // ROW MENU (3 points dans la liste)
 var ctxMenuEl=null;
@@ -1109,6 +1158,22 @@ function closeViewer(){
 window.addEventListener('message',function(e){
   if(e.data&&e.data.type==='panelCache')closeViewer();
 });
+var _essaisOuvrirStatut={};
+window.addEventListener('message',function(e){
+  var d=e.data; if(!d||d.type!=='ouvrirPublication'||!d.id)return;
+  var ack=function(){try{window.parent.postMessage({type:'publicationOuverte'},'*');}catch(er){}};
+  // Déjà affiché : rien à refaire.
+  var pc=S[curPersonIdx], ic=pc&&pc.items?pc.items[curItemIdx]:null;
+  if(document.getElementById('viewer').classList.contains('open')&&ic&&ic.docId===d.id)return ack();
+  for(var i=0;i<S.length;i++){
+    var idx=(S[i].items||[]).findIndex(function(it){return it.docId===d.id;});
+    if(idx>=0){ openViewer(S[i].id,idx); return ack(); }
+  }
+  // Pas (encore) trouvé : après quelques essais, le statut a sans doute dépassé 24 h.
+  if(document.getElementById('stLoading').style.display!=='none')return;   // statuts pas encore chargés : on attend
+  _essaisOuvrirStatut[d.id]=(_essaisOuvrirStatut[d.id]||0)+1;
+  if(_essaisOuvrirStatut[d.id]===3){ toast(TR('Ce statut n’est plus disponible (24 h passées)'),''); ack(); }
+});
 /* ══ Pont vers la vraie messagerie (même structure Firestore que discussion_v1.html) :
    un like/geste/réponse envoyé depuis un statut doit atterrir dans la vraie discussion
    avec cette personne, pas juste s'afficher ici puis disparaître. ══ */
@@ -1135,7 +1200,17 @@ async function apercuDuStatut(it){
   }catch(e){}
   return null;
 }
-async function envoyerVersDiscussion(contenu,viaStatut,estReaction){
+function compresserPhotoStatut(file){
+  return new Promise(function(ok,ko){
+    var r=new FileReader();
+    r.onload=function(ev){var img=new Image();img.onload=function(){
+      var k=Math.min(1,1280/img.width),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(function(b){b?ok(b):ko(new Error('compression'));},'image/jpeg',0.72);
+    };img.onerror=ko;img.src=ev.target.result;};
+    r.onerror=ko;r.readAsDataURL(file);
+  });
+}
+async function envoyerVersDiscussion(contenu,viaStatut,estReaction,extra){
   var p=S[curPersonIdx];
   var itStatut=p&&p.items?p.items[curItemIdx]:null;
   if(!p||!MOI_ID||p.id===MOI_ID)return false; // pas de discussion avec soi-même / profil pas chargé
@@ -1156,6 +1231,13 @@ async function envoyerVersDiscussion(contenu,viaStatut,estReaction){
       });
     }
     var data={texte:contenu,emetteur:MOI_ID,ville:(window.ME&&window.ME.ville)||null,horodatage:window.fb.serverTimestamp()};
+    // Photo jointe à la réponse : envoyée dans Storage (même dossier que Discussion), puis message « image ».
+    if(extra&&extra.photo){
+      var nomF=Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
+      var tache=await window.storage.ref().child('conversations/'+convId+'/images/'+nomF).put(extra.photo,{contentType:'image/jpeg'});
+      var urlPhoto=await tache.ref.getDownloadURL();
+      data={type:'image',url:urlPhoto,legende:contenu||'',emetteur:MOI_ID,ville:(window.ME&&window.ME.ville)||null,horodatage:window.fb.serverTimestamp()};
+    }
     if(viaStatut){
       data.viaStatut=true;
       if(itStatut){
@@ -1168,7 +1250,8 @@ async function envoyerVersDiscussion(contenu,viaStatut,estReaction){
       if(estReaction)data.reactionStatut=true;
     }
     await window.fb.addDoc(window.fb.collection(window.db,'conversations',convId,'messages'),data);
-    await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:(viaStatut?'📢 ':'')+contenu,dernierEmetteur:MOI_ID},{merge:true});
+    var nonLus={}; try{nonLus[p.id]=firebase.firestore.FieldValue.increment(1);}catch(e){}
+    await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:(viaStatut?'📢 ':'')+(data.type==='image'?'📷 Photo':contenu),dernierEmetteur:MOI_ID,nonLus:nonLus},{merge:true});
     return true;
   }catch(e){
     console.error('Envoi vers discussion depuis statut impossible :',e);
@@ -1198,9 +1281,10 @@ function sendSticker(s,ev){
   var fl=document.createElement('div');fl.className='stk-float';fl.textContent=s;
   fl.style.left=(ev?ev.clientX:window.innerWidth/2)+'px';fl.style.top=(ev?ev.clientY:window.innerHeight/2)+'px';
   document.body.appendChild(fl);setTimeout(function(){fl.remove();},1000);
-  envoyerVersDiscussion(s,true,true).then(function(ok){
-    toast(ok?TR('{s} envoyé !', {s: s}):'⚠️ Envoi impossible (connexion)','g');
-  });
+  // Réaction : signalée dans la cloche 🔔 de l'auteur (plus dans Discussion).
+  var pR=S[curPersonIdx], itR=pR&&pR.items?pR.items[curItemIdx]:null;
+  if(pR&&itR&&pR.id!==MOI_ID&&window.ArNotif)ArNotif.envoyer({dest:pR.id,type:'reaction',page:'statuts',cibleId:itR.docId||'',extrait:s,unique:true});
+  toast(TR('{s} envoyé !', {s: s}),'g');
   enregistrerReactionStatut(s);
   repriseApresSaisie();
 }
@@ -1288,23 +1372,28 @@ function voirProfilDepuisStatut(uid){
   window.location.href='profil.html?uid='+uid;
 }
 function closeStatutStats(){document.getElementById('statsOverlay').classList.remove('open');resumeViewer();}
-function triggerPhotoInput(){document.getElementById('photoInput').click();}
+function triggerPhotoInput(){
+  pauseViewer();
+  // Si la personne referme la galerie sans choisir : on reprend quand l'écran revient.
+  setTimeout(function(){window.addEventListener('focus',function(){setTimeout(repriseApresSaisie,400);},{once:true});},300);
+  document.getElementById('photoInput').click();
+}
 function handlePhoto(inp){if(!inp.files||!inp.files[0])return;var r=new FileReader();r.onload=function(e){var t=document.getElementById('vPhotoThumb');t.style.backgroundImage='url('+e.target.result+')';document.getElementById('vPhotoPrev').classList.add('show');};r.readAsDataURL(inp.files[0]);}
-function removePhoto(){document.getElementById('vPhotoPrev').classList.remove('show');document.getElementById('photoInput').value='';}
+function removePhoto(){document.getElementById('vPhotoPrev').classList.remove('show');document.getElementById('photoInput').value='';repriseApresSaisie();}
 function sendReply(){
   var inp=document.getElementById('vInp');
   var hasP=document.getElementById('vPhotoPrev').classList.contains('show');
   var txt=inp.value.trim();
   if(!txt&&!hasP)return;
-  if(txt){
-    envoyerVersDiscussion(txt,true).then(function(ok){
-      toast(ok?(hasP?'📷 Photo + message envoyés !':'✅ Réponse envoyée !'):'⚠️ Envoi impossible (connexion)','g');
-    });
-  }else{
-    // Note : l'aperçu photo seul (sans texte) n'est pas encore réellement transmis —
-    // seul le texte part vers la vraie discussion pour l'instant.
-    toast('📷 Photo + message envoyés !','g');
-  }
+  var pRep=S[curPersonIdx], itRep=pRep&&pRep.items?pRep.items[curItemIdx]:null;
+  var fichier=hasP?(document.getElementById('photoInput').files||[])[0]:null;
+  var envoi=fichier
+    ? compresserPhotoStatut(fichier).then(function(blob){return envoyerVersDiscussion(txt,true,false,{photo:blob});})
+    : envoyerVersDiscussion(txt,true);
+  envoi.then(function(ok){
+    toast(ok?(hasP?'📷 Photo + message envoyés !':'✅ Réponse envoyée !'):'⚠️ Envoi impossible (connexion)','g');
+    if(ok&&pRep&&itRep&&pRep.id!==MOI_ID&&window.ArNotif)ArNotif.envoyer({dest:pRep.id,type:'commentaire',page:'statuts',cibleId:itRep.docId||'',extrait:txt||'📷 Photo'});
+  }).catch(function(e){console.error(e);toast('⚠️ Envoi impossible (connexion)','');});
   inp.value='';removePhoto();document.getElementById('vStickers').classList.remove('open');
   try{inp.blur();}catch(e){}
   repriseApresSaisie();
@@ -2240,6 +2329,7 @@ auth.onAuthStateChanged(async(user)=>{
   }catch(e){console.log('profil:',e);}
 });
 </script>
+<script src="notifications.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
 <script>
