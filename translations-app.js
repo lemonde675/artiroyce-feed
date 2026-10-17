@@ -186,6 +186,8 @@
     ['⭐ Retirer des favoris','⭐ Remove from favorites','⭐ Quitar de favoritos','⭐ Remover dos favoritos','⭐ إزالة من المفضلة','⭐ 取消收藏','⭐ Убрать из избранного','⭐ Aus Favoriten entfernen','⭐ お気に入りから削除','⭐ पसंदीदा से हटाएँ'],
     ['📥 Enregistrer sur le téléphone','📥 Save to phone','📥 Guardar en el teléfono','📥 Salvar no celular','📥 حفظ في الهاتف','📥 保存到手机','📥 Сохранить на телефон','📥 Aufs Handy speichern','📥 スマホに保存','📥 फ़ोन में सेव करें'],
     ['📥 Enregistrer les {n} photos sur le téléphone','📥 Save the {n} photos to phone','📥 Guardar las {n} fotos en el teléfono','📥 Salvar as {n} fotos no celular','📥 حفظ الصور الـ {n} في الهاتف','📥 将 {n} 张照片保存到手机','📥 Сохранить {n} фото на телефон','📥 Die {n} Fotos aufs Handy speichern','📥 {n} 枚の写真をスマホに保存','📥 {n} फ़ोटो फ़ोन में सेव करें'],
+    ['Enregistrer','Save','Guardar','Salvar','حفظ','保存','Сохранить','Speichern','保存','सेव करें'],
+    ['📥 Enregistrer cette photo','📥 Save this photo','📥 Guardar esta foto','📥 Salvar esta foto','📥 حفظ هذه الصورة','📥 保存这张照片','📥 Сохранить это фото','📥 Dieses Foto speichern','📥 この写真を保存','📥 यह फ़ोटो सेव करें'],
     ['🔗 Partager','🔗 Share','🔗 Compartir','🔗 Compartilhar','🔗 مشاركة','🔗 分享','🔗 Поделиться','🔗 Teilen','🔗 シェア','🔗 शेयर करें'],
     ['Préparation…','Preparing…','Preparando…','Preparando…','جارٍ التحضير…','准备中…','Подготовка…','Wird vorbereitet…','準備中…','तैयारी हो रही है…'],
     ['Ne quittez pas cet écran','Don’t leave this screen','No salgas de esta pantalla','Não saia desta tela','لا تغادر هذه الشاشة','请勿离开此页面','Не уходите с этого экрана','Bleib auf diesem Bildschirm','この画面のままお待ちください','यह स्क्रीन न छोड़ें'],
