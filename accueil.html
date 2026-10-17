@@ -611,6 +611,10 @@ function toggleSiteWidth(){
     let controlesVideoHTML = '';
     let boutonSonHTML = '';
     const estVideo = !!(publication && publication.type === 'video');
+    // Pour le menu « Sauver » : la photo ou la vidéo de cette carte (marque ajoutée à l'enregistrement).
+    window._mediaCartesAcc = window._mediaCartesAcc || {};
+    window._mediaCartesAcc[index] = (publication && publication.url && (publication.type === 'video' || publication.type === 'photo'))
+      ? { type: publication.type, url: publication.url, pseudo: pseudo } : null;
     if (estVideo) {
       bgHTML = `<video class="vcard-bg" id="vid-${index}" data-idx="${index}" src="${publication.url}" autoplay muted loop playsinline disablePictureInPicture ontimeupdate="majBarreVideoAcc(${index})"></video>`;
       controlesVideoHTML = `
@@ -672,7 +676,7 @@ function toggleSiteWidth(){
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
           <span class="act-n" id="comment-n-${uid}" data-raw="${data.commentsAccueil||0}">${formatCompactAccueil(data.commentsAccueil||0)}</span>
         </div>
-        <div class="act-btn" id="save-btn-${uid}" onclick="toggleSauverAccueil('${uid}')">
+        <div class="act-btn" id="save-btn-${uid}" onclick="menuSauverAccueil('${uid}', ${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
           <span class="act-n" id="save-n-${uid}" data-raw="${data.savesAccueil||0}">${formatCompactAccueil(data.savesAccueil||0)}</span>
         </div>
@@ -1527,6 +1531,23 @@ function toggleSiteWidth(){
     updateDoc(doc(db, 'utilisateurs', cibleUid), { [champ]: increment(delta) }).catch(e => console.warn('Compteur', champ, e));
   }
 
+  // « Sauver » : ⭐ favoris (comme avant) OU 📥 enregistrer la photo/vidéo avec la marque ArtiRoyce.
+  window.menuSauverAccueil = function(cibleUid, index){
+    const media = (window._mediaCartesAcc || {})[index] || null;
+    const options = [{
+      texte: mesSauvegardesAccueil.has(cibleUid) ? TR('⭐ Retirer des favoris') : TR('⭐ Ajouter aux favoris'),
+      action: () => window.toggleSauverAccueil(cibleUid)
+    }];
+    if (media && window.ArFiligrane) options.push({
+      texte: TR('📥 Enregistrer sur le téléphone'),
+      action: () => media.type === 'video'
+        ? window.ArFiligrane.enregistrerVideo(media.url, media.pseudo)
+        : window.ArFiligrane.enregistrerPhoto(media.url, media.pseudo)
+    });
+    if (window.ArFiligrane) window.ArFiligrane.menu(TR('Sauver'), options);
+    else window.toggleSauverAccueil(cibleUid);   // sécurité : si filigrane.js manque, comme avant
+  };
+
   window.toggleSauverAccueil = async function(cibleUid){
     if (!auth.currentUser) { toast('Connecte-toi pour sauvegarder', ''); return; }
     const moi = auth.currentUser.uid;
@@ -2284,6 +2305,7 @@ function toggleSiteWidth(){
 </script>
 <script src="translations.js"></script>
 <script src="translations-app.js"></script>
+<script src="filigrane.js"></script>
 <script>
   // Retire le rond de chargement dès que la première carte de l'Accueil s'affiche
   // (ou au bout de 15 s au plus tard, pour ne jamais bloquer l'écran).
