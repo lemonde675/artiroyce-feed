@@ -1,7 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<script>
+  // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Statuts - ArtiRoyce</title>
 <style>
@@ -259,8 +264,28 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .contact-row:last-child{border:none}
 .contact-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
 .contact-name{flex:1;font-size:13px;font-weight:700;color:#111}
-.contact-check{width:22px;height:22px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s;flex-shrink:0}
+.contact-check{width:22px;height:22px;border-radius:5px;border:2px solid #bbb;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s;flex-shrink:0}
 .contact-check.checked{background:var(--green);border-color:var(--green);color:#fff}
+/* Cercle de visibilité (Tout le monde / sauf… / seulement…) */
+.cercle-row{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;border-bottom:1px solid #f5f5f5}
+.cercle-ico{width:42px;height:42px;border-radius:50%;background:#f2f2f2;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.cercle-txt{flex:1;min-width:0}
+.cercle-nom{font-size:14.5px;font-weight:700;color:#111}
+.cercle-sub{font-size:12.5px;font-weight:700;color:#ec4899;margin-top:3px}
+.cercle-radio{width:22px;height:22px;border-radius:50%;border:2px solid #bbb;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.cercle-radio.on{border-color:#ec4899}
+.cercle-radio.on::after{content:'';width:12px;height:12px;border-radius:50%;background:#ec4899}
+.contacts-search{display:flex;align-items:center;gap:8px;margin:4px 16px 6px;background:#f4f5f7;border-radius:14px;padding:10px 12px}
+.contacts-search input{flex:1;border:none;background:transparent;outline:none;font-size:14px;font-family:inherit}
+.cercle-ligne-pub{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 16px 8px;padding:10px 12px;border-radius:12px;background:#fdf2f8;font-size:12.5px;font-weight:700;color:#be185d;cursor:pointer}
+/* Liste « Vu par » */
+.vu-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f2f2f2;cursor:pointer}
+.vu-av{width:42px;height:42px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+.vu-av img{width:100%;height:100%;object-fit:cover}
+.vu-nom{flex:1;font-size:14px;font-weight:700;color:#111;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vu-reac{flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:rgba(236,72,153,0.1);border:1.5px solid rgba(236,72,153,0.4);font-size:16px}
+.vu-reac small{font-size:10.5px;font-weight:800;color:#be185d}
+.vu-fleche{color:#ccc;font-size:18px;flex-shrink:0}
 /* Loading */
 .loading-dots{display:flex;gap:5px;align-items:center;justify-content:center;padding:20px}
 .loading-dots span{width:8px;height:8px;border-radius:50%;background:#fde4ef;animation:ldot 0.8s infinite ease-in-out}
@@ -315,20 +340,20 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
   <div class="pg-title">
-    <span class="pg-name"><span class="pg-live-dot"></span> Statuts</span>
-    <button class="pg-add" onclick="openMenu()">+ Ajouter</button>
+    <span class="pg-name"><span class="pg-live-dot"></span> <span data-tr="Statuts">Statuts</span></span>
+    <button class="pg-add" onclick="openMenu()" data-tr="+ Ajouter">+ Ajouter</button>
   </div>
   <div class="strip">
     <div class="strip-item">
       <div class="my-card" id="myStatutCard" onclick="openMenu()">
         <div class="my-card-plus">+</div>
-        <div class="my-card-label" id="myStatutLabel">Mon statut</div>
+        <div class="my-card-label" id="myStatutLabel" data-tr="Mon statut">Mon statut</div>
       </div>
-      <span class="s-card-time" style="color:var(--red);font-weight:800">+ Ajouter</span>
+      <span class="s-card-time" style="color:var(--red);font-weight:800" data-tr="+ Ajouter">+ Ajouter</span>
     </div>
   </div>
-  <div class="section-header"><span class="list-title">Récents</span><span class="list-count">0 nouveau</span></div>
-  <div id="stLoading" style="text-align:center;padding:30px 20px;color:#aaa;font-size:13px;font-weight:600">⏳ Chargement des statuts…</div>
+  <div class="section-header"><span class="list-title" data-tr="Récents">Récents</span><span class="list-count">0 nouveau</span></div>
+  <div id="stLoading" style="text-align:center;padding:30px 20px;color:#aaa;font-size:13px;font-weight:600" data-tr="⏳ Chargement des statuts…">⏳ Chargement des statuts…</div>
   <div class="st-list" id="stList"></div>
 </div>
 
@@ -362,7 +387,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   <div class="v-tap v-tap-l" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'prev')" onpointerleave="onZoneLeave()" onpointercancel="onZoneLeave()"></div>
   <div class="v-tap v-tap-r" onpointerdown="onZoneDown()" onpointerup="onZoneUp(event,'next')" onpointerleave="onZoneLeave()" onpointercancel="onZoneLeave()"></div>
   <div class="v-stickers" id="vStickers">
-    <div class="v-stk-title">Stickers ArtiRoyce</div>
+    <div class="v-stk-title" data-tr="Stickers ArtiRoyce">Stickers ArtiRoyce</div>
     <div class="v-stk-grid">
       <span class="v-stk" onclick="sendSticker('❤️',event)">❤️</span><span class="v-stk" onclick="sendSticker('🔥',event)">🔥</span>
       <span class="v-stk" onclick="sendSticker('👏',event)">👏</span><span class="v-stk" onclick="sendSticker('😍',event)">😍</span>
@@ -377,7 +402,7 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   </div>
   <div class="v-photo-prev" id="vPhotoPrev">
     <div class="v-photo-thumb" id="vPhotoThumb"></div>
-    <span style="color:#fff;font-size:12px;font-weight:700;flex:1">Photo ajoutée</span>
+    <span style="color:#fff;font-size:12px;font-weight:700;flex:1" data-tr="Photo ajoutée">Photo ajoutée</span>
     <span class="v-photo-rm" onclick="removePhoto()">✕</span>
   </div>
   <div class="v-foot">
@@ -396,8 +421,8 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
       <button class="v-act-btn" onclick="triggerPhotoInput()">📷</button>
       <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(this)"/>
       <div class="v-inp-wrap">
-        <input class="v-inp" placeholder="Répondre…" id="vInp" onkeydown="if(event.key==='Enter')sendReply()"/>
-        <button class="v-snd" onclick="sendReply()">➤</button>
+        <input class="v-inp" placeholder="Répondre…" data-tr-ph="Répondre…" id="vInp" onfocus="pauseViewer()" onblur="repriseApresSaisie()" onkeydown="if(event.key==='Enter'){event.preventDefault();sendReply();}" enterkeyhint="send"/>
+        <button class="v-snd" onpointerdown="event.preventDefault()" onclick="sendReply()">➤</button>
       </div>
     </div>
   </div>
@@ -409,15 +434,15 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 <div class="overlay" id="menuOverlay" onclick="if(event.target===this)closeMenu()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-header"><span class="sheet-title">📢 Créer un statut</span><span class="sheet-x" onclick="closeMenu()">✕</span></div>
+    <div class="sheet-header"><span class="sheet-title" data-tr="📢 Créer un statut">📢 Créer un statut</span><span class="sheet-x" onclick="closeMenu()">✕</span></div>
     <div class="asp-opts">
-      <button class="asp-opt" onclick="closeMenu();openEditor('photo')"><span class="asp-opt-icon">📷</span><span class="asp-opt-label">Photo</span></button>
-      <button class="asp-opt" onclick="closeMenu();openEditor('video')"><span class="asp-opt-icon">🎥</span><span class="asp-opt-label">Vidéo</span></button>
-      <button class="asp-opt" onclick="closeMenu();openEditor('text')"><span class="asp-opt-icon">✍️</span><span class="asp-opt-label">Texte</span></button>
-      <button class="asp-opt" onclick="closeMenu();openMusicPanel('direct')"><span class="asp-opt-icon">🎵</span><span class="asp-opt-label">Musique</span></button>
-      <button class="asp-opt" onclick="closeMenu();openEditor('collage')"><span class="asp-opt-icon">🖼️</span><span class="asp-opt-label">Collage</span></button>
+      <button class="asp-opt" onclick="closeMenu();openEditor('photo')"><span class="asp-opt-icon">📷</span><span class="asp-opt-label" data-tr="Photo">Photo</span></button>
+      <button class="asp-opt" onclick="closeMenu();openEditor('video')"><span class="asp-opt-icon">🎥</span><span class="asp-opt-label" data-tr="Vidéo">Vidéo</span></button>
+      <button class="asp-opt" onclick="closeMenu();openEditor('text')"><span class="asp-opt-icon">✍️</span><span class="asp-opt-label" data-tr="Texte">Texte</span></button>
+      <button class="asp-opt" onclick="closeMenu();openMusicPanel('direct')"><span class="asp-opt-icon">🎵</span><span class="asp-opt-label" data-tr="Musique">Musique</span></button>
+      <button class="asp-opt" onclick="closeMenu();openEditor('collage')"><span class="asp-opt-icon">🖼️</span><span class="asp-opt-label" data-tr="Collage">Collage</span></button>
     </div>
-    <span class="sheet-cancel" onclick="closeMenu()">Annuler</span>
+    <span class="sheet-cancel" onclick="closeMenu()" data-tr="Annuler">Annuler</span>
   </div>
 </div>
 
@@ -426,13 +451,14 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   <div class="sheet" id="editorSheet">
     <div class="sheet-handle"></div>
     <div class="sheet-header">
-      <span class="sheet-x" onclick="closeEditor();openMenu()">← Retour</span>
+      <span class="sheet-x" onclick="closeEditor();openMenu()" data-tr="← Retour">← Retour</span>
       <span class="sheet-title" id="editorTitle">Éditeur</span>
       <span style="width:60px"></span>
     </div>
     <div class="sheet-body" id="editorBody"></div>
-    <button class="pub-btn" onclick="publishStatut()">🚀 Publier</button>
-    <span class="sheet-cancel" onclick="closeEditor()">Annuler</span>
+    <div class="cercle-ligne-pub" id="cercleLignePub" onclick="ouvrirCercle('defaut')"><span id="cercleLignePubTxt">👥</span><span data-tr="Modifier ›">Modifier ›</span></div>
+    <button class="pub-btn" onclick="publishStatut()" data-tr="🚀 Publier">🚀 Publier</button>
+    <span class="sheet-cancel" onclick="closeEditor()" data-tr="Annuler">Annuler</span>
   </div>
 </div>
 
@@ -441,19 +467,19 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
   <div class="music-sheet">
     <div class="music-hdr">
       <div class="music-title-row">
-        <span class="music-title">🎵 Musique</span>
+        <span class="music-title" data-tr="🎵 Musique">🎵 Musique</span>
         <span class="music-close-btn" onclick="closeMusicPanel()">✕</span>
       </div>
       <div class="music-search-row">
-        <input class="music-inp" id="musicInp" placeholder="Chercher artiste, chanson…" onkeydown="if(event.key==='Enter')searchMusic()"/>
+        <input class="music-inp" id="musicInp" placeholder="Chercher artiste, chanson…" data-tr-ph="Chercher artiste, chanson…" onkeydown="if(event.key==='Enter')searchMusic()"/>
         <button class="music-gallery-btn" onclick="triggerAudioGallery()" title="Depuis galerie">🎼</button>
-        <button class="music-srch-btn" onclick="searchMusic()">Chercher</button>
+        <button class="music-srch-btn" onclick="searchMusic()" data-tr="Chercher">Chercher</button>
       </div>
       <input type="file" id="audioGalleryInput" accept="audio/*" style="display:none" onchange="handleAudioGallery(this)"/>
     </div>
-    <div class="music-results" id="musicResults"><div style="text-align:center;padding:24px;color:#ccc;font-size:13px;font-weight:600">🌍 Cherche parmi des millions de titres<br><span style="font-size:11px">ou 🎼 choisis depuis ta galerie</span></div></div>
+    <div class="music-results" id="musicResults"><div style="text-align:center;padding:24px;color:#ccc;font-size:13px;font-weight:600"><span data-tr="🌍 Cherche parmi des millions de titres">🌍 Cherche parmi des millions de titres</span><br><span style="font-size:11px" data-tr="ou 🎼 choisis depuis ta galerie">ou 🎼 choisis depuis ta galerie</span></div></div>
     <div class="music-trim-sec" id="musicTrimSec">
-      <div class="trim-sec-lbl"><span>✂️ Choisir le moment</span><span id="trimTimeLbl">0:00 — 0:15</span></div>
+      <div class="trim-sec-lbl"><span data-tr="✂️ Choisir le moment">✂️ Choisir le moment</span><span id="trimTimeLbl">0:00 — 0:15</span></div>
       <div class="trim-track" id="trimTrack" onclick="trimClick(event)">
         <div class="trim-wave-bg" id="trimWaveBg"></div>
         <div class="trim-fill" id="trimFill"></div>
@@ -461,9 +487,9 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
         <div class="trim-he" id="trimHe" ontouchstart="startDrag(event,'e')" onmousedown="startDrag(event,'e')">▶</div>
         <button class="trim-preview-btn" id="trimPreviewBtn" onclick="event.stopPropagation();previewTrim()">▶</button>
       </div>
-      <button class="trim-attach-btn" onclick="attachMusic()">✅ Attacher au statut</button>
+      <button class="trim-attach-btn" onclick="attachMusic()" data-tr="✅ Attacher au statut">✅ Attacher au statut</button>
     </div>
-    <span class="music-cancel-lbl" onclick="closeMusicPanel()">Annuler</span>
+    <span class="music-cancel-lbl" onclick="closeMusicPanel()" data-tr="Annuler">Annuler</span>
   </div>
 </div>
 
@@ -480,10 +506,10 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 <div class="overlay" id="statsOverlay" onclick="if(event.target===this)closeStatutStats()">
   <div class="sheet" style="max-height:70%;overflow-y:auto">
     <div class="sheet-handle"></div>
-    <div class="sheet-header"><span class="sheet-title">📊 Statistiques du statut</span><span class="sheet-x" onclick="closeStatutStats()">✕</span></div>
+    <div class="sheet-header"><span class="sheet-title" data-tr="📊 Statistiques du statut">📊 Statistiques du statut</span><span class="sheet-x" onclick="closeStatutStats()">✕</span></div>
     <div style="padding:18px">
-      <div style="font-size:14px;font-weight:700;color:#555;margin-bottom:14px">👀 <span id="statsVuTotal">0</span> vue(s)</div>
-      <div style="font-size:12px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Réactions</div>
+      <div style="font-size:14px;font-weight:700;color:#555;margin-bottom:14px">👀 <span id="statsVuTotal">0</span> <span data-tr="vue(s)">vue(s)</span></div>
+      <div style="font-size:12px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px" data-tr="Vu par">Vu par</div>
       <div id="statsReactionsWrap">Chargement…</div>
     </div>
   </div>
@@ -492,26 +518,40 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 <div class="overlay" id="speedOverlay" onclick="if(event.target===this)closeSpeedPicker()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-header"><span class="sheet-title">⏱️ Vitesse de défilement</span><span class="sheet-x" onclick="closeSpeedPicker()">✕</span></div>
+    <div class="sheet-header"><span class="sheet-title" data-tr="⏱️ Vitesse de défilement">⏱️ Vitesse de défilement</span><span class="sheet-x" onclick="closeSpeedPicker()">✕</span></div>
     <div style="padding:8px 0">
-      <div class="ctx-item" onclick="definirVitesseDefilement(5000)">5 secondes</div>
-      <div class="ctx-item" onclick="definirVitesseDefilement(11000)">11 secondes (par défaut)</div>
-      <div class="ctx-item" onclick="definirVitesseDefilement(20000)">20 secondes</div>
-      <div class="ctx-item" onclick="definirVitesseDefilement(30000)">30 secondes</div>
-      <div class="ctx-item" onclick="definirVitesseDefilement(60000)">1 minute</div>
-      <div class="ctx-item" onclick="definirVitesseDefilement('manuel')">⏸️ Pas de défilement automatique (je swipe moi-même)</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(5000)" data-tr="5 secondes">5 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(11000)" data-tr="11 secondes (par défaut)">11 secondes (par défaut)</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(20000)" data-tr="20 secondes">20 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(30000)" data-tr="30 secondes">30 secondes</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement(60000)" data-tr="1 minute">1 minute</div>
+      <div class="ctx-item" onclick="definirVitesseDefilement('manuel')" data-tr="⏸️ Pas de défilement automatique (je swipe moi-même)">⏸️ Pas de défilement automatique (je swipe moi-même)</div>
     </div>
+  </div>
+</div>
+<!-- CERCLE : qui peut voir mes statuts -->
+<div class="overlay" id="cercleOverlay" onclick="if(event.target===this)fermerCercle()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><span class="sheet-title" data-tr="Choisissez un cercle">Choisissez un cercle</span><span class="sheet-x" onclick="fermerCercle()">✕</span></div>
+    <div style="padding:4px 0 8px">
+      <div class="cercle-row" onclick="choisirModeCercle('tous')"><div class="cercle-ico">🌍</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Tout le monde">Tout le monde</div></div><div class="cercle-radio" id="crTous"></div></div>
+      <div class="cercle-row" onclick="choisirModeCercle('sauf')"><div class="cercle-ico">🚫</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Tout le monde sauf…">Tout le monde sauf…</div><div class="cercle-sub" id="crSaufSub" onclick="event.stopPropagation();ouvrirListeCercle('sauf')"></div></div><div class="cercle-radio" id="crSauf"></div></div>
+      <div class="cercle-row" onclick="choisirModeCercle('seulement')"><div class="cercle-ico">✅</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Ne partager qu'avec…">Ne partager qu'avec…</div><div class="cercle-sub" id="crSeulSub" onclick="event.stopPropagation();ouvrirListeCercle('seulement')"></div></div><div class="cercle-radio" id="crSeul"></div></div>
+    </div>
+    <button class="pub-btn" onclick="enregistrerCercle()" style="margin:0 16px 12px;width:calc(100% - 32px)" data-tr="✅ Enregistrer">✅ Enregistrer</button>
   </div>
 </div>
 <div class="overlay" id="contactsOverlay" onclick="if(event.target===this)closeContacts()">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-header"><span class="sheet-x" onclick="closeContacts();openViewerMenu()">← Retour</span><span class="sheet-title">Qui peut voir ?</span><span style="width:60px"></span></div>
+    <div class="sheet-header"><span class="sheet-x" onclick="closeContacts()" data-tr="← Retour">← Retour</span><span class="sheet-title" id="contactsTitre" data-tr="Qui peut voir ?">Qui peut voir ?</span><span style="width:60px"></span></div>
+    <div class="contacts-search"><span>🔍</span><input id="contactsRecherche" placeholder="Rechercher un nom…" data-tr-ph="Rechercher un nom…" oninput="filtrerContacts()"/></div>
     <div class="sheet-body">
       <div class="contacts-list" id="contactsList"></div>
     </div>
-    <button class="pub-btn" onclick="saveContacts()" style="margin:0 16px 12px;width:calc(100% - 32px)">✅ Confirmer</button>
-    <span class="sheet-cancel" onclick="closeContacts()">Annuler</span>
+    <button class="pub-btn" onclick="saveContacts()" style="margin:0 16px 12px;width:calc(100% - 32px)" data-tr="✅ Confirmer">✅ Confirmer</button>
+    <span class="sheet-cancel" onclick="closeContacts()" data-tr="Annuler">Annuler</span>
   </div>
 </div>
 
@@ -544,6 +584,8 @@ window.chargerStatuts=function(){
         var visibles=Array.isArray(d.visibleUids)?d.visibleUids:[];
         if(visibles.indexOf(MOI_ID)<0)return; // pas dans la liste autorisée : ce statut m'est invisible
       }
+      // « Tout le monde sauf… » : les personnes exclues ne voient pas ce statut.
+      if(uid!==MOI_ID&&Array.isArray(d.exclusUids)&&d.exclusUids.indexOf(MOI_ID)>=0)return;
       if(!map[uid]){
         map[uid]={id:uid,n:d.auteurNom||'Anonyme',vb:!!d.auteurVerifie,i:(d.auteurNom||'?')[0].toUpperCase(),
           bg:bgPourUid(uid),role:d.auteurRole||'visiteur',ph:d.auteurPhoto||null,hidden:false,items:[]};
@@ -552,7 +594,7 @@ window.chargerStatuts=function(){
         docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,photos:d.photos||null,effet:d.effet||'static',video:d.video||null,bg:d.bg||null,
         music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
         postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0),
-        restreint:!!d.restreint,visibleUids:Array.isArray(d.visibleUids)?d.visibleUids:[],
+        restreint:!!d.restreint,visibleUids:Array.isArray(d.visibleUids)?d.visibleUids:[],exclusUids:Array.isArray(d.exclusUids)?d.exclusUids:[],
         vuCount:Array.isArray(d.vuPar)?d.vuPar.length:0
       });
     });
@@ -627,15 +669,15 @@ function getEmbedTopOffsetPx(){
 
 function tempsDepuis(ms){
   var diff=Date.now()-ms, m=Math.floor(diff/60000);
-  if(m<1) return 'à l\'instant';
-  if(m<60) return m+' min';
+  if(m<1) return TR("à l'instant");
+  if(m<60) return TR('{n} min', {n: m});
   var h=Math.floor(m/60);
-  if(h<24) return h+'h';
-  return Math.floor(h/24)+'j';
+  if(h<24) return TR('{n} h', {n: h});
+  return TR('{n} j', {n: Math.floor(h/24)});
 }
 
 var toastT;
-function toast(m,t){var el=document.getElementById('toastEl');el.textContent=m;el.className='toast show'+(t==='g'?' g':'');clearTimeout(toastT);toastT=setTimeout(function(){el.className='toast';},2600);}
+function toast(m,t){var el=document.getElementById('toastEl');el.textContent=TR(m);el.className='toast show'+(t==='g'?' g':'');clearTimeout(toastT);toastT=setTimeout(function(){el.className='toast';},2600);}
 
 function goAccueil(){if(window.parent!==window)window.parent.postMessage({type:'goPanel',panel:0},'*');else window.location.href='accueil.html';}
 
@@ -644,7 +686,7 @@ function itemNonExpire(it){return (Date.now()-it.postedAt)<VINGT_QUATRE_H_MS;}
 function personneVisible(p){return !p.hidden && p.items.some(itemNonExpire);}
 function personneEstVue(p){var v=p.items.filter(itemNonExpire);return v.length>0 && v.every(function(it){return it.vu;});}
 function dernierTs(p){var v=p.items.filter(itemNonExpire);return v.length?Math.max.apply(null,v.map(function(it){return it.postedAt;})):0;}
-function roleTexte(p){return p.role==='visiteur'?'Visiteur':'Professionnel';}
+function roleTexte(p){return p.role==='visiteur'?TR('Visiteur'):TR('Professionnel');}
 
 // Ordre façon WhatsApp : les statuts non-vus (triés du plus récent au plus ancien) passent TOUJOURS
 // devant les statuts déjà vus (également triés par récence). Un nouveau contenu ajouté par une personne
@@ -671,7 +713,7 @@ function renderList(){
   var ordonnee=listeOrdonnee();
   var nbNonVus=ordonnee.filter(function(p){return !personneEstVue(p);}).length;
   var countEl=document.querySelector('.list-count');
-  if(countEl)countEl.textContent=nbNonVus+' nouveau'+(nbNonVus>1?'x':'');
+  if(countEl)countEl.textContent=TR(nbNonVus>1?'{n} nouveaux':'{n} nouveau', {n: nbNonVus});
   var visibles=ordonnee.slice(0,nombreListeAffiches);
   visibles.forEach(function(p){
     var vu=personneEstVue(p);
@@ -749,7 +791,7 @@ function renderStrip(){
       +(vu?'':'<div class="s-card-unseen"></div>')
       +(dernier.music?'<div class="s-card-music">🎵 '+esc(dernier.music)+'</div>':'')
       +'<div class="s-card-name">'+esc(p.n)+'</div></div>'
-      +'<span class="s-card-time">'+tempsDepuis(dernier.postedAt)+(vu?' · Vu':'')+'</span>';
+      +'<span class="s-card-time">'+tempsDepuis(dernier.postedAt)+(vu?' · '+TR('Vu'):'')+'</span>';
     strip.appendChild(div);
   });
   var sentinelleStrip=document.createElement('div');
@@ -784,9 +826,9 @@ function openRowMenu(id,ev){
   m.style.right='12px';
   m.style.top=(ev.clientY-10)+'px';
   m.innerHTML=(estMoi
-      ? '<div class="ctx-item" onclick="closeCtxMenu();openViewerMenu()"><span class="ctx-item-icon">👥</span>Choisir qui voit</div>'
-        +'<div class="ctx-item danger" onclick="deleteFromRow()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>'
-      : '<div class="ctx-item" onclick="maskFromRow()"><span class="ctx-item-icon">🙈</span>Masquer</div>');
+      ? '<div class="ctx-item" onclick="closeCtxMenu();openViewerMenu()"><span class="ctx-item-icon">👥</span>'+TR('Choisir qui voit')+'</div>'
+        +'<div class="ctx-item danger" onclick="deleteFromRow()"><span class="ctx-item-icon">🗑️</span>'+TR('Supprimer')+'</div>'
+      : '<div class="ctx-item" onclick="maskFromRow()"><span class="ctx-item-icon">🙈</span>'+TR('Masquer')+'</div>');
   document.body.appendChild(m);
   ctxMenuEl=m;
   setTimeout(function(){document.addEventListener('click',closeCtxMenu,{once:true});},50);
@@ -796,7 +838,7 @@ function maskFromRow(){closeCtxMenu();S[curIdx].hidden=true;renderList();toast('
 async function deleteFromRow(){
   closeCtxMenu();
   var p=S[curIdx];if(!p||p.id!==MOI_ID)return;
-  if(!confirm('Supprimer tous tes statuts actifs ?'))return;
+  if(!confirm(TR('Supprimer tous tes statuts actifs ?')))return;
   try{
     await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
     toast('Statut supprimé','g');
@@ -1071,8 +1113,31 @@ window.addEventListener('message',function(e){
    un like/geste/réponse envoyé depuis un statut doit atterrir dans la vraie discussion
    avec cette personne, pas juste s'afficher ici puis disparaître. ══ */
 function convIdFor(uidA,uidB){return [uidA,uidB].sort().join('_');}
-async function envoyerVersDiscussion(contenu,viaStatut){
+// Petite image (vignette) du statut affiché, pour que la discussion montre À QUEL statut on répond.
+async function apercuDuStatut(it){
+  function reduire(src){
+    return new Promise(function(ok){
+      if(!src)return ok(null);
+      var im=new Image(); im.crossOrigin='anonymous';
+      im.onload=function(){
+        try{var c=document.createElement('canvas'),h=160,w=Math.round(h*im.width/im.height);c.width=Math.min(w,160);c.height=h;
+          var x=c.getContext('2d');x.drawImage(im,(c.width-w)/2,0,w,h);ok(c.toDataURL('image/jpeg',0.6));}catch(e){ok(null);}
+      };
+      im.onerror=function(){ok(null);}; im.src=src;
+    });
+  }
+  try{
+    if(it.photo)return await reduire(it.photo);
+    if(it.photos&&it.photos.length){var f=it.photos[0];return await reduire(typeof f==='string'?f:(f&&(f.photo||f.url)));}
+    var v=document.querySelector('#vMedia video');
+    if(v&&v.videoWidth){var c=document.createElement('canvas'),h=160,w=Math.round(h*v.videoWidth/v.videoHeight);c.width=Math.min(w,160);c.height=h;
+      c.getContext('2d').drawImage(v,(c.width-w)/2,0,w,h);return c.toDataURL('image/jpeg',0.6);}
+  }catch(e){}
+  return null;
+}
+async function envoyerVersDiscussion(contenu,viaStatut,estReaction){
   var p=S[curPersonIdx];
+  var itStatut=p&&p.items?p.items[curItemIdx]:null;
   if(!p||!MOI_ID||p.id===MOI_ID)return false; // pas de discussion avec soi-même / profil pas chargé
   var convId=convIdFor(MOI_ID,p.id);
   var convRef=window.fb.doc(window.db,'conversations',convId);
@@ -1091,25 +1156,53 @@ async function envoyerVersDiscussion(contenu,viaStatut){
       });
     }
     var data={texte:contenu,emetteur:MOI_ID,ville:(window.ME&&window.ME.ville)||null,horodatage:window.fb.serverTimestamp()};
-    if(viaStatut)data.viaStatut=true;
+    if(viaStatut){
+      data.viaStatut=true;
+      if(itStatut){
+        data.statutType=itStatut.photo||(itStatut.photos&&itStatut.photos.length)?'photo':(itStatut.video?'video':'texte');
+        data.statutDocId=itStatut.docId||null;
+        data.statutTexte=(itStatut.m||'').slice(0,80);
+        data.statutBg=itStatut.bg||p.bg||null;
+        data.statutApercu=await apercuDuStatut(itStatut);
+      }
+      if(estReaction)data.reactionStatut=true;
+    }
     await window.fb.addDoc(window.fb.collection(window.db,'conversations',convId,'messages'),data);
-    await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:contenu,dernierEmetteur:MOI_ID},{merge:true});
+    await window.fb.setDoc(convRef,{derniereActivite:window.fb.serverTimestamp(),dernierMessage:(viaStatut?'📢 ':'')+contenu,dernierEmetteur:MOI_ID},{merge:true});
     return true;
   }catch(e){
     console.error('Envoi vers discussion depuis statut impossible :',e);
     return false;
   }
 }
-function toggleStickers(){document.getElementById('vStickers').classList.toggle('open');}
+function toggleStickers(){
+  var ouvert=document.getElementById('vStickers').classList.toggle('open');
+  if(ouvert)pauseViewer(); else repriseApresSaisie();
+}
+// Reprend la lecture seulement quand plus rien n'est en cours (pas de texte tapé,
+// pas de stickers ouverts, aucune fiche ouverte par-dessus).
+function repriseApresSaisie(){
+  setTimeout(function(){
+    var inp=document.getElementById('vInp');
+    if(!document.getElementById('viewer').classList.contains('open'))return;
+    if(inp&&(document.activeElement===inp||inp.value.trim()))return;
+    if(document.getElementById('vStickers').classList.contains('open'))return;
+    if(document.getElementById('vPhotoPrev').classList.contains('show'))return;
+    var fiches=['viewerMenuOverlay','statsOverlay','speedOverlay','contactsOverlay','cercleOverlay'];
+    for(var i=0;i<fiches.length;i++){var f=document.getElementById(fiches[i]);if(f&&f.classList.contains('open'))return;}
+    resumeViewer();
+  },250);
+}
 function sendSticker(s,ev){
   document.getElementById('vStickers').classList.remove('open');
   var fl=document.createElement('div');fl.className='stk-float';fl.textContent=s;
   fl.style.left=(ev?ev.clientX:window.innerWidth/2)+'px';fl.style.top=(ev?ev.clientY:window.innerHeight/2)+'px';
   document.body.appendChild(fl);setTimeout(function(){fl.remove();},1000);
-  envoyerVersDiscussion(s,true).then(function(ok){
-    toast(ok?(''+s+' envoyé !'):'⚠️ Envoi impossible (connexion)','g');
+  envoyerVersDiscussion(s,true,true).then(function(ok){
+    toast(ok?TR('{s} envoyé !', {s: s}):'⚠️ Envoi impossible (connexion)','g');
   });
   enregistrerReactionStatut(s);
+  repriseApresSaisie();
 }
 /* Réaction enregistrée sur le statut lui-même (indépendamment du message envoyé en discussion
    ci-dessus) : un document par personne dans une sous-collection, pour que l'auteur puisse
@@ -1141,9 +1234,35 @@ async function openStatutStats(){
   if(!it||!it.docId)return;
   pauseViewer();
   document.getElementById('statsVuTotal').textContent=it.vuCount||0;
-  document.getElementById('statsReactionsWrap').innerHTML='<span style="color:#aaa;font-size:13px">Chargement…</span>';
+  document.getElementById('statsReactionsWrap').innerHTML='<span style="color:#aaa;font-size:13px">'+TR('Chargement…')+'</span>';
   document.getElementById('statsOverlay').classList.add('open');
   try{
+    // Qui a vu (avec photo de profil) + qui a réagi (pastille rose), le tout dans une seule liste.
+    var reac={};
+    try{(await window.fb.getDoc(window.fb.collection(window.db,'statuts',it.docId,'reactions'))).forEach(function(d){reac[d.id]=d.data();});}catch(e){}
+    var docSt=await window.fb.getDoc(window.fb.doc(window.db,'statuts',it.docId));
+    var vus=((docSt.exists?docSt.data():{}).vuPar||[]).filter(function(u){return u&&u!==MOI_ID;});
+    Object.keys(reac).forEach(function(u){if(vus.indexOf(u)<0&&u!==MOI_ID)vus.push(u);});
+    document.getElementById('statsVuTotal').textContent=vus.length;
+    var gens=await Promise.all(vus.slice(0,200).map(function(uid){
+      return window.fb.getDoc(window.fb.doc(window.db,'utilisateurs',uid)).then(function(s){
+        var u=s.exists?s.data():{}; var nom=((u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')).trim()||u.nom||(reac[uid]&&reac[uid].nom)||TR('Utilisateur');
+        return {uid:uid,nom:nom,photo:u.photoAvatar||(reac[uid]&&reac[uid].photo)||null,emoji:reac[uid]?reac[uid].emoji:null};
+      }).catch(function(){return {uid:uid,nom:(reac[uid]&&reac[uid].nom)||TR('Utilisateur'),photo:null,emoji:reac[uid]?reac[uid].emoji:null};});
+    }));
+    gens.sort(function(a,b){return (b.emoji?1:0)-(a.emoji?1:0);});
+    document.getElementById('statsReactionsWrap').innerHTML=gens.length
+      ? gens.map(function(g){
+          var ini=escapeHtmlStatut((g.nom||'?')[0].toUpperCase());
+          var av=g.photo?'<img src="'+g.photo+'" onerror="this.parentNode.textContent=\''+ini+'\'">':ini;
+          return '<div class="vu-row" onclick="voirProfilDepuisStatut(\''+g.uid+'\')">'
+            +'<div class="vu-av" style="background:'+bgPourUid(g.uid)+'">'+av+'</div>'
+            +'<div class="vu-nom">'+escapeHtmlStatut(g.nom)+'</div>'
+            +(g.emoji?'<span class="vu-reac">'+escapeHtmlStatut(g.emoji)+'<small>'+TR('a réagi')+'</small></span>':'')
+            +'<span class="vu-fleche">›</span></div>';
+        }).join('')
+      : '<span style="color:#aaa;font-size:13px">'+TR('Personne n’a encore vu ce statut')+'</span>';
+    return;
     var snap=await window.fb.getDoc(window.fb.collection(window.db,'statuts',it.docId,'reactions'));
     var reactions=[];
     snap.forEach(function(docSnap){reactions.push(docSnap.data());});
@@ -1161,6 +1280,12 @@ async function openStatutStats(){
     console.error('Chargement des réactions du statut impossible :',e);
     document.getElementById('statsReactionsWrap').innerHTML='<span style="color:var(--red);font-size:13px">Erreur de chargement</span>';
   }
+}
+function voirProfilDepuisStatut(uid){
+  document.getElementById('statsOverlay').classList.remove('open');
+  closeViewer();
+  try{ if(window.parent&&window.parent!==window&&typeof window.parent.goUserProfile==='function'){window.parent.goUserProfile(uid);return;} }catch(e){}
+  window.location.href='profil.html?uid='+uid;
 }
 function closeStatutStats(){document.getElementById('statsOverlay').classList.remove('open');resumeViewer();}
 function triggerPhotoInput(){document.getElementById('photoInput').click();}
@@ -1181,22 +1306,48 @@ function sendReply(){
     toast('📷 Photo + message envoyés !','g');
   }
   inp.value='';removePhoto();document.getElementById('vStickers').classList.remove('open');
+  try{inp.blur();}catch(e){}
+  repriseApresSaisie();
 }
 
 // VIEWER MENU (3 points dans viewer)
 function openViewerMenu(){
   pauseViewer(); // le statut ne doit pas avancer/finir pendant que ce sheet est ouvert
   var s=S[curPersonIdx];
-  document.getElementById('viewerMenuName').textContent=s?s.n:'Options';
+  document.getElementById('viewerMenuName').textContent=s?s.n:TR('Options');
   var estMoi=s&&s.id===MOI_ID;
   document.getElementById('viewerMenuOptions').innerHTML=(estMoi
-    ? '<div class="ctx-item" onclick="openContactsPicker()"><span class="ctx-item-icon">👥</span>Choisir qui peut voir</div>'
-      +'<div class="ctx-item danger" onclick="deleteStatut()"><span class="ctx-item-icon">🗑️</span>Supprimer</div>'
-    : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>Masquer ce statut</div>')
-    +'<div class="ctx-item" onclick="openSpeedPicker()"><span class="ctx-item-icon">⏱️</span>Vitesse de défilement</div>';
+    ? '<div class="ctx-item" onclick="ouvrirCercle(\'statut\')"><span class="ctx-item-icon">👥</span>'+TR('Choisir qui peut voir')+'</div>'
+      +'<div class="ctx-item danger" onclick="deleteStatut()"><span class="ctx-item-icon">🗑️</span>'+TR('Supprimer')+'</div>'
+    : '<div class="ctx-item" onclick="maskStatut()"><span class="ctx-item-icon">🙈</span>'+TR('Masquer ce statut')+'</div>')
+    // 📥 Télécharger le statut AVEC la marque ArtiRoyce (photo, collage ou vidéo).
+    +(mediaDuStatut()?'<div class="ctx-item" onclick="telechargerStatut()"><span class="ctx-item-icon">📥</span>'+TR('Télécharger')+'</div>':'')
+    +'<div class="ctx-item" onclick="openSpeedPicker()"><span class="ctx-item-icon">⏱️</span>'+TR('Vitesse de défilement')+'</div>';
   document.getElementById('viewerMenuOverlay').classList.add('open');
 }
 function closeViewerMenu(){document.getElementById('viewerMenuOverlay').classList.remove('open');resumeViewer();}
+
+// ── Télécharger le statut affiché, AVEC la marque ArtiRoyce (filigrane.js) ──
+function mediaDuStatut(){
+  var p=S[curPersonIdx]; if(!p||!p.items||!p.items.length) return null;
+  var it=p.items[curItemIdx]; if(!it) return null;
+  var pseudo='@'+String(p.n||'artiroyce').toLowerCase().split(' ')[0];
+  if(it.photo) return {type:'photo', urls:[it.photo], pseudo:pseudo};
+  if(it.photos&&it.photos.length) return {type:'photo', urls:it.photos.map(function(x){return typeof x==='string'?x:(x&&(x.photo||x.url))||'';}).filter(Boolean), pseudo:pseudo};
+  var v=it.video||(window.VIDEOS_LOCAUX&&window.VIDEOS_LOCAUX[it.docId]);
+  if(v) return {type:'video', url:v, pseudo:pseudo};
+  return null;
+}
+async function telechargerStatut(){
+  var m=mediaDuStatut();
+  // On ferme le menu SANS relancer le défilement : le statut reste en pause pendant l'enregistrement.
+  document.getElementById('viewerMenuOverlay').classList.remove('open');
+  if(!m||!window.ArFiligrane){resumeViewer();return;}
+  try{
+    if(m.type==='video') await window.ArFiligrane.enregistrerVideo(m.url, m.pseudo);
+    else await window.ArFiligrane.enregistrerPhotos(m.urls, m.pseudo);
+  }finally{ resumeViewer(); }
+}
 function openSpeedPicker(){
   // Le viewer est déjà en pause depuis l'ouverture du menu ⋯ : on ne le reprend pas ici,
   // juste un changement de fiche visible, la pause continue pendant le choix.
@@ -1220,7 +1371,7 @@ function maskStatut(){closeViewerMenu();if(S[curPersonIdx])S[curPersonIdx].hidde
 async function deleteStatut(){
   closeViewerMenu();
   var p=S[curPersonIdx];if(!p||p.id!==MOI_ID)return;
-  if(!confirm('Supprimer tous tes statuts actifs ?'))return;
+  if(!confirm(TR('Supprimer tous tes statuts actifs ?')))return;
   try{
     await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
     closeViewer();
@@ -1229,6 +1380,119 @@ async function deleteStatut(){
 }
 
 // CONTACTS
+/* ══ CERCLE : qui peut voir mes statuts (retenu pour les prochains) ══ */
+function lireCercle(){
+  var c=null; try{c=JSON.parse(localStorage.getItem('ar_statut_cercle')||'null');}catch(e){}
+  c=c||{};
+  return {mode:(c.mode==='sauf'||c.mode==='seulement')?c.mode:'tous', exclus:Array.isArray(c.exclus)?c.exclus:[], inclus:Array.isArray(c.inclus)?c.inclus:[]};
+}
+function ecrireCercle(c){try{localStorage.setItem('ar_statut_cercle',JSON.stringify(c));}catch(e){}}
+var CERCLE=null, CERCLE_CIBLE='defaut', LISTE_MODE='sauf';
+function texteCercle(c){
+  if(c.mode==='sauf')return TR('Tout le monde sauf {n}', {n: c.exclus.length});
+  if(c.mode==='seulement')return TR('Seulement {n} personne(s)', {n: c.inclus.length});
+  return TR('Tout le monde');
+}
+function majLignePub(){var el=document.getElementById('cercleLignePubTxt');if(el)el.textContent='👥 '+TR('Visible par :')+' '+texteCercle(lireCercle());}
+function majFicheCercle(){
+  document.getElementById('crTous').className='cercle-radio'+(CERCLE.mode==='tous'?' on':'');
+  document.getElementById('crSauf').className='cercle-radio'+(CERCLE.mode==='sauf'?' on':'');
+  document.getElementById('crSeul').className='cercle-radio'+(CERCLE.mode==='seulement'?' on':'');
+  document.getElementById('crSaufSub').textContent=TR('{n} exclu(s) · Modifier ›', {n: CERCLE.exclus.length});
+  document.getElementById('crSeulSub').textContent=TR('{n} inclus · Modifier ›', {n: CERCLE.inclus.length});
+}
+function ouvrirCercle(cible){
+  CERCLE_CIBLE=cible||'defaut';
+  var base=lireCercle();
+  if(CERCLE_CIBLE==='statut'){
+    document.getElementById('viewerMenuOverlay').classList.remove('open');
+    var p=S[curPersonIdx], it=p&&p.items?p.items[curItemIdx]:null;
+    if(it){
+      if(it.restreint)base={mode:'seulement',exclus:base.exclus,inclus:(it.visibleUids||[]).slice()};
+      else if(it.exclusUids&&it.exclusUids.length)base={mode:'sauf',exclus:it.exclusUids.slice(),inclus:base.inclus};
+      else base={mode:'tous',exclus:base.exclus,inclus:base.inclus};
+    }
+  }
+  CERCLE={mode:base.mode,exclus:base.exclus.slice(),inclus:base.inclus.slice()};
+  pauseViewer();
+  majFicheCercle();
+  document.getElementById('cercleOverlay').classList.add('open');
+}
+function fermerCercle(){document.getElementById('cercleOverlay').classList.remove('open');repriseApresSaisie();}
+function choisirModeCercle(mode){CERCLE.mode=mode;majFicheCercle();}
+async function enregistrerCercle(){
+  ecrireCercle(CERCLE);                                  // retenu pour les prochains statuts
+  majLignePub();
+  document.getElementById('cercleOverlay').classList.remove('open');
+  if(CERCLE_CIBLE==='statut'){
+    var p=S[curPersonIdx];
+    if(p&&p.id===MOI_ID){
+      var maj={visibilite:CERCLE.mode,restreint:CERCLE.mode==='seulement',
+        visibleUids:CERCLE.mode==='seulement'?CERCLE.inclus.slice(0,500):[],
+        exclusUids:CERCLE.mode==='sauf'?CERCLE.exclus.slice(0,500):[]};
+      try{
+        await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){
+          it.restreint=maj.restreint;it.visibleUids=maj.visibleUids;it.exclusUids=maj.exclusUids;
+          return window.fb.updateDoc(window.fb.doc(window.db,'statuts',it.docId),maj);
+        }));
+      }catch(e){console.error('Cercle non enregistré :',e);toast('⚠️ Enregistrement impossible (connexion)','');repriseApresSaisie();return;}
+    }
+  }
+  toast(TR('✅ Visible par :')+' '+texteCercle(CERCLE),'g');
+  repriseApresSaisie();
+}
+// Liste à cases carrées : mes abonnés + les personnes avec qui je discute.
+var CONTACTS_CHARGES=null;
+async function chargerPersonnesCercle(){
+  if(CONTACTS_CHARGES)return CONTACTS_CHARGES;
+  var uids={};
+  try{
+    var s1=await window.fb.getDoc(window.fb.query(window.fb.collection(window.db,'abonnements'),window.fb.where('followed','==',MOI_ID)));
+    s1.forEach(function(d){var f=d.data().follower;if(f&&f!==MOI_ID)uids[f]=1;});
+  }catch(e){console.warn('abonnés :',e);}
+  try{
+    var s2=await window.fb.getDoc(window.fb.query(window.fb.collection(window.db,'conversations'),window.fb.where('participants','array-contains',MOI_ID)));
+    s2.forEach(function(d){var ps=d.data().participants||[];if(ps.length===2)ps.forEach(function(u){if(u&&u!==MOI_ID)uids[u]=1;});});
+  }catch(e){console.warn('discussions :',e);}
+  var liste=await Promise.all(Object.keys(uids).slice(0,300).map(function(uid){
+    return window.fb.getDoc(window.fb.doc(window.db,'utilisateurs',uid)).then(function(s){
+      var u=s.exists?s.data():{};
+      var nom=((u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')).trim()||u.nom||TR('Utilisateur');
+      return {id:uid,n:nom,i:(nom[0]||'?').toUpperCase(),bg:bgPourUid(uid),photo:u.photoAvatar||null};
+    }).catch(function(){return {id:uid,n:TR('Utilisateur'),i:'?',bg:bgPourUid(uid),photo:null};});
+  }));
+  liste.sort(function(a,b){return a.n.localeCompare(b.n);});
+  CONTACTS_CHARGES=liste;
+  return liste;
+}
+async function ouvrirListeCercle(mode){
+  LISTE_MODE=mode; CERCLE.mode=mode; majFicheCercle();
+  document.getElementById('contactsTitre').textContent=mode==='sauf'?TR('Masquer le statut pour…'):TR('Partager le statut avec…');
+  document.getElementById('contactsRecherche').value='';
+  var list=document.getElementById('contactsList');
+  list.innerHTML='<div style="text-align:center;padding:20px;color:#aaa;font-size:13px">'+TR('Chargement…')+'</div>';
+  document.getElementById('contactsOverlay').classList.add('open');
+  var personnes=await chargerPersonnesCercle();
+  var choisis=mode==='sauf'?CERCLE.exclus:CERCLE.inclus;
+  CONTACTS=personnes.map(function(c){return {id:c.id,n:c.n,i:c.i,bg:c.bg,photo:c.photo,checked:choisis.indexOf(c.id)>=0};});
+  if(!CONTACTS.length){list.innerHTML='<div style="text-align:center;padding:24px 12px;color:#888;font-size:13px;line-height:1.6">'+TR('Aucun abonné ni discussion pour l’instant.')+'</div>';return;}
+  list.innerHTML='';
+  CONTACTS.forEach(function(c){
+    var row=document.createElement('div');
+    row.className='contact-row'; row.dataset.nom=c.n.toLowerCase();
+    var avHtml=c.photo?('<img src="'+c.photo+'" style="width:100%;height:100%;object-fit:cover">'):c.i;
+    row.innerHTML='<div class="contact-check'+(c.checked?' checked':'')+'" id="chk-'+c.id+'">'+(c.checked?'✔':'')+'</div>'
+      +'<div class="contact-av" style="background:'+c.bg+'">'+avHtml+'</div>'
+      +'<div class="contact-name">'+escapeHtmlStatut(c.n)+'</div>';
+    row.onclick=function(){c.checked=!c.checked;var el=document.getElementById('chk-'+c.id);el.className='contact-check'+(c.checked?' checked':'');el.textContent=c.checked?'✔':'';};
+    list.appendChild(row);
+  });
+}
+function filtrerContacts(){
+  var q=(document.getElementById('contactsRecherche').value||'').toLowerCase().trim();
+  document.querySelectorAll('#contactsList .contact-row').forEach(function(r){r.style.display=!q||(r.dataset.nom||'').indexOf(q)>=0?'':'none';});
+}
+
 async function openContactsPicker(){
   closeViewerMenu();
   pauseViewer();
@@ -1284,8 +1548,15 @@ async function openContactsPicker(){
     list.innerHTML='<div style="text-align:center;padding:20px;color:var(--red);font-size:13px">Erreur de chargement</div>';
   }
 }
-function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');resumeViewer();}
+function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');if(!document.getElementById('cercleOverlay').classList.contains('open'))repriseApresSaisie();}
 async function saveContacts(){
+  if(document.getElementById('cercleOverlay').classList.contains('open')){
+    var ids=CONTACTS.filter(function(c){return c.checked;}).map(function(c){return c.id;});
+    if(LISTE_MODE==='sauf')CERCLE.exclus=ids; else CERCLE.inclus=ids;
+    document.getElementById('contactsOverlay').classList.remove('open');
+    majFicheCercle();
+    return;
+  }
   var p=S[curPersonIdx];
   if(!p||p.id!==MOI_ID){closeContacts();return;}
   if(!CONTACTS.length){closeContacts();toast('Statut visible par tout le monde','g');return;}
@@ -1297,7 +1568,7 @@ async function saveContacts(){
     await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){
       return window.fb.updateDoc(window.fb.doc(window.db,'statuts',it.docId),{restreint:restreint,visibleUids:visibleUids});
     }));
-    toast(restreint?('Visible par '+visibleUids.length+' abonné(e)(s) ✅'):'Statut visible par tout le monde ✅','g');
+    toast(restreint?TR('Visible par {n} abonné(e)(s) ✅', {n: visibleUids.length}):'Statut visible par tout le monde ✅','g');
   }catch(e){
     console.error('Enregistrement de la restriction impossible :',e);
     toast('⚠️ Enregistrement impossible (connexion)','');
@@ -1313,31 +1584,32 @@ function openEditor(mode){
   editorMode=mode;editorMusic=null;editorPhotoData=null;editorVideoUrl=null;editorVideoFile=null;editorVideoCompressing=false;
   collageImages=[];collageEff='static';
   var titles={photo:'📷 Photo',video:'🎥 Vidéo',text:'✍️ Texte',collage:'🖼️ Collage',audio:'🎤 Audio'};
-  document.getElementById('editorTitle').textContent=titles[mode]||'Éditeur';
+  document.getElementById('editorTitle').textContent=TR(titles[mode]||'Éditeur');
+  majLignePub();
   var body=document.getElementById('editorBody');
   body.innerHTML='';
 
   if(mode==='photo'){
     body.innerHTML='<div class="editor-preview" id="edPrev" onclick="trigEdFile()">'
-      +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">📷</div><div class="editor-ph-label">Toucher pour choisir une photo</div></div>'
+      +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">📷</div><div class="editor-ph-label">'+TR('Toucher pour choisir une photo')+'</div></div>'
       +'<img id="edImg" style="display:none"/>'
-      +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">Changer</button>'
+      +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">'+TR('Changer')+'</button>'
       +'</div>'
       +'<input type="file" id="edFile" accept="image/*" style="display:none" onchange="handleEdFile(this)"/>'
       +musicSec();
 
   }else if(mode==='video'){
     body.innerHTML='<div class="editor-preview" id="edPrev" onclick="trigEdFile()">'
-      +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">🎥</div><div class="editor-ph-label">Toucher pour choisir une vidéo</div></div>'
+      +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">🎥</div><div class="editor-ph-label">'+TR('Toucher pour choisir une vidéo')+'</div></div>'
       +'<video id="edVid" style="display:none;max-width:100%;max-height:100%" controls></video>'
-      +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">Changer</button>'
+      +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">'+TR('Changer')+'</button>'
       +'</div>'
       +'<input type="file" id="edFile" accept="video/*" style="display:none" onchange="handleEdFile(this)"/>'
       +musicSec();
 
   }else if(mode==='text'){
     body.innerHTML='<div class="text-preview" id="textPrev" style="background:'+selectedBg+'">'
-      +'<textarea class="text-area" id="textArea" placeholder="Écris ton message…" oninput=""></textarea>'
+      +'<textarea class="text-area" id="textArea" placeholder="'+TR('Écris ton message…')+'" oninput=""></textarea>'
       +'</div>'
       +'<div class="bg-picker" id="bgPicker"></div>'
       +musicSec();
@@ -1354,7 +1626,7 @@ function openEditor(mode){
   }else if(mode==='collage'){
     body.innerHTML='<div class="editor-preview" style="height:180px"><div id="collageAnim" style="width:100%;height:100%;position:relative;overflow:hidden"></div><div id="collagePH" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,0.4);text-align:center;font-size:13px;font-weight:700"><div style="font-size:38px">🖼️</div>Ajoute tes photos</div></div>'
       +'<div style="padding:10px 16px 4px"><div id="collageGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px"></div>'
-      +'<button onclick="trigEdFile()" style="background:var(--red);color:#fff;border:none;border-radius:12px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;width:100%">📷 Ajouter photos (max 4)</button></div>'
+      +'<button onclick="trigEdFile()" style="background:var(--red);color:#fff;border:none;border-radius:12px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;width:100%">'+TR('📷 Ajouter photos (max 4)')+'</button></div>'
       +'<div style="padding:8px 16px 4px"><div style="font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:7px">🎬 Effet</div>'
       +'<div class="effect-row">'
       +'<button class="eff-btn active" id="eff-static" onclick="setEff(\'static\')">📸 Statique</button>'
@@ -1369,7 +1641,7 @@ function openEditor(mode){
     body.innerHTML='<div style="padding:20px 16px;display:flex;flex-direction:column;align-items:center">'
       +'<div class="rec-timer" id="recTimer">0:00</div>'
       +'<div class="rec-btns"><button class="rec-btn" id="recBtn" onclick="toggleRec()" style="background:var(--red);color:#fff">🎙️</button></div>'
-      +'<div class="rec-status" id="recStatus">Appuie pour enregistrer</div>'
+      +'<div class="rec-status" id="recStatus">'+TR('Appuie pour enregistrer')+'</div>'
       +'<div class="rec-wave" id="recWave" style="opacity:0"></div>'
       +'</div>'
       +musicSec();
@@ -1388,7 +1660,7 @@ function musicSec(){
   return '<div class="ed-sec"><div class="ed-sec-title">🎵 Musique</div>'
     +'<div class="music-mini" onclick="openMusicPanel(\'editor\')">'
     +'<div class="music-mini-icon">🎵</div>'
-    +'<div class="music-mini-info"><div class="music-mini-name" id="mmName">Ajouter une musique</div><div class="music-mini-sub" id="mmSub">Chercher ou galerie</div></div>'
+    +'<div class="music-mini-info"><div class="music-mini-name" id="mmName">'+TR('Ajouter une musique')+'</div><div class="music-mini-sub" id="mmSub">'+TR('Chercher ou galerie')+'</div></div>'
     +'<span class="music-mini-add" id="mmAdd">+</span>'
     +'</div>'
     +'<div id="trimMiniWrap" style="display:none" class="trim-mini">'
@@ -1671,6 +1943,12 @@ async function publishStatut(){
       music:editorMusic||null, musicUrl:editorMusicUrl||null, trimS:editorMusicTrimS||0, trimE:editorMusicTrimE||15,
       createdAt:window.fb.serverTimestamp(), vuPar:[]
     };
+    // Qui peut voir : le cercle choisi (retenu pour les prochains statuts, comme sur WhatsApp).
+    var cerclePub=lireCercle();
+    payload.visibilite=cerclePub.mode;
+    payload.restreint=cerclePub.mode==='seulement';
+    payload.visibleUids=cerclePub.mode==='seulement'?cerclePub.inclus.slice(0,500):[];
+    payload.exclusUids=cerclePub.mode==='sauf'?cerclePub.exclus.slice(0,500):[];
 
     // Vérification de sécurité : Firestore refuse tout document dépassant 1 Mo. Les photos sont
     // déjà compressées avant d'arriver ici, mais on vérifie quand même pour donner un message
@@ -1684,7 +1962,7 @@ async function publishStatut(){
 
     await window.fb.addDoc(window.fb.collection(window.db,'statuts'),payload);
     closeEditor();
-    toast(msgs[editorMode]+(editorMusic?' 🎵':''),'g');
+    toast(TR(msgs[editorMode])+(editorMusic?' 🎵':''),'g');
   }catch(e){
     console.error(e);
     var msgErreur = 'Erreur lors de la publication';
@@ -1754,7 +2032,7 @@ function handleAudioGallery(inp){
   var url=URL.createObjectURL(f);
   currentTrack=name;currentTrackUrl=url;currentTrackIdx='galerie';
   showTrimSec(name);
-  toast('🎼 "'+name+'" chargé depuis la galerie','g');
+  toast(TR('🎼 « {t} » chargé depuis la galerie', {t: name}),'g');
 }
 function searchMusic(){
   var q=document.getElementById('musicInp').value.trim();
@@ -1880,7 +2158,7 @@ function attachMusic(){
   if(mn)mn.textContent=currentTrack;
   if(ms)ms.textContent=fmt(s)+' — '+fmt(e2)+' ✅';
   if(tw)tw.style.display='block';
-  toast('🎵 "'+currentTrack+'" attaché !','g');
+  toast(TR('🎵 « {t} » attaché !', {t: currentTrack}),'g');
   currentTrack=null;currentTrackUrl=null;
 }
 </script>
@@ -1961,6 +2239,14 @@ auth.onAuthStateChanged(async(user)=>{
     if(window.chargerStatuts)window.chargerStatuts();
   }catch(e){console.log('profil:',e);}
 });
+</script>
+<script src="translations-app.js"></script>
+<script src="filigrane.js"></script>
+<script>
+  // Le menu du téléphone (« Télécharger » SANS marque) est bloqué sur les photos/vidéos.
+  // Dans le lecteur, l'appui long sert déjà à METTRE EN PAUSE (comme WhatsApp) : on n'y touche pas ;
+  // le téléchargement AVEC la marque est dans le menu ⋯ du statut.
+  if (window.ArFiligrane) ArFiligrane.appuiLong(function () {});
 </script>
 </body>
 </html>
