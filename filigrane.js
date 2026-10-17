@@ -341,7 +341,55 @@
     }
   }
 
+  /* ── APPUI LONG : le menu du téléphone (« Télécharger l'image » SANS marque) est remplacé
+        par notre menu (avec la marque). ──
+     ArFiligrane.appuiLong(fonction) : fonction(element, evenement) est appelée lors d'un
+     appui long sur une photo/vidéo ; si elle renvoie false, rien ne s'ouvre (mais le menu
+     du téléphone reste bloqué quand même). */
+  var _surAppuiLong = null, _dernierAppui = 0;
+  function estMedia(el) { return el && (el.tagName === 'IMG' || el.tagName === 'VIDEO' || (el.closest && el.closest('[data-arfig]'))); }
+  function declencher(el, e) {
+    var maintenant = Date.now();
+    if (maintenant - _dernierAppui < 800) return;   // pas deux fois pour le même appui
+    _dernierAppui = maintenant;
+    try { if (_surAppuiLong) _surAppuiLong(el, e); } catch (err) { console.error(err); }
+  }
+  function appuiLong(fonction) {
+    _surAppuiLong = fonction;
+    if (window.__arfigAppui) return;
+    window.__arfigAppui = true;
+    var st = document.createElement('style');
+    st.textContent = 'img,video,[data-arfig]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}';
+    document.head.appendChild(st);
+    // Android / ordinateur : l'appui long (ou clic droit) déclenche « contextmenu ».
+    document.addEventListener('contextmenu', function (e) {
+      var el = e.target;
+      if (!estMedia(el)) return;
+      e.preventDefault();
+      declencher(el, e);
+    }, true);
+    // iPhone : pas de « contextmenu » → minuteur de 600 ms sans bouger le doigt.
+    var minuteur = null, depart = null;
+    document.addEventListener('touchstart', function (e) {
+      var el = e.target;
+      if (!estMedia(el) || !e.touches || e.touches.length !== 1) return;
+      depart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      clearTimeout(minuteur);
+      minuteur = setTimeout(function () { if (estIOS) declencher(el, e); }, 600);
+    }, { passive: true, capture: true });
+    var annuler = function () { clearTimeout(minuteur); };
+    document.addEventListener('touchend', annuler, { passive: true, capture: true });
+    document.addEventListener('touchcancel', annuler, { passive: true, capture: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!depart || !e.touches || !e.touches[0]) return;
+      if (Math.abs(e.touches[0].clientX - depart.x) > 10 || Math.abs(e.touches[0].clientY - depart.y) > 10) clearTimeout(minuteur);
+    }, { passive: true, capture: true });
+    // Empêche aussi de « glisser » une photo hors de la page pour la récupérer.
+    document.addEventListener('dragstart', function (e) { if (estMedia(e.target)) e.preventDefault(); }, true);
+  }
+
   window.ArFiligrane = {
+    appuiLong: appuiLong,
     menu: menu,
     enregistrerPhoto: enregistrerPhoto,
     enregistrerPhotos: enregistrerPhotos,
