@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>ArtiRoyce - Discussion</title>
 <style>
@@ -229,6 +230,16 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .mrow.out .react-colle{right:22px}
 .mrow.in .react-colle{left:22px}
 .transfere-lbl{font-size:10.5px;font-style:italic;opacity:.75;margin-bottom:3px;display:block}
+/* Réponse / réaction venant d'un STATUT (statut_v1.html) : petite image du statut + étiquette */
+.st-ref{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.055);border-left:3px solid #ec4899;border-radius:8px;padding:5px 8px;margin-bottom:6px;max-width:230px}
+.mrow.out .st-ref{background:rgba(255,255,255,0.18);border-left-color:#fff}
+.st-ref-img{width:38px;height:52px;border-radius:6px;flex-shrink:0;background:#222 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;overflow:hidden;text-align:center;line-height:1.1}
+.st-ref-txt{font-size:11px;line-height:1.35;min-width:0}
+.st-ref-lbl{font-weight:800;color:#ec4899;display:block}
+.mrow.out .st-ref-lbl{color:#ffe2ef}
+.st-ref-sub{color:#888;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow.out .st-ref-sub{color:rgba(255,255,255,0.78)}
+.st-reac{font-size:44px;line-height:1.1;text-align:center;margin:2px 0}
 .mrow.epingle-flash .bbl,.mrow.epingle-flash .img-bbl{box-shadow:0 0 0 3px #ffd54f}
 /* Bandeau du message épinglé */
 .pin-bar{display:none;align-items:center;gap:10px;padding:8px 14px;background:#fffdf4;border-bottom:1px solid #f1e7c6;cursor:pointer;flex-shrink:0}
@@ -1944,6 +1955,23 @@ function creerElementMessageBrut(doc){
   } else if(m.supprime){
     d.dataset.txt='Message supprimé'; d.dataset.type='supprime';
     interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">🚫 Message supprimé</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
+    d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
+    return d;
+  } else if(m.viaStatut && (m.statutType || m.reactionStatut)){
+    // Réponse ou réaction envoyée depuis un statut : on montre le statut concerné (petite image)
+    // et, pour une réaction, le sticker en grand.
+    d.dataset.txt=m.texte||'';
+    const TRd = (window.trApp ? window.trApp : function(x){return x;});
+    const lbl = m.reactionStatut
+      ? (dir==='out' ? TRd('Vous avez réagi à son statut') : TRd('A réagi à votre statut'))
+      : (dir==='out' ? TRd('Vous avez répondu à son statut') : TRd('A répondu à votre statut'));
+    const vignette = m.statutApercu
+      ? '<div class="st-ref-img" style="background-image:url(\''+String(m.statutApercu).replace(/'/g,'%27')+'\')"></div>'
+      : '<div class="st-ref-img" style="background:'+(m.statutBg?escapeHtml(m.statutBg):'linear-gradient(135deg,#e63224,#ec4899)')+'">'+(m.statutType==='video'?'🎥':(m.statutType==='texte'?'✍️':'📢'))+'</div>';
+    const sous = m.statutTexte ? escapeHtml(String(m.statutTexte).slice(0,60)) : (m.statutType==='video'?'🎥 '+TRd('Vidéo'):(m.statutType==='texte'?'✍️ '+TRd('Texte'):'📷 '+TRd('Photo')));
+    const corps = m.reactionStatut ? '<div class="st-reac">'+escapeHtml(m.texte||'❤️')+'</div>' : escapeHtml(m.texte||'');
+    interieur='<div class="bbl">'+nomGroupeHtml+'<div class="st-ref">'+vignette+'<div class="st-ref-txt"><span class="st-ref-lbl">📢 '+lbl+'</span><span class="st-ref-sub">'+sous+'</span></div></div>'
+      +corps+'<div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
     d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
     return d;
   } else {
@@ -4626,6 +4654,8 @@ demarrerFirebase();
 <script src="appels-groupe.js"></script>
 <!-- Passer audio ↔ vidéo pendant un appel à deux (fichier à part : appels.js reste intact) -->
 <script src="appels-bascule.js"></script>
+<!-- Textes traduits (réponses/réactions aux statuts, etc.) -->
+<script src="translations-app.js"></script>
 </body>
 </html>
 
