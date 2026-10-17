@@ -43,7 +43,7 @@
     ['Réserver','Book','Reservar','Reservar','احجز','预约','Записаться','Buchen','予約','बुक करें'],
     ['Professionnel','Professional','Profesional','Profissional','محترف','专业人士','Профессионал','Profi','プロ','पेशेवर'],
     ["🧭 Obtenir l'itinéraire",'🧭 Get directions','🧭 Cómo llegar','🧭 Ver rota','🧭 الحصول على الاتجاهات','🧭 获取路线','🧭 Проложить маршрут','🧭 Route anzeigen','🧭 道順を見る','🧭 रास्ता देखें'],
-    ['Téléchargé sur ArtiRoyce','Uploaded on ArtiRoyce','Subido a ArtiRoyce','Enviado no ArtiRoyce','تم الرفع على ArtiRoyce','上传于 ArtiRoyce','Загружено в ArtiRoyce','Hochgeladen auf ArtiRoyce','ArtiRoyce に投稿','ArtiRoyce पर अपलोड किया गया'],
+    ['Téléchargée sur ArtiRoyce','Uploaded on ArtiRoyce','Subido a ArtiRoyce','Enviado no ArtiRoyce','تم الرفع على ArtiRoyce','上传于 ArtiRoyce','Загружено в ArtiRoyce','Hochgeladen auf ArtiRoyce','ArtiRoyce に投稿','ArtiRoyce पर अपलोड किया गया'],
     ['✨ Nos coups de cœur','✨ Our favorites','✨ Nuestros favoritos','✨ Nossos favoritos','✨ اختياراتنا المفضلة','✨ 精选推荐','✨ Наш выбор','✨ Unsere Favoriten','✨ おすすめ','✨ हमारी पसंद'],
     ['Pas intéressé(e)','Not interested','No me interesa','Não tenho interesse','غير مهتم','不感兴趣','Не интересно','Kein Interesse','興味なし','दिलचस्पी नहीं'],
     ['Connecte-toi pour suivre','Log in to follow','Inicia sesión para seguir','Entre para seguir','سجّل الدخول للمتابعة','登录后即可关注','Войдите, чтобы подписаться','Melde dich an, um zu folgen','フォローするにはログイン','फ़ॉलो करने के लिए लॉग इन करें'],
