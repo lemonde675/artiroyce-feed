@@ -5,7 +5,7 @@
    son téléphone, la marque est imprimée DANS le fichier, en bas à gauche :
        [logo] ArtiRoyce
        @pseudo de l'auteur
-       Téléchargé sur ArtiRoyce
+       Téléchargée sur ArtiRoyce
    Tout se fait dans le téléphone : gratuit, aucun serveur.
 
    Utilisation dans une page :
@@ -55,7 +55,7 @@
     var b = Math.max(14, Math.round(Math.min(W, H) * 0.045));   // taille de base
     var marge = Math.round(b * 0.8);
     var police = "-apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
-    // « ArtiRoyce » un peu plus grand ; « @pseudo » et « Téléchargé sur ArtiRoyce » plus petits.
+    // « ArtiRoyce » un peu plus grand ; « @pseudo » et « Téléchargée sur ArtiRoyce » plus petits.
     var hLigne1 = Math.round(b * 0.62), hLigne2 = Math.max(10, Math.round(b * 0.48)), hLigne3 = hLigne2;
     var bas = H - marge;
     var y3 = bas, y2 = y3 - hLigne3 - Math.round(b * 0.2), y1 = y2 - hLigne2 - Math.round(b * 0.2);
@@ -64,7 +64,7 @@
     ctx.save();
     // Cadre rose derrière la marque (comme les pastilles roses d'index)
     ctx.font = '800 ' + hLigne1 + 'px ' + police;
-    var lg = Math.max(logoL + b * 0.3 + ctx.measureText('ArtiRoyce').width, (function(){ctx.font='700 '+hLigne2+'px '+police;return ctx.measureText(String(pseudo||'')).width;})(), (function(){ctx.font='italic 500 '+hLigne3+'px '+police;return ctx.measureText(T('Téléchargé sur ArtiRoyce')).width;})());
+    var lg = Math.max(logoL + b * 0.3 + ctx.measureText('ArtiRoyce').width, (function(){ctx.font='700 '+hLigne2+'px '+police;return ctx.measureText(String(pseudo||'')).width;})(), (function(){ctx.font='italic 500 '+hLigne3+'px '+police;return ctx.measureText(T('Téléchargée sur ArtiRoyce')).width;})());
     var px = Math.round(b * 0.45), cx = marge - px, cy = y1 - hLigne1 - px * 0.6, cw = lg + px * 2, ch = (bas - cy) + px * 0.8, r = b * 0.5;
     ctx.beginPath(); ctx.moveTo(cx + r, cy); ctx.arcTo(cx + cw, cy, cx + cw, cy + ch, r); ctx.arcTo(cx + cw, cy + ch, cx, cy + ch, r); ctx.arcTo(cx, cy + ch, cx, cy, r); ctx.arcTo(cx, cy, cx + cw, cy, r); ctx.closePath();
     ctx.fillStyle = 'rgba(236,72,153,0.22)'; ctx.fill();
@@ -86,10 +86,10 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillText(String(pseudo || '@artiroyce').slice(0, 40), marge, y2);
 
-    // Ligne 3 : « Téléchargé sur ArtiRoyce »
+    // Ligne 3 : « Téléchargée sur ArtiRoyce »
     ctx.font = 'italic 500 ' + hLigne3 + 'px ' + police;
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fillText(T('Téléchargé sur ArtiRoyce'), marge, y3);
+    ctx.fillText(T('Téléchargée sur ArtiRoyce'), marge, y3);
     ctx.restore();
   }
 
