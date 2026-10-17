@@ -653,7 +653,7 @@ function toggleSiteWidth(){
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
-      <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
+      <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" data-arfig="1" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
       <div class="badge-v"><div class="badge-v-check">✔</div>${TR('Vérifié')}</div>
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">${TR('+ Suivre')}</button>
@@ -2306,6 +2306,16 @@ function toggleSiteWidth(){
 <script src="translations.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
+<script>
+  // Appui long sur la photo/vidéo d'une carte : au lieu du menu du téléphone (fichier SANS marque),
+  // on ouvre le menu « Sauver » (favoris / enregistrer AVEC la marque). Ailleurs : simplement bloqué.
+  if (window.ArFiligrane) ArFiligrane.appuiLong(function (el) {
+    if (!el.closest || !el.closest('.vcard-bg, .vcard-overlay')) return;
+    var carte = el.closest('.vcard');
+    var index = carte ? parseInt(String(carte.id || '').replace('carte-', ''), 10) : NaN;
+    if (carte && carte.dataset.vueUid && !isNaN(index) && window.menuSauverAccueil) window.menuSauverAccueil(carte.dataset.vueUid, index);
+  });
+</script>
 <script>
   // Retire le rond de chargement dès que la première carte de l'Accueil s'affiche
   // (ou au bout de 15 s au plus tard, pour ne jamais bloquer l'écran).
