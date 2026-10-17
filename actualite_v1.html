@@ -739,6 +739,27 @@ async function chargerMesReactionsActu() {
   }
 }
 
+/* ── Bouton « Partager » : 🔗 partager (comme avant) OU 📥 enregistrer les photos avec la marque ── */
+function photosDeLaPub(p) {
+  if (!p) return [];
+  const photo = (im) => typeof im === 'string' ? im : ((im && im.photo) || '');
+  if (Array.isArray(p.images)) return p.images.map(photo).filter(Boolean);
+  if (Array.isArray(p.cadres)) return p.cadres.map(photo).filter(Boolean);
+  return [];
+}
+window.menuPartagerPub = function (postId, partagesActuels) {
+  const pub = listePublications.find(x => x.id === postId);
+  const photos = photosDeLaPub(pub);
+  const pseudo = '@' + String((pub && pub.auteurNom) || 'artiroyce').toLowerCase().split(' ')[0];
+  const options = [{ texte: TR('🔗 Partager'), action: () => window.partagerPub(postId, partagesActuels) }];
+  if (photos.length && window.ArFiligrane) options.push({
+    texte: photos.length > 1 ? TR('📥 Enregistrer les {n} photos sur le téléphone', { n: photos.length }) : TR('📥 Enregistrer sur le téléphone'),
+    action: () => window.ArFiligrane.enregistrerPhotos(photos, pseudo)
+  });
+  if (window.ArFiligrane && options.length > 1) window.ArFiligrane.menu(TR('Partager'), options);
+  else window.partagerPub(postId, partagesActuels);   // pas de photo (ou filigrane.js absent) : comme avant
+};
+
 /* ── Partager (version simplifiée : compteur + confirmation) ── */
 window.partagerPub = async function (postId, partagesActuels) {
   try {
@@ -1118,6 +1139,7 @@ function chargerPublications() {
   try {
     db.collection('publications').orderBy('createdAt', 'desc').onSnapshot(snap => {
       const toutes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      _publicationsRecues = true;
       listePublications = trierFeedParPriorite(toutes.filter(p => !p.corbeille));
       listeCorbeille = toutes.filter(p => p.corbeille && currentUser && p.auteurUid === currentUser.uid);
 
@@ -1298,7 +1320,9 @@ function wireCoverCarouselActu() {
   document.addEventListener('mousedown', e => { if (e.target.closest('.cover-carousel-actu')) _coverPausedUntilActu = Date.now() + 4000; });
 }
 
+let _publicationsRecues = false; // tant que les publications ne sont pas arrivées, on garde le rond de chargement
 function afficherFeed() {
+  if (!_publicationsRecues) return;
   document.getElementById('feedLoading').style.display = 'none';
   const conteneur = document.getElementById('feedPosts');
   const vide = document.getElementById('feedEmpty');
@@ -1360,7 +1384,7 @@ function afficherFeed() {
     +   '<button class="pab" onclick="toggleComments(\'' + p.id + '\')">'
     +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> ' + TR('Commenter')
     +   '</button>'
-    +   '<button class="pab" onclick="partagerPub(\'' + p.id + '\',' + (p.partages || 0) + ')">'
+    +   '<button class="pab" onclick="menuPartagerPub(\'' + p.id + '\',' + (p.partages || 0) + ')">'
     +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ' + TR('Partager')
     +   '</button>'
     + '</div>'
@@ -1700,5 +1724,6 @@ window.publishPost = async function() {
 </script>
 <script src="notifications.js"></script>
 <script src="translations-app.js"></script>
+<script src="filigrane.js"></script>
 </body>
 </html>
