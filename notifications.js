@@ -8,7 +8,7 @@
       Enregistre une notification pour la personne "dest" (jamais pour soi-même) :
         utilisateurs/{dest}/notifications/{id}
       types : reaction | commentaire | reponse | abonne | candidature | partage
-      pages : actualites | offres | filPresse | profil
+      pages : actualites | offres | filPresse | profil | statuts
       unique:true → une seule notification par personne et par publication
       (ex. J'aime retiré puis remis : pas de doublon).
 
@@ -78,6 +78,7 @@
     actualites: { panel: 1, frame: 'actuFrame', nom: '📰 Actualités' },
     offres:     { panel: 4, frame: 'offreFrame', nom: '💼 Offres' },
     filPresse:  { panel: 7, frame: 'presseFrame', nom: '🗞️ Fil Presse' },
+    statuts:    { panel: 2, frame: 'statutFrame', nom: '📢 Statuts' },
     profil:     { nom: '👤 Profil' }
   };
   const PHRASES = {
@@ -87,6 +88,11 @@
     abonne:      () => 's’est abonné(e) à vous',
     candidature: () => 'a postulé à votre offre',
     partage:     () => 'a partagé votre publication'
+  };
+  // Statuts : même types, phrases adaptées (« votre statut »).
+  const PHRASES_STATUT = {
+    reaction:    n => 'a réagi ' + (n.extrait || '❤️') + ' à votre statut',
+    commentaire: n => 'a répondu à votre statut' + (n.extrait ? ' : « ' + n.extrait + ' »' : '')
   };
   const COULEURS = ['#1a5c3a', '#0d3b66', '#5a2a6a', '#7a4a2a', '#2a6a5a', '#8b1e1e'];
 
@@ -162,7 +168,7 @@
       const ini = esc(nom[0].toUpperCase());
       const coul = COULEURS[nom.charCodeAt(0) % COULEURS.length];
       const av = n.auteurPhoto ? '<img src="' + esc(n.auteurPhoto) + '" alt="">' : ini;
-      const phrase = (PHRASES[n.type] || (() => 'a interagi avec vous'))(n);
+      const phrase = ((n.page === 'statuts' && PHRASES_STATUT[n.type]) || PHRASES[n.type] || (() => 'a interagi avec vous'))(n);
       const page = PAGES[n.page] ? PAGES[n.page].nom : '';
       return '<div class="ntf-item' + (n.lu ? '' : ' nonlu') + '" data-i="' + i + '">'
         + '<div class="ntf-av" style="background:linear-gradient(135deg,' + coul + ',#0a0a2e)">' + av + '</div>'
