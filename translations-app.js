@@ -321,6 +321,8 @@
     ['A répondu à votre statut','Replied to your status','Respondió a tu estado','Respondeu ao seu status','رد على حالتك','回复了你的状态','Ответил(а) на ваш статус','Hat auf deinen Status geantwortet','あなたのステータスに返信','आपके स्टेटस का जवाब दिया'],
     ['Vous avez réagi à son statut','You reacted to their status','Reaccionaste a su estado','Você reagiu ao status','لقد تفاعلت مع حالته','你回应了 TA 的状态','Вы отреагировали на статус','Du hast auf den Status reagiert','ステータスにリアクションしました','आपने उनके स्टेटस पर प्रतिक्रिया दी'],
     ['Vous avez répondu à son statut','You replied to their status','Respondiste a su estado','Você respondeu ao status','لقد رددت على حالته','你回复了 TA 的状态','Вы ответили на статус','Du hast auf den Status geantwortet','ステータスに返信しました','आपने उनके स्टेटस का जवाब दिया'],
+    ['Voir ›','View ›','Ver ›','Ver ›','عرض ›','查看 ›','Открыть ›','Ansehen ›','見る ›','देखें ›'],
+    ['Ce statut n’est plus disponible (24 h passées)','This status is no longer available (24 h passed)','Este estado ya no está disponible (pasaron 24 h)','Este status não está mais disponível (24 h se passaram)','هذه الحالة لم تعد متاحة (مرّت 24 ساعة)','此状态已不可用（已超过 24 小时）','Этот статус больше недоступен (прошло 24 ч)','Dieser Status ist nicht mehr verfügbar (24 Std. vorbei)','このステータスは表示できません（24時間経過）','यह स्टेटस अब उपलब्ध नहीं है (24 घंटे बीत गए)'],
     /* Métiers de la recherche */
     ['Coiffeur / Coiffeuse','Hairdresser','Peluquero / Peluquera','Cabeleireiro / Cabeleireira','حلاق / مصففة شعر','理发师','Парикмахер','Friseur / Friseurin','美容師','हेयरड्रेसर'],
     ['Maquilleur / Maquilleuse','Makeup artist','Maquillador / Maquilladora','Maquiador / Maquiadora','خبير / خبيرة تجميل','化妆师','Визажист','Visagist / Visagistin','メイクアップアーティスト','मेकअप आर्टिस्ट'],
