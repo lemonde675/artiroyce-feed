@@ -75,6 +75,15 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
 .hero-av{width:56px;height:56px;border-radius:50%;background:#eef1fb;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--navy2);overflow:hidden;cursor:pointer}
 .hero-av img{width:100%;height:100%;object-fit:cover;display:block}
 .hero-card > div:first-child{flex:1;min-width:0}
+/* En-tête de chaque CV : avatar + nom + statut (comme une publication) */
+.cvb-av-wrap{position:relative;flex-shrink:0;cursor:pointer}
+.cvb-av{width:44px;height:44px;border-radius:50%;background:#3a3a7a;color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cvb-av img{width:100%;height:100%;object-fit:cover;display:block}
+.cvb-dot{display:none;position:absolute;bottom:0;right:0;width:13px;height:13px;border-radius:50%;background:var(--green);border:2.5px solid #fff}
+.cvb-txt{flex:1;min-width:0;cursor:pointer}
+.cvb-nom{font-size:14px;font-weight:800;color:var(--navy2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cvb-sub{font-size:10.5px;font-weight:800;color:var(--blue-ico);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cvb-sub .cvb-titre{color:#999;text-transform:none;letter-spacing:0;font-weight:700}
 .hero-btns{display:flex;align-items:center;gap:8px}
 .hero-search{width:38px;height:38px;border-radius:50%;background:#f5f6f8;border:1px solid #e4e6eb;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cv-search-bar{display:none;align-items:center;gap:8px;margin-top:12px}
@@ -1143,7 +1152,7 @@ function estAMoi(c){ return !!(currentUser && c.auteurUid === currentUser.uid); 
 
 async function getAuthorInfo(uid){
   if (authorInfoCache[uid]) return authorInfoCache[uid];
-  const info = { prenom: '', role: 'artisan', telephone: '', nom: '' };
+  const info = { prenom: '', role: 'artisan', telephone: '', nom: '', photoAvatar: '', enLigne: false };
   try {
     const snap = await getDoc(doc(db, 'utilisateurs', uid));
     if (snap.exists) {
@@ -1151,6 +1160,11 @@ async function getAuthorInfo(uid){
       info.role = snap.data().role || 'artisan';
       info.telephone = snap.data().telephone || '';
       info.nom = snap.data().nom || '';
+      info.photoAvatar = snap.data().photoAvatar || '';
+      // En ligne = un signal reçu il y a moins de 60 s (même règle que les autres pages).
+      let dernier = 0;
+      ['derniereVue', 'derniereActivite'].forEach(k => { const v = snap.data()[k]; if (!v) return; const t = v.toDate ? v.toDate().getTime() : new Date(v).getTime(); if (t > dernier) dernier = t; });
+      info.enLigne = dernier > 0 && (Date.now() - dernier) < 60000;
     }
   } catch (err) { console.error(err); }
   authorInfoCache[uid] = info;
@@ -1185,13 +1199,24 @@ function ordreAleatoireStableCv(id){
 // Un seul CV par auteur (le plus récemment mis à jour), pour éviter qu'une
 // même personne occupe plusieurs cartes dans le fil communauté.
 function classerCommunauteCv(liste){
+  // On classe d'abord la personne (avec son CV le plus récent), puis on place
+  // TOUS ses CV ensemble à cet endroit (avant : un seul CV par personne était
+  // montré, les autres n'apparaissaient que dans le carrousel « CV à la une »).
   const parAuteur = new Map();
+  const tousParAuteur = new Map();
   liste.forEach(c => {
+    if (!tousParAuteur.has(c.auteurUid)) tousParAuteur.set(c.auteurUid, []);
+    tousParAuteur.get(c.auteurUid).push(c);
     const existant = parAuteur.get(c.auteurUid);
     const ts = c.majLe ? new Date(c.majLe).getTime() : 0;
     if (!existant || ts > (existant.majLe ? new Date(existant.majLe).getTime() : 0)) parAuteur.set(c.auteurUid, c);
   });
   const dedoublonnee = Array.from(parAuteur.values());
+  const deplier = (rang) => rang.flatMap(c => {
+    const autres = tousParAuteur.get(c.auteurUid).filter(x => x.id !== c.id)
+      .sort((a, b) => (b.majLe ? new Date(b.majLe).getTime() : 0) - (a.majLe ? new Date(a.majLe).getTime() : 0));
+    return [c].concat(autres);
+  });
 
   const QUINZE_JOURS_MS_CV = 15 * 24 * 60 * 60 * 1000;
   const VINGT_QUATRE_H_MS_CV = 24 * 60 * 60 * 1000;
@@ -1215,7 +1240,7 @@ function classerCommunauteCv(liste){
   suivisActifs.sort(triParFraicheurCv);
   paysActifs.sort(triParFraicheurCv);
   masse.sort((a, b) => ordreAleatoireStableCv(a.id) - ordreAleatoireStableCv(b.id));
-  return suivisActifs.concat(paysActifs, masse);
+  return deplier(suivisActifs.concat(paysActifs, masse));
 }
 
 async function chargerListe(){
@@ -1412,7 +1437,36 @@ function wireCoverCarouselCv(){
   document.addEventListener('mousedown', e => { if (e.target.closest && e.target.closest('.ccv-track')) _ccvPauseJusqua = Date.now() + 4000; });
 }
 
+/* En-tête d'un CV : avatar (photo de profil) + nom du compte + Visiteur/Professionnel.
+   Le « nom de ce CV » n'est montré qu'à son auteur (il est « pour vous seulement »). */
+function enteteAuteurCv(c, estMoi, titre){
+  const uid = c.auteurUid || '';
+  return `<div class="cvb-av-wrap" data-cvb="${uid}" onclick="event.stopPropagation();window.__voirProfilCv('${uid}')"><div class="cvb-av">?</div><span class="cvb-dot"></span></div>`
+    + `<div class="cvb-txt" data-cvb="${uid}" onclick="window.__voirProfilCv('${uid}')"><div class="cvb-nom">…</div>`
+    + `<div class="cvb-sub"><span class="cvb-role"></span>${estMoi ? ' · <span class="cvb-titre">' + escapeHtml(titre) + '</span>' : ''}</div></div>`;
+}
+function remplirEnteteAuteurCv(racine, c){
+  getAuthorInfo(c.auteurUid).then(info => {
+    const nom = info.prenom || info.nom || ((c.prenom || '') + ' ' + (c.nomFamille || '')).trim() || TR('Utilisateur');
+    const av = racine.querySelector('.cvb-av');
+    if (av) av.innerHTML = info.photoAvatar ? '<img src="' + escapeHtml(info.photoAvatar) + '" alt="">' : escapeHtml(nom[0].toUpperCase());
+    const n = racine.querySelector('.cvb-nom'); if (n) n.textContent = nom;
+    const r = racine.querySelector('.cvb-role'); if (r) r.textContent = info.role === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
+    const d = racine.querySelector('.cvb-dot'); if (d) d.style.display = (info.enLigne || (currentUser && c.auteurUid === currentUser.uid)) ? 'block' : 'none';
+  });
+}
+window.__voirProfilCv = function(uid){
+  if (!uid) return;
+  try { if (window.parent && window.parent !== window && window.parent.goUserProfile) { window.parent.goUserProfile(uid); return; } } catch (e) {}
+  window.location.href = 'profil.html?uid=' + uid;
+};
+
 window.__scrollToCvInstance = function(id){
+  // Le CV n'est peut-être pas encore affiché (chargement par lots) : on affiche la suite.
+  if (!document.getElementById('cvinstance-'+id)) {
+    const pos = listeCommunaute.findIndex(c => c.id === id);
+    if (pos >= nombreCvCommunauteAffiches) { nombreCvCommunauteAffiches = pos + 1; renderListeCards(); }
+  }
   const tryScroll = (attempts) => {
     const el = document.getElementById('cvinstance-'+id);
     if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); return; }
@@ -1493,10 +1547,11 @@ function creerInstanceImport(c, estMoi){
   bar.className = 'cv-instance-bar';
   const titre = titreAffiche(c);
   const estImageImport = (c.importURL || '').startsWith('data:image');
-  bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
+  bar.innerHTML = `${enteteAuteurCv(c, estMoi, titre)}` +
     (estImageImport ? `<button class="cv-instance-menu-btn cv-dl" title="${TR('📥 Enregistrer sur le téléphone')}" onclick="event.stopPropagation();window.__menuEnregistrerCv('${c.id}')" style="display:flex;align-items:center;justify-content:center;padding:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg></button>` : '') +
     (estMoi ? `<button class="cv-instance-menu-btn cv-menu-btn">⋮</button>` : boutonSuivreCv(c.auteurUid));
   wrapper.appendChild(bar);
+  remplirEnteteAuteurCv(bar, c);
 
   let menu = null;
   if (estMoi) {
@@ -1506,14 +1561,6 @@ function creerInstanceImport(c, estMoi){
     wrapper.appendChild(menu);
   }
 
-  const badge = document.createElement('div');
-  badge.className = 'acct-badge on-light import-author-badge';
-  badge.innerHTML = `<div class="acct-role"></div><div class="acct-nom"></div>`;
-  wrapper.appendChild(badge);
-  getAuthorInfo(c.auteurUid).then(info => {
-    badge.querySelector('.acct-role').textContent = info.role === 'visiteur' ? T('cv_role_visiteur') : T('cv_role_professionnel');
-    badge.querySelector('.acct-nom').textContent = info.prenom;
-  });
 
   const body = document.createElement('div');
   body.className = 'import-preview';
@@ -1568,9 +1615,10 @@ function creerInstanceLecture(c, estMoi){
   const bar = document.createElement('div');
   bar.className = 'cv-instance-bar';
   const titre = titreAffiche(c);
-  bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
+  bar.innerHTML = `${enteteAuteurCv(c, estMoi, titre)}` +
     (estMoi ? `<button class="cv-instance-menu-btn">⋮</button>` : boutonSuivreCv(c.auteurUid));
   wrapper.appendChild(bar);
+  remplirEnteteAuteurCv(bar, c);
 
   let menu = null;
   if (estMoi) {
