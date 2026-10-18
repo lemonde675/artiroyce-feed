@@ -66,6 +66,23 @@ html, body { font-family: 'Segoe UI', Arial, sans-serif; background: #FFFFFF; co
   display:inline-flex; align-items:center; gap:6px; background:var(--red); color:#fff; border:none;
   border-radius:22px; padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
 }
+/* Rond de chargement ArtiRoyce : rose, centré (identique sur toutes les pages) */
+.ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;margin:0 auto 14px}
+@keyframes arSpin{to{transform:rotate(360deg)}}
+/* Mon avatar + point vert « en ligne » (comme Actualités, Offres, Fil Presse) */
+.me-av-wrap{position:relative;display:inline-flex;flex-shrink:0}
+.me-online-dot{display:none;position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:var(--green);border:3px solid #fff;z-index:2}
+.hero-av{width:56px;height:56px;border-radius:50%;background:#eef1fb;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--navy2);overflow:hidden;cursor:pointer}
+.hero-av img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-card > div:first-child{flex:1;min-width:0}
+.hero-btns{display:flex;align-items:center;gap:8px}
+.hero-search{width:38px;height:38px;border-radius:50%;background:#f5f6f8;border:1px solid #e4e6eb;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cv-search-bar{display:none;align-items:center;gap:8px;margin-top:12px}
+.cv-search-bar.open{display:flex}
+.cv-search-bar input{flex:1;min-width:0;border:1px solid #e8ecf0;border-radius:20px;padding:9px 14px;font-size:13px;background:#f2f4f7;font-family:inherit}
+.cv-search-bar span{font-size:13px;font-weight:700;color:#888;cursor:pointer;padding:4px}
+.cv-follow{font-size:11px;font-weight:800;padding:5px 11px;border-radius:99px;cursor:pointer;border:1.5px solid var(--red);color:var(--red);background:#fff;white-space:nowrap;flex-shrink:0;font-family:inherit}
+.cv-follow.suivi{border-color:#ccc;color:#888;background:#f5f5f5}
 .hero-icon{ width:56px; height:56px; border-radius:14px; background:#eef1fb; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
 
 .empty-block{ margin:12px 12px 0; background:#fff; border-radius:20px; padding:34px 20px; text-align:center; border:1px solid #E8ECF0; }
@@ -452,16 +469,23 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 
 <div class="content">
 
-  <div class="loading" id="loading" data-tr="Chargement de votre CV Pro…">Chargement de votre CV Pro…</div>
+  <div class="loading" id="loading"><div class="ar-spin"></div><span data-tr="Chargement de votre CV Pro…">Chargement de votre CV Pro…</span></div>
 
   <!-- LISTE : Mes CV (en premier, bouton "+Ajouter" toujours visible en haut) + Communauté (en dessous) -->
   <div id="cvListeWrap" style="display:none">
     <div class="hero-card" id="heroCard">
       <div>
         <h2 id="heroTitreListe" data-tr="Créez votre carte de visite professionnelle">Créez votre carte de visite professionnelle</h2>
-        <button class="btn-ajouter" onclick="ouvrirModal()" data-tr="➕ Ajouter mon CV">➕ Ajouter mon CV</button>
+        <div class="hero-btns">
+          <button class="btn-ajouter" onclick="ouvrirModal()" data-tr="➕ Ajouter mon CV">➕ Ajouter mon CV</button>
+          <button class="hero-search" onclick="toggleRechercheCv()" title="Rechercher">🔍</button>
+        </div>
+        <div class="cv-search-bar" id="cvSearchBar">
+          <input type="text" id="cvSearchInput" placeholder="Rechercher un nom, un métier, une ville…" data-tr-ph="Rechercher un nom, un métier, une ville…" oninput="rechercherCv()">
+          <span onclick="toggleRechercheCv()" data-tr="Fermer">Fermer</span>
+        </div>
       </div>
-      <div class="hero-icon">📄</div>
+      <span class="me-av-wrap"><div class="hero-av" id="heroAv">📄</div><span class="me-online-dot"></span></span>
     </div>
     <div class="empty-block" id="empty-block-liste" style="display:none">
       <div class="ico">🗂️</div>
@@ -877,6 +901,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 <script src="translations.js?v=20250705c"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
+<script src="notifications.js"></script>
 <script>
 
 const firebaseConfig = {
@@ -1052,7 +1077,9 @@ let listeMesCv = [];
 let listeCorbeille = [];
 let listeCommunaute = [];
 let listeToutes = [];
-let mesSuivisCv = new Set();
+let mesSuivisCv = new Set();     // les personnes que JE suis
+let mesAbonnesCv = new Set();    // les personnes qui ME suivent
+let termeRechercheCv = '';
 let monPaysPrefixeCv = '';
 const authorInfoCache = {};
 const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
@@ -1172,7 +1199,8 @@ function classerCommunauteCv(liste){
   const suivisActifs = [], paysActifs = [], masse = [];
   dedoublonnee.forEach(c => {
     const ts = c.majLe ? new Date(c.majLe).getTime() : 0;
-    const estSuivi = mesSuivisCv.has(c.auteurUid);
+    // Le suivi joue dans les deux sens : je la suis, OU elle me suit.
+    const estSuivi = mesSuivisCv.has(c.auteurUid) || mesAbonnesCv.has(c.auteurUid);
     const memePays = !!(monPaysPrefixeCv && c.telephone && extraireIndicatifTelephoneCv(c.telephone) === monPaysPrefixeCv);
     const publieDepuisMoinsDe = (fenetreMs) => ts > 0 && (maintenant - ts) <= fenetreMs;
     if (estSuivi && publieDepuisMoinsDe(QUINZE_JOURS_MS_CV)) suivisActifs.push(c);
@@ -1228,7 +1256,7 @@ async function renderListeCards(){
 
   const cardsMoi = document.getElementById('cvCardsListe');
   cardsMoi.innerHTML = '';
-  for (const c of listeMesCv) cardsMoi.appendChild(construireInstance(c, true));
+  for (const c of listeMesCv.filter(correspondRecherche)) cardsMoi.appendChild(construireInstance(c, true));
 
   const toggleCorb = document.getElementById('corbeilleToggle');
   toggleCorb.style.display = listeCorbeille.length ? 'flex' : 'none';
@@ -1237,7 +1265,7 @@ async function renderListeCards(){
   corbListe.innerHTML = '';
   listeCorbeille.forEach(c => corbListe.appendChild(creerLigneCorbeille(c)));
 
-  document.getElementById('empty-block-communaute').style.display = listeCommunaute.length === 0 ? 'block' : 'none';
+  document.getElementById('empty-block-communaute').style.display = (listeCommunaute.length === 0 || (termeRechercheCv && !listeCommunaute.some(correspondRecherche))) ? 'block' : 'none';
   const erreurTech = document.getElementById('communauteErreurTech');
   const derniereErreur = window.__cvProDerniereErreurListe;
   if (listeCommunaute.length === 0 && derniereErreur) {
@@ -1251,7 +1279,8 @@ async function renderListeCards(){
 
   // Chargement progressif, comme partout ailleurs sur le site : par lots de
   // 6, pas tout le fil d'un coup.
-  const visiblesCommunaute = listeCommunaute.slice(0, nombreCvCommunauteAffiches);
+  const communauteFiltree = listeCommunaute.filter(correspondRecherche);
+  const visiblesCommunaute = communauteFiltree.slice(0, nombreCvCommunauteAffiches);
 
   // Carrousel léger « CV à la une », répété tous les 4 CV (après le 4e, le 8e, le 12e, etc.),
   // même logique qu'Accueil : pas de seuil minimum, on essaie simplement à
@@ -1285,6 +1314,55 @@ setTimeout(() => {
   const sentinelle = document.getElementById('sentinelleCvCommunaute');
   if (sentinelle) observateurCvCommunaute.observe(sentinelle);
 }, 500);
+
+/* ── Recherche (nom, métier, ville, compétences…) ── */
+function correspondRecherche(c){
+  if (!termeRechercheCv) return true;
+  const info = authorInfoCache[c.auteurUid] || {};
+  const tout = [c.prenom, c.nomFamille, c.metier, c.ville, c.pays, c.diplome, c.profil, c.titreInterne, info.prenom, info.nom]
+    .concat(c.qualites || [], c.competences || [], (c.experiences || []).map(e => (e.poste || '') + ' ' + (e.entreprise || '')), (c.formations || []).map(f => f.diplome || ''))
+    .filter(Boolean).join(' ').toLowerCase();
+  return tout.indexOf(termeRechercheCv) !== -1;
+}
+let _rechercheMinuteur = null;
+window.rechercherCv = function(){
+  clearTimeout(_rechercheMinuteur);
+  _rechercheMinuteur = setTimeout(() => {
+    termeRechercheCv = document.getElementById('cvSearchInput').value.trim().toLowerCase();
+    nombreCvCommunauteAffiches = TAILLE_LOT_CV;
+    renderListeCards();
+  }, 250);
+};
+window.toggleRechercheCv = function(){
+  const barre = document.getElementById('cvSearchBar');
+  const ouvert = barre.classList.toggle('open');
+  if (ouvert) setTimeout(() => document.getElementById('cvSearchInput').focus(), 100);
+  else { document.getElementById('cvSearchInput').value = ''; if (termeRechercheCv) { termeRechercheCv = ''; renderListeCards(); } }
+};
+
+/* ── Suivre l'auteur d'un CV (même liste « abonnements » que l'Accueil et le Fil Presse) ── */
+function boutonSuivreCv(auteurUid){
+  if (!currentUser || !auteurUid || auteurUid === currentUser.uid) return '';
+  const suivi = mesSuivisCv.has(auteurUid);
+  return `<button class="cv-follow${suivi ? ' suivi' : ''}" data-uid="${auteurUid}" onclick="event.stopPropagation();window.__suivreCv('${auteurUid}')">${suivi ? TR('Suivi(e)') : TR('+ Suivre')}</button>`;
+}
+window.__suivreCv = async function(uid){
+  if (!currentUser || uid === currentUser.uid) return;
+  const ref = doc(db, 'abonnements', currentUser.uid + '_' + uid);
+  try {
+    if (mesSuivisCv.has(uid)) { await deleteDoc(ref); mesSuivisCv.delete(uid); }
+    else {
+      await setDoc(ref, { follower: currentUser.uid, followed: uid, createdAt: serverTimestamp() });
+      mesSuivisCv.add(uid);
+      window.ArNotif && ArNotif.envoyer({ dest: uid, type: 'abonne', page: 'profil', unique: true });
+    }
+    document.querySelectorAll('.cv-follow[data-uid="' + uid + '"]').forEach(b => {
+      const suivi = mesSuivisCv.has(uid);
+      b.classList.toggle('suivi', suivi);
+      b.textContent = suivi ? TR('Suivi(e)') : TR('+ Suivre');
+    });
+  } catch (e) { console.error('Suivi CV Pro :', e); }
+};
 
 // Carrousel léger « CV à la une » : petites vignettes (photo + nom + métier), même taille que
 // le carrousel de Fil Presse (130×160). Clic -> défile jusqu'à la grande carte correspondante.
@@ -1417,7 +1495,7 @@ function creerInstanceImport(c, estMoi){
   const estImageImport = (c.importURL || '').startsWith('data:image');
   bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
     (estImageImport ? `<button class="cv-instance-menu-btn cv-dl" title="${TR('📥 Enregistrer sur le téléphone')}" onclick="event.stopPropagation();window.__menuEnregistrerCv('${c.id}')" style="display:flex;align-items:center;justify-content:center;padding:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg></button>` : '') +
-    (estMoi ? `<button class="cv-instance-menu-btn cv-menu-btn">⋮</button>` : '');
+    (estMoi ? `<button class="cv-instance-menu-btn cv-menu-btn">⋮</button>` : boutonSuivreCv(c.auteurUid));
   wrapper.appendChild(bar);
 
   let menu = null;
@@ -1491,7 +1569,7 @@ function creerInstanceLecture(c, estMoi){
   bar.className = 'cv-instance-bar';
   const titre = titreAffiche(c);
   bar.innerHTML = `<div class="cv-instance-titre">${escapeHtml(titre)}</div>` +
-    (estMoi ? `<button class="cv-instance-menu-btn">⋮</button>` : '');
+    (estMoi ? `<button class="cv-instance-menu-btn">⋮</button>` : boutonSuivreCv(c.auteurUid));
   wrapper.appendChild(bar);
 
   let menu = null;
@@ -1671,11 +1749,24 @@ auth.onAuthStateChanged(async (user) => {
         mesSuivisCv = new Set(snapSuivis.docs.map(d => d.data().followed));
       } catch (e) { console.error('suivis CV Pro :', e); }
       try {
+        const snapAbonnes = await collection(db, 'abonnements').where('followed', '==', user.uid).get();
+        mesAbonnesCv = new Set(snapAbonnes.docs.map(d => d.data().follower));
+      } catch (e) { console.error('abonnés CV Pro :', e); }
+      try {
         const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
         if (ownSnap.exists) monPaysPrefixeCv = extraireIndicatifTelephoneCv(ownSnap.data().telephone);
+        // Mon avatar à droite (photo de profil si elle existe) + point vert « en ligne ».
+        const moi = ownSnap.exists ? ownSnap.data() : {};
+        const av = document.getElementById('heroAv');
+        if (av) {
+          av.innerHTML = moi.photoAvatar ? '<img src="' + escapeHtml(moi.photoAvatar) + '" alt="">' : escapeHtml(((moi.prenom || moi.nom || '?') + '')[0].toUpperCase());
+          av.onclick = () => { try { if (window.parent && window.parent !== window && window.parent.goUserProfile) { window.parent.goUserProfile(user.uid); return; } } catch (e) {} window.location.href = 'profil.html?uid=' + user.uid; };
+        }
+        document.querySelectorAll('.me-online-dot').forEach(d => d.style.display = 'block');
       } catch (e) { console.error('téléphone CV Pro :', e); }
     } else {
       mesSuivisCv = new Set();
+      mesAbonnesCv = new Set();
       monPaysPrefixeCv = '';
     }
     await chargerListe();
