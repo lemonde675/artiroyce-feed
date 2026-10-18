@@ -308,6 +308,7 @@
     ['Tout le monde sauf {n}','Everyone except {n}','Todos excepto {n}','Todos, exceto {n}','الجميع باستثناء {n}','所有人，除了 {n} 人','Все, кроме {n}','Alle außer {n}','{n} 人以外の全員','सभी, सिवाय {n}'],
     ['Seulement {n} personne(s)','Only {n} person(s)','Solo {n} persona(s)','Só {n} pessoa(s)','{n} شخص فقط','仅 {n} 人','Только {n} чел.','Nur {n} Person(en)','{n} 人のみ','सिर्फ़ {n} लोग'],
     // ── CV Pro ──
+    ['Rechercher un nom, un métier, une ville…','Search a name, a trade, a city…','Buscar un nombre, un oficio, una ciudad…','Pesquisar um nome, uma profissão, uma cidade…','ابحث عن اسم أو مهنة أو مدينة…','搜索姓名、职业、城市…','Искать имя, профессию, город…','Name, Beruf oder Stadt suchen…','名前・職業・都市で検索…','नाम, पेशा या शहर खोजें…'],
     ['+ Ajouter cette formation','+ Add this education','+ Añadir esta formación','+ Adicionar esta formação','+ أضف هذا التكوين','+ 添加此教育经历','+ Добавить это образование','+ Diese Ausbildung hinzufügen','+ この学歴を追加','+ यह शिक्षा जोड़ें'],
     ['+ Ajouter cette expérience','+ Add this experience','+ Añadir esta experiencia','+ Adicionar esta experiência','+ أضف هذه الخبرة','+ 添加此经历','+ Добавить этот опыт','+ Diese Erfahrung hinzufügen','+ この経験を追加','+ यह अनुभव जोड़ें'],
     ['Chargement de votre CV Pro…','Loading your Pro CV…','Cargando su CV Pro…','Carregando seu CV Pro…','جارٍ تحميل سيرتك الذاتية…','正在加载您的专业简历…','Загрузка вашего резюме…','Ihr Pro-Lebenslauf wird geladen…','プロ履歴書を読み込み中…','आपका प्रो सीवी लोड हो रहा है…'],
