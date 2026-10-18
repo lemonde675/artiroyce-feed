@@ -1,7 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<script>
+  // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>Fil Presse — ArtiRoyce</title>
 <link rel="preconnect" href="https://www.gstatic.com">
@@ -119,6 +124,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 .ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
 .ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
 @keyframes arSpin{to{transform:rotate(360deg)}}
+/* Flèche « Enregistrer avec la marque ArtiRoyce » (à droite de Partager) */
+.pa-dl{flex:0 0 46px;display:flex;align-items:center;justify-content:center;color:#777;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pa-dl:active{background:#f2f2f2}
+.cmt-av{overflow:hidden}
+.cmt-av img{width:100%;height:100%;object-fit:cover;display:block}
+.toast-fp{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;max-width:88%;text-align:center}
 </style>
 </head>
 <body>
@@ -150,44 +161,44 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
   <div class="composer" id="composer">
     <div class="composer-row">
       <span class="me-av-wrap"><div class="avatar" id="myAvatar">?</div><span class="me-online-dot"></span></span>
-      <div class="composer-input" id="composerBtn" data-i18n="presse_quoi_neuf">Publier une actualité presse…</div>
+      <div class="composer-input" id="composerBtn" data-tr="Publier une actualité presse…">Publier une actualité presse…</div>
       <div class="search-circle-btn" onclick="window.__toggleSearch()" title="Rechercher">🔍</div>
     </div>
   </div>
 
   <div class="search-bar" id="searchBar">
-    <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…">
+    <input type="text" id="searchInput" placeholder="Rechercher un journal, une personne, un mot…" data-tr-ph="Rechercher un journal, une personne, un mot…">
     <span class="search-close" onclick="window.__closeSearch()">✕</span>
   </div>
 
   <div id="composerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;">
     <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-radius:20px 20px 0 0;padding:18px;max-height:88vh;overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <b style="font-size:16px">✍️ Nouvelle publication</b>
+        <b style="font-size:16px" data-tr="✍️ Nouvelle publication">✍️ Nouvelle publication</b>
         <span style="font-size:20px;cursor:pointer;color:#666;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#F2F4F7;touch-action:manipulation;flex-shrink:0" onclick="window.__closeComposer()">✕</span>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap" id="typeRow">
-        <div class="type-chip active" data-type="actu" data-color="#27a945">📰 Journal</div>
-        <div class="type-chip" data-type="lancement" data-color="#0288d1">🚀 Lancement</div>
-        <div class="type-chip" data-type="partenariat" data-color="#8e44ad">🤝 Partenariat</div>
-        <div class="type-chip" data-type="innovation" data-color="#e63224">💡 Innovation</div>
+        <div class="type-chip active" data-type="actu" data-color="#27a945" data-tr="📰 Journal">📰 Journal</div>
+        <div class="type-chip" data-type="lancement" data-color="#0288d1" data-tr="🚀 Lancement">🚀 Lancement</div>
+        <div class="type-chip" data-type="partenariat" data-color="#8e44ad" data-tr="🤝 Partenariat">🤝 Partenariat</div>
+        <div class="type-chip" data-type="innovation" data-color="#e63224" data-tr="💡 Innovation">💡 Innovation</div>
       </div>
-      <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
-      <input type="text" id="composerVille" placeholder="Ville (ex: Cotonou)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
-      <textarea id="composerTxt" placeholder="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
+      <input type="text" id="composerJournal" placeholder="Nom du journal (ex: Le Bénouto)…" data-tr-ph="Nom du journal (ex: Le Bénouto)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
+      <input type="text" id="composerVille" placeholder="Ville (ex: Cotonou)…" data-tr-ph="Ville (ex: Cotonou)…" style="width:100%;border:1px solid #E8ECF0;border-radius:14px;padding:10px 12px;font-size:13.5px;margin-bottom:10px">
+      <textarea id="composerTxt" placeholder="Écrire votre publication…" data-tr-ph="Écrire votre publication…" style="width:100%;min-height:90px;border:1px solid #E8ECF0;border-radius:14px;padding:12px;font-size:14px;resize:none;font-family:inherit"></textarea>
       <div id="mediaPreview" style="margin-top:10px;display:none;text-align:center;background:#F2F4F7;border-radius:14px;padding:8px">
         <img id="imgPreview" style="max-width:100%;border-radius:12px;display:none;max-height:220px;object-fit:contain;margin:0 auto">
         <video id="vidPreview" style="max-width:100%;border-radius:12px;display:none;max-height:220px;margin:0 auto" controls></video>
       </div>
       <div style="display:flex;gap:10px;margin-top:12px">
         <label style="flex:1;text-align:center;background:#F2F4F7;border-radius:14px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">
-          📷 Photo<input type="file" accept="image/*" id="inputPhoto" style="display:none">
+          <span data-tr="📷 Photo">📷 Photo</span><input type="file" accept="image/*" id="inputPhoto" style="display:none">
         </label>
         <label style="flex:1;text-align:center;background:#F2F4F7;border-radius:14px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">
-          🎥 Vidéo<input type="file" accept="video/*" id="inputVideo" style="display:none">
+          <span data-tr="🎥 Vidéo">🎥 Vidéo</span><input type="file" accept="video/*" id="inputVideo" style="display:none">
         </label>
       </div>
-      <button id="btnPublier" style="width:100%;margin-top:14px;background:var(--red);color:#fff;border:none;border-radius:16px;padding:14px;font-size:15px;font-weight:800;cursor:pointer">Publier</button>
+      <button id="btnPublier" style="width:100%;margin-top:14px;background:var(--red);color:#fff;border:none;border-radius:16px;padding:14px;font-size:15px;font-weight:800;cursor:pointer" data-tr="Publier">Publier</button>
       <div class="upload-progress-wrap" id="uploadProgressWrap"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
       <div class="composer-notice" id="composerNotice"></div>
     </div>
@@ -195,16 +206,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);overscroll-behavior-x
 
   <div class="content" id="content">
     <div class="trash-toggle" id="trashToggle" style="display:none" onclick="toggleTrash()">
-      <span>🗑 <span data-i18n="presse_corbeille">Corbeille</span> (<span id="trashCount">0</span>)</span>
+      <span>🗑 <span data-tr="Corbeille">Corbeille</span> (<span id="trashCount">0</span>)</span>
       <span id="trashArrow">▾</span>
     </div>
     <div id="trashList" style="display:none"></div>
 
-    <div class="sec-title" id="secMineTitle" style="display:none" data-i18n="presse_mes_pubs">Mes publications</div>
+    <div class="sec-title" id="secMineTitle" style="display:none" data-tr="Mes publications">Mes publications</div>
     <div id="mineList"></div>
 
-    <div class="sec-title" data-i18n="presse_fil">Fil Presse</div>
-    <div id="feedList"><div class="ar-charge"><div class="ar-spin"></div><span data-i18n="presse_chargement">Chargement…</span></div></div>
+    <div class="sec-title" data-tr="Fil Presse">Fil Presse</div>
+    <div id="feedList"><div class="ar-charge"><div class="ar-spin"></div><span data-tr="Chargement…">Chargement…</span></div></div>
     <div id="sentinelleFP" style="height:1px"></div>
   </div>
 </div>
@@ -323,11 +334,11 @@ function timeAgo(ts){
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   const diff = Math.max(0, Date.now()-d.getTime());
   const h = Math.floor(diff/3600000);
-  if(h<1) return "à l'instant";
-  if(h<24) return 'il y a '+h+'h';
+  if(h<1) return TR("à l'instant");
+  if(h<24) return TR('il y a {n}h', {n: h});
   const j = Math.floor(h/24);
-  if(j<30) return 'il y a '+j+'j';
-  return 'il y a '+Math.floor(j/30)+' mois';
+  if(j<30) return TR('il y a {n}j', {n: j});
+  return TR('il y a {n} mois', {n: Math.floor(j/30)});
 }
 
 function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -336,14 +347,15 @@ function renderPost(id, p, opts){
   opts = opts || {};
   const mine = !!opts.mine, trashed = !!opts.trashed;
   const initiale = (p.prenom||'?')[0].toUpperCase();
-  const avatar = p.photoAvatar ? ('<img src="'+p.photoAvatar+'">') : initiale;
-  const officialBadge = p.official ? '<span class="badge-off">✔ Presse Officielle</span>' : '';
+  const photoAv = p.photoAvatar || (p.uid && _photosAuteurs[p.uid]) || '';
+  const avatar = photoAv ? ('<img src="'+esc(photoAv)+'">') : initiale;
+  const officialBadge = p.official ? '<span class="badge-off">'+TR('✔ Presse Officielle')+'</span>' : '';
   const metierBadge = (!p.official && p.metier) ? ('<span class="badge-metier">'+esc(p.metier)+'</span>') : '';
   const typeColors = {actu:'#27a945',lancement:'#0288d1',partenariat:'#8e44ad',innovation:'#e63224'};
-  const typeLabels = {actu:'📰 Journal',lancement:'🚀 Lancement',partenariat:'🤝 Partenariat',innovation:'💡 Innovation'};
+  const typeLabels = {actu:TR('📰 Journal'),lancement:TR('🚀 Lancement'),partenariat:TR('🤝 Partenariat'),innovation:TR('💡 Innovation')};
   const journalSuffix = p.journalNom ? ('<span class="ribbon-journal">'+esc(p.journalNom)+'</span>') : '';
   const ribbon = p.type ? ('<div class="ribbon-wrap"><div class="ribbon" style="background:'+(typeColors[p.type]||'#999')+'">'+(typeLabels[p.type]||p.type)+'</div>'+journalSuffix+'</div>') : '';
-  const roleLbl = p.official ? '' : (p.roleLbl || 'Professionnel');
+  const roleLbl = p.official ? '' : TR(p.roleLbl || 'Professionnel');
   const imgList = (p.images||[]).slice(0,4);
   const imgCount = imgList.length;
   const imgsGridCols = imgCount <= 1 ? '1fr' : '1fr 1fr';
@@ -353,52 +365,54 @@ function renderPost(id, p, opts){
     if (p.photoProfil) return '<img src="'+esc(u)+'" loading="lazy" style="max-height:520px;object-fit:contain;background:#f2f2f2">';
     return '<img src="'+esc(u)+'" loading="lazy" referrerpolicy="no-referrer" style="'+sizing+'object-fit:cover">';
   }).join('');
-  const video = p.videoUrl ? ('<video src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
-  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">+ Suivre</button>') : '';
+  const aMedia = imgCount > 0 || !!p.videoUrl;
+  const video = p.videoUrl ? ('<video data-post="'+id+'" src="'+esc(p.videoUrl)+'" controls style="width:calc(100% - 28px);display:block;background:#000;max-height:320px;border-radius:14px;margin:0 14px 10px"></video>') : '';
+  const followBtn = (!mine && !trashed && currentUid) ? ('<button class="follow-btn" id="follow-'+p.uid+'" onclick="window.__toggleFollow(\''+p.uid+'\')">'+TR('+ Suivre')+'</button>') : '';
   const ownActions = (mine && !trashed) ? (
     '<div class="own-actions">'
-    + '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">✏️ Modifier</div>'
-    + '<div class="oa-btn" onclick="window.__softDelete(\''+id+'\', this)">🗑 Supprimer</div>'
+    + '<div class="oa-btn" onclick="window.__editPost(\''+id+'\')">'+TR('✏️ Modifier')+'</div>'
+    + '<div class="oa-btn" onclick="window.__softDelete(\''+id+'\', this)">'+TR('🗑 Supprimer')+'</div>'
     + '</div>'
   ) : '';
   const trashActions = trashed ? (
     '<div class="post-trash-actions">'+
-    '<div class="pt-btn" onclick="window.__restore(\''+id+'\')">↩ Restaurer</div>'+
-    '<div class="pt-btn" onclick="window.__hardDelete(\''+id+'\', this)">🗑 Supprimer définitivement</div>'+
+    '<div class="pt-btn" onclick="window.__restore(\''+id+'\')">'+TR('↩ Restaurer')+'</div>'+
+    '<div class="pt-btn" onclick="window.__hardDelete(\''+id+'\', this)">'+TR('🗑 Supprimer définitivement')+'</div>'+
     '</div>') : '';
 
   return '<div class="post" id="post-'+id+'">'
     + '<div class="post-hd">'
-    +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar">'+avatar+'</div>'
+    +   '<div class="av-wrap" style="cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')"><div class="avatar" data-av="'+(p.uid||'')+'">'+avatar+'</div>'
     +     ((p.official || p.verifie) ? '<div class="v-icon">✔</div>' : '')
     +     '<div class="online-dot" data-author="'+(p.uid||'')+'" style="display:none"></div>'
     +   '</div>'
     +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
-    +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||'Utilisateur')+'</span>'+officialBadge+'</div>'
-    +     '<div class="post-sub">'+(trashed?'🗑 Supprimé — ':'')+(roleLbl?roleLbl+' · ':'')+(p.ville?esc(p.ville)+' · ':'')+timeAgo(p.createdAt)+'</div>'
+    +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||TR('Utilisateur'))+'</span>'+officialBadge+'</div>'
+    +     '<div class="post-sub">'+(trashed?TR('🗑 Supprimé — '):'')+(roleLbl?roleLbl+' · ':'')+(p.ville?esc(p.ville)+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn
     + '</div>'
     + ownActions
     + (p.texte ? ('<div class="post-txt">'+ribbon+esc(p.texte)+'</div>') : (ribbon?('<div class="post-txt">'+ribbon+'</div>'):''))
-    + (imgs ? ('<div class="post-imgs" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
+    + (imgs ? ('<div class="post-imgs" data-post="'+id+'" style="grid-template-columns:'+imgsGridCols+'">'+imgs+'</div>') : '')
     + video
     + (!trashed ? (
-        '<div class="post-stats" id="stats-'+id+'"><span>'+(p.likes||0)+' réaction(s)</span><span>'+(p.comments||0)+' commentaire(s)</span></div>'
+        '<div class="post-stats" id="stats-'+id+'"><span>'+TR('{n} réaction(s)', {n: p.likes||0})+'</span><span>'+TR('{n} commentaire(s)', {n: p.comments||0})+'</span></div>'
       + '<div class="post-actions">'
-      +   '<div class="pa-btn" onclick="window.__toggleReactPicker(\''+id+'\')">👍 J\'aime</div>'
-      +   '<div class="pa-btn" onclick="window.__toggleComments(\''+id+'\')">💬 Commenter</div>'
-      +   '<div class="pa-btn">↗ Partager</div>'
+      +   '<div class="pa-btn" onclick="window.__toggleReactPicker(\''+id+'\')">'+TR("👍 J'aime")+'</div>'
+      +   '<div class="pa-btn" onclick="window.__toggleComments(\''+id+'\')">'+TR('💬 Commenter')+'</div>'
+      +   '<div class="pa-btn" onclick="window.__partagerFP(\''+id+'\')">'+TR('↗ Partager')+'</div>'
+      +   (aMedia ? '<div class="pa-dl" title="'+TR('📥 Enregistrer sur le téléphone')+'" onclick="event.stopPropagation();window.__menuEnregistrerFP(\''+id+'\')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg></div>' : '')
       + '</div>'
       + '<div class="react-picker" id="picker-'+id+'">'
       +   ['❤️','😂','👍','😮','😢','🙏'].map(function(em){return '<span class="react-em" onclick="window.__sendReaction(\''+id+'\',\''+em+'\')">'+em+'</span>';}).join('')
       + '</div>'
       + '<div class="comments-box" id="comments-'+id+'">'
       +   '<div id="cmtList-'+id+'"></div>'
-      +   '<div class="cmt-reply-indicator" id="cmtReplyTo-'+id+'">Réponse à <b id="cmtReplyName-'+id+'"></b><span onclick="window.__cancelReply(\''+id+'\')">✕ annuler</span></div>'
+      +   '<div class="cmt-reply-indicator" id="cmtReplyTo-'+id+'">'+TR('Réponse à')+' <b id="cmtReplyName-'+id+'"></b><span onclick="window.__cancelReply(\''+id+'\')">'+TR('✕ annuler')+'</span></div>'
       +   '<div class="cmt-input-row">'
-      +     '<input class="cmt-input" id="cmtInput-'+id+'" placeholder="Écrire un commentaire…">'
-      +     '<button class="cmt-send" onclick="window.__addComment(\''+id+'\')">Envoyer</button>'
+      +     '<input class="cmt-input" id="cmtInput-'+id+'" placeholder="'+TR('Écrire un commentaire…')+'">'
+      +     '<button class="cmt-send" onclick="window.__addComment(\''+id+'\')">'+TR('Envoyer')+'</button>'
       +   '</div>'
       + '</div>') : '')
     + trashActions
@@ -522,7 +536,7 @@ function renderFilteredFeed(){
       }
     });
   } else {
-    feedHTML = '<div class="empty-msg">'+(searchTerm ? 'Aucun résultat pour « '+esc(searchTerm)+' ».' : 'Aucune publication pour le moment.')+'</div>';
+    feedHTML = '<div class="empty-msg">'+(searchTerm ? TR('Aucun résultat pour « {t} ».', {t: esc(searchTerm)}) : TR('Aucune publication pour le moment.'))+'</div>';
   }
   document.getElementById('feedList').innerHTML = feedHTML;
 
@@ -606,14 +620,14 @@ function buildCoverCarouselBlock(){
     const id = x[0], p = x[1];
     const journal = esc(p.journalNom || p.prenom || 'ArtiRoyce');
     const snippet = esc((p.texte || '').slice(0, 55));
-    return '<div class="cover-card" onclick="window.__scrollToPost(\'' + id + '\')">'
+    return '<div class="cover-card" data-post="' + id + '" onclick="window.__scrollToPost(\'' + id + '\')">'
       + '<img src="' + esc(p.images[0]) + '" loading="lazy" referrerpolicy="no-referrer">'
       + '<div class="cover-card-overlay"><div class="cover-card-journal">' + journal + '</div><div class="cover-card-txt">' + snippet + '</div></div>'
       + '</div>';
   }).join('');
 
   return '<div class="cover-carousel-wrap">'
-    + '<div class="cover-carousel-title">📰 Nos parutions</div>'
+    + '<div class="cover-carousel-title">'+TR('📰 Nos parutions')+'</div>'
     + '<div class="cover-carousel">' + cards + '</div>'
     + '</div>';
 }
@@ -662,8 +676,7 @@ async function loadFeed(){
   }catch(err){
     console.error('Fil Presse — chargement impossible :', err);
     document.getElementById('feedList').innerHTML =
-      '<div class="empty-msg">⚠️ Impossible de charger le Fil Presse pour le moment.<br>'
-      + '(Vérifie que Firebase Blaze est bien actif sur le projet.)</div>';
+      '<div class="empty-msg">'+TR('⚠️ Impossible de charger le Fil Presse pour le moment.')+'</div>';
   }
 }
 
@@ -681,6 +694,18 @@ function dernierSignalMs(d){
   });
   return m;
 }
+// Photos de profil à jour des auteurs (lues en même temps que le point vert « en ligne »).
+const _photosAuteurs = {};
+function poserPhotoAuteur(uid, photo){
+  if (!photo || _photosAuteurs[uid] === photo) return;
+  _photosAuteurs[uid] = photo;
+  document.querySelectorAll('.avatar[data-av="' + uid + '"]').forEach(function(av){ av.innerHTML = '<img src="' + esc(photo) + '">'; });
+  document.querySelectorAll('.cmt-av[data-av="' + uid + '"]').forEach(function(av){ av.innerHTML = '<img src="' + esc(photo) + '">'; });
+}
+function toastFP(msg){
+  const t = document.createElement('div'); t.className = 'toast-fp'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(function(){ t.remove(); }, 2400);
+}
 async function markAuthorsOnline(){
   const dots = document.querySelectorAll('.online-dot[data-author]');
   const uids = [...new Set(Array.from(dots).map(d => d.dataset.author).filter(Boolean))];
@@ -689,6 +714,7 @@ async function markAuthorsOnline(){
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
       const ms = uSnap.exists ? dernierSignalMs(uSnap.data()) : 0;
+      if (uSnap.exists) poserPhotoAuteur(uid, uSnap.data().photoAvatar);
       const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_MS;
       document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
     } catch (e) {}
@@ -801,6 +827,7 @@ document.getElementById('searchInput').addEventListener('input', function(e){
 });
 
 window.__editPost = async function(id){
+  if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('🔒 La publication est réservée aux professionnels')); return; }
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists) return;
   const p = snap.data();
@@ -822,7 +849,7 @@ window.__editPost = async function(id){
   document.getElementById('mediaPreview').style.display = 'none';
   document.getElementById('composerNotice').style.display = 'none';
   document.getElementById('uploadProgressWrap').style.display = 'none';
-  document.getElementById('btnPublier').textContent = 'Enregistrer les modifications';
+  document.getElementById('btnPublier').textContent = TR('Enregistrer les modifications');
   window.__openComposer();
 };
 
@@ -988,7 +1015,7 @@ window.__openComposer = function(){
 window.__closeComposer = function(){
   document.getElementById('composerModal').style.display = 'none';
   editingPostId = null;
-  document.getElementById('btnPublier').textContent = 'Publier';
+  document.getElementById('btnPublier').textContent = TR('Publier');
   document.getElementById('uploadProgressWrap').style.display = 'none';
   document.getElementById('composerNotice').style.display = 'none';
   if(composerHistoryPushed){
@@ -1059,7 +1086,7 @@ function uploaderVideo(file, btnEl){
     task.on('state_changed', function(snap){
       const pct = snap.totalBytes ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100) : 0;
       progressBar.style.width = pct + '%';
-      if(btnEl) btnEl.textContent = 'Envoi vidéo… ' + pct + '%';
+      if(btnEl) btnEl.textContent = TR('Envoi vidéo… {n}%', {n: pct});
     }, function(err){
       clearTimeout(failSafe);
       progressWrap.style.display = 'none';
@@ -1097,7 +1124,7 @@ function wireComposerModal(){
       document.getElementById('imgPreview').style.display = 'block';
     }catch(err){
       console.error('Redimensionnement image impossible :', err);
-      showComposerNotice("Cette image n'a pas pu être traitée. Réessaie avec une autre photo.", true);
+      showComposerNotice(TR("Cette image n'a pas pu être traitée. Réessaie avec une autre photo."), true);
     }finally{
       e.target.value = '';
     }
@@ -1107,7 +1134,7 @@ function wireComposerModal(){
     const f = e.target.files[0]; if(!f) return;
     const maxBytes = 40 * 1024 * 1024;
     if(f.size > maxBytes){
-      showComposerNotice('Cette vidéo est trop lourde (max 40 Mo). Choisis un fichier plus léger.', true);
+      showComposerNotice(TR('Cette vidéo est trop lourde (max 40 Mo). Choisis un fichier plus léger.'), true);
       e.target.value = '';
       return;
     }
@@ -1122,8 +1149,9 @@ function wireComposerModal(){
   document.getElementById('btnPublier').addEventListener('click', async function(){
     const texte = document.getElementById('composerTxt').value.trim();
     if(!texte && !selectedPhotoBase64 && !selectedVideoFile){ return; }
+    if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('🔒 La publication est réservée aux professionnels')); return; }
     const btn = document.getElementById('btnPublier');
-    const busyLabel = editingPostId ? 'Enregistrement…' : 'Publication en cours…';
+    const busyLabel = editingPostId ? TR('Enregistrement…') : TR('Publication en cours…');
     btn.textContent = busyLabel; btn.disabled = true;
 
     let images = selectedPhotoBase64 ? [selectedPhotoBase64] : [];
@@ -1135,7 +1163,7 @@ function wireComposerModal(){
           videoUrl = await uploaderVideo(selectedVideoFile, btn);
         }catch(videoErr){
           console.error('Envoi vidéo impossible :', videoErr);
-          showComposerNotice("La vidéo n'a pas pu être envoyée (service temporairement indisponible). La publication continue sans vidéo.", true);
+          showComposerNotice(TR("La vidéo n'a pas pu être envoyée (service temporairement indisponible). La publication continue sans vidéo."), true);
         }
       }
 
@@ -1180,10 +1208,10 @@ function wireComposerModal(){
       loadFeed();
     }catch(err){
       console.error('Publication impossible :', err);
-      showComposerNotice('La publication a échoué : ' + (err && err.message ? err.message : 'erreur inconnue'), true);
+      showComposerNotice(TR('La publication a échoué : {e}', {e: (err && err.message ? err.message : TR('erreur inconnue'))}), true);
     }finally{
       btn.disabled = false;
-      btn.textContent = editingPostId ? 'Enregistrer les modifications' : 'Publier';
+      btn.textContent = editingPostId ? TR('Enregistrer les modifications') : TR('Publier');
     }
   });
 }
@@ -1196,11 +1224,11 @@ window.__toggleFollow = async function(targetUid){
   const btn = document.getElementById('follow-'+targetUid);
   if(snap.exists){
     await deleteDoc(relRef);
-    if(btn){ btn.classList.remove('on'); btn.textContent = '+ Suivre'; }
+    if(btn){ btn.classList.remove('on'); btn.textContent = TR('+ Suivre'); }
   } else {
     await setDoc(relRef, { follower: currentUid, followed: targetUid, createdAt: serverTimestamp() });
     window.ArNotif && ArNotif.envoyer({ dest: targetUid, type: 'abonne', page: 'profil', unique: true });
-    if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
+    if(btn){ btn.classList.add('on'); btn.textContent = TR('Suivi(e)'); }
   }
 }
 
@@ -1212,7 +1240,7 @@ async function markFollowedButtons(){
     const followed = d.data().followed;
     followedUidsFilPresse.add(followed);
     const btn = document.getElementById('follow-'+followed);
-    if(btn){ btn.classList.add('on'); btn.textContent = 'Suivi(e)'; }
+    if(btn){ btn.classList.add('on'); btn.textContent = TR('Suivi(e)'); }
   });
 }
 
@@ -1224,7 +1252,7 @@ window.__toggleReactPicker = function(postId){
 }
 
 window.__sendReaction = async function(postId, emoji){
-  if(!currentUid){ alert('Connecte-toi pour réagir.'); return; }
+  if(!currentUid){ alert(TR('Connecte-toi pour réagir.')); return; }
   const reactRef = doc(db, 'fil_presse', postId, 'reactions', currentUid);
   const snap = await getDoc(reactRef);
   if(snap.exists && snap.data().emoji === emoji){
@@ -1246,7 +1274,7 @@ async function refreshReactionCount(postId){
   const el = document.getElementById('stats-'+postId);
   if(el){
     const spans = el.querySelectorAll('span');
-    spans[0].textContent = (top?top+' ':'') + total + ' réaction(s)';
+    spans[0].textContent = (top?top+' ':'') + TR('{n} réaction(s)', {n: total});
   }
 }
 
@@ -1311,7 +1339,7 @@ window.__cancelReply = function(postId){
 // fil_presse/{postId}/comments/{commentId}/likes/{uid} — exactement le même principe
 // que les réactions sur les publications (persiste après rechargement, par utilisateur).
 window.__toggleCommentLike = async function(postId, commentId, likeEl, countWrapEl, numEl){
-  if(!currentUid){ alert('Connecte-toi pour aimer un commentaire.'); return; }
+  if(!currentUid){ alert(TR('Connecte-toi pour aimer un commentaire.')); return; }
   const likeRef = doc(db, 'fil_presse', postId, 'comments', commentId, 'likes', currentUid);
   const commentRef = doc(db, 'fil_presse', postId, 'comments', commentId);
   try{
@@ -1320,12 +1348,12 @@ window.__toggleCommentLike = async function(postId, commentId, likeEl, countWrap
       await deleteDoc(likeRef);
       await updateDoc(commentRef, { likes: increment(-1) });
       likeEl.classList.remove('liked');
-      likeEl.textContent = "J'aime";
+      likeEl.textContent = TR("J'aime");
     } else {
       await setDoc(likeRef, { uid: currentUid, createdAt: serverTimestamp() });
       await updateDoc(commentRef, { likes: increment(1) });
       likeEl.classList.add('liked');
-      likeEl.textContent = 'Aimé';
+      likeEl.textContent = TR('Aimé');
     }
     const freshSnap = await getDoc(commentRef);
     const likes = freshSnap.exists ? (freshSnap.data().likes || 0) : 0;
@@ -1341,13 +1369,13 @@ function buildCommentHTML(postId, c, authorUid, isReply, rootId, likedMap){
   const likes = c.likes || 0;
   return '<div class="'+(isReply ? 'cmt-reply-wrap' : '')+'">'
     + '<div class="cmt-item">'
-    +   '<div class="cmt-av" style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+ini+'</div>'
+    +   '<div class="cmt-av" data-av="'+(c.uid||'')+'" style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+(c.uid && _photosAuteurs[c.uid] ? '<img src="'+esc(_photosAuteurs[c.uid])+'">' : (c.uid && c.uid === currentUid && currentUserData && currentUserData.photoAvatar ? '<img src="'+esc(currentUserData.photoAvatar)+'">' : esc(ini)))+'</div>'
     +   '<div class="cmt-right">'
-    +     '<div class="cmt-bubble"><b style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+esc(c.prenom||'Utilisateur')+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">· Créateur</span>' : '')+'<br>'+esc(c.texte)+'</div>'
+    +     '<div class="cmt-bubble"><b style="cursor:pointer" onclick="window.__voirProfil(\''+(c.uid||'')+'\')">'+esc(c.prenom||TR('Utilisateur'))+'</b>'+(isCreateur ? '<span class="cmt-badge-createur">'+TR('· Créateur')+'</span>' : '')+'<br>'+esc(c.texte)+'</div>'
     +     '<div class="cmt-meta">'
     +       '<span>'+(c.ville?esc(c.ville)+' · ':'')+timeAgo(c.createdAt)+'</span>'
-    +       '<span class="cmt-like'+(liked?' liked':'')+'" id="cmtLike-'+c.id+'" onclick="window.__toggleCommentLike(\''+postId+'\',\''+c.id+'\', this, document.getElementById(\'cmtLikeCount-'+c.id+'\'), document.getElementById(\'cmtLikeNum-'+c.id+'\'))">'+(liked?'Aimé':"J'aime")+'</span>'
-    +       '<span onclick="window.__replyToComment(\''+postId+'\',\''+c.id+'\',\''+rootId+'\',\''+esc(c.prenom||'Utilisateur')+'\')">Répondre</span>'
+    +       '<span class="cmt-like'+(liked?' liked':'')+'" id="cmtLike-'+c.id+'" onclick="window.__toggleCommentLike(\''+postId+'\',\''+c.id+'\', this, document.getElementById(\'cmtLikeCount-'+c.id+'\'), document.getElementById(\'cmtLikeNum-'+c.id+'\'))">'+(liked?TR('Aimé'):TR("J'aime"))+'</span>'
+    +       '<span onclick="window.__replyToComment(\''+postId+'\',\''+c.id+'\',\''+rootId+'\',\''+esc(c.prenom||'Utilisateur')+'\')">'+TR('Répondre')+'</span>'
     +       '<span class="cmt-like-count" id="cmtLikeCount-'+c.id+'" style="display:'+(likes>0?'inline-flex':'none')+'">❤️ <span id="cmtLikeNum-'+c.id+'">'+likes+'</span></span>'
     +     '</div>'
     +   '</div>'
@@ -1357,11 +1385,11 @@ function buildCommentHTML(postId, c, authorUid, isReply, rootId, likedMap){
 
 async function loadComments(postId){
   const listEl = document.getElementById('cmtList-'+postId);
-  listEl.innerHTML = '<div style="font-size:12px;color:#999">Chargement…</div>';
+  listEl.innerHTML = '<div style="font-size:12px;color:#999">'+TR('Chargement…')+'</div>';
   const authorUid = findPostAuthorUid(postId);
   const snap = await getDocs(query(collection(db,'fil_presse', postId, 'comments'), orderBy('createdAt','asc')));
   if(snap.empty){
-    listEl.innerHTML = '<div style="font-size:12px;color:#999">Aucun commentaire pour le moment.</div>';
+    listEl.innerHTML = '<div style="font-size:12px;color:#999">'+TR('Aucun commentaire pour le moment.')+'</div>';
     return;
   }
 
@@ -1408,7 +1436,7 @@ async function loadComments(postId){
     const reponses = reponsesParRacine[c.id] || [];
     if(reponses.length){
       html += '<div class="cmt-replies-zone" id="cmtReplies-'+c.id+'">'
-        + '<div class="cmt-voir-plus" id="cmtToggle-'+c.id+'">— Afficher '+reponses.length+' réponse'+(reponses.length>1?'s':'')+' ▾</div>'
+        + '<div class="cmt-voir-plus" id="cmtToggle-'+c.id+'">'+TR(reponses.length>1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length})+'</div>'
         + '</div>';
     }
   });
@@ -1429,7 +1457,7 @@ async function loadComments(postId){
 }
 
 window.__addComment = async function(postId){
-  if(!currentUid){ alert('Connecte-toi pour commenter.'); return; }
+  if(!currentUid){ alert(TR('Connecte-toi pour commenter.')); return; }
   const input = document.getElementById('cmtInput-'+postId);
   const texte = input.value.trim();
   if(!texte) return;
@@ -1459,17 +1487,22 @@ window.__addComment = async function(postId){
   const snap = await getDocs(collection(db,'fil_presse', postId, 'comments'));
   await updateDoc(postRef, { comments: snap.size });
   const el = document.getElementById('stats-'+postId);
-  if(el){ el.querySelectorAll('span')[1].textContent = snap.size + ' commentaire(s)'; }
+  if(el){ el.querySelectorAll('span')[1].textContent = TR('{n} commentaire(s)', {n: snap.size}); }
 }
 
 async function initComposer(){
   const composerBtn = document.getElementById('composerBtn');
 
-  // Ouvert à tout le monde pour l'instant (la limitation spécifique aux comptes
-  // "visiteur" viendra dans un second temps, une fois validée séparément).
   if(!currentUid){
     composerBtn.style.pointerEvents = 'none';
     composerBtn.style.opacity = '0.5';
+    return;
+  }
+  // Visiteurs : comme dans Actualités et Offres, la publication est réservée aux professionnels.
+  if(currentUserData && currentUserData.role === 'visiteur'){
+    composerBtn.setAttribute('data-tr', '🔒 Publication réservée aux professionnels');
+    composerBtn.textContent = TR('🔒 Publication réservée aux professionnels');
+    composerBtn.onclick = function(){ toastFP(TR('🔒 La publication est réservée aux professionnels')); };
     return;
   }
   wireComposerModal();
@@ -1505,6 +1538,46 @@ auth.onAuthStateChanged(async function(user){
 });
 </script>
 <script src="translations.js"></script>
+<script src="translations-app.js"></script>
 <script src="notifications.js"></script>
+<script src="filigrane.js"></script>
+<script>
+/* ── Marque ArtiRoyce : tout ce qu'on enregistre depuis le Fil Presse porte la marque (comme Accueil, Actualités, Statuts, Élites, Offres). ── */
+function postFP(id){ const f = allMineActive.concat(allOthers).find(function(x){ return x[0] === id; }); return f ? f[1] : null; }
+function pseudoFP(p){ return '@' + String((p && p.prenom) || 'artiroyce').toLowerCase().split(' ')[0]; }
+window.__menuEnregistrerFP = function(id, photoTouchee){
+  const p = postFP(id);
+  if(!p || !window.ArFiligrane) return;
+  const pseudo = pseudoFP(p);
+  const photos = (p.images || []).slice(0, 4);
+  const options = [];
+  if(photoTouchee && photos.length > 1) options.push({ texte: TR('📥 Enregistrer cette photo'), action: function(){ window.ArFiligrane.enregistrerPhoto(photoTouchee, pseudo); } });
+  if(photos.length) options.push({ texte: photos.length > 1 ? TR('📥 Enregistrer les {n} photos sur le téléphone', {n: photos.length}) : TR('📥 Enregistrer sur le téléphone'), action: function(){ window.ArFiligrane.enregistrerPhotos(photos, pseudo); } });
+  if(p.videoUrl) options.push({ texte: TR('📥 Enregistrer sur le téléphone') + ' 🎥', action: function(){ window.ArFiligrane.enregistrerVideo(p.videoUrl, pseudo); } });
+  if(options.length) window.ArFiligrane.menu(TR('Enregistrer'), options);
+};
+// « Partager » : avec une photo/vidéo, on propose aussi de l'enregistrer avec la marque.
+window.__partagerFP = function(id, direct){
+  const p = postFP(id);
+  const aMedia = p && ((p.images || []).length || p.videoUrl);
+  if(!direct && aMedia && window.ArFiligrane){
+    window.ArFiligrane.menu(TR('Partager'), [
+      { texte: TR('🔗 Partager'), action: function(){ window.__partagerFP(id, true); } },
+      { texte: TR('📥 Enregistrer sur le téléphone'), action: function(){ window.__menuEnregistrerFP(id); } }
+    ]);
+    return;
+  }
+  const lien = 'https://artiroyce.com';
+  const texte = ((p && (p.journalNom ? p.journalNom + ' — ' : '') + (p.texte || '')) || 'ArtiRoyce').slice(0, 200);
+  if(navigator.share){ navigator.share({ title: 'ArtiRoyce', text: texte, url: lien }).catch(function(){}); return; }
+  try{ navigator.clipboard.writeText(texte + '\n' + lien).then(function(){ toastFP(TR('Lien copié ✅')); }); }catch(e){}
+};
+// Appui long sur une photo/vidéo du Fil Presse : notre menu (avec la marque) au lieu de celui du téléphone.
+if(window.ArFiligrane) window.ArFiligrane.appuiLong(function(el){
+  const zone = el.closest && el.closest('[data-post]');
+  if(!zone) return;
+  window.__menuEnregistrerFP(zone.getAttribute('data-post'), el.tagName === 'IMG' ? el.getAttribute('src') : null);
+});
+</script>
 </body>
 </html>
