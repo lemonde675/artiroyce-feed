@@ -1,7 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<script>
+  // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Élite – ArtiRoyce</title>
 <style>
@@ -102,6 +107,7 @@
   .pg-visionneuse{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center}
   .pg-visionneuse.ouverte{display:flex}
   .pg-visionneuse img,.pg-visionneuse video{max-width:100%;max-height:85vh;object-fit:contain}
+  .pg-dl{position:absolute;left:14px;height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.18);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;z-index:2;font-family:inherit;border:none}
   .pg-fermer{position:absolute;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 
   .non-classe-card{margin:0 16px 12px;padding:14px 16px;border-radius:20px;border:1.5px dashed #e2e4ee;color:#9a9fb3;font-size:12.5px;display:flex;align-items:center;gap:10px}
@@ -148,9 +154,9 @@
   </div>
 </header>
 <div class="hero" id="heroFixe">
-  <div class="eyebrow">Classement</div>
-  <h1 class="titre-elite">💎 Élite</h1>
-  <p class="sous-titre">Les professionnels les plus reconnus d'ArtiRoyce. Le rang combine l'abonnement, la performance réelle (avis, ventes, ancienneté) et une validation admin.</p>
+  <div class="eyebrow" data-tr="Classement">Classement</div>
+  <h1 class="titre-elite">💎 <span data-tr="Élite">Élite</span></h1>
+  <p class="sous-titre" data-tr="Les professionnels les plus reconnus d'ArtiRoyce. Le rang combine l'abonnement, la performance réelle (avis, ventes, ancienneté) et une validation admin.">Les professionnels les plus reconnus d'ArtiRoyce. Le rang combine l'abonnement, la performance réelle (avis, ventes, ancienneté) et une validation admin.</p>
 </div>
 <div class="hero-spacer" id="heroSpacer"></div>
 
@@ -158,22 +164,25 @@
   <!-- rempli dynamiquement -->
 </div>
 
-<div class="section-title">Score Élite</div>
+<div class="section-title" data-tr="Score Élite">Score Élite</div>
 <div id="scoreList">
   <!-- rempli dynamiquement -->
 </div>
 <div id="sentinelleElite" style="height:1px"></div>
 
 <div class="pg-visionneuse" id="pgVisionneuse" onclick="if(event.target===this)fermerVisionneuseElite()">
+  <button class="pg-dl" id="pgDl" onclick="event.stopPropagation();enregistrerMediaElite()">⬇ <span data-tr="Enregistrer">Enregistrer</span></button>
   <span class="pg-fermer" id="pgFermer" onclick="fermerVisionneuseElite()">✕</span>
   <div id="pgVisionneuseMedia"></div>
 </div>
 
-<div class="footer-note">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.</div>
+<div class="footer-note" data-tr="Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="translations-app.js"></script>
+<script src="filigrane.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -274,7 +283,7 @@ async function chargerElite(){
       professionnels.push({
         uid: d.id,
         nom: (u.nom || u.prenom || 'Pro'),
-        metier: u.metier || 'Professionnel ArtiRoyce',
+        metier: u.metier || TR('Professionnel ArtiRoyce'),
         photoAvatar: u.photoAvatar || null,
         telephone: u.telephone || null,
         role: u.role,
@@ -307,7 +316,7 @@ async function chargerElite(){
 function renderSpotlight(classes){
   const el = document.getElementById('spotlightScroll');
   if(classes.length===0){
-    el.innerHTML = '<div class="spot-empty">Aucun professionnel classé pour l’instant</div>';
+    el.innerHTML = '<div class="spot-empty">'+TR('Aucun professionnel classé pour l’instant')+'</div>';
     return;
   }
   el.innerHTML = classes.map(p=>{
@@ -321,7 +330,7 @@ function renderSpotlight(classes){
       <div class="spot-card-overlay">
         <div class="spot-nom">${escHtml(p.nom)}</div>
         <div class="spot-metier">${escHtml(p.metier)}</div>
-        <div class="spot-tier-label ${p.tier}">${t.label}</div>
+        <div class="spot-tier-label ${p.tier}">${TR(t.label)}</div>
       </div>
     </div>`;
   }).join('');
@@ -345,18 +354,18 @@ function renderScoreList(){
       <div class="plaque-nom">${escHtml(p.nom)}</div>
       <div class="plaque-metier">${escHtml(p.metier)}</div>
       <div class="plaque-divider"><span></span><i></i><span></span></div>
-      <div class="plaque-tier-badge ${p.tier}">RANG ${t.label}</div>
+      <div class="plaque-tier-badge ${p.tier}">${TR('RANG {r}', {r: TR(t.label)})}</div>
       <div class="plaque-stats">
-        <span><i style="background:#27a945"></i>Abonnement ${p.abo}/30</span>
-        <span><i style="background:#8e44ad"></i>Ancienneté ${p.anciennete}/20</span>
-        <span><i style="background:#3498db"></i>Vues ${p.vues}/20</span>
-        <span><i style="background:#f5b301"></i>Admin ${p.admin}/30</span>
+        <span><i style="background:#27a945"></i>${TR('Abonnement')} ${p.abo}/30</span>
+        <span><i style="background:#8e44ad"></i>${TR('Ancienneté')} ${p.anciennete}/20</span>
+        <span><i style="background:#3498db"></i>${TR('Vues')} ${p.vues}/20</span>
+        <span><i style="background:#f5b301"></i>${TR('Admin')} ${p.admin}/30</span>
       </div>
       <div class="plaque-acts">
         ${telHref
-          ? `<a href="${telHref}" class="appeler" style="text-decoration:none" onclick="event.stopPropagation()">📞 Appeler</a>`
-          : `<button class="appeler" onclick="event.stopPropagation();toastPasDeNumero()">📞 Appeler</button>`}
-        <button class="contacter" onclick="event.stopPropagation();contacterElite('${p.uid}','${escHtml(p.nom).replace(/'/g,"\\'")}')">💬 Contacter</button>
+          ? `<a href="${telHref}" class="appeler" style="text-decoration:none" onclick="event.stopPropagation()">📞 ${TR('Appeler')}</a>`
+          : `<button class="appeler" onclick="event.stopPropagation();toastPasDeNumero()">📞 ${TR('Appeler')}</button>`}
+        <button class="contacter" onclick="event.stopPropagation();contacterElite('${p.uid}','${escHtml(p.nom).replace(/'/g,"\\'")}')">💬 ${TR('Contacter')}</button>
       </div>
       <div class="plaque-grille" data-uid="${p.uid}" onclick="event.stopPropagation()"></div>
     </div>`;
@@ -364,9 +373,9 @@ function renderScoreList(){
 
   // La carte "pas encore classé" n'apparaît que sur le dernier lot affiché.
   if (tousLesNonClasses.length && nombreAffiches >= tousLesClasses.length) {
-    html += `<div class="non-classe-card">🕒 ${tousLesNonClasses.length} professionnel(s) pas encore classé(s) — le classement se précisera automatiquement avec l'ancienneté du compte et les futurs avis/ventes.</div>`;
+    html += `<div class="non-classe-card">🕒 ${TR('{n} professionnel(s) pas encore classé(s) — le classement se précisera automatiquement avec l\'ancienneté du compte et les futurs avis/ventes.', {n: tousLesNonClasses.length})}</div>`;
   }
-  el.innerHTML = html || '<div class="non-classe-card">Aucun professionnel pour l’instant.</div>';
+  el.innerHTML = html || '<div class="non-classe-card">'+TR('Aucun professionnel pour l’instant.')+'</div>';
   attacherGrillesElite();
 }
 
@@ -409,7 +418,7 @@ async function remplirGrilleElite(grille){
     }
     if (!docs) { // échec : on ne mémorise rien, un prochain affichage réessaiera
       grille.classList.add('pleine');
-      grille.innerHTML = '<div style="font-size:11px;color:#b3b7c6;text-align:center">Réalisations momentanément indisponibles</div>';
+      grille.innerHTML = '<div style="font-size:11px;color:#b3b7c6;text-align:center">'+TR('Réalisations momentanément indisponibles')+'</div>';
       return;
     }
     _realisationsElite[uid] = docs.map(d => d.data())
@@ -424,9 +433,9 @@ async function remplirGrilleElite(grille){
 function afficherGrilleElite(grille, items){
   if (!items || !items.length) { grille.classList.remove('pleine'); grille.innerHTML = ''; return; }
   const uid = grille.dataset.uid;
-  grille.innerHTML = '<div class="pg-titre"><span>Réalisations</span><span class="pg-voir" onclick="__voirProfil(\''+uid+'\')">Voir tout ›</span></div>'
+  grille.innerHTML = '<div class="pg-titre"><span>'+TR('Réalisations')+'</span><span class="pg-voir" onclick="__voirProfil(\''+uid+'\')">'+TR('Voir tout ›')+'</span></div>'
     + '<div class="pg-cases">' + items.map((it, i) =>
-        '<div class="pg-case" onclick="ouvrirVisionneuseElite(\''+uid+'\','+i+')">'
+        '<div class="pg-case" data-arfig="1" data-uid="'+uid+'" data-i="'+i+'" onclick="ouvrirVisionneuseElite(\''+uid+'\','+i+')">'
         + (it.type === 'video'
             ? '<video src="'+escHtml(it.url)+'" muted playsinline preload="metadata" onloadeddata="this.currentTime=0.05"></video><span class="pg-play">▶</span>'
             : '<img src="'+escHtml(it.url)+'" loading="lazy" alt="">')
@@ -442,6 +451,8 @@ function ouvrirVisionneuseElite(uid, i){
     ? '<video src="'+escHtml(it.url)+'" controls autoplay playsinline></video>'
     : '<img src="'+escHtml(it.url)+'" alt="">';
   document.getElementById('pgFermer').style.top = (getEmbedTopOffsetPx() + 14) + 'px';
+  document.getElementById('pgDl').style.top = (getEmbedTopOffsetPx() + 14) + 'px';
+  _mediaOuvertElite = { uid: uid, i: i };
   document.getElementById('pgVisionneuse').classList.add('ouverte');
 }
 function fermerVisionneuseElite(){
@@ -450,6 +461,31 @@ function fermerVisionneuseElite(){
   const vid = v.querySelector('video'); if (vid) { vid.pause(); vid.src = ''; }
   document.getElementById('pgVisionneuseMedia').innerHTML = '';
 }
+/* ── Marque ArtiRoyce : tout ce qu'on enregistre depuis Élite porte la marque (comme Accueil, Actualités, Statuts). ── */
+let _mediaOuvertElite = null;
+function nomDeElite(uid){
+  const p = tousLesClasses.concat(tousLesNonClasses).find(x => x.uid === uid);
+  return '@' + String((p && p.nom) || 'artiroyce').toLowerCase().split(' ')[0];
+}
+function enregistrerMediaElite(uid, i){
+  if (uid === undefined && _mediaOuvertElite) { uid = _mediaOuvertElite.uid; i = _mediaOuvertElite.i; }
+  const it = (_realisationsElite[uid] || [])[i];
+  if (!it || !window.ArFiligrane) return;
+  const pseudo = nomDeElite(uid);
+  if (it.type === 'video') window.ArFiligrane.enregistrerVideo(it.url, pseudo);
+  else window.ArFiligrane.enregistrerPhoto(it.url, pseudo);
+}
+function menuEnregistrerElite(uid, i){
+  if (!window.ArFiligrane) return;
+  window.ArFiligrane.menu(TR('Enregistrer'), [{ texte: TR('📥 Enregistrer sur le téléphone'), action: () => enregistrerMediaElite(uid, i) }]);
+}
+window.enregistrerMediaElite = enregistrerMediaElite;
+// Appui long sur une réalisation : notre menu (avec la marque) au lieu de celui du téléphone.
+if (window.ArFiligrane) window.ArFiligrane.appuiLong(function (el) {
+  const cas = el.closest && el.closest('.pg-case');
+  if (cas) return menuEnregistrerElite(cas.getAttribute('data-uid'), +cas.getAttribute('data-i'));
+  if (el.closest && el.closest('#pgVisionneuse') && _mediaOuvertElite) return menuEnregistrerElite(_mediaOuvertElite.uid, _mediaOuvertElite.i);
+});
 window.ouvrirVisionneuseElite = ouvrirVisionneuseElite;
 window.fermerVisionneuseElite = fermerVisionneuseElite;
 // Quand on change d'onglet dans l'Accueil, la vidéo ouverte s'arrête.
@@ -473,7 +509,7 @@ function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"
 
 function toastPasDeNumero(){
   const t = document.createElement('div');
-  t.textContent = 'Numéro non renseigné par ce professionnel';
+  t.textContent = TR('Numéro non renseigné par ce professionnel');
   t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;max-width:85%;text-align:center';
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2200);
