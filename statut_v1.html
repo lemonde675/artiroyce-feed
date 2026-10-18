@@ -535,8 +535,8 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
     <div class="sheet-handle"></div>
     <div class="sheet-header"><span class="sheet-title" data-tr="Choisissez un cercle">Choisissez un cercle</span><span class="sheet-x" onclick="fermerCercle()">✕</span></div>
     <div style="padding:4px 0 8px">
-      <div class="cercle-row" onclick="choisirModeCercle('tous')"><div class="cercle-ico">🌍</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Tout le monde">Tout le monde</div></div><div class="cercle-radio" id="crTous"></div></div>
-      <div class="cercle-row" onclick="choisirModeCercle('sauf')"><div class="cercle-ico">🚫</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Tout le monde sauf…">Tout le monde sauf…</div><div class="cercle-sub" id="crSaufSub" onclick="event.stopPropagation();ouvrirListeCercle('sauf')"></div></div><div class="cercle-radio" id="crSauf"></div></div>
+      <div class="cercle-row" onclick="choisirModeCercle('tous')"><div class="cercle-ico">🌍</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Ouvert à tous">Ouvert à tous</div></div><div class="cercle-radio" id="crTous"></div></div>
+      <div class="cercle-row" onclick="choisirModeCercle('sauf')"><div class="cercle-ico">🚫</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Masquer pour certains…">Masquer pour certains…</div><div class="cercle-sub" id="crSaufSub" onclick="event.stopPropagation();ouvrirListeCercle('sauf')"></div></div><div class="cercle-radio" id="crSauf"></div></div>
       <div class="cercle-row" onclick="choisirModeCercle('seulement')"><div class="cercle-ico">✅</div><div class="cercle-txt"><div class="cercle-nom" data-tr="Ne partager qu'avec…">Ne partager qu'avec…</div><div class="cercle-sub" id="crSeulSub" onclick="event.stopPropagation();ouvrirListeCercle('seulement')"></div></div><div class="cercle-radio" id="crSeul"></div></div>
     </div>
     <button class="pub-btn" onclick="enregistrerCercle()" style="margin:0 16px 12px;width:calc(100% - 32px)" data-tr="✅ Enregistrer">✅ Enregistrer</button>
@@ -1487,7 +1487,7 @@ function majFicheCercle(){
   document.getElementById('crTous').className='cercle-radio'+(CERCLE.mode==='tous'?' on':'');
   document.getElementById('crSauf').className='cercle-radio'+(CERCLE.mode==='sauf'?' on':'');
   document.getElementById('crSeul').className='cercle-radio'+(CERCLE.mode==='seulement'?' on':'');
-  document.getElementById('crSaufSub').textContent=TR('{n} exclu(s) · Modifier ›', {n: CERCLE.exclus.length});
+  document.getElementById('crSaufSub').textContent=TR('{n} exclusion(s) · Choisir ›', {n: CERCLE.exclus.length});
   document.getElementById('crSeulSub').textContent=TR('{n} inclus · Modifier ›', {n: CERCLE.inclus.length});
 }
 function ouvrirCercle(cible){
