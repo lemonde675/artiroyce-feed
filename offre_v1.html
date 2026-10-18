@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<script>
+  // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panneau Offres — test réel isolé</title>
+<title>Offres – ArtiRoyce</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root { --red: #e63224; --green: #27a945; }
@@ -156,6 +161,16 @@
 .ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
 .ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
 @keyframes arSpin{to{transform:rotate(360deg)}}
+
+/* Photos de profil dans les avatars (si la personne en a une) */
+.cp-av,.ph-av{position:relative}
+.av-photo{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+/* Flèche « Enregistrer avec la marque ArtiRoyce » */
+.arfig-zone{position:relative}
+.arfig-dl-o{flex:0 0 48px;border:none;background:#fff;color:#65676b;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.arfig-dl-o:active{background:#f0f2f5}
+.card-actions.seule{justify-content:flex-end;border-top:none;border-bottom:none;margin-top:6px}
+.card-actions.seule .arfig-dl-o{flex:0 0 38px;height:38px;border-radius:50%;background:#f0f2f5}
 </style>
 </head>
 <body>
@@ -163,31 +178,31 @@
 <div class="page">
   <div class="barre-fixe-offres">
     <div class="filtres" id="filtres">
-      <span class="filtre-pill active" data-f="tout" onclick="choisirFiltre(this)">Tout</span>
-      <span class="filtre-pill" data-f="urgent" onclick="choisirFiltre(this)">⚡ Urgent</span>
-      <span class="filtre-pill" data-f="offre" onclick="choisirFiltre(this)">🟢 Offres</span>
-      <span class="filtre-pill" data-f="demande" onclick="choisirFiltre(this)">🔴 Demandes</span>
+      <span class="filtre-pill active" data-f="tout" onclick="choisirFiltre(this)" data-tr="Tout">Tout</span>
+      <span class="filtre-pill" data-f="urgent" onclick="choisirFiltre(this)" data-tr="⚡ Urgent">⚡ Urgent</span>
+      <span class="filtre-pill" data-f="offre" onclick="choisirFiltre(this)" data-tr="🟢 Offres">🟢 Offres</span>
+      <span class="filtre-pill" data-f="demande" onclick="choisirFiltre(this)" data-tr="🔴 Demandes">🔴 Demandes</span>
     </div>
 
     <div class="zone-publier">
-      <span class="me-av-wrap"><div class="cp-av">A</div><span class="me-online-dot"></span></span>
-      <button class="cp-input" onclick="ouvrirPanneau('demande')">Publier une offre ou une demande…</button>
-      <button class="btn-emploi" onclick="ouvrirPanneau('offre')">OFFRE<span>D'EMPLOI</span></button>
+      <span class="me-av-wrap"><div class="cp-av" id="cpAv">A</div><span class="me-online-dot"></span></span>
+      <button class="cp-input" id="cpInputBtn" onclick="ouvrirPanneau('demande')" data-tr="Publier une offre ou une demande…">Publier une offre ou une demande…</button>
+      <button class="btn-emploi" onclick="ouvrirPanneau('offre')"><b style="font-weight:800" data-tr="OFFRE">OFFRE</b><span data-tr="D'EMPLOI">D'EMPLOI</span></button>
       <button class="cp-search-btn" onclick="toggleSearch()" title="Rechercher">🔍</button>
     </div>
     <div class="search-bar" id="searchBar">
-      <input type="text" id="searchInput" placeholder="Rechercher une offre, une ville, un budget…" oninput="onSearchInput()">
-      <span class="search-close" onclick="toggleSearch()">Fermer</span>
+      <input type="text" id="searchInput" placeholder="Rechercher une offre, une ville, un budget…" data-tr-ph="Rechercher une offre, une ville, un budget…" oninput="onSearchInput()">
+      <span class="search-close" onclick="toggleSearch()" data-tr="Fermer">Fermer</span>
     </div>
   </div>
   <div id="barreSpacer"></div>
   <div id="zoneDemande">
-    <div class="sec-label">Offres et demandes</div>
+    <div class="sec-label" data-tr="Offres et demandes">Offres et demandes</div>
     <div class="corbeille-toggle" id="corbeilleToggle" style="display:none" onclick="toggleCorbeille()">
       <span>🗑️</span><span id="corbeilleLabel">Corbeille (0)</span>
     </div>
     <div class="corbeille-liste" id="corbeilleListe"></div>
-    <div id="feedOffres"><div class="ar-charge"><div class="ar-spin"></div>Chargement des offres…</div></div>
+    <div id="feedOffres"><div class="ar-charge"><div class="ar-spin"></div><span data-tr="Chargement des offres…">Chargement des offres…</span></div></div>
     <div id="sentinelle" style="height:1px"></div>
   </div>
 </div>
@@ -198,28 +213,28 @@
 <div class="panel-overlay" id="panelPublier" onclick="if(event.target===this) fermerPanneau()">
   <div class="panel">
     <div class="panel-header">
-      <h2>📢 Publier une offre</h2>
+      <h2 data-tr="📢 Publier une offre">📢 Publier une offre</h2>
       <button class="panel-close" onclick="fermerPanneau()">✕</button>
     </div>
-    <p class="modal-sub">Choisissez un modèle</p>
+    <p class="modal-sub" data-tr="Choisissez un modèle">Choisissez un modèle</p>
     <div class="m-grid">
       <div class="m-card" data-m="demande" onclick="selModele(this,'demande')">
-        <div class="m-icon">🔍</div><div class="m-name">Demande</div><div class="m-desc">Je cherche un artisan</div>
+        <div class="m-icon">🔍</div><div class="m-name" data-tr="Demande">Demande</div><div class="m-desc" data-tr="Je cherche un artisan">Je cherche un artisan</div>
       </div>
       <div class="m-card" data-m="photo" onclick="selModele(this,'photo')">
-        <div class="m-icon">🖼️</div><div class="m-name">Avec photo</div><div class="m-desc">Image au centre</div>
+        <div class="m-icon">🖼️</div><div class="m-name" data-tr="Avec photo">Avec photo</div><div class="m-desc" data-tr="Image au centre">Image au centre</div>
       </div>
       <div class="m-card" data-m="offre" onclick="selModele(this,'offre')">
-        <div class="m-icon">💼</div><div class="m-name">Mes services</div><div class="m-desc">Je propose un service</div>
+        <div class="m-icon">💼</div><div class="m-name" data-tr="Mes services">Mes services</div><div class="m-desc" data-tr="Je propose un service">Je propose un service</div>
       </div>
       <div class="m-card" data-m="texte" onclick="selModele(this,'texte')">
-        <div class="m-icon">✏️</div><div class="m-name">Publication simple</div><div class="m-desc">Texte + image optionnelle</div>
+        <div class="m-icon">✏️</div><div class="m-name" data-tr="Publication simple">Publication simple</div><div class="m-desc" data-tr="Texte + image optionnelle">Texte + image optionnelle</div>
       </div>
     </div>
 
     <div id="zoneTexte" style="display:none;">
-      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" style="width:100%;min-height:110px;border:1.5px solid #e4e6eb;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
-      <div class="tog-row" onclick="toggleImgTexte()"><div class="tog" id="togImgTexte"></div><span>Ajouter une image (optionnel)</span></div>
+      <textarea id="texteSimple" placeholder="Quoi de neuf ? Écrivez votre annonce ici…" data-tr-ph="Quoi de neuf ? Écrivez votre annonce ici…" style="width:100%;min-height:110px;border:1.5px solid #e4e6eb;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      <div class="tog-row" onclick="toggleImgTexte()"><div class="tog" id="togImgTexte"></div><span data-tr="Ajouter une image (optionnel)">Ajouter une image (optionnel)</span></div>
       <div id="uploadZoneTexte" style="display:none">
         <div class="upload-zone" onclick="document.getElementById('fiTexte').click()">
           <div class="uz-icon">🖼️🎥</div><div class="uz-txt">Choisir une photo ou une vidéo</div><div class="uz-sub">JPG · PNG · MP4 · max ~700 Ko</div>
@@ -229,36 +244,36 @@
       </div>
     </div>
 
-    <div id="m2preview" class="m2preview" onclick="document.getElementById('fiPhoto').click()">🖼️🎥 Appuyer pour ajouter une photo ou une vidéo</div>
+    <div id="m2preview" class="m2preview" onclick="document.getElementById('fiPhoto').click()" data-tr="🖼️🎥 Appuyer pour ajouter une photo ou une vidéo">🖼️🎥 Appuyer pour ajouter une photo ou une vidéo</div>
     <input type="file" id="fiPhoto" accept="image/*,video/*" style="display:none" onchange="previewImg(event)">
     <img id="imgPrev" style="display:none;width:100%;max-height:300px;object-fit:contain;background:#f2f2f2;border-radius:10px;margin-bottom:12px;">
 
     <div id="formZone" style="display:none;">
-      <label>Titre *</label>
-      <input type="text" id="inpTitre" placeholder="Ex : Recherche 5 peintres qualifiés">
-      <label>Description</label>
-      <textarea id="inpDesc" placeholder="Décrivez votre offre…"></textarea>
+      <label data-tr="Titre *">Titre *</label>
+      <input type="text" id="inpTitre" placeholder="Ex : Recherche 5 peintres qualifiés" data-tr-ph="Ex : Recherche 5 peintres qualifiés">
+      <label data-tr="Description">Description</label>
+      <textarea id="inpDesc" placeholder="Décrivez votre offre…" data-tr-ph="Décrivez votre offre…"></textarea>
       <div class="row2">
-        <div><label>Catégorie</label>
+        <div><label data-tr="Catégorie">Catégorie</label>
           <select id="inpCateg">
-            <option>🧱 Maçonnerie</option><option>✂️ Couture</option><option>⚡ Électricité</option>
-            <option>🔧 Plomberie</option><option>🎧 DJ / Musique</option><option>🍳 Cuisine</option>
-            <option>📱 Informatique</option><option>Autre…</option>
+            <option value="🧱 Maçonnerie" data-tr="🧱 Maçonnerie">🧱 Maçonnerie</option><option value="✂️ Couture" data-tr="✂️ Couture">✂️ Couture</option><option value="⚡ Électricité" data-tr="⚡ Électricité">⚡ Électricité</option>
+            <option value="🔧 Plomberie" data-tr="🔧 Plomberie">🔧 Plomberie</option><option value="🎧 DJ / Musique" data-tr="🎧 DJ / Musique">🎧 DJ / Musique</option><option value="🍳 Cuisine" data-tr="🍳 Cuisine">🍳 Cuisine</option>
+            <option value="📱 Informatique" data-tr="📱 Informatique">📱 Informatique</option><option value="Autre…" data-tr="Autre…">Autre…</option>
           </select>
         </div>
-        <div><label>Ville</label><input type="text" id="inpVille" placeholder="Cotonou"></div>
+        <div><label data-tr="Ville">Ville</label><input type="text" id="inpVille" placeholder="Cotonou"></div>
       </div>
       <div class="row2">
-        <div><label>Budget / Tarif</label><input type="text" id="inpBudget" placeholder="50 000 FCFA/j"></div>
-        <div><label>Disponibilité</label><input type="text" id="inpDispo" placeholder="Dès lundi"></div>
+        <div><label data-tr="Budget / Tarif">Budget / Tarif</label><input type="text" id="inpBudget" placeholder="50 000 FCFA/j"></div>
+        <div><label data-tr="Disponibilité">Disponibilité</label><input type="text" id="inpDispo" placeholder="Dès lundi" data-tr-ph="Dès lundi"></div>
       </div>
-      <label>⏳ Durée de validité</label>
+      <label data-tr="⏳ Durée de validité">⏳ Durée de validité</label>
       <div class="duree">
         <input type="number" id="inpDureeVal" placeholder="30" min="1">
-        <select id="inpDureeUnite"><option>jours</option><option>semaines</option><option>mois</option></select>
+        <select id="inpDureeUnite"><option value="jours" data-tr="jours">jours</option><option value="semaines" data-tr="semaines">semaines</option><option value="mois" data-tr="mois">mois</option></select>
       </div>
-      <div class="tog-row" onclick="toggleUrgent()"><div class="tog" id="togUrgent"></div><span>⚡ Marquer comme urgent</span></div>
-      <div class="tog-row" id="togRowImg" onclick="toggleImg()"><div class="tog" id="togImg"></div><span>Ajouter une image (optionnel)</span></div>
+      <div class="tog-row" onclick="toggleUrgent()"><div class="tog" id="togUrgent"></div><span data-tr="⚡ Marquer comme urgent">⚡ Marquer comme urgent</span></div>
+      <div class="tog-row" id="togRowImg" onclick="toggleImg()"><div class="tog" id="togImg"></div><span data-tr="Ajouter une image (optionnel)">Ajouter une image (optionnel)</span></div>
       <div id="uploadZone" style="display:none">
         <div class="upload-zone" onclick="document.getElementById('fiForm').click()">
           <div class="uz-icon">🖼️🎥</div><div class="uz-txt">Choisir une photo ou une vidéo</div><div class="uz-sub">JPG · PNG · MP4 · max ~700 Ko</div>
@@ -268,7 +283,7 @@
       </div>
     </div>
 
-    <button class="btn-envoyer" id="btnEnvoyer" onclick="publierOffre()" style="display:none;">📢 Publier maintenant</button>
+    <button class="btn-envoyer" id="btnEnvoyer" onclick="publierOffre()" style="display:none;" data-tr="📢 Publier maintenant">📢 Publier maintenant</button>
   </div>
 </div>
 
@@ -280,6 +295,8 @@ log('1. Script démarré ✅');
 window.addEventListener('error', e => log('❌ Erreur JS : ' + e.message + ' (' + (e.filename||'').split('/').pop() + ':' + e.lineno + ')'));
 </script>
 
+<script src="translations-app.js"></script>
+<script src="filigrane.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" onload="log('2. app chargée ✅')" onerror="log('❌ échec app')"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" onload="log('3. auth chargée ✅')" onerror="log('❌ échec auth')"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" onload="log('4. firestore chargée ✅')" onerror="log('❌ échec firestore')"></script>
@@ -338,20 +355,39 @@ auth.onAuthStateChanged(async user => {
     const snap = await db.collection('utilisateurs').doc(user.uid).get();
     if (snap.exists) {
       const d = snap.data();
-      currentUser.nomAffiche = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.nomAffiche || 'Membre ArtiRoyce';
+      currentUser.nomAffiche = (d.nom && d.nom.trim()) || (d.prenom && d.prenom.trim()) || currentUser.nomAffiche || TR('Membre ArtiRoyce');
       currentUser.role = d.role || 'visiteur';
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
+      currentUser.photoAvatar = d.photoAvatar || '';
+      currentUser.estVisiteur = (d.role === 'visiteur'); // seulement les vrais comptes « Visiteur »
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
       log('7b. Profil lu ✅ — ' + currentUser.nomAffiche + ' (' + currentUser.role + ')');
     }
   } catch (e) {
     log('7bis. Échec lecture profil : ' + e.message);
   }
+  afficherMonAvatarOffres();
   await chargerSuivisOffres();
   await chargerMesReactionsOffres();
   chargerOffres();
 });
+
+// Mon avatar à côté de « Publier… » : ma photo de profil si j'en ai une, sinon mon initiale.
+function afficherMonAvatarOffres(){
+  const av = document.getElementById('cpAv');
+  if (av && currentUser) {
+    const initiale = escapeHtml((currentUser.nomAffiche || '?')[0].toUpperCase());
+    av.innerHTML = currentUser.photoAvatar ? '<img class="av-photo" src="' + escapeHtml(currentUser.photoAvatar) + '" alt="">' : initiale;
+    av.style.cursor = 'pointer';
+    av.onclick = () => __voirProfil(currentUser.uid);
+  }
+  // Visiteurs : la barre « Publier » indique que c'est réservé aux professionnels.
+  if (currentUser && currentUser.estVisiteur) {
+    const b = document.getElementById('cpInputBtn');
+    if (b) { b.setAttribute('data-tr', '🔒 Publication réservée aux professionnels'); b.textContent = TR('🔒 Publication réservée aux professionnels'); }
+  }
+}
 
 // Approximation de l'indicatif pays à partir du numéro de téléphone (3 premiers
 // chiffres), utilisé pour le palier "même pays" du classement du fil.
@@ -404,7 +440,7 @@ async function toggleSuivreOffre(auteurUid, event){
     document.querySelectorAll('.ph-follow[data-uid="' + auteurUid + '"]').forEach(btn => {
       const suivi = followedUidsOffres.has(auteurUid);
       btn.classList.toggle('suivi', suivi);
-      btn.textContent = suivi ? 'Suivi(e)' : '+ Suivre';
+      btn.textContent = suivi ? TR('Suivi(e)') : TR('+ Suivre');
     });
   } catch (e) {
     log('❌ Erreur suivi : ' + e.message);
@@ -501,10 +537,23 @@ function escapeHtml(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// Photos de profil des auteurs (lues en même temps que le point vert « en ligne »).
+const _photosAuteurs = {};
+function poserPhotoAuteur(uid, photo){
+  if (!photo || _photosAuteurs[uid] === photo) return;
+  _photosAuteurs[uid] = photo;
+  document.querySelectorAll('.ph-av[data-av="' + uid + '"]').forEach(av => {
+    let img = av.querySelector('.av-photo');
+    if (!img) { img = document.createElement('img'); img.className = 'av-photo'; img.alt = ''; av.insertBefore(img, av.querySelector('.ph-vb') || av.querySelector('.online-dot')); }
+    img.src = photo;
+  });
+}
 function creerAvatarHTML(nom, verifie, uid){
   const initiale = (nom || '?')[0].toUpperCase();
   const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
-  return '<div class="ph-av" style="background:' + couleur + '" onclick="__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+  const photo = uid && _photosAuteurs[uid];
+  return '<div class="ph-av" data-av="' + (uid || '') + '" style="background:' + couleur + '" onclick="__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+    + (photo ? '<img class="av-photo" src="' + escapeHtml(photo) + '" alt="">' : '')
     + (verifie ? '<span class="ph-vb">✔</span>' : '')
     + '<div class="online-dot" data-author="' + (uid || '') + '"></div>'
     + '</div>';
@@ -524,15 +573,15 @@ function __voirProfil(uid){
 function tempsDepuis(ms){
   const diff = Date.now() - ms;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'il y a peu';
-  if (m < 60) return 'il y a ' + m + 'min';
+  if (m < 1) return TR('il y a peu');
+  if (m < 60) return TR('il y a {n}min', {n: m});
   const h = Math.floor(m / 60);
-  if (h < 24) return 'il y a ' + h + 'h';
+  if (h < 24) return TR('il y a {n}h', {n: h});
   const j = Math.floor(h / 24);
-  if (j < 7) return 'il y a ' + j + 'j';
+  if (j < 7) return TR('il y a {n}j', {n: j});
   const s = Math.floor(j / 7);
-  if (s < 4) return 'il y a ' + s + ' sem.';
-  return 'il y a ' + Math.floor(j / 30) + ' mois';
+  if (s < 4) return TR('il y a {n} sem.', {n: s});
+  return TR('il y a {n} mois', {n: Math.floor(j / 30)});
 }
 
 function premiereVille(ville){
@@ -562,6 +611,7 @@ async function marquerAuteursEnLigne(){
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
       const ms = uSnap.exists ? dernierSignalMs(uSnap.data()) : 0;
+      if (uSnap.exists) poserPhotoAuteur(uid, uSnap.data().photoAvatar);
       const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_MS;
       document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
     } catch (e) {}
@@ -576,6 +626,7 @@ let imgBase64 = '';
 let imgBase64Txt = '';
 
 function ouvrirPanneau(type){
+  if (currentUser && currentUser.estVisiteur) { toast(TR('🔒 La publication est réservée aux professionnels')); return; }
   document.getElementById('panelPublier').classList.add('open');
   const carte = document.querySelector('.m-card[data-m="' + type + '"]');
   if (carte) selModele(carte, type);
@@ -632,7 +683,9 @@ function gererFichierMedia(file, previewElId, callbackBase64){
   const estVideo = file.type.startsWith('video/');
   const limiteOctets = 700 * 1024;
   if (file.size > limiteOctets) {
-    alert((estVideo ? 'Cette vidéo' : 'Cette image') + ' est trop lourde (' + Math.round(file.size/1024) + ' Ko). Elle est enregistrée directement dans la base de données, donc elle doit rester sous ~700 Ko — choisissez un fichier plus léger ou plus court.');
+    alert(estVideo
+      ? TR('Cette vidéo est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko — choisissez un fichier plus léger ou plus court.', {n: Math.round(file.size/1024)})
+      : TR('Cette image est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko — choisissez un fichier plus léger.', {n: Math.round(file.size/1024)}));
     return;
   }
   const r = new FileReader();
@@ -642,7 +695,7 @@ function gererFichierMedia(file, previewElId, callbackBase64){
     if (!el) return;
     if (estVideo) {
       el.style.display = 'none';
-      toast('🎥 Vidéo sélectionnée (' + file.name + ')');
+      toast(TR('🎥 Vidéo sélectionnée ({nom})', {nom: file.name}));
     } else {
       el.src = ev.target.result;
       el.style.display = 'block';
@@ -705,7 +758,7 @@ function chargerPlusOffres(){
   if (zone && !document.getElementById('offresPlus')) {
     const d = document.createElement('div');
     d.id = 'offresPlus'; d.className = 'ar-charge'; d.style.minHeight = '0';
-    d.innerHTML = '<div class="ar-spin"></div>Chargement d’autres offres…';
+    d.innerHTML = '<div class="ar-spin"></div>' + TR('Chargement d’autres offres…');
     zone.appendChild(d);
   }
   chargerOffres();
@@ -769,21 +822,23 @@ function patcherCompteursOffres(brut){
     const likeEl = document.getElementById('likecount-' + o.id);
     if (likeEl) likeEl.textContent = (mesReactionsOffres[o.id] || '👍') + ' ' + (o.likes || 0);
     const candEl = document.getElementById('cand-' + o.id);
-    if (candEl) candEl.textContent = '👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature');
+    if (candEl) candEl.textContent = texteCandidatures(o.candidatures);
   });
 }
 
 /* ── Correspondance emoji → couleur/label façon Facebook ── */
+function texteCandidatures(n){ n = n || 0; return TR(n > 1 ? '👥 {n} candidatures' : '👥 {n} candidature', {n: n}); }
+function texteCommPart(nc, np){ nc = nc || 0; np = np || 0; return TR(nc > 1 ? '{n} commentaires' : '{n} commentaire', {n: nc}) + ' · ' + TR(np > 1 ? '{n} partages' : '{n} partage', {n: np}); }
 function _reactionMeta(emoji){
   const map = {
-    '❤️': { cls: 'reacted-coeur',  label: "J'aime", icon: '❤️' },
-    '👍': { cls: 'reacted-super',  label: 'Super',  icon: '👍' },
-    '😮': { cls: 'reacted-wow',    label: 'Wow',    icon: '😮' },
-    '😂': { cls: 'reacted-haha',   label: 'Haha',   icon: '😂' },
-    '🔥': { cls: 'reacted-feu',    label: 'Feu',    icon: '🔥' },
-    '😢': { cls: 'reacted-triste', label: 'Triste', icon: '😢' }
+    '❤️': { cls: 'reacted-coeur',  label: TR("J'aime"), icon: '❤️' },
+    '👍': { cls: 'reacted-super',  label: TR('Super'),  icon: '👍' },
+    '😮': { cls: 'reacted-wow',    label: TR('Wow'),    icon: '😮' },
+    '😂': { cls: 'reacted-haha',   label: TR('Haha'),   icon: '😂' },
+    '🔥': { cls: 'reacted-feu',    label: TR('Feu'),    icon: '🔥' },
+    '😢': { cls: 'reacted-triste', label: TR('Triste'), icon: '😢' }
   };
-  return map[emoji] || { cls: '', label: 'Aimé', icon: emoji };
+  return map[emoji] || { cls: '', label: TR('Aimé'), icon: emoji };
 }
 const _reactedClasses = ['reacted-coeur','reacted-super','reacted-wow','reacted-haha','reacted-triste','reacted-feu'];
 
@@ -802,7 +857,7 @@ function afficherOffres(){
     });
   }
   if (!liste.length) {
-    zone.innerHTML = '<div class="card"><p>Aucune offre pour ce filtre.</p></div>';
+    zone.innerHTML = '<div class="card"><p>' + TR('Aucune offre pour ce filtre.') + '</p></div>';
     return;
   }
   const visibles = liste.slice(0, nombreAffiches);
@@ -815,32 +870,38 @@ function afficherOffres(){
     div.className = 'card';
     div.id = 'card-' + o.id;
     div.style.position = 'relative';
-    const badgeType = o.type === 'demande' ? '<span class="badge demande">🔴 Demande</span>'
-      : o.type === 'texte' ? '<span class="badge offre">📣 Annonce</span>'
-      : '<span class="badge offre">🟢 Offre</span>';
-    const badgeUrgent = o.urgent ? '<span class="badge urgent">⚡ Urgent</span>' : '';
-    const imgHtml = o.imageUrl ? '<img src="' + o.imageUrl + '" style="display:block;width:100%;max-height:420px;object-fit:contain;background:#f2f2f2;">' : '';
-    const nomAff = o.auteurNom || 'Utilisateur';
-    const statut = o.auteurVerifie ? 'Professionnel' : 'Visiteur';
+    const badgeType = o.type === 'demande' ? '<span class="badge demande">' + TR('🔴 Demande') + '</span>'
+      : o.type === 'texte' ? '<span class="badge offre">' + TR('📣 Annonce') + '</span>'
+      : '<span class="badge offre">' + TR('🟢 Offre') + '</span>';
+    const badgeUrgent = o.urgent ? '<span class="badge urgent">' + TR('⚡ Urgent') + '</span>' : '';
+    // Une vidéo s'affiche dans un vrai lecteur (avant, elle était mise dans une image et ne se voyait pas).
+    const estVideoOffre = /^data:video\//.test(o.imageUrl || '');
+    const imgHtml = !o.imageUrl ? '' : '<div class="arfig-zone" data-offre="' + o.id + '">' + (estVideoOffre
+      ? '<video src="' + o.imageUrl + '" controls playsinline preload="metadata" style="display:block;width:100%;max-height:420px;background:#000;"></video>'
+      : '<img src="' + o.imageUrl + '" style="display:block;width:100%;max-height:420px;object-fit:contain;background:#f2f2f2;">') + '</div>';
+    const flecheDl = o.imageUrl ? '<button class="arfig-dl-o" onclick="event.stopPropagation();menuEnregistrerOffre(\'' + o.id + '\')" title="' + TR('📥 Enregistrer sur le téléphone') + '">' + '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><polyline points="7 10 12 15 17 10"/><path d="M5 20h14"/></svg>' + '</button>' : '';
+    const nomAff = o.auteurNom || TR('Utilisateur');
+    const statut = o.auteurVerifie ? TR('Professionnel') : TR('Visiteur');
     const villeCourte = premiereVille(o.ville);
-    const tempsTxt = o.createdAt && o.createdAt.toMillis ? tempsDepuis(o.createdAt.toMillis()) : 'à l\'instant';
+    const tempsTxt = o.createdAt && o.createdAt.toMillis ? tempsDepuis(o.createdAt.toMillis()) : TR('à l\'instant');
     const metaAuteur = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsTxt;
     const createdMs = o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : Date.now();
     const expireMs = createdMs + (o.dureeDays || 30) * 24 * 3600 * 1000;
     const joursRest = Math.ceil((expireMs - Date.now()) / (1000*3600*24));
     const expiree = joursRest <= 0;
     const validHtml = o.type === 'texte' ? '' : (expiree
-      ? '<div class="valid-row"><span class="dot off"></span><span class="vs expire">Expirée</span></div>'
-      : '<div class="valid-row"><span class="dot on"></span><span class="vs active">Active</span><span style="color:#65676b"> · ' + joursRest + ' jour' + (joursRest>1?'s':'') + ' restant' + (joursRest>1?'s':'') + '</span></div>');
-    const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand" id="cand-' + o.id + '">👥 ' + (o.candidatures||0) + ' ' + ((o.candidatures||0)>1?'candidatures':'candidature') + '</div>';
+      ? '<div class="valid-row"><span class="dot off"></span><span class="vs expire">' + TR('Expirée') + '</span></div>'
+      : '<div class="valid-row"><span class="dot on"></span><span class="vs active">' + TR('Active') + '</span><span style="color:#65676b"> · ' + TR(joursRest > 1 ? '{n} jours restants' : '{n} jour restant', {n: joursRest}) + '</span></div>');
+    const candHtml = (o.type === 'texte' || expiree) ? '' : '<div class="cand" id="cand-' + o.id + '">' + texteCandidatures(o.candidatures) + '</div>';
     // Même affichage pour tout le monde, y compris l'auteur de l'offre lui-même.
-    const actionsHtml = (o.type === 'texte' || expiree) ? '' : '<div class="card-actions">'
-      + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + (o.auteurUid||'') + '\',' + (o.auteurVerifie?true:false) + ')">💬 Message</button>'
-      + '<button class="btn-a ' + (o.type==='offre'?'vert':'rouge') + '" onclick="postulerOffre(\'' + o.id + '\',' + (o.candidatures||0) + ')">' + (o.type==='offre'?"✋ Je veux":'✅ Postuler') + '</button>'
+    const actionsHtml = (o.type === 'texte' || expiree) ? (flecheDl ? '<div class="card-actions seule">' + flecheDl + '</div>' : '') : '<div class="card-actions">'
+      + '<button class="btn-c" onclick="contacterOffre(\'' + o.id + '\',\'' + escapeHtml(nomAff).replace(/'/g,"\\'") + '\',\'' + (o.auteurUid||'') + '\',' + (o.auteurVerifie?true:false) + ')">' + TR('💬 Message') + '</button>'
+      + '<button class="btn-a ' + (o.type==='offre'?'vert':'rouge') + '" onclick="postulerOffre(\'' + o.id + '\',' + (o.candidatures||0) + ')">' + (o.type==='offre'?TR("✋ Je veux"):TR('✅ Postuler')) + '</button>'
+      + flecheDl
       + '</div>';
     const menuSuppr = (currentUser && o.auteurUid === currentUser.uid)
       ? '<span class="ph-more" onclick="toggleMenuPost(\'' + o.id + '\')">⋯</span>'
-        + '<div class="post-menu" id="menu-' + o.id + '"><div onclick="supprimerPublicationOffre(\'' + o.id + '\')">🗑️ Mettre à la corbeille</div></div>'
+        + '<div class="post-menu" id="menu-' + o.id + '"><div onclick="supprimerPublicationOffre(\'' + o.id + '\')">' + TR('🗑️ Mettre à la corbeille') + '</div></div>'
       : '';
     const enTeteAuteur = '<div class="ph">'
       + creerAvatarHTML(nomAff, o.auteurVerifie, o.auteurUid)
@@ -850,7 +911,7 @@ function afficherOffres(){
       + '</div>'
       + '<div class="ph-side">'
       + (currentUser && o.auteurUid && o.auteurUid !== currentUser.uid
-          ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" data-uid="' + o.auteurUid + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? 'Suivi(e)' : '+ Suivre') + '</div>'
+          ? '<div class="ph-follow' + (followedUidsOffres.has(o.auteurUid) ? ' suivi' : '') + '" data-uid="' + o.auteurUid + '" onclick="toggleSuivreOffre(\'' + o.auteurUid + '\', event)">' + (followedUidsOffres.has(o.auteurUid) ? TR('Suivi(e)') : TR('+ Suivre')) + '</div>'
           : '')
       + '<div class="ph-badges">' + badgeType + badgeUrgent + '</div>'
       + menuSuppr
@@ -859,32 +920,32 @@ function afficherOffres(){
     const dejaAimeOffre = mesReactionsOffres[o.id];
     const lignesActions = '<div class="pr-row">'
       +   '<span class="pr-cnt" id="likecount-' + o.id + '">' + (dejaAimeOffre||'👍') + ' ' + (o.likes||0) + '</span>'
-      +   '<span class="pr-r" id="commcount-' + o.id + '">0 commentaire · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') + '</span>'
+      +   '<span class="pr-r" id="commcount-' + o.id + '">' + texteCommPart(0, o.partages) + '</span>'
       + '</div>'
       + '<div class="p-acts">'
       +   '<div class="pab' + (dejaAimeOffre?' reacted ' + _reactionMeta(dejaAimeOffre).cls:'') + '" id="pb-' + o.id + '" onclick="window.__toggleReactPickerOffre(\'' + o.id + '\')">'
       +     '<svg class="pb-ico-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>'
       +     '<span class="pb-ico-emoji" id="pbicon-' + o.id + '">' + (dejaAimeOffre?_reactionMeta(dejaAimeOffre).icon:'') + '</span>'
-      +     '<span id="pblabel-' + o.id + '">' + (dejaAimeOffre?_reactionMeta(dejaAimeOffre).label:"J'aime") + '</span>'
+      +     '<span id="pblabel-' + o.id + '">' + (dejaAimeOffre?_reactionMeta(dejaAimeOffre).label:TR("J'aime")) + '</span>'
       +     '<div class="rpick" id="rp-' + o.id + '">'
-      +       '<div class="ro" data-e="❤️" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'❤️\',' + (o.likes||0) + ')"><span class="ro-e">❤️</span><span class="ro-l">J\'aime</span></div>'
-      +       '<div class="ro" data-e="👍" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'👍\',' + (o.likes||0) + ')"><span class="ro-e">👍</span><span class="ro-l">Super</span></div>'
-      +       '<div class="ro" data-e="😮" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😮\',' + (o.likes||0) + ')"><span class="ro-e">😮</span><span class="ro-l">Wow</span></div>'
-      +       '<div class="ro" data-e="😂" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😂\',' + (o.likes||0) + ')"><span class="ro-e">😂</span><span class="ro-l">Haha</span></div>'
-      +       '<div class="ro" data-e="🔥" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'🔥\',' + (o.likes||0) + ')"><span class="ro-e">🔥</span><span class="ro-l">Feu</span></div>'
-      +       '<div class="ro" data-e="😢" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😢\',' + (o.likes||0) + ')"><span class="ro-e">😢</span><span class="ro-l">Triste</span></div>'
+      +       '<div class="ro" data-e="❤️" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'❤️\',' + (o.likes||0) + ')"><span class="ro-e">❤️</span><span class="ro-l">' + TR("J'aime") + '</span></div>'
+      +       '<div class="ro" data-e="👍" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'👍\',' + (o.likes||0) + ')"><span class="ro-e">👍</span><span class="ro-l">' + TR('Super') + '</span></div>'
+      +       '<div class="ro" data-e="😮" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😮\',' + (o.likes||0) + ')"><span class="ro-e">😮</span><span class="ro-l">' + TR('Wow') + '</span></div>'
+      +       '<div class="ro" data-e="😂" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😂\',' + (o.likes||0) + ')"><span class="ro-e">😂</span><span class="ro-l">' + TR('Haha') + '</span></div>'
+      +       '<div class="ro" data-e="🔥" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'🔥\',' + (o.likes||0) + ')"><span class="ro-e">🔥</span><span class="ro-l">' + TR('Feu') + '</span></div>'
+      +       '<div class="ro" data-e="😢" onclick="event.stopPropagation();window.__sendReactionOffre(\'' + o.id + '\',\'😢\',' + (o.likes||0) + ')"><span class="ro-e">😢</span><span class="ro-l">' + TR('Triste') + '</span></div>'
       +     '</div>'
       +   '</div>'
       +   '<button class="pab" onclick="toggleComments(\'' + o.id + '\')">'
-      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Commenter'
+      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> ' + TR('Commenter')
       +   '</button>'
       +   '<button class="pab" onclick="partagerOffre(\'' + o.id + '\',' + (o.partages||0) + ')">'
-      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Partager'
+      +     '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ' + TR('Partager')
       +   '</button>'
       + '</div>'
       + '<div class="comm-zone" id="commzone-' + o.id + '"></div>';
     div.innerHTML = '<div class="card-body">' + enTeteAuteur
-      + '<h3>' + (o.titre||'(sans titre)').replace(/</g,'&lt;') + '</h3>'
+      + '<h3>' + (o.titre||TR('(sans titre)')).replace(/</g,'&lt;') + '</h3>'
       + '</div>'
       + imgHtml
       + '<div class="card-body bas">'
@@ -931,7 +992,7 @@ document.addEventListener('click', function (e){
 });
 
 window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
-  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  if (!currentUser) { toast(TR('Connectez-vous pour réagir')); return; }
   if (_reactionEnCours[offreId]) return;
   _reactionEnCours[offreId] = true;
   document.getElementById('rp-' + offreId)?.classList.remove('show');
@@ -946,7 +1007,7 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
       delete mesReactionsOffres[offreId];
       const nouveauTotal = Math.max(0, likesActuels - 1);
       if (btn) { btn.classList.remove('reacted', ..._reactedClasses); }
-      if (labelEl) labelEl.textContent = "J'aime";
+      if (labelEl) labelEl.textContent = TR("J'aime");
       if (iconEl) iconEl.textContent = '';
       if (countEl) countEl.textContent = '👍 ' + nouveauTotal;
       await reactRef.delete();
@@ -967,7 +1028,7 @@ window.__sendReactionOffre = async function (offreId, emoji, likesActuels){
     }
   } catch (e) {
     log('❌ Erreur réaction : ' + e.message);
-    toast("Erreur J'aime");
+    toast(TR("Erreur J'aime"));
   } finally {
     delete _reactionEnCours[offreId];
   }
@@ -991,10 +1052,19 @@ async function chargerMesReactionsOffres(){
 }
 
 /* ── Partager ── */
-window.partagerOffre = async function (offreId, partagesActuels){
+window.partagerOffre = async function (offreId, partagesActuels, direct){
+  // Avec une photo/vidéo : on propose aussi de l'enregistrer avec la marque ArtiRoyce.
+  const ofM = toutesLesOffres.find(x => x.id === offreId);
+  if (!direct && ofM && ofM.imageUrl && window.ArFiligrane) {
+    window.ArFiligrane.menu(TR('Partager'), [
+      { texte: TR('🔗 Partager'), action: () => window.partagerOffre(offreId, partagesActuels, true) },
+      { texte: TR('📥 Enregistrer sur le téléphone'), action: () => enregistrerMediaOffre(offreId) }
+    ]);
+    return;
+  }
   try {
     await db.collection('offres').doc(offreId).update({ partages: firebase.firestore.FieldValue.increment(1) });
-    toast('Partagé ✅');
+    toast(TR('Partagé ✅'));
     { const of = toutesLesOffres.find(x => x.id === offreId);
       if (of) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'partage', page: 'offres', cibleId: offreId, unique: true }); }
   } catch (e) {
@@ -1047,8 +1117,8 @@ function construireZoneCommentaires(offreId, zone){
   zone.innerHTML =
     '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">'
     + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7a1a12,var(--red));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
-    + (currentUser ? (currentUser.nomAffiche||'?')[0].toUpperCase() : '?') + '</div>'
-    + '<input type="text" placeholder="Ajouter un commentaire…" id="cinput-' + offreId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
+    + (currentUser ? (currentUser.photoAvatar ? '<img src="' + escapeHtml(currentUser.photoAvatar) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : escapeHtml((currentUser.nomAffiche||'?')[0].toUpperCase())) : '?') + '</div>'
+    + '<input type="text" placeholder="' + TR('Ajouter un commentaire…') + '" id="cinput-' + offreId + '" style="flex:1;border:none;background:#f0f2f5;border-radius:22px;padding:8px 14px;font-size:13px;outline:none;font-family:inherit">'
     + '<div style="cursor:pointer;font-size:17px;background:var(--red);color:#fff;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0" onclick="envoyerCommentaireOffre(\'' + offreId + '\')">➤</div>'
     + '</div>'
     + '<div style="display:none;align-items:center;justify-content:space-between;background:#f0f2f5;border-radius:10px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#555" id="reply-indicator-' + offreId + '">'
@@ -1066,7 +1136,7 @@ function ecouterCommentaires(offreId){
     const total = snap2.size;
     const compteEl = document.getElementById('commcount-' + offreId);
     const o = toutesLesOffres.find(x => x.id === offreId);
-    if (compteEl) compteEl.textContent = total + (total > 1 ? ' commentaires' : ' commentaire') + (o ? ' · ' + (o.partages||0) + ' partage' + ((o.partages||0)>1?'s':'') : '');
+    if (compteEl) compteEl.textContent = o ? texteCommPart(total, o.partages) : TR(total > 1 ? '{n} commentaires' : '{n} commentaire', {n: total});
 
     const listEl = document.getElementById('comm-list-' + offreId);
     if (!listEl) return;
@@ -1090,29 +1160,29 @@ function ecouterCommentaires(offreId){
       const auteurOffre = (toutesLesOffres.find(x => x.id === offreId) || {}).auteurUid;
       const estCreateur = c.uid === auteurOffre;
       const estMoi = currentUser && c.uid === currentUser.uid;
-      const statut = estCreateur ? 'Créateur' : (c.verifie ? 'Professionnel' : 'Visiteur');
+      const statut = estCreateur ? TR('Créateur') : (c.verifie ? TR('Professionnel') : TR('Visiteur'));
       const initiale = (c.nom||'?')[0].toUpperCase();
       const villeCourte = premiereVille(c.ville);
       const dejaAime = mesReactionsCommentaires[c.id];
       const wrap = document.createElement('div');
       wrap.innerHTML =
         '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start;position:relative" id="crow-' + c.id + '">'
-        + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="__voirProfil(\'' + (c.uid||'') + '\')">' + escapeHtml(initiale) + '</div>'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettes[initiale.charCodeAt(0) % palettes.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;overflow:hidden" onclick="__voirProfil(\'' + (c.uid||'') + '\')">' + (c.uid && _photosAuteurs[c.uid] ? '<img src="' + escapeHtml(_photosAuteurs[c.uid]) + '" alt="" style="width:100%;height:100%;object-fit:cover">' : escapeHtml(initiale)) + '</div>'
         + '<div style="flex:1;min-width:0">'
         +   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'
-        +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom||'Anonyme') + '</span>'
+        +     '<span style="font-size:13px;font-weight:700;color:#555">' + escapeHtml(c.nom||TR('Anonyme')) + '</span>'
         +     '<span style="font-size:11px;font-weight:700;color:#1a5276">· ' + statut + '</span>'
         +   '</div>'
-        +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word" id="ctxt-' + c.id + '">' + escapeHtml(c.texte) + '</div>'
+        +   '<div style="font-size:14px;color:#222;line-height:1.45;margin-bottom:5px;word-break:break-word" id="ctxt-' + c.id + '">' + escapeHtml(c.texte === '📩 A postulé à cette offre' ? TR(c.texte) : c.texte) + '</div>'
         +   '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#8e8e8e">'
-        +     '<span>' + (villeCourte ? escapeHtml(villeCourte)+' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + (c.modifie ? ' · modifié' : '') + '</span>'
-        +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime?'#e63224':'#8e8e8e') + '" onclick="toggleAimeCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\',' + (c.likes||0) + ')">' + (dejaAime?'Aimé':"J'aime") + '</span>'
-        +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondreOffre(\'' + offreId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom||'').replace(/'/g,"\\'") + '\')">Répondre</span>'
+        +     '<span>' + (villeCourte ? escapeHtml(villeCourte)+' · ' : '') + tempsDepuis(c.createdAt?.toMillis ? c.createdAt.toMillis() : Date.now()) + (c.modifie ? ' · ' + TR('modifié') : '') + '</span>'
+        +     '<span style="font-weight:700;cursor:pointer;color:' + (dejaAime?'#e63224':'#8e8e8e') + '" onclick="toggleAimeCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\',' + (c.likes||0) + ')">' + (dejaAime?TR('Aimé'):TR("J'aime")) + '</span>'
+        +     '<span style="cursor:pointer;font-weight:700;color:#8e8e8e" onclick="repondreOffre(\'' + offreId + '\',\'' + racineId + '\',\'' + escapeHtml(c.nom||'').replace(/'/g,"\\'") + '\')">' + TR('Répondre') + '</span>'
         +     (c.likes ? '<span style="margin-left:auto;color:#8e8e8e">' + c.likes + ' ❤️</span>' : '')
         +     (estMoi ? '<span style="position:relative;display:inline-block;margin-left:' + (c.likes?'8px':'auto') + '"><span style="cursor:pointer;font-weight:900;color:#8e8e8e;padding:0 4px" onclick="toggleMenuComm(\'' + c.id + '\')">⋯</span>'
               + '<div class="comm-menu" id="cmenu-' + c.id + '">'
-              + '<div onclick="commencerEditionCommentaire(\'' + offreId + '\',\'' + c.id + '\')">✏️ Modifier</div>'
-              + '<div class="cmm-suppr" onclick="supprimerCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\')">🗑️ Supprimer</div>'
+              + '<div onclick="commencerEditionCommentaire(\'' + offreId + '\',\'' + c.id + '\')">' + TR('✏️ Modifier') + '</div>'
+              + '<div class="cmm-suppr" onclick="supprimerCommentaireOffre(\'' + offreId + '\',\'' + c.id + '\')">' + TR('🗑️ Supprimer') + '</div>'
               + '</div></span>' : '')
         +   '</div>'
         + '</div>'
@@ -1129,7 +1199,7 @@ function ecouterCommentaires(offreId){
         repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
         const toggle2 = document.createElement('div');
         toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
-        toggle2.innerHTML = '— Afficher ' + reponses.length + ' réponse' + (reponses.length>1?'s':'') + ' ▾';
+        toggle2.innerHTML = TR(reponses.length > 1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length});
         toggle2.onclick = () => {
           const frag = document.createDocumentFragment();
           reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
@@ -1144,7 +1214,7 @@ function ecouterCommentaires(offreId){
 }
 
 window.envoyerCommentaireOffre = async function (offreId){
-  if (!currentUser) { toast('Connectez-vous pour commenter'); return; }
+  if (!currentUser) { toast(TR('Connectez-vous pour commenter')); return; }
   const inp = document.getElementById('cinput-' + offreId);
   const texte = inp?.value?.trim();
   if (!texte) return;
@@ -1177,7 +1247,7 @@ window.repondreOffre = function (offreId, racineId, nom){
   _replyingTo[offreId] = { commentId: racineId, nom };
   const ind = document.getElementById('reply-indicator-' + offreId);
   const txt = document.getElementById('reply-indicator-text-' + offreId);
-  if (ind && txt) { txt.textContent = 'Réponse à ' + nom; ind.style.display = 'flex'; }
+  if (ind && txt) { txt.textContent = TR('Réponse à {nom}', {nom: nom}); ind.style.display = 'flex'; }
   document.getElementById('cinput-' + offreId)?.focus();
 };
 window.annulerReponseOffre = function (offreId){
@@ -1187,7 +1257,7 @@ window.annulerReponseOffre = function (offreId){
 };
 
 window.toggleAimeCommentaireOffre = async function (offreId, commentId, likesActuels){
-  if (!currentUser) { toast('Connectez-vous pour réagir'); return; }
+  if (!currentUser) { toast(TR('Connectez-vous pour réagir')); return; }
   const ref = db.collection('offres').doc(offreId).collection('commentaires').doc(commentId);
   try {
     if (mesReactionsCommentaires[commentId]) {
@@ -1214,13 +1284,13 @@ document.addEventListener('click', function (e){
 });
 
 window.supprimerCommentaireOffre = async function (offreId, commentId){
-  if (!confirm('Supprimer ce commentaire ?')) return;
+  if (!confirm(TR('Supprimer ce commentaire ?'))) return;
   try {
     await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).delete();
-    toast('🗑️ Commentaire supprimé');
+    toast(TR('🗑️ Commentaire supprimé'));
   } catch (e) {
     log('❌ Erreur suppression commentaire : ' + e.message);
-    toast('Erreur suppression');
+    toast(TR('Erreur suppression'));
   }
 };
 
@@ -1231,8 +1301,8 @@ window.commencerEditionCommentaire = function (offreId, commentId){
   const ancien = zoneTexte.textContent;
   zoneTexte.innerHTML = '<textarea id="cedit-' + commentId + '" style="width:100%;border:1.5px solid #e4e6eb;border-radius:8px;padding:6px 8px;font-size:14px;font-family:inherit;outline:none;resize:vertical;min-height:50px;">' + ancien + '</textarea>'
     + '<div style="margin-top:6px;display:flex;gap:8px;">'
-    + '<span style="font-size:12px;font-weight:700;color:var(--red);cursor:pointer" onclick="validerEditionCommentaire(\'' + offreId + '\',\'' + commentId + '\')">Enregistrer</span>'
-    + '<span style="font-size:12px;font-weight:700;color:#8e8e8e;cursor:pointer" onclick="ecouterCommentaires(\'' + offreId + '\')">Annuler</span>'
+    + '<span style="font-size:12px;font-weight:700;color:var(--red);cursor:pointer" onclick="validerEditionCommentaire(\'' + offreId + '\',\'' + commentId + '\')">' + TR('Enregistrer') + '</span>'
+    + '<span style="font-size:12px;font-weight:700;color:#8e8e8e;cursor:pointer" onclick="ecouterCommentaires(\'' + offreId + '\')">' + TR('Annuler') + '</span>'
     + '</div>';
 };
 
@@ -1242,10 +1312,10 @@ window.validerEditionCommentaire = async function (offreId, commentId){
   if (!nouveauTexte) return;
   try {
     await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).update({ texte: nouveauTexte, modifie: true });
-    toast('✅ Commentaire modifié');
+    toast(TR('✅ Commentaire modifié'));
   } catch (e) {
     log('❌ Erreur modification commentaire : ' + e.message);
-    toast('Erreur modification');
+    toast(TR('Erreur modification'));
   }
 };
 
@@ -1262,10 +1332,10 @@ document.addEventListener('click', function (e){
 });
 
 window.supprimerPublicationOffre = async function (offreId){
-  if (!confirm('Mettre cette offre à la corbeille ? Elle sera restaurable pendant 15 jours.')) return;
+  if (!confirm(TR('Mettre cette offre à la corbeille ? Elle sera restaurable pendant 15 jours.'))) return;
   try {
     await db.collection('offres').doc(offreId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
-    toast('🗑️ Offre mise à la corbeille');
+    toast(TR('🗑️ Offre mise à la corbeille'));
   } catch (e) {
     log('❌ Erreur suppression : ' + e.message);
   }
@@ -1273,17 +1343,17 @@ window.supprimerPublicationOffre = async function (offreId){
 window.restaurerPublicationOffre = async function (offreId){
   try {
     await db.collection('offres').doc(offreId).update({ corbeille: false, corbeilleDepuis: null });
-    toast('✅ Offre restaurée');
+    toast(TR('✅ Offre restaurée'));
   } catch (e) {
     log('❌ Erreur restauration : ' + e.message);
   }
 };
 
 window.supprimerDefinitivementOffre = async function (offreId){
-  if (!confirm('Supprimer définitivement cette offre ? Cette action est irréversible.')) return;
+  if (!confirm(TR('Supprimer définitivement cette offre ? Cette action est irréversible.'))) return;
   try {
     await db.collection('offres').doc(offreId).delete();
-    toast('🗑️ Offre supprimée définitivement');
+    toast(TR('🗑️ Offre supprimée définitivement'));
   } catch (e) {
     log('❌ Erreur suppression définitive : ' + e.message);
   }
@@ -1296,7 +1366,7 @@ function afficherCorbeilleOffres(){
   const toggle = document.getElementById('corbeilleToggle');
   if (!listeCorbeille.length) { toggle.style.display = 'none'; document.getElementById('corbeilleListe').innerHTML = ''; return; }
   toggle.style.display = 'flex';
-  document.getElementById('corbeilleLabel').textContent = 'Corbeille (' + listeCorbeille.length + ')';
+  document.getElementById('corbeilleLabel').textContent = TR('Corbeille ({n})', {n: listeCorbeille.length});
   const liste = document.getElementById('corbeilleListe');
   liste.innerHTML = '';
   listeCorbeille.forEach(o => {
@@ -1305,32 +1375,32 @@ function afficherCorbeilleOffres(){
     const item = document.createElement('div');
     item.className = 'corbeille-item';
     item.innerHTML = '<div class="corbeille-item-info">'
-      + '<div class="corbeille-item-titre">' + escapeHtml(o.titre||'Sans titre') + '</div>'
-      + '<div class="corbeille-item-sub">Supprimée définitivement dans ' + joursRestants + ' jour' + (joursRestants>1?'s':'') + '</div>'
+      + '<div class="corbeille-item-titre">' + escapeHtml(o.titre||TR('Sans titre')) + '</div>'
+      + '<div class="corbeille-item-sub">' + TR(joursRestants > 1 ? 'Supprimée définitivement dans {n} jours' : 'Supprimée définitivement dans {n} jour', {n: joursRestants}) + '</div>'
       + '</div>'
-      + '<button onclick="restaurerPublicationOffre(\'' + o.id + '\')">Restaurer</button>'
-      + '<button style="color:var(--red);" onclick="supprimerDefinitivementOffre(\'' + o.id + '\')">Supprimer définitivement</button>';
+      + '<button onclick="restaurerPublicationOffre(\'' + o.id + '\')">' + TR('Restaurer') + '</button>'
+      + '<button style="color:var(--red);" onclick="supprimerDefinitivementOffre(\'' + o.id + '\')">' + TR('Supprimer définitivement') + '</button>';
     liste.appendChild(item);
   });
 }
 
 /* ── Contacter / Postuler (repris de l'ancien code, adapté en mode compat) ── */
 window.contacterOffre = function (offreId, nomAuteur, auteurUid, auteurVerifie){
-  if (!currentUser) { toast('Connectez-vous pour contacter'); return; }
-  if (!auteurUid) { toast('Contact indisponible pour cette offre'); return; }
-  if (auteurUid === currentUser.uid) { toast('Vous êtes l’auteur de cette offre'); return; }
+  if (!currentUser) { toast(TR('Connectez-vous pour contacter')); return; }
+  if (!auteurUid) { toast(TR('Contact indisponible pour cette offre')); return; }
+  if (auteurUid === currentUser.uid) { toast(TR('Vous êtes l’auteur de cette offre')); return; }
   try {
     if (window.parent && window.parent !== window && window.parent.ouvrirChatDepuisOffre) {
-      window.parent.ouvrirChatDepuisOffre({ uid: auteurUid, nom: nomAuteur || 'Utilisateur', verifie: !!auteurVerifie });
+      window.parent.ouvrirChatDepuisOffre({ uid: auteurUid, nom: nomAuteur || TR('Utilisateur'), verifie: !!auteurVerifie });
       return;
     }
   } catch (e) {}
-  toast('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment');
+  toast(TR('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment'));
 };
 
 window.postulerOffre = async function (offreId, candidaturesActuelles){
-  if (!currentUser) { toast('Connectez-vous pour postuler'); return; }
-  if (!confirm('Envoyer votre candidature pour cette offre ?')) return;
+  if (!currentUser) { toast(TR('Connectez-vous pour postuler')); return; }
+  if (!confirm(TR('Envoyer votre candidature pour cette offre ?'))) return;
   try {
     await db.collection('offres').doc(offreId).update({ candidatures: firebase.firestore.FieldValue.increment(1) });
     { const of = toutesLesOffres.find(x => x.id === offreId);
@@ -1345,7 +1415,7 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0
     });
-    toast('✅ Candidature envoyée !');
+    toast(TR('✅ Candidature envoyée !'));
     const zone = document.getElementById('commzone-' + offreId);
     if (zone && zone.style.display !== 'block') {
       zone.style.display = 'block';
@@ -1358,7 +1428,7 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
     }
   } catch (e) {
     log('❌ Erreur candidature : ' + e.message);
-    toast('Erreur candidature');
+    toast(TR('Erreur candidature'));
   }
 };
 
@@ -1369,14 +1439,15 @@ function buildCoverCarouselOffres(offresActives){
   const div = document.createElement('div');
   div.className = 'cover-carousel-wrap';
   const cards = avecImage.map(o => {
-    const titre = escapeHtml(o.titre || o.categorie || 'Offre');
+    const titre = escapeHtml(o.titre || o.categorie || TR('Offre'));
     const snippet = escapeHtml((o.description || o.ville || '').slice(0, 55));
-    return '<div class="cover-card" onclick="__scrollToOffre(\'' + o.id + '\')">'
-      + '<img src="' + o.imageUrl + '" loading="lazy">'
+    const estVid = /^data:video\//.test(o.imageUrl || '');
+    return '<div class="cover-card" data-offre="' + o.id + '" onclick="__scrollToOffre(\'' + o.id + '\')">'
+      + (estVid ? '<video src="' + o.imageUrl + '" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none"></video>' : '<img src="' + o.imageUrl + '" loading="lazy">')
       + '<div class="cover-card-overlay"><div class="cover-card-journal">' + titre + '</div><div class="cover-card-txt">' + snippet + '</div></div>'
       + '</div>';
   }).join('');
-  div.innerHTML = '<div class="cover-carousel-title">💼 Offres en vedette</div><div class="cover-carousel">' + cards + '</div>';
+  div.innerHTML = '<div class="cover-carousel-title">' + TR('💼 Offres en vedette') + '</div><div class="cover-carousel">' + cards + '</div>';
   return div;
 }
 
@@ -1405,6 +1476,7 @@ function wireCoverCarousel(){
 
 function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
+  if (currentUser.estVisiteur) { toast(TR('🔒 La publication est réservée aux professionnels')); return; }
   let data = {
     auteurUid: currentUser.uid,
     auteurNom: currentUser.nomAffiche || 'Anonyme',
@@ -1416,7 +1488,7 @@ function publierOffre(){
   };
   if (currentModele === 'texte') {
     const texte = document.getElementById('texteSimple').value.trim();
-    if (!texte) { alert('Écrivez votre annonce.'); return; }
+    if (!texte) { alert(TR('Écrivez votre annonce.')); return; }
     data.type = 'texte';
     data.texte = texte;
     data.titre = texte.substring(0,60);
@@ -1425,7 +1497,7 @@ function publierOffre(){
     if (imgBase64Txt) data.imageUrl = imgBase64Txt;
   } else {
     const titre = document.getElementById('inpTitre').value.trim();
-    if (!titre) { alert('Le titre est obligatoire.'); return; }
+    if (!titre) { alert(TR('Le titre est obligatoire.')); return; }
     let dureeVal = parseInt(document.getElementById('inpDureeVal').value) || 30;
     const dureeUnite = document.getElementById('inpDureeUnite').value;
     if (dureeUnite === 'semaines') dureeVal *= 7;
@@ -1442,18 +1514,39 @@ function publierOffre(){
     if (imgBase64) data.imageUrl = imgBase64;
   }
   const btn = document.getElementById('btnEnvoyer');
-  btn.disabled = true; btn.textContent = 'Publication…';
+  btn.disabled = true; btn.textContent = TR('Publication…');
   db.collection('offres').add(data).then(() => {
     log('11. Offre publiée ✅ (modèle : ' + currentModele + ')');
     fermerPanneau();
-    btn.disabled = false; btn.textContent = '📢 Publier maintenant';
+    btn.disabled = false; btn.textContent = TR('📢 Publier maintenant');
     imgBase64 = ''; imgBase64Txt = '';
   }).catch(err => {
     log('❌ Erreur publication : ' + err.message);
-    btn.disabled = false; btn.textContent = '📢 Publier maintenant';
+    btn.disabled = false; btn.textContent = TR('📢 Publier maintenant');
   });
 }
 </script>
 <script src="notifications.js"></script>
+<script>
+/* ── Marque ArtiRoyce : tout ce qu'on enregistre depuis Offres porte la marque (comme Accueil, Actualités, Statuts, Élites). ── */
+function enregistrerMediaOffre(offreId){
+  const o = toutesLesOffres.find(x => x.id === offreId);
+  if (!o || !o.imageUrl || !window.ArFiligrane) return;
+  const pseudo = '@' + String(o.auteurNom || 'artiroyce').toLowerCase().split(' ')[0];
+  if (/^data:video\//.test(o.imageUrl)) window.ArFiligrane.enregistrerVideo(o.imageUrl, pseudo);
+  else window.ArFiligrane.enregistrerPhoto(o.imageUrl, pseudo);
+}
+function menuEnregistrerOffre(offreId){
+  if (!window.ArFiligrane) return;
+  window.ArFiligrane.menu(TR('Enregistrer'), [{ texte: TR('📥 Enregistrer sur le téléphone'), action: () => enregistrerMediaOffre(offreId) }]);
+}
+window.enregistrerMediaOffre = enregistrerMediaOffre;
+window.menuEnregistrerOffre = menuEnregistrerOffre;
+// Appui long sur la photo/vidéo d'une offre : notre menu (avec la marque) au lieu de celui du téléphone.
+if (window.ArFiligrane) window.ArFiligrane.appuiLong(function (el) {
+  const zone = el.closest && (el.closest('.arfig-zone') || el.closest('.cover-card'));
+  if (zone && zone.getAttribute('data-offre')) menuEnregistrerOffre(zone.getAttribute('data-offre'));
+});
+</script>
 </body>
 </html>
