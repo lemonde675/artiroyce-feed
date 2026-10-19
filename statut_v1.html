@@ -616,7 +616,7 @@ window.chargerStatuts=function(){
       var d=docSnap.data();
       if(d.auteurUid!==MOI_ID)return;
       var ts=d.createdAt&&d.createdAt.toMillis?d.createdAt.toMillis():Date.now();
-      if((Date.now()-ts)>=VINGT_QUATRE_H_MS)window.fb.deleteDoc(docSnap.ref).catch(function(){});
+      if((Date.now()-ts)>=VINGT_QUATRE_H_MS)(window.ArArchive?ArArchive.supprimer(docSnap.ref,{type:'statut',raison:'statut_24h'}):window.fb.deleteDoc(docSnap.ref)).catch(function(){});
     });
   },function(err){
     console.error(err);
@@ -889,7 +889,7 @@ async function deleteFromRow(){
   var p=S[curIdx];if(!p||p.id!==MOI_ID)return;
   if(!confirm(TR('Supprimer tous tes statuts actifs ?')))return;
   try{
-    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
+    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){var r=window.fb.doc(window.db,'statuts',it.docId);return window.ArArchive?ArArchive.supprimer(r,{type:'statut'}):window.fb.deleteDoc(r);}));
     toast('Statut supprimé','g');
   }catch(e){console.error(e);toast('Erreur lors de la suppression','');}
 }
@@ -1462,7 +1462,7 @@ async function deleteStatut(){
   var p=S[curPersonIdx];if(!p||p.id!==MOI_ID)return;
   if(!confirm(TR('Supprimer tous tes statuts actifs ?')))return;
   try{
-    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){return window.fb.deleteDoc(window.fb.doc(window.db,'statuts',it.docId));}));
+    await Promise.all(p.items.filter(function(it){return it.docId;}).map(function(it){var r=window.fb.doc(window.db,'statuts',it.docId);return window.ArArchive?ArArchive.supprimer(r,{type:'statut'}):window.fb.deleteDoc(r);}));
     closeViewer();
     toast('Statut supprimé','g');
   }catch(e){console.error(e);toast('Erreur lors de la suppression','');}
@@ -2330,6 +2330,7 @@ auth.onAuthStateChanged(async(user)=>{
 });
 </script>
 <script src="notifications.js"></script>
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
 <script>
