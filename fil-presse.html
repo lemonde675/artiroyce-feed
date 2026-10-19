@@ -651,7 +651,7 @@ async function loadFeed(){
         if(isMine){
           const delTime = p.deletedAt.toDate ? p.deletedAt.toDate().getTime() : new Date(p.deletedAt).getTime();
           if(now - delTime > FIFTEEN_DAYS_MS){
-            deleteDoc(doc(db,'fil_presse', d.id)).catch(function(){});
+            (function(r){ (window.ArArchive ? ArArchive.supprimer(r, { type: 'fil_presse', raison: 'corbeille_15_jours' }) : r.delete()).catch(function(){}); })(doc(db,'fil_presse', d.id));
           } else {
             mineTrashed.push([d.id, p]);
           }
@@ -872,7 +872,8 @@ window.__restore = async function(id){
   loadFeed();
 }
 window.__hardDelete = async function(id, el){
-  await deleteDoc(doc(db,'fil_presse', id));
+  const refFP = doc(db,'fil_presse', id);
+  await (window.ArArchive ? ArArchive.supprimer(refFP, { type: 'fil_presse' }) : refFP.delete());
   loadFeed();
 }
 
@@ -1538,6 +1539,7 @@ auth.onAuthStateChanged(async function(user){
 });
 </script>
 <script src="translations.js"></script>
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 <script src="notifications.js"></script>
 <script src="filigrane.js"></script>
