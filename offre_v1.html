@@ -295,6 +295,7 @@ log('1. Script démarré ✅');
 window.addEventListener('error', e => log('❌ Erreur JS : ' + e.message + ' (' + (e.filename||'').split('/').pop() + ':' + e.lineno + ')'));
 </script>
 
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" onload="log('2. app chargée ✅')" onerror="log('❌ échec app')"></script>
@@ -775,7 +776,7 @@ function chargerOffres(){
     const maintenant = Date.now();
     listeCorbeille
       .filter(o => o.corbeilleDepuis && (maintenant - new Date(o.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
-      .forEach(o => db.collection('offres').doc(o.id).delete().catch(e => log('❌ Purge corbeille : ' + e.message)));
+      .forEach(o => { const r = db.collection('offres').doc(o.id); (window.ArArchive ? ArArchive.supprimer(r, { type: 'offre', raison: 'corbeille_15_jours' }) : r.delete()).catch(e => log('❌ Purge corbeille : ' + e.message)); });
 
     // On ne reconstruit tout le fil (perte de position, clignotement) que si la
     // LISTE elle-même a changé (nouvelle offre, suppression). Si seuls des
@@ -1286,7 +1287,8 @@ document.addEventListener('click', function (e){
 window.supprimerCommentaireOffre = async function (offreId, commentId){
   if (!confirm(TR('Supprimer ce commentaire ?'))) return;
   try {
-    await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).delete();
+    const refCom = db.collection('offres').doc(offreId).collection('commentaires').doc(commentId);
+    await (window.ArArchive ? ArArchive.supprimer(refCom, { type: 'commentaire_offre' }) : refCom.delete());
     toast(TR('🗑️ Commentaire supprimé'));
   } catch (e) {
     log('❌ Erreur suppression commentaire : ' + e.message);
@@ -1352,7 +1354,8 @@ window.restaurerPublicationOffre = async function (offreId){
 window.supprimerDefinitivementOffre = async function (offreId){
   if (!confirm(TR('Supprimer définitivement cette offre ? Cette action est irréversible.'))) return;
   try {
-    await db.collection('offres').doc(offreId).delete();
+    const refOffre = db.collection('offres').doc(offreId);
+    await (window.ArArchive ? ArArchive.supprimer(refOffre, { type: 'offre' }) : refOffre.delete());
     toast(TR('🗑️ Offre supprimée définitivement'));
   } catch (e) {
     log('❌ Erreur suppression définitive : ' + e.message);
