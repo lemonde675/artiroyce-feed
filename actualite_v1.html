@@ -1044,7 +1044,8 @@ window.restaurerPublication = async function (postId) {
 window.supprimerDefinitivement = async function (postId) {
   if (!confirm(TR('Supprimer définitivement cette publication ? Cette action est irréversible.'))) return;
   try {
-    await db.collection('publications').doc(postId).delete();
+    const refPub = db.collection('publications').doc(postId);
+    await (window.ArArchive ? ArArchive.supprimer(refPub, { type: 'publication' }) : refPub.delete());
     toast('Publication supprimée définitivement');
   } catch (e) { ajouterEtape('❌ Erreur suppression définitive : ' + (e && e.message || e)); toast('Erreur lors de la suppression définitive'); }
 };
@@ -1165,7 +1166,7 @@ function chargerPublications() {
       const maintenant = Date.now();
       listeCorbeille
         .filter(p => p.corbeilleDepuis && (maintenant - new Date(p.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS)
-        .forEach(p => db.collection('publications').doc(p.id).delete().catch(e => console.error(e)));
+        .forEach(p => { const r = db.collection('publications').doc(p.id); (window.ArArchive ? ArArchive.supprimer(r, { type: 'publication', raison: 'corbeille_15_jours' }) : r.delete()).catch(e => console.error(e)); });
 
       afficherFeed();
       afficherCorbeille();
@@ -1742,6 +1743,7 @@ window.publishPost = async function() {
 };
 </script>
 <script src="notifications.js"></script>
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
 <script>
