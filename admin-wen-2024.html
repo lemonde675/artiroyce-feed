@@ -304,6 +304,7 @@
       <button class="main-tab active" onclick="switchMainTab('comptes', this)">👥 Comptes</button>
       <button class="main-tab orange" onclick="switchMainTab('signalements', this)">⚑ Signalements <span id="signalBadge" style="background:#ff5722;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
       <button class="main-tab" onclick="window.location.href='admin-archives.html'">🗄️ Archives</button>
+      <button class="main-tab" onclick="window.location.href='assistance.html'">🎧 Assistance <span id="assistBadgeAdmin" style="display:none;background:#e63224;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
     </div>
 
     <!-- PANEL COMPTES -->
@@ -339,7 +340,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -372,12 +373,27 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminPanel').style.display  = 'block';
       loadUsers();
+      suivreAssistance();
     } else {
       if (user) signOut(auth).catch(() => {}); // connecté mais pas administrateur : on déconnecte
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('adminPanel').style.display  = 'none';
     }
   });
+
+  // ── Assistance : pastille des demandes non lues + « l'administration est en ligne » ──
+  let assistanceSuivie = false;
+  function suivreAssistance() {
+    if (assistanceSuivie) return;
+    assistanceSuivie = true;
+    onSnapshot(query(collection(db, 'assistance'), where('nonLuAdmin', '>', 0)), (s) => {
+      const b = document.getElementById('assistBadgeAdmin');
+      b.textContent = s.size; b.style.display = s.size ? 'inline' : 'none';
+    }, () => {});
+    const signe = () => { if (!document.hidden) setDoc(doc(db, 'assistance_meta', 'admin'), { enLigneLe: serverTimestamp() }, { merge: true }).catch(() => {}); };
+    signe(); setInterval(signe, 45000);
+    document.addEventListener('visibilitychange', signe);
+  }
 
   window.toggleAdminPass = () => { const p = document.getElementById('adminPass'); p.type = p.type==='password'?'text':'password'; };
 
