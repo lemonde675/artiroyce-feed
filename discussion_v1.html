@@ -87,14 +87,14 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .pc-grid-item img,.pc-grid-item video{width:100%;height:100%;object-fit:cover}
 .pc-grid-item .pc-vid-badge{position:absolute;top:4px;right:4px;font-size:12px}
 .pc-empty{margin-top:30px;font-size:13px;color:#999;text-align:center}
-.pc-viewer{position:fixed;inset:0;background:#000;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column}
+.pc-viewer{position:fixed;inset:0;top:var(--decal-haut,0px);background:#000;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column}
 .pc-viewer.show{display:flex}
-.pc-viewer-close{position:absolute;top:16px;right:16px;color:#fff;font-size:22px;cursor:pointer;z-index:2}
+.pc-viewer-close{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 2px rgba(255,255,255,.35);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3}
 .pc-viewer-media{max-width:100%;max-height:82vh;display:flex;align-items:center;justify-content:center}
 .pc-viewer-media img,.pc-viewer-media video{max-width:100%;max-height:82vh;object-fit:contain}
 .pc-viewer-resend{position:absolute;bottom:26px;background:var(--red);color:#fff;border:none;padding:12px 22px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(230,50,36,0.4)}
 /* ══ Aperçu avant envoi (photo/vidéo) : légende + recadrage simple ══ */
-.apercu-overlay{position:fixed;inset:0;background:#000;z-index:9998;display:none;flex-direction:column}
+.apercu-overlay{position:fixed;inset:0;top:var(--decal-haut,0px);background:#000;z-index:9998;display:none;flex-direction:column}
 .apercu-overlay.show{display:flex}
 .apercu-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;flex-shrink:0}
 .apercu-cancel{color:#fff;font-size:24px;cursor:pointer}
@@ -309,7 +309,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .video-bbl.expanded .vid-expand{display:none}
 .video-close-btn{display:none;position:absolute;top:16px;right:16px;z-index:6;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:18px;align-items:center;justify-content:center;cursor:pointer}
 .video-bbl.expanded .video-close-btn{display:flex}
-.video-bbl.expanded{position:fixed;inset:0;max-width:100%;z-index:9999;border-radius:0;background:#000}
+.video-bbl.expanded{position:fixed;inset:0;top:var(--decal-haut,0px);max-width:100%;z-index:9999;border-radius:0;background:#000}
 .video-bbl.expanded video{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
 .video-bbl.expanded .img-ft{display:none}
 .file-bbl{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;max-width:230px;cursor:pointer}
@@ -1082,6 +1082,9 @@ function getEmbedTopOffsetPx(){
 let embedTopOffsetPx=0;
 function appliquerDecalageChat(){
   const px=embedTopOffsetPx+'px';
+  // Les écrans plein écran (photo, vidéo agrandie, aperçu…) commencent SOUS l'en-tête de
+  // l'Accueil : avant, leur bouton ✕ était caché derrière lui.
+  document.documentElement.style.setProperty('--decal-haut', px);
   const sp=document.getElementById('spacer');
   const th=document.getElementById('topH');
   if(sp && th && th.style.display==='none') sp.style.setProperty('height',px,'important');
@@ -1183,13 +1186,16 @@ let viewStack=[];
    profondeur, et la touche retour du téléphone ne fermait plus la vue suivante
    (ex. Conférence) — il fallait appuyer deux fois. Avec un numéro unique, une seule fois suffit. */
 let viewIds=[], compteurVues=0;
+const fermeursDom={};   // vue légère -> fonction qui ferme seulement l'écran (voir plus bas)
 function resyncViewIds(){ if(viewIds.length>viewStack.length) viewIds.length=viewStack.length; while(viewIds.length<viewStack.length) viewIds.push(++compteurVues); }
 history.replaceState({depth:0,vid:0},'',location.href);
+let etatCourant={depth:0,vid:0};   // état de l'entrée d'historique où l'on se trouve
 function pushView(name){
   resyncViewIds();
   viewStack.push(name);
   viewIds.push(++compteurVues);
-  history.pushState({depth:viewStack.length,vid:compteurVues},'',location.href);
+  etatCourant={depth:viewStack.length,vid:compteurVues};
+  history.pushState(etatCourant,'',location.href);
   try{ signalerVuesAuParent(); }catch(e){}
   if(name==='incall') signalerAuParent('appelEntrant');
   else if(name==='call') signalerAuParent('appelDecroche');
@@ -1216,21 +1222,43 @@ setInterval(signalerVuesAuParent, 400);
 // cette vue (chat, appel, création/membres de groupe). Le bouton "‹" reste
 // au même endroit, seul son comportement interne change.
 function fermerVueLocale(name){
+  if(retirerDeLaPile(name)) hideView(name);
+}
+/* Retire une vue de la pile SANS toucher à l'écran (déjà fermé par son bouton).
+   L'entrée d'historique de cette vue devient « fantôme » : la touche retour suivante
+   la saute et ferme directement ce qui est encore affiché (un seul appui suffit). */
+function retirerDeLaPile(name){
   resyncViewIds();
-  if(viewStack.length && viewStack[viewStack.length-1]===name){
-    viewStack.pop(); viewIds.pop();
-    hideView(name);
-    try{ signalerVuesAuParent(); }catch(e){}
+  const i=viewStack.lastIndexOf(name);
+  if(i===-1) return false;
+  const id=viewIds[i];
+  viewStack.splice(i,1); viewIds.splice(i,1);
+  const st=history.state||{};
+  if(typeof st.vid==='number' && st.vid>=id && !st.fantome){
+    etatCourant=Object.assign({},st,{fantome:true});
+    try{ history.replaceState(etatCourant,'',location.href); }catch(e){}
   }
+  try{ signalerVuesAuParent(); }catch(e){}
+  return true;
 }
 window.addEventListener('popstate',(e)=>{
   resyncViewIds();
   const st=e.state||{};
+  const venantDeFantome=!!(etatCourant && etatCourant.fantome);
+  etatCourant=st;
   let cible;
   if(typeof st.vid==='number') cible=st.vid;
   else { const d=st.depth||0; cible = d>0 ? (viewIds[d-1]||0) : 0; }
   // On ferme toutes les vues ouvertes APRÈS l'entrée sur laquelle on revient.
-  while(viewStack.length && viewIds[viewIds.length-1]>cible){ viewIds.pop(); hideView(viewStack.pop()); }
+  let fermees=0;
+  while(viewStack.length && viewIds[viewIds.length-1]>cible){ viewIds.pop(); hideView(viewStack.pop()); fermees++; }
+  // On vient de sauter une entrée « fantôme » (vue déjà fermée par son bouton) : ce retour
+  // n'a rien fermé, alors on continue d'un cran pour fermer ce qui est réellement affiché.
+  if(venantDeFantome && fermees===0 && cible>0){
+    etatCourant=Object.assign({},st,{fantome:true});
+    try{ history.replaceState(etatCourant,'',location.href); history.back(); }catch(err){}
+  }
+  try{ signalerVuesAuParent(); }catch(err){}
 });
 function hideView(name){
   if(name==='chat'){
@@ -1271,6 +1299,7 @@ function hideView(name){
     signalerAuParent('appelFin');
   }
   else if(name==='photo'){ fermerPhotoPleinEcran(); }
+  else if(fermeursDom[name]){ try{ fermeursDom[name](); }catch(e){} }
   else if(name==='videoExpand'){
     // Vidéo agrandie dans un dialogue : le retour physique du téléphone (Android)
     // la réduit au lieu de fermer toute la page Discussion.
@@ -1515,7 +1544,8 @@ window.ouvrirOptionsChat=function(){
   if(!convReelle()){ toast('Options indisponibles pour cette discussion','r'); return; }
   const b=etatBlocage();
   let html='<div class="opt-titre">'+escapeHtml(currentChatName||'Discussion')+'</div>'
-    +'<div class="opt-item" onclick="fermerOptionsChat();ouvrirProfilContact()"><span class="opt-ico">👤</span><span>Voir le profil</span></div>';
+    +'<div class="opt-item" onclick="fermerOptionsChat();ouvrirProfilContact()"><span class="opt-ico">👤</span><span>Voir le profil</span></div>'
+    +(typeof estFavori==='function' ? '<div class="opt-item" onclick="fermerOptionsChat();basculerFavori()"><span class="opt-ico">'+(estFavori(currentConvId)?'⭐':'☆')+'</span><span>'+(estFavori(currentConvId)?'Retirer des favoris':'Ajouter aux favoris')+'<small>La discussion reste en haut de votre liste</small></span></div>' : '');
   if(b.moi){
     html+='<div class="opt-item vert" onclick="fermerOptionsChat();debloquerContact()"><span class="opt-ico">✅</span><span>Débloquer<small>Bloqué '+escapeHtml(texteJusqua(b.moi))+'</small></span></div>';
   } else {
@@ -2253,7 +2283,7 @@ window.toggleVideoExpand=function(e, btn){
     // suivi interne, SANS appeler history.back() nous-mêmes — cet appel s'est
     // déjà montré peu fiable depuis cette iframe (voir le correctif sur
     // closeChat()). Le retour physique reste géré par hideView() ci-dessus.
-    if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
+    retirerDeLaPile('videoExpand');
   }
   if(typeof majBoutonRetourPC==='function') majBoutonRetourPC();
 }
@@ -2267,7 +2297,7 @@ window.reduireVideoDepuisFleche=function(e, backBtn){
   const btn=wrap.querySelector('.vid-expand');
   if(btn){ btn.textContent='⤢'; btn.title='Agrandir'; }
   videoExpandeWrap=null;
-  if(viewStack[viewStack.length-1]==='videoExpand') viewStack.pop();
+  retirerDeLaPile('videoExpand');
 }
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
@@ -2862,10 +2892,11 @@ function construireInfosGroupe(participants){
 
 /* Affiche (ou cache) la barre de saisie selon le réglage « seuls les admins écrivent ». */
 function appliquerRestrictionEcriture(){
-  const bloqueGroupe = currentEstGroupe && currentGroupData.seulsAdminsEcrivent===true && !jeSuisAdmin();
+  const etatG = currentEstGroupe ? etatModerationGroupe() : null;
+  const bloqueGroupe = !!(etatG && etatG.bloque);
   const blocage = currentEstGroupe ? null : etatBlocage();
   const ibar=document.getElementById('ibar'), note=document.getElementById('grpLockNote'), bn=document.getElementById('blocNote');
-  if(note) note.style.display = bloqueGroupe ? 'block' : 'none';
+  if(note){ note.style.display = bloqueGroupe ? 'block' : 'none'; if(bloqueGroupe && note.textContent!==etatG.texte) note.textContent=etatG.texte; }
   if(bn){
     let h='';
     if(blocage && blocage.moi) h='🚫 Vous avez bloqué ce contact <b>'+escapeHtml(texteJusqua(blocage.moi))+'</b>.<br>Il ne peut plus vous écrire ni vous appeler.<br><button onclick="debloquerContact()">✅ Débloquer</button>';
@@ -3009,7 +3040,7 @@ function renderListeMembresActuels(){
     const rb = b===currentUid ? 0 : (admins.indexOf(b)!==-1 ? 1 : 2);
     return ra-rb;
   });
-  zone.innerHTML=ordre.map(function(uid){
+  const htmlMembres=ordre.map(function(uid){
     const info=currentConvInfos[uid]||infoDepuisContacts(uid);
     const estMoi=uid===currentUid;
     const u=contactParId(uid);
@@ -3018,8 +3049,10 @@ function renderListeMembresActuels(){
       +'<div class="conf-part-av" style="background:'+info.bg+'">'+avatarInterieur(uid, info.ini)+'</div>'
       +'<div class="gi-membre-txt"><div class="gi-membre-nom">'+(estMoi?'Vous':escAttr(info.nom))+'</div><div class="gi-membre-sous">'+escAttr(sous)+'</div></div>'
       +(admins.indexOf(uid)!==-1 ? '<span class="gi-badge">Admin du groupe</span>' : '')
+      +(typeof msTs==='function' && msTs(((currentGroupData||{}).suspendus||{})[uid])>Date.now() ? '<span class="gi-badge" style="background:#fff4e0;color:#8a5a00">🤐 Suspendu</span>' : '')
       +'</div>';
   }).join('');
+  if(zone.dataset.html!==htmlMembres){ zone.dataset.html=htmlMembres; zone.innerHTML=htmlMembres; }
 }
 
 function renderParametresGroupe(){
@@ -3204,10 +3237,11 @@ window.quitterGroupe=async function(){
   const convId=currentConvId;
   try{
     await messageSystemeGroupe(convId,'a quitté le groupe');
-    await db.collection('conversations').doc(convId).update({
-      participants: firebase.firestore.FieldValue.arrayRemove(currentUid),
-      admins: admins
-    });
+    const maj={ participants: firebase.firestore.FieldValue.arrayRemove(currentUid) };
+    // La liste des admins n'est réécrite que si elle change vraiment (un admin qui part) :
+    // un simple membre n'a pas le droit d'y toucher (règles Firestore).
+    if(jeSuisAdmin()) maj.admins=admins;
+    await db.collection('conversations').doc(convId).update(maj);
     toast('🚪 Vous avez quitté le groupe','g');
     fermerVueLocale('groupmembers'); fermerVueLocale('chat');
   }catch(err){
@@ -4066,20 +4100,16 @@ window.viewImage=function(el){
   fermerPhotoPleinEcran(true);
   const ov=document.createElement('div');
   ov.id='photoPleinEcran';
-  ov.style.cssText='position:fixed;inset:0;z-index:10050;background:#000;display:flex;align-items:center;justify-content:center';
+  ov.style.cssText='position:fixed;inset:0;top:var(--decal-haut,0px);z-index:10050;background:#000;display:flex;align-items:center;justify-content:center';
   ov.innerHTML='<img src="'+img.src+'" alt="" style="max-width:100%;max-height:100%;object-fit:contain"/>'
     +'<button type="button" aria-label="Fermer" style="position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,.35)">✕</button>';
   ov.querySelector('button').onclick=function(e){
     e.stopPropagation();
-    // On revient d'un cran dans l'historique (l'entrée ajoutée pour la photo) : la touche
-    // retour suivante fermera directement la discussion, sans appui « dans le vide ».
-    if(history.state && history.state.vid===idPhotoOuverte && viewStack[viewStack.length-1]==='photo') history.back();
-    else fermerVueLocale('photo');
+    fermerVueLocale('photo');
   };
   document.body.appendChild(ov);
-  if(viewStack[viewStack.length-1]!=='photo'){ pushView('photo'); idPhotoOuverte=compteurVues; }
+  if(viewStack[viewStack.length-1]!=='photo') pushView('photo');
 }
-let idPhotoOuverte=-1;
 function fermerPhotoPleinEcran(){ const o=document.getElementById('photoPleinEcran'); if(o) o.remove(); }
 
 /* ══ Profil du contact + galerie des médias déjà échangés, réutilisables ══
@@ -4931,6 +4961,277 @@ demarrerFirebase();
      Fichier séparé, chargé en dernier pour réutiliser les variables et fonctions
      déjà déclarées plus haut sur cette même page (db, currentUid, currentOtherUid,
      callStream, pushView, requestClose, logCallBubble, obtenirMonInfo, etc.). -->
+<script>
+/* ══════════════ TOUCHE RETOUR : tous les petits écrans ══════════════
+   Profil du contact, photo/vidéo du profil, aperçu avant envoi, partage, menus…
+   Chacun prend une entrée d'historique quand il s'ouvre : la touche retour du
+   téléphone le ferme, sans quitter la discussion ni revenir à l'Accueil.
+   Leurs boutons ✕ / ‹ / Annuler continuent de marcher comme avant. */
+(function(){
+  const VUES={
+    profil:  { el:'profilContactPanel', cls:'open', ouvrir:['ouvrirProfilContact'], fermer:['fermerProfilContact'] },
+    media:   { el:'pcViewer',           cls:'show', ouvrir:['voirMediaGalerie'],    fermer:['fermerVisionneuseMedia'] },
+    apercu:  { el:'apercuOverlay',      cls:'show', ouvrir:['ouvrirApercuMedia'],   fermer:['annulerApercuMedia','confirmerEnvoiApercu'] },
+    partage: { el:'partageSheet',       cls:'open', ouvrir:['ouvrirPartage'],       fermer:['fermerPartage'] },
+    membre:  { el:'gmMenu',             cls:'show', ouvrir:['ouvrirMenuMembre'],    fermer:['fermerMenuMembre'] },
+    menu:    { el:'ctxMenu',            cls:'show', ouvrir:['openCtx'],             fermer:['closeCtx'] },
+    options: { el:'optFond',            cls:'show', ouvrir:['ouvrirOptionsChat'],   fermer:['fermerOptionsChat'] },
+    emoji:   { el:'emoPanel',           cls:'show', ouvrir:['toggleEmoji'],         fermer:['closeEmoji'] }
+  };
+  function ouverte(v){ const e=document.getElementById(v.el); return !!(e && e.classList.contains(v.cls)); }
+  function apres(nom, v, encore){
+    const enPile=viewStack.lastIndexOf(nom)!==-1;
+    if(ouverte(v)){ if(!enPile) pushView(nom); }
+    else if(enPile) retirerDeLaPile(nom);
+    // Certains écrans s'affichent avec un petit délai (ex. émojis après le clavier).
+    else if(!encore) setTimeout(function(){ apres(nom, v, true); }, 250);
+  }
+  Object.keys(VUES).forEach(function(nom){
+    const v=VUES[nom];
+    const premierFermeur=window[v.fermer[0]];
+    if(typeof premierFermeur==='function') fermeursDom[nom]=function(){ if(ouverte(v)) premierFermeur(); };
+    v.ouvrir.concat(v.fermer).forEach(function(fn){
+      const original=window[fn];
+      if(typeof original!=='function' || original.__retour) return;
+      const enveloppe=function(){
+        const r=original.apply(this, arguments);
+        if(r && typeof r.then==='function') r.then(function(){ apres(nom, v); }, function(){ apres(nom, v); });
+        else apres(nom, v);
+        return r;
+      };
+      enveloppe.__retour=true;
+      window[fn]=enveloppe;
+    });
+  });
+})();
+
+/* ══════════════ GROUPE SANS ADMIN ══════════════
+   Si l'admin du groupe n'existe plus (compte supprimé) ou est parti, le premier membre
+   encore actif devient admin automatiquement (comme WhatsApp) — sinon plus personne
+   ne pouvait changer les réglages du groupe. */
+function verifierAdminsGroupe(){
+  if(!currentEstGroupe || !currentConvId || !currentGroupParticipants.length) return;
+  const etat=function(uid){ if(uid===currentUid) return 'actif'; const u=contactParId(uid); return !u ? 'inconnu' : (u._supprime ? 'supprime' : 'actif'); };
+  const admins=adminsDuGroupe();
+  const actifs=admins.filter(function(a){ return currentGroupParticipants.indexOf(a)!==-1 && etat(a)==='actif'; });
+  if(actifs.length) return;
+  if(admins.some(function(a){ return currentGroupParticipants.indexOf(a)!==-1 && etat(a)==='inconnu'; })) return; // pas encore sûr
+  const successeur=currentGroupParticipants.find(function(uid){ return etat(uid)==='actif'; });
+  if(successeur!==currentUid || verifierAdminsGroupe._fait===currentConvId) return;
+  verifierAdminsGroupe._fait=currentConvId;
+  majGroupe({admins:[currentUid]}, 'est devenu(e) admin du groupe (l’ancien admin n’est plus là)', '👑 Vous êtes maintenant admin de ce groupe');
+}
+setInterval(verifierAdminsGroupe, 4000);
+
+/* ══════════════ RÉGLAGES DU GROUPE (façon WhatsApp, style ArtiRoyce) ══════════════
+   Admin : qui peut modifier les infos, envoyer des messages, ajouter des membres,
+   lien d'invitation. Tout le monde : favoris, créer un groupe similaire. */
+function peutModifierInfosGroupe(){ return jeSuisAdmin() || currentGroupData.seulsAdminsModifient===false; }
+function lireFavoris(){ try{ return JSON.parse(localStorage.getItem('arFavoris')||'[]'); }catch(e){ return []; } }
+function estFavori(id){ return lireFavoris().indexOf(id)!==-1; }
+window.basculerFavori=function(id){
+  id=id||currentConvId; if(!id) return;
+  let f=lireFavoris(); const i=f.indexOf(id);
+  if(i===-1) f.unshift(id); else f.splice(i,1);
+  try{ localStorage.setItem('arFavoris', JSON.stringify(f)); }catch(e){}
+  toast(i===-1?'⭐ Ajouté aux favoris (en haut de la liste)':'Retiré des favoris','g');
+  if(window._toutesConvs) renderListeUnifiee(window._toutesConvs);
+  if(document.getElementById('groupMembersPanel').classList.contains('open')) renderParametresGroupe();
+};
+window.creerGroupeSimilaire=function(){
+  const membres=currentGroupParticipants.filter(function(u){ return u!==currentUid; });
+  fermerVueLocale('groupmembers');
+  ouvrirCreationGroupe();
+  document.querySelectorAll('#grpContactsListe .grp-chk').forEach(function(c){ if(membres.indexOf(c.value)!==-1){ c.checked=true; } });
+  try{ majCompteSelection('grpContactsListe','grpCompte'); }catch(e){}
+  toast('👥 Mêmes membres cochés : choisissez un nom','g');
+};
+renderParametresGroupe=function(){
+  const zone=document.getElementById('giParamsZone'); if(!zone) return;
+  const admin=jeSuisAdmin(), infos=peutModifierInfosGroupe();
+  const sw=function(on){ return '<span class="gi-switch'+(on?' on':'')+'"></span>'; };
+  const ligne=function(ico, titre, sous, action, droite){
+    return '<div class="gi-param"'+(action?' onclick="'+action+'"':'')+'><span class="gi-param-ico">'+ico+'</span><span class="gi-param-txt">'+titre+(sous?'<span class="gi-param-sous">'+sous+'</span>':'')+'</span>'+(droite||'')+'</div>';
+  };
+  const choix=function(v){ return v ? 'Seuls les admins' : 'Tous les membres'; };
+  let html='';
+  if(infos){
+    html+=ligne('✏️','Nom du groupe',escAttr(currentChatName),'modifierNomGroupe()')
+      +ligne('📝','Description',escAttr(currentGroupData.description||'Aucune'),'modifierDescriptionGroupe()')
+      +ligne('🖼️','Photo du groupe','Toucher pour changer','changerPhotoGroupe()');
+  }
+  html+='<div class="gi-note" style="margin-top:6px;font-weight:800;color:#555">Autorisations</div>';
+  if(admin){
+    html+=ligne('ℹ️','Seuls les admins modifient les infos','Nom, description et photo du groupe','basculerReglageGroupe(\'seulsAdminsModifient\')',sw(currentGroupData.seulsAdminsModifient!==false))
+      +ligne('💬','Seuls les admins envoient des messages','Les autres membres peuvent seulement lire','basculerReglageGroupe(\'seulsAdminsEcrivent\')',sw(currentGroupData.seulsAdminsEcrivent===true))
+      +ligne('➕','Seuls les admins ajoutent des membres','Éteint : chacun peut inviter pour agrandir le groupe','basculerReglageGroupe(\'seulsAdminsAjoutent\')',sw(currentGroupData.seulsAdminsAjoutent===true))
+      +ligne('🔗','Lien d\'invitation actif','Toute personne ayant le lien peut entrer','basculerReglageGroupe(\'lienActif\')',sw(currentGroupData.lienActif===true))
+      +'<div class="gi-note">Touchez un membre dans l\'onglet « Membres » pour le nommer admin ou le retirer du groupe.</div>'
+      +(typeof htmlModeration==='function' ? htmlModeration() : '');
+  } else {
+    html+=ligne('ℹ️','Modifier les infos du groupe',choix(currentGroupData.seulsAdminsModifient!==false))
+      +ligne('💬','Envoi de messages',choix(currentGroupData.seulsAdminsEcrivent===true))
+      +ligne('➕','Ajout de membres',choix(currentGroupData.seulsAdminsAjoutent===true))
+      +'<div class="gi-note">Seuls les admins du groupe peuvent changer ces autorisations.</div>';
+  }
+  html+='<div class="gi-note" style="margin-top:6px;font-weight:800;color:#555">Pour moi</div>'
+    +ligne(estFavori(currentConvId)?'⭐':'☆', estFavori(currentConvId)?'Retirer des favoris':'Ajouter aux favoris','Le groupe reste en haut de votre liste','basculerFavori()')
+    +ligne('👥','Créer un groupe similaire','Commencez avec les mêmes membres','creerGroupeSimilaire()');
+  if(zone.dataset.html!==html){ zone.dataset.html=html; zone.innerHTML=html; }   // pas redessiné pour rien
+};
+// Nom / description / photo : admin, ou tout le monde si l'admin l'a permis.
+(function(){
+  const garde=function(fn){ const o=window[fn]; if(typeof o!=='function') return;
+    window[fn]=function(){
+      if(!peutModifierInfosGroupe()){ toast('Seuls les admins peuvent modifier les infos du groupe','r'); return; }
+      const a=currentGroupData.admins, c=currentGroupData.creePar;
+      // Les fonctions d'origine vérifient « admin » : on leur laisse passer le membre autorisé.
+      const avant=jeSuisAdmin;
+      jeSuisAdmin=function(){ return true; };
+      try{ return o.apply(this, arguments); } finally { jeSuisAdmin=avant; }
+    };
+  };
+  ['modifierNomGroupe','modifierDescriptionGroupe','changerPhotoGroupe'].forEach(garde);
+})();
+// Photo du groupe choisie par un membre autorisé (vérification « admin » d'origine).
+(function(){
+  const o=window.onPhotoGroupeChoisie; if(typeof o!=='function') return;
+  window.onPhotoGroupeChoisie=function(e){
+    if(!peutModifierInfosGroupe()) return;
+    const avant=jeSuisAdmin; jeSuisAdmin=function(){ return true; };
+    const r=o.apply(this, arguments);
+    Promise.resolve(r).finally(function(){ jeSuisAdmin=avant; });
+    return r;
+  };
+})();
+// Réglage « seuls les admins modifient les infos » : texte du message de groupe.
+(function(){
+  const o=window.basculerReglageGroupe; if(typeof o!=='function') return;
+  window.basculerReglageGroupe=function(champ){
+    if(champ!=='seulsAdminsModifient') return o.apply(this, arguments);
+    if(!jeSuisAdmin()) return;
+    const nouveau = currentGroupData.seulsAdminsModifient===false;   // par défaut : réservé aux admins
+    majGroupe({seulsAdminsModifient:nouveau}, nouveau ? 'a réservé la modification des infos aux admins' : 'a permis à tous les membres de modifier les infos du groupe', '✅ Réglage enregistré');
+  };
+})();
+// Favoris en haut de la liste (avec une ⭐ devant le nom).
+(function(){
+  const o=renderListeUnifiee;
+  renderListeUnifiee=function(toutes){
+    const fav=lireFavoris();
+    const r=o.call(this, toutes);
+    if(!fav.length) return r;
+    const wrap=document.getElementById('recentesReelles'); if(!wrap) return r;
+    fav.slice().reverse().forEach(function(id){
+      const carte=wrap.querySelector('.conv-card[data-conv="'+id+'"]');
+      if(!carte) return;
+      wrap.insertBefore(carte, wrap.firstChild);
+      const nom=carte.querySelector('.cc-name');
+      if(nom && nom.textContent.indexOf('⭐')!==0) nom.textContent='⭐ '+nom.textContent;
+    });
+    return r;
+  };
+})();
+</script>
+<script>
+/* ══════════════ MODÉRATION DU GROUPE ══════════════
+   Quand il y a un problème dans un groupe, l'admin peut :
+   • fermer le groupe pour 1 h, 24 h, 7 jours ou jusqu'à réouverture (seuls les admins écrivent),
+     puis le rouvrir ;
+   • suspendre un membre 24 h ou 7 jours (il lit mais n'écrit plus), puis lever la suspension.
+   La fin arrive toute seule à la date prévue. Les règles Firestore font respecter tout ça. */
+const FIN_SANS_LIMITE=new Date('9999-01-01T00:00:00Z');
+function msTs(v){ return v && v.toDate ? v.toDate().getTime() : (v ? new Date(v).getTime() : 0); }
+function texteFin(ms){
+  if(ms>=FIN_SANS_LIMITE.getTime()-86400000) return 'jusqu’à réouverture';
+  const d=new Date(ms);
+  return 'jusqu’au '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+function etatModerationGroupe(){
+  const g=currentGroupData||{}, maintenant=Date.now(), admin=jeSuisAdmin();
+  const verrou=msTs(g.verrouJusqua), ferme=verrou>maintenant;
+  const susp=msTs((g.suspendus||{})[currentUid]), suspendu=susp>maintenant;
+  if(!admin && suspendu) return { bloque:true, texte:'🤐 Un admin vous a suspendu(e) de ce groupe '+texteFin(susp).replace('jusqu’à réouverture','jusqu’à nouvel ordre')+'. Vous pouvez lire les messages.' };
+  if(!admin && ferme) return { bloque:true, texte:'🔒 Groupe fermé par un admin '+texteFin(verrou)+' : seuls les admins écrivent.' };
+  if(!admin && g.seulsAdminsEcrivent===true) return { bloque:true, texte:'🔒 Seuls les admins peuvent envoyer des messages dans ce groupe' };
+  return { bloque:false, ferme:ferme, verrou:verrou };
+}
+setInterval(function(){ if(currentEstGroupe) appliquerRestrictionEcriture(); }, 30000);
+
+/* Petite feuille de choix (même style que les options ⋮). */
+function feuilleChoix(titre, items){
+  let fond=document.getElementById('optFond');
+  if(!fond){ fond=document.createElement('div'); fond.id='optFond'; fond.className='opt-fond'; fond.onclick=function(e){ if(e.target===fond) fermerOptionsChat(); }; document.body.appendChild(fond); }
+  window._choixActions=items.map(function(i){ return i.action; });
+  fond.innerHTML='<div class="opt-feuille"><div class="opt-titre">'+escapeHtml(titre)+'</div>'
+    +items.map(function(i,k){ return '<div class="opt-item'+(i.cls?' '+i.cls:'')+'" onclick="fermerOptionsChat();window._choixActions['+k+']()"><span class="opt-ico">'+i.ico+'</span><span>'+escapeHtml(i.txt)+(i.sous?'<small>'+escapeHtml(i.sous)+'</small>':'')+'</span></div>'; }).join('')
+    +'<div class="opt-item" onclick="fermerOptionsChat()" style="color:#888;justify-content:center">Annuler</div></div>';
+  fond.classList.add('show');
+  if(viewStack.lastIndexOf('options')===-1) pushView('options');
+}
+function finDans(heures){ return heures ? new Date(Date.now()+heures*3600000) : FIN_SANS_LIMITE; }
+
+window.fermerGroupe=function(){
+  if(!jeSuisAdmin()) return;
+  const f=function(h, lib){ return function(){
+    majGroupe({ verrouJusqua: firebase.firestore.Timestamp.fromDate(finDans(h)) }, 'a fermé le groupe '+lib+' : seuls les admins écrivent', '🔒 Groupe fermé '+lib);
+  }; };
+  feuilleChoix('Fermer le groupe', [
+    { ico:'⏱️', txt:'Pendant 1 heure', action:f(1,'pendant 1 heure') },
+    { ico:'🌙', txt:'Pendant 24 heures', action:f(24,'pendant 24 heures') },
+    { ico:'📅', txt:'Pendant 7 jours', action:f(24*7,'pendant 7 jours') },
+    { ico:'🔒', txt:'Jusqu’à ce que je le rouvre', cls:'rouge', action:f(0,'jusqu’à nouvel ordre') }
+  ]);
+};
+window.rouvrirGroupe=function(){
+  if(!jeSuisAdmin()) return;
+  majGroupe({ verrouJusqua: firebase.firestore.FieldValue.delete() }, 'a rouvert le groupe : tout le monde peut écrire', '🔓 Groupe rouvert');
+};
+window.suspendreMembre=function(uid, heures){
+  if(!jeSuisAdmin() || !uid || uid===currentUid) return;
+  const nom=nomDeUid(uid), lib = heures>=24*7 ? '7 jours' : '24 heures';
+  const champ={}; champ['suspendus.'+uid]=firebase.firestore.Timestamp.fromDate(finDans(heures));
+  majGroupe(champ, 'a suspendu '+nom+' pendant '+lib, '🤐 '+nom+' suspendu(e) '+lib);
+};
+window.leverSuspension=function(uid){
+  if(!jeSuisAdmin() || !uid) return;
+  const champ={}; champ['suspendus.'+uid]=firebase.firestore.FieldValue.delete();
+  majGroupe(champ, 'a levé la suspension de '+nomDeUid(uid), '🔊 Suspension levée');
+};
+
+// Menu d'un membre : suspendre / lever la suspension (admin).
+(function(){
+  const o=window.ouvrirMenuMembre; if(typeof o!=='function') return;
+  const enveloppe=function(uid){
+    const r=o.apply(this, arguments);
+    if(!jeSuisAdmin() || uid===currentUid) return r;
+    const menu=document.getElementById('gmMenu'); if(!menu) return r;
+    const annuler=Array.from(menu.querySelectorAll('.ctx-item')).pop();
+    const susp=msTs(((currentGroupData||{}).suspendus||{})[uid])>Date.now();
+    const div=document.createElement('div');
+    div.innerHTML = susp
+      ? '<div class="ctx-item" onclick="fermerMenuMembre();leverSuspension(\''+uid+'\')">🔊 Lever la suspension</div>'
+      : '<div class="ctx-item" onclick="fermerMenuMembre();suspendreMembre(\''+uid+'\',24)">🤐 Suspendre 24 heures</div>'
+        +'<div class="ctx-item" onclick="fermerMenuMembre();suspendreMembre(\''+uid+'\',168)">🤐 Suspendre 7 jours</div>';
+    while(div.firstChild) menu.insertBefore(div.firstChild, annuler);
+    return r;
+  };
+  enveloppe.__retour=o.__retour;
+  window.ouvrirMenuMembre=enveloppe;
+})();
+
+// Réglages : section « Modération » (appelée par renderParametresGroupe pour l'admin).
+function htmlModeration(){
+  const e=etatModerationGroupe();
+  const g=currentGroupData||{};
+  const nbSusp=Object.keys(g.suspendus||{}).filter(function(u){ return msTs(g.suspendus[u])>Date.now(); }).length;
+  return '<div class="gi-note" style="margin-top:6px;font-weight:800;color:#555">Modération</div>'
+    +(e.ferme
+      ? '<div class="gi-param" onclick="rouvrirGroupe()"><span class="gi-param-ico">🔓</span><span class="gi-param-txt">Rouvrir le groupe<span class="gi-param-sous">Fermé '+escAttr(texteFin(e.verrou))+'</span></span></div>'
+      : '<div class="gi-param" onclick="fermerGroupe()"><span class="gi-param-ico">🔒</span><span class="gi-param-txt">Fermer le groupe un moment<span class="gi-param-sous">En cas de problème : seuls les admins écrivent (1 h, 24 h, 7 jours…)</span></span></div>')
+    +'<div class="gi-param" onclick="ongletGroupe=\'membres\';renderInfosGroupe()"><span class="gi-param-ico">🤐</span><span class="gi-param-txt">Suspendre un membre<span class="gi-param-sous">'+(nbSusp?nbSusp+' membre(s) suspendu(s) · ':'')+'Dans « Membres », touchez la personne</span></span></div>';
+}
+</script>
 <script src="appels.js"></script>
 <!-- Appels audio/vidéo de GROUPE (jusqu'à 50 personnes, Cloudflare Realtime SFU) -->
 <script src="appels-groupe.js"></script>
