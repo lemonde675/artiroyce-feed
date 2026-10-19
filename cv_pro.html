@@ -908,6 +908,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="translations.js?v=20250705c"></script>
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 <script src="filigrane.js"></script>
 <script src="notifications.js"></script>
@@ -1260,7 +1261,7 @@ async function chargerListe(){
   const aPurger = listeToutes.filter(c => c.corbeille && estAMoi(c) && c.corbeilleDepuis &&
     (maintenant - new Date(c.corbeilleDepuis).getTime()) > QUINZE_JOURS_MS);
   for (const c of aPurger) {
-    try { await deleteDoc(doc(db, 'cv_professionnels', c.id)); } catch (err) { console.error(err); }
+    try { const r = doc(db, 'cv_professionnels', c.id); await (window.ArArchive ? ArArchive.supprimer(r, { type: 'cv', raison: 'corbeille_15_jours' }) : r.delete()); } catch (err) { console.error(err); }
   }
   if (aPurger.length) {
     const idsAPurger = new Set(aPurger.map(c => c.id));
@@ -1531,7 +1532,8 @@ async function restaurerCV(cvId){
 async function supprimerDefinitivement(cvId){
   if (!confirm(T('cv_confirm_suppr_def'))) return;
   try {
-    await deleteDoc(doc(db, 'cv_professionnels', cvId));
+    const refCv = doc(db, 'cv_professionnels', cvId);
+    await (window.ArArchive ? ArArchive.supprimer(refCv, { type: 'cv' }) : refCv.delete());
     chargerListe();
   } catch (err) { console.error(err); }
 }
