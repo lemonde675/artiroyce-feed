@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+<meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Assistance – ArtiRoyce</title>
+<script>
+  // Traduction (translations-app.js). Sans ce fichier : le français reste.
+  function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
+</script>
+<!--
+  ArtiRoyce — assistance.html
+  Le 💬 de l'Accueil ouvre cette page : discussion directe entre la personne
+  et l'administration d'ArtiRoyce.
+  • Une personne : elle voit SA discussion avec « Assistance ArtiRoyce ».
+  • L'administrateur : il voit la liste de toutes les demandes, puis répond.
+  Données (Firestore) :
+    assistance/{uid}                 fiche de la discussion (dernier message, non lus…)
+    assistance/{uid}/messages/{id}   les messages
+    assistance_meta/admin            « l'administration est en ligne » (enLigneLe)
+  Notifications (cloche 🔔, notifications.js) :
+    personne → admin : utilisateurs/{admin}/notifications/assistance_{uid}
+    admin → personne : utilisateurs/{uid}/notifications/assistance_reponse
+-->
+<style>
+  :root{ --red:#e63224; --green:#27a945; --rose:#ec4899; --navy:#1a1a2e; }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body{ height:100%; overflow:hidden; }
+  body{ font-family:'Segoe UI', Arial, sans-serif; background:#f2f3f5; color:#111; width:100%; max-width:480px; margin:0 auto; }
+  .vue{ display:none; flex-direction:column; height:100%; height:100dvh; width:100%; }
+  .vue.active{ display:flex; }
+
+  /* Rond de chargement rose, bien centré */
+  .charge{ position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:#f2f3f5; z-index:50; }
+  .spin{ width:44px; height:44px; border-radius:50%; border:4px solid #fde4ef; border-top-color:var(--rose); animation:tourne .8s linear infinite; }
+  @keyframes tourne{ to{ transform:rotate(360deg); } }
+  .charge p{ font-size:13px; color:#888; font-weight:600; }
+
+  /* En-tête */
+  .hdr{ display:flex; align-items:center; gap:10px; padding:10px 12px; background:#fff; border-bottom:1px solid #eee; flex-shrink:0; }
+  .retour{ font-size:28px; line-height:1; cursor:pointer; color:#333; background:none; border:none; padding:0 4px; flex-shrink:0; }
+  .av-w{ position:relative; flex-shrink:0; cursor:pointer; }
+  .av{ width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800; overflow:hidden; background:linear-gradient(135deg,var(--red),var(--green)); }
+  .av img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .av.logo{ background:#fff; border:2px solid #f0f0f0; }
+  .point{ position:absolute; bottom:1px; right:1px; width:12px; height:12px; border-radius:50%; background:var(--green); border:2px solid #fff; display:none; }
+  .point.on{ display:block; }
+  .h-info{ flex:1; min-width:0; }
+  .h-nom{ font-size:15px; font-weight:800; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .h-nom .a{ color:var(--red); } .h-nom .r{ color:var(--green); }
+  .h-st{ font-size:11.5px; font-weight:700; color:#aaa; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .h-st.on{ color:var(--green); }
+  .h-st.ecrit{ color:var(--rose); }
+
+  /* Messages */
+  .zone{ flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:12px 10px 16px; display:flex; flex-direction:column; gap:6px; background:#f7f1ea; }
+  .jour{ align-self:center; font-size:11px; color:#777; background:rgba(255,255,255,.9); padding:3px 12px; border-radius:99px; font-weight:600; margin:6px 0; }
+  .sys{ align-self:center; max-width:88%; text-align:center; font-size:12px; line-height:1.45; color:#7a4f00; background:#fff4e0; border-radius:14px; padding:8px 12px; margin:4px 0; }
+  .ligne{ display:flex; }
+  .ligne.moi{ justify-content:flex-end; }
+  .bulle{ max-width:78%; padding:9px 12px 6px; border-radius:18px; font-size:14px; line-height:1.45; word-break:break-word; white-space:pre-wrap; }
+  .ligne.lui .bulle{ background:#fff; color:#111; border-bottom-left-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .ligne.moi .bulle{ background:var(--red); color:#fff; border-bottom-right-radius:5px; box-shadow:0 2px 6px rgba(230,50,36,.22); }
+  .ligne.accueil .bulle{ background:#fff; border:1.5px solid #fde4ef; }
+  .bulle img{ display:block; max-width:100%; max-height:300px; border-radius:12px; margin:2px 0 4px; cursor:pointer; }
+  .pied{ display:flex; justify-content:flex-end; align-items:center; gap:4px; margin-top:3px; font-size:10px; color:rgba(0,0,0,.35); white-space:nowrap; }
+  .ligne.moi .pied{ color:rgba(255,255,255,.7); }
+  .coche{ font-weight:900; letter-spacing:-3px; padding-right:3px; }
+  .coche.lu{ color:#9fd0ff; }
+
+  /* Barre d'écriture */
+  .barre{ display:flex; align-items:flex-end; gap:8px; padding:8px 10px calc(8px + env(safe-area-inset-bottom)); background:#fff; border-top:1px solid #eee; flex-shrink:0; }
+  .barre textarea{ flex:1; min-width:0; resize:none; border:1.5px solid #e4e6eb; border-radius:22px; padding:10px 14px; font-size:15px; font-family:inherit; line-height:1.35; max-height:120px; outline:none; background:#fafafa; }
+  .barre textarea:focus{ border-color:var(--rose); background:#fff; }
+  .rond{ width:44px; height:44px; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:19px; }
+  .rond.photo{ background:#fde4ef; }
+  .rond.envoyer{ background:var(--green); color:#fff; box-shadow:0 2px 8px rgba(39,169,69,.3); }
+  .rond:disabled{ opacity:.5; }
+
+  /* Liste (administrateur) */
+  .recherche{ padding:8px 12px; background:#fff; border-bottom:1px solid #eee; flex-shrink:0; }
+  .recherche input{ width:100%; border:1.5px solid #e4e6eb; border-radius:20px; padding:9px 14px; font-size:14px; outline:none; font-family:inherit; }
+  .liste{ flex:1; min-height:0; overflow-y:auto; padding:10px 12px 30px; }
+  .conv{ display:flex; align-items:center; gap:12px; background:#fff; border-radius:18px; padding:12px 14px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,.05); cursor:pointer; }
+  .conv.nonlu{ background:#fff5f4; box-shadow:0 0 0 1.5px #ffd6d2 inset; }
+  .conv .av{ width:48px; height:48px; }
+  .c-txt{ flex:1; min-width:0; }
+  .c-nom{ font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .c-der{ font-size:13px; color:#666; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .c-droite{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+  .c-h{ font-size:11px; color:#aaa; }
+  .c-nb{ min-width:20px; height:20px; border-radius:10px; background:var(--red); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; padding:0 6px; }
+  .vide{ text-align:center; color:#999; font-size:14px; padding:60px 20px; line-height:1.5; }
+  .vide b{ display:block; font-size:40px; margin-bottom:10px; }
+
+  /* Pas connecté */
+  .centre{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:30px; text-align:center; }
+  .centre p{ font-size:15px; color:#555; line-height:1.5; }
+  .btn{ border:none; border-radius:22px; padding:12px 26px; font-size:14px; font-weight:800; cursor:pointer; background:var(--red); color:#fff; font-family:inherit; text-decoration:none; }
+
+  /* Photo en grand */
+  .grand{ position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:90; display:none; align-items:center; justify-content:center; }
+  .grand.ouvert{ display:flex; }
+  .grand img{ max-width:96%; max-height:90%; border-radius:8px; }
+  .grand button{ position:absolute; top:14px; right:14px; width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.15); color:#fff; font-size:20px; cursor:pointer; }
+
+  .toast{ position:fixed; bottom:84px; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:9px 18px; border-radius:20px; font-size:13px; z-index:99; display:none; max-width:90%; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="charge" id="charge"><div class="spin"></div><p data-tr="Chargement…">Chargement…</p></div>
+
+<!-- Pas connecté -->
+<div class="vue" id="vueConnexion">
+  <div class="hdr">
+    <button class="retour" onclick="fermerPage()">‹</button>
+    <div class="h-info"><div class="h-nom">🎧 <span data-tr="Assistance ArtiRoyce">Assistance ArtiRoyce</span></div></div>
+  </div>
+  <div class="centre">
+    <div style="font-size:48px">🎧</div>
+    <p data-tr="Connectez-vous pour écrire à l’assistance.">Connectez-vous pour écrire à l’assistance.</p>
+    <a class="btn" href="connexion.html" target="_top" data-tr="Se connecter">Se connecter</a>
+  </div>
+</div>
+
+<!-- Liste des demandes (administrateur seulement) -->
+<div class="vue" id="vueListe">
+  <div class="hdr">
+    <button class="retour" onclick="fermerPage()">‹</button>
+    <div class="h-info">
+      <div class="h-nom">🎧 Assistance — demandes reçues</div>
+      <div class="h-st on" id="listeInfo">Vous êtes en ligne</div>
+    </div>
+  </div>
+  <div class="recherche"><input type="text" id="filtre" placeholder="Rechercher un nom…" oninput="rendreListe()"></div>
+  <div class="liste" id="liste"></div>
+</div>
+
+<!-- Discussion -->
+<div class="vue" id="vueChat">
+  <div class="hdr">
+    <button class="retour" onclick="retourChat()">‹</button>
+    <div class="av-w" onclick="voirProfil()">
+      <div class="av" id="chatAv"></div>
+      <span class="point" id="chatPoint"></span>
+    </div>
+    <div class="h-info">
+      <div class="h-nom" id="chatNom"></div>
+      <div class="h-st" id="chatSt"></div>
+    </div>
+  </div>
+  <div class="zone" id="zone"></div>
+  <div class="barre">
+    <button class="rond photo" id="btnPhoto" onclick="document.getElementById('fichier').click()">📷</button>
+    <input type="file" id="fichier" accept="image/*" style="display:none" onchange="envoyerPhoto(this)">
+    <textarea id="saisie" rows="1" data-tr-ph="Écrire un message…" placeholder="Écrire un message…" oninput="ajusterSaisie();jEcris()"></textarea>
+    <button class="rond envoyer" id="btnEnvoyer" onclick="envoyerTexte()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="grand" id="grand" onclick="this.classList.remove('ouvert')"><button>✕</button><img id="grandImg" alt=""></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+const FV = firebase.firestore.FieldValue;
+
+// Identifiant (UID) du compte administrateur — le même que dans les règles Firestore.
+const ADMIN_UID = "JyUlOcQjf4Scaf43faUuj2zx6Gi1";
+const EN_LIGNE_MS = 120000;   // l'admin est « en ligne » s'il a donné signe de vie il y a moins de 2 min
+const LOGO = '<svg width="30" height="21" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg"><path fill="#e02010" fill-rule="evenodd" d="M 90,55 L 68,17 L 24,17 L 2,55 L 24,93 L 68,93 Z M 71,55 L 59,34 L 33,34 L 21,55 L 33,76 L 59,76 Z"/><path fill="#27a945" fill-rule="evenodd" d="M 142,55 L 120,17 L 76,17 L 54,55 L 76,93 L 120,93 Z M 123,55 L 111,34 L 87,34 L 75,55 L 87,76 L 111,76 Z"/><polygon points="68,17 90,55 75,55 87,34" fill="white"/><path fill="#e02010" d="M 68,17 L 90,55 L 71,55 L 59,34 Z"/><polygon points="76,93 54,55 75,55 87,76" fill="white"/><path fill="#27a945" d="M 76,93 L 54,55 L 75,55 L 87,76 Z"/></svg>';
+
+let moi = null;            // { uid, nom, photo, email }
+let estAdmin = false;
+let convUid = null;        // la discussion ouverte = uid de la personne
+let convData = {};         // fiche assistance/{convUid}
+let messages = [];
+let stopMsgs = null, stopConv = null, stopListe = null, stopPresence = null;
+let adminVuLe = 0;         // dernière activité de l'admin (ms), pour « En ligne »
+let autreEcritA = 0;       // heure locale où l'autre a commencé à écrire
+let noteHorsLigne = false; // message « l'administration n'est pas en ligne » déjà affiché
+let conversations = [];
+let ouvertDepuisListe = false;
+
+/* ───────── Petits outils ───────── */
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(el._m); el._m = setTimeout(() => el.style.display = 'none', 2800); }
+function ms(ts){ return ts && ts.toMillis ? ts.toMillis() : (ts ? +new Date(ts) : 0); }
+function heure(t){ return new Date(t).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
+function libJour(t){
+  const d = new Date(t), a = new Date(); a.setHours(0,0,0,0);
+  const j = new Date(d); j.setHours(0,0,0,0);
+  const diff = Math.round((a - j) / 86400000);
+  if (diff === 0) return TR('Aujourd’hui');
+  if (diff === 1) return TR('Hier');
+  return d.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year: d.getFullYear() === a.getFullYear() ? undefined : 'numeric' });
+}
+function depuis(t){
+  if (!t) return '';
+  const s = (Date.now() - t) / 1000;
+  if (s < 86400 && new Date(t).getDate() === new Date().getDate()) return heure(t);
+  if (s < 2 * 86400) return TR('Hier');
+  return new Date(t).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+}
+function montrer(id){
+  document.querySelectorAll('.vue').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('charge').style.display = 'none';
+}
+function avatarHTML(nom, photo){
+  if (photo) return '<img src="' + esc(photo) + '" alt="">';
+  return esc(((nom || '?').trim()[0] || '?').toUpperCase());
+}
+// Réduit une photo (profil : 80 px ; message : 1280 px) en JPEG léger.
+function reduire(src, cote, qualite){
+  return new Promise(resolve => {
+    if (!src) return resolve('');
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        if (cote === 80) {
+          const r = Math.max(80 / img.width, 80 / img.height);
+          c.width = 80; c.height = 80;
+          c.getContext('2d').drawImage(img, (80 - img.width * r) / 2, (80 - img.height * r) / 2, img.width * r, img.height * r);
+        } else {
+          const r = Math.min(1, cote / Math.max(img.width, img.height));
+          c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+          const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+        }
+        resolve(c.toDataURL('image/jpeg', qualite || 0.7));
+      } catch (e) { resolve(''); }
+    };
+    img.onerror = () => resolve('');
+    img.src = src;
+  });
+}
+
+/* ───────── Fermer / revenir ───────── */
+function dansAccueil(){ try { return window.parent && window.parent !== window; } catch (e) { return false; } }
+window.fermerPage = function(){
+  if (dansAccueil()) { window.parent.postMessage({ type:'fermerAssistance' }, '*'); return; }
+  if (document.referrer && document.referrer.indexOf(location.host) !== -1) history.back();
+  else location.href = estAdmin ? 'admin-wen-2024.html' : 'accueil.html';
+};
+window.retourChat = function(){
+  if (estAdmin && ouvertDepuisListe) { fermerChat(); montrer('vueListe'); return; }
+  fermerPage();
+};
+window.voirProfil = function(){
+  if (!estAdmin || !convUid) return;
+  if (dansAccueil()) window.parent.postMessage({ type:'profilDepuisAssistance', uid: convUid }, '*');
+};
+
+/* ───────── Démarrage ───────── */
+auth.onAuthStateChanged(async user => {
+  if (!user) { montrer('vueConnexion'); return; }
+  estAdmin = user.uid === ADMIN_UID;
+  let nom = '', photo = '', email = user.email || '';
+  try {
+    const s = await db.collection('utilisateurs').doc(user.uid).get();
+    const d = s.data() || {};
+    nom = (d.pseudo || ((d.prenom || '') + ' ' + (d.nom || '')).trim());
+    email = d.email || email;
+    photo = await reduire(d.photoAvatar || '', 80, 0.7);
+  } catch (e) {}
+  moi = { uid: user.uid, nom: nom || (email ? email.split('@')[0] : 'Utilisateur'), photo, email };
+
+  if (estAdmin) {
+    signeDeVie(); setInterval(signeDeVie, 45000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) signeDeVie(); });
+    ecouterListe();
+    const p = new URLSearchParams(location.search).get('uid');
+    if (p) { ouvertDepuisListe = true; ouvrirChat(p); }
+    else montrer('vueListe');
+  } else {
+    ecouterPresenceAdmin();
+    ouvrirChat(user.uid);
+  }
+});
+
+/* ───────── Présence de l'administration ───────── */
+function signeDeVie(){
+  if (!estAdmin || document.hidden) return;
+  db.collection('assistance_meta').doc('admin').set({ enLigneLe: FV.serverTimestamp() }, { merge:true }).catch(() => {});
+}
+function ecouterPresenceAdmin(){
+  stopPresence = db.collection('assistance_meta').doc('admin').onSnapshot(s => {
+    adminVuLe = s.exists ? ms(s.data().enLigneLe) : 0;
+    majStatut();
+  }, () => {});
+  setInterval(majStatut, 20000);
+}
+function adminEnLigne(){ return adminVuLe && (Date.now() - adminVuLe) < EN_LIGNE_MS; }
+
+/* ───────── Liste des demandes (admin) ───────── */
+function ecouterListe(){
+  stopListe = db.collection('assistance').orderBy('majLe', 'desc').limit(300).onSnapshot(snap => {
+    conversations = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    rendreListe();
+  }, err => {
+    document.getElementById('liste').innerHTML = '<div class="vide"><b>🔒</b>' + (err.code === 'permission-denied'
+      ? 'Les nouvelles règles Firestore (assistance) ne sont pas encore publiées.'
+      : 'Chargement impossible : ' + esc(err.message)) + '</div>';
+  });
+}
+window.rendreListe = function(){
+  const f = document.getElementById('filtre').value.trim().toLowerCase();
+  const vue = conversations.filter(c => !f || (c.nom || '').toLowerCase().includes(f) || (c.email || '').toLowerCase().includes(f));
+  const nb = conversations.filter(c => (c.nonLuAdmin || 0) > 0).length;
+  document.getElementById('listeInfo').textContent = 'Vous êtes en ligne · ' + (nb ? nb + ' demande(s) non lue(s)' : 'tout est lu');
+  const el = document.getElementById('liste');
+  if (!vue.length) { el.innerHTML = '<div class="vide"><b>🎧</b>' + (conversations.length ? 'Aucun résultat.' : 'Aucune demande pour le moment.') + '</div>'; return; }
+  el.innerHTML = vue.map(c => {
+    const n = c.nonLuAdmin || 0;
+    const der = (c.dernierPar === 'admin' ? 'Vous : ' : '') + (c.dernierMessage || '');
+    return '<div class="conv' + (n ? ' nonlu' : '') + '" onclick="ouvrirDepuisListe(\'' + esc(c.id) + '\')">'
+      + '<div class="av">' + avatarHTML(c.nom, c.photo) + '</div>'
+      + '<div class="c-txt"><div class="c-nom">' + esc(c.nom || 'Utilisateur') + '</div><div class="c-der">' + esc(der) + '</div></div>'
+      + '<div class="c-droite"><span class="c-h">' + depuis(ms(c.majLe)) + '</span>' + (n ? '<span class="c-nb">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</div>'
+      + '</div>';
+  }).join('');
+};
+window.ouvrirDepuisListe = function(uid){ ouvertDepuisListe = true; ouvrirChat(uid); };
+
+/* ───────── Une discussion ───────── */
+function fermerChat(){
+  if (stopMsgs) { stopMsgs(); stopMsgs = null; }
+  if (stopConv) { stopConv(); stopConv = null; }
+  convUid = null; convData = {}; messages = [];
+}
+function ouvrirChat(uid){
+  fermerChat();
+  convUid = uid; noteHorsLigne = false; autreEcritA = 0;
+  document.getElementById('zone').innerHTML = '';
+  document.getElementById('saisie').value = '';
+  if (estAdmin) {
+    const c = conversations.find(x => x.id === uid) || {};
+    afficherEntete(c.nom || 'Utilisateur', c.photo || '');
+  } else {
+    afficherEntete(null);
+  }
+  montrer('vueChat');
+
+  const ref = db.collection('assistance').doc(uid);
+  stopConv = ref.onSnapshot(s => {
+    const avant = convData;
+    convData = s.exists ? s.data() : {};
+    if (estAdmin) afficherEntete(convData.nom || 'Utilisateur', convData.photo || '');
+    // L'autre est en train d'écrire ?
+    const champ = estAdmin ? 'ecritUserLe' : 'ecritAdminLe';
+    if (convData[champ] && ms(convData[champ]) !== ms(avant[champ])) { autreEcritA = Date.now(); setTimeout(majStatut, 6500); }
+    marquerVu();
+    majStatut();
+    rendreMessages();
+  }, () => {});
+  stopMsgs = ref.collection('messages').orderBy('createdAt', 'asc').limitToLast(300).onSnapshot({ includeMetadataChanges:true }, snap => {
+    messages = snap.docs.map(d => Object.assign({ id: d.id, _attente: d.metadata.hasPendingWrites }, d.data({ serverTimestamps:'estimate' })));
+    autreEcritA = 0;
+    rendreMessages();
+    majStatut();
+    marquerVu();
+  }, err => {
+    if (err.code === 'permission-denied') document.getElementById('zone').innerHTML = '<div class="sys">🔒 Les nouvelles règles Firestore (assistance) ne sont pas encore publiées.</div>';
+  });
+}
+function afficherEntete(nom, photo){
+  const av = document.getElementById('chatAv');
+  if (nom === null) {   // côté personne : l'assistance ArtiRoyce
+    av.className = 'av logo'; av.innerHTML = LOGO;
+    document.getElementById('chatNom').innerHTML = '🎧 <span class="a">Arti</span><span class="r">Royce</span> · ' + esc(TR('Assistance'));
+  } else {
+    av.className = 'av'; av.innerHTML = avatarHTML(nom, photo);
+    document.getElementById('chatNom').textContent = nom;
+  }
+}
+function majStatut(){
+  const st = document.getElementById('chatSt'), pt = document.getElementById('chatPoint');
+  if (!st) return;
+  if (autreEcritA && Date.now() - autreEcritA < 6000) { st.className = 'h-st ecrit'; st.textContent = TR('écrit…'); return; }
+  if (estAdmin) {
+    st.className = 'h-st'; st.textContent = convData.email || '';
+    pt.classList.remove('on');
+  } else {
+    const on = adminEnLigne();
+    st.className = 'h-st' + (on ? ' on' : '');
+    st.textContent = on ? TR('En ligne') : TR('Hors ligne — nous vous répondrons vite');
+    pt.classList.toggle('on', !!on);
+  }
+}
+// La discussion est affichée : les messages de l'autre sont « vus ».
+function marquerVu(){
+  if (!convUid || document.hidden || !document.getElementById('vueChat').classList.contains('active')) return;
+  const champNb = estAdmin ? 'nonLuAdmin' : 'nonLuUser';
+  if ((convData[champNb] || 0) > 0) {
+    const maj = {}; maj[champNb] = 0; maj[estAdmin ? 'vuParAdminLe' : 'vuParUserLe'] = FV.serverTimestamp();
+    db.collection('assistance').doc(convUid).update(maj).catch(() => {});
+  }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) marquerVu(); });
+
+function rendreMessages(){
+  const zone = document.getElementById('zone');
+  const enBas = zone.scrollHeight - zone.scrollTop - zone.clientHeight < 80;
+  const vuParAutre = ms(estAdmin ? convData.vuParUserLe : convData.vuParAdminLe);
+  let html = '', jourPrec = '';
+  if (!estAdmin) {
+    html += '<div class="ligne lui accueil"><div class="bulle">' + esc(TR('Bonjour 👋 Bienvenue à l’assistance ArtiRoyce. Écrivez votre question ou votre problème ci-dessous : nous vous répondons ici.')) + '</div></div>';
+  }
+  messages.forEach(m => {
+    const t = ms(m.createdAt) || Date.now();
+    const j = new Date(t).toDateString();
+    if (j !== jourPrec) { html += '<div class="jour">' + esc(libJour(t)) + '</div>'; jourPrec = j; }
+    const deMoi = m.de === moi.uid;
+    let coche = '';
+    if (deMoi) {
+      if (m._attente) coche = '<span class="coche">🕓</span>';
+      else coche = '<span class="coche' + (vuParAutre >= t ? ' lu' : '') + '">✓✓</span>';
+    }
+    html += '<div class="ligne ' + (deMoi ? 'moi' : 'lui') + '"><div class="bulle">'
+      + (m.photo ? '<img src="' + esc(m.photo) + '" alt="" onclick="voirGrand(this.src)">' : '')
+      + (m.texte ? esc(m.texte) : '')
+      + '<div class="pied">' + heure(t) + coche + '</div></div></div>';
+  });
+  if (!estAdmin && noteHorsLigne) {
+    html += '<div class="sys">' + esc(TR('L’administration n’est pas en ligne pour le moment. Votre message est bien arrivé : vous recevrez une notification 🔔 dès la réponse.')) + '</div>';
+  }
+  zone.innerHTML = html;
+  if (enBas || rendreMessages._premier !== convUid) { zone.scrollTop = zone.scrollHeight; rendreMessages._premier = convUid; }
+}
+window.voirGrand = function(src){ document.getElementById('grandImg').src = src; document.getElementById('grand').classList.add('ouvert'); };
+
+/* ───────── Écrire / envoyer ───────── */
+window.ajusterSaisie = function(){
+  const t = document.getElementById('saisie');
+  t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px';
+};
+let dernierEcris = 0;
+window.jEcris = function(){
+  if (!convUid || Date.now() - dernierEcris < 4000) return;
+  if (!estAdmin && !messages.length) return;    // pas encore de discussion créée
+  dernierEcris = Date.now();
+  const maj = {}; maj[estAdmin ? 'ecritAdminLe' : 'ecritUserLe'] = FV.serverTimestamp();
+  db.collection('assistance').doc(convUid).set(maj, { merge:true }).catch(() => {});
+};
+document.getElementById('saisie').addEventListener('keydown', e => {
+  // Ordinateur : Entrée envoie, Maj + Entrée va à la ligne. Téléphone : Entrée va à la ligne.
+  if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); envoyerTexte(); }
+});
+
+window.envoyerTexte = function(){
+  const t = document.getElementById('saisie');
+  const texte = t.value.trim();
+  if (!texte) return;
+  t.value = ''; ajusterSaisie();
+  envoyer({ texte: texte.slice(0, 4000) });
+};
+window.envoyerPhoto = async function(input){
+  const f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.onerror = () => r(''); fr.readAsDataURL(f); });
+  let photo = await reduire(url, 1280, 0.72);
+  if (photo.length > 700000) photo = await reduire(url, 960, 0.6);
+  if (!photo || photo.length > 750000) { toast(TR('Photo trop lourde.')); return; }
+  envoyer({ texte: '', photo });
+};
+
+async function envoyer(contenu){
+  if (!moi || !convUid) return;
+  const ref = db.collection('assistance').doc(convUid);
+  const msgRef = ref.collection('messages').doc();
+  const apercu = contenu.texte ? contenu.texte.slice(0, 120) : '📷 ' + TR('Photo');
+  // Affichage immédiat (🕓) en attendant le serveur.
+  messages.push({ id: msgRef.id, texte: contenu.texte, photo: contenu.photo || '', de: moi.uid, createdAt: Date.now(), _attente: true });
+  rendreMessages();
+  document.getElementById('zone').scrollTop = 1e9;
+
+  const fiche = {
+    dernierMessage: apercu,
+    dernierPar: estAdmin ? 'admin' : 'user',
+    majLe: FV.serverTimestamp()
+  };
+  if (estAdmin) { fiche.nonLuUser = FV.increment(1); fiche.ecritAdminLe = null; }
+  else {
+    fiche.uid = moi.uid; fiche.nom = moi.nom; fiche.photo = moi.photo; fiche.email = moi.email;
+    fiche.nonLuAdmin = FV.increment(1); fiche.ecritUserLe = null;
+  }
+  try {
+    const lot = db.batch();
+    lot.set(msgRef, {
+      texte: contenu.texte || '', photo: contenu.photo || '',
+      de: moi.uid, parAdmin: estAdmin, createdAt: FV.serverTimestamp()
+    });
+    lot.set(ref, fiche, { merge:true });
+    await lot.commit();
+  } catch (e) {
+    console.warn(e);
+    messages = messages.filter(m => m.id !== msgRef.id);
+    rendreMessages();
+    toast(e && e.code === 'permission-denied' ? '🔒 Règles Firestore (assistance) pas encore publiées.' : TR('Message non envoyé. Vérifiez votre connexion.'));
+    return;
+  }
+  dernierEcris = 0;
+  // Notification dans la cloche 🔔 de l'autre.
+  notifier(apercu);
+  if (!estAdmin && !adminEnLigne() && !noteHorsLigne) { noteHorsLigne = true; rendreMessages(); }
+}
+
+function notifier(extrait){
+  const base = { page:'assistance', cibleId: convUid, extrait: String(extrait || '').slice(0, 120), lu:false, createdAt: FV.serverTimestamp() };
+  let ref, data;
+  if (estAdmin) {
+    ref = db.collection('utilisateurs').doc(convUid).collection('notifications').doc('assistance_reponse');
+    data = Object.assign({ type:'assistance_reponse', auteurUid: moi.uid, auteurNom:'Assistance ArtiRoyce', auteurPhoto:'' }, base);
+  } else {
+    ref = db.collection('utilisateurs').doc(ADMIN_UID).collection('notifications').doc('assistance_' + moi.uid);
+    data = Object.assign({ type:'assistance', auteurUid: moi.uid, auteurNom: moi.nom, auteurPhoto: moi.photo }, base);
+  }
+  ref.set(data).catch(e => console.warn('Notification non envoyée :', e));
+}
+</script>
+<script src="translations-app.js"></script>
+</body>
+</html>
