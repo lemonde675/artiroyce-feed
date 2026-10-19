@@ -94,6 +94,8 @@
   .conv{ display:flex; align-items:center; gap:12px; background:#fff; border-radius:18px; padding:12px 14px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,.05); cursor:pointer; }
   .conv.nonlu{ background:#fff5f4; box-shadow:0 0 0 1.5px #ffd6d2 inset; }
   .conv .av{ width:48px; height:48px; }
+  .conv .av-w{ cursor:pointer; }
+  .conv .point{ width:13px; height:13px; }
   .c-txt{ flex:1; min-width:0; }
   .c-nom{ font-size:15px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .c-der{ font-size:13px; color:#666; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -206,6 +208,8 @@ let autreEcritA = 0;       // heure locale où l'autre a commencé à écrire
 let noteHorsLigne = false; // message « l'administration n'est pas en ligne » déjà affiché
 let conversations = [];
 let ouvertDepuisListe = false;
+let stopPresenceChat = null, presenceChat = null;   // fiche de présence de la personne (côté admin)
+const presences = {};                               // uid -> { enLigne, vuMs } pour la liste
 
 /* ───────── Petits outils ───────── */
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -271,7 +275,7 @@ window.fermerPage = function(){
   else location.href = 'accueil.html';
 };
 window.retourChat = function(){
-  if (estAdmin && ouvertDepuisListe) { fermerChat(); montrer('vueListe'); return; }
+  if (estAdmin && ouvertDepuisListe) { fermerChat(); montrer('vueListe'); majPresencesListe(); return; }
   fermerPage();
 };
 window.voirProfil = function(){
@@ -297,6 +301,8 @@ auth.onAuthStateChanged(async user => {
     signeDeVie(); setInterval(signeDeVie, 45000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) signeDeVie(); });
     ecouterListe();
+    minuteurPresences = setInterval(majPresencesListe, 45000);
+    setInterval(majStatut, 15000);   // « En ligne » s'éteint tout seul après 60 s sans signal
     const p = new URLSearchParams(location.search).get('uid');
     if (p) { ouvertDepuisListe = true; ouvrirChat(p); }
     else montrer('vueListe');
@@ -305,6 +311,36 @@ auth.onAuthStateChanged(async user => {
     ouvrirChat(user.uid);
   }
 });
+
+/* ───────── Présence des personnes (même règle que Répert-Discussion) ─────────
+   accueil.html écrit derniereVue / derniereActivite pendant que la personne est là,
+   et horsLigneDepuis quand elle quitte. En ligne = signal de moins de 60 s. */
+const SEUIL_EN_LIGNE_MS = 60000;
+function etatPresence(d){
+  if (!d) return { enLigne:false, vuMs:0 };
+  let sig = 0;
+  ['derniereVue','derniereActivite'].forEach(k => { const t = ms(d[k]); if (t > sig) sig = t; });
+  const hors = ms(d.horsLigneDepuis);
+  const enLigne = sig > 0 && (Date.now() - sig) < SEUIL_EN_LIGNE_MS && !(hors && hors >= sig - 1000);
+  return { enLigne, vuMs: Math.max(sig, hors) };
+}
+function texteVu(t){
+  if (!t) return '';
+  const d = new Date(t), auj = new Date(), hier = new Date(); hier.setDate(auj.getDate() - 1);
+  const h = heure(t);
+  if (d.toDateString() === auj.toDateString()) return 'Vu aujourd’hui à ' + h;
+  if (d.toDateString() === hier.toDateString()) return 'Vu hier à ' + h;
+  return 'Vu le ' + d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' à ' + h;
+}
+// Liste : on regarde qui est en ligne parmi les 30 demandes du haut (toutes les 45 s).
+let minuteurPresences = null;
+async function majPresencesListe(){
+  if (!estAdmin || document.hidden || document.getElementById('vueChat').classList.contains('active')) return;
+  const uids = conversations.slice(0, 30).map(c => c.id);
+  await Promise.all(uids.map(uid => db.collection('utilisateurs').doc(uid).get()
+    .then(s => { presences[uid] = etatPresence(s.data()); }).catch(() => {})));
+  rendreListe();
+}
 
 /* ───────── Présence de l'administration ───────── */
 function signeDeVie(){
@@ -323,8 +359,10 @@ function adminEnLigne(){ return adminVuLe && (Date.now() - adminVuLe) < EN_LIGNE
 /* ───────── Liste des demandes (admin) ───────── */
 function ecouterListe(){
   stopListe = db.collection('assistance').orderBy('majLe', 'desc').limit(300).onSnapshot(snap => {
+    const premiere = !conversations.length;
     conversations = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
     rendreListe();
+    if (premiere) majPresencesListe();
   }, err => {
     document.getElementById('liste').innerHTML = '<div class="vide"><b>🔒</b>' + (err.code === 'permission-denied'
       ? 'Les nouvelles règles Firestore (assistance) ne sont pas encore publiées.'
@@ -342,7 +380,7 @@ window.rendreListe = function(){
     const n = c.nonLuAdmin || 0;
     const der = (c.dernierPar === 'admin' ? 'Vous : ' : '') + (c.dernierMessage || '');
     return '<div class="conv' + (n ? ' nonlu' : '') + '" onclick="ouvrirDepuisListe(\'' + esc(c.id) + '\')">'
-      + '<div class="av">' + avatarHTML(c.nom, c.photo) + '</div>'
+      + '<div class="av-w"><div class="av">' + avatarHTML(c.nom, c.photo) + '</div><span class="point' + (presences[c.id] && presences[c.id].enLigne ? ' on' : '') + '"></span></div>'
       + '<div class="c-txt"><div class="c-nom">' + esc(c.nom || 'Utilisateur') + '</div><div class="c-der">' + esc(der) + '</div></div>'
       + '<div class="c-droite"><span class="c-h">' + depuis(ms(c.majLe)) + '</span>' + (n ? '<span class="c-nb">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</div>'
       + '</div>';
@@ -354,6 +392,8 @@ window.ouvrirDepuisListe = function(uid){ ouvertDepuisListe = true; ouvrirChat(u
 function fermerChat(){
   if (stopMsgs) { stopMsgs(); stopMsgs = null; }
   if (stopConv) { stopConv(); stopConv = null; }
+  if (stopPresenceChat) { stopPresenceChat(); stopPresenceChat = null; }
+  presenceChat = null;
   convUid = null; convData = {}; messages = [];
 }
 function ouvrirChat(uid){
@@ -364,6 +404,10 @@ function ouvrirChat(uid){
   if (estAdmin) {
     const c = conversations.find(x => x.id === uid) || {};
     afficherEntete(c.nom || 'Utilisateur', c.photo || '');
+    stopPresenceChat = db.collection('utilisateurs').doc(uid).onSnapshot(s => {
+      presenceChat = s.data() || null;   // données brutes : l'état est recalculé à chaque affichage
+      majStatut();
+    }, () => {});
   } else {
     afficherEntete(null);
   }
@@ -406,8 +450,15 @@ function majStatut(){
   if (!st) return;
   if (autreEcritA && Date.now() - autreEcritA < 6000) { st.className = 'h-st ecrit'; st.textContent = TR('écrit…'); return; }
   if (estAdmin) {
-    st.className = 'h-st'; st.textContent = convData.email || '';
-    pt.classList.remove('on');
+    // La personne est-elle là ? (le signal de présence vieillit : on recalcule à chaque fois)
+    const e = etatPresence(presenceChat);
+    if (presenceChat) presences[convUid] = e;
+    if (e.enLigne) { st.className = 'h-st on'; st.textContent = '● En ligne'; pt.classList.add('on'); }
+    else {
+      st.className = 'h-st';
+      st.textContent = e.vuMs ? texteVu(e.vuMs) : (convData.email || '');
+      pt.classList.remove('on');
+    }
   } else {
     const on = adminEnLigne();
     st.className = 'h-st' + (on ? ' on' : '');
