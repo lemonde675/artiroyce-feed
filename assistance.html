@@ -59,6 +59,15 @@
   .sys{ align-self:center; max-width:88%; text-align:center; font-size:12px; line-height:1.45; color:#7a4f00; background:#fff4e0; border-radius:14px; padding:8px 12px; margin:4px 0; }
   .ligne{ display:flex; }
   .ligne.moi{ justify-content:flex-end; }
+  .bmw{ position:relative; display:inline-block; max-width:78%; padding-bottom:4px; }
+  .bmw .bulle{ max-width:100%; }
+  .mini-av{ position:absolute; bottom:-2px; width:20px; height:20px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; color:#fff; font-size:8px; font-weight:800; z-index:2; background:linear-gradient(135deg,var(--red),var(--green)); border:1.5px solid #fff; }
+  .mini-av img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .mini-av.logo{ background:#fff; }
+  .mini-av.logo svg{ width:15px; height:11px; }
+  .ligne.lui .mini-av{ left:-8px; }
+  .ligne.moi .mini-av{ right:-8px; }
+  .zone{ padding-left:14px; padding-right:14px; }
   .bulle{ max-width:78%; padding:9px 12px 6px; border-radius:18px; font-size:14px; line-height:1.45; word-break:break-word; white-space:pre-wrap; }
   .ligne.lui .bulle{ background:#fff; color:#111; border-bottom-left-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
   .ligne.moi .bulle{ background:var(--red); color:#fff; border-bottom-right-radius:5px; box-shadow:0 2px 6px rgba(230,50,36,.22); }
@@ -75,7 +84,7 @@
   .barre textarea:focus{ border-color:var(--rose); background:#fff; }
   .rond{ width:44px; height:44px; border-radius:50%; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:19px; }
   .rond.photo{ background:#fde4ef; }
-  .rond.envoyer{ background:var(--green); color:#fff; box-shadow:0 2px 8px rgba(39,169,69,.3); }
+  .rond.envoyer{ background:var(--red); color:#fff; box-shadow:0 3px 10px rgba(230,50,36,.35); }
   .rond:disabled{ opacity:.5; }
 
   /* Liste (administrateur) */
@@ -157,7 +166,7 @@
     <input type="file" id="fichier" accept="image/*" style="display:none" onchange="envoyerPhoto(this)">
     <textarea id="saisie" rows="1" data-tr-ph="Écrire un message…" placeholder="Écrire un message…" oninput="ajusterSaisie();jEcris()"></textarea>
     <button class="rond envoyer" id="btnEnvoyer" onclick="envoyerTexte()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
     </button>
   </div>
 </div>
@@ -257,8 +266,9 @@ function reduire(src, cote, qualite){
 function dansAccueil(){ try { return window.parent && window.parent !== window; } catch (e) { return false; } }
 window.fermerPage = function(){
   if (dansAccueil()) { window.parent.postMessage({ type:'fermerAssistance' }, '*'); return; }
+  if (estAdmin) { location.href = 'admin-wen-2024.html'; return; }
   if (document.referrer && document.referrer.indexOf(location.host) !== -1) history.back();
-  else location.href = estAdmin ? 'admin-wen-2024.html' : 'accueil.html';
+  else location.href = 'accueil.html';
 };
 window.retourChat = function(){
   if (estAdmin && ouvertDepuisListe) { fermerChat(); montrer('vueListe'); return; }
@@ -422,7 +432,7 @@ function rendreMessages(){
   const vuParAutre = ms(estAdmin ? convData.vuParUserLe : convData.vuParAdminLe);
   let html = '', jourPrec = '';
   if (!estAdmin) {
-    html += '<div class="ligne lui accueil"><div class="bulle">' + esc(TR('Bonjour 👋 Bienvenue à l’assistance ArtiRoyce. Écrivez votre question ou votre problème ci-dessous : nous vous répondons ici.')) + '</div></div>';
+    html += '<div class="ligne lui accueil"><div class="bmw"><div class="bulle">' + esc(TR('Bonjour 👋 Bienvenue à l’assistance ArtiRoyce. Écrivez votre question ou votre problème ci-dessous : nous vous répondons ici.')) + '</div></div></div>';
   }
   messages.forEach(m => {
     const t = ms(m.createdAt) || Date.now();
@@ -434,16 +444,23 @@ function rendreMessages(){
       if (m._attente) coche = '<span class="coche">🕓</span>';
       else coche = '<span class="coche' + (vuParAutre >= t ? ' lu' : '') + '">✓✓</span>';
     }
-    html += '<div class="ligne ' + (deMoi ? 'moi' : 'lui') + '"><div class="bulle">'
+    html += '<div class="ligne ' + (deMoi ? 'moi' : 'lui') + '"><div class="bmw"><div class="bulle">'
       + (m.photo ? '<img src="' + esc(m.photo) + '" alt="" onclick="voirGrand(this.src)">' : '')
       + (m.texte ? esc(m.texte) : '')
-      + '<div class="pied">' + heure(t) + coche + '</div></div></div>';
+      + '<div class="pied">' + heure(t) + coche + '</div></div>' + miniAvatar(m) + '</div></div>';
   });
   if (!estAdmin && noteHorsLigne) {
     html += '<div class="sys">' + esc(TR('L’administration n’est pas en ligne pour le moment. Votre message est bien arrivé : vous recevrez une notification 🔔 dès la réponse.')) + '</div>';
   }
   zone.innerHTML = html;
   if (enBas || rendreMessages._premier !== convUid) { zone.scrollTop = zone.scrollHeight; rendreMessages._premier = convUid; }
+}
+// Petit rond collé au message : seulement sur les messages de la personne (photo ou initiale).
+function miniAvatar(m){
+  if (m.parAdmin || m.de === ADMIN_UID) return '';   // pas d'avatar sur les réponses de l'assistance
+  const nom = estAdmin ? (convData.nom || '') : moi.nom;
+  const photo = estAdmin ? (convData.photo || '') : moi.photo;
+  return '<div class="mini-av">' + avatarHTML(nom, photo) + '</div>';
 }
 window.voirGrand = function(src){ document.getElementById('grandImg').src = src; document.getElementById('grand').classList.add('ouvert'); };
 
