@@ -9,7 +9,11 @@
     body { min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; }
 
     /* ── LOGIN ── */
-    #loginScreen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    #attenteAdmin { position: fixed; inset: 0; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 50; }
+    #attenteAdmin .spin { width: 44px; height: 44px; border-radius: 50%; border: 4px solid #fde4ef; border-top-color: #ec4899; animation: tourneAdm .8s linear infinite; }
+    @keyframes tourneAdm { to { transform: rotate(360deg); } }
+    #attenteAdmin p { font-size: 13px; color: #888; font-weight: 600; }
+    #loginScreen { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 20px; }
     .login-card { background: #fff; border-radius: 12px; overflow: hidden; width: 100%; max-width: 360px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); }
     .top-bar, .bottom-bar { height: 10px; background: linear-gradient(to right, #e63224 30%, #7a3e15 45%, #27a945 60%); }
     .login-body { padding: 32px 28px 28px; }
@@ -193,6 +197,7 @@
 <body>
 
 <div class="toast" id="toast"></div>
+<div id="attenteAdmin"><div class="spin"></div><p>Chargement…</p></div>
 
 <!-- Image viewer -->
 <div class="img-viewer" id="imgViewer" onclick="closeViewer()">
@@ -368,16 +373,23 @@
 
   // Si déjà connecté (session Firebase persistante), on saute directement au panel
   // sans redemander le mot de passe — plus besoin d'un système de session "maison".
+  // Pendant que Firebase retrouve la connexion (quelques secondes en 4G), on montre le
+  // rond rose : avant, l'écran de connexion s'affichait à chaque retour sur cette page.
+  // Un compte qui n'est pas l'administrateur n'est plus déconnecté de force (sinon il
+  // était aussi déconnecté de l'Accueil, dans les autres onglets) : on demande juste
+  // de se connecter avec le compte administrateur.
+  let panelCharge = false;
   onAuthStateChanged(auth, (user) => {
+    document.getElementById('attenteAdmin').style.display = 'none';
     if (user && user.uid === ADMIN_UID) {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('adminPanel').style.display  = 'block';
-      loadUsers();
+      if (!panelCharge) { panelCharge = true; loadUsers(); }
       suivreAssistance();
     } else {
-      if (user) signOut(auth).catch(() => {}); // connecté mais pas administrateur : on déconnecte
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('adminPanel').style.display  = 'none';
+      if (user) document.getElementById('loginErr').textContent = 'ℹ Connectez-vous avec le compte administrateur.';
     }
   });
 
@@ -423,6 +435,7 @@
   document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key==='Enter') window.checkLogin(); });
 
   window.logout = () => {
+    panelCharge = false;
     signOut(auth).catch(() => {});
     document.getElementById('adminPanel').style.display   = 'none';
     document.getElementById('loginScreen').style.display  = 'flex';
