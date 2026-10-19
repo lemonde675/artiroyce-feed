@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+<meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archives – Administration ArtiRoyce</title>
+<style>
+  :root{ --red:#e63224; --green:#27a945; --navy:#16163a; --rose:#ec4899; --gris:#f2f4f7; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'Segoe UI', Arial, sans-serif; background:#f5f6f8; color:#1c1e21; max-width:760px; margin:0 auto; padding:0 0 60px; }
+  header{ position:sticky; top:0; z-index:20; background:#fff; border-bottom:1px solid #e8e8e8; padding:12px 16px; display:flex; align-items:center; gap:10px; }
+  .logo{ font-size:20px; font-weight:900; } .logo .a{ color:var(--red); } .logo .r{ color:var(--green); }
+  header h1{ flex:1; font-size:15px; color:#555; font-weight:700; }
+  .carte{ background:#fff; border-radius:16px; margin:14px 12px 0; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.07); }
+  .carte h2{ font-size:15px; margin-bottom:6px; color:var(--navy); }
+  .petit{ font-size:12.5px; color:#666; line-height:1.5; }
+  label{ display:block; font-size:12px; font-weight:700; color:#555; margin:12px 0 5px; }
+  input, select, textarea{ width:100%; border:1.5px solid #e4e6eb; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; outline:none; background:#fff; }
+  textarea{ min-height:70px; resize:vertical; }
+  .btn{ border:none; border-radius:22px; padding:10px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .btn.rouge{ background:var(--red); color:#fff; } .btn.gris{ background:var(--gris); color:#333; } .btn.vert{ background:var(--green); color:#fff; }
+  .btn:disabled{ opacity:.5; }
+  .barre-outils{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  .filtres{ display:flex; gap:8px; margin-top:10px; }
+  .filtres > *{ flex:1; }
+  .ligne{ display:flex; align-items:center; gap:10px; padding:12px 0; border-top:1px solid #f0f1f4; }
+  .ligne:first-child{ border-top:none; }
+  .ico{ width:40px; height:40px; border-radius:12px; background:#fde4ef; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .infos{ flex:1; min-width:0; }
+  .t1{ font-size:13.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .t2{ font-size:11.5px; color:#888; margin-top:2px; }
+  .vide, .charge{ text-align:center; color:#999; font-size:13px; padding:26px 10px; }
+  .spin{ width:40px; height:40px; border-radius:50%; border:4px solid #fde4ef; border-top-color:var(--rose); animation:t .8s linear infinite; margin:0 auto 12px; }
+  @keyframes t{ to{ transform:rotate(360deg); } }
+  .fond{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:50; align-items:flex-end; justify-content:center; }
+  .fond.ouvert{ display:flex; }
+  .feuille{ background:#fff; width:100%; max-width:760px; max-height:90vh; overflow-y:auto; border-radius:20px 20px 0 0; padding:18px 16px 30px; }
+  .feuille h3{ font-size:16px; margin-bottom:6px; }
+  .champ{ padding:8px 0; border-top:1px solid #f0f1f4; font-size:13px; word-break:break-word; }
+  .champ b{ display:block; font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
+  .champ img, .champ video{ max-width:100%; max-height:360px; border-radius:10px; margin-top:6px; display:block; }
+  pre{ background:var(--gris); border-radius:10px; padding:10px; font-size:11px; overflow:auto; max-height:260px; white-space:pre-wrap; word-break:break-all; }
+  .alerte{ background:#fff4e0; color:#8a5a00; border-radius:12px; padding:10px 12px; font-size:12.5px; margin-top:10px; line-height:1.45; }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; z-index:99; display:none; max-width:90%; text-align:center; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="admin-wen-2024.html" class="btn gris" style="text-decoration:none">← Admin</a>
+  <div class="logo"><span class="a">Arti</span><span class="r">Royce</span></div>
+  <h1>🗄️ Archives des contenus supprimés</h1>
+  <button class="btn gris" id="btnDeconnexion" style="display:none" onclick="seDeconnecter()">Quitter</button>
+</header>
+
+<!-- Connexion -->
+<div class="carte" id="zoneConnexion" style="display:none">
+  <h2>🔒 Accès réservé à l'administrateur</h2>
+  <p class="petit">Connectez-vous avec le compte administrateur.</p>
+  <label>E-mail</label><input type="email" id="email" autocomplete="username">
+  <label>Mot de passe</label><input type="password" id="motdepasse" autocomplete="current-password">
+  <div class="barre-outils"><button class="btn rouge" onclick="seConnecter()">Se connecter</button></div>
+  <p class="petit" id="erreurConnexion" style="color:var(--red);margin-top:10px"></p>
+</div>
+
+<!-- Contenu admin -->
+<div id="zoneAdmin" style="display:none">
+  <div class="carte">
+    <h2>Comment ça marche</h2>
+    <p class="petit">Quand quelqu'un supprime un message, une photo, une publication, un commentaire, un statut ou un CV, une copie cachée arrive ici. Elle s'efface automatiquement après 12 mois.</p>
+    <div class="alerte">⚖️ N'ouvrez une archive que pour une <b>demande de la justice ou de la police</b>, ou une <b>plainte grave</b>. Chaque ouverture est notée dans le journal (qui, quand, pourquoi) et ne peut pas être effacée.</div>
+    <div class="barre-outils">
+      <button class="btn gris" onclick="afficherJournal()">📒 Journal des ouvertures</button>
+      <button class="btn gris" onclick="nettoyerExpirees()" id="btnNettoyer">🧹 Nettoyer les archives expirées</button>
+    </div>
+  </div>
+
+  <div class="carte">
+    <h2>Archives récentes</h2>
+    <div class="filtres">
+      <select id="filtreType" onchange="afficherListe()">
+        <option value="">Tous les types</option>
+        <option value="message">💬 Messages</option>
+        <option value="publication">📰 Publications (Actualités)</option>
+        <option value="offre">💼 Offres</option>
+        <option value="commentaire_offre">🗨️ Commentaires d'offres</option>
+        <option value="fil_presse">🗞️ Fil Presse</option>
+        <option value="statut">📢 Statuts</option>
+        <option value="cv">📄 CV</option>
+      </select>
+      <input type="text" id="filtreTexte" placeholder="Nom ou identifiant de la personne…" oninput="afficherListe()">
+    </div>
+    <div class="filtres">
+      <div><label style="margin-top:6px">Du</label><input type="date" id="dateDu"></div>
+      <div><label style="margin-top:6px">Au</label><input type="date" id="dateAu"></div>
+    </div>
+    <div class="barre-outils">
+      <button class="btn rouge" onclick="rechercherPeriode()">🔍 Chercher sur cette période</button>
+      <button class="btn gris" onclick="toutEffacerFiltres()">Tout afficher</button>
+    </div>
+    <div class="alerte" id="bandeauPersonne" style="display:none"></div>
+    <div id="liste"><div class="charge"><div class="spin"></div>Chargement…</div></div>
+    <div class="barre-outils" id="zonePlus" style="display:none"><button class="btn gris" onclick="chargerArchives(true)">Afficher plus</button></div>
+  </div>
+</div>
+
+<!-- Ouverture d'une archive : motif obligatoire -->
+<div class="fond" id="fondMotif" onclick="if(event.target===this)fermer('fondMotif')">
+  <div class="feuille">
+    <h3>Pourquoi ouvrez-vous cette archive ?</h3>
+    <p class="petit">Ce motif sera noté dans le journal, avec la date et votre compte.</p>
+    <label>Motif</label>
+    <select id="motif">
+      <option>Réquisition judiciaire</option>
+      <option>Demande de la police / gendarmerie</option>
+      <option>Plainte grave d'un utilisateur</option>
+      <option>Autre motif légal</option>
+    </select>
+    <label>Précision (numéro de dossier, nom de l'autorité, date de la demande…)</label>
+    <textarea id="precision" placeholder="Ex : Réquisition n° 2026/123 du Tribunal de Cotonou, reçue le 19/10/2026"></textarea>
+    <div class="barre-outils">
+      <button class="btn rouge" onclick="confirmerOuverture()">Ouvrir l'archive</button>
+      <button class="btn gris" onclick="fermer('fondMotif')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contenu d'une archive -->
+<div class="fond" id="fondContenu" onclick="if(event.target===this)fermer('fondContenu')">
+  <div class="feuille" id="feuilleContenu"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const TYPES = {
+  message: ['💬', 'Message'], publication: ['📰', 'Publication (Actualités)'], offre: ['💼', 'Offre'],
+  commentaire_offre: ['🗨️', "Commentaire d'offre"], fil_presse: ['🗞️', 'Fil Presse'], statut: ['📢', 'Statut'], cv: ['📄', 'CV']
+};
+const RAISONS = {
+  suppression: 'Supprimé par la personne', supprime_pour_tous: 'Message supprimé pour tous',
+  corbeille_15_jours: 'Corbeille vidée après 15 jours', statut_24h: 'Statut expiré (24 h)'
+};
+let archives = [], dernier = null, enAttente = null;
+const noms = {};
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(t){ const el = document.getElementById('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(el._m); el._m = setTimeout(() => el.style.display = 'none', 2600); }
+function fermer(id){ document.getElementById(id).classList.remove('ouvert'); }
+function dateFr(v){ if (!v) return '—'; const d = v.toDate ? v.toDate() : new Date(v); return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }); }
+
+async function nomDe(uid){
+  if (!uid) return '—';
+  if (noms[uid]) return noms[uid];
+  try { const s = await db.collection('utilisateurs').doc(uid).get(); const d = s.exists ? s.data() : {}; noms[uid] = ((d.prenom || '') + ' ' + (d.nom || '')).trim() || uid; }
+  catch (e) { noms[uid] = uid; }
+  return noms[uid];
+}
+
+/* ── Connexion ── */
+window.seConnecter = async function(){
+  document.getElementById('erreurConnexion').textContent = '';
+  try { await auth.signInWithEmailAndPassword(document.getElementById('email').value.trim(), document.getElementById('motdepasse').value); }
+  catch (e) { document.getElementById('erreurConnexion').textContent = 'Connexion impossible : vérifiez l’e-mail et le mot de passe.'; }
+};
+window.seDeconnecter = () => auth.signOut();
+
+auth.onAuthStateChanged(user => {
+  document.getElementById('zoneConnexion').style.display = user ? 'none' : 'block';
+  document.getElementById('zoneAdmin').style.display = user ? 'block' : 'none';
+  document.getElementById('btnDeconnexion').style.display = user ? 'inline-block' : 'none';
+  if (user) chargerArchives(false);
+});
+
+/* ── Liste ── */
+async function chargerArchives(suite){
+  const liste = document.getElementById('liste');
+  if (!suite) { archives = []; dernier = null; liste.innerHTML = '<div class="charge"><div class="spin"></div>Chargement…</div>'; }
+  try {
+    let q = db.collection('archives').orderBy('supprimeLe', 'desc').limit(100);
+    if (suite && dernier) q = q.startAfter(dernier);
+    const snap = await q.get();
+    if (snap.docs.length) dernier = snap.docs[snap.docs.length - 1];
+    snap.docs.forEach(d => { const x = d.data(); archives.push({ id: d.id, type: x.type, raison: x.raison, auteurUid: x.auteurUid, supprimePar: x.supprimePar, supprimeLe: x.supprimeLe, expireLe: x.expireLe, chemin: x.chemin }); });
+    document.getElementById('zonePlus').style.display = snap.docs.length === 100 ? 'flex' : 'none';
+    await Promise.all([...new Set(archives.map(a => a.auteurUid))].map(nomDe));
+    afficherListe();
+  } catch (e) {
+    console.error(e);
+    liste.innerHTML = '<div class="vide">' + (e.code === 'permission-denied'
+      ? '🔒 Ce compte n’est pas le compte administrateur, ou les nouvelles règles Firestore ne sont pas encore publiées.'
+      : '⚠️ Chargement impossible : ' + esc(e.message)) + '</div>';
+  }
+}
+window.chargerArchives = chargerArchives;
+
+window.afficherListe = function(){
+  const type = document.getElementById('filtreType').value;
+  const texte = document.getElementById('filtreTexte').value.trim().toLowerCase();
+  const vue = archives.filter(a => (!type || a.type === type) && (!texte || (a.auteurUid || '').toLowerCase().includes(texte) || (noms[a.auteurUid] || '').toLowerCase().includes(texte)));
+  const liste = document.getElementById('liste');
+  if (!vue.length) { liste.innerHTML = '<div class="vide">Aucune archive' + (archives.length ? ' pour ce filtre.' : ' pour l’instant.') + '</div>'; return; }
+  liste.innerHTML = vue.map(a => {
+    const t = TYPES[a.type] || ['🗂️', a.type || 'Contenu'];
+    return '<div class="ligne"><div class="ico">' + t[0] + '</div><div class="infos">'
+      + '<div class="t1">' + esc(t[1]) + ' · ' + esc(noms[a.auteurUid] || a.auteurUid || '—') + '</div>'
+      + '<div class="t2">Supprimé le ' + dateFr(a.supprimeLe) + ' · ' + esc(RAISONS[a.raison] || a.raison || '') + ' · effacé le ' + dateFr(a.expireLe).split(' ')[0] + '</div>'
+      + '<div style="margin-top:6px"><span class="petit" style="color:var(--red);font-weight:700;cursor:pointer" onclick="toutDeLaPersonne(\'' + esc(a.auteurUid || '') + '\')">👤 Voir tout ce que cette personne a supprimé</span></div>'
+      + '</div><button class="btn rouge" onclick="demanderOuverture(\'' + a.id + '\')">Ouvrir</button></div>';
+  }).join('');
+};
+
+/* ── Recherche par période et par personne (charge directement depuis la base) ── */
+function memoriser(snap){
+  archives = [];
+  snap.docs.forEach(d => { const x = d.data(); archives.push({ id: d.id, type: x.type, raison: x.raison, auteurUid: x.auteurUid, supprimePar: x.supprimePar, supprimeLe: x.supprimeLe, expireLe: x.expireLe, chemin: x.chemin }); });
+  archives.sort((a, b) => ((b.supprimeLe && b.supprimeLe.toMillis ? b.supprimeLe.toMillis() : 0) - (a.supprimeLe && a.supprimeLe.toMillis ? a.supprimeLe.toMillis() : 0)));
+}
+window.rechercherPeriode = async function(){
+  const du = document.getElementById('dateDu').value, au = document.getElementById('dateAu').value;
+  if (!du && !au) { toast('Choisissez au moins une date.'); return; }
+  document.getElementById('bandeauPersonne').style.display = 'none';
+  const liste = document.getElementById('liste');
+  liste.innerHTML = '<div class="charge"><div class="spin"></div>Recherche…</div>';
+  try {
+    let q = db.collection('archives');
+    if (du) q = q.where('supprimeLe', '>=', firebase.firestore.Timestamp.fromDate(new Date(du + 'T00:00:00')));
+    if (au) q = q.where('supprimeLe', '<=', firebase.firestore.Timestamp.fromDate(new Date(au + 'T23:59:59')));
+    const snap = await q.orderBy('supprimeLe', 'desc').limit(500).get();
+    memoriser(snap);
+    document.getElementById('zonePlus').style.display = 'none';
+    await Promise.all([...new Set(archives.map(a => a.auteurUid))].map(nomDe));
+    afficherListe();
+  } catch (e) { liste.innerHTML = '<div class="vide">⚠️ Recherche impossible : ' + esc(e.message) + '</div>'; }
+};
+window.toutDeLaPersonne = async function(uid){
+  if (!uid) return;
+  const liste = document.getElementById('liste');
+  liste.innerHTML = '<div class="charge"><div class="spin"></div>Recherche…</div>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  try {
+    const snap = await db.collection('archives').where('auteurUid', '==', uid).limit(500).get();
+    memoriser(snap);
+    document.getElementById('zonePlus').style.display = 'none';
+    document.getElementById('filtreTexte').value = '';
+    const b = document.getElementById('bandeauPersonne');
+    b.innerHTML = '👤 Tout ce que <b>' + esc(await nomDe(uid)) + '</b> a supprimé : ' + archives.length + ' contenu(s). <span style="color:var(--red);font-weight:700;cursor:pointer" onclick="toutEffacerFiltres()">✕ Retirer ce filtre</span>';
+    b.style.display = 'block';
+    afficherListe();
+  } catch (e) { liste.innerHTML = '<div class="vide">⚠️ Recherche impossible : ' + esc(e.message) + '</div>'; }
+};
+window.toutEffacerFiltres = function(){
+  document.getElementById('dateDu').value = ''; document.getElementById('dateAu').value = '';
+  document.getElementById('filtreTexte').value = ''; document.getElementById('filtreType').value = '';
+  document.getElementById('bandeauPersonne').style.display = 'none';
+  chargerArchives(false);
+};
+
+/* ── Ouverture (motif obligatoire, noté dans le journal) ── */
+window.demanderOuverture = function(id){
+  enAttente = id;
+  document.getElementById('precision').value = '';
+  document.getElementById('fondMotif').classList.add('ouvert');
+};
+window.confirmerOuverture = async function(){
+  const precision = document.getElementById('precision').value.trim();
+  if (precision.length < 5) { toast('Écrivez une précision (numéro de dossier, autorité…).'); return; }
+  const id = enAttente, a = archives.find(x => x.id === id);
+  try {
+    await db.collection('archives_journal').add({
+      adminUid: auth.currentUser.uid, archiveId: id, chemin: (a && a.chemin) || '', auteurUid: (a && a.auteurUid) || '',
+      motif: document.getElementById('motif').value, precision: precision, action: 'ouverture',
+      le: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) { toast('Le journal n’a pas pu être écrit : ouverture annulée.'); return; }
+  fermer('fondMotif');
+  const s = await db.collection('archives').doc(id).get();
+  if (!s.exists) { toast('Cette archive n’existe plus.'); return; }
+  montrerContenu(id, s.data());
+};
+
+function rendreValeur(v){
+  if (v == null) return '—';
+  if (v.toDate) return esc(dateFr(v));
+  if (typeof v === 'string') {
+    if (/^data:image\//.test(v) || /^https?:\/\/\S+\.(jpe?g|png|webp|gif)(\?|$)/i.test(v) || (/firebasestorage/.test(v) && /images|photo|jpg|jpeg|png/i.test(v))) return '<a href="' + esc(v) + '" target="_blank">Ouvrir l’image</a><img src="' + esc(v) + '" alt="">';
+    if (/^data:video\//.test(v) || /\.(mp4|webm|mov)(\?|$)/i.test(v)) return '<video src="' + esc(v) + '" controls playsinline></video>';
+    if (/^https?:\/\//.test(v)) return '<a href="' + esc(v) + '" target="_blank">' + esc(v.slice(0, 80)) + '…</a>';
+    return esc(v);
+  }
+  if (Array.isArray(v)) return v.length ? v.map(rendreValeur).join('<br>') : '—';
+  if (typeof v === 'object') return '<pre>' + esc(JSON.stringify(v, null, 1)) + '</pre>';
+  return esc(String(v));
+}
+
+let contenuOuvert = null;
+function montrerContenu(id, x){
+  contenuOuvert = { id: id, x: x };
+  const t = TYPES[x.type] || ['🗂️', x.type];
+  const c = x.contenu || {};
+  const champsPrioritaires = ['texte', 'titre', 'description', 'legende', 'url', 'imageUrl', 'images', 'videoUrl', 'photoURL', 'importURL', 'fichierUrl'];
+  const cles = champsPrioritaires.filter(k => c[k] != null && c[k] !== '').concat(Object.keys(c).filter(k => !champsPrioritaires.includes(k)).sort());
+  document.getElementById('feuilleContenu').innerHTML =
+    '<h3>' + t[0] + ' ' + esc(t[1]) + '</h3>'
+    + '<div class="champ"><b>Auteur</b>' + esc(noms[x.auteurUid] || '') + ' — ' + esc(x.auteurUid || '') + '</div>'
+    + '<div class="champ"><b>Supprimé par</b>' + esc(noms[x.supprimePar] || x.supprimePar || '') + ' · le ' + dateFr(x.supprimeLe) + ' · ' + esc(RAISONS[x.raison] || x.raison || '') + '</div>'
+    + '<div class="champ"><b>Emplacement d’origine</b>' + esc(x.chemin || '') + '</div>'
+    + (x.note ? '<div class="champ"><b>Note</b>' + esc(x.note === 'media_trop_lourd_retire' ? 'Une photo trop lourde n’a pas pu être gardée dans l’archive (le texte est complet).' : x.note) + '</div>' : '')
+    + (x.medias && x.medias.length ? '<div class="champ"><b>Fichiers liés</b>' + rendreValeur(x.medias) + '</div>' : '')
+    + cles.map(k => '<div class="champ"><b>' + esc(k) + '</b>' + rendreValeur(c[k]) + '</div>').join('')
+    + '<div class="barre-outils"><button class="btn vert" onclick="telechargerArchive()">📥 Télécharger (fichier pour la justice)</button><button class="btn gris" onclick="fermer(\'fondContenu\')">Fermer</button></div>';
+  document.getElementById('fondContenu').classList.add('ouvert');
+}
+
+window.telechargerArchive = async function(){
+  if (!contenuOuvert) return;
+  try { await db.collection('archives_journal').add({ adminUid: auth.currentUser.uid, archiveId: contenuOuvert.id, action: 'telechargement', motif: document.getElementById('motif').value, precision: document.getElementById('precision').value.trim(), le: firebase.firestore.FieldValue.serverTimestamp() }); }
+  catch (e) { toast('Le journal n’a pas pu être écrit : téléchargement annulé.'); return; }
+  const x = contenuOuvert.x;
+  const propre = JSON.parse(JSON.stringify(x, (k, v) => (v && typeof v === 'object' && typeof v.toDate === 'function') ? v.toDate().toISOString() : v));
+  const fichier = new Blob([JSON.stringify({ exportePar: auth.currentUser.uid, exporteLe: new Date().toISOString(), archiveId: contenuOuvert.id, archive: propre }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(fichier);
+  a.download = 'ArtiRoyce_archive_' + contenuOuvert.id + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+};
+
+/* ── Journal ── */
+window.afficherJournal = async function(){
+  const f = document.getElementById('feuilleContenu');
+  f.innerHTML = '<h3>📒 Journal des ouvertures</h3><div class="charge"><div class="spin"></div>Chargement…</div>';
+  document.getElementById('fondContenu').classList.add('ouvert');
+  try {
+    const snap = await db.collection('archives_journal').orderBy('le', 'desc').limit(100).get();
+    f.innerHTML = '<h3>📒 Journal des ouvertures</h3>' + (snap.empty ? '<div class="vide">Aucune ouverture pour l’instant.</div>' : snap.docs.map(d => {
+      const j = d.data();
+      return '<div class="champ"><b>' + dateFr(j.le) + ' · ' + esc(j.action === 'telechargement' ? 'Téléchargement' : 'Ouverture') + '</b>' + esc(j.motif || '') + ' — ' + esc(j.precision || '') + '<br><span class="petit">Archive ' + esc(j.archiveId || '') + '</span></div>';
+    }).join('')) + '<div class="barre-outils"><button class="btn gris" onclick="fermer(\'fondContenu\')">Fermer</button></div>';
+  } catch (e) { f.innerHTML = '<h3>📒 Journal</h3><div class="vide">⚠️ ' + esc(e.message) + '</div>'; }
+};
+
+/* ── Nettoyage : efface définitivement les archives de plus de 12 mois ── */
+window.nettoyerExpirees = async function(){
+  if (!confirm('Effacer définitivement les archives arrivées à leur date limite (12 mois) ?')) return;
+  const btn = document.getElementById('btnNettoyer'); btn.disabled = true;
+  let total = 0;
+  try {
+    while (true) {
+      const snap = await db.collection('archives').where('expireLe', '<=', firebase.firestore.Timestamp.now()).limit(200).get();
+      if (snap.empty) break;
+      const lot = db.batch(); snap.docs.forEach(d => lot.delete(d.ref)); await lot.commit();
+      total += snap.size;
+      if (snap.size < 200) break;
+    }
+    toast(total ? '🧹 ' + total + ' archive(s) expirée(s) effacée(s).' : 'Aucune archive expirée.');
+    chargerArchives(false);
+  } catch (e) { toast('⚠️ Nettoyage impossible : ' + e.message); }
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
