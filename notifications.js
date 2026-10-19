@@ -8,7 +8,8 @@
       Enregistre une notification pour la personne "dest" (jamais pour soi-même) :
         utilisateurs/{dest}/notifications/{id}
       types : reaction | commentaire | reponse | abonne | candidature | partage
-      pages : actualites | offres | filPresse | profil | statuts
+              | assistance | assistance_reponse (écrites par assistance.html)
+      pages : actualites | offres | filPresse | profil | statuts | assistance
       unique:true → une seule notification par personne et par publication
       (ex. J'aime retiré puis remis : pas de doublon).
 
@@ -79,7 +80,8 @@
     offres:     { panel: 4, frame: 'offreFrame', nom: '💼 Offres' },
     filPresse:  { panel: 7, frame: 'presseFrame', nom: '🗞️ Fil Presse' },
     statuts:    { panel: 2, frame: 'statutFrame', nom: '📢 Statuts' },
-    profil:     { nom: '👤 Profil' }
+    profil:     { nom: '👤 Profil' },
+    assistance: { nom: '🎧 Assistance' }
   };
   const PHRASES = {
     reaction:    n => 'a réagi ' + (n.extrait || '👍') + ' à votre publication',
@@ -87,7 +89,10 @@
     reponse:     n => 'a répondu à votre commentaire' + (n.extrait ? ' : « ' + n.extrait + ' »' : ''),
     abonne:      () => 's’est abonné(e) à vous',
     candidature: () => 'a postulé à votre offre',
-    partage:     () => 'a partagé votre publication'
+    partage:     () => 'a partagé votre publication',
+    // Assistance (assistance.html) : message reçu par l'admin / réponse reçue par la personne.
+    assistance:         n => 'a écrit à l’assistance' + (n.extrait ? ' : « ' + n.extrait + ' »' : ''),
+    assistance_reponse: n => 'vous a répondu' + (n.extrait ? ' : « ' + n.extrait + ' »' : '')
   };
   // Statuts : même types, phrases adaptées (« votre statut »).
   const PHRASES_STATUT = {
@@ -207,6 +212,11 @@
     if (!n) return;
     marquerLu(n);
     fermer();
+    if (n.page === 'assistance') {
+      // L'admin ouvre directement la discussion de cette personne ; la personne, la sienne.
+      if (window.ouvrirAssistance) window.ouvrirAssistance(n.type === 'assistance' ? n.cibleId : null);
+      return;
+    }
     if (n.type === 'abonne' || !PAGES[n.page] || !PAGES[n.page].frame) {
       if (n.auteurUid && window.goUserProfile) window.goUserProfile(n.auteurUid);
       return;
