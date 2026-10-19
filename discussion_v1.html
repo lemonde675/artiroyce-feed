@@ -122,6 +122,22 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .vb{background:var(--green);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:99px}
 .cha-st{font-size:11px;font-weight:700;margin-top:1px}
 .cha-st.on{color:var(--green)}.cha-st.off{color:#bbb}
+.cha-st.ecrit{color:var(--green);font-style:italic;white-space:normal;line-height:1.25}
+.cc-preview.ecrit{color:var(--green)!important;font-style:italic;font-weight:700}
+/* Blocage d'une discussion à deux */
+.bloc-note{display:none;background:#fff;border-top:1px solid #eee;padding:12px 14px calc(12px + env(safe-area-inset-bottom));text-align:center;font-size:13px;color:#555;line-height:1.45}
+.bloc-note b{color:#c0392b}
+.bloc-note button{margin-top:8px;border:none;border-radius:20px;padding:9px 18px;font-size:13px;font-weight:800;background:var(--green);color:#fff;cursor:pointer}
+/* Options d'une discussion à deux (⋮) */
+.opt-fond{position:fixed;inset:0;z-index:10040;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center}
+.opt-fond.show{display:flex}
+.opt-feuille{background:#fff;width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:8px 0 calc(14px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.opt-titre{font-size:12px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.5px;padding:12px 20px 6px}
+.opt-item{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:15px;font-weight:600;color:#222;cursor:pointer}
+.opt-item:active{background:#f5f5f5}
+.opt-item small{display:block;font-size:12px;color:#999;font-weight:500;margin-top:2px}
+.opt-item.rouge{color:#c0392b}.opt-item.vert{color:var(--green)}
+.opt-ico{font-size:20px;width:26px;text-align:center;flex-shrink:0}
 .cha-btns{display:flex;gap:8px}
 .cha-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(230,50,36,0.3)}
 .cha-btn:active{transform:scale(0.92)}
@@ -650,6 +666,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="cha-info" onclick="ouvrirProfilContact()">
       <div class="cha-name" id="chaNm">&#8212; <span class="vb">&#10004;</span></div>
       <div class="cha-st on" id="chaSt">&#9679; En ligne</div>
+      <div class="cha-st ecrit" id="chaEcrit" style="display:none"></div>
     </div>
     <span class="hdr-back-pc" onclick="closeChat()" title="Retour">&#8249;</span>
     <div class="cha-btns">
@@ -705,6 +722,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="rec-cancel" onclick="cancelRecording()">✕</span>
     <button class="rec-send" onclick="sendRecording()">➤</button>
   </div>
+  <div class="bloc-note" id="blocNote"></div>
   <div class="grp-lock" id="grpLockNote" style="display:none">🔒 Seuls les admins peuvent envoyer des messages dans ce groupe</div>
   <div class="ibar" id="ibar">
     <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
@@ -1216,6 +1234,7 @@ window.addEventListener('popstate',(e)=>{
 });
 function hideView(name){
   if(name==='chat'){
+    signalerEcriture(null); blocageActuel={}; fermerOptionsChat();
     document.getElementById('chatPanel').classList.remove('open'); cancelReply(); annulerModification();
     if(unsubMessages){ unsubMessages(); unsubMessages=null; }
     if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
@@ -1251,6 +1270,7 @@ function hideView(name){
     if(window.appelAnnulerSiSonne) window.appelAnnulerSiSonne();
     signalerAuParent('appelFin');
   }
+  else if(name==='photo'){ fermerPhotoPleinEcran(); }
   else if(name==='videoExpand'){
     // Vidéo agrandie dans un dialogue : le retour physique du téléphone (Android)
     // la réduit au lieu de fermer toute la page Discussion.
@@ -1492,8 +1512,156 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
 window.closeChat=function(){fermerVueLocale('chat')}
 window.ouvrirOptionsChat=function(){
   if(currentEstGroupe){ ouvrirMembresGroupe(); return; }
-  toast('Options','');
+  if(!convReelle()){ toast('Options indisponibles pour cette discussion','r'); return; }
+  const b=etatBlocage();
+  let html='<div class="opt-titre">'+escapeHtml(currentChatName||'Discussion')+'</div>'
+    +'<div class="opt-item" onclick="fermerOptionsChat();ouvrirProfilContact()"><span class="opt-ico">👤</span><span>Voir le profil</span></div>';
+  if(b.moi){
+    html+='<div class="opt-item vert" onclick="fermerOptionsChat();debloquerContact()"><span class="opt-ico">✅</span><span>Débloquer<small>Bloqué '+escapeHtml(texteJusqua(b.moi))+'</small></span></div>';
+  } else {
+    html+='<div class="opt-item rouge" onclick="bloquerContact(15)"><span class="opt-ico">⏳</span><span>Bloquer 15 jours<small>Débloqué automatiquement ensuite</small></span></div>'
+      +'<div class="opt-item rouge" onclick="bloquerContact(0)"><span class="opt-ico">⛔</span><span>Bloquer définitivement<small>Jusqu’à ce que vous débloquiez</small></span></div>';
+  }
+  html+='<div class="opt-item" onclick="fermerOptionsChat()" style="color:#888;justify-content:center">Annuler</div>';
+  let fond=document.getElementById('optFond');
+  if(!fond){
+    fond=document.createElement('div'); fond.id='optFond'; fond.className='opt-fond';
+    fond.onclick=function(e){ if(e.target===fond) fermerOptionsChat(); };
+    document.body.appendChild(fond);
+  }
+  fond.innerHTML='<div class="opt-feuille">'+html+'</div>';
+  fond.classList.add('show');
 }
+window.fermerOptionsChat=function(){ const f=document.getElementById('optFond'); if(f) f.classList.remove('show'); }
+
+/* ══════════════ BLOQUER UNE DISCUSSION À DEUX ══════════════
+   Sur la fiche de la conversation : blocage.{monUid} = date de fin
+   (dans 15 jours, ou l'an 9999 pour « définitivement »). Tant que la date n'est pas
+   passée, l'autre personne ne peut plus écrire (les règles Firestore le refusent)
+   ni appeler depuis cette discussion. Chacun ne peut changer que SON blocage. */
+const FIN_DEFINITIVE=new Date('9999-01-01T00:00:00Z');
+let blocageActuel={};
+function msDe(v){ return v && v.toDate ? v.toDate().getTime() : (v ? new Date(v).getTime() : 0); }
+function etatBlocage(){
+  if(currentEstGroupe || !currentOtherUid) return {};
+  const maintenant=Date.now(), b=blocageActuel||{};
+  const moi=msDe(b[currentUid]), lui=msDe(b[currentOtherUid]);
+  return { moi: moi>maintenant ? moi : 0, lui: lui>maintenant ? lui : 0 };
+}
+function estBloqueIci(){ const b=etatBlocage(); return !!(b.moi||b.lui); }
+function texteJusqua(ms){
+  if(!ms) return '';
+  if(ms>=FIN_DEFINITIVE.getTime()-86400000) return 'définitivement';
+  return "jusqu'au "+new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+' à '+new Date(ms).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+window.bloquerContact=function(jours){
+  if(!convReelle() || currentEstGroupe) return;
+  const nom=currentChatName||'cette personne';
+  const q = jours ? 'Bloquer '+nom+' pendant 15 jours ?\nIl ne pourra plus vous écrire ni vous appeler.' : 'Bloquer '+nom+' définitivement ?\nIl ne pourra plus vous écrire ni vous appeler, jusqu’à ce que vous le débloquiez.';
+  if(!confirm(q)) return;
+  fermerOptionsChat();
+  const fin = jours ? new Date(Date.now()+jours*86400000) : FIN_DEFINITIVE;
+  const maj={}; maj['blocage.'+currentUid]=firebase.firestore.Timestamp.fromDate(fin);
+  blocageActuel=Object.assign({},blocageActuel); blocageActuel[currentUid]=maj['blocage.'+currentUid];
+  appliquerRestrictionEcriture();
+  db.collection('conversations').doc(currentConvId).update(maj)
+    .then(function(){ toast(jours?'🚫 Bloqué pour 15 jours':'⛔ Bloqué définitivement','g'); })
+    .catch(function(e){ console.error('Blocage impossible :',e); toast('⚠️ Blocage impossible','r'); });
+}
+window.debloquerContact=function(){
+  if(!convReelle() || currentEstGroupe) return;
+  const maj={}; maj['blocage.'+currentUid]=firebase.firestore.FieldValue.delete();
+  blocageActuel=Object.assign({},blocageActuel); delete blocageActuel[currentUid];
+  appliquerRestrictionEcriture();
+  db.collection('conversations').doc(currentConvId).update(maj)
+    .then(function(){ toast('✅ Contact débloqué','g'); })
+    .catch(function(e){ console.error('Déblocage impossible :',e); toast('⚠️ Déblocage impossible','r'); });
+}
+// Le blocage de 15 jours se termine tout seul : on revérifie de temps en temps.
+setInterval(function(){ if(currentConvId && !currentEstGroupe) appliquerRestrictionEcriture(); }, 60000);
+
+/* ══════════════ « écrit… » / « enregistre un vocal… » ══════════════
+   Pendant qu'on écrit (ou enregistre un vocal), on note ecrit.{monUid} sur la fiche
+   de la conversation (au plus une fois toutes les 4 s). Les autres l'affichent dans
+   l'en-tête et dans la liste, puis l'effacent au bout de 7 s sans nouveau signal —
+   même si la personne abandonne sans rien envoyer. */
+const ECRIT_VALIDE_MS=7000;
+let ecritTypeEnvoye=null, ecritDernierEnvoi=0, ecritConvEnvoye=null, ecritMinuteurVocal=null;
+const ecritVu={};   // 'convId|uid' -> { type, cle, vu }
+function signalerEcriture(type){
+  if(!currentUid) return;
+  if(!type){
+    if(!ecritTypeEnvoye || !ecritConvEnvoye) return;
+    const conv=ecritConvEnvoye; ecritTypeEnvoye=null; ecritConvEnvoye=null; ecritDernierEnvoi=0;
+    const m={}; m['ecrit.'+currentUid]=firebase.firestore.FieldValue.delete();
+    db.collection('conversations').doc(conv).update(m).catch(function(){});
+    return;
+  }
+  if(!convReelle() || estBloqueIci()) return;
+  if(type===ecritTypeEnvoye && ecritConvEnvoye===currentConvId && Date.now()-ecritDernierEnvoi<4000) return;
+  ecritTypeEnvoye=type; ecritConvEnvoye=currentConvId; ecritDernierEnvoi=Date.now();
+  const m={}; m['ecrit.'+currentUid]={ type:type, le:firebase.firestore.FieldValue.serverTimestamp() };
+  db.collection('conversations').doc(currentConvId).update(m).catch(function(){});
+}
+function lireEtatsDepuisListe(toutes){
+  const vus={};
+  toutes.forEach(function(c){
+    if(c.id===currentConvId){ blocageActuel=c.blocage||{}; }
+    const e=c.ecrit||{};
+    Object.keys(e).forEach(function(uid){
+      if(uid===currentUid || !e[uid]) return;
+      const k=c.id+'|'+uid, cle=(e[uid].type||'texte')+'@'+msDe(e[uid].le);
+      vus[k]=1;
+      // Nouveau signal (ou signal en attente d'heure serveur) : on le date avec NOTRE horloge.
+      if(!ecritVu[k] || ecritVu[k].cle!==cle) ecritVu[k]={ type:e[uid].type||'texte', cle:cle, vu:Date.now() };
+    });
+  });
+  Object.keys(ecritVu).forEach(function(k){ if(!vus[k]) delete ecritVu[k]; });
+  if(currentConvId && !currentEstGroupe) appliquerRestrictionEcriture();
+}
+function prenomDe(uid){ return String(nomDeUid(uid)||'Quelqu’un').split(' ')[0]; }
+function texteEcrit(convId, estGroupe){
+  const actifs=[];
+  Object.keys(ecritVu).forEach(function(k){
+    const i=k.indexOf('|'); if(k.slice(0,i)!==convId) return;
+    if(Date.now()-ecritVu[k].vu<ECRIT_VALIDE_MS) actifs.push({ uid:k.slice(i+1), type:ecritVu[k].type });
+  });
+  if(!actifs.length) return '';
+  const vocal=actifs.some(function(a){ return a.type==='vocal'; });
+  if(!estGroupe) return vocal ? '🎤 enregistre un vocal…' : '✍️ écrit…';
+  if(actifs.length===1) return prenomDe(actifs[0].uid)+(actifs[0].type==='vocal' ? ' enregistre un vocal…' : ' écrit…');
+  if(actifs.length===2) return prenomDe(actifs[0].uid)+' et '+prenomDe(actifs[1].uid)+(vocal?' sont actifs…':' écrivent…');
+  return actifs.length+' personnes écrivent…';
+}
+function majAffichageEcrit(){
+  // En-tête de la discussion ouverte
+  const st=document.getElementById('chaSt'), ec=document.getElementById('chaEcrit');
+  if(st && ec){
+    const t = currentConvId ? texteEcrit(currentConvId, currentEstGroupe) : '';
+    if(t){ ec.textContent=t; ec.style.display=''; st.style.display='none'; }
+    else { ec.style.display='none'; st.style.display=''; }
+  }
+  // Liste des discussions
+  document.querySelectorAll('.conv-card[data-conv]').forEach(function(card){
+    const pv=card.querySelector('.cc-preview'); if(!pv) return;
+    const estGroupe=card.dataset.mode!=='conv';
+    const t=texteEcrit(card.dataset.conv, estGroupe);
+    if(t){
+      if(!pv.classList.contains('ecrit')){ pv.dataset.avant=pv.innerHTML; pv.classList.add('ecrit'); }
+      pv.textContent=t;
+    } else if(pv.classList.contains('ecrit')){
+      pv.classList.remove('ecrit'); pv.innerHTML=pv.dataset.avant||''; delete pv.dataset.avant;
+    }
+  });
+}
+setInterval(majAffichageEcrit, 1500);
+// Vocal : le signal est renouvelé tant que l'enregistrement dure.
+function debutSignalVocal(){
+  signalerEcriture('vocal');
+  clearInterval(ecritMinuteurVocal);
+  ecritMinuteurVocal=setInterval(function(){ if(isRecording) signalerEcriture('vocal'); }, 4000);
+}
+function finSignalVocal(){ clearInterval(ecritMinuteurVocal); ecritMinuteurVocal=null; signalerEcriture(null); }
 
 /* ══════════════ ENVOI TEXTE + RÉPONSE ══════════════ */
 window.onTa=function(){
@@ -1504,6 +1672,7 @@ window.onTa=function(){
   // Dès qu'on tape du texte, il s'efface pour laisser toute la place au bouton Envoyer.
   const mic=document.getElementById('micBtn');
   if(mic) mic.style.display = ta.value.trim() ? 'none' : 'flex';
+  signalerEcriture(ta.value.trim() ? 'texte' : null);
 }
 window.onKey=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend()}}
 
@@ -1541,6 +1710,8 @@ window.doSend=function(){
   ajouterEtape('doSend() appelé — txt="'+txt+'" currentOtherUid='+currentOtherUid+' currentConvId='+currentConvId);
   if(convReelle()){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
+    if(estBloqueIci()){ toast('🚫 Discussion bloquée','r'); return; }
+    signalerEcriture(null);
     envoyerMessageReel(txt);
     ta.value='';ta.style.height='auto';onTa();
     cancelReply();closeEmoji();
@@ -1579,9 +1750,32 @@ function avatarInterieur(uid, ini){
 }
 function infoDepuisContacts(uid){
   const u=contactParId(uid);
+  if(u && u._supprime) return { nom:'Compte supprimé', ini:'✕', bg:'#bbb' };
   return u
     ? { nom:((u.prenom||'')+(u.nomFamille?' '+u.nomFamille:'')).trim()||u.nom||'Utilisateur', ini:initialesDe(u.prenom,u.nomFamille), bg:gradientPourId(uid) }
     : { nom:'Membre', ini:'?', bg:'#999' };
+}
+/* Membres d'un groupe absents de la liste des contacts (liste pas encore chargée,
+   ou compte supprimé) : on lit leur fiche une fois, puis on redessine. */
+const membresDemandes={};
+function chargerMembresInconnus(uids){
+  const manquants=(uids||[]).filter(function(uid){ return uid && uid!==currentUid && !contactParId(uid) && !membresDemandes[uid]; });
+  if(!manquants.length || !window.db) return;
+  manquants.forEach(function(uid){ membresDemandes[uid]=1; });
+  Promise.all(manquants.map(function(uid){
+    return db.collection('utilisateurs').doc(uid).get().then(function(d){
+      window._contactsParId=window._contactsParId||{};
+      window._contactsParId[uid] = d.exists ? Object.assign({id:uid}, d.data()) : { id:uid, _supprime:true };
+    }).catch(function(){});
+  })).then(function(){
+    if(!currentEstGroupe) return;
+    currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+    if(document.getElementById('groupMembersPanel').classList.contains('open')) renderInfosGroupe();
+    if(dernierSnapMessages){
+      document.querySelectorAll('#msgsArea > .mrow[data-real="1"]').forEach(function(el){ el.remove(); });
+      renderRealMessages(dernierSnapMessages);
+    }
+  });
 }
 const COULEURS_NOMS_GROUPE=['#e63224','#1a7f3c','#1a5276','#8e44ad','#d35400','#16a085','#b03a6f','#2980b9'];
 function couleurNomGroupe(uid){
@@ -1702,6 +1896,8 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
   let messagesDejaEcoutes=false;
   const connue=convDepuisListe(currentConvId);
   afficherEpingle(connue ? (connue.epingle||null) : null);
+  blocageActuel=(connue && connue.blocage) || {};
+  appliquerRestrictionEcriture();
   if(connue){
     currentConvInfos=connue.infos||{};
     currentConvLuPar=connue.luPar||{};
@@ -1759,6 +1955,8 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
     const d=docSnap.data()||{};
     currentConvLuPar=d.luPar||{};
     afficherEpingle(d.epingle||null);
+    blocageActuel=d.blocage||{};
+    appliquerRestrictionEcriture();
     if(dernierSnapMessages) renderRealMessages(dernierSnapMessages);
   }, function(err){
     console.error('Écoute du document de conversation impossible :',err);
@@ -1975,7 +2173,7 @@ function creerElementMessageBrut(doc){
     interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
   } else if(m.supprime){
     d.dataset.txt='Message supprimé'; d.dataset.type='supprime';
-    interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">🚫 Message supprimé</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
+    interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">'+(m.supprimeParAdmin?'🚫 Message supprimé par un admin':'🚫 Message supprimé')+'</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
     d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
     return d;
   } else if(false){
@@ -2252,7 +2450,9 @@ function chargerConversationsReelles(){
     .where('participants','array-contains',currentUid)
     .onSnapshot(function(snap){
       const toutes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+      lireEtatsDepuisListe(toutes);
       renderListeUnifiee(toutes);
+      majAffichageEcrit();
     }, function(err){
       console.error('Écoute des conversations réelles impossible :',err);
     });
@@ -2291,7 +2491,7 @@ function carteConversation(c){
   const info = (c.infos && c.infos[otherUid]) || infoDepuisContacts(otherUid);
   const n = nonLusPour(c);
   const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
-  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="conv" data-online="0" data-unread="'+(n?1:0)+'" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
+  return '<div class="conv-card'+(n?' non-lu':'')+'" data-conv="'+c.id+'" data-mode="conv" data-online="0" data-unread="'+(n?1:0)+'" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
     +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+avatarInterieur(otherUid, info.ini)+'</div></div>'
     +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+heureListe(msActivite(c))+'</span></div>'
     +'<div class="cc-preview">'+apercu+'</div>'
@@ -2311,7 +2511,7 @@ function carteGroupe(g){
     apercu = escapeHtml(auteur)+' : '+apercu;
   }
   const conf=g.conference===true;
-  return '<div class="conv-card'+(n?' non-lu':'')+'" data-mode="'+(conf?'conf':'group')+'" data-unread="'+(n?1:0)+'" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
+  return '<div class="conv-card'+(n?' non-lu':'')+'" data-conv="'+g.id+'" data-mode="'+(conf?'conf':'group')+'" data-unread="'+(n?1:0)+'" data-uid="'+g.id+'" onclick="openGroupChat(\''+g.id+'\',groupesCache[\''+g.id+'\'])">'
     +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+';font-size:22px">'+((conf&&!g.photoGroupe)?'🎙️':avatarGroupeHtml(g))+'</div><div class="g-count">'+nb+'</div></div>'
     +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(g.nom||'Groupe')+'</span><span class="cc-time">'+heureListe(msActivite(g))+'</span></div>'
     +'<div class="cc-preview">'+apercu+'</div>'
@@ -2662,9 +2862,18 @@ function construireInfosGroupe(participants){
 
 /* Affiche (ou cache) la barre de saisie selon le réglage « seuls les admins écrivent ». */
 function appliquerRestrictionEcriture(){
-  const bloque = currentEstGroupe && currentGroupData.seulsAdminsEcrivent===true && !jeSuisAdmin();
-  const ibar=document.getElementById('ibar'), note=document.getElementById('grpLockNote');
-  if(note) note.style.display = bloque ? 'block' : 'none';
+  const bloqueGroupe = currentEstGroupe && currentGroupData.seulsAdminsEcrivent===true && !jeSuisAdmin();
+  const blocage = currentEstGroupe ? null : etatBlocage();
+  const ibar=document.getElementById('ibar'), note=document.getElementById('grpLockNote'), bn=document.getElementById('blocNote');
+  if(note) note.style.display = bloqueGroupe ? 'block' : 'none';
+  if(bn){
+    let h='';
+    if(blocage && blocage.moi) h='🚫 Vous avez bloqué ce contact <b>'+escapeHtml(texteJusqua(blocage.moi))+'</b>.<br>Il ne peut plus vous écrire ni vous appeler.<br><button onclick="debloquerContact()">✅ Débloquer</button>';
+    else if(blocage && blocage.lui) h='🚫 Cette personne n’accepte pas vos messages pour le moment.';
+    if(bn.dataset.html!==h){ bn.dataset.html=h; bn.innerHTML=h; }   // pas redessiné pour rien (le bouton reste touchable)
+    bn.style.display = h ? 'block' : 'none';
+  }
+  const bloque = bloqueGroupe || !!(blocage && (blocage.moi || blocage.lui));
   if(ibar && !isRecording) ibar.style.display = bloque ? 'none' : '';
 }
 
@@ -2716,6 +2925,7 @@ function appliquerDonneesGroupe(d){
   if(d.nom) currentChatName=d.nom;
   currentConvLuPar=d.luPar||{};
   currentConvInfos=construireInfosGroupe(currentGroupParticipants);
+  chargerMembresInconnus(currentGroupParticipants);
   afficherEpingle(d.epingle||null);
   majEnteteGroupe();
   appliquerRestrictionEcriture();
@@ -3084,7 +3294,7 @@ document.getElementById('msgsArea').addEventListener('contextmenu',(e)=>{
 
 function openCtx(row,x,y){
   ctxRow=row;
-  document.getElementById('ctxDelAll').style.display=row.dataset.dir==='out'?'':'none';
+  document.getElementById('ctxDelAll').style.display=peutSupprimerPourTous(row)?'':'none';
   document.getElementById('ctxInfos').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out')?'':'none';
   document.getElementById('ctxModifierItem').style.display=(row.dataset.real==='1'&&row.dataset.dir==='out'&&row.dataset.type==='texte')?'':'none';
   const reel=row.dataset.real==='1' && row.dataset.type!=='supprime';
@@ -3140,19 +3350,30 @@ window.ctxDeleteMe=function(){
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.style.display='none';
   toast('🙈 Supprimé pour vous','g');closeCtx();
 }
+// Mes messages : toujours. Ceux des autres : seulement un admin du groupe, dans un groupe.
+function peutSupprimerPourTous(row){
+  if(!row || row.dataset.type==='supprime') return false;
+  if(row.dataset.dir==='out') return true;
+  return row.dataset.real==='1' && currentEstGroupe && jeSuisAdmin();
+}
 window.ctxDeleteAll=function(){
   if(!ctxRow)return;
-  if(ctxRow.dataset.real==='1' && currentConvId && ctxRow.dataset.dir==='out'){
+  if(ctxRow.dataset.real==='1' && currentConvId && peutSupprimerPourTous(ctxRow)){
+    const parAdmin = ctxRow.dataset.dir!=='out';
     const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
     const ref=db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg);
     const fv=firebase.firestore.FieldValue;
     (window.ArArchive ? ArArchive.garderDoc(ref, { type:'message', raison:'supprime_pour_tous' }) : Promise.resolve())
-      .then(function(){ return ref.update({ supprime:true, type:'texte', texte:'', url:fv.delete(), legende:fv.delete(), reactions:fv.delete() }); })
+      .then(function(){
+        const maj={ supprime:true, type:'texte', texte:'', url:fv.delete(), legende:fv.delete(), reactions:fv.delete() };
+        if(parAdmin) maj.supprimeParAdmin=currentUid;
+        return ref.update(maj);
+      })
       .then(function(){
         if(epingleActuel && epingleActuel.id===idMsg) desepingler();
         // Si c'était le dernier message, l'aperçu de la liste l'indique aussi.
         const c=convDepuisListe(currentConvId);
-        if(c && c.dernierEmetteur===currentUid){
+        if(c && (c.dernierEmetteur===currentUid || parAdmin)){
           const dernier=Array.from(document.querySelectorAll('#msgsArea .mrow[data-real="1"]')).filter(function(r){ return r.style.display!=='none'; }).pop();
           if(dernier && dernier.dataset.mid==='r'+idMsg) db.collection('conversations').doc(currentConvId).set({dernierMessage:'🚫 Message supprimé'},{merge:true}).catch(function(){});
         }
@@ -3837,14 +4058,29 @@ function appendImageMessage(dataUrl, legende){
   area.appendChild(d);area.scrollTop=area.scrollHeight;
   toast('📷 Photo compressée et envoyée (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
 }
+/* Photo en grand. Avant : le ✕ était blanc sans fond (invisible sur une photo claire)
+   et la touche retour du téléphone quittait toute la discussion.
+   Maintenant : ✕ dans un rond sombre toujours visible + la touche retour ferme la photo. */
 window.viewImage=function(el){
-  const src=el.querySelector('img').src;
+  const img=el.querySelector('img'); if(!img) return;
+  fermerPhotoPleinEcran(true);
   const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center';
-  ov.innerHTML='<img src="'+src+'" style="max-width:100%;max-height:100%;object-fit:contain"/><span style="position:absolute;top:20px;right:20px;color:#fff;font-size:28px">✕</span>';
-  ov.onclick=()=>ov.remove();
+  ov.id='photoPleinEcran';
+  ov.style.cssText='position:fixed;inset:0;z-index:10050;background:#000;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML='<img src="'+img.src+'" alt="" style="max-width:100%;max-height:100%;object-fit:contain"/>'
+    +'<button type="button" aria-label="Fermer" style="position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 0 2px rgba(255,255,255,.35)">✕</button>';
+  ov.querySelector('button').onclick=function(e){
+    e.stopPropagation();
+    // On revient d'un cran dans l'historique (l'entrée ajoutée pour la photo) : la touche
+    // retour suivante fermera directement la discussion, sans appui « dans le vide ».
+    if(history.state && history.state.vid===idPhotoOuverte && viewStack[viewStack.length-1]==='photo') history.back();
+    else fermerVueLocale('photo');
+  };
   document.body.appendChild(ov);
+  if(viewStack[viewStack.length-1]!=='photo'){ pushView('photo'); idPhotoOuverte=compteurVues; }
 }
+let idPhotoOuverte=-1;
+function fermerPhotoPleinEcran(){ const o=document.getElementById('photoPleinEcran'); if(o) o.remove(); }
 
 /* ══ Profil du contact + galerie des médias déjà échangés, réutilisables ══
    La galerie est construite à partir des messages déjà en mémoire (dernierSnapMessages),
@@ -4103,6 +4339,7 @@ window.toggleRecording=async function(){
   mediaRecorder.ondataavailable=(e)=>{if(e.data.size>0)recChunks.push(e.data)};
   mediaRecorder.start();
   recStartTime=Date.now();
+  debutSignalVocal();
   document.getElementById('ibar').style.display='none';
   document.getElementById('recUi').classList.add('show');
   document.getElementById('micBtn').style.color='var(--red)';
@@ -4141,6 +4378,7 @@ window.sendRecording=function(){
 function stopRecordingInternal(shouldSend){
   if(!isRecording)return;
   isRecording=false;
+  finSignalVocal();
   clearInterval(recTimerInt);
   cancelAnimationFrame(recAnimFrame);
   document.getElementById('recUi').classList.remove('show');
@@ -4224,6 +4462,7 @@ window.cycleSpeed=function(btn){
    et fonctions ci-dessous (partagées, car scripts classiques sur la même page). */
 let callStream=null, callTimerInt=null, callSeconds=0, callType='audio', callMuted=false, callCamOff=false;
 window.addCall=function(type){
+  if(!currentEstGroupe && estBloqueIci()){ toast('🚫 Discussion bloquée : appel impossible','r'); return; }
   // Les appels de groupe arrivent à l'étape suivante : on n'ouvre pas un faux appel.
   if(currentEstGroupe){
     if(window.GroupeAppel) window.GroupeAppel.lancer(type);
@@ -4573,8 +4812,11 @@ function demarrerFirebase(){
   function chargerTousLesContacts(){
     db.collection('utilisateurs').get().then(function(snap){
       window.tousLesContacts = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+      const anciens = window._contactsParId || {};
       window._contactsParId = {};
       window.tousLesContacts.forEach(function(u){ window._contactsParId[u.id]=u; });
+      // Comptes supprimés déjà repérés (membres d'un groupe) : on les garde.
+      Object.keys(anciens).forEach(function(id){ if(anciens[id] && anciens[id]._supprime && !window._contactsParId[id]) window._contactsParId[id]=anciens[id]; });
       try{ rafraichirAvatarsApresContacts(); }catch(e){ console.error('Rafraîchissement des avatars impossible :',e); }
       ajouterEtape('5. Contacts réels chargés ✅ ('+tousLesContacts.length+')');
     }).catch(function(err){
