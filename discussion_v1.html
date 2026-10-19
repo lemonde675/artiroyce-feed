@@ -3146,7 +3146,8 @@ window.ctxDeleteAll=function(){
     const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
     const ref=db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg);
     const fv=firebase.firestore.FieldValue;
-    ref.update({ supprime:true, type:'texte', texte:'', url:fv.delete(), legende:fv.delete(), reactions:fv.delete() })
+    (window.ArArchive ? ArArchive.garderDoc(ref, { type:'message', raison:'supprime_pour_tous' }) : Promise.resolve())
+      .then(function(){ return ref.update({ supprime:true, type:'texte', texte:'', url:fv.delete(), legende:fv.delete(), reactions:fv.delete() }); })
       .then(function(){
         if(epingleActuel && epingleActuel.id===idMsg) desepingler();
         // Si c'était le dernier message, l'aperçu de la liste l'indique aussi.
@@ -4694,6 +4695,7 @@ demarrerFirebase();
 <!-- Passer audio ↔ vidéo pendant un appel à deux (fichier à part : appels.js reste intact) -->
 <script src="appels-bascule.js"></script>
 <!-- Textes traduits (réponses/réactions aux statuts, etc.) -->
+<script src="archive.js"></script>
 <script src="translations-app.js"></script>
 </body>
 </html>
