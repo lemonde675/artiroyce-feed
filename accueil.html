@@ -1889,7 +1889,56 @@ function toggleSiteWidth(){
     } catch(e) { console.error('vérification rôle avant redirection:', e); }
     window.location.href = currentUserRole === 'visiteur' ? 'profil_visiteur.html' : 'profil.html';
   }
-  window.goUserProfile = function(uid) { window.location.href = 'profil.html?uid=' + uid; }
+  // Ouvrir un profil, puis revenir EXACTEMENT où on était (même onglet, même endroit
+  // dans le fil), comme sur Facebook — avant, le retour ramenait toujours à l'Accueil.
+  function positionDefilement(){
+    const panelEl = document.getElementById('panel-' + currentPanel);
+    const d = { page: window.scrollY || 0, panneau: panelEl ? panelEl.scrollTop : 0, fenetre: 0, contenu: 0 };
+    try {
+      const ifr = panelEl && panelEl.querySelector('iframe');
+      if (ifr && ifr.contentWindow) {
+        const w = ifr.contentWindow, doc = w.document;
+        d.fenetre = w.scrollY || (doc.scrollingElement ? doc.scrollingElement.scrollTop : 0) || 0;
+        const c = doc.getElementById('content') || doc.querySelector('.content');
+        if (c) d.contenu = c.scrollTop || 0;
+      }
+    } catch (e) {}
+    return d;
+  }
+  window.goUserProfile = function(uid) {
+    try { sessionStorage.setItem('ar_retour_profil', JSON.stringify({ panel: currentPanel, defil: positionDefilement(), t: Date.now() })); } catch (e) {}
+    window.location.href = 'profil.html?uid=' + uid;
+  };
+  // Au retour du profil : on rouvre le même onglet et on redescend au même endroit.
+  ;(function retourDepuisProfil(){
+    let r = null;
+    try { r = JSON.parse(sessionStorage.getItem('ar_retour_profil') || 'null'); sessionStorage.removeItem('ar_retour_profil'); } catch (e) {}
+    if (!r || (Date.now() - r.t) > 30 * 60 * 1000) return;
+    setTimeout(function(){
+      if (r.panel && r.panel !== currentPanel && typeof window.goToPanel === 'function') window.goToPanel(r.panel);
+      const d = r.defil || {};
+      let essais = 0, reussis = 0;
+      const minuteur = setInterval(function(){
+        essais++;
+        try {
+          const panelEl = document.getElementById('panel-' + r.panel);
+          if (d.page) window.scrollTo(0, d.page);
+          if (panelEl && d.panneau) panelEl.scrollTop = d.panneau;
+          const ifr = panelEl && panelEl.querySelector('iframe');
+          if (ifr && ifr.contentWindow && ifr.contentWindow.document && ifr.contentWindow.document.body) {
+            const w = ifr.contentWindow, doc = w.document;
+            let ok = true;
+            if (d.fenetre) { w.scrollTo(0, d.fenetre); ok = ok && Math.abs((w.scrollY || 0) - d.fenetre) < 30; }
+            const c = doc.getElementById('content') || doc.querySelector('.content');
+            if (c && d.contenu) { c.scrollTop = d.contenu; ok = ok && Math.abs(c.scrollTop - d.contenu) < 30; }
+            // Le fil se charge petit à petit : on réessaie jusqu'à ce que la position tienne.
+            if (ok) reussis++;
+          } else if (!d.fenetre && !d.contenu) reussis++;
+        } catch (e) {}
+        if (reussis >= 3 || essais > 40) clearInterval(minuteur);
+      }, 300);
+    }, 150);
+  })();
   window.ouvrirItineraire = function(adresse) {
     if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
     else toast('📍 Adresse non disponible', '');
