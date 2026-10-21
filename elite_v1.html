@@ -285,7 +285,7 @@ async function chargerElite(){
         nom: (u.nom || u.prenom || 'Pro'),
         metier: u.metier || TR('Professionnel ArtiRoyce'),
         photoAvatar: u.photoAvatar || null,
-        telephone: u.telephone || null,
+        telephone: (u.telephonePrive === true) ? null : (u.telephone || null),   // numéro privé : pas de bouton d'appel
         role: u.role,
         vuesProfilTotal: u.vuesProfilTotal || 0
       });
