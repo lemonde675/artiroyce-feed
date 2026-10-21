@@ -1159,7 +1159,7 @@ async function getAuthorInfo(uid){
     if (snap.exists) {
       info.prenom = snap.data().prenom || '';
       info.role = snap.data().role || 'artisan';
-      info.telephone = snap.data().telephone || '';
+      info.telephone = snap.data().telephonePrive === true ? '' : (snap.data().telephone || '');   // numéro privé : jamais utilisé
       info.nom = snap.data().nom || '';
       info.photoAvatar = snap.data().photoAvatar || '';
       // En ligne = un signal reçu il y a moins de 60 s (même règle que les autres pages).
