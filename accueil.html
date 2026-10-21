@@ -2391,15 +2391,20 @@ function toggleSiteWidth(){
    • Le son est ACTIVÉ par défaut : arrivé sur une vidéo, elle parle à voix haute.
      (Chrome exige que la personne ait touché l'écran au moins une fois : avant ça, la
       vidéo démarre sans le son, et le premier toucher l'active.)
-   • Toucher l'icône 🔊/🔇 coupe ou remet le son, pour TOUTES les vidéos suivantes.
-     Un appui long sur l'icône ouvre toujours le curseur de volume.
+   • Volume à moitié par défaut. Toucher l'icône 🔊 ouvre le curseur (comme avant) :
+     on monte ou on baisse ; le réglage est gardé pour toutes les vidéos suivantes
+     (curseur à 0 = son coupé).
    • Une seule vidéo (ou musique de photo) joue à la fois : la précédente s'arrête
      immédiatement, y compris quand on quitte l'onglet Accueil. */
 (function(){
   const ICO_MUET = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
   const ICO_SON  = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
-  let sonActif = true;
-  try { sonActif = sessionStorage.getItem('arSonAccueil') !== '0'; } catch (e) {}
+  let sonActif = true, volumeVoulu = 0.5;
+  try {
+    sonActif = sessionStorage.getItem('arSonAccueil') !== '0';
+    const v = parseFloat(sessionStorage.getItem('arVolAccueil'));
+    if (v > 0 && v <= 1) volumeVoulu = v;
+  } catch (e) {}
   const feed = () => document.getElementById('feedW');
   const medias = () => Array.from(document.querySelectorAll('#feedW video.vcard-bg, #feedW audio[data-idx]'));
   const aDejaTouche = () => !!(navigator.userActivation ? navigator.userActivation.hasBeenActive : window.__arAToucheAcc);
@@ -2407,13 +2412,12 @@ function toggleSiteWidth(){
     const ico = document.getElementById('sonIco-' + el.dataset.idx);
     if (ico) ico.innerHTML = el.muted ? ICO_MUET : ICO_SON;
   }
-  function memoriser(){ try { sessionStorage.setItem('arSonAccueil', sonActif ? '1' : '0'); } catch (e) {} }
+  function memoriser(){ try { sessionStorage.setItem('arSonAccueil', sonActif ? '1' : '0'); sessionStorage.setItem('arVolAccueil', String(volumeVoulu)); } catch (e) {} }
   // Le son voulu, appliqué à un média qui joue.
   function appliquerSon(el){
     const voulu = sonActif && aDejaTouche();
-    if (el.muted === !voulu) { icone(el); return; }
-    el.muted = !voulu;
-    if (!el.muted && (!el.volume || el.volume < 0.05)) el.volume = 1;
+    if (Math.abs(el.volume - volumeVoulu) > 0.01) el.volume = volumeVoulu;
+    if (el.muted !== !voulu) el.muted = !voulu;
     icone(el);
   }
   let indiceMontre = false;
@@ -2448,37 +2452,16 @@ function toggleSiteWidth(){
     const r = f.getBoundingClientRect(), cy = r.top + r.height / 2;
     return medias().find(m => { const c = m.closest('.vcard'); if (!c) return false; const b = c.getBoundingClientRect(); return b.top <= cy && b.bottom >= cy; }) || null;
   }
-  // Couper / remettre le son pour toutes les vidéos.
-  function basculerSonGlobal(){
-    sonActif = !sonActif; memoriser();
-    window.__arAToucheAcc = true;
-    medias().forEach(m => { if (!m.paused) { m.muted = !sonActif; if (sonActif && (!m.volume || m.volume < 0.05)) m.volume = 1; } icone(m); });
-  }
-  // Toucher l'icône = couper/remettre le son ; appui long = curseur de volume (comme avant).
-  const ouvrirCurseur = window.toggleVolumeSliderAcc;
-  let appuiLong = null, ouvertParAppuiLong = false;
-  document.addEventListener('pointerdown', function (e) {
-    const b = e.target.closest && e.target.closest('.son-btn-top'); if (!b) return;
-    ouvertParAppuiLong = false;
-    clearTimeout(appuiLong);
-    appuiLong = setTimeout(() => {
-      ouvertParAppuiLong = true;
-      const m = (b.getAttribute('onclick') || '').match(/toggleVolumeSliderAcc\((\d+),'(\w+)'\)/);
-      if (m && ouvrirCurseur) ouvrirCurseur(Number(m[1]), m[2]);
-    }, 450);
-  }, true);
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, () => clearTimeout(appuiLong), true));
-  window.toggleVolumeSliderAcc = function(index, type){
-    if (ouvertParAppuiLong) { ouvertParAppuiLong = false; return; }
-    document.querySelectorAll('.vol-slider-wrap.open').forEach(w => w.classList.remove('open'));
-    basculerSonGlobal();
-  };
   // Le curseur et les anciens boutons gardent le réglage commun à jour.
   const regler = window.reglerVolumeAcc;
   window.reglerVolumeAcc = function(index, type, val){
     regler(index, type, val);
-    sonActif = Number(val) > 0; memoriser(); window.__arAToucheAcc = true;
+    const v = Math.max(0, Math.min(100, Number(val) || 0)) / 100;
+    sonActif = v > 0; if (v > 0) volumeVoulu = v;
+    memoriser(); window.__arAToucheAcc = true;
   };
+  // À l'ouverture du curseur, il montre le volume réel (moitié par défaut).
+  document.querySelectorAll('.vol-slider').forEach(r => { if (r.value === '100') r.value = Math.round(volumeVoulu * 100); });
   ['basculerMuetVideoAcc', 'basculerMuetAudioAcc'].forEach(nom => {
     const o = window[nom]; if (typeof o !== 'function') return;
     window[nom] = function(index){
