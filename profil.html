@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
@@ -893,6 +894,12 @@
       document.getElementById('coordHoraires').textContent  = userData.horaires  || '—';
       document.getElementById('profileBio').textContent     = userData.bio || 'Professionnel vérifié sur ArtiRoyce.';
       renderHistoryPro();
+      // Vie privée : e-mail et monétisation pour le propriétaire seul ; téléphone public/privé à son choix.
+      if (window.ArViePrivee) ArViePrivee.appliquer({
+        estMoi: isOwnProfile, donnees: userData,
+        enregistrer: (champs) => updateDoc(doc(db, 'utilisateurs', currentUser.uid), champs),
+        toast: (m) => window.showToast && window.showToast(m, 'success')
+      });
       chargerStatistiques();
       compterVisiteProfil();
 
@@ -1052,7 +1059,7 @@
 
       // Mettre à jour l'affichage
       document.getElementById('profileBio').textContent = bio || 'Professionnel vérifié sur ArtiRoyce.';
-      document.getElementById('coordWa').textContent    = whatsapp || userData.telephone || '—';
+      document.getElementById('coordWa').textContent    = whatsapp || (userData.telephonePrive ? '🔒 Privé' : userData.telephone) || '—';
       document.getElementById('coordAdresse').textContent = adresse || '—';
       document.getElementById('coordHoraires').textContent = horaires || '—';
       document.getElementById('coordWeb').textContent   = siteWeb || '—';
@@ -1657,6 +1664,7 @@
   <button class="photo-viewer-close" onclick="document.getElementById('photoViewer').classList.remove('open')">✕</button>
   <img id="photoViewerImg" src="" alt="Photo"/>
 </div>
+<script src="vie-privee.js"></script>
 <script type="module" src="photo-profil.js"></script>
 <script src="translations.js"></script>
 </body>
