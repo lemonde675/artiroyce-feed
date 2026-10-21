@@ -2520,5 +2520,20 @@ auth.onAuthStateChanged(async(user)=>{
   // le téléchargement AVEC la marque est dans le menu ⋯ du statut.
   if (window.ArFiligrane) ArFiligrane.appuiLong(function () {});
 </script>
+<script src="retour.js"></script>
+<script>
+  // Touche retour : ferme le statut / l'éditeur / le menu ouvert, sans quitter Statuts.
+  if (window.ArRetour) ArRetour.surveiller([
+    { id:'viewer', fermer:'closeViewer' },
+    { id:'menuOverlay', fermer:'closeMenu' },
+    { id:'editorOverlay', fermer:'closeEditor' },
+    { id:'musicPanel', fermer:'closeMusicPanel' },
+    { id:'viewerMenuOverlay', fermer:'closeViewerMenu' },
+    { id:'statsOverlay', fermer:'closeStatutStats' },
+    { id:'speedOverlay', fermer:'closeSpeedPicker' },
+    { id:'cercleOverlay', fermer:'fermerCercle' },
+    { id:'contactsOverlay', fermer:'closeContacts' }
+  ]);
+</script>
 </body>
 </html>
