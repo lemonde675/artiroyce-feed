@@ -127,6 +127,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
 .ph { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .ph-av { width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; position: relative; overflow: visible; cursor: pointer; }
+.ph-av-img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
 .ph-vb { position: absolute; top: -1px; right: -1px; width: 16px; height: 16px; border-radius: 50%; background: var(--green); border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 900; }
 .online-dot { display: none; position: absolute; bottom: 1px; right: 1px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2.5px solid #fff; }
 .ph-info { flex: 1; min-width: 0; }
@@ -467,6 +468,7 @@ async function surChangementAuth(user) {
       currentUser.verifie = currentUser.role !== 'visiteur';
       currentUser.ville = d.ville || '';
       currentUser.photoAvatar = d.photoAvatar || '';
+      photosAuteurs[user.uid] = currentUser.photoAvatar;   // ma propre photo, tout de suite sur mes publications
       ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
     } else {
       ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
@@ -572,10 +574,26 @@ window.onSearchInput = function () {
 const palettes = ['#e63224','#27a945','#1a5276','#8e44ad','#d35400','#16a085','#c0392b','#2980b9','#7d3c98','#229954'];
 const BADGES = { 'Vente':'🛍️ Vente', 'Arts':'🎨 Arts', 'Mode':'👗 Mode', 'Événements':'🎉 Événement', 'Business':'💼 Business' };
 
+/* Vraie photo de profil des auteurs (avant : seulement l'initiale, même après un
+   changement de photo). Gardée en mémoire : affichée tout de suite aux prochains passages. */
+const photosAuteurs = {};
+function imgAuteurHTML(uid) {
+  const ph = uid && photosAuteurs[uid];
+  return ph ? '<img class="ph-av-img" src="' + escapeHtml(ph) + '" alt="" onerror="this.remove()">' : '';
+}
+function appliquerPhotoAuteur(uid) {
+  const ph = photosAuteurs[uid];
+  document.querySelectorAll('.ph-av[data-uid="' + uid + '"]').forEach(av => {
+    const img = av.querySelector('.ph-av-img');
+    if (!ph) { if (img) img.remove(); return; }
+    if (img) { if (img.getAttribute('src') !== ph) img.setAttribute('src', ph); return; }
+    av.insertAdjacentHTML('afterbegin', imgAuteurHTML(uid));
+  });
+}
 function creerAvatarHTML(nom, verifie, uid) {
   const initiale = (nom || '?')[0].toUpperCase();
   const couleur = palettes[initiale.charCodeAt(0) % palettes.length];
-  return '<div class="ph-av" style="background:' + couleur + '" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + escapeHtml(initiale)
+  return '<div class="ph-av" data-uid="' + escapeHtml(uid || '') + '" style="background:' + couleur + '" onclick="window.__voirProfil(\'' + (uid || '') + '\')">' + imgAuteurHTML(uid) + escapeHtml(initiale)
     + (verifie ? '<span class="ph-vb">✔</span>' : '')
     + '<div class="online-dot" data-author="' + (uid || '') + '"></div>'
     + '</div>';
@@ -615,6 +633,9 @@ async function marquerAuteursEnLigne(){
     try {
       const uSnap = await db.collection('utilisateurs').doc(uid).get();
       const ms = uSnap.exists ? dernierSignalMs(uSnap.data()) : 0;
+      // Même lecture : la photo de profil actuelle de l'auteur.
+      photosAuteurs[uid] = (uSnap.exists && uSnap.data().photoAvatar) || '';
+      appliquerPhotoAuteur(uid);
       const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_MS;
       document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
     } catch (e) {}
