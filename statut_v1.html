@@ -182,6 +182,17 @@ html,body{width:100%;font-family:'Segoe UI',Arial,sans-serif;background:var(--bg
 .editor-ph-label{font-size:13px;color:#fff;font-weight:700}
 .editor-change{position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.4);border-radius:18px;padding:6px 12px;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
 .ed-sec{padding:12px 16px;border-bottom:1px solid #f5f5f5}
+/* Texte posé sur la photo (déplaçable au doigt) */
+.ed-txt-sur{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:90%;padding:4px 8px;font-weight:800;line-height:1.15;text-align:center;white-space:pre-wrap;word-break:normal;overflow-wrap:normal;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;text-shadow:0 1px 3px rgba(0,0,0,.75),0 0 2px rgba(0,0,0,.6);z-index:3;border:1.5px dashed rgba(255,255,255,.55);border-radius:6px}
+.ed-txt-sur:empty{display:none}
+.ed-txt-ligne{display:flex;gap:8px;align-items:center}
+.ed-txt-inp{flex:1;min-width:0;border:1.5px solid #eee;border-radius:12px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none}
+.ed-txt-inp:focus{border-color:#ec4899}
+.ed-txt-taille{width:34px;height:34px;border-radius:50%;border:1.5px solid #eee;background:#fff;font-weight:900;font-size:13px;cursor:pointer;flex-shrink:0}
+.ed-txt-couleurs{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.ed-txt-coul{width:26px;height:26px;border-radius:50%;border:2px solid #ddd;cursor:pointer}
+.ed-txt-coul.actif{outline:2.5px solid #ec4899;outline-offset:2px}
+.ed-txt-aide{font-size:11px;color:#aaa;margin-top:6px}
 .ed-sec-title{font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
 .music-mini{display:flex;align-items:center;gap:10px;background:#f5f5f7;border-radius:13px;padding:10px 13px;cursor:pointer}
 .music-mini:active{background:#ebebed}
@@ -595,7 +606,7 @@ window.chargerStatuts=function(){
       }
       map[uid].items.push({
         docId:docSnap.id,e:d.e||'📢',m:d.texte||'',photo:d.photo||null,photos:d.photos||null,effet:d.effet||'static',video:d.video||null,bg:d.bg||null,
-        music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,
+        music:d.music||null,musicUrl:d.musicUrl||null,trimS:d.trimS||0,trimE:d.trimE||15,surTexte:d.surTexte||null,
         postedAt:ts,vu:(uid===MOI_ID)?true:(Array.isArray(d.vuPar)&&d.vuPar.indexOf(MOI_ID)>=0),
         restreint:!!d.restreint,visibleUids:Array.isArray(d.visibleUids)?d.visibleUids:[],exclusUids:Array.isArray(d.exclusUids)?d.exclusUids:[],
         vuCount:Array.isArray(d.vuPar)?d.vuPar.length:0
@@ -630,7 +641,10 @@ window.chargerStatuts=function(){
      puis remplacée en silence par la version à jour. */
 function signatureStatuts(){
   try{
-    return JSON.stringify(listeOrdonnee().map(function(p){
+    // Mes propres statuts comptent aussi : avant, ils n'étaient pas dans ce résumé, donc un
+    // statut que je venais de publier n'apparaissait sur ma tuile qu'après reconnexion.
+    var moi=S.find(function(x){return x.id===MOI_ID;});
+    return JSON.stringify(listeOrdonnee().concat(moi?[moi]:[]).map(function(p){
       return [p.id,p.n,p.ph,p.hidden,p.vb,p.role,p.items.map(function(it){
         return [it.docId,it.vu,!!it.photo,(it.photos||[]).length,!!it.video,it.m,it.music,it.bg];
       })];
@@ -645,7 +659,7 @@ function sauverCacheStatuts(){
         items:p.items.map(function(it){
           var ph=it.photo&&(/^https?:/.test(it.photo)||it.photo.length<120000)?it.photo:null;
           return {docId:it.docId,e:it.e,m:it.m,photo:ph,photos:null,effet:it.effet,video:it.video&&/^https?:/.test(it.video)?it.video:null,bg:it.bg,
-            music:it.music,musicUrl:it.musicUrl,trimS:it.trimS,trimE:it.trimE,postedAt:it.postedAt,vu:it.vu,
+            music:it.music,musicUrl:it.musicUrl,trimS:it.trimS,trimE:it.trimE,surTexte:it.surTexte||null,postedAt:it.postedAt,vu:it.vu,
             restreint:it.restreint,visibleUids:[],exclusUids:[],vuCount:it.vuCount,depuisCache:true};
         })};
     });
@@ -960,7 +974,14 @@ function openViewer(personId,itemIdx){
   curItemIdx=itemIdx;
   ordonneeSession=listeOrdonnee(); // figé ici : ne change plus même quand "vu" passe à true en cours de route
   document.getElementById('viewer').classList.add('open');
+  signalerLecteurAuShell(true);
   showCurrentItem();
+}
+/* Prévient accueil.html que le lecteur de statut est ouvert : ses bandes invisibles de
+   glissement (bords gauche et droit, 35 px) se désactivent, sinon elles « mangeaient »
+   les touches sur les côtés et seul le milieu de l'écran répondait. */
+function signalerLecteurAuShell(ouvert){
+  try{ if(window.parent&&window.parent!==window) window.parent.postMessage({type:'statutLecteur',ouvert:!!ouvert},'*'); }catch(e){}
 }
 
 function showCurrentItem(){
@@ -1039,6 +1060,7 @@ function showCurrentItem(){
     vMedia.innerHTML='';vMedia.style.display='none';
     document.getElementById('vEmoji').style.display='block';
   }
+  afficherSurTexte(it);
   document.getElementById('vEmoji').textContent=it.e;
   document.getElementById('vTxt').textContent=it.m;
   document.getElementById('vTxt').style.display=it.m?'':'none';
@@ -1077,6 +1099,25 @@ function showCurrentItem(){
     bars+='<div class="v-bar"><div class="v-fill '+cls+'"'+styleAttr+'></div></div>';
   });
   document.getElementById('vProg').innerHTML=bars;
+  // Vidéo : la barre du haut avance avec la vraie lecture, et le temps s'affiche
+  // (avant, elle restait pleine et figée : on ne savait pas où on en était).
+  if(estItemVideo){
+    var vidP=document.querySelector('#vMedia video');
+    var fillP=document.querySelectorAll('#vProg .v-fill')[curItemIdx];
+    var vTEl=document.getElementById('vT'), baseT=vTEl.textContent;
+    var mmss=function(x){x=Math.max(0,Math.floor(x||0));return Math.floor(x/60)+':'+String(x%60).padStart(2,'0');};
+    if(vidP&&fillP){
+      fillP.classList.remove('manual');
+      fillP.style.width='0%';
+      fillP.style.transition='width .25s linear';
+      var majP=function(){
+        if(!isFinite(vidP.duration)||!vidP.duration)return;
+        fillP.style.width=Math.min(100,vidP.currentTime/vidP.duration*100)+'%';
+        vTEl.textContent=baseT+' · '+mmss(vidP.currentTime)+' / '+mmss(vidP.duration);
+      };
+      vidP.ontimeupdate=majP; vidP.onloadedmetadata=majP;
+    }
+  }
 
   if(!it.vu){
     it.vu=true; // mise à jour optimiste immédiate à l'écran
@@ -1090,6 +1131,26 @@ function showCurrentItem(){
   T=(DEFILEMENT_AUTO&&!estItemVideo)?setTimeout(goNextItem,ITEM_DUREE_MS):null;
 }
 
+/* Texte posé sur une vidéo ou un collage : même place et même taille que dans l'éditeur. */
+function afficherSurTexte(it){
+  var vMedia=document.getElementById('vMedia'); if(!vMedia)return;
+  var ancien=document.getElementById('vSurTxt'); if(ancien)ancien.remove();
+  var st=it&&it.surTexte; if(!st||!st.t||vMedia.style.display==='none')return;
+  var el=document.createElement('div');
+  el.id='vSurTxt'; el.className='ed-txt-sur';
+  el.style.border='none'; el.style.pointerEvents='none'; el.style.zIndex='2';
+  el.textContent=st.t;
+  vMedia.appendChild(el);
+  var vid=vMedia.querySelector('video');
+  var placer=function(){
+    var r=vMedia.getBoundingClientRect(), left=0, top=0, w=r.width, h=r.height;
+    if(vid&&vid.videoWidth){ var k=Math.min(r.width/vid.videoWidth, r.height/vid.videoHeight); w=vid.videoWidth*k; h=vid.videoHeight*k; left=(r.width-w)/2; top=(r.height-h)/2; }
+    el.style.left=(left+(st.x||0.5)*w)+'px'; el.style.top=(top+(st.y||0.5)*h)+'px';
+    el.style.fontSize=Math.max(12,(st.taille||0.08)*w)+'px'; el.style.color=st.couleur||'#fff'; el.style.maxWidth=(w*0.92)+'px';
+  };
+  placer();
+  if(vid&&!vid.videoWidth)vid.addEventListener('loadedmetadata',placer,{once:true});
+}
 function goNextItem(){
   var p=S[curPersonIdx];
   if(curItemIdx<p.items.length-1){curItemIdx++;showCurrentItem();return;}
@@ -1137,6 +1198,7 @@ window.toggleMuteViewer=function(){
 function closeViewer(){
   if(viewerEffTimer){clearInterval(viewerEffTimer);viewerEffTimer=null;}
   document.getElementById('viewer').classList.remove('open');
+  signalerLecteurAuShell(false);
   document.getElementById('vStickers').classList.remove('open');
   document.getElementById('viewerMenuOverlay').classList.remove('open');
   document.getElementById('contactsOverlay').classList.remove('open');
@@ -1678,23 +1740,30 @@ function openEditor(mode){
   var body=document.getElementById('editorBody');
   body.innerHTML='';
 
+  edTexte={ x:0.5, y:0.5, taille:0.08, couleur:'#ffffff' };
   if(mode==='photo'){
-    body.innerHTML='<div class="editor-preview" id="edPrev" onclick="trigEdFile()">'
+    body.innerHTML='<div class="editor-preview" id="edPrev" style="height:300px" onclick="if(!editorPhotoData)trigEdFile()">'
       +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">📷</div><div class="editor-ph-label">'+TR('Toucher pour choisir une photo')+'</div></div>'
       +'<img id="edImg" style="display:none"/>'
+      +'<div class="ed-txt-sur" id="edTxtSur"></div>'
       +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">'+TR('Changer')+'</button>'
       +'</div>'
       +'<input type="file" id="edFile" accept="image/*" style="display:none" onchange="handleEdFile(this)"/>'
+      +texteSec()
       +musicSec();
+    setTimeout(initTexteSurPhoto,30);
 
   }else if(mode==='video'){
-    body.innerHTML='<div class="editor-preview" id="edPrev" onclick="trigEdFile()">'
+    body.innerHTML='<div class="editor-preview" id="edPrev" style="height:300px" onclick="if(!editorVideoFile)trigEdFile()">'
       +'<div class="editor-ph" id="edPh"><div class="editor-ph-icon">🎥</div><div class="editor-ph-label">'+TR('Toucher pour choisir une vidéo')+'</div></div>'
       +'<video id="edVid" style="display:none;max-width:100%;max-height:100%" controls></video>'
+      +'<div class="ed-txt-sur" id="edTxtSur"></div>'
       +'<button class="editor-change" id="edChange" style="display:none" onclick="event.stopPropagation();trigEdFile()">'+TR('Changer')+'</button>'
       +'</div>'
       +'<input type="file" id="edFile" accept="video/*" style="display:none" onchange="handleEdFile(this)"/>'
+      +texteSec()
       +musicSec();
+    setTimeout(initTexteSurPhoto,30);
 
   }else if(mode==='text'){
     body.innerHTML='<div class="text-preview" id="textPrev" style="background:'+selectedBg+'">'
@@ -1713,7 +1782,7 @@ function openEditor(mode){
     },30);
 
   }else if(mode==='collage'){
-    body.innerHTML='<div class="editor-preview" style="height:180px"><div id="collageAnim" style="width:100%;height:100%;position:relative;overflow:hidden"></div><div id="collagePH" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,0.4);text-align:center;font-size:13px;font-weight:700"><div style="font-size:38px">🖼️</div>Ajoute tes photos</div></div>'
+    body.innerHTML='<div class="editor-preview" id="edPrev" style="height:220px"><div class="ed-txt-sur" id="edTxtSur"></div><div id="collageAnim" style="width:100%;height:100%;position:relative;overflow:hidden"></div><div id="collagePH" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(255,255,255,0.4);text-align:center;font-size:13px;font-weight:700"><div style="font-size:38px">🖼️</div>Ajoute tes photos</div></div>'
       +'<div style="padding:10px 16px 4px"><div id="collageGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px"></div>'
       +'<button onclick="trigEdFile()" style="background:var(--red);color:#fff;border:none;border-radius:12px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;width:100%">'+TR('📷 Ajouter photos (max 4)')+'</button></div>'
       +'<div style="padding:8px 16px 4px"><div style="font-size:11px;font-weight:800;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:7px">🎬 Effet</div>'
@@ -1724,7 +1793,9 @@ function openEditor(mode){
       +'<button class="eff-btn" id="eff-slide" onclick="setEff(\'slide\')">🌀 Slide</button>'
       +'</div></div>'
       +'<input type="file" id="edFile" accept="image/*" multiple style="display:none" onchange="handleCollage(this)"/>'
+      +texteSec()
       +musicSec();
+    setTimeout(initTexteSurPhoto,30);
 
   }else if(mode==='audio'){
     body.innerHTML='<div style="padding:20px 16px;display:flex;flex-direction:column;align-items:center">'
@@ -1737,9 +1808,111 @@ function openEditor(mode){
     setTimeout(function(){var w=document.getElementById('recWave');for(var i=0;i<18;i++){var b=document.createElement('div');b.style.cssText='width:3px;border-radius:3px;background:var(--red);height:'+(5+Math.random()*26)+'px;animation:wave '+(0.4+Math.random()*0.5)+'s infinite ease-in-out alternate';w.appendChild(b);}},30);
   }
   document.getElementById('editorOverlay').classList.add('open');
+  signalerLecteurAuShell(true);   // texte déplacé jusqu'au bord : les bandes de l'Accueil ne le volent pas
+}
+/* ══ Texte sur la photo ══
+   Le texte est posé au doigt sur l'aperçu ; à la publication il est « incrusté » dans la
+   photo (même place, même taille, même couleur), pour rester identique sur tous les téléphones. */
+var edTexte={ x:0.5, y:0.5, taille:0.08, couleur:'#ffffff' };
+var COULEURS_TEXTE=['#ffffff','#000000','#e63224','#ffd600','#27a945','#ec4899','#1e88e5'];
+function texteSec(){
+  return '<div class="ed-sec" id="edTxtSec" style="display:none"><div class="ed-sec-title">✏️ '+TR('Texte sur la photo')+'</div>'
+    +'<div class="ed-txt-ligne"><input class="ed-txt-inp" id="edTxtInp" maxlength="120" placeholder="'+TR('Écrire un texte…')+'" oninput="majTexteSurPhoto()">'
+    +'<button class="ed-txt-taille" onclick="tailleTexteSurPhoto(-1)">A-</button><button class="ed-txt-taille" onclick="tailleTexteSurPhoto(1)">A+</button></div>'
+    +'<div class="ed-txt-couleurs" id="edTxtCouleurs"></div>'
+    +'<div class="ed-txt-aide">'+TR('Déplacez le texte avec le doigt sur la photo.')+'</div></div>';
+}
+// Zone réellement occupée par le média dans l'aperçu (photo ou vidéo : sans les bandes noires ;
+// collage : tout le cadre).
+function rectImageEd(){
+  var prev=document.getElementById('edPrev'); if(!prev)return null;
+  var r=prev.getBoundingClientRect();
+  var img=document.getElementById('edImg'), vid=document.getElementById('edVid');
+  var nw=0, nh=0;
+  if(img&&img.style.display!=='none'&&img.naturalWidth){ nw=img.naturalWidth; nh=img.naturalHeight; }
+  else if(vid&&vid.style.display!=='none'&&vid.videoWidth){ nw=vid.videoWidth; nh=vid.videoHeight; }
+  else if(editorMode==='collage'&&collageImages&&collageImages.length){ return { left:0, top:0, w:r.width, h:r.height, prev:r }; }
+  if(!nw)return null;
+  var k=Math.min(r.width/nw, r.height/nh), w=nw*k, h=nh*k;
+  return { left:(r.width-w)/2, top:(r.height-h)/2, w:w, h:h, prev:r };
+}
+window.placerTexteSurPhotoEd=function(){ placerTexteSurPhoto(); };
+function placerTexteSurPhoto(){
+  var el=document.getElementById('edTxtSur'), ri=rectImageEd(); if(!el||!ri)return;
+  el.style.left=(ri.left+edTexte.x*ri.w)+'px';
+  el.style.top=(ri.top+edTexte.y*ri.h)+'px';
+  el.style.fontSize=Math.max(10,edTexte.taille*ri.w)+'px';
+  el.style.color=edTexte.couleur;
+  el.style.maxWidth=(ri.w*0.92)+'px';
+}
+window.majTexteSurPhoto=function(){
+  var el=document.getElementById('edTxtSur'), inp=document.getElementById('edTxtInp'); if(!el||!inp)return;
+  el.textContent=inp.value; placerTexteSurPhoto();
+};
+window.tailleTexteSurPhoto=function(sens){
+  edTexte.taille=Math.min(0.2,Math.max(0.035,edTexte.taille*(sens>0?1.2:1/1.2))); placerTexteSurPhoto();
+};
+function initTexteSurPhoto(){
+  var zone=document.getElementById('edTxtCouleurs'), el=document.getElementById('edTxtSur'), img=document.getElementById('edImg');
+  if(!zone||!el)return;
+  zone.innerHTML=COULEURS_TEXTE.map(function(c,i){ return '<span class="ed-txt-coul'+(i===0?' actif':'')+'" style="background:'+c+'" data-c="'+c+'"></span>'; }).join('');
+  zone.querySelectorAll('.ed-txt-coul').forEach(function(d){ d.onclick=function(){ zone.querySelectorAll('.ed-txt-coul').forEach(function(x){x.classList.remove('actif');}); d.classList.add('actif'); edTexte.couleur=d.dataset.c; placerTexteSurPhoto(); }; });
+  if(img) img.onload=placerTexteSurPhoto;
+  var glisse=null;
+  el.addEventListener('pointerdown',function(e){
+    e.stopPropagation(); e.preventDefault();
+    var ri=rectImageEd(); if(!ri)return;
+    glisse={ id:e.pointerId, ri:ri };
+    try{ el.setPointerCapture(e.pointerId); }catch(er){}
+    el.style.cursor='grabbing';
+  });
+  el.addEventListener('pointermove',function(e){
+    if(!glisse||e.pointerId!==glisse.id)return;
+    var ri=glisse.ri;
+    edTexte.x=Math.min(0.98,Math.max(0.02,(e.clientX-ri.prev.left-ri.left)/ri.w));
+    edTexte.y=Math.min(0.98,Math.max(0.02,(e.clientY-ri.prev.top-ri.top)/ri.h));
+    placerTexteSurPhoto();
+  });
+  var fin=function(){ glisse=null; el.style.cursor='grab'; };
+  el.addEventListener('pointerup',fin); el.addEventListener('pointercancel',fin);
+  el.addEventListener('click',function(e){ e.stopPropagation(); });
+}
+// Lignes du texte, coupées pour tenir dans 92 % de la largeur.
+function lignesTexte(ctx, texte, maxW){
+  var lignes=[];
+  String(texte).split('\n').forEach(function(par){
+    var mots=par.split(' '), cur='';
+    mots.forEach(function(m){ var t=cur?cur+' '+m:m; if(ctx.measureText(t).width>maxW&&cur){ lignes.push(cur); cur=m; } else cur=t; });
+    lignes.push(cur);
+  });
+  return lignes;
+}
+function incrusterTexteSurPhoto(dataUrl){
+  var inp=document.getElementById('edTxtInp'), texte=inp?inp.value.trim():'';
+  if(!texte||!dataUrl)return Promise.resolve(dataUrl);
+  return new Promise(function(ok,ko){
+    var im=new Image();
+    im.onload=function(){
+      try{
+        var c=document.createElement('canvas'); c.width=im.naturalWidth; c.height=im.naturalHeight;
+        var x=c.getContext('2d'); x.drawImage(im,0,0);
+        var fs=Math.max(12,Math.round(edTexte.taille*c.width));
+        x.font='800 '+fs+"px 'Segoe UI', Arial, sans-serif";
+        x.textAlign='center'; x.textBaseline='middle';
+        var lignes=lignesTexte(x, texte, c.width*0.88), lh=fs*1.15;
+        var y0=edTexte.y*c.height-(lignes.length-1)*lh/2, cx=edTexte.x*c.width;
+        x.shadowColor='rgba(0,0,0,.75)'; x.shadowBlur=Math.max(2,fs*0.12); x.shadowOffsetY=Math.max(1,fs*0.04);
+        x.fillStyle=edTexte.couleur;
+        lignes.forEach(function(l,i){ x.fillText(l, cx, y0+i*lh); });
+        ok(c.toDataURL('image/jpeg',0.8));
+      }catch(e){ ko(e); }
+    };
+    im.onerror=ko; im.src=dataUrl;
+  });
 }
 function closeEditor(){
   document.getElementById('editorOverlay').classList.remove('open');
+  if(!document.getElementById('viewer').classList.contains('open')) signalerLecteurAuShell(false);
   editorMusic=null;
   if(recInterval)clearInterval(recInterval);
   if(currentAudio){currentAudio.pause();currentAudio=null;}
@@ -1853,11 +2026,14 @@ function handleEdFile(inp){
     compresserImage(f, 1000, 0.72).then(function(dataUrl){
       editorPhotoData=dataUrl;
       var img=document.getElementById('edImg');img.src=dataUrl;img.style.display='block';
+      var sec=document.getElementById('edTxtSec');if(sec)sec.style.display='';
     }).catch(function(err){ console.error(err); toast('⚠️ Photo invalide, réessaie',''); });
   }else if(editorMode==='video'){
     var url=URL.createObjectURL(f);
     editorVideoUrl=url;editorVideoFile=f; // aperçu instantané + valeur par défaut si la compression échoue
     var vid=document.getElementById('edVid');vid.src=url;vid.style.display='block';
+    vid.onloadedmetadata=function(){ if(window.placerTexteSurPhotoEd)placerTexteSurPhotoEd(); };
+    var secV=document.getElementById('edTxtSec');if(secV)secV.style.display='';
 
     // Compression en arrière-plan (résolution + débit réduits) : ne bloque pas l'aperçu ni la
     // suite de l'édition (musique, etc.) — seul le bouton "Publier" attend la fin si nécessaire.
@@ -1922,7 +2098,7 @@ function handleCollage(inp){
       var d=document.createElement('div');
       d.style.cssText='height:55px;border-radius:7px;background:url('+dataUrl+') center/cover;cursor:pointer;';
       if(grid)grid.appendChild(d);
-      if(loaded===files.length){var ph=document.getElementById('collagePH');if(ph)ph.style.display='none';renderCollage();}
+      if(loaded===files.length){var ph=document.getElementById('collagePH');if(ph)ph.style.display='none';renderCollage();var secC=document.getElementById('edTxtSec');if(secC)secC.style.display='';if(window.placerTexteSurPhotoEd)placerTexteSurPhotoEd();}
     }).catch(function(err){
       console.error(err); loaded++;
       toast('⚠️ Une photo du collage n\'a pas pu être traitée','');
@@ -1976,6 +2152,7 @@ async function publishStatut(){
   if(editorMode==='video'&&editorVideoCompressing){toast('⏳ Compression de la vidéo en cours, patiente un instant…',''); return;}
   if(editorMode==='collage'&&(!collageImages||!collageImages.length)){toast('⚠️ Ajoute au moins une photo',''); return;}
   if(!window.currentUid){toast('Connecte-toi pour publier',''); return;}
+  if(editorMode==='photo'){ try{ editorPhotoData=await incrusterTexteSurPhoto(editorPhotoData); }catch(e){ console.warn('Texte non incrusté :',e); } }
   var tv=editorMode==='text'&&document.getElementById('textArea')?document.getElementById('textArea').value||'Statut texte':'';
   var me=window.ME||{prenom:'Moi',role:'visiteur'};
 
@@ -2032,6 +2209,10 @@ async function publishStatut(){
       music:editorMusic||null, musicUrl:editorMusicUrl||null, trimS:editorMusicTrimS||0, trimE:editorMusicTrimE||15,
       createdAt:window.fb.serverTimestamp(), vuPar:[]
     };
+    var txtSur=document.getElementById('edTxtInp');
+    if((editorMode==='video'||editorMode==='collage')&&txtSur&&txtSur.value.trim()){
+      payload.surTexte={ t:txtSur.value.trim().slice(0,120), x:edTexte.x, y:edTexte.y, taille:edTexte.taille, couleur:edTexte.couleur };
+    }
     // Qui peut voir : le cercle choisi (retenu pour les prochains statuts, comme sur WhatsApp).
     var cerclePub=lireCercle();
     payload.visibilite=cerclePub.mode;
