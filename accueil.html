@@ -975,6 +975,12 @@ function toggleSiteWidth(){
       ['swipeLeft', 'swipeRight'].forEach(id => { const z = document.getElementById(id); if (z) z.style.pointerEvents = actif ? '' : 'none'; });
       return;
     }
+    // Lecteur de Statuts ouvert : mêmes bandes de bord désactivées (sinon les touches
+    // « précédent / suivant » sur les côtés ne répondaient pas).
+    if (e.data.type === 'statutLecteur') {
+      ['swipeLeftSt', 'swipeRightSt'].forEach(id => { const z = document.getElementById(id); if (z) z.style.pointerEvents = e.data.ouvert ? 'none' : ''; });
+      return;
+    }
     if (e.data.type === 'afficherDiscussion') {
       if (currentPanel !== 6) window.goToPanel(6);
       return;
@@ -2379,6 +2385,124 @@ function toggleSiteWidth(){
     obs.observe(feed, { childList: true, subtree: true });
     setTimeout(() => { obs.disconnect(); fin(); }, 15000);
   })();
+</script>
+<script>
+/* ══════════════ SON DES VIDÉOS, COMME TIKTOK ══════════════
+   • Le son est ACTIVÉ par défaut : arrivé sur une vidéo, elle parle à voix haute.
+     (Chrome exige que la personne ait touché l'écran au moins une fois : avant ça, la
+      vidéo démarre sans le son, et le premier toucher l'active.)
+   • Toucher l'icône 🔊/🔇 coupe ou remet le son, pour TOUTES les vidéos suivantes.
+     Un appui long sur l'icône ouvre toujours le curseur de volume.
+   • Une seule vidéo (ou musique de photo) joue à la fois : la précédente s'arrête
+     immédiatement, y compris quand on quitte l'onglet Accueil. */
+(function(){
+  const ICO_MUET = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  const ICO_SON  = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+  let sonActif = true;
+  try { sonActif = sessionStorage.getItem('arSonAccueil') !== '0'; } catch (e) {}
+  const feed = () => document.getElementById('feedW');
+  const medias = () => Array.from(document.querySelectorAll('#feedW video.vcard-bg, #feedW audio[data-idx]'));
+  const aDejaTouche = () => !!(navigator.userActivation ? navigator.userActivation.hasBeenActive : window.__arAToucheAcc);
+  function icone(el){
+    const ico = document.getElementById('sonIco-' + el.dataset.idx);
+    if (ico) ico.innerHTML = el.muted ? ICO_MUET : ICO_SON;
+  }
+  function memoriser(){ try { sessionStorage.setItem('arSonAccueil', sonActif ? '1' : '0'); } catch (e) {} }
+  // Le son voulu, appliqué à un média qui joue.
+  function appliquerSon(el){
+    const voulu = sonActif && aDejaTouche();
+    if (el.muted === !voulu) { icone(el); return; }
+    el.muted = !voulu;
+    if (!el.muted && (!el.volume || el.volume < 0.05)) el.volume = 1;
+    icone(el);
+  }
+  let indiceMontre = false;
+  // Un média démarre → tous les autres s'arrêtent tout de suite.
+  document.addEventListener('play', function (e) {
+    const el = e.target;
+    if (!el || !el.closest || !el.closest('#feedW')) return;
+    medias().forEach(m => { if (m !== el && !m.paused) m.pause(); });
+    if (typeof currentPanel !== 'undefined' && currentPanel !== 0) { el.pause(); return; }
+    appliquerSon(el);
+    if (sonActif && !aDejaTouche()) el.dataset.sonBloque = '1';   // muette seulement à cause de Chrome
+    if (sonActif && !aDejaTouche() && !indiceMontre && typeof toast === 'function') {
+      indiceMontre = true;
+      toast('🔇 ' + (typeof TR === 'function' ? TR('Touchez l’écran pour activer le son') : 'Touchez l’écran pour activer le son'), '');
+    }
+  }, true);
+  // Premier toucher : le son de la vidéo en cours s'active.
+  document.addEventListener('pointerdown', function premier(){
+    window.__arAToucheAcc = true;
+    setTimeout(() => { medias().forEach(m => { if (!m.paused) appliquerSon(m); }); }, 0);
+    setTimeout(() => { medias().forEach(m => { delete m.dataset.sonBloque; }); }, 700);
+  }, true);
+  // Ce premier toucher sur la vidéo sert à activer le son : il ne la met pas en pause.
+  const lectureOuPause = window.basculerLectureVideoAcc;
+  window.basculerLectureVideoAcc = function(index){
+    const v = document.getElementById('vid-' + index);
+    if (v && v.dataset.sonBloque === '1' && !v.paused) { delete v.dataset.sonBloque; appliquerSon(v); return; }
+    return lectureOuPause.apply(this, arguments);
+  };
+  function mediaCourant(){
+    const f = feed(); if (!f) return null;
+    const r = f.getBoundingClientRect(), cy = r.top + r.height / 2;
+    return medias().find(m => { const c = m.closest('.vcard'); if (!c) return false; const b = c.getBoundingClientRect(); return b.top <= cy && b.bottom >= cy; }) || null;
+  }
+  // Couper / remettre le son pour toutes les vidéos.
+  function basculerSonGlobal(){
+    sonActif = !sonActif; memoriser();
+    window.__arAToucheAcc = true;
+    medias().forEach(m => { if (!m.paused) { m.muted = !sonActif; if (sonActif && (!m.volume || m.volume < 0.05)) m.volume = 1; } icone(m); });
+  }
+  // Toucher l'icône = couper/remettre le son ; appui long = curseur de volume (comme avant).
+  const ouvrirCurseur = window.toggleVolumeSliderAcc;
+  let appuiLong = null, ouvertParAppuiLong = false;
+  document.addEventListener('pointerdown', function (e) {
+    const b = e.target.closest && e.target.closest('.son-btn-top'); if (!b) return;
+    ouvertParAppuiLong = false;
+    clearTimeout(appuiLong);
+    appuiLong = setTimeout(() => {
+      ouvertParAppuiLong = true;
+      const m = (b.getAttribute('onclick') || '').match(/toggleVolumeSliderAcc\((\d+),'(\w+)'\)/);
+      if (m && ouvrirCurseur) ouvrirCurseur(Number(m[1]), m[2]);
+    }, 450);
+  }, true);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => document.addEventListener(t, () => clearTimeout(appuiLong), true));
+  window.toggleVolumeSliderAcc = function(index, type){
+    if (ouvertParAppuiLong) { ouvertParAppuiLong = false; return; }
+    document.querySelectorAll('.vol-slider-wrap.open').forEach(w => w.classList.remove('open'));
+    basculerSonGlobal();
+  };
+  // Le curseur et les anciens boutons gardent le réglage commun à jour.
+  const regler = window.reglerVolumeAcc;
+  window.reglerVolumeAcc = function(index, type, val){
+    regler(index, type, val);
+    sonActif = Number(val) > 0; memoriser(); window.__arAToucheAcc = true;
+  };
+  ['basculerMuetVideoAcc', 'basculerMuetAudioAcc'].forEach(nom => {
+    const o = window[nom]; if (typeof o !== 'function') return;
+    window[nom] = function(index){
+      o(index);
+      const el = document.getElementById((nom === 'basculerMuetVideoAcc' ? 'vid-' : 'audio-') + index);
+      if (el) { sonActif = !el.muted; memoriser(); }
+    };
+  });
+  // Quitter l'onglet Accueil : tout s'arrête. Revenir : la carte affichée reprend.
+  const allerA = window.goToPanel;
+  window.goToPanel = function(index){
+    const r = allerA.apply(this, arguments);
+    if (index !== 0) medias().forEach(m => { if (!m.paused) m.pause(); });
+    else setTimeout(() => {
+      const m = mediaCourant();
+      const idx = m ? Number(m.dataset.idx) : NaN;
+      if (m && m.paused && !(window._videosEnPauseManuelleAcc && window._videosEnPauseManuelleAcc.has(idx))) m.play().catch(() => {});
+    }, 350);
+    return r;
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') medias().forEach(m => { if (!m.paused) m.pause(); });
+  });
+})();
 </script>
 <script src="notifications.js"></script>
 <script src="assistance.js"></script>
