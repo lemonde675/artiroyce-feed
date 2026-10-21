@@ -12,7 +12,9 @@
   body{ font-family:'Segoe UI', Arial, sans-serif; background:#f5f6f8; color:#1c1e21; max-width:760px; margin:0 auto; padding:0 0 60px; }
   header{ position:sticky; top:0; z-index:20; background:#fff; border-bottom:1px solid #e8e8e8; padding:12px 16px; display:flex; align-items:center; gap:10px; }
   .logo{ font-size:20px; font-weight:900; } .logo .a{ color:var(--red); } .logo .r{ color:var(--green); }
-  header h1{ flex:1; font-size:15px; color:#555; font-weight:700; }
+  header h1{ flex:1; min-width:0; font-size:15px; color:#555; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  header .btn{ flex-shrink:0; }
+  body{ background:#fdf2f7 !important; }
   .carte{ background:#fff; border-radius:16px; margin:14px 12px 0; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,.07); }
   .carte h2{ font-size:15px; margin-bottom:6px; color:var(--navy); }
   .petit{ font-size:12.5px; color:#666; line-height:1.5; }
@@ -75,6 +77,14 @@
       <button class="btn gris" onclick="afficherJournal()">📒 Journal des ouvertures</button>
       <button class="btn gris" onclick="nettoyerExpirees()" id="btnNettoyer">🧹 Nettoyer les archives expirées</button>
     </div>
+  </div>
+
+  <div class="carte">
+    <h2>🔍 Rechercher une personne</h2>
+    <p class="petit">Nom, prénom, e-mail, téléphone ou identifiant. La recherche va directement dans la base : elle reste rapide même avec des millions d'archives.</p>
+    <div class="filtres"><input type="search" id="rechPersonne" placeholder="Ex. Awa, awa@gmail.com, +229…, identifiant" onkeydown="if(event.key==='Enter')chercherPersonne()"></div>
+    <div class="barre-outils"><button class="btn rouge" onclick="chercherPersonne()">🔍 Chercher</button></div>
+    <div id="resultatsPersonne"></div>
   </div>
 
   <div class="carte">
@@ -225,6 +235,43 @@ window.afficherListe = function(){
       + '</div><button class="btn rouge" onclick="demanderOuverture(\'' + a.id + '\')">Ouvrir</button></div>';
   }).join('');
 };
+
+/* ── Recherche d'une personne (sans tout charger) ──
+   E-mail / téléphone / identifiant : recherche exacte. Nom ou prénom : « commence par »,
+   essayé avec et sans majuscule. Puis « Voir ses archives » charge seulement les siennes. */
+async function chercherPersonne(){
+  const brut = document.getElementById('rechPersonne').value.trim();
+  const zone = document.getElementById('resultatsPersonne');
+  if (brut.length < 2) { toast('Écrivez au moins 2 lettres.'); return; }
+  zone.innerHTML = '<div class="charge"><div class="spin"></div>Recherche…</div>';
+  const trouves = {};
+  const ajouter = snap => snap.forEach(d => { trouves[d.id] = Object.assign({ id: d.id }, d.data()); });
+  const U = db.collection('utilisateurs');
+  const essais = [];
+  const cap = t => t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : t;
+  const prefixe = (champ, v) => U.where(champ, '>=', v).where(champ, '<=', v + '\uf8ff').limit(20).get().then(ajouter).catch(() => {});
+  if (brut.includes('@')) essais.push(U.where('email', '==', brut.toLowerCase()).limit(5).get().then(ajouter).catch(() => {}), U.where('email', '==', brut).limit(5).get().then(ajouter).catch(() => {}));
+  if (/^[+\d][\d\s]{5,}$/.test(brut)) { const tel = brut.replace(/\s/g, ''); essais.push(U.where('telephone', '==', tel).limit(5).get().then(ajouter).catch(() => {})); }
+  if (/^[A-Za-z0-9]{15,40}$/.test(brut)) essais.push(U.doc(brut).get().then(d => { if (d.exists) trouves[d.id] = Object.assign({ id: d.id }, d.data()); }).catch(() => {}));
+  const mot = brut.split(/\s+/)[0];
+  [mot, cap(mot), mot.toLowerCase()].filter((v, i, a) => v && a.indexOf(v) === i).forEach(v => { essais.push(prefixe('prenom', v), prefixe('nom', v)); });
+  await Promise.all(essais);
+  let liste = Object.values(trouves);
+  // Plusieurs mots (« Awa Koffi ») : on garde ceux qui ont tous les mots.
+  const mots = brut.toLowerCase().split(/\s+/).filter(Boolean);
+  const estTel = /^[+\d][\d\s]{5,}$/.test(brut);
+  if (mots.length > 1 && !estTel) liste = liste.filter(u => { const t = ((u.prenom || '') + ' ' + (u.nom || '') + ' ' + (u.email || '')).toLowerCase(); return mots.every(m => t.includes(m)); });
+  if (!liste.length) {
+    // Personne trouvée par le nom : c'est peut-être directement un identifiant d'auteur supprimé.
+    zone.innerHTML = '<div class="vide">Aucune personne trouvée.' + (/^[A-Za-z0-9]{15,40}$/.test(brut) ? '<br><span class="petit" style="color:var(--red);font-weight:700;cursor:pointer" onclick="toutDeLaPersonne(\'' + esc(brut) + '\')">Chercher quand même les archives de cet identifiant (compte peut-être supprimé)</span>' : '') + '</div>';
+    return;
+  }
+  liste.forEach(u => { noms[u.id] = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || u.id; });
+  zone.innerHTML = liste.slice(0, 30).map(u => '<div class="ligne"><div class="ico">' + (u.role === 'visiteur' ? '👤' : '👔') + '</div><div class="infos">'
+    + '<div class="t1">' + esc(noms[u.id]) + '</div><div class="t2">' + esc(u.email || '') + (u.telephone ? ' · ' + esc(u.telephone) : '') + '<br>' + esc(u.id) + '</div></div>'
+    + '<button class="btn rouge" onclick="toutDeLaPersonne(\'' + esc(u.id) + '\')">Ses archives</button></div>').join('');
+}
+window.chercherPersonne = chercherPersonne;
 
 /* ── Recherche par période et par personne (charge directement depuis la base) ── */
 function memoriser(snap){
