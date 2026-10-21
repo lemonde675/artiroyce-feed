@@ -11,6 +11,7 @@
     /* ── LOGIN ── */
     #attenteAdmin { position: fixed; inset: 0; background: #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 50; }
     #attenteAdmin .spin { width: 44px; height: 44px; border-radius: 50%; border: 4px solid #fde4ef; border-top-color: #ec4899; animation: tourneAdm .8s linear infinite; }
+    #attenteAdmin { background: #fdf2f7 !important; }
     @keyframes tourneAdm { to { transform: rotate(360deg); } }
     #attenteAdmin p { font-size: 13px; color: #888; font-weight: 600; }
     #loginScreen { min-height: 100vh; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -56,7 +57,7 @@
     /* ── TABS PRINCIPAUX ── */
     .main-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .main-tab { padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; background: #e8e8e8; color: #555; transition: all 0.2s; }
-    .main-tab.active { background: #e63224; color: #fff; }
+    .main-tab.active { background: #ec4899; color: #fff; box-shadow: 0 3px 10px rgba(236,72,153,.3); }
     .main-tab.orange { }
     .main-tab.active.orange { background: #ff9800; }
 
@@ -75,7 +76,7 @@
     /* ── TABLE ── */
     .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
     .tab { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #e0e0e0; color: #555; }
-    .tab.active { background: #e63224; color: #fff; }
+    .tab.active { background: #ec4899; color: #fff; }
     .table-wrap { background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
     .table-header { padding: 14px 16px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
     .table-title { font-size: 14px; font-weight: 800; color: #1a1a1a; }
@@ -110,6 +111,28 @@
 
     .empty-state { padding: 40px 20px; text-align: center; color: #aaa; font-size: 14px; }
     .loading-state { padding: 30px; text-align: center; color: #888; font-size: 13px; }
+    .loading-state::before { content: ''; display: block; width: 40px; height: 40px; margin: 0 auto 12px; border-radius: 50%; border: 4px solid #fde4ef; border-top-color: #ec4899; animation: tourneAdm .8s linear infinite; }
+    /* Rose ArtiRoyce */
+    body { background: #fdf2f7; }
+    .header { border-bottom-color: #fde4ef; }
+    .stat-card.rose { border-left-color: #ec4899; }
+    .stat-card.violet { border-left-color: #8e44ad; }
+    .refresh-btn { border-color: #ec4899; color: #ec4899; }
+    .table-wrap, .stat-card, .signal-card { box-shadow: 0 2px 10px rgba(236,72,153,.08); }
+    .user-row:hover { background: #fff5fa; }
+    /* Recherche */
+    .recherche-adm { position: relative; margin-bottom: 12px; }
+    .recherche-adm input { width: 100%; padding: 11px 14px 11px 40px; border: 1.5px solid #f6c6dd; border-radius: 24px; font-size: 14px; background: #fff; outline: none; font-family: inherit; }
+    .recherche-adm input:focus { border-color: #ec4899; }
+    .recherche-adm::before { content: '🔍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; }
+    .nb-resultats { font-size: 12px; color: #a0729a; margin: -4px 4px 10px; }
+    /* Avatars avec photo, touchables */
+    .user-avatar, .modal-avatar { overflow: hidden; cursor: pointer; }
+    .user-avatar img, .modal-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .badge-role { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+    .badge-role.visiteur { background: #f3e5f5; color: #7b1fa2; }
+    .badge-role.pro { background: #e3f2fd; color: #1565c0; }
+    .lien-fiche { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; background: #fde4ef; color: #c2185b; font-size: 12px; font-weight: 800; text-decoration: none; margin: 4px 6px 0 0; border: none; cursor: pointer; font-family: inherit; }
 
     /* ── SECTION SIGNALEMENTS ── */
     #panelSignalements { display: none; }
@@ -300,13 +323,16 @@
       <div class="stat-card green"> <div class="stat-num" id="statVerifie">—</div><div class="stat-label">Vérifiés</div></div>
       <div class="stat-card red">   <div class="stat-num" id="statRejete">—</div> <div class="stat-label">Rejetés</div></div>
       <div class="stat-card blue">  <div class="stat-num" id="statTotal">—</div>  <div class="stat-label">Total inscrits</div></div>
+      <div class="stat-card rose">  <div class="stat-num" id="statPros">—</div>   <div class="stat-label">👔 Professionnels</div></div>
+      <div class="stat-card violet"><div class="stat-num" id="statVisiteurs">—</div><div class="stat-label">👤 Visiteurs</div></div>
       <div class="stat-card gray">  <div class="stat-num" id="statGeles">—</div>  <div class="stat-label">❄️ Gelés</div></div>
       <div class="stat-card warn">  <div class="stat-num" id="statSignal">—</div> <div class="stat-label">⚑ Signalements</div></div>
     </div>
 
     <!-- Tabs principaux -->
     <div class="main-tabs">
-      <button class="main-tab active" onclick="switchMainTab('comptes', this)">👥 Comptes</button>
+      <button class="main-tab active" onclick="switchMainTab('comptes', this)">👔 Professionnels</button>
+      <button class="main-tab" onclick="switchMainTab('visiteurs', this)">👤 Visiteurs <span id="visiteursBadge" style="background:#8e44ad;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
       <button class="main-tab orange" onclick="switchMainTab('signalements', this)">⚑ Signalements <span id="signalBadge" style="background:#ff5722;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
       <button class="main-tab" onclick="window.location.href='admin-archives.html'">🗄️ Archives</button>
       <button class="main-tab" onclick="window.location.href='assistance.html'">🎧 Assistance <span id="assistBadgeAdmin" style="display:none;background:#e63224;color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:4px;"></span></button>
@@ -314,6 +340,7 @@
 
     <!-- PANEL COMPTES -->
     <div id="panelComptes">
+      <div class="recherche-adm"><input type="search" id="rechPros" placeholder="Rechercher un professionnel : nom, e-mail, téléphone, métier, identifiant…" oninput="rechercherPros()"></div>
       <div class="tabs">
         <button class="tab active" onclick="switchTab('en_attente', this)">⏳ En attente</button>
         <button class="tab" onclick="switchTab('verifie', this)">✅ Vérifiés</button>
@@ -330,8 +357,26 @@
       </div>
     </div>
 
+    <!-- PANEL VISITEURS -->
+    <div id="panelVisiteurs" style="display:none">
+      <div class="recherche-adm"><input type="search" id="rechVisiteurs" placeholder="Rechercher un visiteur : nom, e-mail, téléphone, identifiant…" oninput="renderVisiteurs()"></div>
+      <div class="tabs">
+        <button class="tab active" data-vtab="actifs" onclick="switchVisiteurTab('actifs', this)">✅ Actifs</button>
+        <button class="tab" data-vtab="gele" onclick="switchVisiteurTab('gele', this)">❄️ Gelés</button>
+        <button class="tab" data-vtab="tous" onclick="switchVisiteurTab('tous', this)">👤 Tous</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <span class="table-title" id="visiteursTitre">Visiteurs</span>
+          <button class="refresh-btn" onclick="loadUsers()">↻ Actualiser</button>
+        </div>
+        <div id="visiteurList"><div class="loading-state">Chargement…</div></div>
+      </div>
+    </div>
+
     <!-- PANEL SIGNALEMENTS -->
     <div id="panelSignalements">
+      <div class="recherche-adm"><input type="search" id="rechSignal" placeholder="Rechercher dans les signalements…" oninput="renderSignalements()"></div>
       <div class="table-wrap" style="margin-bottom:16px;">
         <div class="table-header">
           <span class="table-title">⚑ Comptes signalés</span>
@@ -458,10 +503,71 @@
       snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
       updateStats();
       renderUsers(currentTab);
+      renderVisiteurs();
       renderSignalements();
     } catch(e) {
       document.getElementById('userList').innerHTML = `<div class="empty-state">⚠ Erreur : ${e.message}</div>`;
     }
+  };
+
+  // ── Outils : rôle, recherche, avatar ──
+  const estVisiteur = u => u.role === 'visiteur';
+  const sansAccents = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  function correspond(u, q) {
+    if (!q) return true;
+    const champs = [u.prenom, u.nom, u.pseudo, u.email, u.telephone, u.metier, u.ville, u.id].map(sansAccents).join(' ');
+    return sansAccents(q).split(/\s+/).filter(Boolean).every(m => champs.includes(m) || champs.replace(/\s/g, '').includes(m.replace(/\s/g, '')));
+  }
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function avatarHtml(u) {
+    const ini = esc((u.prenom || u.nom || u.pseudo || '?')[0].toUpperCase());
+    return u.photoAvatar ? '<img src="' + esc(u.photoAvatar) + '" alt="" onerror="this.replaceWith(document.createTextNode(\'' + ini + '\'))">' : ini;
+  }
+  const dateFr = v => v && v.toDate ? v.toDate().toLocaleDateString('fr-FR') : (v ? new Date(v).toLocaleDateString('fr-FR') : '—');
+  function derniereVueTxt(u) {
+    let m = 0; ['derniereVue', 'derniereActivite'].forEach(k => { const v = u[k]; if (!v) return; const t = v.toDate ? v.toDate().getTime() : new Date(v).getTime(); if (t > m) m = t; });
+    if (!m) return '—';
+    if (Date.now() - m < 60000) return '🟢 En ligne';
+    const d = new Date(m);
+    return d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── Visiteurs ──
+  let visiteurTab = 'actifs';
+  window.switchVisiteurTab = (t, btn) => {
+    visiteurTab = t;
+    document.querySelectorAll('#panelVisiteurs .tab').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    renderVisiteurs();
+  };
+  window.renderVisiteurs = function () {
+    const q = (document.getElementById('rechVisiteurs') || {}).value || '';
+    let list = allUsers.filter(estVisiteur);
+    if (visiteurTab === 'actifs') list = list.filter(u => u.statut !== 'gele');
+    if (visiteurTab === 'gele') list = list.filter(u => u.statut === 'gele');
+    list = list.filter(u => correspond(u, q));
+    list.sort((a, b) => ((b.dateInscription && b.dateInscription.toMillis ? b.dateInscription.toMillis() : 0) - (a.dateInscription && a.dateInscription.toMillis ? a.dateInscription.toMillis() : 0)));
+    const titres = { actifs: 'Visiteurs actifs', gele: 'Visiteurs gelés', tous: 'Tous les visiteurs' };
+    document.getElementById('visiteursTitre').textContent = titres[visiteurTab] + ' · ' + list.length;
+    const zone = document.getElementById('visiteurList');
+    if (!list.length) { zone.innerHTML = '<div class="empty-state">' + (q ? 'Aucun visiteur ne correspond à « ' + esc(q) + ' ».' : 'Aucun visiteur.') + '</div>'; return; }
+    zone.innerHTML = list.slice(0, 300).map(u => {
+      const nb = u.signalements || 0;
+      const actions = '<button class="btn-voir" onclick="openModal(\'' + u.id + '\')">📂</button>'
+        + (u.statut === 'gele'
+          ? '<button class="btn-degeler" onclick="quickAction(\'' + u.id + '\',\'degeler\',event)">▶ Dégeler</button>'
+          : '<button class="btn-avertir" onclick="openAvertirFlow(\'' + u.id + '\',event)">⚠️</button><button class="btn-geler" onclick="quickAction(\'' + u.id + '\',\'geler\',event)">❄️ Geler</button>');
+      return '<div class="user-row">'
+        + '<div class="user-avatar" onclick="openModal(\'' + u.id + '\')" title="Voir la fiche">' + avatarHtml(u) + '</div>'
+        + '<div class="user-info"><div class="user-name">' + esc((u.prenom || '') + ' ' + (u.nom || '')) + '<span class="badge-role visiteur">Visiteur</span></div>'
+        + '<div class="user-email">✉ ' + esc(u.email || '—') + '</div>'
+        + '<div class="user-tel">📞 ' + esc(u.telephone || '—') + '</div>'
+        + '<div class="user-date">Inscrit le ' + dateFr(u.dateInscription) + ' · vu : ' + derniereVueTxt(u) + '</div>'
+        + (nb > 0 ? '<div class="user-signal">⚑ ' + nb + ' signalement' + (nb > 1 ? 's' : '') + '</div>' : '')
+        + '</div>'
+        + '<span class="status-badge ' + (u.statut === 'gele' ? 'gele' : 'verifie') + '">' + (u.statut === 'gele' ? '❄️ Gelé' : '✅ Actif') + '</span>'
+        + '<div class="action-btns">' + actions + '</div></div>';
+    }).join('') + (list.length > 300 ? '<div class="empty-state">300 premiers affichés : précisez la recherche.</div>' : '');
   };
 
   function updateStats() {
@@ -471,6 +577,10 @@
     document.getElementById('statVerifie').textContent = allUsers.filter(u => u.statut === 'verifie').length;
     document.getElementById('statRejete').textContent  = allUsers.filter(u => u.statut === 'rejete').length;
     document.getElementById('statTotal').textContent   = allUsers.length;
+    const nbVis = allUsers.filter(estVisiteur).length;
+    document.getElementById('statVisiteurs').textContent = nbVis;
+    document.getElementById('statPros').textContent      = allUsers.length - nbVis;
+    const vb = document.getElementById('visiteursBadge'); if (vb) vb.textContent = nbVis;
     document.getElementById('statGeles').textContent   = geles;
     document.getElementById('statSignal').textContent  = signals.length;
     const badge = document.getElementById('signalBadge');
@@ -483,6 +593,7 @@
     document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panelComptes').style.display      = tab === 'comptes'      ? 'block' : 'none';
+    document.getElementById('panelVisiteurs').style.display    = tab === 'visiteurs'    ? 'block' : 'none';
     document.getElementById('panelSignalements').style.display = tab === 'signalements' ? 'block' : 'none';
   };
 
@@ -491,14 +602,21 @@
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
     const titles = { en_attente:'En attente', verifie:'Vérifiés', rejete:'Rejetés', gele:'Gelés', tous:'Tous' };
-    document.getElementById('tableTitle').textContent = titles[tab];
     renderUsers(tab);
   };
 
+  window.renderUsers = renderUsers;
+  window.rechercherPros = () => renderUsers(currentTab);
+  window.renderSignalements = () => renderSignalements();
   function renderUsers(tab) {
-    let list = tab === 'tous' ? allUsers : allUsers.filter(u => u.statut === tab);
+    const pros = allUsers.filter(u => !estVisiteur(u));
+    let list = tab === 'tous' ? pros : pros.filter(u => u.statut === tab);
+    const q = (document.getElementById('rechPros') || {}).value || '';
+    list = list.filter(u => correspond(u, q));
     const container = document.getElementById('userList');
-    if (list.length === 0) { container.innerHTML = '<div class="empty-state">Aucun utilisateur.</div>'; return; }
+    const titres = { en_attente:'En attente', verifie:'Vérifiés', rejete:'Rejetés', gele:'Gelés', tous:'Tous les professionnels' };
+    document.getElementById('tableTitle').textContent = (titres[tab] || tab) + ' · ' + list.length;
+    if (list.length === 0) { container.innerHTML = '<div class="empty-state">' + (q ? 'Aucun professionnel ne correspond à « ' + esc(q) + ' ».' : 'Aucun utilisateur.') + '</div>'; return; }
 
     const kycLabels = { non_soumis:'📋 KYC non soumis', en_attente:'⏳ KYC en attente', verifie:'✅ KYC validé', rejete:'❌ KYC rejeté' };
     const statLabels = { en_attente:'⏳ En attente', verifie:'✅ Vérifié', rejete:'❌ Rejeté', gele:'❄️ Gelé' };
@@ -527,9 +645,9 @@
 
       return `
       <div class="user-row">
-        <div class="user-avatar">${initiale}</div>
+        <div class="user-avatar" onclick="openModal('${u.id}')" title="Voir la fiche">${avatarHtml(u)}</div>
         <div class="user-info">
-          <div class="user-name">${u.prenom||''} ${u.nom||''}</div>
+          <div class="user-name">${esc(u.prenom||'')} ${esc(u.nom||'')}<span class="badge-role pro">${esc(u.metier||'Pro')}</span></div>
           <div class="user-email">✉ ${u.email||'—'}</div>
           <div class="user-tel">📞 ${u.telephone||'—'}</div>
           <div class="user-date">Inscrit le ${date} · ${kycLabel}</div>
@@ -543,7 +661,8 @@
 
   // ── Signalements ──
   function renderSignalements() {
-    const signaled = allUsers.filter(u => (u.signalements||0) > 0)
+    const qS = (document.getElementById('rechSignal') || {}).value || '';
+    const signaled = allUsers.filter(u => (u.signalements||0) > 0 && correspond(u, qS))
       .sort((a,b) => (b.signalements||0) - (a.signalements||0));
     const container = document.getElementById('signalList');
     if (signaled.length === 0) { container.innerHTML = '<div class="empty-state">✅ Aucun signalement pour l\'instant.</div>'; return; }
@@ -585,8 +704,9 @@
   window.openModal = (uid) => {
     const u = allUsers.find(x => x.id === uid);
     if (!u) return;
-    const initiale = (u.prenom||u.nom||'?')[0].toUpperCase();
+    const initiale = avatarHtml(u);
     const date = u.dateInscription?.toDate ? u.dateInscription.toDate().toLocaleDateString('fr-FR') : '—';
+    const vis = estVisiteur(u);
     const kycDate = u.kycSoumisLe?.toDate ? u.kycSoumisLe.toDate().toLocaleDateString('fr-FR') : '—';
     const kycStatut = u.kycStatut || 'non_soumis';
     const kycBadgeText = { non_soumis:'📋 Non soumis', en_attente:'⏳ En attente', verifie:'✅ Validé', rejete:'❌ Rejeté' }[kycStatut] || '—';
@@ -603,22 +723,31 @@
         <div class="modal-section-title">👤 Informations d'inscription</div>
         <div class="modal-profile-row">
           <div class="modal-avatar">${initiale}</div>
-          <div><div class="modal-user-name">${u.prenom||''} ${u.nom||''}</div><div class="modal-user-sub">Inscrit le ${date} · Statut : ${u.statut}</div></div>
+          <div><div class="modal-user-name">${esc(u.prenom||'')} ${esc(u.nom||'')}<span class="badge-role ${vis?'visiteur':'pro'}">${vis?'Visiteur':'Professionnel'}</span></div><div class="modal-user-sub">Inscrit le ${date} · Statut : ${esc(u.statut||'—')}</div></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <a class="lien-fiche" href="profil.html?uid=${encodeURIComponent(u.id)}" target="_blank">👁️ Voir son profil</a>
+          <a class="lien-fiche" href="assistance.html?uid=${encodeURIComponent(u.id)}">🎧 Lui écrire (Assistance)</a>
+          <button class="lien-fiche" onclick="navigator.clipboard&&navigator.clipboard.writeText('${u.id}');this.textContent='✅ Identifiant copié'">🆔 Copier l'identifiant</button>
         </div>
         <div class="info-grid">
           <div class="info-item"><div class="info-item-label">Nom</div><div class="info-item-val">${u.nom||'—'}</div></div>
           <div class="info-item"><div class="info-item-label">Prénom(s)</div><div class="info-item-val">${u.prenom||'—'}</div></div>
           <div class="info-item"><div class="info-item-label">Email</div><div class="info-item-val">${u.email||'—'}</div></div>
           <div class="info-item"><div class="info-item-label">Téléphone</div><div class="info-item-val">${u.telephone||'—'}</div></div>
-          <div class="info-item"><div class="info-item-label">Métier</div><div class="info-item-val">${u.metier||'—'}</div></div>
-          <div class="info-item"><div class="info-item-label">Statut KYC</div><div class="info-item-val"><span class="kyc-badge ${kycStatut}">${kycBadgeText}</span></div></div>
+          <div class="info-item"><div class="info-item-label">${vis?'Ville':'Métier'}</div><div class="info-item-val">${esc(vis?(u.ville||'—'):(u.metier||'—'))}</div></div>
+          <div class="info-item"><div class="info-item-label">Dernière visite</div><div class="info-item-val">${derniereVueTxt(u)}</div></div>
+          <div class="info-item"><div class="info-item-label">Identifiant</div><div class="info-item-val" style="font-size:10px">${esc(u.id)}</div></div>
+          <div class="info-item"><div class="info-item-label">Statut KYC</div><div class="info-item-val">${vis ? 'Non concerné (visiteur)' : `<span class="kyc-badge ${kycStatut}">${kycBadgeText}</span>`}</div></div>
         </div>
         ${nbSignal > 0 ? `<div style="margin-top:10px;padding:10px;background:#fff5f5;border-radius:8px;border:1px solid #f5c6cb;"><div style="font-size:11px;font-weight:700;color:#e63224;margin-bottom:4px;">⚑ ${nbSignal} SIGNALEMENT${nbSignal>1?'S':''}</div><div style="font-size:12px;color:#555;">${(u.signalementsDetails||[]).map(s=>`• ${s.raison}`).join('<br/>')}</div></div>` : ''}
       </div>
       <div class="modal-section">
         <div class="modal-section-title">🛡️ Documents KYC ${kycDate!=='—'?`<span style="margin-left:auto;font-size:10px;color:#aaa;font-weight:400;text-transform:none;">Soumis le ${kycDate}</span>`:''}
         </div>
-        ${kycStatut==='non_soumis'
+        ${vis
+          ? `<div style="text-align:center;padding:16px;background:#f3e5f5;border-radius:10px;color:#7b1fa2;font-size:13px;font-weight:700;">👤 Compte visiteur : pas de vérification KYC</div>`
+          : kycStatut==='non_soumis'
           ? `<div style="text-align:center;padding:20px;background:#f5f5f5;border-radius:10px;color:#aaa;"><div style="font-size:32px;margin-bottom:8px;">📋</div><div style="font-size:13px;font-weight:700;">KYC non encore soumis</div></div>`
           : `<div class="kyc-docs-grid">${docCard('🤳 Selfie + carte',u.kycSelfie)}${docCard('👤 Photo identité',u.kycPhoto)}${docCard('🪪 CNI Recto',u.kycCniRecto)}${docCard('🪪 CNI Verso',u.kycCniVerso)}</div><div style="margin-top:8px;">${docCard('📄 Document officiel',u.kycDocument)}${u.kycExtra?docCard('📎 Supplémentaire',u.kycExtra):''}</div>`}
       </div>
@@ -633,6 +762,17 @@
 
   function renderModalActions(u) {
     let html = '';
+    if (estVisiteur(u)) {
+      // Visiteur : pas de KYC à valider ni à rejeter.
+      html = (u.statut === 'gele'
+          ? `<button class="btn-m-degeler" onclick="updateStatus('${u.id}','degeler',null)">▶ Dégeler</button>`
+          : `<button class="btn-m-avertir" onclick="showAvertirForm('${u.id}')">⚠️ Avertir</button>
+             <button class="btn-m-geler"   onclick="updateStatus('${u.id}','geler',null)">❄️ Geler</button>`)
+        + `<button class="btn-m-suppr"   onclick="updateStatus('${u.id}','supprimer',null)">🗑️ Supprimer</button>
+           <button class="btn-m-cancel"  onclick="closeModal()">Fermer</button>`;
+      document.getElementById('modalActions').innerHTML = html;
+      return;
+    }
     if (u.statut === 'gele') {
       html = `<button class="btn-m-degeler" onclick="updateStatus('${u.id}','degeler',null)">▶ Dégeler</button>
               <button class="btn-m-suppr"   onclick="updateStatus('${u.id}','supprimer',null)">🗑️ Supprimer</button>
@@ -742,7 +882,7 @@
         if (!confirm('⚠️ Supprimer définitivement ce compte ? Cette action est irréversible.')) return;
         await deleteDoc(doc(db, 'utilisateurs', uid));
         allUsers = allUsers.filter(u => u.id !== uid);
-        updateStats(); renderUsers(currentTab); renderSignalements(); closeModal();
+        updateStats(); renderUsers(currentTab); renderVisiteurs(); renderSignalements(); closeModal();
         showToast('🗑️ Compte supprimé définitivement.', 'error-toast');
         return;
       }
@@ -758,14 +898,15 @@
       } else if (action === 'geler') {
         updateData.statut = 'gele'; updateData.verifie = false;
       } else if (action === 'degeler') {
-        updateData.statut = 'en_attente';
+        const cible = allUsers.find(x => x.id === uid);
+        updateData.statut = (cible && estVisiteur(cible)) ? 'actif' : 'en_attente';
       }
 
       await updateDoc(doc(db, 'utilisateurs', uid), updateData);
       const idx = allUsers.findIndex(u => u.id === uid);
       if (idx !== -1) allUsers[idx] = { ...allUsers[idx], ...updateData };
 
-      updateStats(); renderUsers(currentTab); renderSignalements(); closeModal();
+      updateStats(); renderUsers(currentTab); renderVisiteurs(); renderSignalements(); closeModal();
 
       const msgs = {
         verifie: '✅ Compte validé !',
