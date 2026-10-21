@@ -554,6 +554,11 @@ auth.onAuthStateChanged(()=>{
 });
 chargerElite();
 </script>
+<script src="retour.js"></script>
+<script>
+  // Touche retour : ferme la photo/vidéo ouverte, sans quitter Élites.
+  if (window.ArRetour) ArRetour.surveiller([{ id:'pgVisionneuse', classe:'ouverte', fermer:'fermerVisionneuseElite' }]);
+</script>
 
 </body>
 </html>
