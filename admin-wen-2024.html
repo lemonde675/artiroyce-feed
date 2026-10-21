@@ -390,7 +390,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, where, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, query, where, onSnapshot, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -512,6 +512,9 @@
 
   // ── Outils : rôle, recherche, avatar ──
   const estVisiteur = u => u.role === 'visiteur';
+  // Dossier à examiner : nouveau, OU rejeté puis renvoyé par la personne (KYC de nouveau « en attente »).
+  const estRenvoye = u => u.statut === 'rejete' && u.kycStatut === 'en_attente';
+  const estEnAttente = u => u.statut === 'en_attente' || estRenvoye(u);
   const sansAccents = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   function correspond(u, q) {
     if (!q) return true;
@@ -573,9 +576,9 @@
   function updateStats() {
     const geles   = allUsers.filter(u => u.statut === 'gele').length;
     const signals = allUsers.filter(u => (u.signalements || 0) > 0);
-    document.getElementById('statAttente').textContent = allUsers.filter(u => u.statut === 'en_attente').length;
+    document.getElementById('statAttente').textContent = allUsers.filter(u => !estVisiteur(u) && estEnAttente(u)).length;
     document.getElementById('statVerifie').textContent = allUsers.filter(u => u.statut === 'verifie').length;
-    document.getElementById('statRejete').textContent  = allUsers.filter(u => u.statut === 'rejete').length;
+    document.getElementById('statRejete').textContent  = allUsers.filter(u => u.statut === 'rejete' && !estRenvoye(u)).length;
     document.getElementById('statTotal').textContent   = allUsers.length;
     const nbVis = allUsers.filter(estVisiteur).length;
     document.getElementById('statVisiteurs').textContent = nbVis;
@@ -610,7 +613,10 @@
   window.renderSignalements = () => renderSignalements();
   function renderUsers(tab) {
     const pros = allUsers.filter(u => !estVisiteur(u));
-    let list = tab === 'tous' ? pros : pros.filter(u => u.statut === tab);
+    let list = tab === 'tous' ? pros
+      : tab === 'en_attente' ? pros.filter(estEnAttente)
+      : tab === 'rejete' ? pros.filter(u => u.statut === 'rejete' && !estRenvoye(u))
+      : pros.filter(u => u.statut === tab);
     const q = (document.getElementById('rechPros') || {}).value || '';
     list = list.filter(u => correspond(u, q));
     const container = document.getElementById('userList');
@@ -631,7 +637,7 @@
       if (u.statut === 'gele') {
         actions += `<button class="btn-degeler" onclick="quickAction('${u.id}','degeler',event)">▶ Dégeler</button>`;
         actions += `<button class="btn-suppr"   onclick="quickAction('${u.id}','supprimer',event)">🗑️ Suppr.</button>`;
-      } else if (u.statut === 'en_attente') {
+      } else if (estEnAttente(u)) {
         actions += `<button class="btn-valider" onclick="quickAction('${u.id}','verifie',event)">✔ Valider</button>`;
         actions += `<button class="btn-rejeter" onclick="openRejectFlow('${u.id}',event)">✘ Rejeter</button>`;
         actions += `<button class="btn-geler"   onclick="quickAction('${u.id}','geler',event)">❄️</button>`;
@@ -651,9 +657,10 @@
           <div class="user-email">✉ ${u.email||'—'}</div>
           <div class="user-tel">📞 ${u.telephone||'—'}</div>
           <div class="user-date">Inscrit le ${date} · ${kycLabel}</div>
+          ${estRenvoye(u) ? `<div class="user-kyc" style="color:#c2185b;font-weight:800">🔁 Dossier renvoyé après un rejet : à examiner</div>` : ''}
           ${nbSignal > 0 ? `<div class="user-signal">⚑ ${nbSignal} signalement${nbSignal>1?'s':''} ${nbSignal>=10?'🔴 ALERTE':nbSignal>=5?'🟠':'🟡'}</div>` : ''}
         </div>
-        <span class="status-badge ${u.statut}">${statLabels[u.statut]||u.statut}</span>
+        <span class="status-badge ${estRenvoye(u)?'en_attente':u.statut}">${estRenvoye(u)?'🔁 Renvoyé':(statLabels[u.statut]||u.statut)}</span>
         <div class="action-btns">${actions}</div>
       </div>`;
     }).join('');
@@ -749,16 +756,34 @@
           ? `<div style="text-align:center;padding:16px;background:#f3e5f5;border-radius:10px;color:#7b1fa2;font-size:13px;font-weight:700;">👤 Compte visiteur : pas de vérification KYC</div>`
           : kycStatut==='non_soumis'
           ? `<div style="text-align:center;padding:20px;background:#f5f5f5;border-radius:10px;color:#aaa;"><div style="font-size:32px;margin-bottom:8px;">📋</div><div style="font-size:13px;font-weight:700;">KYC non encore soumis</div></div>`
-          : `<div class="kyc-docs-grid">${docCard('🤳 Selfie + carte',u.kycSelfie)}${docCard('👤 Photo identité',u.kycPhoto)}${docCard('🪪 CNI Recto',u.kycCniRecto)}${docCard('🪪 CNI Verso',u.kycCniVerso)}</div><div style="margin-top:8px;">${docCard('📄 Document officiel',u.kycDocument)}${u.kycExtra?docCard('📎 Supplémentaire',u.kycExtra):''}</div>`}
+          : `<div id="kycDocsZone"><div class="loading-state">Chargement des documents…</div></div>`}
       </div>
       ${u.kycRaisonRejet ? `<div class="modal-section"><div class="modal-section-title">📋 Raison du rejet</div><div class="raison-box"><div class="raison-box-label">Motif</div><div style="font-size:13px;color:#555;">${u.kycRaisonRejet}</div></div></div>` : ''}
       ${u.avertissement ? `<div class="modal-section"><div class="modal-section-title">⚠️ Avertissement actif</div><div class="avertissement-box"><div style="font-size:13px;color:#6d4c00;">${u.avertissement}</div></div></div>` : ''}
     `;
 
     document.getElementById('modalBody').innerHTML = body;
+    if (!vis && kycStatut !== 'non_soumis') chargerDocumentsKyc(u, docCard);
     renderModalActions(u);
     document.getElementById('modalOverlay').classList.add('open');
   };
+
+  /* Documents KYC : kyc.html les range dans utilisateurs/{uid}/prive/kyc_… (lisibles par la
+     personne et l'admin seulement). Avant, cette page cherchait d'anciens champs de la fiche
+     publique : les dossiers récents s'affichaient « Non fourni ». */
+  async function chargerDocumentsKyc(u, docCard) {
+    const zone = () => document.getElementById('kycDocsZone');
+    const noms = [['kyc_selfie','🤳 Selfie + carte'],['kyc_idRecto','🪪 Pièce — recto'],['kyc_idVerso','🪪 Pièce — verso'],['kyc_idSingle','🛂 Pièce (page unique)'],['kyc_domicile','🏠 Justificatif de domicile'],['kyc_extra','📎 Supplémentaire']];
+    const lus = await Promise.all(noms.map(([n]) => getDoc(doc(db, 'utilisateurs', u.id, 'prive', n)).then(s => s.exists() ? (s.data().image || '') : '').catch(() => '')));
+    const cartes = [];
+    noms.forEach(([n, lib], i) => { if (lus[i]) cartes.push(docCard(lib, lus[i])); });
+    // Anciens dossiers (avant le rangement privé) : champs de la fiche.
+    [['kycSelfie','🤳 Selfie + carte'],['kycPhoto','👤 Photo identité'],['kycCniRecto','🪪 CNI Recto'],['kycCniVerso','🪪 CNI Verso'],['kycDocument','📄 Document officiel'],['kycExtra','📎 Supplémentaire']]
+      .forEach(([c, lib]) => { if (u[c]) cartes.push(docCard(lib, u[c])); });
+    if (!zone()) return;
+    zone().innerHTML = cartes.length ? '<div class="kyc-docs-grid">' + cartes.join('') + '</div>'
+      : '<div class="empty-state">Aucun document trouvé pour ce dossier.</div>';
+  }
 
   function renderModalActions(u) {
     let html = '';
@@ -777,7 +802,7 @@
       html = `<button class="btn-m-degeler" onclick="updateStatus('${u.id}','degeler',null)">▶ Dégeler</button>
               <button class="btn-m-suppr"   onclick="updateStatus('${u.id}','supprimer',null)">🗑️ Supprimer</button>
               <button class="btn-m-cancel"  onclick="closeModal()">Fermer</button>`;
-    } else if (u.statut === 'en_attente') {
+    } else if (estEnAttente(u)) {
       html = `<button class="btn-m-valider" onclick="updateStatus('${u.id}','verifie',null)">✔ Valider</button>
               <button class="btn-m-rejeter" onclick="showRejectForm('${u.id}')">✘ Rejeter</button>
               <button class="btn-m-geler"   onclick="updateStatus('${u.id}','geler',null)">❄️ Geler</button>
@@ -789,6 +814,7 @@
               <button class="btn-m-cancel"  onclick="closeModal()">Fermer</button>`;
     } else {
       html = `<button class="btn-m-valider" onclick="updateStatus('${u.id}','verifie',null)">✔ Réactiver</button>
+              ${u.statut === 'rejete' ? `<button class="btn-m-rejeter" onclick="showRejectForm('${u.id}')">✏️ Changer la raison</button>` : ''}
               <button class="btn-m-avertir" onclick="showAvertirForm('${u.id}')">⚠️ Avertir</button>
               <button class="btn-m-geler"   onclick="updateStatus('${u.id}','geler',null)">❄️ Geler</button>
               <button class="btn-m-cancel"  onclick="closeModal()">Fermer</button>`;
