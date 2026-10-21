@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
@@ -627,6 +628,12 @@
         document.getElementById('coordVille').textContent = userData.ville || '—';
         renderBio();
         renderHistory();
+        // Vie privée : e-mail pour le propriétaire seul ; téléphone public/privé à son choix.
+        if (window.ArViePrivee) ArViePrivee.appliquer({
+          estMoi: isOwnProfile, donnees: userData,
+          enregistrer: (champs) => updateDoc(doc(db, 'utilisateurs', user.uid), champs),
+          toast: (m) => showToast(m, 'success')
+        });
         if (userData.photoAvatar) {
           document.getElementById('avatarWrap').innerHTML = `<img src="${userData.photoAvatar}" alt="avatar"/>`;
         }
@@ -644,6 +651,7 @@
       document.querySelectorAll('.history-actions').forEach(el => el.style.display = 'none');
     }
   </script>
+  <script src="vie-privee.js"></script>
   <script type="module" src="photo-profil.js"></script>
   <script src="translations.js"></script>
 </body>
