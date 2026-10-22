@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="UTF-8" />
+<meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
@@ -193,7 +194,7 @@
       const email = champEmail.value.trim();
 
       if (!email || !vEmail(email)) {
-        erreurEmail.textContent = t.js_err_email || '⚠ Email invalide.';
+        erreurEmail.textContent = t.js_err_email || 'Email invalide.';
         champEmail.className = 'error';
         return;
       }
@@ -207,9 +208,9 @@
       } catch (err) {
         btn.disabled = false; btn.innerHTML = t.forgot_btn_send || 'ENVOYER LE CODE';
         if (err.code === 'resource-exhausted') {
-          erreurEmail.textContent = err.message || (t.verif_err_wait || '⚠ Veuillez patienter avant de redemander un code.');
+          erreurEmail.textContent = err.message || (t.verif_err_wait || 'Veuillez patienter avant de redemander un code.');
         } else {
-          showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast');
+          showToast((t.js_toast_error_prefix||'Erreur : ')+err.message,'error-toast');
         }
       }
     });
@@ -222,12 +223,12 @@
       if (!emailEnAttente) return;
       try {
         await appelEnvoyerCode({ email: emailEnAttente, contexte: 'mot_de_passe_oublie' });
-        showToast(t.verif_resent || '✅ Nouveau code envoyé.', 'success');
+        showToast(t.verif_resent || 'Nouveau code envoyé.', 'success');
       } catch (err) {
         if (err.code === 'resource-exhausted') {
-          erreurCode.textContent = err.message || (t.verif_err_wait || '⚠ Veuillez patienter avant de redemander un code.');
+          erreurCode.textContent = err.message || (t.verif_err_wait || 'Veuillez patienter avant de redemander un code.');
         } else {
-          erreurCode.textContent = t.verif_err_generic || '⚠ Erreur lors du renvoi du code.';
+          erreurCode.textContent = t.verif_err_generic || 'Erreur lors du renvoi du code.';
         }
       }
     });
@@ -248,17 +249,17 @@
 
       const code = champCode.value.trim();
       if (!/^\d{6}$/.test(code)) {
-        erreurCode.textContent = t.verif_err_format || '⚠ Entrez les 6 chiffres du code.';
+        erreurCode.textContent = t.verif_err_format || 'Entrez les 6 chiffres du code.';
         champCode.className = 'error'; valid = false;
       } else { champCode.className = 'valid'; }
 
       if (!champPass.value || champPass.value.length < 8) {
-        erreurPass.textContent = t.js_err_password || '⚠ Minimum 8 caractères.';
+        erreurPass.textContent = t.js_err_password || 'Minimum 8 caractères.';
         champPass.className = 'error'; valid = false;
       } else { champPass.className = 'valid'; }
 
       if (!champPass2.value || champPass.value !== champPass2.value) {
-        erreurPass2.textContent = t.js_err_password2 || '⚠ Mots de passe différents.';
+        erreurPass2.textContent = t.js_err_password2 || 'Mots de passe différents.';
         champPass2.className = 'error'; valid = false;
       } else { champPass2.className = 'valid'; }
 
@@ -267,17 +268,17 @@
       btn.disabled = true; btn.textContent = t.forgot_resetting || 'Réinitialisation…';
       try {
         await appelReinitialiser({ email: emailEnAttente, code: code, nouveauMotDePasse: champPass.value });
-        showToast(t.forgot_success || '✅ Mot de passe réinitialisé ! Connectez-vous.', 'success');
+        showToast(t.forgot_success || 'Mot de passe réinitialisé ! Connectez-vous.', 'success');
         setTimeout(() => { window.location.href = 'connexion.html'; }, 1200);
       } catch (err) {
         btn.disabled = false; btn.innerHTML = t.forgot_btn_reset || 'RÉINITIALISER LE MOT DE PASSE';
         const messagesErreur = {
-          'invalid-argument': t.verif_err_wrong || '⚠ Code incorrect.',
-          'deadline-exceeded': t.verif_err_expired || '⚠ Ce code a expiré. Renvoyez-en un.',
-          'resource-exhausted': t.verif_err_too_many || '⚠ Trop de tentatives. Renvoyez un nouveau code.',
-          'not-found': t.verif_err_not_found || '⚠ Aucun code trouvé. Renvoyez-en un.',
+          'invalid-argument': t.verif_err_wrong || 'Code incorrect.',
+          'deadline-exceeded': t.verif_err_expired || 'Ce code a expiré. Renvoyez-en un.',
+          'resource-exhausted': t.verif_err_too_many || 'Trop de tentatives. Renvoyez un nouveau code.',
+          'not-found': t.verif_err_not_found || 'Aucun code trouvé. Renvoyez-en un.',
         };
-        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || '⚠ Erreur de vérification.');
+        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || 'Erreur de vérification.');
       }
     });
   </script>
