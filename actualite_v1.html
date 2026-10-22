@@ -218,7 +218,7 @@ html, body { height: 100%; width: 100%; font-family: -apple-system, Segoe UI, Ro
 
   <!-- ÉTAPE 0 — CHOIX DU MODÈLE (Galerie et Boutique arrivent à l'étape suivante) -->
   <div class="cm-choix" id="cmStepChoix">
-    <div class="cm-choix-intro" data-tr="Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.">Choisissez comment partager votre actualité — puis remplissez et publiez, sans détour.</div>
+    <div class="cm-choix-intro" data-tr="Choisissez comment partager votre actualité, puis remplissez et publiez, sans détour.">Choisissez comment partager votre actualité, puis remplissez et publiez, sans détour.</div>
     <div class="cm-choix-grid">
       <div class="cm-choix-tile wide" onclick="chooseModel('texte')">
         <div class="cm-choix-ico" style="background:#eef1fb">📝</div>
@@ -442,7 +442,7 @@ async function surChangementAuth(user) {
   if (!user) {
     if (premierCheckAuth) {
       premierCheckAuth = false;
-      ajouterEtape('4c. Aucun utilisateur au 1er contrôle — nouvelle vérification dans 900ms avant redirection...');
+      ajouterEtape('4c. Aucun utilisateur au 1er contrôle, nouvelle vérification dans 900ms avant redirection...');
       setTimeout(() => {
         if (!auth.currentUser) { window.location.replace('connexion.html'); }
       }, 900);
@@ -469,9 +469,9 @@ async function surChangementAuth(user) {
       currentUser.ville = d.ville || '';
       currentUser.photoAvatar = d.photoAvatar || '';
       photosAuteurs[user.uid] = currentUser.photoAvatar;   // ma propre photo, tout de suite sur mes publications
-      ajouterEtape('6. Profil utilisateur lu ✅ — nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
+      ajouterEtape('6. Profil utilisateur lu ✅, nom retenu : "' + currentUser.nomAffiche + '" (d.nom="' + (d.nom || '') + '", d.prenom="' + (d.prenom || '') + '")');
     } else {
-      ajouterEtape('6. Profil utilisateur lu ✅ — mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
+      ajouterEtape('6. Profil utilisateur lu ✅, mais AUCUN document trouvé pour cet uid, nom de repli : "' + currentUser.nomAffiche + '"');
     }
   } catch (e) {
     ajouterEtape('6bis. Échec lecture profil (' + (e && e.message || e) + '), on continue quand même');
@@ -494,7 +494,7 @@ async function surChangementAuth(user) {
   // Visiteurs : la barre « Publier » indique que c'est réservé aux professionnels.
   if (currentUser.estVisiteur) {
     const b = document.getElementById('cpInputBtn');
-    if (b) { b.setAttribute('data-tr', '🔒 Publication réservée aux professionnels'); b.textContent = TR('🔒 Publication réservée aux professionnels'); }
+    if (b) { b.setAttribute('data-tr', 'Publication réservée aux professionnels'); b.textContent = TR('Publication réservée aux professionnels'); }
   }
 }
 
@@ -517,7 +517,7 @@ window.toggleSuivre = async function (auteurUid, event) {
       followedUids.add(auteurUid);
       db.collection('abonnements').doc(currentUser.uid + '_' + auteurUid).set({ follower: currentUser.uid, followed: auteurUid, createdAt: firebase.firestore.FieldValue.serverTimestamp() }).catch(() => {});
       window.ArNotif && ArNotif.envoyer({ dest: auteurUid, type: 'abonne', page: 'profil', unique: true });
-      toast('✅ Abonné(e) aux actualités de cette personne !');
+      toast('Abonné(e) aux actualités de cette personne !');
     }
     afficherFeed();
   } catch (e) { ajouterEtape('❌ Erreur suivi : ' + (e && e.message || e)); toast('Erreur'); }
@@ -536,7 +536,7 @@ window.contacterActu = function (postId, nomAuteur, auteurUid, auteurVerifie){
       return;
     }
   } catch (e) {}
-  toast('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment');
+  toast('Contact direct bientôt disponible, utilisez la messagerie ArtiRoyce pour le moment');
 };
 
 async function chargerSuivis() {
@@ -804,7 +804,7 @@ window.menuPartagerPub = function (postId, partagesActuels) {
 window.partagerPub = async function (postId, partagesActuels) {
   try {
     await db.collection('publications').doc(postId).update({ partages: firebase.firestore.FieldValue.increment(1) });
-    toast('Partagé ✅');
+    toast('Partagé');
     { const pub = listePublications.find(x => x.id === postId);
       if (pub) window.ArNotif && ArNotif.envoyer({ dest: pub.auteurUid, type: 'partage', page: 'actualites', cibleId: postId, unique: true }); }
   } catch (e) {
@@ -935,7 +935,7 @@ function ecouterCommentaires(postId) {
           repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
           const toggle2 = document.createElement('div');
           toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
-          toggle2.innerHTML = TR(reponses.length > 1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length});
+          toggle2.innerHTML = TR(reponses.length > 1 ? 'Afficher {n} réponses ▾' : 'Afficher {n} réponse ▾', {n: reponses.length});
           toggle2.onclick = () => {
             const frag = document.createDocumentFragment();
             reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
@@ -1052,14 +1052,14 @@ window.supprimerPublication = async function (postId) {
   if (!confirm(TR('Mettre cette publication à la corbeille ? Elle sera restaurable pendant 15 jours.'))) return;
   try {
     await db.collection('publications').doc(postId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
-    toast('🗑️ Publication mise à la corbeille');
+    toast('Publication mise à la corbeille');
   } catch (e) { ajouterEtape('❌ Erreur suppression : ' + (e && e.message || e)); toast('Erreur lors de la suppression'); }
 };
 window.restaurerPublication = async function (postId) {
   if (!confirm(TR('Restaurer cette publication ? Elle réapparaîtra dans le fil.'))) return;
   try {
     await db.collection('publications').doc(postId).update({ corbeille: false, corbeilleDepuis: null });
-    toast('♻️ Publication restaurée');
+    toast('Publication restaurée');
   } catch (e) { ajouterEtape('❌ Erreur restauration : ' + (e && e.message || e)); toast('Erreur lors de la restauration'); }
 };
 window.supprimerDefinitivement = async function (postId) {
@@ -1171,7 +1171,7 @@ function trierFeedParPriorite(liste) {
     paysActifs.sort(triParFraicheur);
     return mesPostsRecents.concat(suivisActifs, paysActifs, melangerAleatoirement(masse));
   } catch (e) {
-    ajouterEtape('❌ Tri par priorité : ' + (e && e.message || e) + ' — retour à l\u2019ordre par date');
+    ajouterEtape('❌ Tri par priorité : ' + (e && e.message || e) + ', retour à l\u2019ordre par date');
     return liste;
   }
 }
@@ -1497,7 +1497,7 @@ function cmAfficherChoix() {
 
 window.openCreate = function() {
   if (!currentUser) { toast('Connexion requise'); return; }
-  if (currentUser.estVisiteur) { toast('🔒 La publication est réservée aux professionnels'); return; }
+  if (currentUser.estVisiteur) { toast('La publication est réservée aux professionnels'); return; }
   cmAfficherChoix();
   document.getElementById('cmText').value = '';
   document.getElementById('createModal').style.paddingTop = getEmbedTopOffsetPx() + 'px';
@@ -1599,7 +1599,7 @@ function renderGalColorPicker() {
 
 function renderGalGrid() {
   const grille = document.getElementById('galGrid');
-  ajouterEtape('🔎 DIAG galerie — galImages.length=' + galImages.length + ', grille trouvée=' + (!!grille));
+  ajouterEtape('🔎 DIAG galerie, galImages.length=' + galImages.length + ', grille trouvée=' + (!!grille));
   grille.className = 'media-grid tags-' + galTagColor;
   if (!galImages.length) {
     grille.style.gridTemplateColumns = '1fr';
@@ -1609,7 +1609,7 @@ function renderGalGrid() {
   }
   const layoutIndex = galImages.length < 8 ? galImages.length + 1 : 8;
   const layout = MEDIA_LAYOUTS[layoutIndex] || MEDIA_LAYOUTS[8];
-  ajouterEtape('🔎 DIAG galerie — disposition choisie pour ' + galImages.length + ' photo(s) (+1 case bouton): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
+  ajouterEtape('🔎 DIAG galerie, disposition choisie pour ' + galImages.length + ' photo(s) (+1 case bouton): template="' + layout.template + '" areas=' + (layout.areas ? JSON.stringify(layout.areas) : 'null'));
   grille.style.gridTemplateColumns = layout.template;
   grille.style.gridTemplateRows = layout.rows || '1fr';
   grille.style.aspectRatio = layout.cRatio || '';
@@ -1708,7 +1708,7 @@ window.cadSetPrix = function (i, v) { if (cadSlots[i]) cadSlots[i].prix = v; };
 
 window.publishPost = async function() {
   if (!currentUser) { toast('Connexion requise'); return; }
-  if (currentUser.estVisiteur) { toast('🔒 La publication est réservée aux professionnels'); return; }
+  if (currentUser.estVisiteur) { toast('La publication est réservée aux professionnels'); return; }
   const categorie = document.getElementById('cmCategorie').value;
   let donnees = null;
 
@@ -1752,7 +1752,7 @@ window.publishPost = async function() {
       likes: 0,
       partages: 0
     }, donnees)), 20000);
-    toast('Publié ✅');
+    toast('Publié');
     document.getElementById('createModal').classList.remove('open');
     cmAfficherChoix();
   } catch (e) {
