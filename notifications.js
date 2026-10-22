@@ -76,12 +76,12 @@
 
   /* ═════════════════ CLOCHE (accueil.html) ═════════════════ */
   const PAGES = {
-    actualites: { panel: 1, frame: 'actuFrame', nom: '📰 Actualités' },
-    offres:     { panel: 4, frame: 'offreFrame', nom: '💼 Offres' },
-    filPresse:  { panel: 7, frame: 'presseFrame', nom: '🗞️ Fil Presse' },
-    statuts:    { panel: 2, frame: 'statutFrame', nom: '📢 Statuts' },
-    profil:     { nom: '👤 Profil' },
-    assistance: { nom: '🎧 Assistance' }
+    actualites: { panel: 1, frame: 'actuFrame', nom: 'Actualités' },
+    offres:     { panel: 4, frame: 'offreFrame', nom: 'Offres' },
+    filPresse:  { panel: 7, frame: 'presseFrame', nom: 'Fil Presse' },
+    statuts:    { panel: 2, frame: 'statutFrame', nom: 'Statuts' },
+    profil:     { nom: 'Profil' },
+    assistance: { nom: 'Assistance' }
   };
   const PHRASES = {
     reaction:    n => 'a réagi ' + (n.extrait || '👍') + ' à votre publication',
@@ -154,10 +154,10 @@
     const ov = document.createElement('div');
     ov.className = 'ntf-ov'; ov.id = 'ntfOv';
     ov.innerHTML = '<div class="ntf-hd"><button class="ntf-back" id="ntfBack">‹</button>'
-      + '<div class="ntf-titre">🔔 Notifications</div><button class="ntf-tout" id="ntfTout">Tout marquer comme lu</button></div>'
+      + '<div class="ntf-titre">Notifications</div><button class="ntf-tout" id="ntfTout">Tout marquer comme lu</button></div>'
       + '<div class="ntf-liste" id="ntfListe"></div>';
     document.body.appendChild(ov);
-    document.getElementById('ntfBack').onclick = fermer;
+    document.getElementById('ntfBack').onclick = function () { retourInterne(null); };
     document.getElementById('ntfTout').onclick = toutLu;
   }
 
@@ -186,11 +186,31 @@
     el.querySelectorAll('.ntf-item').forEach(it => it.onclick = () => ouvrirNotif(_liste[+it.dataset.i]));
   }
 
+  /* ── Touche retour du téléphone ──
+     La liste prend une entrée d'historique : la touche retour la ferme et on reste
+     sur la même page (avant, on retombait sur la page de connexion). */
+  let _entree = false, _apres = null;
   function ouvrirListe() {
     construire(); rendre();
     document.getElementById('ntfOv').classList.add('open');
+    if (!_entree) { try { history.pushState({ ntfOuvert: 1 }, '', location.href); _entree = true; } catch (e) {} }
   }
   function fermer() { const o = document.getElementById('ntfOv'); if (o) o.classList.remove('open'); }
+  // Fermeture par le bouton ‹ ou en touchant une notification : on retire aussi notre entrée
+  // d'historique, puis on fait l'action demandée (pour que le retour suivant reste normal).
+  function retourInterne(apres) {
+    if (_entree) { _apres = apres || null; try { history.back(); return; } catch (e) {} }
+    fermer(); if (apres) apres();
+  }
+  // Appelé au retour (popstate). Renvoie true si c'était la liste des notifications.
+  function gereRetour() {
+    if (!_entree) return false;
+    _entree = false; fermer();
+    const f = _apres; _apres = null;
+    if (f) setTimeout(f, 0);
+    return true;
+  }
+  window.addEventListener('popstate', gereRetour);
 
   function marquerLu(n) {
     if (!n || n.lu || !_uid) return;
@@ -211,7 +231,9 @@
   function ouvrirNotif(n) {
     if (!n) return;
     marquerLu(n);
-    fermer();
+    retourInterne(function () { allerVers(n); });
+  }
+  function allerVers(n) {
     if (n.page === 'assistance') {
       // L'admin ouvre directement la discussion de cette personne ; la personne, la sienne.
       if (window.ouvrirAssistance) window.ouvrirAssistance(n.type === 'assistance' ? n.cibleId : null);
@@ -260,5 +282,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCloche);
   else initCloche();
 
-  window.ArNotif = { envoyer, ouvrirListe, fermer };
+  window.ArNotif = { envoyer, ouvrirListe, fermer, gereRetour };
 })();
