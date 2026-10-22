@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="UTF-8"/>
+<meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>ArtiRoyce – Ajouter au Portfolio</title>
   <style>
@@ -80,7 +81,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* TOAST */
-    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 9px 20px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.82); color: #fff; padding: 9px 20px; border-radius: 22px; font-size: 13px; font-weight: 600; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: normal; text-align: center; width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; }
     .toast.show { opacity: 1; }
     .toast.g { background: var(--green); }
     .toast.r { background: var(--red); }
@@ -122,7 +123,7 @@
 
     <!-- ZONES UPLOAD (photos ET vidéo peuvent être ajoutées ensemble) -->
     <div class="section">
-      <div class="section-title">📸 Photos <span style="font-weight:600;color:#bbb;text-transform:none;">(jusqu'à 10)</span></div>
+      <div class="section-title">Photos <span style="font-weight:600;color:#bbb;text-transform:none;">(jusqu'à 10)</span></div>
 
       <!-- ZONE UPLOAD PHOTO -->
       <div id="zonePhoto">
@@ -130,7 +131,7 @@
           <input type="file" id="filePhoto" multiple accept="image/*" onchange="onPhotoSel(event)"/>
           <div class="uz-icon">📸</div>
           <div class="uz-text">Appuyez ou glissez vos <span>photos</span></div>
-          <div class="uz-hint">JPG · PNG · WEBP — max 5 Mo par photo</div>
+          <div class="uz-hint">JPG · PNG · WEBP, max 5 Mo par photo</div>
         </div>
         <div class="photos-preview" id="photosPreview">
           <div class="photos-strip" id="photosStrip"></div>
@@ -140,15 +141,15 @@
         </div>
       </div>
 
-      <div class="section-title" style="border-top:1px solid #f0f0f0;margin-top:6px">🎬 Vidéo <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel, 1 seule)</span></div>
+      <div class="section-title" style="border-top:1px solid #f0f0f0;margin-top:6px">Vidéo <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel, 1 seule)</span></div>
 
       <!-- ZONE UPLOAD VIDEO -->
       <div id="zoneVideo">
         <div class="upload-zone" id="uploadZoneVideo" onclick="triggerVideo()" ondragover="onDrag(event,'video',true)" ondragleave="onDrag(event,'video',false)" ondrop="onDropVideo(event)">
-          <input type="file" id="fileVideo" accept="video/mp4,video/webm,video/quicktime" onchange="onVideoSel(event)"/>
+          <input type="file" id="fileVideo" accept="video/*" onchange="onVideoSel(event)"/>
           <div class="uz-icon">🎬</div>
           <div class="uz-text">Appuyez ou glissez votre <span>vidéo</span></div>
-          <div class="uz-hint">MP4 · WebM — max 50 Mo</div>
+          <div class="uz-hint">MP4 · WebM, max 50 Mo</div>
         </div>
         <div class="video-preview" id="videoPreview">
           <video id="videoEl" controls muted playsinline></video>
@@ -165,7 +166,7 @@
 
     <!-- TITRE -->
     <div class="section">
-      <div class="section-title">✏️ Titre (optionnel)</div>
+      <div class="section-title">Titre (optionnel)</div>
       <div class="field">
         <input type="text" id="titreInp" placeholder="Ex : Rénovation salle de bain, Tenue de mariage…" maxlength="80" oninput="onTitre()"/>
         <div class="char-count"><span id="titreCount">0</span>/80</div>
@@ -174,7 +175,7 @@
 
     <!-- MUSIQUE (optionnel) -->
     <div class="section">
-      <div class="section-title">🎵 Musique <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel)</span></div>
+      <div class="section-title">Musique <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel)</span></div>
       <div style="padding:12px 16px">
         <div id="musicAttachedPub" style="display:none;align-items:center;gap:10px;background:#f0fdf0;border:1.5px solid var(--green);border-radius:14px;padding:10px 12px;margin-bottom:10px">
           <span style="font-size:18px">🎵</span>
@@ -197,7 +198,7 @@
 
     <!-- MON PORTFOLIO -->
     <div class="section" id="secMonPortfolio" style="display:none">
-      <div class="section-title">🖼️ Mon portfolio</div>
+      <div class="section-title">Mon portfolio</div>
       <div id="corbeilleTogglePub" style="display:none;margin:10px 16px;background:#fff8f0;border:1px solid #f0dfc2;border-radius:14px;padding:10px 14px;font-size:12.5px;font-weight:700;color:#8a6d1a;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleCorbeillePub()">
         <span>🗑️ Corbeille</span><span id="corbeilleCountPub">(0)</span>
       </div>
@@ -254,7 +255,13 @@ function updateDoc(ref,data){return ref.update(data);}
 function getDoc(ref){return ref.get();}
 function arrayUnion(){return firebase.firestore.FieldValue.arrayUnion.apply(null,arguments);}
 function ref(storageInstance,path){return storageInstance.ref(path);}
-function uploadBytesResumable(sRef,file){return sRef.put(file);}
+function uploadBytesResumable(sRef,file,meta){return meta?sRef.put(file,meta):sRef.put(file);}
+// Type de la vidéo : certains téléphones ne le donnent pas, on le déduit de l'extension.
+function typeVideo(f){
+  if (f.type && f.type.indexOf('video/')===0) return f.type;
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  return {mp4:'video/mp4',m4v:'video/mp4',mov:'video/quicktime',webm:'video/webm','3gp':'video/3gpp','3g2':'video/3gpp2',mkv:'video/x-matroska',avi:'video/x-msvideo'}[ext]||'video/mp4';
+}
 function getDownloadURL(sRef){return sRef.getDownloadURL();}
 
 auth.onAuthStateChanged(async (user) => {
@@ -301,13 +308,13 @@ function compresserImagePub(file){
 
 window.submitPub = async function() {
   const uid = window._uid;
-  if (!uid) { showToast('🔐 Connectez-vous', 'r'); return; }
+  if (!uid) { showToast('Connectez-vous', 'r'); return; }
 
   const photos = window._photos || [];
   const videoFile = window._videoFile || null;
   const titre = document.getElementById('titreInp').value.trim();
 
-  if (photos.length === 0 && !videoFile) { showToast('⚠️ Choisissez au moins une photo ou une vidéo', 'r'); return; }
+  if (photos.length === 0 && !videoFile) { showToast('Choisissez au moins une photo ou une vidéo', 'r'); return; }
 
   setLoading(true);
   document.getElementById('progWrap').style.display = 'block';
@@ -346,13 +353,15 @@ window.submitPub = async function() {
     }
 
     if (videoFile) {
-      const ext = videoFile.name.split('.').pop();
+      const ext = (videoFile.name.split('.').pop() || 'mp4').toLowerCase();
       const path = `portfolio/${uid}/${Date.now()}.${ext}`;
-      const task = uploadBytesResumable(ref(storage, path), videoFile);
+      const task = uploadBytesResumable(ref(storage, path), videoFile, { contentType: typeVideo(videoFile), cacheControl: 'public,max-age=31536000' });
       let octetsDejaEnvoyesV = 0;
+      document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
+      // Rien ne part au bout de 45 s : on arrête et on prévient (au lieu de rester bloqué à 0 %).
       const filetDemarrageV = setTimeout(() => {
         if (octetsDejaEnvoyesV === 0) { try { task.cancel(); } catch(e){} }
-      }, 25000);
+      }, 45000);
       const url = await new Promise((res, rej) => {
         task.on('state_changed',
           snap => {
@@ -381,10 +390,14 @@ window.submitPub = async function() {
 
   } catch(err) {
     setLoading(false);
-    if (err && err.code === 'storage/canceled') {
-      showToast('⏱️ Envoi trop long, réessayez (connexion instable ?)', 'r');
+    if (err && err.code === 'storage/unauthorized') {
+      showToast('Envoi refusé par le serveur. Vérifiez la taille (50 Mo max) et réessayez.', 'r');
+    } else if (err && err.code === 'storage/retry-limit-exceeded') {
+      showToast('Connexion trop faible. Réessayez avec une meilleure connexion.', 'r');
+    } else if (err && err.code === 'storage/canceled') {
+      showToast('Envoi trop long, réessayez (connexion instable ?)', 'r');
     } else {
-      showToast('❌ ' + err.message, 'r');
+      showToast('' + err.message, 'r');
     }
     console.error(err);
   }
@@ -420,7 +433,7 @@ function searchMusicPub(){
         return;
       }
       res.innerHTML = data.results.map((t,i) => {
-        const nomEsc = (t.trackName + ' — ' + t.artistName).replace(/'/g,"\\'").replace(/"/g,'');
+        const nomEsc = (t.trackName + ' · ' + t.artistName).replace(/'/g,"\\'").replace(/"/g,'');
         const urlEsc = (t.previewUrl||'').replace(/'/g,"\\'");
         return `<div style="display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;background:#fafafa">
           <img src="${t.artworkUrl60||''}" style="width:38px;height:38px;border-radius:8px;background:#eee;flex-shrink:0">
@@ -482,7 +495,7 @@ function onPhotoSel(e) { handlePhotos(Array.from(e.target.files)); }
 
 function handlePhotos(files) {
   const ok = files.filter(f => f.size <= 5*1024*1024 && f.type.startsWith('image/'));
-  if (ok.length < files.length) showToast('⚠️ Certains fichiers ignorés (>5Mo ou non image)', 'r');
+  if (ok.length < files.length) showToast('Certains fichiers ignorés (>5Mo ou non image)', 'r');
   window._photos = [...window._photos, ...ok].slice(0, 10);
   renderPhotos();
   checkReady();
@@ -517,9 +530,18 @@ function onDropVideo(e) { e.preventDefault(); onDrag(e,'video',false); const f =
 function onVideoSel(e) { if(e.target.files[0]) handleVideo(e.target.files[0]); }
 
 function handleVideo(f) {
-  if (f.size > 50*1024*1024) { showToast('⚠️ Vidéo trop lourde (max 50Mo)', 'r'); return; }
+  if (f.type && f.type.indexOf('video/') !== 0) { showToast('Ce fichier n\'est pas une vidéo.', 'r'); return; }
+  if (f.size > 50*1024*1024) { showToast('Vidéo trop lourde (' + Math.round(f.size/1048576) + ' Mo). Maximum 50 Mo.', 'r'); return; }
   window._videoFile = f;
-  document.getElementById('videoEl').src = URL.createObjectURL(f);
+  const v = document.getElementById('videoEl');
+  // Vidéo que le téléphone ne sait pas lire : personne ne pourrait la regarder. On la retire
+  // et on explique quoi faire, au lieu d'un envoi qui reste bloqué.
+  v.onerror = function () {
+    if (window._videoFile !== f) return;
+    removeVideo();
+    showToast('Cette vidéo ne peut pas être lue (format non pris en charge). Filmez-la avec l\'appareil photo ou choisissez une autre vidéo.', 'r');
+  };
+  v.src = URL.createObjectURL(f);
   document.getElementById('videoPreview').style.display = 'block';
   document.getElementById('uploadZoneVideo').style.display = 'none';
   checkReady();
@@ -530,6 +552,7 @@ function removeVideo() {
   document.getElementById('videoPreview').style.display = 'none';
   document.getElementById('uploadZoneVideo').style.display = 'flex';
   document.getElementById('videoEl').src = '';
+  document.getElementById('fileVideo').value = '';
   checkReady();
 }
 
@@ -573,7 +596,9 @@ function showToast(msg, type) {
   const el = document.getElementById('toastEl');
   el.textContent = msg;
   el.className = 'toast show' + (type ? ' ' + type : '');
-  setTimeout(() => el.className = 'toast', 2500);
+  clearTimeout(el._t);
+  // Les longs messages restent affichés plus longtemps pour avoir le temps de les lire.
+  el._t = setTimeout(() => el.className = 'toast', Math.max(2500, String(msg).length * 60));
 }
 
 // ── Mon portfolio : liste, suppression → corbeille, restauration ──
@@ -644,9 +669,9 @@ window.supprimerItemPortfolio = async function(itemId) {
     await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).update({
       corbeille: true, corbeilleDepuis: new Date().toISOString()
     });
-    showToast('🗑️ Mis à la corbeille', 'g');
+    showToast('Mis à la corbeille', 'g');
     chargerMonPortfolio();
-  } catch(e) { console.error(e); showToast('❌ Erreur suppression', 'r'); }
+  } catch(e) { console.error(e); showToast('Erreur suppression', 'r'); }
 };
 
 window.restaurerItemPortfolio = async function(itemId) {
@@ -655,9 +680,9 @@ window.restaurerItemPortfolio = async function(itemId) {
     await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).update({
       corbeille: false, corbeilleDepuis: null
     });
-    showToast('✅ Restauré', 'g');
+    showToast('Restauré', 'g');
     chargerMonPortfolio();
-  } catch(e) { console.error(e); showToast('❌ Erreur restauration', 'r'); }
+  } catch(e) { console.error(e); showToast('Erreur restauration', 'r'); }
 };
 
 window.supprimerDefinitivementPortfolio = async function(itemId) {
@@ -665,9 +690,9 @@ window.supprimerDefinitivementPortfolio = async function(itemId) {
   const uid = window._uid;
   try {
     await db.collection('utilisateurs').doc(uid).collection('portfolio').doc(itemId).delete();
-    showToast('🗑️ Supprimé définitivement', 'g');
+    showToast('Supprimé définitivement', 'g');
     chargerMonPortfolio();
-  } catch(e) { console.error(e); showToast('❌ Erreur', 'r'); }
+  } catch(e) { console.error(e); showToast('Erreur', 'r'); }
 };
 
 function goBack() { window.history.back(); }
