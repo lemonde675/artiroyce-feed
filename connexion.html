@@ -151,7 +151,7 @@
       </div>
 
       <h1 data-i18n="login_title">Connexion</h1>
-      <p class="subtitle" data-i18n="login_subtitle">Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong> — vos prochains clients et fans vous attendent.</p>
+      <p class="subtitle" data-i18n="login_subtitle">Reconnectez-vous et continuez à <strong style="color:#27a945">développer votre activité</strong>. Vos prochains clients et fans vous attendent.</p>
 
       <form id="loginForm" novalidate>
         <label for="email" data-i18n="login_label_email">EMAIL / TÉLÉPHONE</label>
@@ -229,18 +229,18 @@
       emailErr.textContent = ''; passErr.textContent = '';
 
       if (!email.value.trim()) {
-        emailErr.textContent = t.login_err_email_required || '⚠ Veuillez entrer votre email.';
+        emailErr.textContent = t.login_err_email_required || 'Veuillez entrer votre email.';
         email.className = 'error'; valid = false;
       } else if (!validateEmail(email.value)) {
-        emailErr.textContent = t.login_err_email_format || '⚠ Format email invalide.';
+        emailErr.textContent = t.login_err_email_format || 'Format email invalide.';
         email.className = 'error'; valid = false;
       } else { email.className = 'valid'; }
 
       if (!password.value.trim()) {
-        passErr.textContent = t.login_err_password_required || '⚠ Veuillez entrer votre mot de passe.';
+        passErr.textContent = t.login_err_password_required || 'Veuillez entrer votre mot de passe.';
         password.className = 'error'; valid = false;
       } else if (password.value.length < 6) {
-        passErr.textContent = t.login_err_password_length || '⚠ Le mot de passe doit faire au moins 6 caractères.';
+        passErr.textContent = t.login_err_password_length || 'Le mot de passe doit faire au moins 6 caractères.';
         password.className = 'error'; valid = false;
       } else { password.className = 'valid'; }
 
@@ -260,8 +260,8 @@
 
         if (!userDoc.exists()) {
           // Document absent → accueil par défaut
-          showToast(t.login_toast_success || '✅ Connexion réussie ! Bienvenue.', 'success');
-          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+          showToast(t.login_toast_success || 'Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.replace('accueil.html'); }, 1200);
           return;
         }
 
@@ -272,16 +272,16 @@
         // 3. ✅ REDIRECTION SELON RÔLE + STATUT
         if (role === 'visiteur') {
           // Visiteur : accès direct, pas de notion de vérification KYC
-          showToast(t.login_toast_success || '✅ Connexion réussie ! Bienvenue.', 'success');
-          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+          showToast(t.login_toast_success || 'Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.replace('accueil.html'); }, 1200);
         } else if (statut === 'verifie') {
           // Pro validé → accueil général
-          showToast(t.login_toast_success || '✅ Connexion réussie ! Bienvenue.', 'success');
-          setTimeout(() => { window.location.href = 'accueil.html'; }, 1200);
+          showToast(t.login_toast_success || 'Connexion réussie ! Bienvenue.', 'success');
+          setTimeout(() => { window.location.replace('accueil.html'); }, 1200);
         } else {
           // Pro en_attente ou rejeté → SON PROPRE profil personnel
           // profil.html détecte automatiquement l'utilisateur connecté via Firebase Auth
-          showToast(t.login_toast_pending || '⏳ Compte en attente — accès à votre profil.', 'warning');
+          showToast(t.login_toast_pending || 'Compte en attente, accès à votre profil.', 'warning');
           setTimeout(() => { window.location.href = 'profil.html'; }, 1200);
         }
 
@@ -289,11 +289,11 @@
         btn.disabled = false;
         btn.innerHTML = t.login_btn || 'CONNEXION &nbsp;→';
         if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-          showToast(t.login_err_credentials || '⚠ Email ou mot de passe incorrect.', 'error-toast');
+          showToast(t.login_err_credentials || 'Email ou mot de passe incorrect.', 'error-toast');
         } else if (err.code === 'auth/too-many-requests') {
-          showToast(t.js_err_too_many || '⚠ Trop de tentatives. Réessayez plus tard.', 'error-toast');
+          showToast(t.js_err_too_many || 'Trop de tentatives. Réessayez plus tard.', 'error-toast');
         } else {
-          showToast((t.js_toast_error_prefix || '⚠ Erreur : ') + err.code + ' : ' + err.message, 'error-toast');
+          showToast((t.js_toast_error_prefix || 'Erreur : ') + err.code + ' : ' + err.message, 'error-toast');
         }
       }
     });
