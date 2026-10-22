@@ -596,7 +596,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="body-wrap">
   <div class="spacer" id="spacer"></div>
   <div class="top-bar">
-    <span class="top-bar-title">💬 Discussions</span>
+    <span class="top-bar-title">Discussions</span>
     <div class="top-bar-right">
       <button class="tbr-btn" onclick="toggleSearch()">🔍</button>
       <button class="tbr-btn red" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()">✏️</button>
@@ -685,10 +685,10 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div id="demoMsgsSeed">
       <div class="mrow in" data-mid="s1" data-dir="in" data-txt="Bonjour ! Je voudrais réserver pour un shooting 📸"><div class="m-av" id="mAv1">?</div><div class="bbl">Bonjour ! Je voudrais réserver pour un shooting 📸<div class="bbl-ft"><span class="bbl-t">14:20</span></div></div></div>
       <div class="mrow out" data-mid="s2" data-dir="out" data-txt="Bonjour 😊 Avec plaisir ! Quel jour ?"><div class="bbl">Bonjour 😊 Avec plaisir ! Quel jour ?<div class="bbl-ft"><span class="bbl-t">14:22</span><span class="tick rd">✓✓</span></div></div></div>
-      <div class="mrow in" data-mid="s3" data-dir="in" data-txt="📲 Appel vocal — Sans réponse"><div class="m-av" id="mAv2">?</div><div class="call-bbl missed"><div class="call-ico-w">📲</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">Sans réponse</div><div class="call-ft"><span class="call-t" style="color:#bbb">14:30</span></div></div></div></div>
-      <div class="mrow out" data-mid="s4" data-dir="out" data-txt="📞 Appel vocal — 11 s"><div class="call-bbl"><div class="call-ico-w">📞</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">11 s</div><div class="call-ft"><span class="call-t">14:31</span><span class="tick rd">✓✓</span></div></div></div></div>
+      <div class="mrow in" data-mid="s3" data-dir="in" data-txt="📲 Appel vocal, Sans réponse"><div class="m-av" id="mAv2">?</div><div class="call-bbl missed"><div class="call-ico-w">📲</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">Sans réponse</div><div class="call-ft"><span class="call-t" style="color:#bbb">14:30</span></div></div></div></div>
+      <div class="mrow out" data-mid="s4" data-dir="out" data-txt="📞 Appel vocal, 11 s"><div class="call-bbl"><div class="call-ico-w">📞</div><div class="call-det"><div class="call-type">Appel vocal</div><div class="call-sub2">11 s</div><div class="call-ft"><span class="call-t">14:31</span><span class="tick rd">✓✓</span></div></div></div></div>
       <div class="mrow in" data-mid="s5" data-dir="in" data-txt="Samedi prochain si possible 🙏"><div class="m-av" id="mAv3">?</div><div class="bbl">Samedi prochain si possible 🙏<div class="bbl-ft"><span class="bbl-t">14:35</span></div></div></div>
-      <div class="mrow out" data-mid="s6" data-dir="out" data-txt="📹 Appel vidéo — 8 min"><div class="call-bbl"><div class="call-ico-w">📹</div><div class="call-det"><div class="call-type">Appel vidéo</div><div class="call-sub2">8 min</div><div class="call-ft"><span class="call-t">14:40</span><span class="tick rd">✓✓</span></div></div></div></div>
+      <div class="mrow out" data-mid="s6" data-dir="out" data-txt="📹 Appel vidéo, 8 min"><div class="call-bbl"><div class="call-ico-w">📹</div><div class="call-det"><div class="call-type">Appel vidéo</div><div class="call-sub2">8 min</div><div class="call-ft"><span class="call-t">14:40</span><span class="tick rd">✓✓</span></div></div></div></div>
       <div class="mrow out" data-mid="s7" data-dir="out" data-txt="Parfait ! Je vous envoie le devis 👍"><div class="bbl">Parfait ! Je vous envoie le devis 👍<div class="bbl-ft"><span class="bbl-t">14:42</span><span class="tick rd">✓✓</span></div></div></div>
       <div class="mrow in" data-mid="s8" data-dir="in" data-txt="Merci beaucoup ! 🙏🙏"><div class="m-av" id="mAv4">?</div><div class="bbl">Merci beaucoup ! 🙏🙏<div class="bbl-ft"><span class="bbl-t">14:43</span></div></div></div>
     </div>
@@ -700,15 +700,15 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
   <div class="reply-bar" id="replyBar">
     <div class="reply-bar-info">
-      <div class="reply-bar-name" id="replyName">—</div>
-      <div class="reply-bar-txt" id="replyTxt">—</div>
+      <div class="reply-bar-name" id="replyName">-</div>
+      <div class="reply-bar-txt" id="replyTxt">-</div>
     </div>
     <span class="reply-close" onclick="cancelReply()">✕</span>
   </div>
   <div class="reply-bar" id="editBar">
     <div class="reply-bar-info">
       <div class="reply-bar-name">✏️ Modifier le message</div>
-      <div class="reply-bar-txt" id="editTxtApercu">—</div>
+      <div class="reply-bar-txt" id="editTxtApercu">-</div>
     </div>
     <span class="reply-close" onclick="annulerModification()">✕</span>
   </div>
@@ -721,7 +721,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <button class="rec-send" onclick="sendRecording()">➤</button>
   </div>
   <div class="bloc-note" id="blocNote"></div>
-  <div class="grp-lock" id="grpLockNote" style="display:none">🔒 Seuls les admins peuvent envoyer des messages dans ce groupe</div>
+  <div class="grp-lock" id="grpLockNote" style="display:none">Seuls les admins peuvent envoyer des messages dans ce groupe</div>
   <div class="ibar" id="ibar">
     <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
     <div class="iwrap">
@@ -747,8 +747,8 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
       <div class="pc-av" id="pcAv">?</div>
       <div class="cha-online" id="pcOnline" style="display:none;width:18px;height:18px;right:4px;bottom:8px"></div>
     </div>
-    <div class="pc-name" id="pcNom">—</div>
-    <div class="pc-st" id="pcSt">—</div>
+    <div class="pc-name" id="pcNom">-</div>
+    <div class="pc-st" id="pcSt">-</div>
     <div class="pc-role" id="pcRole"></div>
     <div class="pc-tabs">
       <span class="pc-tab active">📷 Médias partagés</span>
@@ -765,7 +765,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="apercu-overlay" id="apercuOverlay">
   <div class="apercu-top">
     <span class="apercu-cancel" onclick="annulerApercuMedia()">✕</span>
-    <span class="apercu-titre" id="apercuTitre" style="display:none;color:#fff;font-weight:700;font-size:14px">🧩 Créer un sticker</span>
+    <span class="apercu-titre" id="apercuTitre" style="display:none;color:#fff;font-weight:700;font-size:14px">Créer un sticker</span>
     <span class="apercu-crop-toggle" id="apercuStickerToggle" onclick="ouvrirApercuStickerPicker()" style="display:none">🧩 Sticker</span>
     <span class="apercu-crop-toggle" id="apercuDrawToggle" onclick="toggleApercuDessin()" style="display:none">✏️ Dessiner</span>
     <span class="apercu-crop-toggle" id="apercuCropToggle" onclick="toggleRecadrage()" style="display:none">✂️ Recadrer</span>
@@ -790,6 +790,11 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
   </div>
 </div>
 <div class="ctx-overlay" id="ctxOverlay" onclick="closeCtx()"></div>
+<div class="ctx-overlay" id="convMenuOverlay" onclick="fermerMenuConv()"></div>
+<div class="ctx-menu" id="convMenu">
+  <div class="ctx-item danger" onclick="supprimerDiscussionPourMoi()">🗑️ Supprimer la discussion</div>
+  <div class="ctx-item" onclick="fermerMenuConv()">✖️ Annuler</div>
+</div>
 <div class="ctx-overlay" id="posChoixOverlay" onclick="fermerChoixPosition()" style="display:none"></div>
 <div class="ctx-menu" id="posChoixMenu" style="position:fixed;top:96px;left:50%;transform:translateX(-50%)">
   <div class="ctx-item" onclick="choisirPosition('moi')">📍 Activer ma position</div>
@@ -809,7 +814,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 </div>
 <div class="call-screen" id="callScreen">
   <div class="call-top">
-    <div class="call-name" id="callName">—</div>
+    <div class="call-name" id="callName">-</div>
     <div class="call-status" id="callStatus">Appel en cours…</div>
   </div>
   <div class="call-mid" id="callMid">
@@ -818,7 +823,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <div class="call-avatar-big" id="callAvatarBig">?</div>
     <div class="call-local-video" id="callLocalWrap" onclick="toggleAgrandirVideoLocale()"><video id="callLocalVideo" autoplay muted playsinline></video></div>
   </div>
-  <div class="call-pending-note" id="callPendingNote">ℹ️ La connexion audio/vidéo est directe avec votre correspondant, sans passer par nos serveurs.</div>
+  <div class="call-pending-note" id="callPendingNote">La connexion audio/vidéo est directe avec votre correspondant, sans passer par nos serveurs.</div>
   <div class="call-vol-row" id="callVolRow">
     <span>🔈</span>
     <input type="range" id="callVolumeSlider" min="0" max="100" value="100" oninput="onCallVolumeChange(this.value)"/>
@@ -834,7 +839,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 <div class="incoming-call-screen" id="incomingCallScreen">
   <div class="ic-top">
     <div class="ic-eyebrow">ArtiRoyce</div>
-    <div class="ic-name" id="icName">—</div>
+    <div class="ic-name" id="icName">-</div>
     <div class="ic-sub" id="icSub">Appel entrant…</div>
   </div>
   <div class="ic-avatar-wrap">
@@ -858,7 +863,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span style="font-size:16px;font-weight:800;color:#111">Conférence</span>
   </div>
   <div class="conf-body">
-    <div class="conf-title">🎙️ Nouvelle conférence</div>
+    <div class="conf-title">Nouvelle conférence</div>
     <div class="conf-sub">Créez la salle, partagez le lien : vos invités entrent en un toucher.</div>
     <div id="confEtapeCreer">
       <div class="search-inner" style="margin-bottom:12px"><input type="text" id="confNomInput" maxlength="60" placeholder="Nom de la conférence (ex. Atelier couture)"/></div>
@@ -900,7 +905,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span style="font-size:16px;font-weight:800;color:#111">Nouveau groupe</span>
   </div>
   <div class="conf-body">
-    <div class="conf-title">👥 Créer un groupe</div>
+    <div class="conf-title">Créer un groupe</div>
     <div class="conf-sub">Choisissez un nom, puis les membres. Vous serez l'admin du groupe.</div>
     <div class="search-inner" style="margin-bottom:12px">
       <input type="text" id="grpNomInput" placeholder="Nom du groupe" maxlength="60"/>
@@ -1154,7 +1159,7 @@ window.doSearch=function(){
     const roleLbl=u.role==='visiteur' ? 'Visiteur' : (u.metier || 'Professionnel');
     const bg=gradientPourId(u.id);
     const verifie=u.verifie===true;
-    const apercu=u.telephone ? escAttr(u.telephone) : 'Aucun message — démarrer la discussion';
+    const apercu=u.telephone ? escAttr(u.telephone) : 'Aucun message, démarrer la discussion';
     return '<div class="conv-card" data-mode="conv" data-uid="'+u.id+'" onclick="openChat(\''+escAttr(nom)+'\',\''+escAttr(roleLbl)+'\',\''+ini+'\',\''+bg+'\',false,\'\',false,\''+u.id+'\','+verifie+')">'
       +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+bg+'">'+avatarInterieur(u.id, ini)+'</div></div>'
       +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(nom)+'</span></div>'
@@ -1266,7 +1271,7 @@ function hideView(name){
     if(unsubConvDoc){ unsubConvDoc(); unsubConvDoc=null; }
     dernierSnapMessages=null;
     ouvertureConvId++; // invalide toute réponse/écoute encore en vol pour la conversation qu'on ferme
-    if(currentOtherUid) ajouterEtape('hideView(chat) — réinitialisation de la conversation (était : '+currentOtherUid+')');
+    if(currentOtherUid) ajouterEtape('hideView(chat), réinitialisation de la conversation (était : '+currentOtherUid+')');
     currentOtherUid=null; currentConvId=null; currentEstGroupe=false; currentGroupParticipants=[]; currentGroupData={};
     afficherEpingle(null);
     if(window.GroupeAppel) window.GroupeAppel.surFermetureGroupe();
@@ -1310,7 +1315,7 @@ function hideView(name){
   }
 }
 
-let midCounter=100, currentChatName='—', currentChatIni='?', currentChatBg='#999';
+let midCounter=100, currentChatName='-', currentChatIni='?', currentChatBg='#999';
 /* ══ Messagerie réelle (Firestore) — variables d'état de la conversation ouverte ══ */
 let currentOtherUid=null, currentConvId=null, unsubMessages=null, unsubConversations=null, currentUid=null;
 let currentEstGroupe=false, currentGroupParticipants=[], groupesCache={};
@@ -1399,8 +1404,8 @@ window.choisirPosition=async function(qui){
       statut:'attente', horodatage:firebase.firestore.FieldValue.serverTimestamp()
     });
     await convRef.set({derniereActivite:firebase.firestore.FieldValue.serverTimestamp(),dernierMessage:'📍 Demande de position envoyée',dernierEmetteur:currentUid,nonLus:majNonLusAutres()},{merge:true});
-    toast('📩 Demande envoyée','g');
-  }catch(e){ console.error('Envoi de la demande de position impossible :',e); toast('⚠️ Envoi de la demande impossible','r'); }
+    toast('Demande envoyée','g');
+  }catch(e){ console.error('Envoi de la demande de position impossible :',e); toast('Envoi de la demande impossible','r'); }
 }
 // Réponse à une demande reçue : Refuser met juste à jour le statut. Accepter
 // déclenche la VRAIE demande de permission sur l'appareil de la personne qui
@@ -1414,8 +1419,8 @@ window.repondreDemandePosition=async function(messageId, accepter){
     msgRef.update({statut:'refuse'}).catch(function(e){ console.error('Réponse (refus) impossible :',e); });
     return;
   }
-  if(!navigator.geolocation){ toast('⚠️ Géolocalisation non disponible','r'); return; }
-  toast('📍 Demande de votre position...','g');
+  if(!navigator.geolocation){ toast('Géolocalisation non disponible','r'); return; }
+  toast('Demande de votre position...','g');
   navigator.geolocation.getCurrentPosition(async(pos)=>{
     let ville=null;
     try{
@@ -1425,12 +1430,12 @@ window.repondreDemandePosition=async function(messageId, accepter){
     }catch(e){ console.error('Reverse geocoding (réponse demande) impossible :',e); }
     try{
       await msgRef.update({statut:'accepte', ville: ville||null});
-      toast(ville?('✅ Position partagée : '+ville):'✅ Position partagée','g');
+      toast(ville?('Position partagée : '+ville):'Position partagée','g');
     }catch(e){ console.error('Mise à jour demande position (accepté) impossible :',e); }
   },(err)=>{
     console.error('Géolocalisation refusée (réponse à une demande) :',err);
-    if(err && err.code===1){ toast('⚠️ Position bloquée — autorisez-la dans les réglages du site, puis réessayez','r',4500); }
-    else { toast('⚠️ Position momentanément indisponible — réessayez','r'); }
+    if(err && err.code===1){ toast('Position bloquée, autorisez-la dans les réglages du site, puis réessayez','r',4500); }
+    else { toast('Position momentanément indisponible, réessayez','r'); }
     msgRef.update({statut:'refuse'}).catch(function(e){ console.error('Mise à jour demande position (échec) impossible :',e); });
   });
 }
@@ -1438,8 +1443,8 @@ function toggleVilleSource(){
   const btn=document.getElementById('posToggle');
   if(!btn) return;
   if(!sourceVilleLive){
-    if(!navigator.geolocation){ toast('⚠️ Géolocalisation non disponible','r'); return; }
-    toast('📍 Demande de position...','g');
+    if(!navigator.geolocation){ toast('Géolocalisation non disponible','r'); return; }
+    toast('Demande de position...','g');
     navigator.geolocation.getCurrentPosition(async(pos)=>{
       let ville=null;
       try{
@@ -1449,7 +1454,7 @@ function toggleVilleSource(){
       }catch(e){ console.error('Reverse geocoding impossible :',e); }
       sourceVilleLive=true; villeLiveActuelle=ville;
       btn.classList.add('actif');
-      toast(ville ? ('✅ Position activée : '+ville) : '✅ Position activée','g');
+      toast(ville ? ('Position activée : '+ville) : 'Position activée','g');
       // Signal visible par l'autre personne dans la conversation, pour qu'elle sache
       // que l'activation est bien faite sans avoir à le demander à l'oral.
       if(currentConvId){
@@ -1470,9 +1475,9 @@ function toggleVilleSource(){
       // site/téléphone. On l'explique clairement au lieu de répéter un message
       // vague qui donnerait l'impression que le bouton est cassé.
       if(err && err.code === 1){
-        toast('⚠️ Position bloquée — autorisez-la dans les réglages du site, puis réessayez','r',4500);
+        toast('Position bloquée, autorisez-la dans les réglages du site, puis réessayez','r',4500);
       } else {
-        toast('⚠️ Position momentanément indisponible — réessayez','r');
+        toast('Position momentanément indisponible, réessayez','r');
       }
     });
   } else {
@@ -1517,16 +1522,16 @@ window.openChat=function(name,sub,ini,bg,online,lastSeen,isDemo,otherUid,verifie
   } else if(otherUid && !currentUid){
     // Diagnostic temporaire : si otherUid est fourni mais currentUid absent,
     // c'est que l'identité du compte connecté n'a pas été détectée par Firebase Auth.
-    alert('DIAGNOSTIC — Compte connecté non détecté par Firebase Auth (currentUid manquant). La messagerie réelle ne peut pas fonctionner tant que ceci n\'est pas résolu.');
+    alert('DIAGNOSTIC, Compte connecté non détecté par Firebase Auth (currentUid manquant). La messagerie réelle ne peut pas fonctionner tant que ceci n\'est pas résolu.');
     currentOtherUid=null;currentConvId=null;
     seed.style.display='none';empty.style.display='flex';
   } else if(isDemo){
-    if(currentOtherUid) ajouterEtape('openChat(mode démo) — réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
+    if(currentOtherUid) ajouterEtape('openChat(mode démo), réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
     currentOtherUid=null;currentConvId=null;
     seed.style.display='';empty.style.display='none';
     ['mAv1','mAv2','mAv3','mAv4'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=ini;el.style.background=bg}});
   } else {
-    if(currentOtherUid) ajouterEtape('openChat(aucun mode) — réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
+    if(currentOtherUid) ajouterEtape('openChat(aucun mode), réinitialisation de la conversation (était : '+currentOtherUid+'), nouveau nom="'+name+'"');
     currentOtherUid=null;currentConvId=null;
     seed.style.display='none';empty.style.display='flex';
   }
@@ -1593,8 +1598,8 @@ window.bloquerContact=function(jours){
   blocageActuel=Object.assign({},blocageActuel); blocageActuel[currentUid]=maj['blocage.'+currentUid];
   appliquerRestrictionEcriture();
   db.collection('conversations').doc(currentConvId).update(maj)
-    .then(function(){ toast(jours?'🚫 Bloqué pour 15 jours':'⛔ Bloqué définitivement','g'); })
-    .catch(function(e){ console.error('Blocage impossible :',e); toast('⚠️ Blocage impossible','r'); });
+    .then(function(){ toast(jours?'Bloqué pour 15 jours':'Bloqué définitivement','g'); })
+    .catch(function(e){ console.error('Blocage impossible :',e); toast('Blocage impossible','r'); });
 }
 window.debloquerContact=function(){
   if(!convReelle() || currentEstGroupe) return;
@@ -1602,8 +1607,8 @@ window.debloquerContact=function(){
   blocageActuel=Object.assign({},blocageActuel); delete blocageActuel[currentUid];
   appliquerRestrictionEcriture();
   db.collection('conversations').doc(currentConvId).update(maj)
-    .then(function(){ toast('✅ Contact débloqué','g'); })
-    .catch(function(e){ console.error('Déblocage impossible :',e); toast('⚠️ Déblocage impossible','r'); });
+    .then(function(){ toast('Contact débloqué','g'); })
+    .catch(function(e){ console.error('Déblocage impossible :',e); toast('Déblocage impossible','r'); });
 }
 // Le blocage de 15 jours se termine tout seul : on revérifie de temps en temps.
 setInterval(function(){ if(currentConvId && !currentEstGroupe) appliquerRestrictionEcriture(); }, 60000);
@@ -1735,10 +1740,10 @@ window.doSend=function(){
     modifierMessageReel(id, txt);
     return;
   }
-  ajouterEtape('doSend() appelé — txt="'+txt+'" currentOtherUid='+currentOtherUid+' currentConvId='+currentConvId);
+  ajouterEtape('doSend() appelé, txt="'+txt+'" currentOtherUid='+currentOtherUid+' currentConvId='+currentConvId);
   if(convReelle()){
     // ══ Mode réel : écriture Firestore, l'affichage vient de l'écoute onSnapshot ══
-    if(estBloqueIci()){ toast('🚫 Discussion bloquée','r'); return; }
+    if(estBloqueIci()){ toast('Discussion bloquée','r'); return; }
     signalerEcriture(null);
     envoyerMessageReel(txt);
     ta.value='';ta.style.height='auto';onTa();
@@ -1879,7 +1884,7 @@ function ecouterMessagesConv(convId, monOuverture){
     if(!(snap.metadata && snap.metadata.fromCache)) marquerConversationCommeLue();
   }, function(err){
     console.error('Écoute des messages impossible :',err);
-    ajouterEtape('ÉCHEC écoute messages — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    ajouterEtape('ÉCHEC écoute messages, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
   });
   garderAuChaud(convId);
 }
@@ -1971,9 +1976,9 @@ async function startRealConversation(otherUid,name,role,ini,bg,verifie,monOuvert
   }catch(err){
     if(monOuverture!==ouvertureConvId) return;
     console.error('Conversation réelle inaccessible :',err);
-    ajouterEtape('ÉCHEC conversation — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Conversation Firestore inaccessible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Connexion impossible pour cette discussion','r');
+    ajouterEtape('ÉCHEC conversation, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Conversation Firestore inaccessible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Connexion impossible pour cette discussion','r');
     document.getElementById('emptyMsgsState').style.display='flex';
     return;
   }
@@ -2101,6 +2106,7 @@ function appliquerEtatsMessage(el, doc){
   const m=doc.data()||{};
   donneesMessages[doc.id]=m;
   if(Array.isArray(m.supprimePour) && m.supprimePour.indexOf(currentUid)!==-1){ el.style.display='none'; return; }
+  if(messageAvantMaSuppression(m)){ el.style.display='none'; return; }
   const rmw=el.querySelector('.rmw');
   if(!rmw) return;
   const ancien=rmw.querySelector('.react-colle'); if(ancien) ancien.remove();
@@ -2201,7 +2207,7 @@ function creerElementMessageBrut(doc){
     interieur='<div class="voice-bbl-real"><audio controls src="'+m.url+'"></audio><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+villeHtml+'</span>'+tickHtml+'</div></div>';
   } else if(m.supprime){
     d.dataset.txt='Message supprimé'; d.dataset.type='supprime';
-    interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">'+(m.supprimeParAdmin?'🚫 Message supprimé par un admin':'🚫 Message supprimé')+'</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
+    interieur='<div class="bbl">'+nomGroupeHtml+'<span class="msg-deleted">'+(m.supprimeParAdmin?'Message supprimé par un admin':'Message supprimé')+'</span><div class="bbl-ft" data-ft="1"><span class="bbl-t">'+t+'</span></div></div>';
     d.innerHTML='<div class="rmw">'+interieur+miniAv+'</div>';
     return d;
   } else if(false){
@@ -2299,7 +2305,8 @@ window.reduireVideoDepuisFleche=function(e, backBtn){
 }
 function renderRealMessages(snap){
   const area=document.getElementById('msgsArea');
-  document.getElementById('emptyMsgsState').style.display = snap.empty ? 'flex' : 'none';
+  const rienAVoir = snap.empty || snap.docs.every(function(d){ return messageAvantMaSuppression(d.data()); });
+  document.getElementById('emptyMsgsState').style.display = rienAVoir ? 'flex' : 'none';
   let ajoutEnBas=false;
   snap.docChanges().forEach(function(change){
     const id='r'+change.doc.id;
@@ -2388,9 +2395,9 @@ async function envoyerImageReelle(file, legende){
     await envoyerMessageMedia('image', url, legende?{legende:legende}:{});
   }catch(err){
     console.error('Envoi image réelle impossible :',err);
-    ajouterEtape('ÉCHEC upload image — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Envoi de la photo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Photo non envoyée','r');
+    ajouterEtape('ÉCHEC upload image, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Envoi de la photo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Photo non envoyée','r');
   }
 }
 async function envoyerImageBlobReelle(blob, legende){
@@ -2401,8 +2408,8 @@ async function envoyerImageBlobReelle(blob, legende){
     await envoyerMessageMedia('image', url, legende?{legende:legende}:{});
   }catch(err){
     console.error('Envoi image (recadrée) impossible :',err);
-    ajouterEtape('ÉCHEC upload image recadrée — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    toast('⚠️ Photo non envoyée','r');
+    ajouterEtape('ÉCHEC upload image recadrée, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    toast('Photo non envoyée','r');
   }
 }
 async function envoyerFichierReel(file){
@@ -2412,9 +2419,9 @@ async function envoyerFichierReel(file){
     await envoyerMessageMedia('file', url, {nom:file.name, taille:file.size});
   }catch(err){
     console.error('Envoi fichier réel impossible :',err);
-    ajouterEtape('ÉCHEC upload fichier — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Envoi du fichier impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Fichier non envoyé','r');
+    ajouterEtape('ÉCHEC upload fichier, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Envoi du fichier impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Fichier non envoyé','r');
   }
 }
 async function envoyerVideoReelle(file, legende){
@@ -2424,9 +2431,9 @@ async function envoyerVideoReelle(file, legende){
     await envoyerMessageMedia('video', url, legende?{legende:legende}:{});
   }catch(err){
     console.error('Envoi vidéo réelle impossible :',err);
-    ajouterEtape('ÉCHEC upload vidéo — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Envoi de la vidéo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Vidéo non envoyée','r');
+    ajouterEtape('ÉCHEC upload vidéo, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Envoi de la vidéo impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Vidéo non envoyée','r');
   }
 }
 async function envoyerVocalReel(blob,durSec){
@@ -2435,9 +2442,9 @@ async function envoyerVocalReel(blob,durSec){
     await envoyerMessageMedia('audio', url, {duree:durSec});
   }catch(err){
     console.error('Envoi vocal réel impossible :',err);
-    ajouterEtape('ÉCHEC upload vocal — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Envoi du message vocal impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Message vocal non envoyé','r');
+    ajouterEtape('ÉCHEC upload vocal, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Envoi du message vocal impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Message vocal non envoyé','r');
   }
 }
 
@@ -2461,9 +2468,9 @@ async function envoyerMessageReel(txt){
     ajouterEtape('Message écrit sur Firestore ✅');
   }catch(err){
     console.error('Envoi du message réel impossible :',err);
-    ajouterEtape('ÉCHEC envoi — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    alert('DIAGNOSTIC — Envoi du message impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
-    toast('⚠️ Message non envoyé (connexion)','r');
+    ajouterEtape('ÉCHEC envoi, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    alert('DIAGNOSTIC, Envoi du message impossible.\nCode : '+(err&&err.code||'inconnu')+'\nMessage : '+(err&&err.message||err));
+    toast('Message non envoyé (connexion)','r');
   }
 }
 
@@ -2487,6 +2494,27 @@ function chargerConversationsReelles(){
 }
 
 function msActivite(c){ return (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().getTime() : 0; }
+
+/* ══ « Supprimer la discussion » : seulement pour MOI ══
+   On note dans masquePour.{moi} la date de la dernière activité au moment où je supprime.
+   - La discussion disparaît de MA liste ; les autres ne voient aucun changement.
+   - Les anciens messages ne s'affichent plus pour moi.
+   - Si un nouveau message arrive (je n'ai pas quitté), elle revient avec seulement
+     les nouveaux messages. */
+function masqueMsPour(c){
+  const m = c && c.masquePour && c.masquePour[currentUid];
+  return (m && m.toDate) ? m.toDate().getTime() : 0;
+}
+function estMasqueePourMoi(c){
+  const mm=masqueMsPour(c);
+  return mm>0 && msActivite(c)<=mm;
+}
+// Message plus ancien que ma suppression de la discussion ouverte : caché pour moi.
+function messageAvantMaSuppression(m){
+  const mm=masqueMsPour(convDepuisListe(currentConvId));
+  if(!mm || !m || !m.horodatage || !m.horodatage.toDate) return false;
+  return m.horodatage.toDate().getTime() <= mm + 1000;
+}
 
 /* Heure affichée dans la liste : aujourd'hui « 15:02 », hier « Hier », sinon « 14/10 ». */
 function heureListe(ms){
@@ -2518,7 +2546,7 @@ function carteConversation(c){
   if(!otherUid) return '';
   const info = (c.infos && c.infos[otherUid]) || infoDepuisContacts(otherUid);
   const n = nonLusPour(c);
-  const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message — démarrer la discussion';
+  const apercu = c.dernierMessage ? escapeHtml(c.dernierMessage) : 'Aucun message, démarrer la discussion';
   return '<div class="conv-card'+(n?' non-lu':'')+'" data-conv="'+c.id+'" data-mode="conv" data-online="0" data-unread="'+(n?1:0)+'" data-uid="'+otherUid+'" onclick="openChat(\''+escAttr(info.nom)+'\',\''+escAttr(info.role||'')+'\',\''+info.ini+'\',\''+info.bg+'\',false,\'\',false,\''+otherUid+'\','+(info.verifie===true)+')">'
     +'<div class="cc-inner"><div class="av-wrap"><div class="av" style="background:'+info.bg+'">'+avatarInterieur(otherUid, info.ini)+'</div></div>'
     +'<div class="cc-info"><div class="cc-top"><span class="cc-name">'+escAttr(info.nom)+'</span><span class="cc-time">'+heureListe(msActivite(c))+'</span></div>'
@@ -2533,7 +2561,7 @@ function carteGroupe(g){
   const bg=gradientPourId(g.id);
   const n=nonLusPour(g);
   const nb=(g.participants||[]).length;
-  let apercu=g.dernierMessage?escapeHtml(g.dernierMessage):'Aucun message — démarrer la discussion';
+  let apercu=g.dernierMessage?escapeHtml(g.dernierMessage):'Aucun message, démarrer la discussion';
   if(g.dernierMessage && g.dernierEmetteur){
     const auteur = g.dernierEmetteur===currentUid ? 'Vous' : infoDepuisContacts(g.dernierEmetteur).nom.split(' ')[0];
     apercu = escapeHtml(auteur)+' : '+apercu;
@@ -2555,7 +2583,8 @@ function renderListeUnifiee(toutes){
   const wrap=document.getElementById('recentesReelles');
   if(!wrap) return;
   groupesCache={};
-  const triees=toutes.slice().sort(function(a,b){ return msActivite(b)-msActivite(a); });
+  const triees=toutes.filter(function(c){ return !estMasqueePourMoi(c); })
+    .sort(function(a,b){ return msActivite(b)-msActivite(a); });
   const otherUids=[];
   let total=0;
   const html=triees.map(function(c){
@@ -2799,14 +2828,14 @@ window.partageVia=function(app){
   if(app==='artiroyce' && partageEnCours.interne){ fermerPartage(); ouvrirTransfert(partageEnCours.interne); return; }
   if(app==='plus' && navigator.share){ fermerPartage(); navigator.share({ title:'ArtiRoyce', text:partageEnCours.message, url:partageEnCours.url }).catch(function(){}); return; }
   if(app==='copier'){
-    const fini=function(){ toast('📋 Texte et lien copiés','g'); fermerPartage(); };
+    const fini=function(){ toast('Texte et lien copiés','g'); fermerPartage(); };
     if(navigator.clipboard) navigator.clipboard.writeText(partageEnCours.texte).then(fini).catch(function(){ prompt('Copiez ce texte :',partageEnCours.texte); });
     else prompt('Copiez ce texte :',partageEnCours.texte);
     return;
   }
   if(app==='image' && partageEnCours.blob){
     const a=document.createElement('a'); a.href=URL.createObjectURL(partageEnCours.blob); a.download='ArtiRoyce-invitation.png';
-    document.body.appendChild(a); a.click(); a.remove(); toast('🖼️ Image enregistrée','g');
+    document.body.appendChild(a); a.click(); a.remove(); toast('Image enregistrée','g');
   }
 }
 
@@ -2851,10 +2880,10 @@ window.creerGroupeFinal=async function(){
   if(creationGroupeEnCours) return;   // deux touchers rapides créaient deux groupes identiques
   const nom=document.getElementById('grpNomInput').value.trim();
   const description=document.getElementById('grpDescInput').value.trim();
-  if(!nom){ toast('⚠️ Donnez un nom au groupe','r'); return; }
+  if(!nom){ toast('Donnez un nom au groupe','r'); return; }
   const checked=Array.from(document.querySelectorAll('#grpContactsListe .grp-chk:checked')).map(function(c){return c.value;});
-  if(checked.length===0){ toast('⚠️ Choisissez au moins un membre','r'); return; }
-  if(!currentUid){ toast('⚠️ Connexion requise','r'); return; }
+  if(checked.length===0){ toast('Choisissez au moins un membre','r'); return; }
+  if(!currentUid){ toast('Connexion requise','r'); return; }
   const participants=[currentUid].concat(checked);
   creationGroupeEnCours=true;
   setTimeout(function(){ creationGroupeEnCours=false; }, 4000);
@@ -2874,12 +2903,12 @@ window.creerGroupeFinal=async function(){
       dernierEmetteur:''
     });
     messageSystemeGroupe(docRef.id, 'a créé le groupe « '+nom+' »');
-    toast('✅ Groupe créé — vous en êtes l\'admin','g');
+    toast('Groupe créé, vous en êtes l\'admin','g');
     fermerVueLocale('groupcreate');
     setTimeout(function(){ openGroupChat(docRef.id,{nom:nom,participants:participants}); },150);
   }catch(err){
     console.error('Création du groupe impossible :',err);
-    toast('⚠️ Création du groupe impossible','r');
+    toast('Création du groupe impossible','r');
   }
 }
 
@@ -2901,8 +2930,8 @@ function appliquerRestrictionEcriture(){
   if(note){ note.style.display = bloqueGroupe ? 'block' : 'none'; if(bloqueGroupe && note.textContent!==etatG.texte) note.textContent=etatG.texte; }
   if(bn){
     let h='';
-    if(blocage && blocage.moi) h='🚫 Vous avez bloqué ce contact <b>'+escapeHtml(texteJusqua(blocage.moi))+'</b>.<br>Il ne peut plus vous écrire ni vous appeler.<br><button onclick="debloquerContact()">✅ Débloquer</button>';
-    else if(blocage && blocage.lui) h='🚫 Cette personne n’accepte pas vos messages pour le moment.';
+    if(blocage && blocage.moi) h='Vous avez bloqué ce contact <b>'+escapeHtml(texteJusqua(blocage.moi))+'</b>.<br>Il ne peut plus vous écrire ni vous appeler.<br><button onclick="debloquerContact()">✅ Débloquer</button>';
+    else if(blocage && blocage.lui) h='Cette personne n’accepte pas vos messages pour le moment.';
     if(bn.dataset.html!==h){ bn.dataset.html=h; bn.innerHTML=h; }   // pas redessiné pour rien (le bouton reste touchable)
     bn.style.display = h ? 'block' : 'none';
   }
@@ -3087,7 +3116,7 @@ async function majGroupe(champs, texteSysteme, toastOk){
     return true;
   }catch(err){
     console.error('Mise à jour du groupe impossible :',err);
-    toast('⚠️ Modification impossible (connexion ou autorisation)','r');
+    toast('Modification impossible (connexion ou autorisation)','r');
     return false;
   }
 }
@@ -3097,13 +3126,13 @@ window.modifierNomGroupe=function(){
   if(v===null) return;
   const nom=v.trim().slice(0,60);
   if(!nom || nom===currentChatName) return;
-  majGroupe({nom:nom}, 'a renommé le groupe en « '+nom+' »', '✅ Nom modifié');
+  majGroupe({nom:nom}, 'a renommé le groupe en « '+nom+' »', 'Nom modifié');
 }
 window.modifierDescriptionGroupe=function(){
   if(!jeSuisAdmin()) return;
   const v=prompt('Description du groupe :', currentGroupData.description||'');
   if(v===null) return;
-  majGroupe({description:v.trim().slice(0,300)}, 'a modifié la description du groupe', '✅ Description enregistrée');
+  majGroupe({description:v.trim().slice(0,300)}, 'a modifié la description du groupe', 'Description enregistrée');
 }
 window.basculerReglageGroupe=function(champ){
   if(!jeSuisAdmin()) return;
@@ -3114,7 +3143,7 @@ window.basculerReglageGroupe=function(champ){
     seulsAdminsAjoutent: nouveau ? 'a réservé l\'ajout de membres aux admins' : 'a autorisé tous les membres à ajouter des membres',
     lienActif: nouveau ? 'a activé le lien d\'invitation' : 'a désactivé le lien d\'invitation'
   };
-  majGroupe(champs, textes[champ], '✅ Réglage enregistré');
+  majGroupe(champs, textes[champ], 'Réglage enregistré');
 }
 window.changerPhotoGroupe=function(){
   if(!jeSuisAdmin()) return;
@@ -3124,13 +3153,13 @@ window.onPhotoGroupeChoisie=async function(e){
   const f=e.target.files[0]; e.target.value='';
   if(!f || !jeSuisAdmin()) return;
   try{
-    toast('⏳ Envoi de la photo du groupe…','g');
+    toast('Envoi de la photo du groupe…','g');
     const blob=await compresserImage(f);
     const url=await uploaderVersStorage(blob,'groupe','jpg','image/jpeg');
-    majGroupe({photoGroupe:url}, 'a changé la photo du groupe', '✅ Photo du groupe mise à jour');
+    majGroupe({photoGroupe:url}, 'a changé la photo du groupe', 'Photo du groupe mise à jour');
   }catch(err){
     console.error('Photo du groupe impossible :',err);
-    toast('⚠️ Photo du groupe non envoyée','r');
+    toast('Photo du groupe non envoyée','r');
   }
 }
 /* Partager le groupe : un admin partage un vrai lien d'entrée (il active le « lien
@@ -3153,7 +3182,7 @@ window.partagerGroupe=async function(){
       url:lienRejoindre(currentConvId)
     });
   } else {
-    toast('ℹ️ Seul un admin peut activer le lien d\'entrée du groupe','');
+    toast('Seul un admin peut activer le lien d\'entrée du groupe','');
     inviterSurArtiRoyce();
   }
 }
@@ -3222,8 +3251,8 @@ window.actionMembre=async function(action){
     majGroupe({admins:adminsDuGroupe().filter(function(a){return a!==uid;})}, 'a retiré '+nom+' des admins', '✅ Fait');
   } else if(action==='quitterAdmin'){
     const reste=adminsDuGroupe().filter(function(a){return a!==currentUid;});
-    if(!reste.length){ toast('⚠️ Nommez d\'abord un autre admin','r'); return; }
-    majGroupe({admins:reste}, 'n\'est plus admin du groupe', '✅ Vous n\'êtes plus admin');
+    if(!reste.length){ toast('Nommez d\'abord un autre admin','r'); return; }
+    majGroupe({admins:reste}, 'n\'est plus admin du groupe', 'Vous n\'êtes plus admin');
   } else if(action==='retirer'){
     if(!confirm('Retirer '+nom+' du groupe ?')) return;
     majGroupe({participants:FV.arrayRemove(uid), admins:adminsDuGroupe().filter(function(a){return a!==uid;})}, 'a retiré '+nom+' du groupe', '✅ '+nom+' a été retiré');
@@ -3244,11 +3273,11 @@ window.quitterGroupe=async function(){
     // un simple membre n'a pas le droit d'y toucher (règles Firestore).
     if(jeSuisAdmin()) maj.admins=admins;
     await db.collection('conversations').doc(convId).update(maj);
-    toast('🚪 Vous avez quitté le groupe','g');
+    toast('Vous avez quitté le groupe','g');
     fermerVueLocale('groupmembers'); fermerVueLocale('chat');
   }catch(err){
     console.error('Quitter le groupe impossible :',err);
-    toast('⚠️ Impossible de quitter le groupe','r');
+    toast('Impossible de quitter le groupe','r');
   }
 }
 
@@ -3272,7 +3301,7 @@ function renderAjoutMembresListe(){
 }
 window.ajouterMembresFinal=async function(){
   const checked=Array.from(document.querySelectorAll('#gmAjoutListe .gm-chk:checked')).map(function(c){return c.value;});
-  if(checked.length===0){ toast('⚠️ Choisissez au moins un contact','r'); return; }
+  if(checked.length===0){ toast('Choisissez au moins un contact','r'); return; }
   if(!currentConvId){ return; }
   try{
     await db.collection('conversations').doc(currentConvId).update({
@@ -3280,11 +3309,11 @@ window.ajouterMembresFinal=async function(){
     });
     const noms=checked.map(function(uid){ return infoDepuisContacts(uid).nom; });
     messageSystemeGroupe(currentConvId, 'a ajouté '+noms.join(', '));
-    toast('✅ Membre(s) ajouté(s)','g');
+    toast('Membre(s) ajouté(s)','g');
     fermerVueLocale('groupadd');
   }catch(err){
     console.error('Ajout de membre(s) impossible :',err);
-    toast('⚠️ Ajout impossible','r');
+    toast('Ajout impossible','r');
   }
 }
 
@@ -3347,6 +3376,71 @@ function openCtx(row,x,y){
   top=Math.min(Math.max(60,top), Math.max(60,window.innerHeight-mh-10));
   menu.style.left=left+'px';menu.style.top=top+'px';
 }
+/* ══ Appui long sur une discussion de la liste → « 🗑️ Supprimer la discussion » ══ */
+let convMenuId=null, convPressTimer=null, convPressX=0, convPressY=0, convAppuiLongFait=false;
+(function(){
+  const liste=document.getElementById('recentesReelles');
+  if(!liste) return;
+  liste.addEventListener('touchstart',function(e){
+    const carte=e.target.closest('.conv-card[data-conv]'); if(!carte) return;
+    convAppuiLongFait=false;
+    convPressX=e.touches[0].clientX; convPressY=e.touches[0].clientY;
+    clearTimeout(convPressTimer);
+    convPressTimer=setTimeout(function(){
+      convAppuiLongFait=true;
+      ouvrirMenuConv(carte.dataset.conv, convPressX, convPressY);
+    },500);
+  },{passive:true});
+  liste.addEventListener('touchmove',function(e){
+    if(Math.abs(e.touches[0].clientX-convPressX)>8 || Math.abs(e.touches[0].clientY-convPressY)>8) clearTimeout(convPressTimer);
+  },{passive:true});
+  liste.addEventListener('touchend',function(){ clearTimeout(convPressTimer); },{passive:true});
+  liste.addEventListener('touchcancel',function(){ clearTimeout(convPressTimer); },{passive:true});
+  liste.addEventListener('contextmenu',function(e){
+    const carte=e.target.closest('.conv-card[data-conv]'); if(!carte) return;
+    e.preventDefault(); ouvrirMenuConv(carte.dataset.conv, e.clientX, e.clientY);
+  });
+  // Après un appui long, le doigt qui se lève ne doit pas ouvrir la discussion.
+  liste.addEventListener('click',function(e){
+    if(convAppuiLongFait){ e.stopPropagation(); e.preventDefault(); convAppuiLongFait=false; }
+  },true);
+})();
+function ouvrirMenuConv(convId,x,y){
+  convMenuId=convId;
+  const menu=document.getElementById('convMenu');
+  menu.classList.add('show'); document.getElementById('convMenuOverlay').classList.add('show');
+  const mw=Math.min(menu.offsetWidth||220, window.innerWidth-16), mh=menu.offsetHeight||100;
+  menu.style.maxWidth=(window.innerWidth-16)+'px';
+  menu.style.left=Math.min(Math.max(8,x-mw/2), window.innerWidth-mw-8)+'px';
+  menu.style.top=Math.min(Math.max(8,y-mh/2), window.innerHeight-mh-8)+'px';
+}
+window.fermerMenuConv=function(){
+  document.getElementById('convMenu').classList.remove('show');
+  document.getElementById('convMenuOverlay').classList.remove('show');
+  convMenuId=null;
+};
+window.supprimerDiscussionPourMoi=async function(){
+  const id=convMenuId; fermerMenuConv();
+  const c=convDepuisListe(id); if(!c) return;
+  const groupe=c.type==='groupe';
+  const question = groupe
+    ? 'Supprimer la discussion « '+(c.nom||'Groupe')+' » ?\n\nElle disparaît seulement pour vous. Vous restez membre du groupe : si un nouveau message arrive, elle reviendra.\nPour ne plus rien recevoir, utilisez « 🚪 Quitter le groupe ».'
+    : 'Supprimer cette discussion ?\n\nElle disparaît seulement pour vous. L\'autre personne garde tous les messages.\nSi un nouveau message arrive, elle reviendra.';
+  if(!confirm(question)) return;
+  const fv=firebase.firestore.FieldValue;
+  const maj={};
+  // On garde la date de la dernière activité (heure du serveur) : pas d'erreur d'horloge du téléphone.
+  maj['masquePour.'+currentUid] = (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite : fv.serverTimestamp();
+  maj['nonLus.'+currentUid] = 0;
+  try{
+    await db.collection('conversations').doc(id).update(maj);
+    toast('Discussion supprimée pour vous','g');
+  }catch(err){
+    console.error('Supprimer la discussion impossible :',err);
+    toast('Impossible de supprimer la discussion','r');
+  }
+};
+
 window.closeCtx=function(){document.getElementById('ctxMenu').classList.remove('show');document.getElementById('ctxOverlay').classList.remove('show');ctxRow=null}
 window.ctxReact=function(emoji){
   if(!ctxRow)return;
@@ -3355,7 +3449,7 @@ window.ctxReact=function(emoji){
     const actuel=((donneesMessages[idMsg]||{}).reactions||{})[currentUid];
     const champ={}; champ['reactions.'+currentUid] = (actuel===emoji) ? firebase.firestore.FieldValue.delete() : emoji;
     db.collection('conversations').doc(currentConvId).collection('messages').doc(idMsg).update(champ)
-      .catch(function(e){ console.error('Réaction impossible :',e); toast('⚠️ Réaction non enregistrée','r'); });
+      .catch(function(e){ console.error('Réaction impossible :',e); toast('Réaction non enregistrée','r'); });
     closeCtx(); return;
   }
   let r=ctxRow.nextElementSibling;
@@ -3365,13 +3459,13 @@ window.ctxReact=function(emoji){
 }
 window.ctxCopy=function(){
   if(!ctxRow)return;
-  navigator.clipboard.writeText(ctxRow.dataset.txt).then(()=>toast('📋 Copié','g')).catch(()=>toast('📋 Copié','g'));
+  navigator.clipboard.writeText(ctxRow.dataset.txt).then(()=>toast('Copié','g')).catch(()=>toast('Copié','g'));
   closeCtx();
 }
 window.ctxInfosLecture=function(){
   if(!ctxRow)return;
   const statut=ctxRow.dataset.lecture||'inconnu';
-  const libelles={'en cours d\'envoi':'✓ Envoyé — en cours de remise…','remis, pas encore lu':'✓✓ pâle : reçu, pas encore lu','lu':(currentEstGroupe?'✓✓ bleu : lu par tous les membres':'✓✓ bleu : lu par '+currentChatName)};
+  const libelles={'en cours d\'envoi':'✓ Envoyé, en cours de remise…','remis, pas encore lu':'✓✓ pâle : reçu, pas encore lu','lu':(currentEstGroupe?'✓✓ bleu : lu par tous les membres':'✓✓ bleu : lu par '+currentChatName)};
   toast(libelles[statut]||('Statut : '+statut),'g');
   closeCtx();
 }
@@ -3384,7 +3478,7 @@ window.ctxDeleteMe=function(){
   }
   ctxRow.style.display='none';
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.style.display='none';
-  toast('🙈 Supprimé pour vous','g');closeCtx();
+  toast('Supprimé pour vous','g');closeCtx();
 }
 // Mes messages : toujours. Ceux des autres : seulement un admin du groupe, dans un groupe.
 // Discussion à deux : chacun supprime pour tous SES messages.
@@ -3414,18 +3508,18 @@ window.ctxDeleteAll=function(){
         const c=convDepuisListe(currentConvId);
         if(c && (c.dernierEmetteur===currentUid || parAdmin)){
           const dernier=Array.from(document.querySelectorAll('#msgsArea .mrow[data-real="1"]')).filter(function(r){ return r.style.display!=='none'; }).pop();
-          if(dernier && dernier.dataset.mid==='r'+idMsg) db.collection('conversations').doc(currentConvId).set({dernierMessage:'🚫 Message supprimé'},{merge:true}).catch(function(){});
+          if(dernier && dernier.dataset.mid==='r'+idMsg) db.collection('conversations').doc(currentConvId).set({dernierMessage:'Message supprimé'},{merge:true}).catch(function(){});
         }
-        toast('🗑️ Supprimé pour tout le monde','g');
+        toast('Supprimé pour tout le monde','g');
       })
-      .catch(function(e){ console.error('Suppression pour tous :',e); toast('⚠️ Suppression impossible','r'); });
+      .catch(function(e){ console.error('Suppression pour tous :',e); toast('Suppression impossible','r'); });
     closeCtx(); return;
   }
   const bbl=ctxRow.querySelector('.bbl');
   if(bbl){bbl.innerHTML='<span class="msg-deleted">🚫 Message supprimé</span>'}
   ctxRow.dataset.txt='Message supprimé';
   const r=ctxRow.nextElementSibling;if(r&&r.classList.contains('reacts'))r.remove();
-  toast('🗑️ Supprimé pour tout le monde','g');closeCtx();
+  toast('Supprimé pour tout le monde','g');closeCtx();
 }
 /* ══════════════ TRANSFÉRER (vers d'autres discussions ArtiRoyce, plusieurs à la fois) ══════════════ */
 let messageATransferer=null;
@@ -3443,7 +3537,7 @@ window.ctxTransferer=function(){
   const idMsg=ctxRow.dataset.mid.replace(/^r/,'');
   const m=donneesMessages[idMsg]||null;
   closeCtx();
-  if(!m){ toast('⚠️ Message introuvable','r'); return; }
+  if(!m){ toast('Message introuvable','r'); return; }
   ouvrirTransfert(m);
 }
 /* Compteur local des discussions où j'écris le plus → « Contacts fréquents » (comme WhatsApp). */
@@ -3557,7 +3651,7 @@ window.envoyerTransfert=async function(){
   }
   btn.disabled=false;
   fermerTransfert();
-  toast(ok===ids.length ? '↪️ Transféré à '+ok+' discussion'+(ok>1?'s':'') : '⚠️ Transféré à '+ok+' sur '+ids.length, ok===ids.length?'g':'r');
+  toast(ok===ids.length ? '↪️ Transféré à '+ok+' discussion'+(ok>1?'s':'') : 'Transféré à '+ok+' sur '+ids.length, ok===ids.length?'g':'r');
 }
 
 /* ══════════════ PARTAGER (vers WhatsApp, Facebook, SMS… hors d'ArtiRoyce) ══════════════ */
@@ -3566,7 +3660,7 @@ window.ctxPartager=function(){
   const m=donneesMessages[ctxRow.dataset.mid.replace(/^r/,'')]||{};
   closeCtx();
   const contenu = m.url ? (apercuMessage(m)+'\n'+m.url) : (m.texte||'');
-  const message = contenu+'\n\n— Partagé depuis ArtiRoyce, le réseau social des talents 👉';
+  const message = contenu+'\n\nPartagé depuis ArtiRoyce, le réseau social des talents 👉';
   partageEnCours={ texte:message+' '+baseSiteArtiRoyce(), url:baseSiteArtiRoyce(), message:message, titre:'ArtiRoyce', blob:null, interne:m };
   ouvrirPartage();
 }
@@ -3592,16 +3686,16 @@ window.ctxEpingler=async function(){
     await db.collection('conversations').doc(currentConvId).set({ epingle:ep },{merge:true});
     afficherEpingle(ep);
     if(currentEstGroupe) messageSystemeGroupe(currentConvId,'a épinglé un message');
-    toast('📌 Message épinglé','g');
-  }catch(e){ console.error('Épinglage impossible :',e); toast('⚠️ Épinglage impossible','r'); }
+    toast('Message épinglé','g');
+  }catch(e){ console.error('Épinglage impossible :',e); toast('Épinglage impossible','r'); }
 }
 window.desepingler=async function(){
   if(!currentConvId) return;
   try{
     await db.collection('conversations').doc(currentConvId).set({ epingle:firebase.firestore.FieldValue.delete() },{merge:true});
     afficherEpingle(null);
-    toast('📌 Message désépinglé','g');
-  }catch(e){ console.error('Désépinglage impossible :',e); toast('⚠️ Action impossible','r'); }
+    toast('Message désépinglé','g');
+  }catch(e){ console.error('Désépinglage impossible :',e); toast('Action impossible','r'); }
 }
 window.allerAuMessageEpingle=function(){
   if(!epingleActuel) return;
@@ -3665,7 +3759,7 @@ async function modifierMessageReel(messageId, nouveauTexte){
     ajouterEtape('Message modifié sur Firestore ✅ ('+messageId+')');
   }catch(err){
     console.error('Modification du message impossible :',err);
-    toast('⚠️ Modification impossible (connexion)','r');
+    toast('Modification impossible (connexion)','r');
   }
 }
 
@@ -3780,7 +3874,7 @@ window.toggleRecadrage=function(){
       const layer=document.getElementById('apercuStickerLayer'); if(layer) layer.innerHTML='';
       redessinerTraitsApercu();
       if(apercuModeDessin) toggleApercuDessin();
-      toast('🧩 Stickers et dessins retirés (pas encore compatibles avec le recadrage)','r');
+      toast('Stickers et dessins retirés (pas encore compatibles avec le recadrage)','r');
     }
     if(stickerToggle) stickerToggle.style.display='none';
     if(drawToggle) drawToggle.style.display='none';
@@ -3861,7 +3955,7 @@ window.ouvrirApercuStickerPicker=async function(){
   if(apercuModeDessin) toggleApercuDessin();
   if(!mesStickers || mesStickers.length===0){ await chargerMesStickers(); }
   picker.innerHTML = (mesStickers||[]).length===0
-    ? '<div style="grid-column:1/-1;padding:14px;text-align:center;color:#999;font-size:13px">Aucun sticker — crée-en un depuis 😊</div>'
+    ? '<div style="grid-column:1/-1;padding:14px;text-align:center;color:#999;font-size:13px">Aucun sticker, crée-en un depuis 😊</div>'
     : mesStickers.map(function(s){ return '<div class="stk-item" onclick="poserStickerSurApercu(\''+(s.url||'').replace(/'/g,"\\'")+'\')"><img src="'+s.url+'"/></div>'; }).join('');
   picker.classList.add('show');
 }
@@ -4095,7 +4189,7 @@ function appendImageMessage(dataUrl, legende){
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
   d.innerHTML='<div class="img-bbl" onclick="viewImage(this)"><img src="'+dataUrl+'"/>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
-  toast('📷 Photo compressée et envoyée (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
+  toast('Photo compressée et envoyée (aperçu local, nécessite Firebase Storage pour la conservation réelle)','g');
 }
 /* Photo en grand. Avant : le ✕ était blanc sans fond (invisible sur une photo claire)
    et la touche retour du téléphone quittait toute la discussion.
@@ -4194,7 +4288,7 @@ function appendVideoMessage(file, legende){
   const capHtml = legende ? '<div class="cap-txt">'+escapeHtml(legende)+'</div>' : '';
   d.innerHTML='<div class="video-bbl"><span class="video-back-pc" onclick="reduireVideoDepuisFleche(event,this)" title="Retour">&#8249;</span><button class="vid-expand" onclick="toggleVideoExpand(event,this)" title="Agrandir">⤢</button><span class="video-close-btn" onclick="reduireVideoDepuisFleche(event,this)" title="Fermer">&#10005;</span><video src="'+url+'" controls controlsList="nofullscreen noremoteplayback" disablePictureInPicture playsinline></video>'+capHtml+'<div class="img-ft">'+t+' ✓</div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
-  toast('🎬 Vidéo prête (aperçu local — nécessite Firebase Storage pour la conservation réelle)','g');
+  toast('Vidéo prête (aperçu local, nécessite Firebase Storage pour la conservation réelle)','g');
 }
 function sendFileBubble(file){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
@@ -4204,7 +4298,7 @@ function sendFileBubble(file){
   const url=URL.createObjectURL(file);
   d.innerHTML='<div class="file-bbl" onclick="window.open(\''+url+'\',\'_blank\')"><div class="file-ico-w">📄</div><div><div class="file-name">'+escapeHtml(file.name)+'</div><div class="file-size">'+sizeKb+' Ko · '+t+'</div></div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
-  toast('📄 Fichier prêt (conservation réelle nécessite Firebase Storage)','g');
+  toast('Fichier prêt (conservation réelle nécessite Firebase Storage)','g');
 }
 
 /* ══════════════ EMOJI PICKER ══════════════ */
@@ -4244,7 +4338,7 @@ async function chargerMesStickers(){
     ajouterEtape('🧩 Stickers chargés ✅ ('+mesStickers.length+')');
   }catch(err){
     console.error('Chargement des stickers impossible :',err);
-    ajouterEtape('🧩 ÉCHEC chargement — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    ajouterEtape('🧩 ÉCHEC chargement, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
     mesStickers=[];
   }
   renderStickerGrille();
@@ -4287,7 +4381,7 @@ async function uploaderStickerVersStorage(blob){
   return url;
 }
 async function enregistrerNouveauSticker(blob){
-  if(!currentUid){ ajouterEtape('🧩 ÉCHEC création : pas connecté', true); toast('⚠️ Connexion requise','r'); return; }
+  if(!currentUid){ ajouterEtape('🧩 ÉCHEC création : pas connecté', true); toast('Connexion requise','r'); return; }
   try{
     const url = await uploaderStickerVersStorage(blob);
     await db.collection('stickers').add({
@@ -4296,12 +4390,12 @@ async function enregistrerNouveauSticker(blob){
       creeLe:firebase.firestore.FieldValue.serverTimestamp()
     });
     ajouterEtape('🧩 Sticker enregistré sur Firestore ✅');
-    toast('✅ Sticker créé','g');
+    toast('Sticker créé','g');
     if(emoTabActif==='stickers') chargerMesStickers();
   }catch(err){
     console.error('Création du sticker impossible :',err);
-    ajouterEtape('🧩 ÉCHEC création sticker — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-    toast('⚠️ Création du sticker impossible','r');
+    ajouterEtape('🧩 ÉCHEC création sticker, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+    toast('Création du sticker impossible','r');
   }
 }
 window.envoyerSticker=async function(url){
@@ -4313,11 +4407,11 @@ window.envoyerSticker=async function(url){
       ajouterEtape('🧩 Sticker envoyé ✅');
     }catch(err){
       console.error('Envoi du sticker impossible :',err);
-      ajouterEtape('🧩 ÉCHEC envoi sticker — code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
-      toast('⚠️ Sticker non envoyé','r');
+      ajouterEtape('🧩 ÉCHEC envoi sticker, code:'+(err&&err.code)+' msg:'+(err&&err.message), true);
+      toast('Sticker non envoyé','r');
     }
   } else {
-    ajouterEtape('🧩 Pas de conversation réelle ouverte — ajout local (démo)');
+    ajouterEtape('🧩 Pas de conversation réelle ouverte, ajout local (démo)');
     appendStickerMessageDemo(url);
   }
 };
@@ -4360,11 +4454,11 @@ window.toggleRecording=async function(){
   }catch(err){
     console.error('Accès micro impossible pour le message vocal :',err);
     if(err && err.name === 'NotAllowedError'){
-      toast('🎤 Micro bloqué — autorisez-le dans les réglages du site, puis réessayez','r',4500);
+      toast('Micro bloqué, autorisez-le dans les réglages du site, puis réessayez','r',4500);
     } else if(err && err.name === 'NotFoundError'){
-      toast('🎤 Aucun micro détecté sur cet appareil','r');
+      toast('Aucun micro détecté sur cet appareil','r');
     } else {
-      toast('🎤 Micro momentanément indisponible — réessayez','r');
+      toast('Micro momentanément indisponible, réessayez','r');
     }
     return;
   }
@@ -4443,7 +4537,7 @@ async function appendVoiceMessage(blob,durSec){
   const barsHtml=peaks.map(p=>'<div class="vb-bar" style="height:'+Math.max(3,p)+'px"></div>').join('');
   d.innerHTML='<div class="voice-bbl" data-url="'+url+'" data-dur="'+durSec+'"><button class="vb-play" onclick="toggleVoicePlay(this)">▶</button><div class="vb-wave" onclick="seekVoice(event,this)">'+barsHtml+'</div><span class="vb-time">'+fmtTime(durSec)+'</span><span class="vb-speed" onclick="cycleSpeed(this)">1×</span></div><div class="bbl-ft" style="padding:0 4px 4px"><span class="bbl-t">'+t+'</span><span class="tick">✓</span></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
-  toast('🎤 Vocal envoyé (lecture réelle — l\'enregistrement audio persistant nécessite Firebase Storage)','g');
+  toast('Vocal envoyé (lecture réelle, l\'enregistrement audio persistant nécessite Firebase Storage)','g');
 }
 function fmtTime(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
 async function extractPeaks(blob){
@@ -4497,11 +4591,11 @@ window.cycleSpeed=function(btn){
    et fonctions ci-dessous (partagées, car scripts classiques sur la même page). */
 let callStream=null, callTimerInt=null, callSeconds=0, callType='audio', callMuted=false, callCamOff=false;
 window.addCall=function(type){
-  if(!currentEstGroupe && estBloqueIci()){ toast('🚫 Discussion bloquée : appel impossible','r'); return; }
+  if(!currentEstGroupe && estBloqueIci()){ toast('Discussion bloquée : appel impossible','r'); return; }
   // Les appels de groupe arrivent à l'étape suivante : on n'ouvre pas un faux appel.
   if(currentEstGroupe){
     if(window.GroupeAppel) window.GroupeAppel.lancer(type);
-    else toast('⚠️ Rechargez la page puis réessayez','r');
+    else toast('Rechargez la page puis réessayez','r');
     return;
   }
   startCall(type);
@@ -4539,14 +4633,14 @@ async function prepareCallScreen(type,nom,ini,bg){
     // message vague qui donnerait l'impression que le bouton est cassé.
     let msg;
     if(err && err.name === 'NotAllowedError'){
-      msg='Micro/caméra bloqués — autorisez-les dans les réglages du site, puis réessayez';
+      msg='Micro/caméra bloqués, autorisez-les dans les réglages du site, puis réessayez';
     } else if(err && err.name === 'NotFoundError'){
       msg='Aucun micro/caméra détecté sur cet appareil';
     } else {
-      msg='Micro/caméra momentanément indisponibles — réessayez';
+      msg='Micro/caméra momentanément indisponibles, réessayez';
     }
     document.getElementById('callStatus').textContent=msg;
-    logCallBubble(type,'Échec — accès refusé');
+    logCallBubble(type,'Échec, accès refusé');
     setTimeout(function(){ fermerVueLocale('call'); }, 2800);
     return null;
   }
@@ -4612,7 +4706,7 @@ function logCallBubble(type,label){
   const area=document.getElementById('msgsArea');const d=document.createElement('div');d.className='mrow out';
   const mid='m'+(midCounter++);d.dataset.mid=mid;d.dataset.dir='out';
   const ic=type==='audio'?'📞':'📹';const lb=type==='audio'?'Appel vocal':'Appel vidéo';
-  d.dataset.txt=ic+' '+lb+' — '+label;
+  d.dataset.txt=ic+' '+lb+' · '+label;
   const t=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   d.innerHTML='<div class="call-bbl"><div class="call-ico-w">'+ic+'</div><div class="call-det"><div class="call-type">'+lb+'</div><div class="call-sub2">'+label+'</div><div class="call-ft"><span class="call-t">'+t+'</span><span class="tick">✓</span></div></div></div>';
   area.appendChild(d);area.scrollTop=area.scrollHeight;
@@ -4640,7 +4734,7 @@ window.nouvelleConference=function(){
   confActuelle=null; document.getElementById('confNomInput').value=''; afficherEtatConference();
 }
 window.creerConference=async function(){
-  if(!currentUid){ toast('⚠️ Connexion requise','r'); return null; }
+  if(!currentUid){ toast('Connexion requise','r'); return null; }
   const moi=await obtenirMonInfo();
   const nom=document.getElementById('confNomInput').value.trim() || ('Conférence de '+String(moi.nom||'').split(' ')[0]);
   try{
@@ -4656,11 +4750,11 @@ window.creerConference=async function(){
     confActuelle={ id:ref.id, nom:nom, participants:[currentUid] };
     afficherEtatConference();
     ecouterConference(ref.id);
-    toast('✅ Conférence créée — partagez le lien','g');
+    toast('Conférence créée, partagez le lien','g');
     return confActuelle;
   }catch(err){
     console.error('Création de la conférence impossible :',err);
-    toast('⚠️ Création impossible (connexion)','r');
+    toast('Création impossible (connexion)','r');
     return null;
   }
 }
@@ -4683,7 +4777,7 @@ function ecouterConference(id){
   }, function(err){ console.error('Écoute conférence impossible :',err); });
 }
 window.partagerConference=function(){
-  if(!confActuelle){ toast('⚠️ Créez d\'abord la conférence',''); return; }
+  if(!confActuelle){ toast('Créez d\'abord la conférence',''); return; }
   partagerArtiRoyce({
     titre:'🎙️ '+confActuelle.nom,
     sousTitre:'Vous êtes invité(e) à la conférence sur ArtiRoyce',
@@ -4692,9 +4786,9 @@ window.partagerConference=function(){
   });
 }
 window.copyLink=function(){
-  if(!confActuelle){ toast('⚠️ Créez d\'abord la conférence',''); return; }
+  if(!confActuelle){ toast('Créez d\'abord la conférence',''); return; }
   const v=lienRejoindre(confActuelle.id);
-  if(navigator.clipboard) navigator.clipboard.writeText(v).then(function(){ toast('📋 Lien copié !','g'); }).catch(function(){ prompt('Copiez le lien :',v); });
+  if(navigator.clipboard) navigator.clipboard.writeText(v).then(function(){ toast('Lien copié !','g'); }).catch(function(){ prompt('Copiez le lien :',v); });
   else prompt('Copiez le lien :',v);
 }
 window.genLink=window.creerConference; // ancien nom, gardé par sécurité
@@ -4737,17 +4831,17 @@ async function rejoindreParLien(id){
     if(snap && snap.exists){
       const d=snap.data()||{};
       if((d.participants||[]).indexOf(currentUid)!==-1){ ouvrir(d); return; }
-      if(d.lienActif!==true){ toast('🔒 Ce lien d\'invitation n\'est plus actif','r'); return; }
-    } else if(snap && !snap.exists){ toast('⚠️ Ce lien ne correspond à aucun groupe','r'); return; }
+      if(d.lienActif!==true){ toast('Ce lien d\'invitation n\'est plus actif','r'); return; }
+    } else if(snap && !snap.exists){ toast('Ce lien ne correspond à aucun groupe','r'); return; }
     await ref.update({ participants: firebase.firestore.FieldValue.arrayUnion(currentUid) });
     const d=(await ref.get()).data()||{};
     messageSystemeGroupe(id, d.conference ? 'a rejoint la conférence via le lien' : 'a rejoint le groupe via le lien');
-    toast(d.conference ? '🎙️ Bienvenue dans la conférence' : '👥 Bienvenue dans le groupe','g');
+    toast(d.conference ? 'Bienvenue dans la conférence' : 'Bienvenue dans le groupe','g');
     ouvrir(d);
   }catch(err){
     console.error('Entrée par lien impossible :',err);
-    if(err && err.code==='permission-denied') toast('🔒 Lien reçu, mais l\'entrée automatique doit encore être autorisée (réglage de sécurité)','r');
-    else toast('⚠️ Impossible d\'entrer pour le moment','r');
+    if(err && err.code==='permission-denied') toast('Lien reçu, mais l\'entrée automatique doit encore être autorisée (réglage de sécurité)','r');
+    else toast('Impossible d\'entrer pour le moment','r');
   }
 }
 </script>
@@ -4772,7 +4866,7 @@ function ajouterEtape(texte, estErreur){
   if(!panneau) return;
   const ligne=document.createElement('div');
   if(estErreur) ligne.className='err';
-  ligne.textContent=new Date().toLocaleTimeString('fr-FR')+' — '+texte;
+  ligne.textContent=new Date().toLocaleTimeString('fr-FR')+' - '+texte;
   panneau.appendChild(ligne);
   panneau.scrollTop=panneau.scrollHeight;
 }
@@ -4811,7 +4905,7 @@ function demarrerFirebase(){
     try{
       db.enablePersistence({ synchronizeTabs:true })
         .then(function(){ ajouterEtape('Mémoire des messages sur le téléphone activée ✅'); })
-        .catch(function(e){ ajouterEtape('Mémoire téléphone indisponible ('+(e&&e.code)+') — fonctionnement normal en ligne'); });
+        .catch(function(e){ ajouterEtape('Mémoire téléphone indisponible ('+(e&&e.code)+'), fonctionnement normal en ligne'); });
     }catch(e){}
     window.auth = firebase.auth();
     window.storage = firebase.storage();
@@ -5039,7 +5133,7 @@ window.basculerFavori=function(id){
   let f=lireFavoris(); const i=f.indexOf(id);
   if(i===-1) f.unshift(id); else f.splice(i,1);
   try{ localStorage.setItem('arFavoris', JSON.stringify(f)); }catch(e){}
-  toast(i===-1?'⭐ Ajouté aux favoris (en haut de la liste)':'Retiré des favoris','g');
+  toast(i===-1?'Ajouté aux favoris (en haut de la liste)':'Retiré des favoris','g');
   if(window._toutesConvs) renderListeUnifiee(window._toutesConvs);
   if(document.getElementById('groupMembersPanel').classList.contains('open')) renderParametresGroupe();
 };
@@ -5049,7 +5143,7 @@ window.creerGroupeSimilaire=function(){
   ouvrirCreationGroupe();
   document.querySelectorAll('#grpContactsListe .grp-chk').forEach(function(c){ if(membres.indexOf(c.value)!==-1){ c.checked=true; } });
   try{ majCompteSelection('grpContactsListe','grpCompte'); }catch(e){}
-  toast('👥 Mêmes membres cochés : choisissez un nom','g');
+  toast('Mêmes membres cochés : choisissez un nom','g');
 };
 renderParametresGroupe=function(){
   const zone=document.getElementById('giParamsZone'); if(!zone) return;
@@ -5116,7 +5210,7 @@ renderParametresGroupe=function(){
     if(champ!=='seulsAdminsModifient') return o.apply(this, arguments);
     if(!jeSuisAdmin()) return;
     const nouveau = currentGroupData.seulsAdminsModifient===false;   // par défaut : réservé aux admins
-    majGroupe({seulsAdminsModifient:nouveau}, nouveau ? 'a réservé la modification des infos aux admins' : 'a permis à tous les membres de modifier les infos du groupe', '✅ Réglage enregistré');
+    majGroupe({seulsAdminsModifient:nouveau}, nouveau ? 'a réservé la modification des infos aux admins' : 'a permis à tous les membres de modifier les infos du groupe', 'Réglage enregistré');
   };
 })();
 // Favoris en haut de la liste (avec une ⭐ devant le nom).
