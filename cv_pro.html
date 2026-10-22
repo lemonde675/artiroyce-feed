@@ -509,7 +509,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
     <div class="corbeille-liste" id="corbeilleListe"></div>
 
     <div class="section-separateur" id="separateurCommunaute" style="display:none">
-      <span data-tr="🌍 CV de la communauté">🌍 CV de la communauté</span>
+      <span data-tr="CV de la communauté">CV de la communauté</span>
     </div>
     <div class="empty-block" id="empty-block-communaute" style="display:none">
       <div class="ico">🌍</div>
@@ -525,7 +525,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
   <div id="importWrap" style="display:none">
     <div class="published-bar">
       <button class="btn-retour-liste" onclick="retourListe()" data-tr="← Retour">← Retour</button>
-      <div class="pub-status"><span class="pub-dot"></span> <span data-tr="CV publié — visible publiquement">CV publié — visible publiquement</span></div>
+      <div class="pub-status"><span class="pub-dot"></span> <span data-tr="CV publié, visible publiquement">CV publié, visible publiquement</span></div>
     </div>
     <div class="import-preview" id="importPreviewContent"></div>
   </div>
@@ -852,7 +852,7 @@ ul.bullets li .rm{ color:var(--red); cursor:pointer; margin-left:8px; font-weigh
       <div class="m-handle"></div>
       <div style="width:34px"></div>
     </div>
-    <h3 data-tr="📇 Publier mon CV">📇 Publier mon CV</h3>
+    <h3 data-tr="Publier mon CV">Publier mon CV</h3>
     <p class="modal-sub" data-tr="Choisissez un modèle">Choisissez un modèle</p>
 
     <div class="m-grid">
@@ -958,11 +958,11 @@ const CV_FR = {
  "cv_btn_ajouter": "➕ Ajouter mon CV",
  "cv_empty_title": "Aucun CV publié pour l'instant",
  "cv_empty_desc": "Créez votre CV professionnel pour vous faire remarquer par les visiteurs et clients ArtiRoyce.",
- "cv_sec_communaute": "🌍 CV de la communauté",
+ "cv_sec_communaute": "CV de la communauté",
  "cv_empty_communaute_title": "Aucun autre CV publié pour l'instant",
  "cv_empty_communaute_desc": "Les CV publiés par les autres artisans ArtiRoyce apparaîtront ici.",
  "cv_btn_retour": "← Retour",
- "cv_badge_publie": "CV publié — visible publiquement",
+ "cv_badge_publie": "CV publié, visible publiquement",
  "cv_topbar_title": "Mon CV Professionnel",
  "cv_btn_modele": "🔁 Modèle",
  "cv_btn_modifier": "✏️ Modifier",
@@ -981,7 +981,7 @@ const CV_FR = {
  "cv_sec_formation": "Formation",
  "cv_sec_experience": "Expérience professionnelle",
  "cv_sec_competences": "Compétences",
- "cv_modal_titre": "📇 Publier mon CV",
+ "cv_modal_titre": "Publier mon CV",
  "cv_modal_sub": "Choisissez un modèle",
  "cv_card_premium": "Premium",
  "cv_card_premium_desc": "Ruban bleu + photo",
@@ -993,8 +993,8 @@ const CV_FR = {
  "cv_card_import_desc": "Photo ou fichier",
  "cv_label_titre_interne": "Nom de ce CV (pour vous seulement)",
  "cv_preview_premium": "<b>Modèle Premium</b><br>Ruban bleu nuit, photo, Profil, Qualités, Formation, Expérience, Compétences et coordonnées.",
- "cv_preview_modele2": "<b>Modèle 2 — Sobre & compact</b><br>Bandeau bleu nuit à gauche avec photo et coordonnées, contenu structuré à droite.",
- "cv_preview_modele3": "<b>Modèle 3 — Élégance or</b><br>Colonne bleu nuit et liserés dorés, une mise en page soignée.",
+ "cv_preview_modele2": "<b>Modèle 2, Sobre & compact</b><br>Bandeau bleu nuit à gauche avec photo et coordonnées, contenu structuré à droite.",
+ "cv_preview_modele3": "<b>Modèle 3, Élégance or</b><br>Colonne bleu nuit et liserés dorés, une mise en page soignée.",
  "cv_btn_continuer": "Continuer avec ce modèle →",
  "cv_upload_txt": "Choisir une photo ou un fichier",
  "cv_upload_sub": "JPG · PNG · PDF · max 5 Mo",
@@ -1018,14 +1018,14 @@ const CV_FR = {
  "cv_alert_appel": "Le bouton Appeler sera actif pour les visiteurs de votre CV.",
  "cv_alert_discuter": "Le bouton Discuter sera actif pour les visiteurs de votre CV.",
  "cv_btn_publication": "⏳ Publication…",
- "cv_btn_erreur_reessayez": "❌ Erreur, réessayez",
+ "cv_btn_erreur_reessayez": "Erreur, réessayez",
  "cv_example_qualite": "Ex : Rigueur et ponctualité",
  "cv_example_competence": "Ex : Pose de carrelage",
- "cv_example_formation": "Ex : CAP Menuiserie — Lycée Technique de Cotonou — 2018 - 2020",
- "cv_example_experience": "Ex : Menuisier — Atelier Bois d'Or, Cotonou — 2021 - Aujourd'hui",
+ "cv_example_formation": "Ex : CAP Menuiserie. Lycée Technique de Cotonou, 2018 - 2020",
+ "cv_example_experience": "Ex : Menuisier, Atelier Bois d'Or, Cotonou, 2021 - Aujourd'hui",
  "cv_btn_enregistrement": "⏳ Enregistrement…",
  "cv_btn_confirme": "✅ Confirmé",
- "cv_btn_erreur": "❌ Erreur",
+ "cv_btn_erreur": "Erreur",
  "cv_example_profil": "Ex : Menuisier passionné avec 5 ans d'expérience dans la fabrication de meubles sur mesure. Rigoureux, ponctuel et à l'écoute des clients.",
  "cv_ph_formation_diplome": "Ex : CAP Menuiserie",
  "cv_ph_formation_etab": "Ex : Lycée Technique de Cotonou",
@@ -1296,7 +1296,7 @@ async function renderListeCards(){
   const derniereErreur = window.__cvProDerniereErreurListe;
   if (listeCommunaute.length === 0 && derniereErreur) {
     erreurTech.style.display = 'block';
-    erreurTech.textContent = TR('⚠️ Chargement impossible : {e}', {e: (derniereErreur.code || derniereErreur.message || String(derniereErreur))});
+    erreurTech.textContent = TR('Chargement impossible : {e}', {e: (derniereErreur.code || derniereErreur.message || String(derniereErreur))});
   } else {
     erreurTech.style.display = 'none';
   }
@@ -1414,7 +1414,7 @@ function buildCoverCarouselCv(liste){
       </div>
     </div>`;
   }).join('');
-  div.innerHTML = `<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">${TR('⭐ CV à la une')}</div>
+  div.innerHTML = `<div style="font-size:15px;font-weight:800;color:#222;padding:0 14px 10px">${TR('CV à la une')}</div>
     <div class="ccv-track" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:0 14px 4px;scrollbar-width:none;cursor:grab;touch-action:pan-x">${cards}</div>`;
   return div;
 }
@@ -1824,7 +1824,7 @@ auth.onAuthStateChanged(async (user) => {
     afficherEtat('liste');
   } catch (err) {
     console.error('Erreur au démarrage CV Pro :', err); // DIAGNOSTIC TEMPORAIRE
-    loading.textContent = TR('⚠️ Erreur : {e}', {e: (err && err.message ? err.message : String(err))});
+    loading.textContent = TR('Erreur : {e}', {e: (err && err.message ? err.message : String(err))});
   }
 });
 
