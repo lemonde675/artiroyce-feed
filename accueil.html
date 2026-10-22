@@ -375,7 +375,7 @@
   <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
     <div class="nav-plus">+</div>
   </div>
-  <div class="nav-i" onclick="toast('▶ Live — bientôt disponible','')">
+  <div class="nav-i" onclick="toast('▶ Live, bientôt disponible','')">
     <svg class="nav-ico" viewBox="0 0 24 24">
       <rect x="2" y="3" width="20" height="18" rx="3" fill="var(--red)"/>
       <polygon points="10,8 10,16 17,12" fill="#fff"/>
@@ -515,7 +515,7 @@ function toggleSiteWidth(){
         ${suivreBtn}
       </div>`;
     }).join('');
-    return `<div class="cca-wrap-acc"><div class="cca-titre-acc">${TR('✨ Nos coups de cœur')}</div>
+    return `<div class="cca-wrap-acc"><div class="cca-titre-acc">${TR('Nos coups de cœur')}</div>
       <div class="cover-carousel-acc">${cartes}</div></div>`;
   }
 
@@ -805,6 +805,8 @@ function toggleSiteWidth(){
   // normalement (comportement standard, inchangé).
   let depuisPopstateAcc = false;
   window.addEventListener('popstate', function () {
+    // La liste des notifications était ouverte : ce retour la ferme, rien d'autre.
+    if (window.ArNotif && window.ArNotif.gereRetour && window.ArNotif.gereRetour()) return;
     if (currentPanel !== 0) {
       depuisPopstateAcc = true;
       window.goToPanel(0);
@@ -1248,7 +1250,7 @@ function toggleSiteWidth(){
         await setDoc(relRef, { follower: moi, followed: cibleUid, createdAt: serverTimestamp() });
         mesSuivisAccueil.add(cibleUid);
         btns.forEach(btn => { btn.textContent = TR('Suivi(e)'); btn.style.opacity = '0.7'; });
-        toast('✅ Suivi !', 'g');
+        toast('Suivi !', 'g');
       }
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
@@ -1574,7 +1576,7 @@ function toggleSiteWidth(){
         mesSauvegardesAccueil.add(cibleUid);
         compteurAccueil(cibleUid, 'savesAccueil', 'save-n-', 1);
         btns.forEach(btn => btn.querySelector('.act-circle').classList.add('liked'));
-        toast('💾 Sauvegardé !', 'g');
+        toast('Sauvegardé !', 'g');
       }
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
@@ -1582,11 +1584,11 @@ function toggleSiteWidth(){
   window.partagerAccueil = async function(cibleUid, pseudo){
     const url = window.location.origin + window.location.pathname.replace('accueil.html','') + 'profil.html?uid=' + cibleUid;
     if (navigator.share) {
-      try { await navigator.share({ title: 'ArtiRoyce — ' + pseudo, url: url }); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
+      try { await navigator.share({ title: 'ArtiRoyce · ' + pseudo, url: url }); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
       catch(e) { /* partage annulé, rien à faire */ }
     } else {
-      try { await navigator.clipboard.writeText(url); toast('🔗 Lien copié !', 'g'); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
-      catch(e) { toast('🔗 ' + url, ''); }
+      try { await navigator.clipboard.writeText(url); toast('Lien copié !', 'g'); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
+      catch(e) { toast('' + url, ''); }
     }
   };
 
@@ -1639,7 +1641,7 @@ function toggleSiteWidth(){
         + '</div>';
       document.body.appendChild(overlay);
     }
-    document.getElementById('galerieTitreAccueil').textContent = TR('🖼️ Réalisations — {p}', {p: pseudo});
+    document.getElementById('galerieTitreAccueil').textContent = TR('Réalisations · {p}', {p: pseudo});
     overlay.classList.add('open');
     const grille = document.getElementById('galerieGrilleAccueil');
     grille.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#999;font-size:12px;padding:20px">' + TR('Chargement…') + '</div>';
@@ -1653,7 +1655,7 @@ function toggleSiteWidth(){
       }
       grille.innerHTML = portfolio.map((item, i) => {
         const badgeMusique = item.musicUrl
-          ? '<div onclick="event.stopPropagation();toggleMusiqueGalerie('+i+',\''+String(item.musicUrl).replace(/'/g,"\\'")+'\')" id="badgeMusiqueGal-'+i+'" style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 7px;border-radius:20px;display:flex;align-items:center;gap:3px;z-index:2">🎵 ' + (item.musicNom ? item.musicNom.split(' — ')[0].slice(0,10) : '') + '</div>'
+          ? '<div onclick="event.stopPropagation();toggleMusiqueGalerie('+i+',\''+String(item.musicUrl).replace(/'/g,"\\'")+'\')" id="badgeMusiqueGal-'+i+'" style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:3px 7px;border-radius:20px;display:flex;align-items:center;gap:3px;z-index:2">🎵 ' + (item.musicNom ? item.musicNom.split(/ [—·] /)[0].slice(0,10) : '') + '</div>'
           : '';
         const inner = item.type === 'video'
           ? '<video src="'+item.url+'" muted style="width:100%;height:100%;object-fit:cover" onclick="this.paused?this.play():this.pause()"></video>'
@@ -1711,7 +1713,7 @@ function toggleSiteWidth(){
     overlay.dataset.cible = cibleUid;
     overlay.dataset.pseudo = pseudo;
     window.annulerReponseAccueil();
-    document.getElementById('commentsTitreAccueil').textContent = TR('💬 Commentaires — {p}', {p: pseudo});
+    document.getElementById('commentsTitreAccueil').textContent = TR('Commentaires · {p}', {p: pseudo});
     overlay.classList.add('open');
     const liste = document.getElementById('commentsListeAccueil');
     liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">' + TR('Chargement…') + '</div>';
@@ -1777,7 +1779,7 @@ function toggleSiteWidth(){
             repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
             const toggle2 = document.createElement('div');
             toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
-            toggle2.innerHTML = TR(reponses.length > 1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length});
+            toggle2.innerHTML = TR(reponses.length > 1 ? 'Afficher {n} réponses ▾' : 'Afficher {n} réponse ▾', {n: reponses.length});
             toggle2.onclick = () => {
               const frag = document.createDocumentFragment();
               reponses.forEach(r => frag.appendChild(construireCommentaireAccueilHTML(r, c.id)));
@@ -1867,7 +1869,7 @@ function toggleSiteWidth(){
       document.body.appendChild(overlay);
     }
     overlay.dataset.cible = cibleUid;
-    document.getElementById('reservationTitreAccueil').textContent = TR('📆 Demande de rendez-vous — {p}', {p: pseudo});
+    document.getElementById('reservationTitreAccueil').textContent = TR('Demande de rendez-vous · {p}', {p: pseudo});
     document.getElementById('reservationMsgAccueil').value = '';
     overlay.classList.add('open');
   };
@@ -1884,7 +1886,7 @@ function toggleSiteWidth(){
         message: msg, statut: 'en_attente', createdAt: serverTimestamp()
       });
       overlay.classList.remove('open');
-      toast('📆 Demande envoyée !', 'g');
+      toast('Demande envoyée !', 'g');
     } catch(e) { console.error(e); toast('Erreur envoi demande', ''); }
   };
 
@@ -1950,7 +1952,7 @@ function toggleSiteWidth(){
   })();
   window.ouvrirItineraire = function(adresse) {
     if (adresse) window.open('https://maps.google.com/?q=' + encodeURIComponent(adresse), '_blank');
-    else toast('📍 Adresse non disponible', '');
+    else toast('Adresse non disponible', '');
   }
 
   // Remplace l'appel direct à ouvrirItineraire() depuis le bouton "🧭 Obtenir
@@ -2110,7 +2112,7 @@ function toggleSiteWidth(){
 
   window.selectMetier = function(metier) {
     closeSearch();
-    toast(TR('🔍 Filtrage : {m}', {m: TR(metier)}), 'g');
+    toast(TR('Filtrage : {m}', {m: TR(metier)}), 'g');
     // Filtrer le feed par métier
     document.querySelectorAll('.vcard').forEach(card => {
       const metierEl = card.querySelector('.info-job-name');
@@ -2431,7 +2433,7 @@ function toggleSiteWidth(){
     if (sonActif && !aDejaTouche()) el.dataset.sonBloque = '1';   // muette seulement à cause de Chrome
     if (sonActif && !aDejaTouche() && !indiceMontre && typeof toast === 'function') {
       indiceMontre = true;
-      toast('🔇 ' + (typeof TR === 'function' ? TR('Touchez l’écran pour activer le son') : 'Touchez l’écran pour activer le son'), '');
+      toast('' + (typeof TR === 'function' ? TR('Touchez l’écran pour activer le son') : 'Touchez l’écran pour activer le son'), '');
     }
   }, true);
   // Premier toucher : le son de la vidéo en cours s'active.
