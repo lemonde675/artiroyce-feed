@@ -29,7 +29,7 @@
   // Une copie trop lourde (photo enregistrée dans la fiche) : on garde tout le
   // texte, et on remplace seulement les très gros morceaux par une mention.
   function alleger(valeur) {
-    if (typeof valeur === 'string') return valeur.length > 50000 ? '[média retiré de l’archive : trop lourd — ' + Math.round(valeur.length / 1024) + ' Ko]' : valeur;
+    if (typeof valeur === 'string') return valeur.length > 50000 ? '[média retiré de l’archive : trop lourd · ' + Math.round(valeur.length / 1024) + ' Ko]' : valeur;
     if (Array.isArray(valeur)) return valeur.map(alleger);
     if (valeur && typeof valeur === 'object' && valeur.constructor === Object) {
       var copie = {};
