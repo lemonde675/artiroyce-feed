@@ -213,7 +213,7 @@
 <div class="panel-overlay" id="panelPublier" onclick="if(event.target===this) fermerPanneau()">
   <div class="panel">
     <div class="panel-header">
-      <h2 data-tr="📢 Publier une offre">📢 Publier une offre</h2>
+      <h2 data-tr="Publier une offre">Publier une offre</h2>
       <button class="panel-close" onclick="fermerPanneau()">✕</button>
     </div>
     <p class="modal-sub" data-tr="Choisissez un modèle">Choisissez un modèle</p>
@@ -267,7 +267,7 @@
         <div><label data-tr="Budget / Tarif">Budget / Tarif</label><input type="text" id="inpBudget" placeholder="50 000 FCFA/j"></div>
         <div><label data-tr="Disponibilité">Disponibilité</label><input type="text" id="inpDispo" placeholder="Dès lundi" data-tr-ph="Dès lundi"></div>
       </div>
-      <label data-tr="⏳ Durée de validité">⏳ Durée de validité</label>
+      <label data-tr="Durée de validité">⏳ Durée de validité</label>
       <div class="duree">
         <input type="number" id="inpDureeVal" placeholder="30" min="1">
         <select id="inpDureeUnite"><option value="jours" data-tr="jours">jours</option><option value="semaines" data-tr="semaines">semaines</option><option value="mois" data-tr="mois">mois</option></select>
@@ -348,7 +348,7 @@ let currentUser = null;
 
 auth.onAuthStateChanged(async user => {
   log('7. Connexion : ' + (user ? user.uid : 'AUCUN'));
-  if (!user) { log('❌ Pas connecté — impossible de charger le profil'); return; }
+  if (!user) { log('❌ Pas connecté, impossible de charger le profil'); return; }
   currentUser = user;
   document.querySelectorAll('.me-online-dot').forEach(function(d){d.style.display='block';});
   currentUser.nomAffiche = user.email ? user.email.split('@')[0] : 'Moi';
@@ -363,7 +363,7 @@ auth.onAuthStateChanged(async user => {
       currentUser.photoAvatar = d.photoAvatar || '';
       currentUser.estVisiteur = (d.role === 'visiteur'); // seulement les vrais comptes « Visiteur »
       currentUser.paysPrefixe = extraireIndicatifTelephone(d.telephone);
-      log('7b. Profil lu ✅ — ' + currentUser.nomAffiche + ' (' + currentUser.role + ')');
+      log('7b. Profil lu ✅ · ' + currentUser.nomAffiche + ' (' + currentUser.role + ')');
     }
   } catch (e) {
     log('7bis. Échec lecture profil : ' + e.message);
@@ -386,7 +386,7 @@ function afficherMonAvatarOffres(){
   // Visiteurs : la barre « Publier » indique que c'est réservé aux professionnels.
   if (currentUser && currentUser.estVisiteur) {
     const b = document.getElementById('cpInputBtn');
-    if (b) { b.setAttribute('data-tr', '🔒 Publication réservée aux professionnels'); b.textContent = TR('🔒 Publication réservée aux professionnels'); }
+    if (b) { b.setAttribute('data-tr', 'Publication réservée aux professionnels'); b.textContent = TR('Publication réservée aux professionnels'); }
   }
 }
 
@@ -503,7 +503,7 @@ function trierOffresParPriorite(liste){
     paysActifs.sort(triParFraicheur);
     return mesOffresRecentes.concat(suivisActifs, paysActifs, melangerAleatoirement(masse));
   } catch (e) {
-    log('❌ Tri par priorité : ' + e.message + ' — retour à l\'ordre par date');
+    log('❌ Tri par priorité : ' + e.message + ', retour à l\'ordre par date');
     return liste;
   }
 }
@@ -627,7 +627,7 @@ let imgBase64 = '';
 let imgBase64Txt = '';
 
 function ouvrirPanneau(type){
-  if (currentUser && currentUser.estVisiteur) { toast(TR('🔒 La publication est réservée aux professionnels')); return; }
+  if (currentUser && currentUser.estVisiteur) { toast(TR('La publication est réservée aux professionnels')); return; }
   document.getElementById('panelPublier').classList.add('open');
   const carte = document.querySelector('.m-card[data-m="' + type + '"]');
   if (carte) selModele(carte, type);
@@ -685,8 +685,8 @@ function gererFichierMedia(file, previewElId, callbackBase64){
   const limiteOctets = 700 * 1024;
   if (file.size > limiteOctets) {
     alert(estVideo
-      ? TR('Cette vidéo est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko — choisissez un fichier plus léger ou plus court.', {n: Math.round(file.size/1024)})
-      : TR('Cette image est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko — choisissez un fichier plus léger.', {n: Math.round(file.size/1024)}));
+      ? TR('Cette vidéo est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko, choisissez un fichier plus léger ou plus court.', {n: Math.round(file.size/1024)})
+      : TR('Cette image est trop lourde ({n} Ko). Elle doit rester sous ~700 Ko, choisissez un fichier plus léger.', {n: Math.round(file.size/1024)}));
     return;
   }
   const r = new FileReader();
@@ -696,7 +696,7 @@ function gererFichierMedia(file, previewElId, callbackBase64){
     if (!el) return;
     if (estVideo) {
       el.style.display = 'none';
-      toast(TR('🎥 Vidéo sélectionnée ({nom})', {nom: file.name}));
+      toast(TR('Vidéo sélectionnée ({nom})', {nom: file.name}));
     } else {
       el.src = ev.target.result;
       el.style.display = 'block';
@@ -1065,7 +1065,7 @@ window.partagerOffre = async function (offreId, partagesActuels, direct){
   }
   try {
     await db.collection('offres').doc(offreId).update({ partages: firebase.firestore.FieldValue.increment(1) });
-    toast(TR('Partagé ✅'));
+    toast(TR('Partagé'));
     { const of = toutesLesOffres.find(x => x.id === offreId);
       if (of) window.ArNotif && ArNotif.envoyer({ dest: of.auteurUid, type: 'partage', page: 'offres', cibleId: offreId, unique: true }); }
   } catch (e) {
@@ -1200,7 +1200,7 @@ function ecouterCommentaires(offreId){
         repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
         const toggle2 = document.createElement('div');
         toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
-        toggle2.innerHTML = TR(reponses.length > 1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length});
+        toggle2.innerHTML = TR(reponses.length > 1 ? 'Afficher {n} réponses ▾' : 'Afficher {n} réponse ▾', {n: reponses.length});
         toggle2.onclick = () => {
           const frag = document.createDocumentFragment();
           reponses.forEach(r => frag.appendChild(construireCommentaireHTML(r, c.id)));
@@ -1289,7 +1289,7 @@ window.supprimerCommentaireOffre = async function (offreId, commentId){
   try {
     const refCom = db.collection('offres').doc(offreId).collection('commentaires').doc(commentId);
     await (window.ArArchive ? ArArchive.supprimer(refCom, { type: 'commentaire_offre' }) : refCom.delete());
-    toast(TR('🗑️ Commentaire supprimé'));
+    toast(TR('Commentaire supprimé'));
   } catch (e) {
     log('❌ Erreur suppression commentaire : ' + e.message);
     toast(TR('Erreur suppression'));
@@ -1314,7 +1314,7 @@ window.validerEditionCommentaire = async function (offreId, commentId){
   if (!nouveauTexte) return;
   try {
     await db.collection('offres').doc(offreId).collection('commentaires').doc(commentId).update({ texte: nouveauTexte, modifie: true });
-    toast(TR('✅ Commentaire modifié'));
+    toast(TR('Commentaire modifié'));
   } catch (e) {
     log('❌ Erreur modification commentaire : ' + e.message);
     toast(TR('Erreur modification'));
@@ -1337,7 +1337,7 @@ window.supprimerPublicationOffre = async function (offreId){
   if (!confirm(TR('Mettre cette offre à la corbeille ? Elle sera restaurable pendant 15 jours.'))) return;
   try {
     await db.collection('offres').doc(offreId).update({ corbeille: true, corbeilleDepuis: new Date().toISOString() });
-    toast(TR('🗑️ Offre mise à la corbeille'));
+    toast(TR('Offre mise à la corbeille'));
   } catch (e) {
     log('❌ Erreur suppression : ' + e.message);
   }
@@ -1345,7 +1345,7 @@ window.supprimerPublicationOffre = async function (offreId){
 window.restaurerPublicationOffre = async function (offreId){
   try {
     await db.collection('offres').doc(offreId).update({ corbeille: false, corbeilleDepuis: null });
-    toast(TR('✅ Offre restaurée'));
+    toast(TR('Offre restaurée'));
   } catch (e) {
     log('❌ Erreur restauration : ' + e.message);
   }
@@ -1356,7 +1356,7 @@ window.supprimerDefinitivementOffre = async function (offreId){
   try {
     const refOffre = db.collection('offres').doc(offreId);
     await (window.ArArchive ? ArArchive.supprimer(refOffre, { type: 'offre' }) : refOffre.delete());
-    toast(TR('🗑️ Offre supprimée définitivement'));
+    toast(TR('Offre supprimée définitivement'));
   } catch (e) {
     log('❌ Erreur suppression définitive : ' + e.message);
   }
@@ -1398,7 +1398,7 @@ window.contacterOffre = function (offreId, nomAuteur, auteurUid, auteurVerifie){
       return;
     }
   } catch (e) {}
-  toast(TR('📞 Contact direct bientôt disponible — utilisez la messagerie ArtiRoyce pour le moment'));
+  toast(TR('Contact direct bientôt disponible, utilisez la messagerie ArtiRoyce pour le moment'));
 };
 
 window.postulerOffre = async function (offreId, candidaturesActuelles){
@@ -1418,7 +1418,7 @@ window.postulerOffre = async function (offreId, candidaturesActuelles){
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       likes: 0
     });
-    toast(TR('✅ Candidature envoyée !'));
+    toast(TR('Candidature envoyée !'));
     const zone = document.getElementById('commzone-' + offreId);
     if (zone && zone.style.display !== 'block') {
       zone.style.display = 'block';
@@ -1450,7 +1450,7 @@ function buildCoverCarouselOffres(offresActives){
       + '<div class="cover-card-overlay"><div class="cover-card-journal">' + titre + '</div><div class="cover-card-txt">' + snippet + '</div></div>'
       + '</div>';
   }).join('');
-  div.innerHTML = '<div class="cover-carousel-title">' + TR('💼 Offres en vedette') + '</div><div class="cover-carousel">' + cards + '</div>';
+  div.innerHTML = '<div class="cover-carousel-title">' + TR('Offres en vedette') + '</div><div class="cover-carousel">' + cards + '</div>';
   return div;
 }
 
@@ -1479,7 +1479,7 @@ function wireCoverCarousel(){
 
 function publierOffre(){
   if (!currentUser) { log('❌ Publication refusée : non connecté'); return; }
-  if (currentUser.estVisiteur) { toast(TR('🔒 La publication est réservée aux professionnels')); return; }
+  if (currentUser.estVisiteur) { toast(TR('La publication est réservée aux professionnels')); return; }
   let data = {
     auteurUid: currentUser.uid,
     auteurNom: currentUser.nomAffiche || 'Anonyme',
