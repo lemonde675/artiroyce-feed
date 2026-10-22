@@ -8,7 +8,7 @@
   function TR(t, v){ if (window.trApp) return window.trApp(t, v); if (v) for (var k in v) t = t.split('{'+k+'}').join(v[k]); return t; }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>Fil Presse — ArtiRoyce</title>
+<title>Fil Presse · ArtiRoyce</title>
 <link rel="preconnect" href="https://www.gstatic.com">
 <link rel="preconnect" href="https://firestore.googleapis.com">
 <style>
@@ -388,7 +388,7 @@ function renderPost(id, p, opts){
     +   '</div>'
     +   '<div style="flex:1;cursor:pointer" onclick="window.__voirProfil(\''+(p.uid||'')+'\')">'
     +     '<div class="post-name-row"><span class="post-name">'+esc(p.prenom||TR('Utilisateur'))+'</span>'+officialBadge+'</div>'
-    +     '<div class="post-sub">'+(trashed?TR('🗑 Supprimé — '):'')+(roleLbl?roleLbl+' · ':'')+(p.ville?esc(p.ville)+' · ':'')+timeAgo(p.createdAt)+'</div>'
+    +     '<div class="post-sub">'+(trashed?TR('Supprimé · '):'')+(roleLbl?roleLbl+' · ':'')+(p.ville?esc(p.ville)+' · ':'')+timeAgo(p.createdAt)+'</div>'
     +   '</div>'
     +   followBtn
     + '</div>'
@@ -627,7 +627,7 @@ function buildCoverCarouselBlock(){
   }).join('');
 
   return '<div class="cover-carousel-wrap">'
-    + '<div class="cover-carousel-title">'+TR('📰 Nos parutions')+'</div>'
+    + '<div class="cover-carousel-title">'+TR('Nos parutions')+'</div>'
     + '<div class="cover-carousel">' + cards + '</div>'
     + '</div>';
 }
@@ -676,7 +676,7 @@ async function loadFeed(){
   }catch(err){
     console.error('Fil Presse — chargement impossible :', err);
     document.getElementById('feedList').innerHTML =
-      '<div class="empty-msg">'+TR('⚠️ Impossible de charger le Fil Presse pour le moment.')+'</div>';
+      '<div class="empty-msg">'+TR('Impossible de charger le Fil Presse pour le moment.')+'</div>';
   }
 }
 
@@ -827,7 +827,7 @@ document.getElementById('searchInput').addEventListener('input', function(e){
 });
 
 window.__editPost = async function(id){
-  if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('🔒 La publication est réservée aux professionnels')); return; }
+  if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('La publication est réservée aux professionnels')); return; }
   const snap = await getDoc(doc(db,'fil_presse', id));
   if(!snap.exists) return;
   const p = snap.data();
@@ -1150,7 +1150,7 @@ function wireComposerModal(){
   document.getElementById('btnPublier').addEventListener('click', async function(){
     const texte = document.getElementById('composerTxt').value.trim();
     if(!texte && !selectedPhotoBase64 && !selectedVideoFile){ return; }
-    if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('🔒 La publication est réservée aux professionnels')); return; }
+    if(currentUserData && currentUserData.role === 'visiteur'){ toastFP(TR('La publication est réservée aux professionnels')); return; }
     const btn = document.getElementById('btnPublier');
     const busyLabel = editingPostId ? TR('Enregistrement…') : TR('Publication en cours…');
     btn.textContent = busyLabel; btn.disabled = true;
@@ -1437,7 +1437,7 @@ async function loadComments(postId){
     const reponses = reponsesParRacine[c.id] || [];
     if(reponses.length){
       html += '<div class="cmt-replies-zone" id="cmtReplies-'+c.id+'">'
-        + '<div class="cmt-voir-plus" id="cmtToggle-'+c.id+'">'+TR(reponses.length>1 ? '— Afficher {n} réponses ▾' : '— Afficher {n} réponse ▾', {n: reponses.length})+'</div>'
+        + '<div class="cmt-voir-plus" id="cmtToggle-'+c.id+'">'+TR(reponses.length>1 ? 'Afficher {n} réponses ▾' : 'Afficher {n} réponse ▾', {n: reponses.length})+'</div>'
         + '</div>';
     }
   });
@@ -1501,9 +1501,9 @@ async function initComposer(){
   }
   // Visiteurs : comme dans Actualités et Offres, la publication est réservée aux professionnels.
   if(currentUserData && currentUserData.role === 'visiteur'){
-    composerBtn.setAttribute('data-tr', '🔒 Publication réservée aux professionnels');
-    composerBtn.textContent = TR('🔒 Publication réservée aux professionnels');
-    composerBtn.onclick = function(){ toastFP(TR('🔒 La publication est réservée aux professionnels')); };
+    composerBtn.setAttribute('data-tr', 'Publication réservée aux professionnels');
+    composerBtn.textContent = TR('Publication réservée aux professionnels');
+    composerBtn.onclick = function(){ toastFP(TR('La publication est réservée aux professionnels')); };
     return;
   }
   wireComposerModal();
@@ -1570,9 +1570,9 @@ window.__partagerFP = function(id, direct){
     return;
   }
   const lien = 'https://artiroyce.com';
-  const texte = ((p && (p.journalNom ? p.journalNom + ' — ' : '') + (p.texte || '')) || 'ArtiRoyce').slice(0, 200);
+  const texte = ((p && (p.journalNom ? p.journalNom + ' · ' : '') + (p.texte || '')) || 'ArtiRoyce').slice(0, 200);
   if(navigator.share){ navigator.share({ title: 'ArtiRoyce', text: texte, url: lien }).catch(function(){}); return; }
-  try{ navigator.clipboard.writeText(texte + '\n' + lien).then(function(){ toastFP(TR('Lien copié ✅')); }); }catch(e){}
+  try{ navigator.clipboard.writeText(texte + '\n' + lien).then(function(){ toastFP(TR('Lien copié')); }); }catch(e){}
 };
 // Appui long sur une photo/vidéo du Fil Presse : notre menu (avec la marque) au lieu de celui du téléphone.
 if(window.ArFiligrane) window.ArFiligrane.appuiLong(function(el){
