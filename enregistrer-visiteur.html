@@ -210,7 +210,7 @@
       <span class="dp-logo-text">ArtiRoyce</span>
     </div>
     <h2 data-i18n="dp_visitor_title">Rejoignez la communauté</h2>
-    <p data-i18n="dp_visitor_sub">Contactez les meilleurs professionnels, échangez et suivez leur travail — en quelques secondes, sans engagement.</p>
+    <p data-i18n="dp_visitor_sub">Contactez les meilleurs professionnels, échangez et suivez leur travail, en quelques secondes, sans engagement.</p>
   </div>
 
   <div class="form-panel">
@@ -264,7 +264,7 @@
         <span class="error-msg" id="telError"></span>
         <label for="pays" data-i18n="label_pays">PAYS</label>
         <select id="pays" autocomplete="country-name">
-          <option value="" data-i18n="pays_choisir">— Choisissez votre pays —</option>
+          <option value="" data-i18n="pays_choisir">Choisissez votre pays</option>
           <option value="Afghanistan">Afghanistan</option>
           <option value="Afrique du Sud">Afrique du Sud</option>
           <option value="Albanie">Albanie</option>
@@ -511,7 +511,7 @@
       let s = 0;
       if (val.length>=8) s++; if (/[A-Z]/.test(val)) s++; if (/[0-9]/.test(val)) s++; if (/[^A-Za-z0-9]/.test(val)) s++;
       const t = T();
-      const l = [{pct:'0%',c:'#eee',t:''},{pct:'25%',c:'#e63224',t:t.js_strength_weak||'⚠ Très faible'},{pct:'50%',c:'#ff9800',t:t.js_strength_medium||'😐 Moyen'},{pct:'75%',c:'#4caf50',t:t.js_strength_good||'👍 Bon'},{pct:'100%',c:'#27a945',t:t.js_strength_strong||'🔒 Très fort'}];
+      const l = [{pct:'0%',c:'#eee',t:''},{pct:'25%',c:'#e63224',t:t.js_strength_weak||'Très faible'},{pct:'50%',c:'#ff9800',t:t.js_strength_medium||'😐 Moyen'},{pct:'75%',c:'#4caf50',t:t.js_strength_good||'👍 Bon'},{pct:'100%',c:'#27a945',t:t.js_strength_strong||'🔒 Très fort'}];
       fill.style.width=l[s].pct; fill.style.background=l[s].c; label.textContent=l[s].t;
     };
     function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
@@ -563,17 +563,17 @@
         password2:{el:document.getElementById('password2'),err:document.getElementById('password2Error')},
       };
       Object.values(f).forEach(x=>{x.el.className='';x.err.textContent='';});
-      if (!f.nom.el.value.trim()||!vName(f.nom.el.value)){f.nom.err.textContent=t.js_err_nom||'⚠ Nom invalide.';f.nom.el.className='error';valid=false;}else{f.nom.el.className='valid';}
-      if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent=t.js_err_prenom||'⚠ Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
-      if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent=t.js_err_email||'⚠ Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
-      if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent=t.js_err_tel||'⚠ Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
-      if (!f.pays.el.value){f.pays.err.textContent=t.js_err_pays||'⚠ Sélectionnez votre pays.';f.pays.el.className='error';valid=false;}
-      else if (f.pays.el.value==='Autre' && !document.getElementById('paysAutre').value.trim()){f.pays.err.textContent=t.js_err_pays||'⚠ Indiquez le nom de votre pays.';document.getElementById('paysAutre').className='error';valid=false;}
+      if (!f.nom.el.value.trim()||!vName(f.nom.el.value)){f.nom.err.textContent=t.js_err_nom||'Nom invalide.';f.nom.el.className='error';valid=false;}else{f.nom.el.className='valid';}
+      if (!f.prenom.el.value.trim()||!vName(f.prenom.el.value)){f.prenom.err.textContent=t.js_err_prenom||'Prénom invalide.';f.prenom.el.className='error';valid=false;}else{f.prenom.el.className='valid';}
+      if (!f.email.el.value.trim()||!vEmail(f.email.el.value)){f.email.err.textContent=t.js_err_email||'Email invalide.';f.email.el.className='error';valid=false;}else{f.email.el.className='valid';}
+      if (!f.tel.el.value.trim()||!vPhone(f.tel.el.value)){f.tel.err.textContent=t.js_err_tel||'Numéro invalide.';f.tel.el.className='error';valid=false;}else{f.tel.el.className='valid';}
+      if (!f.pays.el.value){f.pays.err.textContent=t.js_err_pays||'Sélectionnez votre pays.';f.pays.el.className='error';valid=false;}
+      else if (f.pays.el.value==='Autre' && !document.getElementById('paysAutre').value.trim()){f.pays.err.textContent=t.js_err_pays||'Indiquez le nom de votre pays.';document.getElementById('paysAutre').className='error';valid=false;}
       else {f.pays.el.className='valid'; if(f.pays.el.value==='Autre'){document.getElementById('paysAutre').className='valid';}}
-      if (!f.villeInscription.el.value.trim()||f.villeInscription.el.value.trim().length<2){f.villeInscription.err.textContent=t.js_err_ville||'⚠ Entrez votre ville.';f.villeInscription.el.className='error';valid=false;}else{f.villeInscription.el.className='valid';}
-      if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'⚠ Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
-      if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'⚠ Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
-      if (!valid){showToast(t.js_err_fix||'⚠ Corrigez les erreurs.','error-toast');return;}
+      if (!f.villeInscription.el.value.trim()||f.villeInscription.el.value.trim().length<2){f.villeInscription.err.textContent=t.js_err_ville||'Entrez votre ville.';f.villeInscription.el.className='error';valid=false;}else{f.villeInscription.el.className='valid';}
+      if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
+      if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
+      if (!valid){showToast(t.js_err_fix||'Corrigez les erreurs.','error-toast');return;}
       const btn=document.getElementById('btnRegister');
       const emailSaisi = f.email.el.value.trim();
       btn.disabled=true;btn.textContent=t.js_checking_email||'Vérification…';
@@ -583,8 +583,8 @@
         if (methodes.length > 0) {
           btn.disabled=false; btn.innerHTML=t.btn_create_account||'CRÉER MON COMPTE &nbsp;→';
           f.email.el.className='error';
-          f.email.err.textContent = t.js_toast_email_used || '⚠ Cet email est déjà utilisé.';
-          showToast(t.js_toast_email_used||'⚠ Cet email est déjà utilisé.','error-toast');
+          f.email.err.textContent = t.js_toast_email_used || 'Cet email est déjà utilisé.';
+          showToast(t.js_toast_email_used||'Cet email est déjà utilisé.','error-toast');
           return;
         }
 
@@ -610,7 +610,7 @@
         };
         const mapped = errMap[err.code];
         if (mapped) { showToast(mapped, 'error-toast'); }
-        else { showToast((t.js_toast_error_prefix||'⚠ Erreur : ')+err.message,'error-toast'); }
+        else { showToast((t.js_toast_error_prefix||'Erreur : ')+err.message,'error-toast'); }
       }
     });
 
@@ -624,12 +624,12 @@
       const code = champCode.value.trim();
 
       if (!/^\d{6}$/.test(code)) {
-        erreurCode.textContent = t.verif_err_format || '⚠ Entrez les 6 chiffres du code.';
+        erreurCode.textContent = t.verif_err_format || 'Entrez les 6 chiffres du code.';
         champCode.className = 'error';
         return;
       }
       if (!inscriptionEnAttente) {
-        erreurCode.textContent = t.verif_err_generic || '⚠ Erreur de vérification.';
+        erreurCode.textContent = t.verif_err_generic || 'Erreur de vérification.';
         return;
       }
 
@@ -649,18 +649,18 @@
         });
 
         champCode.className = 'valid';
-        showToast(t.verif_success || '✅ Email vérifié ! Connectez-vous maintenant.', 'success');
+        showToast(t.verif_success || 'Email vérifié ! Connectez-vous maintenant.', 'success');
         setTimeout(() => { window.location.href = 'connexion.html'; }, 1200);
       } catch (err) {
         champCode.className = 'error';
         const messagesErreur = {
-          'invalid-argument': t.verif_err_wrong || '⚠ Code incorrect.',
-          'deadline-exceeded': t.verif_err_expired || '⚠ Ce code a expiré. Renvoyez-en un.',
-          'resource-exhausted': t.verif_err_too_many || '⚠ Trop de tentatives. Renvoyez un nouveau code.',
-          'not-found': t.verif_err_not_found || '⚠ Aucun code trouvé. Renvoyez-en un.',
-          'auth/email-already-in-use': t.js_toast_email_used || '⚠ Cet email est déjà utilisé.',
+          'invalid-argument': t.verif_err_wrong || 'Code incorrect.',
+          'deadline-exceeded': t.verif_err_expired || 'Ce code a expiré. Renvoyez-en un.',
+          'resource-exhausted': t.verif_err_too_many || 'Trop de tentatives. Renvoyez un nouveau code.',
+          'not-found': t.verif_err_not_found || 'Aucun code trouvé. Renvoyez-en un.',
+          'auth/email-already-in-use': t.js_toast_email_used || 'Cet email est déjà utilisé.',
         };
-        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || '⚠ Erreur de vérification.');
+        erreurCode.textContent = messagesErreur[err.code] || (t.verif_err_generic || 'Erreur de vérification.');
         btn.disabled = false;
         btn.textContent = t.btn_verify_code || 'VÉRIFIER LE CODE';
       }
@@ -675,12 +675,12 @@
       if (!inscriptionEnAttente) return;
       try {
         await appelEnvoyerCode({ email: inscriptionEnAttente.email, contexte: 'inscription' });
-        showToast(t.verif_resent || '✅ Nouveau code envoyé.', 'success');
+        showToast(t.verif_resent || 'Nouveau code envoyé.', 'success');
       } catch (err) {
         if (err.code === 'resource-exhausted') {
-          erreurCode.textContent = err.message || (t.verif_err_wait || '⚠ Veuillez patienter avant de redemander un code.');
+          erreurCode.textContent = err.message || (t.verif_err_wait || 'Veuillez patienter avant de redemander un code.');
         } else {
-          erreurCode.textContent = t.verif_err_generic || '⚠ Erreur lors du renvoi du code.';
+          erreurCode.textContent = t.verif_err_generic || 'Erreur lors du renvoi du code.';
         }
       }
     });
