@@ -221,8 +221,8 @@
   }
   function expliquerErreur(e) {
     console.warn('Filigrane :', e);
-    if (e && e.cors) message(T('⚠️ Enregistrement impossible pour le moment : le stockage bloque encore la marque (réglage à faire).'));
-    else message(T('⚠️ Enregistrement impossible, réessayez.'));
+    if (e && e.cors) message(T('Enregistrement impossible pour le moment : le stockage bloque encore la marque (réglage à faire).'));
+    else message(T('Enregistrement impossible, réessayez.'));
   }
   async function enregistrerPhoto(url, pseudo) {
     if (!url) { message(T('Aucune photo à enregistrer')); return false; }
@@ -230,7 +230,7 @@
       message(T('Préparation…'));
       var b = await photoMarquee(url, pseudo);
       var ok = await donnerAuTelephone(b, nomFichier(pseudo, 'jpg'));
-      if (ok) message(T('✅ Enregistré dans votre téléphone'));
+      if (ok) message(T('Enregistré dans votre téléphone'));
       return ok;
     } catch (e) { expliquerErreur(e); return false; }
   }
@@ -250,7 +250,7 @@
         await new Promise(function (r) { setTimeout(r, 400); }); // laisse le téléphone respirer entre deux fichiers
       }
       p.fermer();
-      if (faites) message(T('✅ {n} photos enregistrées', { n: faites }));
+      if (faites) message(T('{n} photos enregistrées', { n: faites }));
     } catch (e) { p.fermer(); expliquerErreur(e); }
   }
 
@@ -628,9 +628,9 @@
       p.fermer();
       try { actx && actx.close(); } catch (e) {}
       if (r === 'annule' || p.annule) { message(T('Enregistrement arrêté')); return; }
-      if (!r) { message(T('⚠️ Votre téléphone ne permet pas d’enregistrer la vidéo avec la marque.')); return; }
+      if (!r) { message(T('Votre téléphone ne permet pas d’enregistrer la vidéo avec la marque.')); return; }
       var ok = await donnerAuTelephone(r.blob, nomFichier(pseudo, r.ext || 'mp4'));
-      if (ok) message(r.avecSon ? T('✅ Enregistré dans votre téléphone') : T('✅ Enregistré (sans le son)'));
+      if (ok) message(r.avecSon ? T('Enregistré dans votre téléphone') : T('Enregistré (sans le son)'));
     } catch (e) {
       p.fermer();
       try { actx && actx.close(); } catch (er) {}
