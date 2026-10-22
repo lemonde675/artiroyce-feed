@@ -176,7 +176,7 @@
   <div id="pgVisionneuseMedia"></div>
 </div>
 
-<div class="footer-note" data-tr="Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil — Avis, Ventes et Abonnement s'activeront ensuite.</div>
+<div class="footer-note" data-tr="Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil. Avis, Ventes et Abonnement s'activeront ensuite.">Le classement s'appuie aujourd'hui sur l'ancienneté du compte et le statut Professionnel/Vérifié. Les vues de profil comptent aussi, dès qu'elles seront suivies sur la page profil. Avis, Ventes et Abonnement s'activeront ensuite.</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -373,7 +373,7 @@ function renderScoreList(){
 
   // La carte "pas encore classé" n'apparaît que sur le dernier lot affiché.
   if (tousLesNonClasses.length && nombreAffiches >= tousLesClasses.length) {
-    html += `<div class="non-classe-card">🕒 ${TR('{n} professionnel(s) pas encore classé(s) — le classement se précisera automatiquement avec l\'ancienneté du compte et les futurs avis/ventes.', {n: tousLesNonClasses.length})}</div>`;
+    html += `<div class="non-classe-card">🕒 ${TR('{n} professionnel(s) pas encore classé(s), le classement se précisera automatiquement avec l\'ancienneté du compte et les futurs avis/ventes.', {n: tousLesNonClasses.length})}</div>`;
   }
   el.innerHTML = html || '<div class="non-classe-card">'+TR('Aucun professionnel pour l’instant.')+'</div>';
   attacherGrillesElite();
