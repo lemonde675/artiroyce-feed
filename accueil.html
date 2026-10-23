@@ -64,6 +64,15 @@
     .cover-carousel-acc { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding: 0 14px 4px; scrollbar-width: none; cursor: grab; touch-action: pan-x; }
     .cca-card-acc { position: relative; flex: 0 0 auto; width: 150px; height: 220px; border-radius: 14px; overflow: hidden; scroll-snap-align: start; background: #222; cursor: pointer; transition: opacity .25s, transform .25s; }
     .cca-card-acc img, .cca-card-acc video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Miniature toujours trouvée : un fond (autre photo de l'auteur, sa photo de profil
+       ou son initiale) reste visible tant que la vidéo n'a pas montré une vraie image. */
+    .cca-fond-acc { position: absolute; inset: 0; background: linear-gradient(135deg,#e63224,#ec4899); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.9); font-size: 54px; font-weight: 900; }
+    .cca-fond-acc .cca-play-acc { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; }
+    .cca-card-acc video.cca-vid-acc { position: absolute; inset: 0; opacity: 0; transition: opacity .3s; }
+    .cca-card-acc video.cca-vid-acc.prete { opacity: 1; }
+    /* Texte posé sur une publication (choisi dans « Ajouter au portfolio ») */
+    .sur-txt-acc { position: absolute; transform: translate(-50%,-50%); z-index: 2; pointer-events: none; width: max-content; max-width: 88%; padding: .22em .55em; border-radius: .4em; font-weight: 800; line-height: 1.2; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; box-sizing: border-box; }
+    .sur-txt-acc.sans-fond { text-shadow: 0 1px 3px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6); padding: 0; }
     .cca-fade-acc { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 10px 12px; background: linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0)); }
     .cca-nom-acc { color: #fff; font-size: 12.5px; font-weight: 800; margin-bottom: 2px; }
     .cca-snip-acc { color: #eee; font-size: 10px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -504,9 +513,7 @@ function toggleSiteWidth(){
       const snipEsc = String(snippetSrc).slice(0,45).replace(/</g,'&lt;');
       const estMoi = auth.currentUser && c.uid === auth.currentUser.uid;
       const dejaSuivi = mesSuivisAccueil.has(c.uid);
-      const media = c.publication.type === 'video'
-        ? `<video src="${c.publication.url}" muted playsinline preload="metadata" onloadeddata="this.play().then(()=>this.pause()).catch(()=>{})"></video>`
-        : `<img src="${c.publication.url}" loading="lazy">`;
+      const media = miniatureCarrouselAcc(c);
       const suivreBtn = (!estMoi && c.uid) ? `<span class="cca-suivre-acc" id="ccaSuivreAcc-${c.index}" onclick="event.stopPropagation();window.toggleSuivreCarrouselAcc('${c.uid}',${c.index})" style="background:${dejaSuivi?'rgba(255,255,255,0.28)':'var(--red)'}">${dejaSuivi?TR('✓ Suivi(e)'):TR('+ Suivre')}</span>` : '';
       return `<div class="cca-card-acc" id="ccaCardAcc-${c.index}" onclick="window.allerVersCarteAcc(${c.index})">
         ${media}
@@ -518,6 +525,36 @@ function toggleSiteWidth(){
     return `<div class="cca-wrap-acc"><div class="cca-titre-acc">${TR('Nos coups de cœur')}</div>
       <div class="cover-carousel-acc">${cartes}</div></div>`;
   }
+
+  // Miniature d'une carte du carrousel : on fait tout pour en trouver une.
+  // Photo → la photo. Vidéo → une vraie image de la vidéo ; en attendant (ou si le
+  // téléphone ne sait pas la lire) : une autre photo du même auteur, sinon sa photo
+  // de profil, sinon son initiale sur un fond ArtiRoyce. Jamais de carte noire.
+  function attrUrlAcc(u){ return String(u || '').replace(/"/g, '%22').replace(/'/g, '%27').replace(/</g, '%3C'); }
+  function miniatureCarrouselAcc(c){
+    const pub = c.publication || {};
+    if (pub.type !== 'video') {
+      return `<div class="cca-fond-acc">${initialeAcc(c.data)}</div><img src="${attrUrlAcc(pub.url)}" loading="lazy" style="position:absolute;inset:0" onerror="this.remove()">`;
+    }
+    const autrePhoto = (window._carrouselCandidatsAcc || []).find(x => x.uid === c.uid && x.publication && x.publication.type === 'photo' && x.publication.url);
+    const image = autrePhoto ? autrePhoto.publication.url : (c.data && c.data.photoAvatar) || '';
+    const fond = image
+      ? `<div class="cca-fond-acc" style="background-image:url('${attrUrlAcc(image)}')"><span class="cca-play-acc"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><polygon points="7,4 20,12 7,20"/></svg></span></div>`
+      : `<div class="cca-fond-acc">${initialeAcc(c.data)}<span class="cca-play-acc" style="top:auto;bottom:46px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><polygon points="7,4 20,12 7,20"/></svg></span></div>`;
+    // Même astuce que les Statuts : on demande une image précise de la vidéo (#t et
+    // currentTime), puis on ne l'affiche qu'une fois cette image vraiment prête.
+    return fond + `<video class="cca-vid-acc" src="${attrUrlAcc(pub.url)}#t=0.1" muted playsinline preload="metadata"
+      onloadedmetadata="miniVideoMetaAcc(this)" onseeked="this.classList.add('prete')"
+      onloadeddata="if(!this.seeking&&this.videoWidth)this.classList.add('prete')" onerror="this.remove()"></video>`;
+  }
+  function initialeAcc(d){
+    const n = (d && (d.prenom || d.pseudo || d.nom)) || 'A';
+    return String(n).trim().charAt(0).toUpperCase().replace(/</g, '') || 'A';
+  }
+  window.miniVideoMetaAcc = function(v){
+    if (!v.videoWidth) { v.remove(); return; }   // vidéo illisible ici : on garde le fond
+    try { v.currentTime = Math.min(0.5, (isFinite(v.duration) && v.duration > 0 ? v.duration : 1) / 10); } catch(e) {}
+  };
 
   window.ecarterCarrouselAcc = function(index){
     _carrouselEcartesAcc.add(index);
@@ -570,6 +607,23 @@ function toggleSiteWidth(){
       html += i < remplies ? '<span class="etoile-pleine">★</span>' : '<span class="etoile-vide">★</span>';
     }
     return html;
+  }
+
+  // Texte posé sur la publication (même place, même taille, même couleur que dans
+  // « Ajouter au portfolio »). Positions et taille en proportion de la carte.
+  function texteSurPublicationAcc(pub){
+    const st = pub && pub.surTexte;
+    if (!st || !st.t) return '';
+    const num = (v, d, min, max) => { v = Number(v); return isFinite(v) ? Math.min(max, Math.max(min, v)) : d; };
+    const x = num(st.x, 0.5, 0.05, 0.95), y = num(st.y, 0.15, 0.04, 0.96), taille = num(st.taille, 0.06, 0.03, 0.14);
+    const coul = /^#[0-9a-fA-F]{6}$/.test(st.couleur || '') ? st.couleur : '#1e88e5';
+    const fond = st.fond !== false;
+    const clair = ['#ffffff', '#ffd600'].includes(coul.toLowerCase());
+    const style = fond
+      ? `background:${coul};color:${clair ? '#111' : '#fff'};`
+      : `color:${coul};`;
+    const txt = String(st.t).slice(0, 120).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<div class="sur-txt-acc${fond ? '' : ' sans-fond'}" style="left:${x*100}%;top:${y*100}%;font-size:calc(${taille} * min(100vw, 480px));${style}">${txt}</div>`;
   }
 
   function creerCard(uid, data, index, publication) {
@@ -656,6 +710,7 @@ function toggleSiteWidth(){
       ${controlesVideoHTML}
       ${boutonSonHTML}
       <div class="vcard-overlay${estVideo ? ' zone-tap-video' : ''}" data-arfig="1" ${estVideo ? `onclick="basculerLectureVideoAcc(${index})"` : ''}></div>
+      ${texteSurPublicationAcc(publication)}
       <div class="badge-v"><div class="badge-v-check">✔</div>${TR('Vérifié')}</div>
       <div class="btn-suivre-wrap">
         <button class="btn-suivre" id="suivre-${uid}" onclick="toggleSuivreAccueil('${uid}')">${TR('+ Suivre')}</button>
