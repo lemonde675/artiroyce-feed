@@ -131,7 +131,7 @@
     .wm-brand .r { color: var(--green); }
     .info-metier { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     /* Nom de la musique, posé juste au-dessus du badge « Vérifié » */
-    .info-musique { position: absolute; left: 12px; z-index: 10; max-width: calc(100% - 100px); box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 11px 4px 8px; border-radius: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+    .info-musique { position: absolute; left: 12px; z-index: 10; max-width: 62%; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.45); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 11px 4px 8px; border-radius: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
     .info-musique .mus-ico { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: var(--rose, #ec4899); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
     .info-musique .mus-nom { overflow: hidden; text-overflow: ellipsis; }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; margin-top: 10px; font-weight: 500; }
@@ -616,6 +616,16 @@ function toggleSiteWidth(){
 
   // Texte posé sur la publication (même place, même taille, même couleur que dans
   // « Ajouter au portfolio »). Positions et taille en proportion de la carte.
+  // Nom de musique court et léger : le titre, puis le premier mot du chanteur.
+  // « Brune · Next Promises, Settow & Adenkule » → « Brune · Next »
+  function nomMusiqueCourtAcc(nom){
+    const parts = String(nom || '').split(/\s+[·—]\s+/);
+    const coupe = (t, n) => { t = t.trim(); return t.length > n ? t.slice(0, n - 1).trim() + '…' : t; };
+    const titre = coupe((parts[0] || '').replace(/\s*[\(\[].*$/, ''), 18);
+    const chanteur = (parts[1] || '').split(/,|&|\s+(?:feat\.?|ft\.?|x)\s+/i)[0].trim().split(/\s+/)[0] || '';
+    return (titre + (chanteur ? ' · ' + coupe(chanteur, 12) : '')).replace(/</g, '&lt;');
+  }
+
   function texteSurPublicationAcc(pub){
     const st = pub && pub.surTexte;
     if (!st || !st.t) return '';
@@ -684,7 +694,7 @@ function toggleSiteWidth(){
     const musFin = aMusique ? (nbr(publication.musicFin) ?? 0) : 0;
     const attrsMoment = (aMusique && musFin > musDebut) ? ` data-debut="${musDebut}" data-fin="${musFin}"` : '';
     const musiqueNomHTML = (aMusique && publication.musicNom)
-      ? `<div class="info-musique"><span class="mus-ico">♪</span><span class="mus-nom">${String(publication.musicNom).replace(/</g, '&lt;')}</span></div>` : '';
+      ? `<div class="info-musique" title="${String(publication.musicNom).replace(/"/g, '&quot;').replace(/</g, '&lt;')}"><span class="mus-ico">♪</span><span class="mus-nom">${nomMusiqueCourtAcc(publication.musicNom)}</span></div>` : '';
     if (estVideo) {
       const urlMusV = aMusique ? String(publication.musicUrl).replace(/"/g, '%22') : '';
       bgHTML = `<video class="vcard-bg" id="vid-${index}" data-idx="${index}"${aMusique ? ' data-musique="1"' : ''} src="${publication.url}" autoplay muted loop playsinline disablePictureInPicture ontimeupdate="majBarreVideoAcc(${index})"></video>`
