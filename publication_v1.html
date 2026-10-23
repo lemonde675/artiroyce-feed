@@ -35,23 +35,23 @@
 
     /* UPLOAD ZONE */
     .upload-zone { margin: 14px 16px; border: 2px dashed #d0d0d0; border-radius: 14px; padding: 36px 16px; text-align: center; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: #f0fdf0; }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--rose); background: #fdf2f8; }
     .upload-zone input { display: none; }
     .uz-icon { font-size: 40px; }
     .uz-text { font-size: 15px; color: #555; font-weight: 600; }
-    .uz-text span { color: var(--green); }
+    .uz-text span { color: var(--rose); }
     .uz-hint { font-size: 11px; color: #aaa; }
 
     /* PREVIEW GRILLE PHOTOS */
     .photos-preview { display: none; padding: 0 16px 14px; }
     .photos-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
     .photos-strip::-webkit-scrollbar { height: 3px; }
-    .photos-strip::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+    .photos-strip::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 2px; }
     .p-item { position: relative; flex-shrink: 0; width: 88px; height: 88px; border-radius: 10px; overflow: hidden; border: 2px solid #e8e8e8; }
     .p-item img { width: 100%; height: 100%; object-fit: cover; }
     .p-rm { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.65); border: none; color: #fff; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; }
     .p-add { flex-shrink: 0; width: 88px; height: 88px; border-radius: 10px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #aaa; cursor: pointer; transition: all .2s; }
-    .p-add:hover { border-color: var(--green); color: var(--green); }
+    .p-add:hover { border-color: var(--rose); color: var(--rose); }
 
     /* PREVIEW VIDEO */
     .video-preview { display: none; margin: 0 16px 14px; border-radius: 12px; overflow: hidden; position: relative; background: #000; }
@@ -92,7 +92,26 @@
 
     /* COMPTEUR FICHIERS */
     .file-count { font-size: 11px; color: #888; text-align: center; padding: 4px 0 10px; }
-    .file-count span { color: var(--green); font-weight: 800; }
+    .file-count span { color: var(--rose); font-weight: 800; }
+
+    /* TEXTE SUR LA PUBLICATION (comme dans les Statuts) */
+    .tx-aide-vide { font-size: 12.5px; color: #aaa; padding: 12px 16px 14px; }
+    .tx-zone { display: none; padding: 12px 16px 14px; }
+    .tx-cadre { position: relative; width: 62%; max-width: 240px; aspect-ratio: 9 / 15; margin: 0 auto 12px; border-radius: 14px; overflow: hidden; background: #111; box-shadow: 0 4px 14px rgba(0,0,0,.18); touch-action: none; }
+    .tx-cadre img, .tx-cadre video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+    .tx-cadre-lbl { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 10px; color: rgba(255,255,255,.75); font-weight: 700; pointer-events: none; }
+    .tx-sur { position: absolute; left: 50%; top: 12%; transform: translate(-50%,-50%); width: max-content; max-width: 88%; padding: .22em .55em; border-radius: .4em; font-weight: 800; line-height: 1.2; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; outline: 1.5px dashed rgba(255,255,255,.7); outline-offset: 3px; z-index: 2; box-sizing: border-box; }
+    .tx-sur.sans-fond { padding: 0; text-shadow: 0 1px 3px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6); }
+    .tx-sur:empty { display: none; }
+    .tx-ligne { display: flex; gap: 8px; align-items: center; }
+    .tx-inp { flex: 1; min-width: 0; border: 1.5px solid #eee; border-radius: 12px; padding: 9px 12px; font-size: 14px; font-family: inherit; outline: none; }
+    .tx-inp:focus { border-color: var(--rose); }
+    .tx-btn { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid #eee; background: #fff; font-weight: 900; font-size: 13px; cursor: pointer; flex-shrink: 0; color: #333; }
+    .tx-couleurs { display: flex; gap: 9px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+    .tx-coul { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
+    .tx-coul.actif { outline: 2.5px solid var(--rose); outline-offset: 2px; }
+    .tx-fond { margin-left: auto; border: 1.5px solid var(--rose); color: var(--rose); background: #fff; border-radius: 14px; padding: 5px 11px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
+    .tx-aide { font-size: 11px; color: #aaa; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -171,6 +190,26 @@
       <div class="field">
         <input type="text" id="titreInp" placeholder="Ex : Rénovation salle de bain, Tenue de mariage…" maxlength="80" oninput="onTitre()"/>
         <div class="char-count"><span id="titreCount">0</span>/80</div>
+      </div>
+    </div>
+
+    <!-- TEXTE SUR LA PHOTO / VIDÉO (optionnel) -->
+    <div class="section" id="secTexte">
+      <div class="section-title">Texte sur la photo / vidéo <span style="font-weight:600;color:#bbb;text-transform:none;">(optionnel)</span></div>
+      <div class="tx-aide-vide" id="txAideVide">Choisissez d'abord une photo ou une vidéo.</div>
+      <div class="tx-zone" id="txZone">
+        <div class="tx-cadre" id="txCadre">
+          <div id="txMedia"></div>
+          <div class="tx-sur" id="txSur"></div>
+          <div class="tx-cadre-lbl">Aperçu dans l'Accueil</div>
+        </div>
+        <div class="tx-ligne">
+          <input class="tx-inp" id="txInp" maxlength="120" placeholder="Écrire un texte… (ex : 1500 F petit, 2000 F grand)" oninput="majTextePub()">
+          <button class="tx-btn" type="button" onclick="tailleTextePub(-1)">A-</button>
+          <button class="tx-btn" type="button" onclick="tailleTextePub(1)">A+</button>
+        </div>
+        <div class="tx-couleurs" id="txCouleurs"></div>
+        <div class="tx-aide">Déplacez le texte avec le doigt sur l'aperçu.</div>
       </div>
     </div>
 
@@ -307,7 +346,9 @@ function compresserImagePub(file){
   });
 }
 
+let envoiEnCours = false, publicationTerminee = false;
 window.submitPub = async function() {
+  if (envoiEnCours || publicationTerminee) return;   // un seul envoi à la fois (double appui)
   const uid = window._uid;
   if (!uid) { showToast('Connectez-vous', 'r'); return; }
 
@@ -317,6 +358,7 @@ window.submitPub = async function() {
 
   if (photos.length === 0 && !videoFile) { showToast('Choisissez au moins une photo ou une vidéo', 'r'); return; }
 
+  envoiEnCours = true;
   setLoading(true);
   document.getElementById('progWrap').style.display = 'block';
 
@@ -346,7 +388,7 @@ window.submitPub = async function() {
       });
       fichiersEnvoyes++;
       const refPhoto = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null, surTexte: texteSurPub(),
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -377,7 +419,7 @@ window.submitPub = async function() {
         );
       });
       const refVideo = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null, surTexte: texteSurPub(),
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -385,11 +427,16 @@ window.submitPub = async function() {
     }
 
     setLoading(false);
+    document.getElementById('mainBtn').disabled = true;
+    document.getElementById('headBtn').classList.remove('ready');
     showToast('Publié', '');
     const paramPub = dernierePubIdEnvoyee ? ('?pub=' + dernierePubIdEnvoyee + '&uid=' + uid) : '';
-    setTimeout(() => { window.location.href = 'accueil.html' + paramPub; }, 900);
+    // replace : cette page n'est pas gardée dans l'historique. Sinon, la touche retour
+    // la ressortait « figée » (ancienne vidéo, envoi bloqué) et il fallait l'actualiser.
+    setTimeout(() => { publicationTerminee = true; window.location.replace('accueil.html' + paramPub); }, 900);
 
   } catch(err) {
+    envoiEnCours = false;
     setLoading(false);
     if (err && err.code === 'storage/unauthorized') {
       showToast('Envoi refusé par le serveur. Vérifiez la taille (50 Mo max) et réessayez.', 'r');
@@ -492,7 +539,7 @@ window.retirerMusiquePub = function(){
 function triggerPhoto() { document.getElementById('filePhoto').click(); }
 function onDrag(e, type, on) { e.preventDefault(); document.getElementById(type==='photo'?'uploadZonePhoto':'uploadZoneVideo').classList.toggle('drag', on); }
 function onDropPhoto(e) { e.preventDefault(); onDrag(e,'photo',false); handlePhotos(Array.from(e.dataTransfer.files)); }
-function onPhotoSel(e) { handlePhotos(Array.from(e.target.files)); }
+function onPhotoSel(e) { handlePhotos(Array.from(e.target.files)); e.target.value = ''; }
 
 function handlePhotos(files) {
   const ok = files.filter(f => f.size <= 5*1024*1024 && f.type.startsWith('image/'));
@@ -521,6 +568,7 @@ function renderPhotos() {
   document.getElementById('uploadZonePhoto').style.display = photos.length >= 10 ? 'none' : 'flex';
   document.getElementById('photoCount').style.display = photos.length > 0 ? 'block' : 'none';
   document.getElementById('photoCountNum').textContent = photos.length;
+  majApercuTextePub();
 }
 
 function removePhoto(i) { window._photos.splice(i, 1); renderPhotos(); checkReady(); }
@@ -528,7 +576,7 @@ function removePhoto(i) { window._photos.splice(i, 1); renderPhotos(); checkRead
 // VIDEO
 function triggerVideo() { document.getElementById('fileVideo').click(); }
 function onDropVideo(e) { e.preventDefault(); onDrag(e,'video',false); const f = e.dataTransfer.files[0]; if(f) handleVideo(f); }
-function onVideoSel(e) { if(e.target.files[0]) handleVideo(e.target.files[0]); }
+function onVideoSel(e) { if(e.target.files[0]) handleVideo(e.target.files[0]); e.target.value = ''; }
 
 function handleVideo(f) {
   if (f.type && f.type.indexOf('video/') !== 0) { showToast('Ce fichier n\'est pas une vidéo.', 'r'); return; }
@@ -547,6 +595,7 @@ function handleVideo(f) {
   document.getElementById('videoPreview').style.display = 'block';
   document.getElementById('uploadZoneVideo').style.display = 'none';
   checkReady();
+  majApercuTextePub();
 }
 
 function removeVideo() {
@@ -557,6 +606,7 @@ function removeVideo() {
   document.getElementById('fileVideo').value = '';
   const note = document.getElementById('videoNote'); if (note) note.style.display = 'none';
   checkReady();
+  majApercuTextePub();
 }
 
 // TITRE
@@ -592,6 +642,10 @@ function resetForm() {
   document.getElementById('musicResultsPub').innerHTML = '';
   document.getElementById('musicSearchInp').value = '';
   if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
+  document.getElementById('fileVideo').value = '';
+  document.getElementById('filePhoto').value = '';
+  document.getElementById('txInp').value = ''; window.majTextePub();
+  majApercuTextePub();
 }
 
 // TOAST
@@ -699,6 +753,103 @@ window.supprimerDefinitivementPortfolio = async function(itemId) {
 };
 
 function goBack() { window.history.back(); }
+
+// Page ressortie « figée » par le téléphone (touche retour) : on la recharge pour
+// repartir propre, sinon une nouvelle vidéo pouvait rester bloquée à l'envoi.
+window.addEventListener('pageshow', function (e) {
+  if (e.persisted) window.location.reload();
+});
+
+/* ══ Texte sur la photo / vidéo ══
+   Même principe que les Statuts : on écrit, on choisit la couleur, on déplace le
+   texte au doigt sur l'aperçu. Il s'affiche ensuite dans l'Accueil à la même place
+   (positions et taille en proportion de la carte), en bandeau propre et arrondi. */
+const COULEURS_TEXTE_PUB = ['#1e88e5', '#e63224', '#ec4899', '#27a945', '#ffd600', '#ffffff', '#000000'];
+const txEtat = { x: 0.5, y: 0.12, taille: 0.06, couleur: '#1e88e5', fond: true };
+let txUrlApercu = null;
+
+function texteSurPub() {
+  const t = (document.getElementById('txInp').value || '').trim().slice(0, 120);
+  if (!t) return null;
+  return { t, x: Math.round(txEtat.x * 1000) / 1000, y: Math.round(txEtat.y * 1000) / 1000,
+           taille: Math.round(txEtat.taille * 1000) / 1000, couleur: txEtat.couleur, fond: txEtat.fond };
+}
+
+function placerTextePub() {
+  const el = document.getElementById('txSur'), cadre = document.getElementById('txCadre');
+  if (!el || !cadre) return;
+  const w = cadre.clientWidth || 200;
+  const clair = ['#ffffff', '#ffd600'].includes(txEtat.couleur);
+  el.style.left = (txEtat.x * 100) + '%';
+  el.style.top = (txEtat.y * 100) + '%';
+  el.style.fontSize = Math.max(9, txEtat.taille * w) + 'px';
+  el.classList.toggle('sans-fond', !txEtat.fond);
+  el.style.background = txEtat.fond ? txEtat.couleur : 'transparent';
+  el.style.color = txEtat.fond ? (clair ? '#111' : '#fff') : txEtat.couleur;
+}
+
+window.majTextePub = function () {
+  document.getElementById('txSur').textContent = document.getElementById('txInp').value;
+  placerTextePub();
+};
+window.tailleTextePub = function (sens) {
+  txEtat.taille = Math.min(0.14, Math.max(0.03, txEtat.taille * (sens > 0 ? 1.18 : 1 / 1.18)));
+  placerTextePub();
+};
+window.basculerFondTextePub = function () {
+  txEtat.fond = !txEtat.fond;
+  document.getElementById('txFondBtn').textContent = txEtat.fond ? 'Sans fond' : 'Avec fond';
+  placerTextePub();
+};
+
+// Aperçu : la vidéo s'il y en a une, sinon la première photo.
+function majApercuTextePub() {
+  const media = document.getElementById('txMedia');
+  const aMedia = window._photos.length > 0 || !!window._videoFile;
+  document.getElementById('txZone').style.display = aMedia ? 'block' : 'none';
+  document.getElementById('txAideVide').style.display = aMedia ? 'none' : 'block';
+  if (txUrlApercu) { try { URL.revokeObjectURL(txUrlApercu); } catch (e) {} txUrlApercu = null; }
+  media.innerHTML = '';
+  if (!aMedia) return;
+  const f = window._videoFile || window._photos[0];
+  txUrlApercu = URL.createObjectURL(f);
+  const el = document.createElement(window._videoFile ? 'video' : 'img');
+  if (window._videoFile) { el.muted = true; el.loop = true; el.autoplay = true; el.playsInline = true; el.setAttribute('playsinline', ''); }
+  el.src = txUrlApercu;
+  media.appendChild(el);
+  if (el.play) el.play().catch(() => {});
+  placerTextePub();
+}
+
+(function initTextePub() {
+  const zone = document.getElementById('txCouleurs'), el = document.getElementById('txSur'), cadre = document.getElementById('txCadre');
+  zone.innerHTML = COULEURS_TEXTE_PUB.map((c, i) => `<span class="tx-coul${i === 0 ? ' actif' : ''}" style="background:${c}" data-c="${c}"></span>`).join('')
+    + '<button type="button" class="tx-fond" id="txFondBtn" onclick="basculerFondTextePub()">Sans fond</button>';
+  zone.querySelectorAll('.tx-coul').forEach(d => {
+    d.onclick = () => {
+      zone.querySelectorAll('.tx-coul').forEach(x => x.classList.remove('actif'));
+      d.classList.add('actif'); txEtat.couleur = d.dataset.c; placerTextePub();
+    };
+  });
+  let glisse = null;
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation();
+    glisse = { id: e.pointerId, r: cadre.getBoundingClientRect() };
+    try { el.setPointerCapture(e.pointerId); } catch (er) {}
+    el.style.cursor = 'grabbing';
+  });
+  el.addEventListener('pointermove', e => {
+    if (!glisse || e.pointerId !== glisse.id) return;
+    const r = glisse.r;
+    txEtat.x = Math.min(0.95, Math.max(0.05, (e.clientX - r.left) / r.width));
+    txEtat.y = Math.min(0.96, Math.max(0.04, (e.clientY - r.top) / r.height));
+    placerTextePub();
+  });
+  const fin = () => { glisse = null; el.style.cursor = 'grab'; };
+  el.addEventListener('pointerup', fin); el.addEventListener('pointercancel', fin);
+  window.addEventListener('resize', placerTextePub);
+  placerTextePub();
+})();
 </script>
 </body>
 </html>
