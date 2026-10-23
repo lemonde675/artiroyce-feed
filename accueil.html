@@ -129,6 +129,7 @@
     .wm-brand { font-size: 8px; font-weight: 900; white-space: nowrap; }
     .wm-brand .a { color: var(--red); }
     .wm-brand .r { color: var(--green); }
+    .info-musique { font-size: 12px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); margin: -8px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
     .info-ville { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 8px; margin-top: 10px; font-weight: 500; }
     .btn-itineraire-bot { display: inline-flex; align-items: center; gap: 6px; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 16px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.85); background: transparent; cursor: pointer; margin-bottom: 8px; margin-top: 10px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); pointer-events: auto; }
     .info-etoiles { font-size: 15px; letter-spacing: 3px; margin-bottom: 16px; margin-top: 10px; }
@@ -381,7 +382,7 @@
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="#27a945" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span class="nav-lb" style="color:var(--green)" data-i18n="acc_nav_discussion">Discussion</span>
   </div>
-  <div class="nav-plus-w" onclick="window.location.href='publication_v1.html'">
+  <div class="nav-plus-w" onclick="allerPublierAcc()">
     <div class="nav-plus">+</div>
   </div>
   <div class="nav-i" onclick="toast('▶ Live, bientôt disponible','')">
@@ -627,7 +628,7 @@ function toggleSiteWidth(){
   }
 
   function creerCard(uid, data, index, publication) {
-    const metier  = data.metier  || TR('Professionnel');
+    const metier  = String(data.metier || '').trim().replace(/</g, '&lt;');
     const ville   = data.ville || data.adresse || '';
     function getEmoji(m) {
       const ml = m.toLowerCase();
@@ -671,8 +672,18 @@ function toggleSiteWidth(){
     window._mediaCartesAcc = window._mediaCartesAcc || {};
     window._mediaCartesAcc[index] = (publication && publication.url && (publication.type === 'video' || publication.type === 'photo'))
       ? { type: publication.type, url: publication.url, pseudo: pseudo } : null;
+    // Musique choisie dans « Ajouter au portfolio » : seulement le moment choisi, qui se répète.
+    const aMusique = !!(publication && publication.musicUrl);
+    const nbr = (v) => { v = Number(v); return isFinite(v) && v >= 0 ? v : null; };
+    const musDebut = aMusique ? (nbr(publication.musicDebut) ?? 0) : 0;
+    const musFin = aMusique ? (nbr(publication.musicFin) ?? 0) : 0;
+    const attrsMoment = (aMusique && musFin > musDebut) ? ` data-debut="${musDebut}" data-fin="${musFin}"` : '';
+    const musiqueNomHTML = (aMusique && publication.musicNom)
+      ? `<div class="info-musique">♪ ${String(publication.musicNom).replace(/</g, '&lt;')}</div>` : '';
     if (estVideo) {
-      bgHTML = `<video class="vcard-bg" id="vid-${index}" data-idx="${index}" src="${publication.url}" autoplay muted loop playsinline disablePictureInPicture ontimeupdate="majBarreVideoAcc(${index})"></video>`;
+      const urlMusV = aMusique ? String(publication.musicUrl).replace(/"/g, '%22') : '';
+      bgHTML = `<video class="vcard-bg" id="vid-${index}" data-idx="${index}"${aMusique ? ' data-musique="1"' : ''} src="${publication.url}" autoplay muted loop playsinline disablePictureInPicture ontimeupdate="majBarreVideoAcc(${index})"></video>`
+        + (aMusique ? `<audio id="audio-${index}" data-pour="${index}" src="${urlMusV}"${attrsMoment} loop muted preload="auto"></audio>` : '');
       controlesVideoHTML = `
       <div class="vid-center-btn" id="vidPP-${index}" onclick="basculerLectureVideoAcc(${index})" style="display:none">
         <svg viewBox="0 0 24 24" fill="#fff"><polygon points="6,4 20,12 6,20"/></svg>
@@ -681,18 +692,18 @@ function toggleSiteWidth(){
         <div class="vid-seek-track"><div class="vid-seek-fill" id="vidSeekFill-${index}"></div></div>
       </div>`;
       boutonSonHTML = `
-        <div class="son-btn-top" id="son-btn-${index}" onclick="toggleVolumeSliderAcc(${index},'video')">
+        <div class="son-btn-top" id="son-btn-${index}" onclick="toggleVolumeSliderAcc(${index},'${aMusique ? 'audio' : 'video'}')">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
         </div>
         <div class="vol-slider-wrap" id="volWrap-${index}">
-          <input type="range" class="vol-slider" id="volRange-${index}" min="0" max="100" value="100" oninput="reglerVolumeAcc(${index},'video',this.value)">
+          <input type="range" class="vol-slider" id="volRange-${index}" min="0" max="100" value="100" oninput="reglerVolumeAcc(${index},'${aMusique ? 'audio' : 'video'}',this.value)">
         </div>`;
     } else if (publication && publication.type === 'photo') {
       const urlEsc = String(publication.url || '').replace(/'/g, "\\'");
       bgHTML = `<div class="vcard-bg" style="background-image:url('${urlEsc}');background-size:cover;background-position:center"></div>`;
       if (publication.musicUrl) {
         const musicUrlEsc = String(publication.musicUrl).replace(/'/g, "\\'");
-        bgHTML += `<audio id="audio-${index}" data-idx="${index}" src="${musicUrlEsc}" loop muted></audio>`;
+        bgHTML += `<audio id="audio-${index}" data-idx="${index}" src="${musicUrlEsc}"${attrsMoment} loop muted></audio>`;
         boutonSonHTML = `
         <div class="son-btn-top" id="son-btn-${index}" onclick="toggleVolumeSliderAcc(${index},'audio')">
           <svg id="sonIco-${index}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
@@ -753,7 +764,8 @@ function toggleSiteWidth(){
         <div class="info-user">${pseudo}</div>
       </div>
       <div class="info-bot">
-        <div class="info-metier">${getEmoji(metier)} ${metier}</div>
+        ${metier ? `<div class="info-metier">${metier}</div>` : ''}
+        ${musiqueNomHTML}
         ${ville ? `<div class="info-ville">📍 ${ville}</div>` : ''}
         <button class="btn-itineraire-bot" onclick="ouvrirChoixItineraire('${uid}','${pseudo}','${adresseEsc}')">${TR("🧭 Obtenir l'itinéraire")}</button>
         <div class="info-etoiles">${etoilesHTMLAcc(data)}</div>
@@ -2334,7 +2346,7 @@ function toggleSiteWidth(){
           ]);
           if (userSnapCible.exists && pubSnapCible.exists) {
             const pubCible = { id: pubSnapCible.id, ...pubSnapCible.data() };
-            feed.innerHTML += creerCard(uidCibleId, userSnapCible.data(), indexRendu++, pubCible);
+            feed.insertAdjacentHTML('beforeend', creerCard(uidCibleId, userSnapCible.data(), indexRendu++, pubCible));
             window._carrouselCandidatsAcc.push({ index: indexRendu-1, uid: uidCibleId, data: userSnapCible.data(), publication: pubCible });
           }
         } catch(e) { console.error('Publication ciblée introuvable :', e); }
@@ -2391,7 +2403,9 @@ function toggleSiteWidth(){
             cartesDepuisCarrouselAcc -= 4;
           }
         }
-        feed.innerHTML += cartesHTML.join('');
+        // insertAdjacentHTML : les cartes déjà là ne sont pas recréées (sinon la vidéo
+        // en cours repartait de zéro et s'arrêtait à chaque nouveau lot).
+        feed.insertAdjacentHTML('beforeend', cartesHTML.join(''));
         surveillerVideosVisiblesAcc();
         attacherFermetureVolumeAcc();
         surveillerVuesAcc();
@@ -2465,26 +2479,62 @@ function toggleSiteWidth(){
   const feed = () => document.getElementById('feedW');
   const medias = () => Array.from(document.querySelectorAll('#feedW video.vcard-bg, #feedW audio[data-idx]'));
   const aDejaTouche = () => !!(navigator.userActivation ? navigator.userActivation.hasBeenActive : window.__arAToucheAcc);
+  // Vidéo avec une musique choisie : c'est la musique qu'on entend (la vidéo reste muette).
+  const musiqueDe = (el) => (el && el.dataset && el.dataset.musique === '1') ? document.getElementById('audio-' + el.dataset.idx) : null;
   function icone(el){
     const ico = document.getElementById('sonIco-' + el.dataset.idx);
-    if (ico) ico.innerHTML = el.muted ? ICO_MUET : ICO_SON;
+    const son = musiqueDe(el) || el;
+    if (ico) ico.innerHTML = son.muted ? ICO_MUET : ICO_SON;
   }
   function memoriser(){ try { sessionStorage.setItem('arSonAccueil', sonActif ? '1' : '0'); sessionStorage.setItem('arVolAccueil', String(volumeVoulu)); } catch (e) {} }
   // Le son voulu, appliqué à un média qui joue.
   function appliquerSon(el){
     const voulu = sonActif && aDejaTouche();
+    const mus = musiqueDe(el);
+    if (mus) {
+      if (!el.muted) el.muted = true;
+      if (Math.abs(mus.volume - volumeVoulu) > 0.01) mus.volume = volumeVoulu;
+      if (mus.muted !== !voulu) mus.muted = !voulu;
+      icone(el);
+      return;
+    }
     if (Math.abs(el.volume - volumeVoulu) > 0.01) el.volume = volumeVoulu;
     if (el.muted !== !voulu) el.muted = !voulu;
     icone(el);
   }
+  // Ramène une musique au début du moment choisi si elle en est sortie.
+  function auMoment(a){
+    const d = parseFloat(a.dataset.debut), f = parseFloat(a.dataset.fin);
+    if (isFinite(d) && isFinite(f) && f > d && (a.currentTime < d - 0.3 || a.currentTime >= f)) { try { a.currentTime = d; } catch (e) {} }
+  }
+  // Le moment choisi se répète : arrivé à la fin, on repart du début du moment.
+  document.addEventListener('timeupdate', function (e) {
+    const a = e.target;
+    if (!a || a.tagName !== 'AUDIO' || !a.closest || !a.closest('#feedW')) return;
+    const d = parseFloat(a.dataset.debut), f = parseFloat(a.dataset.fin);
+    if (isFinite(d) && isFinite(f) && f > d && a.currentTime >= f) { try { a.currentTime = d; } catch (er) {} }
+  }, true);
+  // La musique d'une vidéo suit la vidéo : lecture, pause.
+  document.addEventListener('pause', function (e) {
+    const mus = musiqueDe(e.target);
+    if (mus && !mus.paused) mus.pause();
+  }, true);
   let indiceMontre = false;
   // Un média démarre → tous les autres s'arrêtent tout de suite.
   document.addEventListener('play', function (e) {
     const el = e.target;
     if (!el || !el.closest || !el.closest('#feedW')) return;
-    medias().forEach(m => { if (m !== el && !m.paused) m.pause(); });
+    if (el.dataset && el.dataset.pour !== undefined) return;   // musique d'une vidéo : gérée avec sa vidéo
     if (typeof currentPanel !== 'undefined' && currentPanel !== 0) { el.pause(); return; }
+    // Une vidéo hors de l'écran qui démarre toute seule (lecture automatique) ne doit
+    // pas arrêter celle qu'on regarde : c'est elle qu'on arrête.
+    const ici = carteAuCentre();
+    if (ici && el.closest('.vcard') !== ici) { el.pause(); return; }
+    medias().forEach(m => { if (m !== el && !m.paused) m.pause(); });
     appliquerSon(el);
+    if (el.tagName === 'AUDIO') auMoment(el);
+    const mus = musiqueDe(el);
+    if (mus) { auMoment(mus); mus.play().catch(() => {}); }
     if (sonActif && !aDejaTouche()) el.dataset.sonBloque = '1';   // muette seulement à cause de Chrome
     if (sonActif && !aDejaTouche() && !indiceMontre && typeof toast === 'function') {
       indiceMontre = true;
@@ -2504,6 +2554,12 @@ function toggleSiteWidth(){
     if (v && v.dataset.sonBloque === '1' && !v.paused) { delete v.dataset.sonBloque; appliquerSon(v); return; }
     return lectureOuPause.apply(this, arguments);
   };
+  function carteAuCentre(){
+    const f = feed(); if (!f) return null;
+    const r = f.getBoundingClientRect(); if (!r.height) return null;
+    const cy = r.top + r.height / 2;
+    return Array.from(f.querySelectorAll('.vcard')).find(c => { const b = c.getBoundingClientRect(); return b.height && b.top <= cy && b.bottom >= cy; }) || null;
+  }
   function mediaCourant(){
     const f = feed(); if (!f) return null;
     const r = f.getBoundingClientRect(), cy = r.top + r.height / 2;
@@ -2541,6 +2597,26 @@ function toggleSiteWidth(){
   };
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') medias().forEach(m => { if (!m.paused) m.pause(); });
+  });
+  // Bouton + : avant d'ouvrir « Ajouter au portfolio », on arrête le téléchargement des
+  // vidéos de l'Accueil, pour laisser toute la connexion à l'envoi de la publication.
+  window.allerPublierAcc = function(){
+    document.querySelectorAll('#feedW video, #feedW audio').forEach(m => {
+      try {
+        m.pause();
+        const src = m.getAttribute('src');
+        if (src) { m.dataset.srcGarde = src; m.removeAttribute('src'); m.load(); }
+      } catch (e) {}
+    });
+    window.location.href = 'publication_v1.html';
+  };
+  // Retour sur l'Accueil gardé en mémoire par le téléphone : on remet les vidéos.
+  window.addEventListener('pageshow', () => {
+    document.querySelectorAll('#feedW [data-src-garde]').forEach(m => {
+      m.setAttribute('src', m.dataset.srcGarde); delete m.dataset.srcGarde;
+      try { m.load(); } catch (e) {}
+    });
+    setTimeout(() => { const m = mediaCourant(); if (m && m.paused && currentPanel === 0) m.play().catch(() => {}); }, 400);
   });
 })();
 </script>
