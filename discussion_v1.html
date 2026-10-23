@@ -137,6 +137,22 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
 .opt-item:active{background:#f5f5f5}
 .opt-item small{display:block;font-size:12px;color:#999;font-weight:500;margin-top:2px}
 .opt-item.rouge{color:#c0392b}.opt-item.vert{color:var(--green)}
+.opt-feuille{max-height:82vh;overflow-y:auto}
+.lu-apercu{margin:0 20px 6px;padding:9px 12px;background:#f6f6f6;border-radius:12px;font-size:13px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-sec{padding:12px 20px 6px;font-size:12px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.04em}
+.lu-ligne{display:flex;align-items:center;gap:12px;padding:8px 20px}
+.lu-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;overflow:hidden}
+.lu-av img{width:100%;height:100%;object-fit:cover}
+.lu-nom{flex:1;min-width:0;font-size:14.5px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-nom small{display:block;font-size:12px;color:#999;font-weight:500;margin-top:1px}
+.lu-tick{font-size:13px;font-weight:800;color:#bbb;letter-spacing:-3px;flex-shrink:0}
+.lu-tick.lu{color:#34b7f1}
+.lu-vide{padding:6px 20px 8px;font-size:13px;color:#aaa}
+.son-ligne{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer}
+.son-ligne:active{background:#f5f5f5}
+.son-txt{flex:1;min-width:0;font-size:15px;font-weight:600;color:#222}
+.son-txt small{display:block;font-size:12px;color:#999;font-weight:500;margin-top:2px}
+.son-ecouter{border:1.5px solid #ec4899;color:#ec4899;background:#fff;border-radius:14px;padding:5px 10px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0}
 .opt-ico{font-size:20px;width:26px;text-align:center;flex-shrink:0}
 .cha-btns{display:flex;gap:10px;flex-shrink:0}
 .cha-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(230,50,36,0.3)}
@@ -599,6 +615,7 @@ html,body{height:100%;width:100%;font-family:'Segoe UI',Arial,sans-serif;backgro
     <span class="top-bar-title">Discussions</span>
     <div class="top-bar-right">
       <button class="tbr-btn" onclick="toggleSearch()">🔍</button>
+      <button class="tbr-btn" onclick="ouvrirReglagesSon()" title="Son des messages">🔔</button>
       <button class="tbr-btn red" onclick="document.getElementById('searchWrap').style.display='';document.getElementById('sq').focus()">✏️</button>
     </div>
   </div>
@@ -1549,6 +1566,7 @@ window.ouvrirOptionsChat=function(){
   let html='<div class="opt-titre">'+escapeHtml(currentChatName||'Discussion')+'</div>'
     +'<div class="opt-item" onclick="fermerOptionsChat();ouvrirProfilContact()"><span class="opt-ico">👤</span><span>Voir le profil</span></div>'
     +(typeof estFavori==='function' ? '<div class="opt-item" onclick="fermerOptionsChat();basculerFavori()"><span class="opt-ico">'+(estFavori(currentConvId)?'⭐':'☆')+'</span><span>'+(estFavori(currentConvId)?'Retirer des favoris':'Ajouter aux favoris')+'<small>La discussion reste en haut de votre liste</small></span></div>' : '');
+  html+=ligneSonDiscussion();
   if(b.moi){
     html+='<div class="opt-item vert" onclick="fermerOptionsChat();debloquerContact()"><span class="opt-ico">✅</span><span>Débloquer<small>Bloqué '+escapeHtml(texteJusqua(b.moi))+'</small></span></div>';
   } else {
@@ -2485,6 +2503,7 @@ function chargerConversationsReelles(){
     .where('participants','array-contains',currentUid)
     .onSnapshot(function(snap){
       const toutes = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+      try{ verifierSonsMessages(snap); }catch(e){ console.error('Son des messages :',e); }
       lireEtatsDepuisListe(toutes);
       renderListeUnifiee(toutes);
       majAffichageEcrit();
@@ -2492,6 +2511,76 @@ function chargerConversationsReelles(){
       console.error('Écoute des conversations réelles impossible :',err);
     });
 }
+
+/* ══════════════ SON DES MESSAGES ══════════════
+   Un message arrive (dans n'importe quelle discussion, groupes compris) → son « reçu ».
+   J'envoie un message → petit son « envoyé ». Chacun peut couper l'un ou l'autre
+   (🔔 en haut de la liste), et couper le son d'une seule discussion ou d'un groupe.
+   Le son est joué par l'Accueil (là où la personne touche l'écran). */
+const sonEtatConv={}; let sonPremiereListe=true;
+function jouerSonMessage(type){
+  try{ if(window.parent && window.parent!==window){ window.parent.postMessage({type:'arSonMessage', son:type},'*'); return; } }catch(e){}
+  if(window.ArSonMessage) ArSonMessage.jouer(type);
+}
+function verifierSonsMessages(snap){
+  snap.docs.forEach(function(d){
+    const c=d.data()||{}, id=d.id;
+    const ms=msActivite(c), sig=(c.dernierEmetteur||'')+'|'+(c.dernierMessage||'');
+    const avant=sonEtatConv[id];
+    const enAttente=!!(d.metadata && d.metadata.hasPendingWrites);
+    sonEtatConv[id]={ ms:Math.max(ms, avant?avant.ms:0), sig:sig, envoyeLe:avant?avant.envoyeLe:0 };
+    if(sonPremiereListe || !avant) return;
+    // Mon envoi en cours : la date n'est pas encore donnée par le serveur (elle est vide).
+    const monEnvoiEnCours = enAttente && !c.derniereActivite && c.dernierEmetteur===currentUid && sig!==avant.sig;
+    if(!(ms>avant.ms) && !monEnvoiEnCours) return;
+    if(c.dernierEmetteur===currentUid){
+      if(Date.now()-sonEtatConv[id].envoyeLe<8000) return;   // déjà joué au moment de l'envoi
+      sonEtatConv[id].envoyeLe=Date.now();
+      jouerSonMessage('envoye');
+    } else if(c.dernierEmetteur){
+      if(sonDiscussionCoupe(id) || estMasqueePourMoi(c)) return;
+      jouerSonMessage('recu');
+    }
+  });
+  sonPremiereListe=false;
+}
+function sonDiscussionCoupe(id){ id=id||currentConvId; return !!(window.ArSonMessage && ArSonMessage.estMuette(id)); }
+window.basculerSonDiscussion=function(){
+  if(!currentConvId || !window.ArSonMessage) return;
+  const muette=ArSonMessage.basculerMuette(currentConvId);
+  toast(muette?'🔕 Son coupé pour cette discussion':'🔔 Son remis pour cette discussion','g');
+}
+function ligneSonDiscussion(){
+  const coupe=sonDiscussionCoupe();
+  return '<div class="opt-item" onclick="fermerOptionsChat();basculerSonDiscussion()"><span class="opt-ico">'+(coupe?'🔔':'🔕')+'</span><span>'
+    +(coupe?'Remettre le son de cette discussion':'Couper le son de cette discussion')+'<small>Pour vous seulement</small></span></div>';
+}
+window.ouvrirReglagesSon=function(){
+  if(!window.ArSonMessage){ toast('Réglage indisponible','r'); return; }
+  const r=ArSonMessage.reglages();
+  const sw=function(on){ return '<span class="gi-switch'+(on?' on':'')+'"></span>'; };
+  const html='<div class="opt-titre">🔔 Son des messages</div>'
+    +'<div class="son-ligne" onclick="basculerReglageSon(\'recu\')"><span class="son-txt">Message reçu<small>Deux notes douces quand un message arrive</small></span>'
+      +'<button class="son-ecouter" onclick="event.stopPropagation();ArSonMessage.jouer(\'recu\',true)">▶ Écouter</button>'+sw(r.recu)+'</div>'
+    +'<div class="son-ligne" onclick="basculerReglageSon(\'envoye\')"><span class="son-txt">Message envoyé<small>Un petit son léger quand vous envoyez</small></span>'
+      +'<button class="son-ecouter" onclick="event.stopPropagation();ArSonMessage.jouer(\'envoye\',true)">▶ Écouter</button>'+sw(r.envoye)+'</div>'
+    +'<div class="lu-vide" style="padding:6px 20px 10px">Pour couper le son d’une seule discussion ou d’un groupe : ouvrez-la, puis ⋮ (ou ses Paramètres).</div>'
+    +'<div class="opt-item" onclick="fermerOptionsChat()" style="color:#888;justify-content:center">Fermer</div>';
+  ouvrirFeuilleOptions(html,'son');
+}
+window.basculerReglageSon=function(type){
+  const r=ArSonMessage.reglages(), champ={}; champ[type]=!r[type];
+  ArSonMessage.regler(champ);
+  ouvrirReglagesSon();
+}
+
+/* Un seul son à la fois : un vocal (ou une vidéo) qui démarre arrête celui qui jouait. */
+document.addEventListener('play', function(e){
+  const el=e.target;
+  if(!el || !el.closest || !el.closest('#msgsArea')) return;
+  document.querySelectorAll('#msgsArea audio, #msgsArea video').forEach(function(m){ if(m!==el && !m.paused) m.pause(); });
+  try{ if(currentAudio && currentAudio!==el && !currentAudio.paused){ currentAudio.pause(); if(currentAudioBtn) currentAudioBtn.textContent='▶'; } }catch(er){}
+}, true);
 
 function msActivite(c){ return (c.derniereActivite && c.derniereActivite.toDate) ? c.derniereActivite.toDate().getTime() : 0; }
 
@@ -3462,12 +3551,56 @@ window.ctxCopy=function(){
   navigator.clipboard.writeText(ctxRow.dataset.txt).then(()=>toast('Copié','g')).catch(()=>toast('Copié','g'));
   closeCtx();
 }
+/* ══ Infos du message : qui l'a lu, qui ne l'a pas encore lu (groupe ou discussion à deux) ══
+   « Lu » = la personne a ouvert la discussion après l'arrivée du message (luPar.{uid}). */
 window.ctxInfosLecture=function(){
   if(!ctxRow)return;
-  const statut=ctxRow.dataset.lecture||'inconnu';
-  const libelles={'en cours d\'envoi':'✓ Envoyé, en cours de remise…','remis, pas encore lu':'✓✓ pâle : reçu, pas encore lu','lu':(currentEstGroupe?'✓✓ bleu : lu par tous les membres':'✓✓ bleu : lu par '+currentChatName)};
-  toast(libelles[statut]||('Statut : '+statut),'g');
+  const id=(ctxRow.dataset.mid||'').replace(/^r/,'');
+  const m=donneesMessages[id]||{};
   closeCtx();
+  const msgMs=msDe(m.horodatage);
+  if(!msgMs){ toast('✓ Envoi en cours…','g'); return; }
+  const autres = currentEstGroupe
+    ? (currentGroupParticipants||[]).filter(function(u){ return u && u!==currentUid; })
+    : (currentOtherUid ? [currentOtherUid] : []);
+  const lus=[], pasLus=[];
+  autres.forEach(function(u){
+    const ms=msDe(currentConvLuPar[u]);
+    if(ms && ms>=msgMs) lus.push({uid:u, ms:ms}); else pasLus.push({uid:u});
+  });
+  lus.sort(function(a,b){ return b.ms-a.ms; });
+  const quand=function(ms){
+    const d=new Date(ms), auj=new Date();
+    const h=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    if(d.toDateString()===auj.toDateString()) return 'aujourd’hui à '+h;
+    return 'le '+d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' à '+h;
+  };
+  const ligne=function(p, lu){
+    const info=currentConvInfos[p.uid]||infoDepuisContacts(p.uid);
+    return '<div class="lu-ligne"><div class="lu-av" style="background:'+(info.bg||'#888')+'">'+avatarInterieur(p.uid, info.ini||'?')+'</div>'
+      +'<div class="lu-nom">'+escapeHtml(nomDeUid(p.uid)||'Membre')+(lu?'<small>Lu '+quand(p.ms)+'</small>':'<small>Pas encore lu</small>')+'</div>'
+      +'<span class="lu-tick'+(lu?' lu':'')+'">✓✓</span></div>';
+  };
+  const apercu=escapeHtml(String(apercuMessage(m)||'').slice(0,80));
+  let html='<div class="opt-titre">Infos du message</div>'
+    +(apercu?'<div class="lu-apercu">'+apercu+'</div>':'')
+    +'<div class="lu-sec">✓✓ Lu par '+lus.length+(autres.length>1?' sur '+autres.length:'')+'</div>'
+    +(lus.length?lus.map(function(p){ return ligne(p,true); }).join(''):'<div class="lu-vide">Personne pour l’instant</div>')
+    +'<div class="lu-sec">✓✓ Pas encore lu ('+pasLus.length+')</div>'
+    +(pasLus.length?pasLus.map(function(p){ return ligne(p,false); }).join(''):'<div class="lu-vide">Tout le monde l’a lu 🎉</div>')
+    +'<div class="opt-item" onclick="fermerOptionsChat()" style="color:#888;justify-content:center">Fermer</div>';
+  ouvrirFeuilleOptions(html, 'infosLu');
+}
+// Feuille du bas (même style que les options de la discussion).
+function ouvrirFeuilleOptions(html, nom){
+  let fond=document.getElementById('optFond');
+  if(!fond){
+    fond=document.createElement('div'); fond.id='optFond'; fond.className='opt-fond';
+    fond.onclick=function(e){ if(e.target===fond) fermerOptionsChat(); };
+    document.body.appendChild(fond);
+  }
+  fond.innerHTML='<div class="opt-feuille'+(nom?' feuille-'+nom:'')+'">'+html+'</div>';
+  fond.classList.add('show');
 }
 window.ctxDeleteMe=function(){
   if(!ctxRow)return;
@@ -4558,10 +4691,11 @@ let currentAudio=null, currentAudioBtn=null;
 window.toggleVoicePlay=function(btn){
   const wrap=btn.parentElement;const url=wrap.dataset.url;
   if(currentAudio&&currentAudioBtn===btn){
-    if(currentAudio.paused){currentAudio.play();btn.textContent='⏸'}else{currentAudio.pause();btn.textContent='▶'}
+    if(currentAudio.paused){document.querySelectorAll('#msgsArea audio, #msgsArea video').forEach(function(m){ if(!m.paused) m.pause(); });currentAudio.play();btn.textContent='⏸'}else{currentAudio.pause();btn.textContent='▶'}
     return;
   }
   if(currentAudio){currentAudio.pause();if(currentAudioBtn)currentAudioBtn.textContent='▶'}
+  document.querySelectorAll('#msgsArea audio, #msgsArea video').forEach(function(m){ if(!m.paused) m.pause(); });   // un seul son à la fois
   currentAudio=new Audio(url);currentAudioBtn=btn;btn.textContent='⏸';
   const bars=wrap.querySelectorAll('.vb-bar');
   currentAudio.ontimeupdate=()=>{
@@ -5175,7 +5309,8 @@ renderParametresGroupe=function(){
   }
   html+='<div class="gi-note" style="margin-top:6px;font-weight:800;color:#555">Pour moi</div>'
     +ligne(estFavori(currentConvId)?'⭐':'☆', estFavori(currentConvId)?'Retirer des favoris':'Ajouter aux favoris','Le groupe reste en haut de votre liste','basculerFavori()')
-    +ligne('👥','Créer un groupe similaire','Commencez avec les mêmes membres','creerGroupeSimilaire()');
+    +ligne('👥','Créer un groupe similaire','Commencez avec les mêmes membres','creerGroupeSimilaire()')
+    +ligne(sonDiscussionCoupe()?'🔕':'🔔','Son des nouveaux messages', sonDiscussionCoupe()?'Coupé pour ce groupe (pour vous seulement)':'Activé (pour vous seulement)','basculerSonDiscussion();renderParametresGroupe()','<span class="gi-switch'+(sonDiscussionCoupe()?'':' on')+'"></span>');
   if(zone.dataset.html!==html){ zone.dataset.html=html; zone.innerHTML=html; }   // pas redessiné pour rien
 };
 // Nom / description / photo : admin, ou tout le monde si l'admin l'a permis.
@@ -5338,6 +5473,7 @@ function htmlModeration(){
 <script src="appels-bascule.js"></script>
 <!-- Textes traduits (réponses/réactions aux statuts, etc.) -->
 <script src="archive.js"></script>
+<script src="son-message.js"></script>
 <script src="translations-app.js"></script>
 </body>
 </html>
