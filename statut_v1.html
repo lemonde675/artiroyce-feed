@@ -947,13 +947,18 @@ function pauseViewer(){
   itemPauseElapsed+=Date.now()-itemDebut;
   document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='paused';});
   if(viewerSoundEl)viewerSoundEl.pause();
+  // La vidéo elle-même s'arrête aussi (avant, seule la musique s'arrêtait quand la vidéo
+  // en avait une : l'image continuait de défiler pendant l'appui long, le menu, l'envoi…).
+  var v=document.querySelector('#vMedia video'); if(v&&!v.paused)v.pause();
 }
 function resumeViewer(){
   if(!estEnPause)return;
   estEnPause=false;
   itemDebut=Date.now();
   document.querySelectorAll('#vProg .v-fill.active').forEach(function(f){f.style.animationPlayState='running';});
-  if(viewerSoundEl)viewerSoundEl.play().catch(function(){});
+  var v=document.querySelector('#vMedia video');
+  if(v&&v.paused&&document.getElementById('viewer').classList.contains('open'))v.play().catch(function(){});
+  if(viewerSoundEl&&viewerSoundEl!==v)viewerSoundEl.play().catch(function(){});
   if(DEFILEMENT_AUTO){
     var restant=Math.max(300,ITEM_DUREE_MS-itemPauseElapsed);
     T=setTimeout(goNextItem,restant);
@@ -1912,6 +1917,8 @@ function incrusterTexteSurPhoto(dataUrl){
 }
 function closeEditor(){
   document.getElementById('editorOverlay').classList.remove('open');
+  try{ document.querySelectorAll('#editorOverlay video, #editorOverlay audio').forEach(function(m){ m.pause(); }); }catch(e){}
+  if(previewAudio){previewAudio.pause();previewAudio=null;previewPlaying=false;}
   if(!document.getElementById('viewer').classList.contains('open')) signalerLecteurAuShell(false);
   editorMusic=null;
   if(recInterval)clearInterval(recInterval);
@@ -2037,8 +2044,12 @@ function handleEdFile(inp){
 
     // Compression en arrière-plan (résolution + débit réduits) : ne bloque pas l'aperçu ni la
     // suite de l'édition (musique, etc.) — seul le bouton "Publier" attend la fin si nécessaire.
+    // Ré-encoder une vidéo sur le téléphone la rejoue en temps réel : tout ralentit et la vidéo
+    // publiée devient saccadée. On envoie donc la vidéo d'origine, telle quelle, sauf si elle
+    // est vraiment lourde (plus de 25 Mo).
+    if(f.size<=25*1024*1024){ editorVideoCompressing=false; return; }
     editorVideoCompressing=true;
-    compresserVideo(f, 1280, 1500000).then(function(fichierCompresse){
+    compresserVideo(f, 1280, 2500000).then(function(fichierCompresse){
       editorVideoFile=fichierCompresse; // remplace l'original par la version compressée pour l'envoi
       editorVideoCompressing=false;
     }).catch(function(err){
@@ -2158,6 +2169,14 @@ async function publishStatut(){
 
   var btn=document.querySelector('.pub-btn');
   if(btn){btn.disabled=true;btn.textContent='Publication…';}
+  // Pendant l'envoi, plus rien ne joue : toute la connexion et le téléphone servent à l'envoi.
+  try{
+    document.querySelectorAll('#editorOverlay video, #editorOverlay audio').forEach(function(m){ if(!m.paused)m.pause(); });
+    if(typeof currentAudio!=='undefined'&&currentAudio)currentAudio.pause();
+    if(typeof previewAudio!=='undefined'&&previewAudio){previewAudio.pause();previewPlaying=false;}
+    var vv=document.querySelector('#vMedia video'); if(vv&&!vv.paused)vv.pause();
+    if(viewerAudio&&!viewerAudio.paused)viewerAudio.pause();
+  }catch(e){}
 
   try{
     // Vidéo : vrai upload vers Firebase Storage (Firestore ne peut pas stocker un fichier aussi
