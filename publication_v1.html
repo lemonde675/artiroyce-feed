@@ -112,6 +112,21 @@
     .tx-coul.actif { outline: 2.5px solid var(--rose); outline-offset: 2px; }
     .tx-fond { margin-left: auto; border: 1.5px solid var(--rose); color: var(--rose); background: #fff; border-radius: 14px; padding: 5px 11px; font-size: 11.5px; font-weight: 800; cursor: pointer; }
     .tx-aide { font-size: 11px; color: #aaa; margin-top: 8px; }
+
+    /* MOMENT DE LA MUSIQUE (comme dans les Statuts) */
+    .mo-zone { display: none; margin-top: 10px; border: 1.5px solid #fce7f3; background: #fffafc; border-radius: 14px; padding: 11px 12px; }
+    .mo-titre { font-size: 12.5px; font-weight: 800; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+    .mo-lbl { font-size: 11px; font-weight: 800; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 7px; }
+    .mo-piste { position: relative; height: 40px; background: #f3f3f3; border-radius: 10px; overflow: hidden; touch-action: none; cursor: pointer; }
+    .mo-onde { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; padding: 0 4px; pointer-events: none; }
+    .mo-onde span { flex: 1; background: var(--rose); opacity: .25; border-radius: 2px; }
+    .mo-sel { position: absolute; top: 0; bottom: 0; background: linear-gradient(135deg, var(--rose), #f9a8d4); opacity: .85; pointer-events: none; }
+    .mo-lecture { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; pointer-events: none; display: none; }
+    .mo-poignee { position: absolute; top: 50%; width: 22px; height: 22px; margin-left: -11px; transform: translateY(-50%); border-radius: 50%; background: #fff; border: 2.5px solid var(--rose); box-shadow: 0 2px 7px rgba(0,0,0,.25); z-index: 2; touch-action: none; cursor: grab; }
+    .mo-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .mo-ecouter { flex: 0 0 auto; border: 1.5px solid var(--rose); color: var(--rose); background: #fff; border-radius: 13px; padding: 10px 14px; font-size: 13px; font-weight: 800; cursor: pointer; }
+    .mo-attacher { flex: 1; border: none; background: var(--rose); color: #fff; border-radius: 13px; padding: 10px; font-size: 13px; font-weight: 800; cursor: pointer; }
+    .mo-annuler { display: block; text-align: center; font-size: 12px; color: #aaa; font-weight: 700; margin-top: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -227,6 +242,22 @@
           <button onclick="searchMusicPub()" style="background:#fff;color:var(--rose);border:1.5px solid var(--rose);border-radius:14px;padding:0 16px;font-size:15px;cursor:pointer">🔍</button>
         </div>
         <div id="musicResultsPub" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
+        <div class="mo-zone" id="moZone">
+          <div class="mo-titre" id="moTitre">🎵</div>
+          <div class="mo-lbl"><span>✂️ Choisir le moment</span><span id="moTemps">0:00 — 0:15</span></div>
+          <div class="mo-piste" id="moPiste">
+            <div class="mo-onde" id="moOnde"></div>
+            <div class="mo-sel" id="moSel"></div>
+            <div class="mo-lecture" id="moLecture"></div>
+            <div class="mo-poignee" id="moDebut"></div>
+            <div class="mo-poignee" id="moFin" style="border-color:var(--red)"></div>
+          </div>
+          <div class="mo-btns">
+            <button type="button" class="mo-ecouter" id="moEcouter" onclick="ecouterMomentPub()">▶ Écouter</button>
+            <button type="button" class="mo-attacher" onclick="attacherMomentPub()">✅ Attacher à la publication</button>
+          </div>
+          <span class="mo-annuler" onclick="fermerMomentPub()">Annuler</span>
+        </div>
       </div>
     </div>
 
@@ -310,6 +341,7 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loginScreen').style.display = 'flex';
     return;
   }
+  window._uid = user.uid;   // tout de suite : l'envoi ne dépend pas de la lecture du profil
   try {
     const monSnap = await db.collection('utilisateurs').doc(user.uid).get();
     const monRole = monSnap.exists ? monSnap.data().role : null;
@@ -388,7 +420,8 @@ window.submitPub = async function() {
       });
       fichiersEnvoyes++;
       const refPhoto = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null, surTexte: texteSurPub(),
+        type: 'photo', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        musicDebut: window._musicUrl ? window._musicDebut : null, musicFin: window._musicUrl ? window._musicFin : null, surTexte: texteSurPub(),
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -397,29 +430,34 @@ window.submitPub = async function() {
 
     if (videoFile) {
       const ext = (videoFile.name.split('.').pop() || 'mp4').toLowerCase();
-      const path = `portfolio/${uid}/${Date.now()}.${ext}`;
-      const task = uploadBytesResumable(ref(storage, path), videoFile, { contentType: typeVideo(videoFile), cacheControl: 'public,max-age=31536000' });
-      let octetsDejaEnvoyesV = 0;
-      document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
-      // Rien ne part au bout de 45 s : on arrête et on prévient (au lieu de rester bloqué à 0 %).
-      const filetDemarrageV = setTimeout(() => {
-        if (octetsDejaEnvoyesV === 0) { try { task.cancel(); } catch(e){} }
-      }, 45000);
-      const url = await new Promise((res, rej) => {
+      // Envoi de la vidéo. Si rien ne part au bout de 20 s, on relance une fois tout
+      // seul (connexion neuve) avant d'abandonner : plus besoin d'actualiser la page.
+      const envoyerVideo = (essai) => new Promise((res, rej) => {
+        const path = `portfolio/${uid}/${Date.now()}.${ext}`;
+        const task = uploadBytesResumable(ref(storage, path), videoFile, { contentType: typeVideo(videoFile), cacheControl: 'public,max-age=31536000' });
+        let octets = 0, relance = false;
+        document.getElementById('progTxt').textContent = essai > 1
+          ? 'Connexion lente, nouvel essai…'
+          : 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
+        const filet = setTimeout(() => {
+          if (octets === 0) { relance = essai < 2; try { task.cancel(); } catch(e){} }
+        }, essai > 1 ? 45000 : 20000);
         task.on('state_changed',
           snap => {
-            octetsDejaEnvoyesV = snap.bytesTransferred;
+            octets = snap.bytesTransferred;
             const pct = Math.round(((fichiersEnvoyes + snap.bytesTransferred/snap.totalBytes) / totalFichiers) * 100);
             document.getElementById('progFill').style.width = pct + '%';
             document.getElementById('progPct').textContent = pct + '%';
-            document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
+            if (octets > 0) document.getElementById('progTxt').textContent = 'Envoi vidéo… (peut prendre un moment selon votre connexion)';
           },
-          err => { clearTimeout(filetDemarrageV); rej(err); },
-          async () => { clearTimeout(filetDemarrageV); res(await getDownloadURL(task.snapshot.ref)); }
+          err => { clearTimeout(filet); if (relance) envoyerVideo(essai + 1).then(res, rej); else rej(err); },
+          async () => { clearTimeout(filet); try { res(await getDownloadURL(task.snapshot.ref)); } catch (e) { rej(e); } }
         );
       });
+      const url = await envoyerVideo(1);
       const refVideo = await db.collection('utilisateurs').doc(uid).collection('portfolio').add({
-        type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null, surTexte: texteSurPub(),
+        type: 'video', url, titre, musicNom: window._musicNom || null, musicUrl: window._musicUrl || null,
+        musicDebut: window._musicUrl ? window._musicDebut : null, musicFin: window._musicUrl ? window._musicFin : null, surTexte: texteSurPub(),
         corbeille: false, corbeilleDepuis: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -490,7 +528,7 @@ function searchMusicPub(){
             <div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(t.artistName||'').replace(/</g,'')}</div>
           </div>
           <button id="mppub-${i}" onclick="ecouterMusicPub(${i},'${urlEsc}')" style="background:#eee;border:none;width:32px;height:32px;border-radius:50%;font-size:13px;cursor:pointer;flex-shrink:0">▶</button>
-          <button onclick="attacherMusiquePub('${urlEsc}','${nomEsc}')" style="background:#fff;color:var(--rose);border:1.5px solid var(--rose);border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
+          <button onclick="ouvrirMomentPub('${urlEsc}','${nomEsc}')" style="background:#fff;color:var(--rose);border:1.5px solid var(--rose);border-radius:12px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer;flex-shrink:0">+ Choisir</button>
         </div>`;
       }).join('');
       window._dernierResultatsMusicPub = data.results;
@@ -532,8 +570,115 @@ window.attacherMusiquePub = function(url, nom){
 window.retirerMusiquePub = function(){
   window._musicNom = null;
   window._musicUrl = null;
+  window._musicDebut = null; window._musicFin = null;
   document.getElementById('musicAttachedPub').style.display = 'none';
 };
+
+/* ══ Choisir le moment de la musique ══
+   On garde seulement un passage (3 à 30 s) ; dans l'Accueil il se répète en boucle
+   pendant la photo ou la vidéo. « Écouter » joue ce passage en boucle pour vérifier. */
+const moEtat = { url: null, nom: '', duree: 30, debut: 0, fin: 15 };
+let moAudio = null;
+const fmtMo = (sec) => { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); };
+function dessinerMomentPub() {
+  const d = moEtat.duree || 30;
+  const a = moEtat.debut / d * 100, b = moEtat.fin / d * 100;
+  document.getElementById('moSel').style.left = a + '%';
+  document.getElementById('moSel').style.width = (b - a) + '%';
+  document.getElementById('moDebut').style.left = a + '%';
+  document.getElementById('moFin').style.left = b + '%';
+  document.getElementById('moTemps').textContent = fmtMo(moEtat.debut) + ' — ' + fmtMo(moEtat.fin);
+}
+function arreterEcouteMomentPub() {
+  if (moAudio) { moAudio.pause(); moAudio = null; }
+  const b = document.getElementById('moEcouter'); if (b) b.textContent = '▶ Écouter';
+  const l = document.getElementById('moLecture'); if (l) l.style.display = 'none';
+}
+window.ouvrirMomentPub = function (url, nom) {
+  if (!url) { showToast('Aperçu audio indisponible pour ce titre, choisissez-en un autre.', 'r'); return; }
+  if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
+  arreterEcouteMomentPub();
+  Object.assign(moEtat, { url, nom, duree: 30, debut: 0, fin: 15 });
+  document.getElementById('moTitre').textContent = '🎵 ' + nom;
+  const onde = document.getElementById('moOnde');
+  onde.innerHTML = Array.from({ length: 36 }, () => `<span style="height:${6 + Math.round(Math.random() * 22)}px"></span>`).join('');
+  // Durée réelle de l'extrait (souvent 30 s).
+  const sonde = new Audio(); sonde.preload = 'metadata';
+  sonde.onloadedmetadata = () => {
+    if (isFinite(sonde.duration) && sonde.duration > 3 && moEtat.url === url) {
+      moEtat.duree = Math.min(sonde.duration, 600);
+      moEtat.fin = Math.min(moEtat.fin, moEtat.duree);
+      dessinerMomentPub();
+    }
+  };
+  sonde.src = url;
+  document.getElementById('moZone').style.display = 'block';
+  dessinerMomentPub();
+  document.getElementById('moZone').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+window.fermerMomentPub = function () {
+  arreterEcouteMomentPub();
+  document.getElementById('moZone').style.display = 'none';
+};
+window.ecouterMomentPub = function () {
+  if (moAudio) { arreterEcouteMomentPub(); return; }
+  moAudio = new Audio(moEtat.url);
+  moAudio.volume = 0.8;
+  const lecture = document.getElementById('moLecture');
+  moAudio.addEventListener('loadedmetadata', () => { try { moAudio.currentTime = moEtat.debut; } catch (e) {} }, { once: true });
+  moAudio.ontimeupdate = () => {
+    if (!moAudio) return;
+    if (moAudio.currentTime >= moEtat.fin || moAudio.currentTime < moEtat.debut - 0.5) moAudio.currentTime = moEtat.debut;   // se répète
+    lecture.style.display = 'block';
+    lecture.style.left = (moAudio.currentTime / (moEtat.duree || 30) * 100) + '%';
+  };
+  moAudio.onended = () => { if (moAudio) { moAudio.currentTime = moEtat.debut; moAudio.play().catch(() => {}); } };
+  moAudio.play().catch(() => {});
+  document.getElementById('moEcouter').textContent = '⏸ Pause';
+};
+window.attacherMomentPub = function () {
+  arreterEcouteMomentPub();
+  window._musicNom = moEtat.nom;
+  window._musicUrl = moEtat.url;
+  window._musicDebut = Math.round(moEtat.debut * 10) / 10;
+  window._musicFin = Math.round(moEtat.fin * 10) / 10;
+  document.getElementById('musicAttachedNamePub').textContent = '🎵 ' + moEtat.nom + ' · ' + fmtMo(moEtat.debut) + ' — ' + fmtMo(moEtat.fin);
+  document.getElementById('musicAttachedPub').style.display = 'flex';
+  document.getElementById('moZone').style.display = 'none';
+  document.getElementById('musicResultsPub').innerHTML = '';
+  document.getElementById('musicSearchInp').value = '';
+  if (audioPreviewPub) { audioPreviewPub.pause(); audioPreviewPub = null; }
+};
+(function initMomentPub() {
+  const piste = document.getElementById('moPiste');
+  let tire = null;
+  const pos = (e) => { const r = piste.getBoundingClientRect(); return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (moEtat.duree || 30); };
+  const MIN = 3, MAX = 30;
+  function bouger(quoi, t) {
+    if (quoi === 'debut') {
+      moEtat.debut = Math.max(0, Math.min(t, moEtat.fin - MIN));
+      if (moEtat.fin - moEtat.debut > MAX) moEtat.fin = moEtat.debut + MAX;
+    } else if (quoi === 'fin') {
+      moEtat.fin = Math.min(moEtat.duree, Math.max(t, moEtat.debut + MIN));
+      if (moEtat.fin - moEtat.debut > MAX) moEtat.debut = moEtat.fin - MAX;
+    } else {   // toucher la piste : le passage se déplace, même longueur
+      const lg = moEtat.fin - moEtat.debut;
+      moEtat.debut = Math.max(0, Math.min(t - lg / 2, moEtat.duree - lg));
+      moEtat.fin = moEtat.debut + lg;
+    }
+    dessinerMomentPub();
+    if (moAudio && (moAudio.currentTime < moEtat.debut || moAudio.currentTime >= moEtat.fin)) moAudio.currentTime = moEtat.debut;
+  }
+  piste.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    tire = e.target.id === 'moDebut' ? 'debut' : e.target.id === 'moFin' ? 'fin' : 'piste';
+    try { piste.setPointerCapture(e.pointerId); } catch (er) {}
+    bouger(tire, pos(e));
+  });
+  piste.addEventListener('pointermove', (e) => { if (tire) bouger(tire, pos(e)); });
+  const fin = () => { tire = null; };
+  piste.addEventListener('pointerup', fin); piste.addEventListener('pointercancel', fin);
+})();
 
 // PHOTOS
 function triggerPhoto() { document.getElementById('filePhoto').click(); }
