@@ -5421,11 +5421,12 @@ window.rouvrirGroupe=function(){
   if(!jeSuisAdmin()) return;
   majGroupe({ verrouJusqua: firebase.firestore.FieldValue.delete() }, 'a rouvert le groupe : tout le monde peut écrire', '🔓 Groupe rouvert');
 };
-window.suspendreMembre=function(uid, heures){
+// Suspension d'un membre : sans durée, jusqu'à ce qu'un admin la lève (à tout moment).
+window.suspendreMembre=function(uid){
   if(!jeSuisAdmin() || !uid || uid===currentUid) return;
-  const nom=nomDeUid(uid), lib = heures>=24*7 ? '7 jours' : '24 heures';
-  const champ={}; champ['suspendus.'+uid]=firebase.firestore.Timestamp.fromDate(finDans(heures));
-  majGroupe(champ, 'a suspendu '+nom+' pendant '+lib, '🤐 '+nom+' suspendu(e) '+lib);
+  const nom=nomDeUid(uid);
+  const champ={}; champ['suspendus.'+uid]=firebase.firestore.Timestamp.fromDate(FIN_SANS_LIMITE);
+  majGroupe(champ, 'a suspendu '+nom+' : il ne peut plus écrire jusqu’à nouvel ordre', '🤐 '+nom+' suspendu(e)');
 };
 window.leverSuspension=function(uid){
   if(!jeSuisAdmin() || !uid) return;
@@ -5445,8 +5446,7 @@ window.leverSuspension=function(uid){
     const div=document.createElement('div');
     div.innerHTML = susp
       ? '<div class="ctx-item" onclick="fermerMenuMembre();leverSuspension(\''+uid+'\')">🔊 Lever la suspension</div>'
-      : '<div class="ctx-item" onclick="fermerMenuMembre();suspendreMembre(\''+uid+'\',24)">🤐 Suspendre 24 heures</div>'
-        +'<div class="ctx-item" onclick="fermerMenuMembre();suspendreMembre(\''+uid+'\',168)">🤐 Suspendre 7 jours</div>';
+      : '<div class="ctx-item" onclick="fermerMenuMembre();suspendreMembre(\''+uid+'\')">🤐 Suspendre (ne peut plus écrire)</div>';
     while(div.firstChild) menu.insertBefore(div.firstChild, annuler);
     return r;
   };
