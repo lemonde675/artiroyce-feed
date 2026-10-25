@@ -636,6 +636,13 @@ async function marquerAuteursEnLigne(){
       // Même lecture : la photo de profil actuelle de l'auteur.
       photosAuteurs[uid] = (uSnap.exists && uSnap.data().photoAvatar) || '';
       appliquerPhotoAuteur(uid);
+      // « a changé sa photo de profil » d'un professionnel pas encore validé (KYC) :
+      // caché pour les autres tant que son compte n'est pas vérifié.
+      const du = uSnap.exists ? uSnap.data() : {};
+      const enAttente = du.role !== 'visiteur' && du.statut !== 'verifie';
+      if (!(currentUser && currentUser.uid === uid)) {
+        document.querySelectorAll('.post[data-photo-profil="1"][data-auteur="' + uid + '"]').forEach(el => { el.style.display = enAttente ? 'none' : ''; });
+      }
       const enLigne = ms > 0 && (Date.now() - ms) < SEUIL_EN_LIGNE_MS;
       document.querySelectorAll('.online-dot[data-author="' + uid + '"]').forEach(d => d.style.display = enLigne ? 'block' : 'none');
     } catch (e) {}
@@ -1387,7 +1394,7 @@ function afficherFeed() {
     const metaTxt = statut + (villeCourte ? ' · ' + escapeHtml(villeCourte) : '') + ' · ' + tempsDepuis(p.createdAt && p.createdAt.toMillis ? p.createdAt.toMillis() : Date.now());
     const badgeTxt = BADGES[p.categorie] ? '<span class="ph-badge">' + TR(BADGES[p.categorie]) + '</span>' : '';
     html += (
-    '<div class="post" data-id="' + p.id + '">'
+    '<div class="post" data-id="' + p.id + '" data-auteur="' + escapeHtml(p.auteurUid || '') + '"' + (p.photoProfil ? ' data-photo-profil="1"' : '') + '>'
     + (currentUser && p.auteurUid === currentUser.uid
         ? '<span class="ph-more" onclick="toggleMenuPost(\'' + p.id + '\')">⋯</span>'
           + '<div class="post-menu" id="menu-' + p.id + '"><div onclick="supprimerPublication(\'' + p.id + '\')">' + TR('🗑️ Mettre à la corbeille') + '</div></div>'
