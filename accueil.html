@@ -2252,6 +2252,17 @@ function toggleSiteWidth(){
     let monPaysPrefixeAccueil = '';
     try {
       const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
+      // Professionnel pas encore vérifié (KYC en attente, refusé, ou compte suspendu) :
+      // il n'entre pas dans l'application. Il reste sur son profil (vérification KYC)
+      // jusqu'à la validation par l'administrateur.
+      if (ownSnap.exists && user.uid !== 'JyUlOcQjf4Scaf43faUuj2zx6Gi1') {
+        const moi = ownSnap.data() || {};
+        if ((moi.role || 'artisan') !== 'visiteur' && moi.statut !== 'verifie') {
+          document.body.style.visibility = 'hidden';
+          window.location.replace('profil.html');
+          return;
+        }
+      }
       if (ownSnap.exists) {
         currentUserRole = ownSnap.data().role || 'artisan';
         monPaysPrefixeAccueil = extraireIndicatifTelephoneAcc(ownSnap.data().telephone);
