@@ -2307,77 +2307,37 @@ function toggleSiteWidth(){
         brut.push({ id: doc.id, data: doc.data() });
       });
 
-      // Date de la dernière publication de chaque professionnel, pour trier
-      // par fraîcheur à l'intérieur de chaque groupe (suivis/pays/reste).
-      // Pas de traitement spécial pour l'auteur : sa fraîcheur naturelle le
-      // fait remonter dans son groupe, comme n'importe qui d'autre.
+      // Toutes les publications (photo / vidéo, hors corbeille) de chaque professionnel.
+      // Un compte sans publication n'a PAS de carte dans le fil : plus de carte « fond uni »
+      // inventée pour quelqu'un qui n'a encore rien publié.
       await Promise.all(brut.map(async (p) => {
         try {
-          const dernierSnap = await db.collection('utilisateurs').doc(p.id).collection('portfolio')
-            .orderBy('createdAt', 'desc').limit(1).get();
-          const d = dernierSnap.empty ? null : dernierSnap.docs[0].data();
-          p.dernierePubTs = (d && d.createdAt && d.createdAt.toMillis) ? d.createdAt.toMillis() : 0;
-        } catch(e) { p.dernierePubTs = 0; }
+          const portSnap = await db.collection('utilisateurs').doc(p.id).collection('portfolio')
+            .orderBy('createdAt', 'desc').get();
+          p.pubs = portSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+            .filter(it => !it.corbeille && it.url && (it.type === 'video' || it.type === 'photo'));
+        } catch(e) { console.error('portfolio ' + p.id, e); p.pubs = []; }
       }));
+      const pros = brut.filter(p => p.data.role !== 'visiteur' && p.pubs && p.pubs.length);
 
-      // Classement final, en 3 paliers :
-      // 1) Suivis ACTIFS (publié il y a moins de 15 jours) → priorité permanente,
-      //    triés du plus récent au plus ancien.
-      // 2) Même pays ACTIF (publié il y a moins de 24h) → priorité temporaire,
-      //    triés du plus récent au plus ancien.
-      // 3) La masse (tout le reste — y compris un suivi ou un compatriote
-      //    devenu inactif) → mélange aléatoire, qui se rafraîchit à chaque
-      //    visite (pas figé indéfiniment). Un suivi/compatriote inactif n'est
-      //    pas perdu : il redevient un professionnel comme un autre dans la
-      //    masse, toujours consultable sur son profil.
-      const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
-      const VINGT_QUATRE_H_MS = 24 * 60 * 60 * 1000;
-      const maintenantMs = Date.now();
-      const suivisActifs = [], paysActifs = [], masse = [];
-      brut.forEach(p => {
-        const dataTel = extraireIndicatifTelephoneAcc(p.data.telephone);
-        const estSuivi = mesSuivisAccueil.has(p.id);
-        const memePays = !!(monPaysPrefixeAccueil && dataTel && dataTel === monPaysPrefixeAccueil);
-        const publieDepuisMoinsDe = (fenetreMs) => p.dernierePubTs > 0 && (maintenantMs - p.dernierePubTs) <= fenetreMs;
-
-        if (estSuivi && publieDepuisMoinsDe(QUINZE_JOURS_MS)) suivisActifs.push(p);
-        else if (memePays && publieDepuisMoinsDe(VINGT_QUATRE_H_MS)) paysActifs.push(p);
-        else masse.push(p);
-      });
-      function triParFraicheurAcc(a, b) {
-        const diff = (b.dernierePubTs||0) - (a.dernierePubTs||0);
-        if (diff !== 0) return diff;
-        return ordreAleatoireStableAcc(a.id) - ordreAleatoireStableAcc(b.id);
-      }
-      suivisActifs.sort(triParFraicheurAcc);
-      paysActifs.sort(triParFraicheurAcc);
-      masse.sort((a,b) => ordreAleatoireStableAcc(a.id) - ordreAleatoireStableAcc(b.id));
-      const tousLesPros = suivisActifs.concat(paysActifs, masse);
-
-      // Chargement progressif — par lots de 6, comme sur Actualités/Offres/Élite —
-      // au lieu de charger tous les professionnels d'un coup.
-      const TAILLE_LOT_ACC = 6;
-      let nombreAffichesAcc = 0;
-      let indexRendu = 0;
-      let cartesDepuisCarrouselAcc = 0;
-
-      // Arrivée juste après une publication (accueil.html?pub=xxx&uid=yyy) :
-      // on affiche cette publication précise en tout premier, avant le fil
-      // normal, pour que l'auteur retrouve directement ce qu'il vient de
-      // publier. Ça ne change rien au classement pour les autres visites.
+      // Arrivée juste après une publication (accueil.html?pub=xxx&uid=yyy) : cette
+      // publication s'affiche en tout premier — seulement si son auteur est un
+      // professionnel validé (KYC accepté).
       const paramsUrlAcc = new URLSearchParams(location.search);
       const pubCibleId = paramsUrlAcc.get('pub');
       const uidCibleId = paramsUrlAcc.get('uid');
+      let indexRendu = 0;
       if (pubCibleId && uidCibleId) {
         try {
           const [userSnapCible, pubSnapCible] = await Promise.all([
             db.collection('utilisateurs').doc(uidCibleId).get(),
             db.collection('utilisateurs').doc(uidCibleId).collection('portfolio').doc(pubCibleId).get()
           ]);
-          if (userSnapCible.exists && pubSnapCible.exists) {
+          const auteurCible = userSnapCible.exists ? userSnapCible.data() : null;
+          if (auteurCible && auteurCible.statut === 'verifie' && auteurCible.role !== 'visiteur' && pubSnapCible.exists) {
             const pubCible = { id: pubSnapCible.id, ...pubSnapCible.data() };
-            feed.insertAdjacentHTML('beforeend', creerCard(uidCibleId, userSnapCible.data(), indexRendu++, pubCible));
-            window._carrouselCandidatsAcc.push({ index: indexRendu-1, uid: uidCibleId, data: userSnapCible.data(), publication: pubCible });
+            feed.insertAdjacentHTML('beforeend', creerCard(uidCibleId, auteurCible, indexRendu++, pubCible));
+            window._carrouselCandidatsAcc.push({ index: indexRendu-1, uid: uidCibleId, data: auteurCible, publication: pubCible });
           }
         } catch(e) { console.error('Publication ciblée introuvable :', e); }
         // Retire les paramètres de l'URL pour qu'un rechargement de page
@@ -2385,48 +2345,90 @@ function toggleSiteWidth(){
         history.replaceState(null, '', 'accueil.html');
       }
 
+      // ── Classement des PUBLICATIONS (et non plus des personnes) ──
+      // 1) Personnes suivies : publications de moins de 15 jours, les plus récentes d'abord.
+      // 2) Même pays : publications de moins de 24 h, les plus récentes d'abord.
+      // 3) Nouveautés de tout le monde : moins de 3 jours, les plus récentes d'abord.
+      // 4) La masse : tout le reste, mélangé au hasard (nouveau mélange à chaque visite).
+      //    Après quelques jours, une publication « tombe dans la masse ».
+      // Enfin, les publications d'une même personne sont espacées : jamais deux de
+      // suite quand on peut faire autrement.
+      const QUINZE_JOURS_MS = 15 * 24 * 60 * 60 * 1000;
+      const VINGT_QUATRE_H_MS = 24 * 60 * 60 * 1000;
+      const TROIS_JOURS_MS = 3 * 24 * 60 * 60 * 1000;
+      const maintenantMs = Date.now();
+      const paliers = [[], [], [], []];
+      pros.forEach(p => {
+        const dataTel = extraireIndicatifTelephoneAcc(p.data.telephone);
+        const estSuivi = mesSuivisAccueil.has(p.id);
+        const memePays = !!(monPaysPrefixeAccueil && dataTel && dataTel === monPaysPrefixeAccueil);
+        p.pubs.forEach(pub => {
+          if (pub.id === pubCibleId && p.id === uidCibleId) return;   // déjà affichée en tête
+          const ts = (pub.createdAt && pub.createdAt.toMillis) ? pub.createdAt.toMillis() : maintenantMs;
+          const age = maintenantMs - ts;
+          const el = { uid: p.id, data: p.data, pub: pub, ts: ts };
+          if (estSuivi && age <= QUINZE_JOURS_MS) paliers[0].push(el);
+          else if (memePays && age <= VINGT_QUATRE_H_MS) paliers[1].push(el);
+          else if (age <= TROIS_JOURS_MS) paliers[2].push(el);
+          else paliers[3].push(el);
+        });
+      });
+      paliers[0].sort((a, b) => b.ts - a.ts);
+      paliers[1].sort((a, b) => b.ts - a.ts);
+      paliers[2].sort((a, b) => b.ts - a.ts);
+      paliers[3].sort((a, b) => ordreAleatoireStableAcc(a.uid + '/' + a.pub.id) - ordreAleatoireStableAcc(b.uid + '/' + b.pub.id));
+      // avecEquilibre : pour la masse (publications anciennes) on alterne aussi la personne
+      // qui a beaucoup publié ; pour les nouveautés, on garde d'abord l'ordre de fraîcheur.
+      function espacerAuteursAcc(liste, avecEquilibre, avant) {
+        const reste = liste.slice(), sortie = (avant || []).slice(), compte = {}, depart = sortie.length;
+        reste.forEach(x => { compte[x.uid] = (compte[x.uid] || 0) + 1; });
+        while (reste.length) {
+          const d1 = sortie.length ? sortie[sortie.length - 1].uid : null;
+          const d2 = sortie.length > 1 ? sortie[sortie.length - 2].uid : null;
+          // On regarde un peu plus loin (12 places au plus) pour garder l'ordre voulu.
+          const fenetre = reste.slice(0, 12);
+          let i = -1;
+          // Quelqu'un qui a publié beaucoup plus que les autres : on le place dès que
+          // possible, en alternance, sinon ses publications finiraient toutes collées.
+          let dominant = null;
+          Object.keys(compte).forEach(u => { if (u !== d1 && compte[u] > 0 && (!dominant || compte[u] > compte[dominant])) dominant = u; });
+          if (avecEquilibre && dominant && compte[dominant] * 2 >= reste.length) i = fenetre.findIndex(x => x.uid === dominant);
+          if (i === -1) i = fenetre.findIndex(x => x.uid !== d1 && x.uid !== d2);
+          if (i === -1) i = fenetre.findIndex(x => x.uid !== d1);
+          if (i === -1) i = 0;
+          const pris = reste.splice(i, 1)[0];
+          compte[pris.uid]--;
+          sortie.push(pris);
+        }
+        return sortie.slice(depart);
+      }
+      const enTete = espacerAuteursAcc([].concat(paliers[0], paliers[1], paliers[2]), false, []);
+      const toutesLesPubs = enTete.concat(espacerAuteursAcc(paliers[3], true, enTete.slice(-2)));
+      if (!toutesLesPubs.length && !indexRendu) {
+        feed.insertAdjacentHTML('beforeend', `<div class="vcard" style="display:flex;align-items:center;justify-content:center;background:#111;color:#ddd;text-align:center;padding:30px;font-size:15px;font-weight:700;line-height:1.5">${TR('Aucune publication pour le moment.')}</div>`);
+      }
+
+      // Chargement progressif — par lots de 6 cartes, comme sur Actualités/Offres/Élite.
+      const TAILLE_LOT_ACC = 6;
+      let nombreAffichesAcc = 0;
+      let cartesDepuisCarrouselAcc = 0;
+
       let chargementEnCoursAcc = false;
       async function rendreLotSuivant() {
         if (chargementEnCoursAcc) return;
         chargementEnCoursAcc = true;
         try {
-        const lot = tousLesPros.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
+        const lot = toutesLesPubs.slice(nombreAffichesAcc, nombreAffichesAcc + TAILLE_LOT_ACC);
         if (!lot.length) return;
         const sentinelleActuelle = document.getElementById('sentinelleAccueil');
         if (sentinelleActuelle) sentinelleActuelle.remove();
 
-        // Pour chaque professionnel du lot : une carte par publication
-        // (photo/vidéo), ou une seule carte fond uni s'il n'a rien publié.
         const cartesHTML = [];
-        for (const p of lot) {
-          let publications = [];
-          let etaitUniquementLaPubEpingleeAcc = false;
-          try {
-            const portSnap = await db.collection('utilisateurs').doc(p.id).collection('portfolio')
-              .orderBy('createdAt', 'desc').get();
-            publications = portSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
-            if (pubCibleId && uidCibleId && p.id === uidCibleId) {
-              const avantFiltrage = publications.length;
-              publications = publications.filter(it => it.id !== pubCibleId);
-              if (avantFiltrage > 0 && publications.length === 0) etaitUniquementLaPubEpingleeAcc = true;
-            }
-          } catch(e) { console.error('portfolio '+p.id, e); }
-
-          if (etaitUniquementLaPubEpingleeAcc) {
-            // Rien à faire : cette personne n'a que la publication déjà
-            // épinglée en haut du fil, pas de carte supplémentaire à créer.
-          } else if (publications.length === 0) {
-            const idx = indexRendu++;
-            cartesHTML.push(creerCard(p.id, p.data, idx, null));
-            cartesDepuisCarrouselAcc++;
-          } else {
-            publications.forEach(pub => {
-              const idx = indexRendu++;
-              cartesHTML.push(creerCard(p.id, p.data, idx, pub));
-              window._carrouselCandidatsAcc.push({ index: idx, uid: p.id, data: p.data, publication: pub });
-              cartesDepuisCarrouselAcc++;
-            });
-          }
+        for (const el of lot) {
+          const idx = indexRendu++;
+          cartesHTML.push(creerCard(el.uid, el.data, idx, el.pub));
+          window._carrouselCandidatsAcc.push({ index: idx, uid: el.uid, data: el.data, publication: el.pub });
+          cartesDepuisCarrouselAcc++;
           while (cartesDepuisCarrouselAcc >= 4) {
             const blocCarrousel = construireCarrouselAccHTML();
             if (blocCarrousel) { cartesHTML.push(blocCarrousel); activerDefilementCarrouselAcc(); }
@@ -2440,7 +2442,7 @@ function toggleSiteWidth(){
         attacherFermetureVolumeAcc();
         surveillerVuesAcc();
         nombreAffichesAcc += lot.length;
-        if (nombreAffichesAcc < tousLesPros.length) {
+        if (nombreAffichesAcc < toutesLesPubs.length) {
           const sentinelle = document.createElement('div');
           sentinelle.id = 'sentinelleAccueil';
           sentinelle.style.cssText = 'height:1px;flex-shrink:0';
