@@ -877,6 +877,11 @@
 
       const statut    = userData.statut    || 'en_attente';
       const kycStatut = userData.kycStatut || 'non_soumis';
+      // Mon compte n'est pas encore vérifié : pas d'entrée dans l'application,
+      // donc pas de bouton « Retour » vers l'Accueil (seulement Se déconnecter).
+      if (isOwnProfile && statut !== 'verifie') {
+        const rb = document.querySelector('.back-btn'); if (rb) rb.style.visibility = 'hidden';
+      }
       const prenom    = userData.prenom    || '';
       const nom       = userData.nom       || '';
       const metier    = userData.metier    || '';
