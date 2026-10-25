@@ -123,12 +123,15 @@ function construireApercu(){
           <button type="button" id="ppaPublic" class="on">🌍 Public</button>
           <button type="button" id="ppaPrive">🔒 Privé</button>
         </div>
+        <div id="ppaOuBloc">
         <div class="ppa-lbl">Publier aussi dans</div>
         <div class="ppa-ou" id="ppaOu">
           <label><input type="checkbox" value="actualites" checked> 📰 Actualités</label>
           <label><input type="checkbox" value="offres"> 💼 Offres</label>
           <label><input type="checkbox" value="filPresse"> 🗞️ Fil Presse</label>
         </div>
+        </div>
+        <div class="ppa-note" id="ppaKyc" style="display:none;color:#b26a00">⏳ Votre compte est en cours de vérification : votre nouvelle photo s'affiche sur votre profil, mais elle sera publiée dans Actualités, Offres ou Fil Presse seulement une fois votre KYC validé.</div>
         <div class="ppa-note" id="ppaNote"></div>
       </div>
     </div>
@@ -157,6 +160,12 @@ function choisirVisibilite(prive){
     : 'Votre photo de profil est publique.';
 }
 
+// Compte professionnel dont le KYC n'est pas encore validé par l'administrateur.
+function proEnAttente(u){
+  u = u || {};
+  return u.role !== 'visiteur' && u.statut !== 'verifie';
+}
+
 function fermerApercu(){
   document.getElementById('ppaOv').classList.remove('open');
   _apercu = null;
@@ -173,6 +182,12 @@ async function ouvrirApercu(file, ctx){
     document.getElementById('ppaCom').value = '';
     document.querySelectorAll('#ppaOu input').forEach(i => i.checked = (i.value === 'actualites'));
     choisirVisibilite(false);
+    // Professionnel pas encore validé (KYC) : la photo change, mais rien n'est publié
+    // dans Actualités / Offres / Fil Presse tant que le compte n'est pas vérifié.
+    const attente = proEnAttente(ctx.userData);
+    _apercu.attente = attente;
+    document.getElementById('ppaOuBloc').style.display = attente ? 'none' : '';
+    document.getElementById('ppaKyc').style.display = attente ? 'block' : 'none';
     const b = document.getElementById('ppaOk'); b.disabled = false; b.textContent = 'Mettre à jour';
     document.getElementById('ppaOv').classList.add('open');
   } catch(e) { toast('⚠ Erreur : ' + e.message, 'err'); }
@@ -184,7 +199,7 @@ async function validerApercu(){
   const toast = ctx.toast || (() => {});
   const uid = ctx.uid, u = ctx.userData || {};
   const commentaire = document.getElementById('ppaCom').value.trim();
-  const cibles = prive ? [] : Array.from(document.querySelectorAll('#ppaOu input:checked')).map(i => i.value);
+  const cibles = (prive || _apercu.attente || proEnAttente(ctx.userData)) ? [] : Array.from(document.querySelectorAll('#ppaOu input:checked')).map(i => i.value);
   const btn = document.getElementById('ppaOk');
   btn.disabled = true; btn.textContent = 'Mise à jour…';
   const dateIso = new Date().toISOString();
