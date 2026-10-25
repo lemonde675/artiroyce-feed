@@ -373,14 +373,29 @@ function openAnswer(i){
 const order = ['home','topic','answer'];
 let historyStack = ['home'];
 
+// Touche retour du téléphone : chaque écran ouvert (thème, réponse) a sa propre entrée
+// d'historique. Le retour ferme l'écran ouvert et on reste dans la FAQ ; arrivé à
+// l'accueil de la FAQ, le retour suivant ramène à l'Accueil d'ArtiRoyce (jamais à la
+// page de connexion).
 function navigateTo(name){
   historyStack.push(name);
+  try { history.pushState({ faq: historyStack.length - 1 }, ''); } catch (e) {}
   render();
 }
 function goBack(){
+  if (historyStack.length <= 1) return;
+  // Le bouton ‹ passe par l'historique : le retour du téléphone ne tombe pas « dans le vide ».
+  const st = history.state || {};
+  if (typeof st.faq === 'number' && st.faq === historyStack.length - 1) { try { history.back(); return; } catch (e) {} }
   historyStack.pop();
   render();
 }
+window.addEventListener('popstate', function (e) {
+  const cible = (e.state && typeof e.state.faq === 'number') ? e.state.faq : 0;
+  while (historyStack.length - 1 > cible) historyStack.pop();
+  render();
+});
+try { history.replaceState(Object.assign({}, history.state || {}, { faq: 0 }), ''); } catch (e) {}
 function render(){
   const current = historyStack[historyStack.length - 1];
   document.querySelectorAll('.screen').forEach(s => {
