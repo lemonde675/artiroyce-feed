@@ -296,6 +296,15 @@
   <a href="profil_visiteur.html">Retour à mon profil</a>
 </div>
 
+<!-- PROFESSIONNEL PAS ENCORE VALIDÉ : KYC d'abord -->
+<div class="login-screen" id="kycScreen">
+  <div style="font-size:48px" id="kycIco">🛡️</div>
+  <div style="font-size:20px;font-weight:900;" id="kycTitre">Validez d'abord votre KYC</div>
+  <p style="color:#888;font-size:14px;line-height:1.5" id="kycTexte">Seuls les professionnels vérifiés peuvent publier dans le fil ArtiRoyce.</p>
+  <a href="kyc.html" id="kycLien">Commencer la vérification</a>
+  <a href="javascript:history.back()" id="kycRetour" style="background:#fff;color:#e63224;border:1.5px solid #e63224">Retour</a>
+</div>
+
 <div class="toast" id="toastEl"></div>
 
 <!-- FIREBASE -->
@@ -344,16 +353,44 @@ auth.onAuthStateChanged(async (user) => {
   window._uid = user.uid;   // tout de suite : l'envoi ne dépend pas de la lecture du profil
   try {
     const monSnap = await db.collection('utilisateurs').doc(user.uid).get();
-    const monRole = monSnap.exists ? monSnap.data().role : null;
-    if (monRole === 'visiteur') {
+    const moi = monSnap.exists ? monSnap.data() : {};
+    if (moi.role === 'visiteur') {
       document.getElementById('mainForm').style.display = 'none';
       document.getElementById('visiteurScreen').style.display = 'flex';
       return;
     }
+    if (!afficherBlocageKyc(moi)) window._peutPublier = true;
   } catch(e) { console.error('Vérification rôle impossible :', e); }
   window._uid = user.uid;
   chargerMonPortfolio();
 });
+
+// Professionnel pas encore validé (KYC) : il ne peut pas publier. On lui dit pourquoi
+// et quoi faire. Renvoie true si la page est bloquée.
+function afficherBlocageKyc(moi) {
+  if (moi && moi.statut === 'verifie') return false;
+  const k = (moi && moi.kycStatut) || 'non_soumis';
+  const ico = document.getElementById('kycIco'), titre = document.getElementById('kycTitre'),
+        texte = document.getElementById('kycTexte'), lien = document.getElementById('kycLien');
+  if (moi && moi.statut === 'gele') {
+    ico.textContent = '❄️'; titre.textContent = 'Compte suspendu';
+    texte.textContent = 'Votre compte est suspendu : la publication est impossible. Contactez l\'assistance ArtiRoyce (💬).';
+    lien.style.display = 'none';
+  } else if (k === 'en_attente') {
+    ico.textContent = '⏳'; titre.textContent = 'Vérification en cours…';
+    texte.textContent = 'Notre équipe examine votre dossier (24 à 48 heures). Vous pourrez publier dès qu\'il sera validé.';
+    lien.style.display = 'none';
+  } else if (k === 'rejete') {
+    ico.textContent = '❌'; titre.textContent = 'KYC refusé';
+    texte.textContent = 'Votre dossier a été refusé. Corrigez-le et renvoyez-le : vous pourrez publier une fois validé.';
+    lien.textContent = 'Soumettre à nouveau mon dossier';
+  } else {
+    texte.textContent = 'Seuls les professionnels vérifiés peuvent publier dans le fil ArtiRoyce. Envoyez vos documents : la validation prend 24 à 48 heures.';
+  }
+  document.getElementById('mainForm').style.display = 'none';
+  document.getElementById('kycScreen').style.display = 'flex';
+  return true;
+}
 
 // Compression photo avant envoi (même technique que discussion_v1.html,
 // déjà utilisée et fiable) : réduit vraiment la taille du fichier, donc
@@ -383,6 +420,15 @@ window.submitPub = async function() {
   if (envoiEnCours || publicationTerminee) return;   // un seul envoi à la fois (double appui)
   const uid = window._uid;
   if (!uid) { showToast('Connectez-vous', 'r'); return; }
+  // KYC validé obligatoire (on revérifie si la lecture du profil n'avait pas abouti).
+  if (window._peutPublier !== true) {
+    try {
+      const s = await db.collection('utilisateurs').doc(uid).get();
+      const moi = s.exists ? s.data() : {};
+      if (moi.role === 'visiteur' || afficherBlocageKyc(moi)) return;
+      window._peutPublier = true;
+    } catch (e) { showToast('Vérification de votre compte impossible. Vérifiez votre connexion.', 'r'); return; }
+  }
 
   const photos = window._photos || [];
   const videoFile = window._videoFile || null;
