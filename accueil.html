@@ -236,6 +236,7 @@
 .ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
 @keyframes arSpin{to{transform:rotate(360deg)}}
 </style>
+  <script src="session.js"></script>
 </head>
 <body>
 
@@ -2249,6 +2250,29 @@ function toggleSiteWidth(){
       return;
     }
     authChecked = true;
+    // Absent depuis trop longtemps (voir session.js) : nouvelle connexion avec le mot de passe.
+    if (window.ArSession && ArSession.expiree()) {
+      try { await auth.signOut(); } catch (e) {}
+      ArSession.oublier();
+      window.location.replace('connexion.html');
+      return;
+    }
+    if (window.ArSession) {
+      ArSession.noterActivite();
+      setInterval(() => { if (document.visibilityState === 'visible') ArSession.noterActivite(); }, 60000);
+      // Retour dans l'application restée ouverte en arrière-plan : si l'absence a été trop
+      // longue, on se reconnecte ; sinon on note la visite.
+      document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState !== 'visible') return;
+        if (ArSession.expiree()) {
+          try { await auth.signOut(); } catch (e) {}
+          ArSession.oublier();
+          window.location.replace('connexion.html');
+          return;
+        }
+        ArSession.noterActivite();
+      });
+    }
     let monPaysPrefixeAccueil = '';
     try {
       const ownSnap = await getDoc(doc(db, 'utilisateurs', user.uid));
