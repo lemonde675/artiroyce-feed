@@ -180,9 +180,10 @@
   </div>
   </div>
 
+  <script src="session.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -199,6 +200,20 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
     const T = () => (typeof TRANSLATIONS !== 'undefined' && typeof currentLang !== 'undefined' && TRANSLATIONS[currentLang]) ? TRANSLATIONS[currentLang] : {};
+
+    // Déjà connecté (pas déconnecté) : on entre directement, sans mot de passe.
+    // Absent depuis trop longtemps : on se reconnecte, par sécurité.
+    let connexionEnCours = false;
+    onAuthStateChanged(auth, async (u) => {
+      if (!u || connexionEnCours) return;
+      if (window.ArSession && ArSession.expiree()) {
+        try { await signOut(auth); } catch (e) {}
+        ArSession.oublier();
+        showToast('Pour votre sécurité, reconnectez-vous avec votre mot de passe.', 'warning');
+        return;
+      }
+      window.location.replace('accueil.html');
+    });
 
     window.togglePass = function() {
       const p = document.getElementById('password');
@@ -249,11 +264,13 @@
       const btn = document.getElementById('btnLogin');
       btn.disabled = true;
       btn.textContent = t.login_connecting || 'Connexion en cours…';
+      connexionEnCours = true;
 
       try {
         // 1. Authentification
         const userCredential = await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
         const uid = userCredential.user.uid;
+        if (window.ArSession) ArSession.noterActivite();
 
         // 2. Lire le statut dans Firestore
         const userDoc = await getDoc(doc(db, 'utilisateurs', uid));

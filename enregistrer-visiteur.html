@@ -41,6 +41,9 @@
     .btn-register { width: 100%; padding: 14px; background: #27a945; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: 700; letter-spacing: 1.2px; cursor: pointer; transition: background 0.2s; margin-top: 6px; }
     .btn-register:hover { background: #1e8c38; }
     .btn-register:disabled { background: #ccc; cursor: not-allowed; }
+    .accord { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 4px; font-size: 13px; line-height: 1.45; color: #444; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .accord input { width: 19px; height: 19px; margin-top: 1px; accent-color: #27a945; flex-shrink: 0; }
+    .accord a { color: #e63224; font-weight: 700; }
     .login-link { text-align: center; margin-top: 18px; font-size: 13px; color: #888; }
     .login-link a { color: #e63224; text-decoration: none; font-weight: 600; }
     .visitor-info { background: #f4f8fc; border: 1px solid #d8e6f5; border-left: 3px solid #0d1b3e; border-radius: 8px; padding: 12px 14px; font-size: 12px; line-height: 1.55; color: #33465f; margin-bottom: 18px; }
@@ -467,7 +470,12 @@
           </button>
         </div>
         <span class="error-msg" id="password2Error"></span>
-        <button type="submit" class="btn-register" id="btnRegister" data-i18n="btn_create_account">CRÉER MON COMPTE &nbsp;→</button>
+        <label class="accord" for="accordConf">
+          <input type="checkbox" id="accordConf" onchange="majAccordConf()">
+          <span>J'accepte la <a href="confidentialite.html" target="_blank" rel="noopener">politique de confidentialité</a> d'ArtiRoyce.</span>
+        </label>
+        <span class="error-msg" id="accordError"></span>
+        <button type="submit" class="btn-register" id="btnRegister" data-i18n="btn_create_account" disabled>CRÉER MON COMPTE &nbsp;→</button>
       </form>
 
       <!-- ===== ÉTAPE 2 : SAISIE DU CODE DE VÉRIFICATION (cachée au départ) ===== -->
@@ -549,6 +557,12 @@
     const vEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
     const vPhone = p => /^[\+]?[\d\s\-\(\)]{8,16}$/.test(p.trim());
     const vName  = n => /^[a-zA-ZÀ-ÿ\s\-\']{2,50}$/.test(n.trim());
+    // Case « J'accepte la politique de confidentialité » : le bouton reste grisé tant qu'elle n'est pas cochée.
+    window.majAccordConf = function(){
+      const c = document.getElementById('accordConf').checked;
+      document.getElementById('btnRegister').disabled = !c;
+      if (c) document.getElementById('accordError').textContent = '';
+    };
     document.getElementById('registerForm').addEventListener('submit', async function(e) {
       e.preventDefault(); let valid = true;
       const t = T();
@@ -573,6 +587,7 @@
       if (!f.villeInscription.el.value.trim()||f.villeInscription.el.value.trim().length<2){f.villeInscription.err.textContent=t.js_err_ville||'Entrez votre ville.';f.villeInscription.el.className='error';valid=false;}else{f.villeInscription.el.className='valid';}
       if (!f.password.el.value||f.password.el.value.length<8){f.password.err.textContent=t.js_err_password||'Minimum 8 caractères.';f.password.el.className='error';valid=false;}else{f.password.el.className='valid';}
       if (!f.password2.el.value||f.password.el.value!==f.password2.el.value){f.password2.err.textContent=t.js_err_password2||'Mots de passe différents.';f.password2.el.className='error';valid=false;}else{f.password2.el.className='valid';}
+      if (!document.getElementById('accordConf').checked){document.getElementById('accordError').textContent='Cochez la case pour accepter la politique de confidentialité.';valid=false;}else{document.getElementById('accordError').textContent='';}
       if (!valid){showToast(t.js_err_fix||'Corrigez les erreurs.','error-toast');return;}
       const btn=document.getElementById('btnRegister');
       const emailSaisi = f.email.el.value.trim();
@@ -645,7 +660,7 @@
           email: inscriptionEnAttente.email, telephone: inscriptionEnAttente.telephone,
           pays: inscriptionEnAttente.pays, villeInscription: inscriptionEnAttente.villeInscription,
           statut:'actif', kycStatut:'non_applicable', role:'visiteur',
-          verifie:true, dateInscription:serverTimestamp(),
+          verifie:true, dateInscription:serverTimestamp(), confidentialiteAccepteeLe:serverTimestamp(),
         });
 
         champCode.className = 'valid';

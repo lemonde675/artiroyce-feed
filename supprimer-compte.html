@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtiRoyce – Supprimer mon compte</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root { --red: #e63224; --green: #27a945; --rose: #ec4899; --txt: #222; --gris: #777; }
+  html, body { background: #f2f3f5; font-family: 'Segoe UI', Arial, sans-serif; color: var(--txt); }
+  body { max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+  .entete { background: #fff; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 5; }
+  .retour { background: none; border: none; color: var(--red); font-size: 14px; font-weight: 800; cursor: pointer; }
+  .logo { flex: 1; text-align: center; font-size: 19px; font-weight: 900; }
+  .logo .a { color: var(--red); } .logo .r { color: var(--green); }
+  .carte { background: #fff; margin: 12px; border-radius: 16px; padding: 18px 16px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+  h1 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+  p { font-size: 14px; line-height: 1.55; color: #444; margin-bottom: 10px; }
+  ul { margin: 4px 0 12px 18px; } li { font-size: 13.5px; line-height: 1.55; color: #444; margin-bottom: 4px; }
+  .titre-sec { font-size: 12px; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 6px; }
+  label.champ { display: block; font-size: 12px; font-weight: 800; color: #888; margin: 12px 0 6px; }
+  input[type=email], input[type=password] { width: 100%; padding: 12px 14px; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 15px; font-family: inherit; outline: none; }
+  input:focus { border-color: var(--rose); }
+  .coche { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 4px; font-size: 13.5px; line-height: 1.45; color: #333; cursor: pointer; }
+  .coche input { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--red); flex-shrink: 0; }
+  .btn { width: 100%; margin-top: 14px; padding: 14px; border-radius: 26px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; }
+  .btn-rouge { background: var(--red); color: #fff; border: none; }
+  .btn-rouge:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-blanc { background: #fff; color: var(--rose); border: 1.5px solid var(--rose); }
+  .qui { display: flex; align-items: center; gap: 12px; background: #fafafa; border-radius: 12px; padding: 10px 12px; margin: 6px 0 4px; }
+  .qui-av { width: 42px; height: 42px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; overflow: hidden; flex-shrink: 0; }
+  .qui-av img { width: 100%; height: 100%; object-fit: cover; }
+  .qui-nom { font-weight: 800; font-size: 15px; } .qui-mail { font-size: 12.5px; color: var(--gris); word-break: break-all; }
+  .progres { display: none; margin-top: 14px; font-size: 13.5px; color: #555; }
+  .progres .barre { height: 6px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  .progres .plein { height: 100%; width: 0; background: linear-gradient(90deg, var(--red), var(--rose)); transition: width .3s; }
+  .msg { display: none; margin-top: 12px; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; line-height: 1.45; }
+  .msg.err { display: block; background: #fdecea; color: #b3261e; }
+  .fin { text-align: center; }
+  .fin .ico { font-size: 52px; margin: 6px 0 10px; }
+  .petit { font-size: 12px; color: #999; text-align: center; margin: 4px 12px 24px; line-height: 1.5; }
+  .petit a { color: var(--rose); }
+  .cache { display: none; }
+</style>
+</head>
+<body>
+
+<div class="entete">
+  <button class="retour" onclick="retour()">‹ Retour</button>
+  <div class="logo"><span class="a">Arti</span><span class="r">Royce</span></div>
+  <span style="width:52px"></span>
+</div>
+
+<!-- Explications : toujours visibles (c'est aussi la page web demandée par Google Play) -->
+<div class="carte">
+  <h1>Supprimer mon compte ArtiRoyce</h1>
+  <p>Vous pouvez supprimer votre compte à tout moment depuis cette page.</p>
+  <div class="titre-sec">Ce qui est supprimé</div>
+  <ul>
+    <li>votre compte et vos informations de connexion ;</li>
+    <li>votre profil ;</li>
+    <li>vos documents de vérification d'identité ;</li>
+    <li>vos contenus publiés ;</li>
+    <li>vos abonnements et vos notifications.</li>
+  </ul>
+  <div class="titre-sec">Ce qui peut rester</div>
+  <ul>
+    <li>Les messages déjà transmis à d'autres utilisateurs peuvent rester visibles par leurs destinataires.</li>
+  </ul>
+  <p><b>Attention :</b> la suppression est définitive. Le compte ne peut pas être récupéré.</p>
+</div>
+
+<!-- 1) Pas connecté : se connecter -->
+<div class="carte cache" id="blocConnexion">
+  <div class="titre-sec" style="margin-top:0">Connectez-vous pour continuer</div>
+  <label class="champ" for="cxEmail">E-mail</label>
+  <input type="email" id="cxEmail" autocomplete="email" placeholder="votre@email.com">
+  <label class="champ" for="cxMdp">Mot de passe</label>
+  <input type="password" id="cxMdp" autocomplete="current-password" placeholder="••••••••">
+  <button class="btn btn-blanc" id="btnConnexion" onclick="seConnecter()">Se connecter</button>
+  <div class="msg" id="msgConnexion"></div>
+</div>
+
+<!-- 2) Connecté : confirmer -->
+<div class="carte cache" id="blocConfirmer">
+  <div class="titre-sec" style="margin-top:0">Compte à supprimer</div>
+  <div class="qui"><div class="qui-av" id="quiAv">?</div><div><div class="qui-nom" id="quiNom">—</div><div class="qui-mail" id="quiMail"></div></div></div>
+  <label class="champ" for="cfMdp">Pour confirmer, entrez votre mot de passe</label>
+  <input type="password" id="cfMdp" autocomplete="current-password" placeholder="••••••••" oninput="majBouton()">
+  <label class="coche"><input type="checkbox" id="cfCoche" onchange="majBouton()"> J'ai compris : mon compte et mes contenus seront supprimés définitivement.</label>
+  <button class="btn btn-rouge" id="btnSupprimer" onclick="supprimerCompte()" disabled>🗑️ Supprimer définitivement mon compte</button>
+  <button class="btn btn-blanc" onclick="retour()">Annuler, garder mon compte</button>
+  <div class="progres" id="progres"><span id="progresTxt">Suppression en cours…</span><div class="barre"><div class="plein" id="progresPlein"></div></div></div>
+  <div class="msg" id="msgConfirmer"></div>
+</div>
+
+<!-- 3) Terminé -->
+<div class="carte fin cache" id="blocFin">
+  <div class="ico">👋</div>
+  <h1>Compte supprimé</h1>
+  <p>Votre compte ArtiRoyce et vos contenus ont été supprimés. Merci d'avoir fait partie d'ArtiRoyce.</p>
+  <button class="btn btn-blanc" onclick="location.replace('index.html')">Revenir à l'accueil du site</button>
+</div>
+
+<p class="petit">Une question ? Contactez l'Assistance depuis l'application.<br>
+  <a href="confidentialite.html">Politique de confidentialité</a></p>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+  authDomain: "artiroyce-f42e4.firebaseapp.com",
+  projectId: "artiroyce-f42e4",
+  storageBucket: "artiroyce-f42e4.firebasestorage.app",
+  messagingSenderId: "588140774605",
+  appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+let enCours = false, moi = {};
+
+const $ = (id) => document.getElementById(id);
+function montrer(id) { ['blocConnexion', 'blocConfirmer', 'blocFin'].forEach(b => $(b).classList.toggle('cache', b !== id)); }
+function erreur(id, texte) { const m = $(id); m.className = 'msg err'; m.textContent = texte; }
+function effacerErreur(id) { $(id).className = 'msg'; $(id).textContent = ''; }
+function retour() {
+  if (enCours) return;
+  if (document.referrer && document.referrer.indexOf(location.host) !== -1 && history.length > 1) history.back();
+  else location.href = 'index.html';
+}
+function texteErreur(e) {
+  const c = e && e.code;
+  if (c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') return 'Mot de passe incorrect.';
+  if (c === 'auth/user-not-found') return 'Aucun compte avec cet e-mail.';
+  if (c === 'auth/too-many-requests') return 'Trop d’essais. Réessayez dans quelques minutes.';
+  if (c === 'auth/network-request-failed') return 'Pas de connexion internet. Réessayez.';
+  return 'Une erreur est survenue. Réessayez.';
+}
+window.majBouton = function () {
+  $('btnSupprimer').disabled = enCours || !$('cfCoche').checked || !$('cfMdp').value;
+};
+
+auth.onAuthStateChanged(async (u) => {
+  if (enCours) return;
+  if (!u) { montrer('blocConnexion'); return; }
+  montrer('blocConfirmer');
+  $('quiMail').textContent = u.email || '';
+  try {
+    const s = await db.collection('utilisateurs').doc(u.uid).get();
+    moi = s.exists ? (s.data() || {}) : {};
+  } catch (e) { moi = {}; }
+  const nom = ((moi.prenom || '') + ' ' + (moi.nom || '')).trim() || u.email || 'Mon compte';
+  $('quiNom').textContent = nom;
+  const av = $('quiAv');
+  if (moi.photoAvatar) { av.innerHTML = ''; const im = document.createElement('img'); im.src = moi.photoAvatar; av.appendChild(im); }
+  else av.textContent = nom.charAt(0).toUpperCase();
+});
+
+window.seConnecter = async function () {
+  effacerErreur('msgConnexion');
+  const email = $('cxEmail').value.trim(), mdp = $('cxMdp').value;
+  if (!email || !mdp) { erreur('msgConnexion', 'Entrez votre e-mail et votre mot de passe.'); return; }
+  $('btnConnexion').disabled = true;
+  try { await auth.signInWithEmailAndPassword(email, mdp); }
+  catch (e) { erreur('msgConnexion', texteErreur(e)); }
+  $('btnConnexion').disabled = false;
+};
+
+function progres(pct, texte) {
+  $('progres').style.display = 'block';
+  $('progresPlein').style.width = pct + '%';
+  if (texte) $('progresTxt').textContent = texte;
+}
+// Supprime tous les documents d'une requête (ignore ce qui n'est pas permis : on continue).
+async function effacerRequete(q) {
+  try {
+    const s = await q.get();
+    for (const d of s.docs) { try { await d.ref.delete(); } catch (e) {} }
+    return s.docs;
+  } catch (e) { return []; }
+}
+// Fichier d'une photo/vidéo envoyé : on l'efface aussi.
+async function effacerFichier(url) {
+  if (!url || typeof url !== 'string' || url.indexOf('firebasestorage') === -1 || !firebase.storage) return;
+  try { await firebase.storage().refFromURL(url).delete(); } catch (e) {}
+}
+
+window.supprimerCompte = async function () {
+  const u = auth.currentUser;
+  if (!u || enCours) return;
+  effacerErreur('msgConfirmer');
+  enCours = true; majBouton();
+  try {
+    // 1) Vérification du mot de passe (Google exige une connexion récente pour supprimer).
+    progres(5, 'Vérification du mot de passe…');
+    const cred = firebase.auth.EmailAuthProvider.credential(u.email, $('cfMdp').value);
+    await u.reauthenticateWithCredential(cred);
+    const uid = u.uid;
+
+    // 2) Contenus publiés.
+    progres(15, 'Suppression de vos publications…');
+    const moiRef = db.collection('utilisateurs').doc(uid);
+    const port = await effacerRequete(moiRef.collection('portfolio'));
+    for (const d of port) await effacerFichier((d.data() || {}).url);
+    const st = await effacerRequete(db.collection('statuts').where('auteurUid', '==', uid));
+    for (const d of st) await effacerFichier((d.data() || {}).video);
+    progres(35);
+    await effacerRequete(db.collection('publications').where('auteurUid', '==', uid));
+    await effacerRequete(db.collection('offres').where('auteurUid', '==', uid));
+    await effacerRequete(db.collection('fil_presse').where('uid', '==', uid));
+    await effacerRequete(db.collection('cv_professionnels').where('auteurUid', '==', uid));
+    progres(55, 'Suppression de vos abonnements et notifications…');
+    await effacerRequete(db.collection('abonnements').where('follower', '==', uid));
+    for (const sous of ['notifications', 'prive', 'photosProfil', 'commentairesAccueil', 'reactionsAccueil', 'sauvegardesAccueil', 'suivisActualite', 'suivisOffres']) {
+      await effacerRequete(moiRef.collection(sous));
+    }
+    // 3) Le profil lui-même.
+    progres(80, 'Suppression de votre profil…');
+    await moiRef.delete();
+    // 4) Le compte de connexion.
+    progres(92, 'Suppression du compte…');
+    await u.delete();
+    progres(100, 'Terminé');
+    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+    montrer('blocFin');
+  } catch (e) {
+    console.error('Suppression du compte :', e);
+    enCours = false; majBouton();
+    $('progres').style.display = 'none';
+    if (e && e.code === 'auth/requires-recent-login') erreur('msgConfirmer', 'Par sécurité, déconnectez-vous puis reconnectez-vous, et recommencez.');
+    else erreur('msgConfirmer', texteErreur(e));
+  }
+};
+</script>
+</body>
+</html>

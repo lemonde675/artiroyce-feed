@@ -794,6 +794,29 @@ document.querySelectorAll('.reveal').forEach(el=>{
 
 </script>
 
+<!-- Déjà connecté sur ce téléphone : on entre directement dans ArtiRoyce -->
+<script src="session.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  try {
+    const auth = getAuth(initializeApp({
+      apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
+      authDomain: "artiroyce-f42e4.firebaseapp.com",
+      projectId: "artiroyce-f42e4",
+      storageBucket: "artiroyce-f42e4.firebasestorage.app",
+      messagingSenderId: "588140774605",
+      appId: "1:588140774605:web:b69cf8740c2fe5f1d59584"
+    }));
+    const stop = onAuthStateChanged(auth, async (u) => {
+      stop();
+      if (!u) return;
+      if (window.ArSession && ArSession.expiree()) { try { await signOut(auth); } catch (e) {} ArSession.oublier(); return; }
+      window.location.replace('accueil.html');
+    });
+  } catch (e) {}
+</script>
+
 <!-- Multilingue chargé après le DOM -->
 <script src="translations.js"></script>
 </body>
