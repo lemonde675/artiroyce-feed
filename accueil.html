@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com">
   <title>ArtiRoyce – Accueil</title>
 <script>
   // Traduction de l'intérieur (translations-app.js). Sans ce fichier : le français reste.
@@ -235,6 +236,9 @@
 .ar-charge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;min-height:45vh;padding:30px 16px;box-sizing:border-box;text-align:center;color:#999;font-size:13px}
 .ar-spin{width:44px;height:44px;border-radius:50%;border:4px solid #fde4ef;border-top-color:#ec4899;animation:arSpin .8s linear infinite;flex-shrink:0}
 @keyframes arSpin{to{transform:rotate(360deg)}}
+/* Commentaire ouvert depuis une notification : il brille quelques secondes. */
+.comm-cible-acc{border-radius:14px;animation:commCibleAcc 3.2s ease-out}
+@keyframes commCibleAcc{0%,55%{background:#fff1d6;box-shadow:0 0 0 6px #fff1d6}100%{background:transparent;box-shadow:0 0 0 6px transparent}}
 </style>
   <script src="session.js"></script>
 </head>
@@ -1914,6 +1918,7 @@ function toggleSiteWidth(){
           const villeCourte = premiereVilleAccueil(c.ville);
           const dejaAime = mesReactionsCommAccueil[c.id];
           const wrap = document.createElement('div');
+          wrap.dataset.cid = c.id;
           wrap.innerHTML =
             '<div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-start">'
             + '<div style="width:36px;height:36px;border-radius:50%;background:' + palettesCommAccueil[initiale.charCodeAt(0) % palettesCommAccueil.length] + ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer" onclick="goUserProfile(\'' + (c.uid||'') + '\')">' + escapeHtmlAccueil(initiale) + '</div>'
@@ -1945,7 +1950,9 @@ function toggleSiteWidth(){
           if (reponses.length) {
             const repZone = document.createElement('div');
             repZone.style.cssText = 'margin-left:30px;padding-left:14px;border-left:2px solid #eceef1;margin-bottom:10px';
+            repZone.dataset.racine = c.id;
             const toggle2 = document.createElement('div');
+            toggle2.className = 'tg-rep-acc';
             toggle2.style.cssText = 'font-size:12px;font-weight:700;color:#65676b;cursor:pointer;margin-bottom:10px';
             toggle2.innerHTML = TR(reponses.length > 1 ? 'Afficher {n} réponses ▾' : 'Afficher {n} réponse ▾', {n: reponses.length});
             toggle2.onclick = () => {
@@ -1958,6 +1965,39 @@ function toggleSiteWidth(){
             liste.appendChild(repZone);
           }
         });
+        montrerCommentaireCibleAcc(tous, trouverRacine);
+    }
+
+    // Arrivée depuis une notification : on amène le commentaire exact à l'écran et il brille.
+    // (Anciennes notifications sans numéro de commentaire : on le retrouve par auteur + texte.)
+    function montrerCommentaireCibleAcc(tous, trouverRacine){
+      const cible = window.__commCibleAcc;
+      if (!cible || cible.cle !== cle) return;
+      let c = cible.id ? tous.find(x => x.id === cible.id) : null;
+      if (!c && cible.texte) {
+        const t = String(cible.texte);
+        const candidats = tous.filter(x => String(x.texte || '').slice(0, 120) === t && (!cible.auteurUid || x.uid === cible.auteurUid));
+        c = candidats[candidats.length - 1] || null;
+      }
+      if (!c) return;
+      // La liste peut se redessiner (nouveau commentaire, J'aime…) : pendant 4 s,
+      // on garde le commentaire visé à l'écran et en surbrillance.
+      if (!cible.jusqua) { cible.jusqua = Date.now() + 4000; cible.id = c.id; }
+      if (Date.now() > cible.jusqua) { window.__commCibleAcc = null; return; }
+      let el = liste.querySelector('[data-cid="' + c.id + '"]');
+      if (!el) {
+        const zone = liste.querySelector('[data-racine="' + trouverRacine(c.id) + '"]');
+        const tg = zone && zone.querySelector('.tg-rep-acc');
+        if (tg) tg.click();
+        el = liste.querySelector('[data-cid="' + c.id + '"]');
+      }
+      if (!el) return;
+      const premiere = !cible.vu; cible.vu = true;
+      setTimeout(() => {
+        try { el.scrollIntoView({ block: 'center', behavior: premiere ? 'smooth' : 'auto' }); } catch (e) { el.scrollIntoView(); }
+        el.classList.add('comm-cible-acc');
+        setTimeout(() => el.classList.remove('comm-cible-acc'), Math.max(600, cible.jusqua - Date.now()));
+      }, 120);
     }
   };
 
@@ -2008,13 +2048,13 @@ function toggleSiteWidth(){
       const coll = pid
         ? db.collection('utilisateurs').doc(cibleUid).collection('portfolio').doc(pid).collection('commentaires')
         : db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil');
-      await coll.add({
+      const refComm = await coll.add({
         uid: auth.currentUser.uid, nom: monNom, texte: texte,
         verifie: moiData.statut === 'verifie', ville: moiData.ville || moiData.adresse || '',
         parentId: reponseA || null, createdAt: serverTimestamp(), likes: 0
       });
       window.annulerReponseAccueil();
-      window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'commentaire', page: 'profil', cibleId: cibleUid + '__' + pid, extrait: texte });
+      window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'commentaire', page: 'profil', cibleId: cibleUid + '__' + pid, extrait: texte, commentId: refComm && refComm.id });
       if (pid) await majCompteursAcc(cibleUid, pid, { comments: 1 });
       else await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
     } catch(e) { console.error(e); toast('Erreur envoi commentaire', ''); }
@@ -2113,6 +2153,30 @@ function toggleSiteWidth(){
     } catch (e) {}
     return d;
   }
+  // ── Notification 🔔 d'une publication de l'Accueil : la vidéo exacte, et pour un
+  // commentaire, la liste des commentaires ouverte sur le commentaire exact. ──
+  window.ouvrirPubDepuisNotifAcc = async function(o){
+    if (!o || !o.uid) return;
+    if (typeof window.goToPanel === 'function') window.goToPanel(0);
+    const ov = document.getElementById('commentsOverlayAccueil');
+    if (ov) ov.classList.remove('open');
+    // Le fil peut encore être en train de se charger : on attend (10 s au plus).
+    for (let i = 0; i < 40 && !window.__allerPubAcc; i++) await new Promise(r => setTimeout(r, 250));
+    let carte = null;
+    if (o.pid && window.__allerPubAcc) carte = await window.__allerPubAcc(o.uid, o.pid);
+    if (o.pid && !carte) { window.toast && toast(TR("Cette publication n'est plus disponible"), ''); return; }
+    if (carte) {
+      const feed = document.getElementById('feedW');
+      if (feed) feed.scrollTo({ top: carte.offsetTop, behavior: 'auto' });
+    }
+    if (!o.commentaires) return;
+    const pseudo = (carte && carte.dataset.pseudo) || '';
+    window.__commCibleAcc = { cle: o.uid + '__' + (o.pid || ''), id: o.commentId || '', texte: o.extrait || '', auteurUid: o.auteurUid || '' };
+    setTimeout(() => {
+      if (o.pid) window.ouvrirCommentairesAccueil(o.uid, o.pid, pseudo);
+      else window.ouvrirCommentairesAccueil(o.uid, pseudo);
+    }, 450);
+  };
   window.goUserProfile = function(uid) {
     try { sessionStorage.setItem('ar_retour_profil', JSON.stringify({ panel: currentPanel, defil: positionDefilement(), t: Date.now() })); } catch (e) {}
     window.location.href = 'profil.html?uid=' + uid;
@@ -2475,6 +2539,7 @@ function toggleSiteWidth(){
       const pubCibleId = paramsUrlAcc.get('pub');
       const uidCibleId = paramsUrlAcc.get('uid');
       let indexRendu = 0;
+      const dejaInsereesAcc = new Set();
       if (pubCibleId && uidCibleId) {
         try {
           const [userSnapCible, pubSnapCible] = await Promise.all([
@@ -2574,6 +2639,8 @@ function toggleSiteWidth(){
 
         const cartesHTML = [];
         for (const el of lot) {
+          // Déjà affichée en tête (ouverte depuis une notification) : pas de doublon.
+          if (dejaInsereesAcc.has(el.uid + '__' + el.pub.id)) continue;
           const idx = indexRendu++;
           cartesHTML.push(creerCard(el.uid, el.data, idx, el.pub));
           window._carrouselCandidatsAcc.push({ index: idx, uid: el.uid, data: el.data, publication: el.pub });
@@ -2610,6 +2677,47 @@ function toggleSiteWidth(){
       }, { root: feed, rootMargin: '600px' });
 
       rendreLotSuivant();
+
+      // ── Ouverture d'UNE publication précise (depuis une notification 🔔) ──
+      // Déjà dans le fil : on y va. Sinon : on la place juste avant la carte affichée.
+      // Renvoie la carte (ou null si la publication n'existe plus).
+      window.__allerPubAcc = async function(uid, pid){
+        const cle = uid + '__' + pid;
+        let carte = feed.querySelector('.vcard[data-cle="' + cle + '"]');
+        if (!carte) {
+          let pro = pros.find(x => x.id === uid);
+          let pub = pro && pro.pubs.find(x => x.id === pid);
+          let auteur = pro && pro.data;
+          if (!pub) {
+            try {
+              const [su, sp] = await Promise.all([
+                db.collection('utilisateurs').doc(uid).get(),
+                db.collection('utilisateurs').doc(uid).collection('portfolio').doc(pid).get()
+              ]);
+              if (!su.exists || !sp.exists) return null;
+              auteur = su.data(); pub = { id: sp.id, ...sp.data() };
+              if (pub.corbeille || !pub.url) return null;
+            } catch (e) { console.warn('Publication introuvable', e); return null; }
+          }
+          const idx = indexRendu++;
+          dejaInsereesAcc.add(cle);
+          // Avant la carte visible : rien ne bouge sous les yeux avant le saut.
+          const cartes = Array.from(feed.querySelectorAll('.vcard'));
+          const haut = feed.scrollTop;
+          const visible = cartes.find(c => c.offsetTop + c.offsetHeight / 2 > haut) || null;
+          const html = creerCard(uid, auteur, idx, pub);
+          if (visible) visible.insertAdjacentHTML('beforebegin', html);
+          else { const sent = document.getElementById('sentinelleAccueil'); if (sent) sent.insertAdjacentHTML('beforebegin', html); else feed.insertAdjacentHTML('beforeend', html); }
+          window._carrouselCandidatsAcc.push({ index: idx, uid: uid, data: auteur, publication: pub });
+          surveillerVideosVisiblesAcc();
+          attacherFermetureVolumeAcc();
+          surveillerVuesAcc();
+          adjustLayout();
+          appliquerEtatsSurCartes();
+          carte = document.getElementById('carte-' + idx);
+        }
+        return carte;
+      };
     } catch(e) { console.error(e); }
   });
 </script>
@@ -2632,7 +2740,46 @@ function toggleSiteWidth(){
   (function(){
     const ch = document.getElementById('accChargement'), feed = document.getElementById('feedW');
     if (!ch || !feed) return;
-    const fin = () => { if (ch.parentNode) ch.remove(); };
+    const fin = () => {
+      if (ch.parentNode) ch.remove();
+      if (!window.__prechargementOnglets) { window.__prechargementOnglets = 1; setTimeout(prechargerOnglets, 2500); }
+    };
+    // ── Onglets préparés en avance ──
+    // Une fois la première carte de l'Accueil affichée, les autres onglets se préparent
+    // en silence, UN PAR UN (le suivant attend que le précédent ait fini). Quand on les
+    // touche, ils sont déjà prêts. Aucun son ni vidéo : ces pages ne jouent rien seules,
+    // et on leur signale tout de suite qu'elles sont cachées.
+    // Connexion très faible ou économie de données : on ne prépare rien en avance.
+    function prechargerOnglets(){
+      try {
+        const c = navigator.connection;
+        if (c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) return;
+      } catch (e) {}
+      const ordre = ['actuFrame', 'eliteFrame', 'offreFrame', 'presseFrame', 'cvProFrame'];
+      let i = 0;
+      const suivant = () => {
+        if (i >= ordre.length) return;
+        const ifr = document.getElementById(ordre[i++]);
+        if (!ifr || ifr.getAttribute('src')) return suivant();   // déjà ouvert par la personne
+        let fait = false;
+        const apres = () => {
+          if (fait) return; fait = true;
+          try { ifr.contentWindow.postMessage({ type: 'parentFrame' }, '*'); } catch (e) {}
+          // Onglet pas affiché : on le lui dit (s'il n'a pas été ouvert entre-temps).
+          const panneau = ifr.closest('.panel-slide');
+          const actif = document.querySelector('.h-tab.active');
+          const tabs = Array.from(document.querySelectorAll('.h-tab'));
+          if (panneau && tabs.indexOf(actif) !== Number(String(panneau.id).replace('panel-', ''))) {
+            try { ifr.contentWindow.postMessage({ type: 'panelCache' }, '*'); } catch (e) {}
+          }
+          setTimeout(suivant, 1500);
+        };
+        ifr.addEventListener('load', apres, { once: true });
+        setTimeout(apres, 12000);   // page trop lente : on passe quand même à la suivante
+        ifr.src = ifr.dataset.src;
+      };
+      suivant();
+    }
     const obs = new MutationObserver(() => { if (feed.querySelector('.vcard')) { obs.disconnect(); fin(); } });
     obs.observe(feed, { childList: true, subtree: true });
     setTimeout(() => { obs.disconnect(); fin(); }, 15000);

@@ -65,6 +65,7 @@
       const data = {
         type: o.type, page: o.page || '', cibleId: o.cibleId || '',
         extrait: String(o.extrait || '').slice(0, 120),
+        commentId: o.commentId || '',
         auteurUid: m.uid, auteurNom: m.nom, auteurPhoto: m.photo,
         lu: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
@@ -176,16 +177,25 @@
       const coul = COULEURS[nom.charCodeAt(0) % COULEURS.length];
       const av = n.auteurPhoto ? '<img src="' + esc(n.auteurPhoto) + '" alt="">' : ini;
       const phrase = ((n.page === 'statuts' && PHRASES_STATUT[n.type]) || PHRASES[n.type] || (() => 'a interagi avec vous'))(n);
-      const page = PAGES[n.page] ? PAGES[n.page].nom : '';
+      const page = pubAccueil(n) ? 'Accueil' : (PAGES[n.page] ? PAGES[n.page].nom : '');
       return '<div class="ntf-item' + (n.lu ? '' : ' nonlu') + '" data-i="' + i + '">'
-        + '<div class="ntf-av" style="background:linear-gradient(135deg,' + coul + ',#0a0a2e)">' + av + '</div>'
+        + '<div class="ntf-av" data-av="1" style="background:linear-gradient(135deg,' + coul + ',#0a0a2e)">' + av + '</div>'
         + '<div class="ntf-txt"><div class="ntf-nom">' + esc(nom) + '</div>'
         + '<div class="ntf-act">' + esc(phrase) + '</div>'
         + '<div class="ntf-meta">' + (page ? page + ' · ' : '') + depuis(n.createdAt) + '</div></div>'
         + (n.lu ? '' : '<span class="ntf-pt"></span>')
         + '</div>';
     }).join('');
-    el.querySelectorAll('.ntf-item').forEach(it => it.onclick = () => ouvrirNotif(_liste[+it.dataset.i]));
+    el.querySelectorAll('.ntf-item').forEach(it => it.onclick = (e) => {
+      const n = _liste[+it.dataset.i];
+      // Toucher la photo (à gauche) : le profil de la personne. Le reste : l'action elle-même.
+      if (e.target.closest('[data-av]') && n && n.auteurUid && window.goUserProfile) {
+        marquerLu(n);
+        retourInterne(function () { window.goUserProfile(n.auteurUid); });
+        return;
+      }
+      ouvrirNotif(n);
+    });
   }
 
   /* ── Touche retour du téléphone ──
@@ -229,6 +239,11 @@
     majPastille(); rendre();
   }
 
+  // Publication de l'Accueil (J'aime, commentaire) : cibleId = « uid__idPublication ».
+  function pubAccueil(n) {
+    return n && n.page === 'profil' && ['reaction', 'commentaire', 'reponse'].indexOf(n.type) !== -1
+      && String(n.cibleId || '').indexOf('__') !== -1;
+  }
   // Amène directement à l'action : bon onglet, bonne publication, commentaires ouverts.
   function ouvrirNotif(n) {
     if (!n) return;
@@ -245,6 +260,15 @@
     if (n.page === 'assistance') {
       // L'admin ouvre directement la discussion de cette personne ; la personne, la sienne.
       if (window.ouvrirAssistance) window.ouvrirAssistance(n.type === 'assistance' ? n.cibleId : null);
+      return;
+    }
+    if (pubAccueil(n) && window.ouvrirPubDepuisNotifAcc) {
+      const morceaux = String(n.cibleId).split('__');
+      window.ouvrirPubDepuisNotifAcc({
+        uid: morceaux[0], pid: morceaux.slice(1).join('__'),
+        commentaires: n.type !== 'reaction',
+        commentId: n.commentId || '', extrait: n.extrait || '', auteurUid: n.auteurUid || ''
+      });
       return;
     }
     if (n.type === 'abonne' || !PAGES[n.page] || !PAGES[n.page].frame) {

@@ -775,8 +775,8 @@
 </div>
 
 <!-- ── FULLSCREEN VIEWER ── -->
-<div class="fullscreen-viewer" id="fullscreenViewer" onclick="document.getElementById('fullscreenViewer').classList.remove('open')">
-  <button class="fv-close" onclick="document.getElementById('fullscreenViewer').classList.remove('open')">✕</button>
+<div class="fullscreen-viewer" id="fullscreenViewer" onclick="fermerFullscreenViewer()">
+  <button class="fv-close" onclick="event.stopPropagation();fermerFullscreenViewer()">✕</button>
   <img id="fvImg" src="" style="display:none"/>
   <video id="fvVid" src="" controls style="display:none"></video>
 </div>
@@ -808,7 +808,7 @@
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, arrayUnion, increment, serverTimestamp, collection, getDocs, query, orderBy, where, setDoc, deleteDoc, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBS_6CJN7Fu50pMu98sjuRxQetUcLu9l9w",
@@ -1521,6 +1521,18 @@
     const anciennesVues = Math.max(0, (Number(userData && userData.vuesAccueil) || 0) - sommeVues);
     items.forEach(x => { x._vues = Number(x.vues) || 0; });
     if (items.length) items[items.length - 1]._vues += anciennesVues;
+    // Anciens compteurs (d'avant « par publication ») : sur la plus ancienne publication,
+    // exactement comme dans l'Accueil (pour que les chiffres soient les mêmes partout).
+    if (items.length) {
+      const d = userData || {};
+      const somme = (c) => items.reduce((t, x) => t + (Number(x[c]) || 0), 0);
+      items[items.length - 1]._heritage = {
+        likes:    Math.max(0, (Number(d.likesAccueil) || 0)    - somme('likes')),
+        dislikes: Math.max(0, (Number(d.dislikesAccueil) || 0) - somme('dislikes')),
+        comments: Math.max(0, (Number(d.commentsAccueil) || 0) - somme('comments')),
+        shares:   Math.max(0, (Number(d.partagesAccueil) || 0) - somme('shares'))
+      };
+    }
     const photos = items.filter(i => i.type === 'photo');
     const videos = items.filter(i => i.type === 'video');
     renderGridPhotos(photos, ownProfile);
@@ -1602,9 +1614,32 @@
     });
   };
 
+  // Accès à la base pour la visionneuse partagée (visionneuse.js).
+  const apiVisionneuse = {
+    uid: () => (auth.currentUser ? auth.currentUser.uid : null),
+    get: async (c) => { const s = await getDoc(doc(db, ...c)); return s.exists() ? s.data() : null; },
+    set: (c, d) => setDoc(doc(db, ...c), d),
+    del: (c) => deleteDoc(doc(db, ...c)),
+    inc: (c, champs) => { const u = {}; Object.keys(champs).forEach(k => { u[k] = increment(champs[k]); }); return updateDoc(doc(db, ...c), u); },
+    add: async (c, d) => (await addDoc(collection(db, ...c), d)).id,
+    listen: (c, cb, err) => onSnapshot(collection(db, ...c), snap => cb(snap.docs.map(x => ({ id: x.id, ...x.data() }))), err),
+    ts: () => serverTimestamp()
+  };
+
   window.ouvrirMedia = function(index) {
     const item = window._portfolioItems[index];
     if (!item) return;
+    // Visionneuse avec J'aime, commentaires, partages, vues (comme l'Accueil).
+    if (window.ArVisionneuse && item.id && profileUid) {
+      window.ArVisionneuse.ouvrir({
+        api: apiVisionneuse, uid: profileUid,
+        pseudo: '@' + String((userData && userData.prenom) || 'pro').toLowerCase().split(' ')[0],
+        item: { id: item.id, type: item.type === 'video' ? 'video' : 'photo', url: item.url,
+                likes: item.likes, dislikes: item.dislikes, comments: item.comments, shares: item.shares,
+                vues: item._vues, heritage: item._heritage || null }
+      });
+      return;
+    }
     const viewer = document.getElementById('fullscreenViewer');
     const fvImg  = document.getElementById('fvImg');
     const fvVid  = document.getElementById('fvVid');
@@ -1695,6 +1730,15 @@
   <button class="photo-viewer-close" onclick="document.getElementById('photoViewer').classList.remove('open')">✕</button>
   <img id="photoViewerImg" src="" alt="Photo"/>
 </div>
+<script>
+  // Fermer la visionneuse simple ARRÊTE aussi la vidéo (avant, le son continuait).
+  function fermerFullscreenViewer(){
+    var v = document.getElementById('fvVid');
+    if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} }
+    document.getElementById('fullscreenViewer').classList.remove('open');
+  }
+</script>
+<script src="visionneuse.js"></script>
 <script src="vie-privee.js"></script>
 <script type="module" src="photo-profil.js"></script>
 <script src="translations.js"></script>

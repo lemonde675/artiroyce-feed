@@ -419,21 +419,34 @@ async function remplirGrilleElite(grille){
       console.error('Réalisations Élite (tri par date) impossibles, 2e essai sans tri :', e);
       try { docs = (await col.get()).docs; } catch (e2) { console.error('Réalisations Élite impossibles :', e2); }
     }
-    try { const u = await db.collection('utilisateurs').doc(uid).get(); vuesTotal = Number(u.exists && u.data().vuesAccueil) || 0; } catch (e) {}
+    let donneesPro = {};
+    try { const u = await db.collection('utilisateurs').doc(uid).get(); donneesPro = (u.exists && u.data()) || {}; vuesTotal = Number(donneesPro.vuesAccueil) || 0; } catch (e) {}
     if (!docs) { // échec : on ne mémorise rien, un prochain affichage réessaiera
       grille.classList.add('pleine');
       grille.innerHTML = '<div style="font-size:11px;color:#b3b7c6;text-align:center">'+TR('Réalisations momentanément indisponibles')+'</div>';
       return;
     }
-    const toutes = docs.map(d => d.data()).filter(it => !it.corbeille && it.url);
+    const toutes = docs.map(d => Object.assign({ id: d.id }, d.data())).filter(it => !it.corbeille && it.url);
     // Vues de chaque réalisation ; les anciennes vues (d'avant le comptage par
     // publication) vont sur la toute première, comme dans l'Accueil.
     const somme = toutes.reduce((t, x) => t + (Number(x.vues) || 0), 0);
     toutes.forEach(x => { x._vues = Number(x.vues) || 0; });
     if (toutes.length) toutes[toutes.length - 1]._vues += Math.max(0, vuesTotal - somme);
+    // Anciens compteurs (d'avant « par publication ») : sur la plus ancienne, comme l'Accueil.
+    if (toutes.length) {
+      const s2 = (c) => toutes.reduce((t, x) => t + (Number(x[c]) || 0), 0);
+      toutes[toutes.length - 1]._heritage = {
+        likes:    Math.max(0, (Number(donneesPro.likesAccueil) || 0)    - s2('likes')),
+        dislikes: Math.max(0, (Number(donneesPro.dislikesAccueil) || 0) - s2('dislikes')),
+        comments: Math.max(0, (Number(donneesPro.commentsAccueil) || 0) - s2('comments')),
+        shares:   Math.max(0, (Number(donneesPro.partagesAccueil) || 0) - s2('shares'))
+      };
+    }
     _realisationsElite[uid] = toutes
       .slice(0, 4)
-      .map(it => ({ type: it.type === 'video' ? 'video' : 'photo', url: it.url, vues: it._vues }));
+      .map(it => ({ id: it.id, type: it.type === 'video' ? 'video' : 'photo', url: it.url, vues: it._vues,
+                    likes: it.likes, dislikes: it.dislikes, comments: it.comments, shares: it.shares,
+                    heritage: it._heritage || null }));
   }
   // La liste a pu être redessinée entre-temps : on remplit toutes les grilles de cette personne.
   document.querySelectorAll('.plaque-grille[data-uid="'+uid+'"]').forEach(g => afficherGrilleElite(g, _realisationsElite[uid]));
@@ -463,9 +476,30 @@ function afficherGrilleElite(grille, items){
   grille.classList.add('pleine');
 }
 
+// Accès à la base pour la visionneuse partagée (visionneuse.js).
+const apiVisionneuseElite = {
+  uid: () => (auth.currentUser ? auth.currentUser.uid : null),
+  get: async (c) => { const s = await db.doc(c.join('/')).get(); return s.exists ? s.data() : null; },
+  set: (c, d) => db.doc(c.join('/')).set(d),
+  del: (c) => db.doc(c.join('/')).delete(),
+  inc: (c, champs) => { const u = {}; Object.keys(champs).forEach(k => { u[k] = firebase.firestore.FieldValue.increment(champs[k]); }); return db.doc(c.join('/')).update(u); },
+  add: async (c, d) => (await db.collection(c.join('/')).add(d)).id,
+  listen: (c, cb, err) => db.collection(c.join('/')).onSnapshot(snap => cb(snap.docs.map(x => Object.assign({ id: x.id }, x.data()))), err),
+  ts: () => firebase.firestore.FieldValue.serverTimestamp()
+};
 function ouvrirVisionneuseElite(uid, i){
   const it = (_realisationsElite[uid] || [])[i];
   if (!it) return;
+  // Visionneuse avec J'aime, commentaires, partages, vues (comme l'Accueil).
+  if (window.ArVisionneuse && it.id) {
+    _mediaOuvertElite = { uid: uid, i: i };
+    window.ArVisionneuse.ouvrir({
+      api: apiVisionneuseElite, uid: uid, pseudo: nomDeElite(uid), item: it,
+      haut: getEmbedTopOffsetPx(),
+      enregistrer: window.ArFiligrane ? () => enregistrerMediaElite(uid, i) : null
+    });
+    return;
+  }
   const zone = document.getElementById('pgVisionneuseMedia');
   zone.innerHTML = it.type === 'video'
     ? '<video src="'+escHtml(it.url)+'" controls autoplay playsinline></video>'
@@ -504,7 +538,7 @@ window.enregistrerMediaElite = enregistrerMediaElite;
 if (window.ArFiligrane) window.ArFiligrane.appuiLong(function (el) {
   const cas = el.closest && el.closest('.pg-case');
   if (cas) return menuEnregistrerElite(cas.getAttribute('data-uid'), +cas.getAttribute('data-i'));
-  if (el.closest && el.closest('#pgVisionneuse') && _mediaOuvertElite) return menuEnregistrerElite(_mediaOuvertElite.uid, _mediaOuvertElite.i);
+  if (el.closest && el.closest('#pgVisionneuse, #arVisOv') && _mediaOuvertElite) return menuEnregistrerElite(_mediaOuvertElite.uid, _mediaOuvertElite.i);
 });
 window.ouvrirVisionneuseElite = ouvrirVisionneuseElite;
 window.fermerVisionneuseElite = fermerVisionneuseElite;
@@ -575,6 +609,7 @@ auth.onAuthStateChanged(()=>{
 chargerElite();
 </script>
 <script src="retour.js"></script>
+<script src="visionneuse.js"></script>
 <script>
   // Touche retour : ferme la photo/vidéo ouverte, sans quitter Élites.
   if (window.ArRetour) ArRetour.surveiller([{ id:'pgVisionneuse', classe:'ouverte', fermer:'fermerVisionneuseElite' }]);
