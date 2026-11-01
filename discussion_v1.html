@@ -1210,8 +1210,21 @@ const fermeursDom={};   // vue légère -> fonction qui ferme seulement l'écran
 function resyncViewIds(){ if(viewIds.length>viewStack.length) viewIds.length=viewStack.length; while(viewIds.length<viewStack.length) viewIds.push(++compteurVues); }
 history.replaceState({depth:0,vid:0},'',location.href);
 let etatCourant={depth:0,vid:0};   // état de l'entrée d'historique où l'on se trouve
+/* Discussion ouverte DEPUIS L'ACCUEIL (notification, « Réserver », Messages…) :
+   c'est l'Accueil qui garde l'entrée d'historique (le téléphone ignorait celle créée ici
+   sans toucher l'écran, et la touche retour renvoyait directement à l'Accueil).
+   La vue est alors empilée ici SANS entrée d'historique ; l'Accueil nous dit de la fermer. */
+let chatSansHisto=false;
+const idsSansHisto=new Set();
 function pushView(name){
   resyncViewIds();
+  if(name==='chat' && chatSansHisto){
+    chatSansHisto=false;
+    const id=(etatCourant && typeof etatCourant.vid==='number') ? etatCourant.vid : 0;
+    viewStack.push(name); viewIds.push(id); idsSansHisto.add(id);
+    try{ signalerVuesAuParent(); }catch(e){}
+    return;
+  }
   viewStack.push(name);
   viewIds.push(++compteurVues);
   etatCourant={depth:viewStack.length,vid:compteurVues};
@@ -1253,6 +1266,7 @@ function retirerDeLaPile(name){
   if(i===-1) return false;
   const id=viewIds[i];
   viewStack.splice(i,1); viewIds.splice(i,1);
+  if(name==='chat' && idsSansHisto.has(id)){ idsSansHisto.delete(id); try{ signalerVuesAuParent(); }catch(e){} return true; }
   const st=history.state||{};
   if(typeof st.vid==='number' && st.vid>=id && !st.fantome){
     etatCourant=Object.assign({},st,{fantome:true});
@@ -5109,7 +5123,9 @@ function demarrerFirebase(){
       window._chatEnAttente = null;
       const ini=(p.nom||'?')[0].toUpperCase();
       const bg=(typeof gradientPourId==='function') ? gradientPourId(p.uid) : 'linear-gradient(135deg,#333,#555)';
+      chatSansHisto = !!p.parentHisto && viewStack[viewStack.length-1]!=='chat';
       window.openChat(p.nom, '', ini, bg, false, '', false, p.uid, !!p.verifie);
+      chatSansHisto = false;
     }
   });
 }
@@ -5164,15 +5180,22 @@ function demarrerHeartbeatPresence(){
   window.addEventListener('pagehide', sortie);
 }
 
+// L'Accueil (touche retour) demande de fermer la discussion qu'il avait ouverte.
+window.addEventListener('message', function(e){
+  if(!e.data || e.data.type!=='fermerChatParent') return;
+  if(viewStack.indexOf('chat')!==-1) fermerVueLocale('chat');
+});
 // ── Réception du pont Offre → Discussion (depuis accueil.html) ──
 // Ouvre directement la conversation avec la personne, au lieu de rester sur la liste.
 window.addEventListener('message', function(e){
   if(!e.data || e.data.type!=='ouvrirChatUid' || !e.data.uid) return;
-  const payload = { uid:e.data.uid, nom:e.data.nom||'Utilisateur', verifie:!!e.data.verifie };
+  const payload = { uid:e.data.uid, nom:e.data.nom||'Utilisateur', verifie:!!e.data.verifie, parentHisto:!!e.data.parentHisto };
   if(typeof currentUid!=='undefined' && currentUid){
     const ini=(payload.nom||'?')[0].toUpperCase();
     const bg=(typeof gradientPourId==='function') ? gradientPourId(payload.uid) : 'linear-gradient(135deg,#333,#555)';
+    chatSansHisto = payload.parentHisto && viewStack[viewStack.length-1]!=='chat';
     window.openChat(payload.nom, '', ini, bg, false, '', false, payload.uid, payload.verifie);
+    chatSansHisto = false;
   } else {
     window._chatEnAttente = payload;
   }
