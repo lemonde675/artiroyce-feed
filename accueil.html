@@ -679,6 +679,17 @@ function toggleSiteWidth(){
     const bgStyle = '';
     const bgClass = bg;
     const adresseEsc = adresse.replace(/'/g, "\\'");
+    // Chaque publication a ses propres compteurs (j'aime, commentaires, favoris, partages).
+    // La plus ancienne publication d'une personne reprend aussi les anciens compteurs,
+    // d'avant le passage « par publication » (_heritage, calculé au chargement du fil).
+    const pid = (publication && publication.id) ? String(publication.id) : '';
+    const cle = uid + '__' + pid;
+    const her = (publication && publication._heritage) || null;
+    const nbPub = (champ) => (Number(publication && publication[champ]) || 0) + (her ? (Number(her[champ]) || 0) : 0);
+    window._pubsAcc = window._pubsAcc || {};
+    window._pubsAcc[cle] = { uid: uid, pid: pid, heritage: !!her, index: index };
+    window._pubParIndexAcc = window._pubParIndexAcc || {};
+    window._pubParIndexAcc[index] = cle;
 
     let bgHTML = '';
     let controlesVideoHTML = '';
@@ -732,7 +743,7 @@ function toggleSiteWidth(){
       bgHTML = `<div class="vcard-bg ${bgClass}" style="${bgStyle}"></div>`;
     }
 
-    return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}" data-pseudo="${pseudo}">
+    return `<div class="vcard" id="carte-${index}" data-vue-uid="${uid}" data-cle="${cle}" data-pseudo="${pseudo}">
       ${bgHTML}
       ${controlesVideoHTML}
       ${boutonSonHTML}
@@ -749,29 +760,29 @@ function toggleSiteWidth(){
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
           <span class="act-lbl">${TR('Réalisation')}</span>
         </div>
-        <div class="act-btn" id="like-btn-${uid}" onclick="reagirAccueil('${uid}','like')">
+        <div class="act-btn" id="like-btn-${cle}" onclick="reagirAccueil('${uid}','${pid}','like')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></div>
-          <span class="act-n" id="like-n-${uid}" data-raw="${data.likesAccueil||0}">${formatCompactAccueil(data.likesAccueil||0)}</span>
+          <span class="act-n" id="like-n-${cle}" data-raw="${nbPub('likes')}">${formatCompactAccueil(nbPub('likes'))}</span>
         </div>
-        <div class="act-btn" id="dislike-btn-${uid}" onclick="reagirAccueil('${uid}','dislike')">
+        <div class="act-btn" id="dislike-btn-${cle}" onclick="reagirAccueil('${uid}','${pid}','dislike')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></div>
-          <span class="act-n" id="dislike-n-${uid}" data-raw="${data.dislikesAccueil||0}">${formatCompactAccueil(data.dislikesAccueil||0)}</span>
+          <span class="act-n" id="dislike-n-${cle}" data-raw="${nbPub('dislikes')}">${formatCompactAccueil(nbPub('dislikes'))}</span>
         </div>
-        <div class="act-btn" onclick="ouvrirCommentairesAccueil('${uid}','${pseudo}')">
+        <div class="act-btn" onclick="ouvrirCommentairesAccueil('${uid}','${pid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <span class="act-n" id="comment-n-${uid}" data-raw="${data.commentsAccueil||0}">${formatCompactAccueil(data.commentsAccueil||0)}</span>
+          <span class="act-n" id="comment-n-${cle}" data-raw="${nbPub('comments')}">${formatCompactAccueil(nbPub('comments'))}</span>
         </div>
-        <div class="act-btn" id="save-btn-${uid}" onclick="menuSauverAccueil('${uid}', ${index})">
+        <div class="act-btn" id="save-btn-${cle}" onclick="menuSauverAccueil('${uid}', ${index})">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-          <span class="act-n" id="save-n-${uid}" data-raw="${data.savesAccueil||0}">${formatCompactAccueil(data.savesAccueil||0)}</span>
+          <span class="act-n" id="save-n-${cle}" data-raw="${nbPub('saves')}">${formatCompactAccueil(nbPub('saves'))}</span>
         </div>
         <div class="act-btn" onclick="ouvrirReservationAccueil('${uid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <span class="act-lbl">${TR('Réserver')}</span>
         </div>
-        <div class="act-btn" onclick="partagerAccueil('${uid}','${pseudo}')">
+        <div class="act-btn" onclick="partagerAccueil('${uid}','${pid}','${pseudo}')">
           <div class="act-circle"><svg class="ico" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
-          <span class="act-n" id="share-n-${uid}" data-raw="${data.partagesAccueil||0}">${formatCompactAccueil(data.partagesAccueil||0)}</span>
+          <span class="act-n" id="share-n-${cle}" data-raw="${nbPub('shares')}">${formatCompactAccueil(nbPub('shares'))}</span>
         </div>
       </div>
       <div class="info-top">
@@ -1272,14 +1283,19 @@ function toggleSiteWidth(){
     return _ordreAleatoireStableAcc[id];
   }
 
+  // Mes réactions et mes favoris, PAR PUBLICATION (clé « uid__idPublication »), rangés
+  // dans MA fiche (mesReactionsPubs, sauvegardesAccueil). Les anciens, d'avant le
+  // passage par publication (rangés par personne), comptent pour sa première publication.
+  let mesReactionsPubsAcc = {};   // cle -> 'like' | 'dislike'
   async function chargerMesEtatsAccueil(){
     if (!auth.currentUser) return;
     const moi = auth.currentUser.uid;
     try {
-      const [snapReactions, snapSuivis, snapSauv] = await Promise.all([
-        db.collectionGroup('reactionsAccueil').where('uid','==',moi).get(),
+      const [snapReactions, snapSuivis, snapSauv, snapPubs] = await Promise.all([
+        db.collectionGroup('reactionsAccueil').where('uid','==',moi).get().catch(() => ({ forEach(){} })),
         db.collection('abonnements').where('follower','==',moi).get(),
-        db.collectionGroup('sauvegardesAccueil').where('uid','==',moi).get()
+        db.collection('utilisateurs').doc(moi).collection('sauvegardesAccueil').get().catch(() => ({ forEach(){} })),
+        db.collection('utilisateurs').doc(moi).collection('mesReactionsPubs').get().catch(() => ({ forEach(){} }))
       ]);
       mesReactionsAccueil = {};
       snapReactions.forEach(d => {
@@ -1288,20 +1304,29 @@ function toggleSiteWidth(){
       });
       mesSuivisAccueil = new Set(snapSuivis.docs.map(d => d.data().followed));
       mesSauvegardesAccueil = new Set();
-      snapSauv.forEach(d => {
-        const cible = d.ref.parent.parent ? d.ref.parent.parent.id : null;
-        if (cible) mesSauvegardesAccueil.add(cible);
-      });
+      snapSauv.forEach(d => mesSauvegardesAccueil.add(d.id));   // « uid » (ancien) ou « uid__idPublication »
+      mesReactionsPubsAcc = {};
+      snapPubs.forEach(d => { const t = d.data().type; if (t) mesReactionsPubsAcc[d.id] = t; });
     } catch(e) { console.error('États Accueil impossibles à charger :', e); }
     appliquerEtatsSurCartes();
   }
 
-  // Un professionnel peut désormais apparaître sur plusieurs cartes (une par
-  // publication). Ce helper retourne TOUTES les cartes partageant un même id
-  // (au lieu de getElementById qui ne retourne que la première trouvée),
-  // pour que suivre/j'aime/sauver/commenter se mettent à jour partout.
+  // Un même id peut exister sur plusieurs cartes (publication épinglée en tête + dans le fil).
   function tousAvecId(id) {
     return Array.from(document.querySelectorAll('[id="' + id + '"]'));
+  }
+  // Ma réaction sur une publication (la nouvelle, sinon l'ancienne si c'est sa première publication).
+  function maReactionAcc(cle){
+    const info = (window._pubsAcc || {})[cle];
+    if (mesReactionsPubsAcc[cle]) return { type: mesReactionsPubsAcc[cle], ancienne: false };
+    if (info && info.heritage && mesReactionsAccueil[info.uid]) return { type: mesReactionsAccueil[info.uid], ancienne: true };
+    return null;
+  }
+  function estSauvegardeeAcc(cle){
+    const info = (window._pubsAcc || {})[cle];
+    if (mesSauvegardesAccueil.has(cle)) return { ancienne: false };
+    if (info && info.heritage && mesSauvegardesAccueil.has(info.uid)) return { ancienne: true };
+    return null;
   }
 
   function appliquerEtatsSurCartes(){
@@ -1313,14 +1338,12 @@ function toggleSiteWidth(){
         btnSuivre.textContent = suivi ? TR('Suivi(e)') : TR('+ Suivre');
         btnSuivre.style.opacity = suivi ? '0.7' : '1';
       }
-    });
-    Object.keys(mesReactionsAccueil).forEach(uid => {
-      const type = mesReactionsAccueil[uid];
-      tousAvecId('like-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='like'));
-      tousAvecId('dislike-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='dislike'));
-    });
-    mesSauvegardesAccueil.forEach(uid => {
-      tousAvecId('save-btn-'+uid).forEach(b => b.querySelector('.act-circle').classList.add('liked'));
+      const cle = card.dataset.cle;
+      if (!cle) return;
+      const r = maReactionAcc(cle);
+      card.querySelectorAll('[id="like-btn-'+cle+'"] .act-circle').forEach(c => c.classList.toggle('liked', !!r && r.type === 'like'));
+      card.querySelectorAll('[id="dislike-btn-'+cle+'"] .act-circle').forEach(c => c.classList.toggle('liked', !!r && r.type === 'dislike'));
+      card.querySelectorAll('[id="save-btn-'+cle+'"] .act-circle').forEach(c => c.classList.toggle('liked', !!estSauvegardeeAcc(cle)));
     });
   }
 
@@ -1486,12 +1509,13 @@ function toggleSiteWidth(){
         };
         const cibleUid = entree.target.dataset.vueUid;
         majPointVertAcc(cibleUid);
-        if (!cibleUid || vuesDejaComptees.has(cibleUid)) return;
+        // Une vue par PUBLICATION et par visite (compteur de la publication + total de la personne).
+        const cleVue = entree.target.dataset.cle || cibleUid;
+        if (!cibleUid || vuesDejaComptees.has(cleVue)) return;
         if (auth.currentUser && cibleUid === auth.currentUser.uid) return;
-        vuesDejaComptees.add(cibleUid);
-        db.collection('utilisateurs').doc(cibleUid).update({
-          vuesAccueil: firebase.firestore.FieldValue.increment(1)
-        }).catch(()=>{});
+        vuesDejaComptees.add(cleVue);
+        const pidVue = cleVue.indexOf('__') > 0 ? cleVue.split('__')[1] : '';
+        majCompteursAcc(cibleUid, pidVue, { vues: 1 }, !!pidVue);
       });
     }, { root: document.getElementById('feedW'), threshold: [0, 0.6] });
     document.querySelectorAll('.vcard[data-vue-uid]').forEach(el => observateurVuesAcc.observe(el));
@@ -1585,67 +1609,72 @@ function toggleSiteWidth(){
     });
   }
 
-  // J'aime / Je n'aime pas réels — compteurs stockés directement sur le
-  // document utilisateurs/{cible} (pas de lecture supplémentaire nécessaire
-  // pour les afficher dans le fil), et ma propre réaction dans une petite
-  // sous-collection pour savoir ce que j'ai déjà choisi et pouvoir basculer.
-  window.reagirAccueil = async function(cibleUid, type){
-    if (!auth.currentUser) { toast('Connecte-toi pour réagir', ''); return; }
-    const moi = auth.currentUser.uid;
-    if (moi === cibleUid) { toast('Tu ne peux pas réagir à ton propre profil', ''); return; }
-    const reactRef = doc(db, 'utilisateurs', cibleUid, 'reactionsAccueil', moi);
-    const cibleRef = doc(db, 'utilisateurs', cibleUid);
-    const ancien = mesReactionsAccueil[cibleUid];
-    const likeNs = tousAvecId('like-n-'+cibleUid);
-    const dislikeNs = tousAvecId('dislike-n-'+cibleUid);
-    const likeBtns = tousAvecId('like-btn-'+cibleUid);
-    const dislikeBtns = tousAvecId('dislike-btn-'+cibleUid);
-    const lireN = (els) => els.length ? (parseInt(els[0].dataset.raw||'0')||0) : 0;
-    const ecrireN = (els, val) => els.forEach(el => { el.dataset.raw = val; el.textContent = formatCompactAccueil(val); });
-    try {
-      if (ancien === type) {
-        // On retire sa réaction
-        await deleteDoc(reactRef);
-        await updateDoc(cibleRef, { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(-1) });
-        delete mesReactionsAccueil[cibleUid];
-        likeBtns.forEach(b => b.querySelector('.act-circle').classList.remove('liked'));
-        dislikeBtns.forEach(b => b.querySelector('.act-circle').classList.remove('liked'));
-        if (type==='like') ecrireN(likeNs, Math.max(0, lireN(likeNs)-1));
-        if (type==='dislike') ecrireN(dislikeNs, Math.max(0, lireN(dislikeNs)-1));
-      } else {
-        await setDoc(reactRef, { uid: moi, type: type, createdAt: serverTimestamp() });
-        const maj = { [type==='like'?'likesAccueil':'dislikesAccueil']: increment(1) };
-        if (ancien) maj[ancien==='like'?'likesAccueil':'dislikesAccueil'] = increment(-1);
-        await updateDoc(cibleRef, maj);
-        mesReactionsAccueil[cibleUid] = type;
-        likeBtns.forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='like'));
-        dislikeBtns.forEach(b => b.querySelector('.act-circle').classList.toggle('liked', type==='dislike'));
-        if (type==='like') ecrireN(likeNs, lireN(likeNs)+1);
-        if (type==='dislike') ecrireN(dislikeNs, lireN(dislikeNs)+1);
-        if (ancien==='like') ecrireN(likeNs, Math.max(0, lireN(likeNs)-1));
-        if (ancien==='dislike') ecrireN(dislikeNs, Math.max(0, lireN(dislikeNs)-1));
-        if (type==='like') window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'reaction', page: 'profil', cibleId: cibleUid, extrait: '👍', unique: true });
-      }
-    } catch(e) { console.error(e); toast('Erreur', ''); }
-  };
-
-  // Compteurs façon TikTok (Sauver, Partager) : +1 / -1 sur le profil, et le chiffre
-  // affiché change tout de suite. Une erreur ici ne bloque jamais l'action elle-même.
-  function compteurAccueil(cibleUid, champ, prefixe, delta){
-    if (!auth.currentUser || auth.currentUser.uid === cibleUid) return;
-    tousAvecId(prefixe + cibleUid).forEach(el => {
+  // ── J'aime / Je n'aime pas, favoris, partages : PAR PUBLICATION ──
+  // Compteur de la publication (utilisateurs/{uid}/portfolio/{id}) ET total de la
+  // personne (utilisateurs/{uid} : likesAccueil…, utilisé pour les étoiles et la monétisation).
+  const CHAMP_TOTAL_ACC = { likes: 'likesAccueil', dislikes: 'dislikesAccueil', comments: 'commentsAccueil', saves: 'savesAccueil', shares: 'partagesAccueil', vues: 'vuesAccueil' };
+  function afficherCompteurAcc(prefixe, cle, delta){
+    tousAvecId(prefixe + cle).forEach(el => {
       const v = Math.max(0, (parseInt(el.dataset.raw||'0')||0) + delta);
       el.dataset.raw = v; el.textContent = formatCompactAccueil(v);
     });
-    updateDoc(doc(db, 'utilisateurs', cibleUid), { [champ]: increment(delta) }).catch(e => console.warn('Compteur', champ, e));
+  }
+  // deltas : { likes: +1, dislikes: -1 } … ; surPub : false = seulement le total (ancien compteur).
+  function majCompteursAcc(uid, pid, deltas, surPub){
+    const pourPub = {}, pourTotal = {};
+    Object.keys(deltas).forEach(c => {
+      if (!deltas[c]) return;
+      if (surPub !== false) pourPub[c] = increment(deltas[c]);
+      pourTotal[CHAMP_TOTAL_ACC[c]] = increment(deltas[c]);
+    });
+    const p = [];
+    if (pid && Object.keys(pourPub).length) p.push(updateDoc(doc(db, 'utilisateurs', uid, 'portfolio', pid), pourPub).catch(e => console.warn('Compteur publication', e)));
+    if (Object.keys(pourTotal).length) p.push(updateDoc(doc(db, 'utilisateurs', uid), pourTotal).catch(e => console.warn('Compteur total', e)));
+    return Promise.all(p);
   }
 
-  // « Sauver » : ⭐ favoris (comme avant) OU 📥 enregistrer la photo/vidéo avec la marque ArtiRoyce.
+  window.reagirAccueil = async function(cibleUid, pid, type){
+    if (!auth.currentUser) { toast('Connecte-toi pour réagir', ''); return; }
+    const moi = auth.currentUser.uid;
+    if (moi === cibleUid) { toast('Tu ne peux pas réagir à ta propre publication', ''); return; }
+    if (!pid) return;
+    const cle = cibleUid + '__' + pid;
+    const champ = (t) => t === 'like' ? 'likes' : 'dislikes';
+    const ancien = maReactionAcc(cle);
+    const maRef = doc(db, 'utilisateurs', moi, 'mesReactionsPubs', cle);
+    try {
+      // 1) On retire l'ancienne réaction (nouvelle ou d'avant).
+      if (ancien) {
+        if (ancien.ancienne) {
+          await deleteDoc(doc(db, 'utilisateurs', cibleUid, 'reactionsAccueil', moi)).catch(() => {});
+          delete mesReactionsAccueil[cibleUid];
+          await majCompteursAcc(cibleUid, pid, { [champ(ancien.type)]: -1 }, false);
+        } else {
+          await deleteDoc(maRef).catch(() => {});
+          delete mesReactionsPubsAcc[cle];
+          await majCompteursAcc(cibleUid, pid, { [champ(ancien.type)]: -1 });
+        }
+        afficherCompteurAcc(ancien.type === 'like' ? 'like-n-' : 'dislike-n-', cle, -1);
+      }
+      // 2) Toucher la même réaction = la retirer ; sinon on pose la nouvelle.
+      if (!ancien || ancien.type !== type) {
+        await setDoc(maRef, { cible: cibleUid, pub: pid, type: type, createdAt: serverTimestamp() });
+        mesReactionsPubsAcc[cle] = type;
+        await majCompteursAcc(cibleUid, pid, { [champ(type)]: 1 });
+        afficherCompteurAcc(type === 'like' ? 'like-n-' : 'dislike-n-', cle, 1);
+        if (type === 'like') window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'reaction', page: 'profil', cibleId: cle, extrait: '👍', unique: true });
+      }
+      appliquerEtatsSurCartes();
+    } catch(e) { console.error(e); toast('Erreur', ''); }
+  };
+
+  // « Sauver » : ⭐ favoris OU 📥 enregistrer la photo/vidéo avec la marque ArtiRoyce.
   window.menuSauverAccueil = function(cibleUid, index){
     const media = (window._mediaCartesAcc || {})[index] || null;
+    const cle = (window._pubParIndexAcc || {})[index] || '';
     const options = [{
-      texte: mesSauvegardesAccueil.has(cibleUid) ? TR('⭐ Retirer des favoris') : TR('⭐ Ajouter aux favoris'),
-      action: () => window.toggleSauverAccueil(cibleUid)
+      texte: estSauvegardeeAcc(cle) ? TR('⭐ Retirer des favoris') : TR('⭐ Ajouter aux favoris'),
+      action: () => window.toggleSauverAccueil(cle)
     }];
     if (media && window.ArFiligrane) options.push({
       texte: TR('📥 Enregistrer sur le téléphone'),
@@ -1654,38 +1683,47 @@ function toggleSiteWidth(){
         : window.ArFiligrane.enregistrerPhoto(media.url, media.pseudo)
     });
     if (window.ArFiligrane) window.ArFiligrane.menu(TR('Sauver'), options);
-    else window.toggleSauverAccueil(cibleUid);   // sécurité : si filigrane.js manque, comme avant
+    else window.toggleSauverAccueil(cle);
   };
 
-  window.toggleSauverAccueil = async function(cibleUid){
+  window.toggleSauverAccueil = async function(cle){
     if (!auth.currentUser) { toast('Connecte-toi pour sauvegarder', ''); return; }
-    const moi = auth.currentUser.uid;
-    const saveRef = doc(db, 'utilisateurs', moi, 'sauvegardesAccueil', cibleUid);
-    const btns = tousAvecId('save-btn-'+cibleUid);
+    const info = (window._pubsAcc || {})[cle];
+    if (!info || !info.pid) return;
+    const moi = auth.currentUser.uid, cibleUid = info.uid;
+    const deja = estSauvegardeeAcc(cle);
+    const compter = moi !== cibleUid;
     try {
-      if (mesSauvegardesAccueil.has(cibleUid)) {
-        await deleteDoc(saveRef);
-        mesSauvegardesAccueil.delete(cibleUid);
-        compteurAccueil(cibleUid, 'savesAccueil', 'save-n-', -1);
-        btns.forEach(btn => btn.querySelector('.act-circle').classList.remove('liked'));
+      if (deja) {
+        const idDoc = deja.ancienne ? cibleUid : cle;
+        await deleteDoc(doc(db, 'utilisateurs', moi, 'sauvegardesAccueil', idDoc));
+        mesSauvegardesAccueil.delete(idDoc);
+        if (compter) { majCompteursAcc(cibleUid, info.pid, { saves: -1 }, !deja.ancienne); afficherCompteurAcc('save-n-', cle, -1); }
         toast('Retiré des favoris', '');
       } else {
-        await setDoc(saveRef, { uid: moi, createdAt: serverTimestamp() });
-        mesSauvegardesAccueil.add(cibleUid);
-        compteurAccueil(cibleUid, 'savesAccueil', 'save-n-', 1);
-        btns.forEach(btn => btn.querySelector('.act-circle').classList.add('liked'));
+        await setDoc(doc(db, 'utilisateurs', moi, 'sauvegardesAccueil', cle), { uid: moi, cible: cibleUid, pub: info.pid, createdAt: serverTimestamp() });
+        mesSauvegardesAccueil.add(cle);
+        if (compter) { majCompteursAcc(cibleUid, info.pid, { saves: 1 }); afficherCompteurAcc('save-n-', cle, 1); }
         toast('Sauvegardé !', 'g');
       }
+      appliquerEtatsSurCartes();
     } catch(e) { console.error(e); toast('Erreur', ''); }
   };
 
-  window.partagerAccueil = async function(cibleUid, pseudo){
-    const url = window.location.origin + window.location.pathname.replace('accueil.html','') + 'profil.html?uid=' + cibleUid;
+  // Partager : le lien ouvre CETTE publication en tête de l'Accueil.
+  window.partagerAccueil = async function(cibleUid, pid, pseudo){
+    const base = window.location.origin + window.location.pathname.replace('accueil.html','');
+    const url = pid ? (base + 'accueil.html?pub=' + encodeURIComponent(pid) + '&uid=' + encodeURIComponent(cibleUid)) : (base + 'profil.html?uid=' + cibleUid);
+    const cle = cibleUid + '__' + pid;
+    const compter = () => {
+      if (!pid || !auth.currentUser || auth.currentUser.uid === cibleUid) return;
+      majCompteursAcc(cibleUid, pid, { shares: 1 }); afficherCompteurAcc('share-n-', cle, 1);
+    };
     if (navigator.share) {
-      try { await navigator.share({ title: 'ArtiRoyce · ' + pseudo, url: url }); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
-      catch(e) { /* partage annulé, rien à faire */ }
+      try { await navigator.share({ title: 'ArtiRoyce · ' + pseudo, url: url }); compter(); }
+      catch(e) { /* partage annulé */ }
     } else {
-      try { await navigator.clipboard.writeText(url); toast('Lien copié !', 'g'); compteurAccueil(cibleUid, 'partagesAccueil', 'share-n-', 1); }
+      try { await navigator.clipboard.writeText(url); toast('Lien copié !', 'g'); compter(); }
       catch(e) { toast('' + url, ''); }
     }
   };
@@ -1785,13 +1823,20 @@ function toggleSiteWidth(){
 
   let _unsubCommentsAccueil = null;
 
-  window.ouvrirCommentairesAccueil = function(cibleUid, pseudo){
+  // Commentaires d'UNE publication : utilisateurs/{uid}/portfolio/{id}/commentaires.
+  // Sa première publication montre aussi les anciens commentaires (rangés sur la personne).
+  const refsCommAcc = {};   // id du commentaire -> sa référence (nouveau ou ancien)
+  let _unsubCommentsAncAcc = null;
+  window.ouvrirCommentairesAccueil = function(cibleUid, pid, pseudo){
+    if (pseudo === undefined) { pseudo = pid; pid = ''; }
+    const cle = cibleUid + '__' + pid;
+    const avecAnciens = !pid || !!(((window._pubsAcc || {})[cle] || {}).heritage);
     let overlay = document.getElementById('commentsOverlayAccueil');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.className = 'moverlay';
       overlay.id = 'commentsOverlayAccueil';
-      overlay.onclick = (e) => { if (e.target === overlay) { overlay.classList.remove('open'); if (_unsubCommentsAccueil) { _unsubCommentsAccueil(); _unsubCommentsAccueil = null; } } };
+      overlay.onclick = (e) => { if (e.target === overlay) { overlay.classList.remove('open'); if (_unsubCommentsAccueil) { _unsubCommentsAccueil(); _unsubCommentsAccueil = null; } if (_unsubCommentsAncAcc) { _unsubCommentsAncAcc(); _unsubCommentsAncAcc = null; } } };
       overlay.innerHTML = '<div class="lsheet" style="max-height:75vh;display:flex;flex-direction:column">'
         + '<div class="lhandle"></div>'
         + '<div class="ltitle" id="commentsTitreAccueil">' + TR('Commentaires') + '</div>'
@@ -1808,7 +1853,9 @@ function toggleSiteWidth(){
       document.getElementById('commentsInputAccueil').addEventListener('keydown', e => { if (e.key === 'Enter') window.envoyerCommentaireAccueil(); });
     }
     if (_unsubCommentsAccueil) { _unsubCommentsAccueil(); _unsubCommentsAccueil = null; }
+    if (_unsubCommentsAncAcc) { _unsubCommentsAncAcc(); _unsubCommentsAncAcc = null; }
     overlay.dataset.cible = cibleUid;
+    overlay.dataset.pub = pid;
     overlay.dataset.pseudo = pseudo;
     window.annulerReponseAccueil();
     document.getElementById('commentsTitreAccueil').textContent = TR('Commentaires · {p}', {p: pseudo});
@@ -1816,14 +1863,37 @@ function toggleSiteWidth(){
     const liste = document.getElementById('commentsListeAccueil');
     liste.innerHTML = '<div style="text-align:center;color:#999;font-size:12px;padding:20px">' + TR('Chargement…') + '</div>';
 
-    _unsubCommentsAccueil = db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil')
-      .orderBy('createdAt','asc')
-      .onSnapshot(snap => {
-        const total = snap.size;
-        tousAvecId('comment-n-'+cibleUid).forEach(el => { el.dataset.raw = total; el.textContent = formatCompactAccueil(total); });
+    // Deux sources possibles (nouveaux + anciens) réunies en une seule liste.
+    let docsPub = [], docsAnc = [];
+    const prets = { pub: !pid, anc: !avecAnciens };
+    const dessiner = () => {
+      if (!prets.pub || !prets.anc) return;
+      const total = docsPub.length + docsAnc.length;
+      tousAvecId('comment-n-'+cle).forEach(el => { el.dataset.raw = total; el.textContent = formatCompactAccueil(total); });
+      afficherListe(docsPub.concat(docsAnc));
+    };
+    const erreur = (e) => {
+      console.error(e);
+      liste.innerHTML = '<div style="text-align:center;color:#e63224;font-size:12px;padding:20px">' + TR('Impossible de charger les commentaires.') + '</div>';
+    };
+    if (pid) {
+      _unsubCommentsAccueil = db.collection('utilisateurs').doc(cibleUid).collection('portfolio').doc(pid).collection('commentaires')
+        .onSnapshot(snap => {
+          docsPub = []; snap.forEach(d => { refsCommAcc[d.id] = d.ref; docsPub.push({ id: d.id, ...d.data() }); });
+          prets.pub = true; dessiner();
+        }, erreur);
+    }
+    if (avecAnciens) {
+      _unsubCommentsAncAcc = db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil')
+        .onSnapshot(snap => {
+          docsAnc = []; snap.forEach(d => { refsCommAcc[d.id] = d.ref; docsAnc.push({ id: d.id, ...d.data() }); });
+          prets.anc = true; dessiner();
+        }, erreur);
+    }
 
-        const tous = [];
-        snap.forEach(d => tous.push({ id: d.id, ...d.data() }));
+    function afficherListe(tous){
+        const ms = (c) => (c.createdAt && c.createdAt.toMillis) ? c.createdAt.toMillis() : Date.now();
+        tous.sort((a, b) => ms(a) - ms(b));
         const parentDe = {};
         tous.forEach(c => { parentDe[c.id] = c.parentId || null; });
         function trouverRacine(id){ let cur = id, garde = 0; while (parentDe[cur] && garde < 20) { cur = parentDe[cur]; garde++; } return cur; }
@@ -1888,10 +1958,7 @@ function toggleSiteWidth(){
             liste.appendChild(repZone);
           }
         });
-      }, e => {
-        console.error(e);
-        liste.innerHTML = '<div style="text-align:center;color:#e63224;font-size:12px;padding:20px">' + TR('Impossible de charger les commentaires.') + '</div>';
-      });
+    }
   };
 
   window.repondreCommAccueil = function(commentId, nom){
@@ -1912,7 +1979,7 @@ function toggleSiteWidth(){
 
   window.toggleAimeCommAccueil = async function(cibleUid, commentId){
     if (!auth.currentUser) { toast('Connecte-toi pour réagir', ''); return; }
-    const ref = db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').doc(commentId);
+    const ref = refsCommAcc[commentId] || db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').doc(commentId);
     try {
       if (mesReactionsCommAccueil[commentId]) {
         delete mesReactionsCommAccueil[commentId];
@@ -1937,14 +2004,19 @@ function toggleSiteWidth(){
       const moiSnap = await getDoc(doc(db, 'utilisateurs', auth.currentUser.uid));
       const moiData = moiSnap.exists ? moiSnap.data() : {};
       const monNom = moiData.prenom || 'Anonyme';
-      await db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil').add({
+      const pid = overlay.dataset.pub || '';
+      const coll = pid
+        ? db.collection('utilisateurs').doc(cibleUid).collection('portfolio').doc(pid).collection('commentaires')
+        : db.collection('utilisateurs').doc(cibleUid).collection('commentairesAccueil');
+      await coll.add({
         uid: auth.currentUser.uid, nom: monNom, texte: texte,
         verifie: moiData.statut === 'verifie', ville: moiData.ville || moiData.adresse || '',
         parentId: reponseA || null, createdAt: serverTimestamp(), likes: 0
       });
       window.annulerReponseAccueil();
-      window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'commentaire', page: 'profil', cibleId: cibleUid, extrait: texte });
-      await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
+      window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'commentaire', page: 'profil', cibleId: cibleUid + '__' + pid, extrait: texte });
+      if (pid) await majCompteursAcc(cibleUid, pid, { comments: 1 });
+      else await updateDoc(doc(db,'utilisateurs',cibleUid), { commentsAccueil: increment(1) });
     } catch(e) { console.error(e); toast('Erreur envoi commentaire', ''); }
   };
 
@@ -1978,14 +2050,41 @@ function toggleSiteWidth(){
     const cibleUid = overlay.dataset.cible;
     const msg = document.getElementById('reservationMsgAccueil').value.trim();
     if (!msg) { toast('Écris un message', ''); return; }
+    const moi = auth.currentUser.uid;
+    if (moi === cibleUid) { toast('C\'est votre propre publication', ''); return; }
+    const btnEnv = overlay.querySelector('button'); if (btnEnv) btnEnv.disabled = true;
     try {
-      await db.collection('demandesRdv').add({
-        demandeurUid: auth.currentUser.uid, professionnelUid: cibleUid,
-        message: msg, statut: 'en_attente', createdAt: serverTimestamp()
-      });
+      // La demande arrive comme un MESSAGE dans Discussion (conversation à deux),
+      // et le professionnel reçoit une notification 🔔.
+      const fv = firebase.firestore.FieldValue;
+      const [snapMoi, snapPro] = await Promise.all([
+        db.collection('utilisateurs').doc(moi).get(), db.collection('utilisateurs').doc(cibleUid).get()
+      ]);
+      const um = snapMoi.exists ? snapMoi.data() : {}, up = snapPro.exists ? snapPro.data() : {};
+      const info = (u, id) => {
+        const nom = ((u.prenom || '') + (u.nomFamille ? ' ' + u.nomFamille : '')).trim() || 'Utilisateur';
+        return { nom: nom, ini: nom.charAt(0).toUpperCase(), bg: '#e63224',
+                 role: u.role === 'visiteur' ? 'Visiteur' : (u.metier || 'Professionnel'), verifie: u.statut === 'verifie' };
+      };
+      const convId = [moi, cibleUid].sort().join('_');
+      const convRef = db.collection('conversations').doc(convId);
+      const convSnap = await convRef.get();
+      const infos = { [moi]: info(um, moi), [cibleUid]: info(up, cibleUid) };
+      if (!convSnap.exists) {
+        await convRef.set({ participants: [moi, cibleUid], creeLe: fv.serverTimestamp(), derniereActivite: fv.serverTimestamp(),
+                            dernierMessage: '', dernierEmetteur: '', infos: infos });
+      }
+      const texte = '📅 Demande de rendez-vous : ' + msg;
+      await convRef.collection('messages').add({ texte: texte, emetteur: moi, rdv: true, horodatage: fv.serverTimestamp() });
+      await convRef.set({ derniereActivite: fv.serverTimestamp(), dernierMessage: '📅 Demande de rendez-vous',
+                          dernierEmetteur: moi, nonLus: { [cibleUid]: fv.increment(1) } }, { merge: true });
+      window.ArNotif && ArNotif.envoyer({ dest: cibleUid, type: 'reservation', page: 'discussion', cibleId: convId, extrait: msg });
+      // Gardé aussi dans la liste des demandes (pour l'administration).
+      db.collection('demandesRdv').add({ demandeurUid: moi, professionnelUid: cibleUid, message: msg, statut: 'en_attente', createdAt: serverTimestamp() }).catch(() => {});
       overlay.classList.remove('open');
-      toast('Demande envoyée !', 'g');
+      toast('Demande envoyée ! Retrouvez-la dans Discussion.', 'g');
     } catch(e) { console.error(e); toast('Erreur envoi demande', ''); }
+    if (btnEnv) btnEnv.disabled = false;
   };
 
   let currentUserRole = 'artisan';
@@ -2354,6 +2453,20 @@ function toggleSiteWidth(){
         } catch(e) { console.error('portfolio ' + p.id, e); p.pubs = []; }
       }));
       const pros = brut.filter(p => p.data.role !== 'visiteur' && p.pubs && p.pubs.length);
+      // Anciens compteurs (d'avant « par publication ») : ce qui reste sur la personne une
+      // fois retiré ce qui appartient déjà à ses publications. Rattaché à sa PREMIÈRE publication.
+      pros.forEach(p => {
+        const somme = (c) => p.pubs.reduce((t, x) => t + (Number(x[c]) || 0), 0);
+        const d = p.data || {};
+        const premiere = p.pubs[p.pubs.length - 1];   // la liste est de la plus récente à la plus ancienne
+        premiere._heritage = {
+          likes:    Math.max(0, (Number(d.likesAccueil) || 0)    - somme('likes')),
+          dislikes: Math.max(0, (Number(d.dislikesAccueil) || 0) - somme('dislikes')),
+          comments: Math.max(0, (Number(d.commentsAccueil) || 0) - somme('comments')),
+          saves:    Math.max(0, (Number(d.savesAccueil) || 0)    - somme('saves')),
+          shares:   Math.max(0, (Number(d.partagesAccueil) || 0) - somme('shares'))
+        };
+      });
 
       // Arrivée juste après une publication (accueil.html?pub=xxx&uid=yyy) : cette
       // publication s'affiche en tout premier — seulement si son auteur est un
@@ -2370,7 +2483,8 @@ function toggleSiteWidth(){
           ]);
           const auteurCible = userSnapCible.exists ? userSnapCible.data() : null;
           if (auteurCible && auteurCible.statut === 'verifie' && auteurCible.role !== 'visiteur' && pubSnapCible.exists) {
-            const pubCible = { id: pubSnapCible.id, ...pubSnapCible.data() };
+            const proCible = pros.find(x => x.id === uidCibleId);
+            const pubCible = (proCible && proCible.pubs.find(x => x.id === pubSnapCible.id)) || { id: pubSnapCible.id, ...pubSnapCible.data() };
             feed.insertAdjacentHTML('beforeend', creerCard(uidCibleId, auteurCible, indexRendu++, pubCible));
             window._carrouselCandidatsAcc.push({ index: indexRendu-1, uid: uidCibleId, data: auteurCible, publication: pubCible });
           }

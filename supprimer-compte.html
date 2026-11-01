@@ -215,7 +215,7 @@ window.supprimerCompte = async function () {
     await effacerRequete(db.collection('cv_professionnels').where('auteurUid', '==', uid));
     progres(55, 'Suppression de vos abonnements et notifications…');
     await effacerRequete(db.collection('abonnements').where('follower', '==', uid));
-    for (const sous of ['notifications', 'prive', 'photosProfil', 'commentairesAccueil', 'reactionsAccueil', 'sauvegardesAccueil', 'suivisActualite', 'suivisOffres']) {
+    for (const sous of ['notifications', 'prive', 'photosProfil', 'commentairesAccueil', 'reactionsAccueil', 'sauvegardesAccueil', 'mesReactionsPubs', 'suivisActualite', 'suivisOffres']) {
       await effacerRequete(moiRef.collection(sous));
     }
     // 3) Le profil lui-même.

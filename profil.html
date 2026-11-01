@@ -197,6 +197,9 @@
     .media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .media-item video { width: 100%; height: 100%; object-fit: cover; display: block; }
     .media-item .vid-badge { position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.6); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px; }
+    /* Nombre de vues de chaque publication (comme TikTok), en bas à gauche de la vignette */
+    .media-item .vues-pub { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 7px 6px; display: flex; align-items: center; gap: 4px; color: #fff; font-size: 12.5px; font-weight: 800; letter-spacing: .1px; text-shadow: 0 1px 3px rgba(0,0,0,.6); background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0)); pointer-events: none; }
+    .media-item .vues-pub svg { width: 14px; height: 14px; flex-shrink: 0; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
     .media-item .three-dots { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; line-height: 1; z-index: 5; }
     .media-item-add { aspect-ratio: 1; background: #f5f5f5; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
     .media-item-add:hover { border-color: var(--green); background: #f0fdf0; }
@@ -1512,10 +1515,29 @@
       items = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(it => !it.corbeille);
     } catch (e) { console.error('Chargement portfolio impossible :', e); }
     window._portfolioItems = items;
+    // Vues de chaque publication. Les vues d'avant le comptage par publication (gardées
+    // sur la personne) sont rattachées à sa première publication, comme dans l'Accueil.
+    const sommeVues = items.reduce((t, x) => t + (Number(x.vues) || 0), 0);
+    const anciennesVues = Math.max(0, (Number(userData && userData.vuesAccueil) || 0) - sommeVues);
+    items.forEach(x => { x._vues = Number(x.vues) || 0; });
+    if (items.length) items[items.length - 1]._vues += anciennesVues;
     const photos = items.filter(i => i.type === 'photo');
     const videos = items.filter(i => i.type === 'video');
     renderGridPhotos(photos, ownProfile);
     renderGridVideos(videos, ownProfile);
+  }
+
+  // 4 504 · 11,2 K · 1,3 M
+  function nombreCourt(n) {
+    n = Number(n) || 0;
+    if (n < 10000) return n.toLocaleString('fr-FR');
+    if (n < 1000000) return (Math.floor(n / 100) / 10).toFixed(1).replace('.', ',').replace(',0', '') + ' K';
+    return (Math.floor(n / 100000) / 10).toFixed(1).replace('.', ',').replace(',0', '') + ' M';
+  }
+  const ICO_LECTURE = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"><polygon points="7,4 20,12 7,20"/></svg>';
+  const ICO_OEIL = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  function htmlVues(item, video) {
+    return '<span class="vues-pub">' + (video ? ICO_LECTURE : ICO_OEIL) + nombreCourt(item._vues) + '</span>';
   }
 
   function renderGridPhotos(photos, ownProfile) {
@@ -1529,6 +1551,7 @@
         const div = document.createElement('div');
         div.className = 'media-item';
         div.innerHTML = `<img src="${item.url}" alt="${item.titre||''}" loading="lazy" onclick="ouvrirMedia(${realIndex})"/>
+          ${htmlVues(item, false)}
           <button class="three-dots" onclick="event.stopPropagation();ouvrirMenu(${realIndex})">⋮</button>`;
         grid.appendChild(div);
       });
@@ -1552,8 +1575,8 @@
         const realIndex = window._portfolioItems.indexOf(item);
         const div = document.createElement('div');
         div.className = 'media-item';
-        div.innerHTML = `<video src="${item.url}" muted preload="metadata" onclick="ouvrirMedia(${realIndex})"></video>
-          <span class="vid-badge">▶ Vidéo</span>
+        div.innerHTML = `<video src="${item.url}#t=0.1" muted playsinline preload="metadata" onloadedmetadata="try{this.currentTime=0.1}catch(e){}" onclick="ouvrirMedia(${realIndex})"></video>
+          ${htmlVues(item, true)}
           <button class="three-dots" onclick="event.stopPropagation();ouvrirMenu(${realIndex})">⋮</button>`;
         grid.appendChild(div);
       });
